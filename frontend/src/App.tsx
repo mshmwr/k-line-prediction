@@ -24,6 +24,7 @@ export default function App() {
   const [appliedData, setAppliedData] = useState<{ matches: MatchCase[]; stats: PredictStats | null }>({
     matches: [], stats: null
   })
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const { predict, loading } = usePrediction()
 
   const ohlcComplete = useMemo(() => ohlcData.every(isRowComplete), [ohlcData])
@@ -42,6 +43,50 @@ export default function App() {
     for (const id of tempSelection) if (!applied.has(id)) return true
     return false
   }, [tempSelection, appliedData])
+
+  function handleFileUpload(file: File) {
+    setUploadError(null)
+    if (file.type.startsWith('image/')) {
+      setUploadError('Image upload is not supported. Please upload a CSV file with columns: open, high, low, close.')
+      return
+    }
+    if (!file.name.endsWith('.csv')) {
+      setUploadError(`Unsupported file type: ${file.name}. Please upload a .csv file.`)
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string
+        const lines = text.trim().split('\n').filter(l => l.trim())
+        if (lines.length < 2) throw new Error('CSV must have a header row and at least one data row.')
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''))
+        const oIdx = headers.findIndex(h => h === 'open')
+        const hIdx = headers.findIndex(h => h === 'high')
+        const lIdx = headers.findIndex(h => h === 'low')
+        const cIdx = headers.findIndex(h => h === 'close')
+        if ([oIdx, hIdx, lIdx, cIdx].some(i => i === -1)) {
+          throw new Error(`Missing columns. Found: [${headers.join(', ')}]. Required: open, high, low, close.`)
+        }
+        const rows: OHLCRow[] = lines.slice(1).map((line, i) => {
+          const cols = line.split(',').map(c => c.trim().replace(/['"]/g, ''))
+          const o = cols[oIdx], h = cols[hIdx], lo = cols[lIdx], c = cols[cIdx]
+          if ([o, h, lo, c].some(v => v === undefined || isNaN(Number(v))))
+            throw new Error(`Row ${i + 2} has invalid values.`)
+          return { open: o, high: h, low: lo, close: c }
+        })
+        setN(rows.length)
+        setOhlcData(rows)
+        setMatches([])
+        setTempSelection(new Set())
+        setAppliedData({ matches: [], stats: null })
+      } catch (err) {
+        setUploadError((err as Error).message)
+      }
+    }
+    reader.onerror = () => setUploadError('Failed to read file.')
+    reader.readAsText(file)
+  }
 
   function handleNChange(newN: number) {
     setN(newN)
@@ -79,7 +124,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
-      <TopBar n={n} onNChange={handleNChange} onFileUpload={() => {}} />
+      <TopBar n={n} onNChange={handleNChange} onFileUpload={handleFileUpload} />
+      {uploadError && (
+        <div className="mx-4 mt-2 text-red-400 text-xs border border-red-700 rounded px-3 py-2 bg-red-950">
+          ✗ {uploadError}
+        </div>
+      )}
       <div className="flex flex-1 gap-4 p-4">
         <div className="w-80 flex flex-col gap-4">
           <OHLCEditor rows={ohlcData} onChange={handleCellChange} />
