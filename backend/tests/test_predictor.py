@@ -62,3 +62,38 @@ def test_compute_stats_baseline_is_median():
     stats = compute_stats(matches, current_close=2000.0)
     assert stats.baseline == statistics.median(future_closes)
     assert stats.optimistic >= stats.baseline >= stats.pessimistic
+
+from fastapi.testclient import TestClient
+from main import app
+
+client = TestClient(app)
+
+def test_predict_endpoint_happy_path():
+    payload = {
+        "ohlc_data": [
+            {"open": 2000+i, "high": 2010+i, "low": 1990+i, "close": 2005+i}
+            for i in range(15)
+        ],
+        "selected_ids": []
+    }
+    res = client.post("/api/predict", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data["matches"]) == 10
+    assert "stats" in data
+    assert "optimistic" in data["stats"]
+
+def test_predict_with_selected_ids_filters_matches():
+    payload = {
+        "ohlc_data": [
+            {"open": 2000+i, "high": 2010+i, "low": 1990+i, "close": 2005+i}
+            for i in range(15)
+        ],
+        "selected_ids": []
+    }
+    res = client.post("/api/predict", json=payload)
+    all_ids = [m["id"] for m in res.json()["matches"]]
+    keep_ids = all_ids[:3]
+
+    res2 = client.post("/api/predict", json={**payload, "selected_ids": keep_ids})
+    assert res2.status_code == 200
