@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import axios from 'axios'
 import { OHLCRow, MatchCase, PredictStats } from './types'
 import { OHLCEditor } from './components/OHLCEditor'
 import { TopBar } from './components/TopBar'
@@ -59,8 +60,10 @@ export default function App() {
       try {
         const text = e.target?.result as string
         const lines = text.trim().split('\n').filter(l => l.trim())
-        if (lines.length < 2) throw new Error('CSV must have a header row and at least one data row.')
-        const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''))
+        // Skip URL header line (CryptoDataDownload format)
+        const headerLineIdx = lines[0].trim().startsWith('http') ? 1 : 0
+        if (lines.length < headerLineIdx + 2) throw new Error('CSV must have a header row and at least one data row.')
+        const headers = lines[headerLineIdx].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''))
         const oIdx = headers.findIndex(h => h === 'open')
         const hIdx = headers.findIndex(h => h === 'high')
         const lIdx = headers.findIndex(h => h === 'low')
@@ -68,7 +71,7 @@ export default function App() {
         if ([oIdx, hIdx, lIdx, cIdx].some(i => i === -1)) {
           throw new Error(`Missing columns. Found: [${headers.join(', ')}]. Required: open, high, low, close.`)
         }
-        const rows: OHLCRow[] = lines.slice(1).map((line, i) => {
+        const rows: OHLCRow[] = lines.slice(headerLineIdx + 1).map((line, i) => {
           const cols = line.split(',').map(c => c.trim().replace(/['"]/g, ''))
           const o = cols[oIdx], h = cols[hIdx], lo = cols[lIdx], c = cols[cIdx]
           if ([o, h, lo, c].some(v => v === undefined || isNaN(Number(v))))
@@ -86,6 +89,24 @@ export default function App() {
     }
     reader.onerror = () => setUploadError('Failed to read file.')
     reader.readAsText(file)
+  }
+
+  async function handleUseExample() {
+    setUploadError(null)
+    try {
+      const res = await axios.get<{ rows: { open: number; high: number; low: number; close: number }[] }>(
+        '/api/example', { params: { n } }
+      )
+      const rows: OHLCRow[] = res.data.rows.map(r => ({
+        open: String(r.open), high: String(r.high), low: String(r.low), close: String(r.close),
+      }))
+      setOhlcData(rows)
+      setMatches([])
+      setTempSelection(new Set())
+      setAppliedData({ matches: [], stats: null })
+    } catch {
+      setUploadError('Failed to load example data. Is the backend running?')
+    }
   }
 
   function handleNChange(newN: number) {
@@ -124,7 +145,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
-      <TopBar n={n} onNChange={handleNChange} onFileUpload={handleFileUpload} />
+      <TopBar n={n} onNChange={handleNChange} onFileUpload={handleFileUpload} onUseExample={handleUseExample} />
       {uploadError && (
         <div className="mx-4 mt-2 text-red-400 text-xs border border-red-700 rounded px-3 py-2 bg-red-950">
           ✗ {uploadError}

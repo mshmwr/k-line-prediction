@@ -2,15 +2,22 @@ interface Props {
   n: number
   onNChange: (n: number) => void
   onFileUpload: (file: File) => void
+  onUseExample: () => void
 }
 
-export function TopBar({ n, onNChange, onFileUpload }: Props) {
+export function TopBar({ n, onNChange, onFileUpload, onUseExample }: Props) {
   return (
     <div className="flex items-center gap-4 px-4 py-3 bg-gray-900 border-b border-gray-700">
       <label className="flex-1 border-2 border-dashed border-gray-600 rounded text-gray-400 text-sm text-center py-2 cursor-pointer hover:border-orange-400 transition-colors">
-        Drop image/CSV or click to upload
+        Drop CSV or click to upload
         <input type="file" accept=".csv,image/*" className="hidden" onChange={e => { if (e.target.files?.[0]) onFileUpload(e.target.files[0]) }} />
       </label>
+      <button
+        onClick={onUseExample}
+        className="px-3 py-2 rounded text-sm bg-gray-700 text-yellow-300 hover:bg-gray-600 transition-colors whitespace-nowrap"
+      >
+        💡 Use Example Value
+      </button>
       <div className="flex items-center gap-2">
         <label className="text-gray-400 text-sm">N bars:</label>
         <input
