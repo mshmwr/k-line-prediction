@@ -6,7 +6,7 @@ export function usePrediction() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function predict(ohlcRows: OHLCRow[], selectedIds: string[]): Promise<PredictResponse | null> {
+  async function predict(ohlcRows: OHLCRow[], selectedIds: string[], timeframe: string = '1H'): Promise<PredictResponse | null> {
     setLoading(true)
     setError(null)
     try {
@@ -16,6 +16,7 @@ export function usePrediction() {
           low: Number(r.low), close: Number(r.close)
         })),
         selected_ids: selectedIds,
+        timeframe,
       })
       const raw = res.data
       const result: PredictResponse = {

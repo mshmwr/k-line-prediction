@@ -18,11 +18,12 @@ def pearson_correlation(a: List[float], b: List[float]) -> float:
 def _extract_closes(bars) -> List[float]:
     return [b['close'] if isinstance(b, dict) else b.close for b in bars]
 
-def find_top_matches(input_bars: List[OHLCBar], future_n: int = 10) -> List[MatchCase]:
+def find_top_matches(input_bars: List[OHLCBar], future_n: int = 10, history=None) -> List[MatchCase]:
+    if history is None:
+        history = MOCK_HISTORY
     n = len(input_bars)
     query_closes = z_score_normalize(_extract_closes(input_bars))
     results = []
-    history = MOCK_HISTORY
     for i in range(len(history) - n - future_n):
         window = history[i:i + n]
         window_closes = z_score_normalize(_extract_closes(window))

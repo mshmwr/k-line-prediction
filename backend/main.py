@@ -5,8 +5,15 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from models import PredictRequest, PredictResponse
 from predictor import find_top_matches, compute_stats
+from mock_data import MOCK_HISTORY, load_csv_history
 
-EXAMPLE_CSV_PATH = Path("/Users/yclee/Desktop/Binance_ETHUSDT_1h_test.csv")
+HISTORY_DB = Path(__file__).parent.parent / "history_database"
+HISTORY_1H_PATH = HISTORY_DB / "Binance_ETHUSDT_1h.csv"
+HISTORY_1D_PATH = HISTORY_DB / "Binance_ETHUSDT_d.csv"
+EXAMPLE_CSV_PATH = HISTORY_1H_PATH if HISTORY_1H_PATH.exists() else Path("/Users/yclee/Desktop/Binance_ETHUSDT_1h_test.csv")
+
+HISTORY_1H = load_csv_history(HISTORY_1H_PATH) if HISTORY_1H_PATH.exists() else MOCK_HISTORY
+HISTORY_1D = load_csv_history(HISTORY_1D_PATH) if HISTORY_1D_PATH.exists() else MOCK_HISTORY
 
 app = FastAPI()
 app.add_middleware(
@@ -46,7 +53,8 @@ def get_example(n: int = Query(default=5, ge=1, le=50)):
 
 @app.post("/api/predict", response_model=PredictResponse)
 def predict(req: PredictRequest) -> PredictResponse:
-    all_matches = find_top_matches(req.ohlc_data)
+    history = HISTORY_1D if req.timeframe == "1D" else HISTORY_1H
+    all_matches = find_top_matches(req.ohlc_data, history=history)
     if req.selected_ids:
         active = [m for m in all_matches if m.id in req.selected_ids]
         if not active:

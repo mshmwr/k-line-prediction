@@ -27,6 +27,7 @@ export default function App() {
     matches: [], stats: null, inputs: []
   })
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [timeframe, setTimeframe] = useState<'1H' | '1D'>('1H')
   const { predict, loading } = usePrediction()
 
   const ohlcComplete = useMemo(() => ohlcData.every(isRowComplete), [ohlcData])
@@ -100,6 +101,7 @@ export default function App() {
         const lIdx = headers.findIndex(h => h === 'low')
         const cIdx = headers.findIndex(h => h === 'close')
         if ([oIdx, hIdx, lIdx, cIdx].some(i => i === -1)) {
+          alert('Invalid CSV format. Please use the template.')
           throw new Error(`Missing columns. Found: [${headers.join(', ')}]. Required: open, high, low, close.`)
         }
         const rows: OHLCRow[] = lines.slice(headerLineIdx + 1).map((line, i) => {
@@ -109,6 +111,15 @@ export default function App() {
             throw new Error(`Row ${i + 2} has invalid values.`)
           return { open: o, high: h, low: lo, close: c }
         })
+        // Auto-detect timeframe from Unix timestamp column
+        const unixIdx = headers.findIndex(h => h === 'unix')
+        if (unixIdx !== -1 && lines.length > headerLineIdx + 2) {
+          const t0 = parseFloat(lines[headerLineIdx + 1].split(',')[unixIdx] ?? '0')
+          const t1 = parseFloat(lines[headerLineIdx + 2].split(',')[unixIdx] ?? '0')
+          const diffSec = Math.abs(t0 - t1) / 1000
+          if (diffSec > 3000 && diffSec < 4200) setTimeframe('1H')
+          else if (diffSec > 80000 && diffSec < 93000) setTimeframe('1D')
+        }
         setN(rows.length)
         setOhlcData(rows)
         setMatches([])
@@ -137,7 +148,7 @@ export default function App() {
       setTempSelection(new Set())
       setAppliedSelection(new Set())
       setAppliedData({ matches: [], stats: null, inputs: [] })
-      const result = await predict(rows, [])
+      const result = await predict(rows, [], timeframe)
       if (!result) return
       const allIds = new Set(result.matches.map(m => m.id))
       setMatches(result.matches)
@@ -178,7 +189,7 @@ export default function App() {
       return
     }
     // Scenario A: new inputs — re-run matching, reset to select all
-    const result = await predict(ohlcData, [])
+    const result = await predict(ohlcData, [], timeframe)
     if (!result) return
     const allIds = new Set(result.matches.map(m => m.id))
     setMatches(result.matches)
@@ -199,6 +210,26 @@ export default function App() {
         {/* Left sidebar: editor → compact chart → predict button */}
         <div className="w-80 flex flex-col gap-4">
           <OHLCEditor rows={ohlcData} onChange={handleCellChange} />
+          <div className="flex flex-col gap-1">
+            <div className="flex rounded overflow-hidden border border-gray-700">
+              {(['1H', '1D'] as const).map(tf => (
+                <button
+                  key={tf}
+                  onClick={() => setTimeframe(tf)}
+                  className={`flex-1 py-1.5 text-sm font-medium transition-colors ${
+                    timeframe === tf
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  }`}
+                >
+                  {tf}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500">
+              Reference: {timeframe === '1H' ? 'Binance ETHUSDT 1H' : 'Binance ETHUSDT 1D'}
+            </p>
+          </div>
           <MainChart userOhlc={ohlcData} appliedMatches={appliedData.matches} height={160} />
           <PredictButton
             disabled={!!disabledReason}
