@@ -22,8 +22,9 @@ export default function App() {
   )
   const [matches, setMatches] = useState<MatchCase[]>([])
   const [tempSelection, setTempSelection] = useState<Set<string>>(new Set())
-  const [appliedData, setAppliedData] = useState<{ matches: MatchCase[]; stats: PredictStats | null }>({
-    matches: [], stats: null
+  const [appliedSelection, setAppliedSelection] = useState<Set<string>>(new Set())
+  const [appliedData, setAppliedData] = useState<{ matches: MatchCase[]; stats: PredictStats | null; inputs: OHLCRow[] }>({
+    matches: [], stats: null, inputs: []
   })
   const [uploadError, setUploadError] = useState<string | null>(null)
   const { predict, loading } = usePrediction()
@@ -39,7 +40,7 @@ export default function App() {
 
   const displayStats = useMemo(() => {
     if (!appliedData.stats) return null
-    const activeMatches = appliedData.matches.filter(m => tempSelection.has(m.id))
+    const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
     if (activeMatches.length === 0) return appliedData.stats
     const corrs = activeMatches.map(m => m.correlation).filter((v): v is number => v != null)
     const meanCorrelation = corrs.length > 0
@@ -66,15 +67,14 @@ export default function App() {
         : futureCloses[mid])
       : appliedData.stats.baseline
     return { meanCorrelation, winRate, optimistic, pessimistic, baseline }
-  }, [appliedData, tempSelection])
+  }, [appliedData, appliedSelection])
 
   const isDirty = useMemo(() => {
     if (!appliedData.stats) return false
-    const applied = new Set(appliedData.matches.map(m => m.id))
-    if (applied.size !== tempSelection.size) return true
-    for (const id of tempSelection) if (!applied.has(id)) return true
+    if (appliedSelection.size !== tempSelection.size) return true
+    for (const id of tempSelection) if (!appliedSelection.has(id)) return true
     return false
-  }, [tempSelection, appliedData])
+  }, [tempSelection, appliedSelection, appliedData.stats])
 
   function handleFileUpload(file: File) {
     setUploadError(null)
@@ -113,7 +113,8 @@ export default function App() {
         setOhlcData(rows)
         setMatches([])
         setTempSelection(new Set())
-        setAppliedData({ matches: [], stats: null })
+        setAppliedSelection(new Set())
+        setAppliedData({ matches: [], stats: null, inputs: [] })
       } catch (err) {
         setUploadError((err as Error).message)
       }
@@ -134,12 +135,15 @@ export default function App() {
       setOhlcData(rows)
       setMatches([])
       setTempSelection(new Set())
-      setAppliedData({ matches: [], stats: null })
+      setAppliedSelection(new Set())
+      setAppliedData({ matches: [], stats: null, inputs: [] })
       const result = await predict(rows, [])
       if (!result) return
+      const allIds = new Set(result.matches.map(m => m.id))
       setMatches(result.matches)
-      setTempSelection(new Set(result.matches.map(m => m.id)))
-      setAppliedData({ matches: result.matches, stats: result.stats })
+      setTempSelection(allIds)
+      setAppliedSelection(allIds)
+      setAppliedData({ matches: result.matches, stats: result.stats, inputs: rows })
     } catch {
       setUploadError('Failed to load example data. Is the backend running?')
     }
@@ -150,7 +154,8 @@ export default function App() {
     setOhlcData(Array.from({ length: newN }, () => ({ open: '', high: '', low: '', close: '' })))
     setMatches([])
     setTempSelection(new Set())
-    setAppliedData({ matches: [], stats: null })
+    setAppliedSelection(new Set())
+    setAppliedData({ matches: [], stats: null, inputs: [] })
   }
 
   function handleCellChange(rowIdx: number, field: keyof OHLCRow, value: string) {
@@ -166,17 +171,20 @@ export default function App() {
   }
 
   async function handlePredict() {
-    if (matches.length > 0) {
-      // Matches already loaded for this input — just sync selection, no API call
-      const activeMatches = matches.filter(m => tempSelection.has(m.id))
-      setAppliedData(prev => ({ ...prev, matches: activeMatches }))
+    const inputsChanged = JSON.stringify(ohlcData) !== JSON.stringify(appliedData.inputs)
+    if (!inputsChanged && appliedData.stats) {
+      // Scenario B: same inputs, only selection changed — sync without re-running API
+      setAppliedSelection(new Set(tempSelection))
       return
     }
+    // Scenario A: new inputs — re-run matching, reset to select all
     const result = await predict(ohlcData, [])
     if (!result) return
+    const allIds = new Set(result.matches.map(m => m.id))
     setMatches(result.matches)
-    setTempSelection(new Set(result.matches.map(m => m.id)))
-    setAppliedData({ matches: result.matches, stats: result.stats })
+    setTempSelection(allIds)
+    setAppliedSelection(allIds)
+    setAppliedData({ matches: result.matches, stats: result.stats, inputs: ohlcData })
   }
 
   return (
@@ -207,7 +215,7 @@ export default function App() {
           </div>
           <div className="flex-shrink-0">
             <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>
-            <StatsPanel stats={displayStats} isDirty={isDirty} selectedCount={tempSelection.size} totalCount={matches.length} />
+            <StatsPanel stats={displayStats} isDirty={isDirty} selectedCount={appliedSelection.size} totalCount={matches.length} />
           </div>
         </div>
       </div>
