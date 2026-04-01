@@ -37,6 +37,23 @@ export default function App() {
     return null
   }, [ohlcComplete, hasSelection, matches.length])
 
+  const displayStats = useMemo(() => {
+    if (!appliedData.stats) return null
+    if (appliedData.matches.length === 0) return appliedData.stats
+    const corrs = appliedData.matches.map(m => m.correlation).filter((v): v is number => v != null)
+    const meanCorrelation = corrs.length > 0
+      ? corrs.reduce((a, b) => a + b, 0) / corrs.length
+      : appliedData.stats.meanCorrelation
+    const wins = appliedData.matches.filter(m => {
+      const hist = m.historicalOhlc
+      const fut = m.futureOhlc
+      if (!hist?.length || !fut?.length) return false
+      return fut[fut.length - 1].close > hist[hist.length - 1].close
+    })
+    const winRate = wins.length / appliedData.matches.length
+    return { ...appliedData.stats, meanCorrelation, winRate }
+  }, [appliedData])
+
   const isDirty = useMemo(() => {
     if (!appliedData.stats) return false
     const applied = new Set(appliedData.matches.map(m => m.id))
@@ -104,6 +121,11 @@ export default function App() {
       setMatches([])
       setTempSelection(new Set())
       setAppliedData({ matches: [], stats: null })
+      const result = await predict(rows, [])
+      if (!result) return
+      setMatches(result.matches)
+      setTempSelection(new Set(result.matches.map(m => m.id)))
+      setAppliedData({ matches: result.matches, stats: result.stats })
     } catch {
       setUploadError('Failed to load example data. Is the backend running?')
     }
@@ -130,18 +152,18 @@ export default function App() {
   }
 
   async function handlePredict() {
-    const selectedIds = matches.length > 0 ? [...tempSelection] : []
-    const result = await predict(ohlcData, selectedIds)
+    if (matches.length > 0) {
+      // Matches already loaded for this input — just sync selection, no API call
+      const activeMatches = matches.filter(m => tempSelection.has(m.id))
+      setAppliedData(prev => ({ ...prev, matches: activeMatches }))
+      return
+    }
+    const result = await predict(ohlcData, [])
     if (!result) return
     setMatches(result.matches)
-    const activeMatches = selectedIds.length > 0
-      ? result.matches.filter(m => selectedIds.includes(m.id))
-      : result.matches
     setTempSelection(new Set(result.matches.map(m => m.id)))
-    setAppliedData({ matches: activeMatches, stats: result.stats })
+    setAppliedData({ matches: result.matches, stats: result.stats })
   }
-
-  const displayMatches = appliedData.matches.length > 0 ? appliedData.matches : matches
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
@@ -151,9 +173,11 @@ export default function App() {
           ✗ {uploadError}
         </div>
       )}
-      <div className="flex flex-1 gap-4 p-4">
+      <div className="flex flex-1 gap-4 p-4 min-h-0">
+        {/* Left sidebar: editor → compact chart → predict button */}
         <div className="w-80 flex flex-col gap-4">
           <OHLCEditor rows={ohlcData} onChange={handleCellChange} />
+          <MainChart userOhlc={ohlcData} appliedMatches={appliedData.matches} height={160} />
           <PredictButton
             disabled={!!disabledReason}
             disabledReason={disabledReason}
@@ -161,18 +185,16 @@ export default function App() {
             loading={loading}
           />
         </div>
-        <div className="flex-1">
-          <MainChart userOhlc={ohlcData} appliedMatches={displayMatches} />
-        </div>
-      </div>
-      <div className="flex gap-4 p-4 border-t border-gray-800">
-        <div className="w-80">
-          <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Match List</h3>
-          <MatchList matches={matches} selected={tempSelection} onToggle={handleToggle} />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>
-          <StatsPanel stats={appliedData.stats} isDirty={isDirty} />
+        {/* Right panel: match list (top) + statistics (bottom) */}
+        <div className="flex-1 flex flex-col gap-4 min-h-0">
+          <div className="flex-1 min-h-0 flex flex-col">
+            <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider flex-shrink-0">Match List</h3>
+            <MatchList matches={matches} selected={tempSelection} onToggle={handleToggle} />
+          </div>
+          <div className="flex-shrink-0">
+            <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>
+            <StatsPanel stats={displayStats} isDirty={isDirty} />
+          </div>
         </div>
       </div>
     </div>

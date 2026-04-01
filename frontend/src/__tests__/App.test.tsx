@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
+import axios from 'axios'
 import App from '../App'
 
 vi.mock('axios', () => ({
@@ -7,7 +8,15 @@ vi.mock('axios', () => ({
     post: vi.fn().mockResolvedValue({
       data: {
         matches: [
-          { id: 'm1', correlation: 0.95, historicalOhlc: [], futureOhlc: [{ open: 2100, high: 2120, low: 2090, close: 2110 }], startDate: '2023-01-01' },
+          {
+            id: 'm1', correlation: 0.95,
+            historicalOhlc: [
+              { open: 1985, high: 1993, low: 1980, close: 1992 },
+              { open: 1992, high: 2000, low: 1988, close: 1997 },
+            ],
+            futureOhlc: [{ open: 2100, high: 2120, low: 2090, close: 2110 }],
+            startDate: '2023-01-01',
+          },
         ],
         stats: { optimistic: 2200, baseline: 2100, pessimistic: 1900, winRate: 0.7, meanCorrelation: 0.95 }
       }
@@ -122,4 +131,111 @@ test('Use Example Value fills editor and enables predict button', async () => {
     expect(screen.getAllByPlaceholderText('Open')[0]).toHaveValue('1985.51')
   })
   expect(screen.getByRole('button', { name: /start prediction/i })).not.toBeDisabled()
+})
+
+test('Use Example Value auto-triggers prediction and renders MatchCard elements in DOM', async () => {
+  render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: /use example value/i }))
+
+  await waitFor(() => {
+    // MatchCard for m1 must be visible in the document
+    expect(screen.getByText('r = 0.9500')).toBeInTheDocument()
+  })
+  // Checkbox for the match card must also be present
+  expect(screen.getByRole('checkbox')).toBeInTheDocument()
+})
+
+test('MainChart container remains in DOM after Use Example Value (no crash / blank screen)', async () => {
+  const { container } = render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: /use example value/i }))
+
+  await waitFor(() => {
+    expect(screen.getAllByPlaceholderText('Open')[0]).toHaveValue('1985.51')
+  })
+
+  // Pure SVG chart must be present
+  expect(container.querySelector('[data-testid="main-chart-svg"]')).toBeInTheDocument()
+  // Top-level app shell must not have been replaced by an error screen
+  expect(container.querySelector('[class*="bg-gray-950"]')).toBeInTheDocument()
+})
+
+test('MainChart renders candlestick rects after prediction', async () => {
+  const { container } = render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: /use example value/i }))
+
+  await waitFor(() => {
+    expect(screen.getByText('r = 0.9500')).toBeInTheDocument()
+  })
+
+  // SVG rect elements exist (candle bodies) — user candles + forecast candle
+  const rects = container.querySelectorAll('[data-testid="main-chart-svg"] rect')
+  expect(rects.length).toBeGreaterThan(0)
+})
+
+// ── TDD: State preservation ───────────────────────────────────────────────────
+
+test('unchecking 2 of 3 matches then clicking Start Prediction keeps them unchecked', async () => {
+  vi.mocked(axios.post).mockResolvedValueOnce({
+    data: {
+      matches: [
+        { id: 'm1', correlation: 0.95, historicalOhlc: [{ open: 100, high: 110, low: 90, close: 105 }], futureOhlc: [{ open: 105, high: 115, low: 100, close: 110 }], startDate: '2023-01-01' },
+        { id: 'm2', correlation: 0.85, historicalOhlc: [{ open: 100, high: 110, low: 90, close: 105 }], futureOhlc: [{ open: 105, high: 115, low: 100, close: 110 }], startDate: '2023-02-01' },
+        { id: 'm3', correlation: 0.75, historicalOhlc: [{ open: 100, high: 110, low: 90, close: 105 }], futureOhlc: [{ open: 105, high: 115, low: 100, close: 110 }], startDate: '2023-03-01' },
+      ],
+      stats: { optimistic: 2200, baseline: 2100, pessimistic: 1900, winRate: 0.7, meanCorrelation: 0.85 }
+    }
+  })
+
+  render(<App />)
+
+  // Fill all 5 rows to enable button
+  for (let i = 0; i < 5; i++) {
+    fireEvent.change(screen.getAllByPlaceholderText('Open')[i], { target: { value: String(2000 + i) } })
+    fireEvent.change(screen.getAllByPlaceholderText('High')[i], { target: { value: String(2010 + i) } })
+    fireEvent.change(screen.getAllByPlaceholderText('Low')[i], { target: { value: String(1990 + i) } })
+    fireEvent.change(screen.getAllByPlaceholderText('Close')[i], { target: { value: String(2005 + i) } })
+  }
+
+  // First predict — API returns 3 matches
+  fireEvent.click(screen.getByRole('button', { name: /start prediction/i }))
+  await waitFor(() => expect(screen.getAllByRole('checkbox')).toHaveLength(3))
+
+  // All 3 should be checked
+  let boxes = screen.getAllByRole('checkbox')
+  expect(boxes[0]).toBeChecked()
+  expect(boxes[1]).toBeChecked()
+  expect(boxes[2]).toBeChecked()
+
+  // Uncheck m2 (index 1) and m3 (index 2)
+  fireEvent.click(boxes[1])
+  fireEvent.click(boxes[2])
+  expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked()
+  expect(screen.getAllByRole('checkbox')[2]).not.toBeChecked()
+
+  // Second predict — should NOT reset checkboxes
+  fireEvent.click(screen.getByRole('button', { name: /start prediction/i }))
+
+  // Wait for any async work to settle (button must not be in "Predicting..." state)
+  await waitFor(() => expect(screen.queryByText(/predicting/i)).not.toBeInTheDocument())
+
+  // All 3 match cards must still be in DOM, m2 and m3 must stay unchecked
+  const b = screen.getAllByRole('checkbox')
+  expect(b).toHaveLength(3)          // all 3 matches still present
+  expect(b[0]).toBeChecked()         // m1 still checked
+  expect(b[1]).not.toBeChecked()     // m2 still unchecked
+  expect(b[2]).not.toBeChecked()     // m3 still unchecked
+})
+
+test('MatchList items show mini-chart thumbnails and dates after prediction', async () => {
+  const { container } = render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: /use example value/i }))
+
+  await waitFor(() => {
+    expect(screen.getByText('r = 0.9500')).toBeInTheDocument()
+  })
+
+  // Each match card must have an SVG mini-chart
+  expect(container.querySelector('[data-testid="mini-chart"]')).toBeInTheDocument()
+  // Date must be visible
+  expect(screen.getByText('2023-01-01')).toBeInTheDocument()
 })
