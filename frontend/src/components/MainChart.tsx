@@ -1,139 +1,85 @@
-import { useRef, useState, useEffect } from 'react'
-import { OHLCRow, MatchCase } from '../types'
+import { useRef, useEffect } from 'react'
+import { createChart, IChartApi, UTCTimestamp, CandlestickSeries } from 'lightweight-charts'
+import { OHLCRow } from '../types'
 
 interface Props {
   userOhlc: OHLCRow[]
-  appliedMatches: MatchCase[]
-  height?: number
+  timeframe: '1H' | '1D'
 }
 
-export function MainChart({ userOhlc, appliedMatches, height = 300 }: Props) {
+type CandleTime = UTCTimestamp | string
+
+function toTime(t: string, timeframe: '1H' | '1D'): CandleTime {
+  if (timeframe === '1D') return t.substring(0, 10)           // "YYYY-MM-DD"
+  const s = t.includes(' ') ? t.replace(' ', 'T') + 'Z' : t + 'Z'
+  return Math.floor(new Date(s).getTime() / 1000) as UTCTimestamp
+}
+
+function sortData<T extends { time: CandleTime }>(data: T[]): T[] {
+  return [...data].sort((a, b) =>
+    typeof a.time === 'number' ? (a.time as number) - (b.time as number)
+    : new Date(a.time as string).getTime() - new Date(b.time as string).getTime()
+  )
+}
+
+function isRowComplete(r: OHLCRow) {
+  return r.time !== '' && (['open', 'high', 'low', 'close'] as const).every(
+    f => r[f] !== '' && !isNaN(Number(r[f]))
+  )
+}
+
+export function MainChart({ userOhlc, timeframe }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(600)
+  const chartRef = useRef<IChartApi | null>(null)
+  const seriesRef = useRef<ReturnType<IChartApi['addSeries']> | null>(null)
 
   useEffect(() => {
+    if (!containerRef.current) return
     const el = containerRef.current
-    if (!el) return
-    const ro = new ResizeObserver(entries => {
-      setWidth(entries[0].contentRect.width)
+    const chart = createChart(el, {
+      width: el.clientWidth,
+      height: el.clientHeight,
+      layout: { background: { color: '#111827' }, textColor: '#9ca3af' },
+      grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
+      crosshair: { mode: 1 },
+      rightPriceScale: { borderColor: '#374151' },
+      timeScale: { borderColor: '#374151', timeVisible: true },
+    })
+    chartRef.current = chart
+    seriesRef.current = chart.addSeries(CandlestickSeries, {
+      upColor: '#22c55e', downColor: '#ef4444',
+      borderUpColor: '#22c55e', borderDownColor: '#ef4444',
+      wickUpColor: '#22c55e', wickDownColor: '#ef4444',
+    })
+
+    const ro = new ResizeObserver(() => {
+      chart.applyOptions({ width: el.clientWidth, height: el.clientHeight })
     })
     ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
 
-  const userCandles = userOhlc
-    .filter(r => r.close !== '' && !isNaN(Number(r.close)))
-    .map(r => ({
-      open: +r.open, high: +r.high, low: +r.low, close: +r.close,
-      type: 'user' as const,
-    }))
+    return () => { ro.disconnect(); chart.remove(); chartRef.current = null; seriesRef.current = null }
+  }, [timeframe]) // remount on timeframe switch to get clean chart instance
 
-  const futureCandles = (appliedMatches[0]?.futureOhlc ?? []).map(c => ({
-    ...c, type: 'forecast' as const,
-  }))
+  useEffect(() => {
+    if (!seriesRef.current) return
+    const raw = userOhlc
+      .filter(isRowComplete)
+      .map(r => ({ time: toTime(r.time, timeframe), open: +r.open, high: +r.high, low: +r.low, close: +r.close }))
+    const data = sortData(raw)
+    seriesRef.current.setData(data)
+    if (data.length > 0) chartRef.current?.timeScale().fitContent()
+  }, [userOhlc, timeframe])
 
-  const allCandles = [...userCandles, ...futureCandles]
-  const splitIdx = userCandles.length
-
-  const H = height
-  const pad = { t: 20, b: 28, l: 56, r: 12 }
-  const chartH = H - pad.t - pad.b
-  const chartW = width - pad.l - pad.r
-
-  if (allCandles.length === 0) {
-    return (
-      <div ref={containerRef} className="w-full bg-gray-900 rounded" style={{ height: H }}>
-        <div className="flex items-center justify-center h-full text-gray-600 text-sm">
-          Enter OHLC data to see chart
-        </div>
-      </div>
-    )
-  }
-
-  const yMax = Math.max(...allCandles.map(c => c.high))
-  const yMin = Math.min(...allCandles.map(c => c.low))
-  const yPad = (yMax - yMin) * 0.06 || 1
-  const domainMax = yMax + yPad
-  const domainMin = yMin - yPad
-  const yRange = domainMax - domainMin
-
-  const toY = (v: number) => pad.t + chartH * (1 - (v - domainMin) / yRange)
-  const colW = chartW / allCandles.length
-  const candleW = Math.max(2, colW - 2)
-  const toX = (i: number) => pad.l + (i + 0.5) * colW
-  const splitX = pad.l + splitIdx * colW
-
-  const yTicks = Array.from({ length: 5 }, (_, i) => domainMin + (yRange * i) / 4)
+  const hasData = userOhlc.some(isRowComplete)
 
   return (
-    <div ref={containerRef} className="w-full bg-gray-900 rounded" style={{ height: H }}>
-      <svg data-testid="main-chart-svg" width={width} height={H}>
-        {/* Grid lines */}
-        {yTicks.map((v, i) => (
-          <line
-            key={i}
-            x1={pad.l} x2={width - pad.r}
-            y1={toY(v)} y2={toY(v)}
-            stroke="#374151" strokeWidth={0.5}
-          />
-        ))}
-
-        {/* Y axis labels */}
-        {yTicks.map((v, i) => (
-          <text
-            key={i}
-            x={pad.l - 4} y={toY(v)}
-            textAnchor="end" dominantBaseline="middle"
-            fontSize={10} fill="#9ca3af"
-          >
-            {v.toFixed(0)}
-          </text>
-        ))}
-
-        {/* Candlesticks */}
-        {allCandles.map((c, i) => {
-          const bullish = c.close >= c.open
-          const isForecast = c.type === 'forecast'
-          const color = isForecast
-            ? (bullish ? '#86efac' : '#fca5a5')
-            : (bullish ? '#22c55e' : '#ef4444')
-          const cx = toX(i)
-          const yHigh = toY(c.high)
-          const yLow = toY(c.low)
-          const yTop = toY(Math.max(c.open, c.close))
-          const yBot = toY(Math.min(c.open, c.close))
-          const bodyH = Math.max(1, yBot - yTop)
-
-          return (
-            <g key={i}>
-              <line x1={cx} x2={cx} y1={yHigh} y2={yLow} stroke={color} strokeWidth={1} />
-              <rect x={cx - candleW / 2} y={yTop} width={candleW} height={bodyH} fill={color} />
-            </g>
-          )
-        })}
-
-        {/* Orange dashed "Now" split line */}
-        {splitIdx > 0 && futureCandles.length > 0 && (
-          <g>
-            <line
-              x1={splitX} x2={splitX}
-              y1={pad.t} y2={H - pad.b}
-              stroke="#f97316" strokeDasharray="6 3" strokeWidth={1.5}
-            />
-            <text x={splitX + 4} y={pad.t + 10} fontSize={10} fill="#f97316">Now</text>
-          </g>
-        )}
-
-        {/* Legend */}
-        <rect x={pad.l} y={H - pad.b + 7} width={8} height={8} fill="#22c55e" />
-        <text x={pad.l + 12} y={H - pad.b + 15} fontSize={10} fill="#9ca3af">Current</text>
-        {futureCandles.length > 0 && (
-          <>
-            <rect x={pad.l + 68} y={H - pad.b + 7} width={8} height={8} fill="#86efac" />
-            <text x={pad.l + 80} y={H - pad.b + 15} fontSize={10} fill="#9ca3af">Forecast</text>
-          </>
-        )}
-      </svg>
+    <div className="relative w-full h-full bg-gray-900 rounded overflow-hidden">
+      {!hasData && (
+        <div className="absolute inset-0 flex items-center justify-center text-gray-600 text-sm pointer-events-none">
+          Enter OHLC data to see chart
+        </div>
+      )}
+      <div ref={containerRef} className="w-full h-full" />
     </div>
   )
 }

@@ -17,6 +17,7 @@ function isRowComplete(row: OHLCRow): boolean {
 
 export default function App() {
   const [n, setN] = useState(5)
+  const [jsonText, setJsonText] = useState('')
   const [ohlcData, setOhlcData] = useState<OHLCRow[]>(() =>
     Array.from({ length: 5 }, () => ({ open: '', high: '', low: '', close: '', time: '' }))
   )
@@ -207,17 +208,82 @@ export default function App() {
     setAppliedData({ matches: result.matches, stats: result.stats, inputs: ohlcData })
   }
 
+  function handleJsonImport() {
+    try {
+      const parsed = JSON.parse(jsonText)
+      if (!Array.isArray(parsed)) throw new Error('Expected a JSON array')
+      const rows: OHLCRow[] = parsed.slice(0, n).map((item: Record<string, unknown>, i: number) => {
+        const o = String(item.open ?? ''), h = String(item.high ?? '')
+        const l = String(item.low ?? ''), c = String(item.close ?? '')
+        const t = String(item.time ?? '')
+        if ([o, h, l, c].some(v => isNaN(Number(v)))) throw new Error(`Row ${i + 1} has invalid values`)
+        return { open: o, high: h, low: l, close: c, time: t }
+      })
+      setOhlcData(rows)
+      setMatches([])
+      setTempSelection(new Set())
+      setAppliedSelection(new Set())
+      setAppliedData({ matches: [], stats: null, inputs: [] })
+      setUploadError(null)
+      setJsonText('')
+    } catch (err) {
+      setUploadError(`JSON parse error: ${(err as Error).message}`)
+    }
+  }
+
+  function handleCopyPrompt() {
+    navigator.clipboard.writeText(
+      'Please format my data into this JSON structure for a K-Line Predictor:\n[{"time": "2024-01-01", "open": 2000, "high": 2100, "low": 1950, "close": 2050}, ...]'
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
-      <TopBar n={n} onNChange={handleNChange} onFileUpload={handleFileUpload} onUseExample={handleUseExample} />
+    <div className="h-screen bg-gray-950 text-gray-100 flex flex-col overflow-hidden">
+      <TopBar n={n} onNChange={handleNChange} onUseExample={handleUseExample} />
       {uploadError && (
-        <div className="mx-4 mt-2 text-red-400 text-xs border border-red-700 rounded px-3 py-2 bg-red-950">
+        <div className="mx-4 mt-1 text-red-400 text-xs border border-red-700 rounded px-3 py-1.5 bg-red-950 flex-shrink-0">
           ✗ {uploadError}
         </div>
       )}
-      <div className="flex flex-1 gap-4 p-4 min-h-0">
-        {/* Left sidebar: editor → compact chart → predict button */}
-        <div className="w-80 flex flex-col gap-4">
+      <div className="flex flex-1 gap-4 px-4 pb-4 pt-3 min-h-0">
+        {/* Left sidebar */}
+        <div className="w-80 flex flex-col gap-3">
+          {/* TOP: 2-column Data Sources */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Left: CSV Upload */}
+            <label className="flex items-center justify-center border-2 border-dashed border-gray-600 rounded text-gray-400 text-xs text-center px-2 cursor-pointer hover:border-orange-400 transition-colors min-h-[100px]">
+              Drop CSV or click to upload
+              <input type="file" accept=".csv,image/*" className="hidden" onChange={e => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0]) }} />
+            </label>
+            {/* Right: JSON Import */}
+            <div className="flex flex-col gap-1 min-h-[100px]">
+              <textarea
+                className="flex-1 bg-gray-800 text-gray-200 rounded px-2 py-1 text-xs resize-none focus:outline-none focus:ring-1 focus:ring-orange-400 font-mono placeholder-gray-600"
+                placeholder={'[{"time":"...","open":0,...}]'}
+                value={jsonText}
+                onChange={e => setJsonText(e.target.value)}
+              />
+              <div className="flex gap-1">
+                <button
+                  onClick={handleJsonImport}
+                  className="flex-1 text-xs py-1 rounded bg-orange-600 text-white hover:bg-orange-500 transition-colors"
+                >
+                  Import JSON
+                </button>
+                <button
+                  onClick={handleCopyPrompt}
+                  className="flex-1 text-xs py-1 rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+                >
+                  Copy Prompt
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-700" />
+
+          {/* BOTTOM: OHLC Table */}
           <OHLCEditor rows={ohlcData} timeframe={timeframe} onChange={handleCellChange} />
           <div className="flex flex-col gap-1">
             <div className="flex rounded overflow-hidden border border-gray-700">
@@ -239,7 +305,9 @@ export default function App() {
               Reference: {timeframe === '1H' ? 'Binance ETHUSDT 1H' : 'Binance ETHUSDT 1D'}
             </p>
           </div>
-          <MainChart userOhlc={ohlcData} appliedMatches={appliedData.matches} height={160} />
+          <div className="flex-1 min-h-0">
+            <MainChart userOhlc={ohlcData} timeframe={timeframe} />
+          </div>
           <PredictButton
             disabled={!!disabledReason}
             disabledReason={disabledReason}
