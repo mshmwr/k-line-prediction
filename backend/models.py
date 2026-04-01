@@ -24,6 +24,9 @@ class PredictStats(BaseModel):
     optimistic: float
     baseline: float
     pessimistic: float
+    optimistic_pct: float
+    baseline_pct: float
+    pessimistic_pct: float
     win_rate: float
     mean_correlation: float
 

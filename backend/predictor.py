@@ -44,13 +44,24 @@ def find_top_matches(input_bars: List[OHLCBar], future_n: int = 10, history=None
     return matches
 
 def compute_stats(matches: List[MatchCase], current_close: float) -> PredictStats:
-    future_closes = [m.future_ohlc[-1].close for m in matches]
+    pct_changes = []
+    for m in matches:
+        base_price = m.historical_ohlc[-1].close
+        future_close = m.future_ohlc[-1].close
+        pct_changes.append((future_close - base_price) / base_price)
     corrs = [m.correlation for m in matches]
-    wins = [fc for fc in future_closes if fc > current_close]
+    opt_pct = max(pct_changes)
+    pes_pct = min(pct_changes)
+    base_pct = statistics.median(pct_changes)
+    projected = [current_close * (1 + p) for p in pct_changes]
+    wins = [p for p in projected if p > current_close]
     return PredictStats(
-        optimistic=round(max(future_closes), 2),
-        baseline=round(statistics.median(future_closes), 2),
-        pessimistic=round(min(future_closes), 2),
-        win_rate=round(len(wins) / len(future_closes), 4),
+        optimistic=round(current_close * (1 + opt_pct), 2),
+        baseline=round(current_close * (1 + base_pct), 2),
+        pessimistic=round(current_close * (1 + pes_pct), 2),
+        optimistic_pct=round(opt_pct * 100, 2),
+        baseline_pct=round(base_pct * 100, 2),
+        pessimistic_pct=round(pes_pct * 100, 2),
+        win_rate=round(len(wins) / len(projected), 4),
         mean_correlation=round(statistics.mean(corrs), 4)
     )

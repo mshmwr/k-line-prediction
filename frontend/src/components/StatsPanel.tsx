@@ -18,13 +18,16 @@ export function StatsPanel({ stats, isDirty, selectedCount, totalCount }: Props)
       )}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { label: 'Optimistic', value: stats.optimistic, color: 'text-green-400' },
-          { label: 'Baseline', value: stats.baseline, color: 'text-blue-300' },
-          { label: 'Pessimistic', value: stats.pessimistic, color: 'text-red-400' },
-        ].map(({ label, value, color }) => (
+          { label: 'Optimistic', value: stats.optimistic, pct: stats.optimisticPct, color: 'text-green-400' },
+          { label: 'Baseline', value: stats.baseline, pct: stats.baselinePct, color: 'text-blue-300' },
+          { label: 'Pessimistic', value: stats.pessimistic, pct: stats.pessimisticPct, color: 'text-red-400' },
+        ].map(({ label, value, pct, color }) => (
           <div key={label} className="bg-gray-800 rounded p-3 text-center">
             <div className="text-xs text-gray-400 mb-1">{label}</div>
             <div className={`text-lg font-bold font-mono ${color}`}>{value != null ? value.toFixed(2) : '—'}</div>
+            <div className={`text-xs font-mono ${pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {pct != null ? `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%` : ''}
+            </div>
           </div>
         ))}
       </div>

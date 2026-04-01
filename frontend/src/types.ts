@@ -18,6 +18,9 @@ export interface PredictStats {
   optimistic: number;
   baseline: number;
   pessimistic: number;
+  optimisticPct: number;
+  baselinePct: number;
+  pessimisticPct: number;
   winRate: number;
   meanCorrelation: number;
 }
