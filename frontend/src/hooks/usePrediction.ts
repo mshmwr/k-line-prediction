@@ -38,6 +38,7 @@ export function usePrediction() {
           meanCorrelation: raw.stats.mean_correlation,
         },
       }
+      console.log("Mapped Stats:", result.stats)
       return result
     } catch (e) {
       setError('Prediction failed. Is the backend running?')

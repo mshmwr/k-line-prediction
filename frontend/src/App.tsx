@@ -54,20 +54,32 @@ export default function App() {
       return fut[fut.length - 1].close > hist[hist.length - 1].close
     })
     const winRate = wins.length / activeMatches.length
-    const futureCloses = activeMatches
-      .map(m => m.futureOhlc)
-      .filter(fut => fut?.length > 0)
-      .map(fut => fut[fut.length - 1].close)
+    const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
+    const pctChanges = activeMatches
+      .filter(m => m.historicalOhlc?.length > 0 && m.futureOhlc?.length > 0)
+      .map(m => {
+        const base = m.historicalOhlc[m.historicalOhlc.length - 1].close
+        const future = m.futureOhlc[m.futureOhlc.length - 1].close
+        return (future - base) / base
+      })
       .sort((a, b) => a - b)
-    const optimistic = futureCloses.length > 0 ? futureCloses[futureCloses.length - 1] : appliedData.stats.optimistic
-    const pessimistic = futureCloses.length > 0 ? futureCloses[0] : appliedData.stats.pessimistic
-    const mid = Math.floor(futureCloses.length / 2)
-    const baseline = futureCloses.length > 0
-      ? (futureCloses.length % 2 === 0
-        ? (futureCloses[mid - 1] + futureCloses[mid]) / 2
-        : futureCloses[mid])
-      : appliedData.stats.baseline
-    return { meanCorrelation, winRate, optimistic, pessimistic, baseline }
+    if (pctChanges.length === 0) return appliedData.stats
+    const optPct = pctChanges[pctChanges.length - 1]
+    const pesPct = pctChanges[0]
+    const mid = Math.floor(pctChanges.length / 2)
+    const basePct = pctChanges.length % 2 === 0
+      ? (pctChanges[mid - 1] + pctChanges[mid]) / 2
+      : pctChanges[mid]
+    return {
+      meanCorrelation,
+      winRate,
+      optimistic: Math.round(currentClose * (1 + optPct) * 100) / 100,
+      baseline: Math.round(currentClose * (1 + basePct) * 100) / 100,
+      pessimistic: Math.round(currentClose * (1 + pesPct) * 100) / 100,
+      optimisticPct: Math.round(optPct * 10000) / 100,
+      baselinePct: Math.round(basePct * 10000) / 100,
+      pessimisticPct: Math.round(pesPct * 10000) / 100,
+    }
   }, [appliedData, appliedSelection])
 
   const isDirty = useMemo(() => {

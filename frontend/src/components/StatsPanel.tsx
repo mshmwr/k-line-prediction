@@ -26,7 +26,7 @@ export function StatsPanel({ stats, isDirty, selectedCount, totalCount }: Props)
             <div className="text-xs text-gray-400 mb-1">{label}</div>
             <div className={`text-lg font-bold font-mono ${color}`}>{value != null ? value.toFixed(2) : '—'}</div>
             <div className={`text-xs font-mono ${pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {pct != null ? `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%` : ''}
+              {pct !== undefined ? `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%` : `[undef:${label}]`}
             </div>
           </div>
         ))}
