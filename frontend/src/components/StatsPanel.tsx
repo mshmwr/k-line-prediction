@@ -3,9 +3,11 @@ import { PredictStats } from '../types'
 interface Props {
   stats: PredictStats | null
   isDirty: boolean
+  selectedCount: number
+  totalCount: number
 }
 
-export function StatsPanel({ stats, isDirty }: Props) {
+export function StatsPanel({ stats, isDirty, selectedCount, totalCount }: Props) {
   if (!stats) return <div className="text-gray-500 text-sm">Run prediction to see results.</div>
   return (
     <div className="flex flex-col gap-3">
@@ -29,6 +31,9 @@ export function StatsPanel({ stats, isDirty }: Props) {
       <div className="flex gap-4 text-sm">
         <span className="text-gray-400">Win Rate: <span className="text-white">{stats.winRate != null ? (stats.winRate * 100).toFixed(1) : '—'}%</span></span>
         <span className="text-gray-400">Avg r: <span className="text-white">{stats.meanCorrelation != null ? stats.meanCorrelation.toFixed(4) : '—'}</span></span>
+        {totalCount > 0 && (
+          <span className="text-gray-400 ml-auto">Using <span className="text-white">{selectedCount}</span> / {totalCount} matches</span>
+        )}
       </div>
     </div>
   )

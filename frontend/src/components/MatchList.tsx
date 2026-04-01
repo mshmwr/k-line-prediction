@@ -70,7 +70,7 @@ function MiniChart({
 
 export function MatchList({ matches, selected, onToggle }: Props) {
   return (
-    <div className="flex flex-col gap-2 overflow-auto flex-1 min-h-0">
+    <div className="flex flex-col gap-2 overflow-y-auto max-h-[400px]">
       {matches.map(m => {
         const checked = selected.has(m.id)
         const hist = m.historicalOhlc ?? []

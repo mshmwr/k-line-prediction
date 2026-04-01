@@ -39,20 +39,34 @@ export default function App() {
 
   const displayStats = useMemo(() => {
     if (!appliedData.stats) return null
-    if (appliedData.matches.length === 0) return appliedData.stats
-    const corrs = appliedData.matches.map(m => m.correlation).filter((v): v is number => v != null)
+    const activeMatches = appliedData.matches.filter(m => tempSelection.has(m.id))
+    if (activeMatches.length === 0) return appliedData.stats
+    const corrs = activeMatches.map(m => m.correlation).filter((v): v is number => v != null)
     const meanCorrelation = corrs.length > 0
       ? corrs.reduce((a, b) => a + b, 0) / corrs.length
       : appliedData.stats.meanCorrelation
-    const wins = appliedData.matches.filter(m => {
+    const wins = activeMatches.filter(m => {
       const hist = m.historicalOhlc
       const fut = m.futureOhlc
       if (!hist?.length || !fut?.length) return false
       return fut[fut.length - 1].close > hist[hist.length - 1].close
     })
-    const winRate = wins.length / appliedData.matches.length
-    return { ...appliedData.stats, meanCorrelation, winRate }
-  }, [appliedData])
+    const winRate = wins.length / activeMatches.length
+    const futureCloses = activeMatches
+      .map(m => m.futureOhlc)
+      .filter(fut => fut?.length > 0)
+      .map(fut => fut[fut.length - 1].close)
+      .sort((a, b) => a - b)
+    const optimistic = futureCloses.length > 0 ? futureCloses[futureCloses.length - 1] : appliedData.stats.optimistic
+    const pessimistic = futureCloses.length > 0 ? futureCloses[0] : appliedData.stats.pessimistic
+    const mid = Math.floor(futureCloses.length / 2)
+    const baseline = futureCloses.length > 0
+      ? (futureCloses.length % 2 === 0
+        ? (futureCloses[mid - 1] + futureCloses[mid]) / 2
+        : futureCloses[mid])
+      : appliedData.stats.baseline
+    return { meanCorrelation, winRate, optimistic, pessimistic, baseline }
+  }, [appliedData, tempSelection])
 
   const isDirty = useMemo(() => {
     if (!appliedData.stats) return false
@@ -193,7 +207,7 @@ export default function App() {
           </div>
           <div className="flex-shrink-0">
             <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>
-            <StatsPanel stats={displayStats} isDirty={isDirty} />
+            <StatsPanel stats={displayStats} isDirty={isDirty} selectedCount={tempSelection.size} totalCount={matches.length} />
           </div>
         </div>
       </div>
