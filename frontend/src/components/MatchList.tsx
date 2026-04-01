@@ -30,10 +30,10 @@ function formatInterval(startDate: string, endDate: string, timeframe: '1H' | '1
   if (timeframe === '1D') return `${startDate} ~ ${endDate}`
   const sParts = startDate.split(' ')
   const eParts = endDate.split(' ')
-  const startTime = sParts[1]?.substring(0, 5) ?? ''
-  const endTime = eParts[1]?.substring(0, 5) ?? ''
-  if (sParts[0] === eParts[0]) return `${sParts[0]} ${startTime} ~ ${endTime}`
-  return `${sParts[0]} ${startTime} ~ ${eParts[0]} ${endTime}`
+  const sTime = sParts[1]?.substring(0, 5) ?? ''
+  const eTime = eParts[1]?.substring(0, 5) ?? ''
+  if (sParts[0] === eParts[0]) return `${sParts[0]} ${sTime} ~ ${eTime}`
+  return `${sParts[0]} ${sTime} ~ ${eParts[0]} ${eTime}`
 }
 
 const CHART_HEIGHT = 110
@@ -88,7 +88,6 @@ function PredictorChart({
     futSeries.setData(futData)
     chart.timeScale().fitContent()
 
-    // Compute orange line X after fit
     const updateSplitX = () => {
       if (!splitTime) return
       const x = chart.timeScale().timeToCoordinate(splitTime)
@@ -126,40 +125,89 @@ function PredictorChart({
 }
 
 export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
+  const [openSet, setOpenSet] = useState<Set<string>>(new Set())
+
+  function toggleOpen(id: string) {
+    setOpenSet(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  function expandAll() {
+    setOpenSet(new Set(matches.map(m => m.id)))
+  }
+
+  function collapseAll() {
+    setOpenSet(new Set())
+  }
+
   return (
-    <div className="flex flex-col gap-2 overflow-y-auto max-h-[600px]">
-      {matches.map(m => {
-        const checked = selected.has(m.id)
-        const hist = m.historicalOhlc ?? []
-        const fut = m.futureOhlc ?? []
-        return (
-          <div
-            key={m.id}
-            className={`flex flex-col gap-2 p-3 rounded bg-gray-800 border border-gray-700 transition-opacity ${checked ? '' : 'opacity-50'}`}
+    <div className="flex flex-col gap-2 flex-1 min-h-0">
+      {matches.length > 0 && (
+        <div className="flex gap-2 flex-shrink-0">
+          <button
+            onClick={expandAll}
+            className="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={checked}
-                onChange={() => onToggle(m.id)}
-                className="accent-orange-400 cursor-pointer"
-              />
-              <div className="text-sm font-mono text-orange-300">
-                r = {m.correlation != null ? m.correlation.toFixed(4) : '—'}
+            Expand All
+          </button>
+          <button
+            onClick={collapseAll}
+            className="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+          >
+            Collapse All
+          </button>
+        </div>
+      )}
+      <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0">
+        {matches.map(m => {
+          const checked = selected.has(m.id)
+          const isOpen = openSet.has(m.id)
+          const hist = m.historicalOhlc ?? []
+          const fut = m.futureOhlc ?? []
+          return (
+            <div
+              key={m.id}
+              className={`flex flex-col rounded bg-gray-800 border border-gray-700 transition-opacity ${checked ? '' : 'opacity-50'}`}
+            >
+              {/* Accordion Header */}
+              <div
+                className="flex items-center gap-3 px-3 py-2 cursor-pointer select-none hover:bg-gray-750"
+                onClick={() => toggleOpen(m.id)}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => onToggle(m.id)}
+                  onClick={e => e.stopPropagation()}
+                  className="accent-orange-400 cursor-pointer flex-shrink-0"
+                />
+                <span className="text-sm font-mono text-orange-300 flex-shrink-0">
+                  r = {m.correlation != null ? m.correlation.toFixed(4) : '—'}
+                </span>
+                <span className="text-gray-500 flex-shrink-0">|</span>
+                <span className="text-xs text-gray-400 flex-1 truncate">
+                  {formatInterval(m.startDate, m.endDate, timeframe)}
+                </span>
+                <span className="text-gray-500 text-xs flex-shrink-0">{isOpen ? '▲' : '▼'}</span>
               </div>
-              <div className="text-xs text-gray-400">
-                {formatInterval(m.startDate, m.endDate, timeframe)}
-              </div>
+              {/* Expandable Chart */}
+              {isOpen && (
+                <div className="px-3 pb-3">
+                  <PredictorChart
+                    historical={hist}
+                    future={fut}
+                    startDate={m.startDate}
+                    timeframe={timeframe}
+                  />
+                </div>
+              )}
             </div>
-            <PredictorChart
-              historical={hist}
-              future={fut}
-              startDate={m.startDate}
-              timeframe={timeframe}
-            />
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </div>
   )
 }

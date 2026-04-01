@@ -306,7 +306,7 @@ export default function App() {
             </p>
           </div>
           <div className="flex-1 min-h-0">
-            <MainChart userOhlc={ohlcData} timeframe={timeframe} />
+            <MainChart key={timeframe} userOhlc={ohlcData} timeframe={timeframe} />
           </div>
           <PredictButton
             disabled={!!disabledReason}
