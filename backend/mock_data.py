@@ -36,7 +36,7 @@ def load_csv_history(path: Path) -> List[Dict]:
     for row in reader:
         try:
             date_key = headers.get('date') or headers.get('unix') or next(iter(headers.values()))
-            raw_date = row[date_key].strip().split()[0] if date_key else ''
+            raw_date = row[date_key].strip() if date_key else ''
             bars.append({
                 'open': float(row[headers['open']]),
                 'high': float(row[headers['high']]),

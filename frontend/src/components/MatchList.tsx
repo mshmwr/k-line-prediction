@@ -3,7 +3,18 @@ import { MatchCase } from '../types'
 interface Props {
   matches: MatchCase[]
   selected: Set<string>
+  timeframe: '1H' | '1D'
   onToggle: (id: string) => void
+}
+
+function formatInterval(startDate: string, endDate: string, timeframe: '1H' | '1D'): string {
+  if (timeframe === '1D') return `${startDate} ~ ${endDate}`
+  const sParts = startDate.split(' ')
+  const eParts = endDate.split(' ')
+  const startTime = sParts[1]?.substring(0, 5) ?? ''
+  const endTime = eParts[1]?.substring(0, 5) ?? ''
+  if (sParts[0] === eParts[0]) return `${sParts[0]} ${startTime} ~ ${endTime}`
+  return `${sParts[0]} ${startTime} ~ ${eParts[0]} ${endTime}`
 }
 
 function MiniChart({
@@ -68,7 +79,7 @@ function MiniChart({
   )
 }
 
-export function MatchList({ matches, selected, onToggle }: Props) {
+export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
   return (
     <div className="flex flex-col gap-2 overflow-y-auto max-h-[400px]">
       {matches.map(m => {
@@ -91,8 +102,7 @@ export function MatchList({ matches, selected, onToggle }: Props) {
               <div className="text-sm font-mono text-orange-300">
                 r = {m.correlation != null ? m.correlation.toFixed(4) : '—'}
               </div>
-              <div className="text-xs text-gray-400">{m.startDate}</div>
-              <div className="text-xs text-gray-600">{hist.length}+{fut.length} bars</div>
+              <div className="text-xs text-gray-400">{formatInterval(m.startDate, m.endDate, timeframe)}</div>
             </div>
           </label>
         )

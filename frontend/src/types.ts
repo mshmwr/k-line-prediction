@@ -4,6 +4,7 @@ export interface OHLCRow {
   high: string;
   low: string;
   close: string;
+  time: string;
 }
 
 export interface MatchCase {
@@ -12,6 +13,7 @@ export interface MatchCase {
   historicalOhlc: Array<{ open: number; high: number; low: number; close: number }>;
   futureOhlc: Array<{ open: number; high: number; low: number; close: number }>;
   startDate: string;
+  endDate: string;
 }
 
 export interface PredictStats {

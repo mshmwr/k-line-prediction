@@ -39,7 +39,8 @@ def find_top_matches(input_bars: List[OHLCBar], future_n: int = 10, history=None
             correlation=round(r, 4),
             historical_ohlc=[OHLCBar(**b) for b in window],
             future_ohlc=[OHLCBar(**b) for b in future],
-            start_date=window[0]['date']
+            start_date=window[0]['date'],
+            end_date=future[-1]['date']
         ))
     return matches
 

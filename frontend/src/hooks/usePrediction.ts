@@ -26,6 +26,7 @@ export function usePrediction() {
           historicalOhlc: m.historical_ohlc,
           futureOhlc: m.future_ohlc,
           startDate: m.start_date,
+          endDate: m.end_date,
         })),
         stats: {
           optimistic: raw.stats.optimistic,

@@ -18,7 +18,7 @@ function isRowComplete(row: OHLCRow): boolean {
 export default function App() {
   const [n, setN] = useState(5)
   const [ohlcData, setOhlcData] = useState<OHLCRow[]>(() =>
-    Array.from({ length: 5 }, () => ({ open: '', high: '', low: '', close: '' }))
+    Array.from({ length: 5 }, () => ({ open: '', high: '', low: '', close: '', time: '' }))
   )
   const [matches, setMatches] = useState<MatchCase[]>([])
   const [tempSelection, setTempSelection] = useState<Set<string>>(new Set())
@@ -121,7 +121,7 @@ export default function App() {
           const o = cols[oIdx], h = cols[hIdx], lo = cols[lIdx], c = cols[cIdx]
           if ([o, h, lo, c].some(v => v === undefined || isNaN(Number(v))))
             throw new Error(`Row ${i + 2} has invalid values.`)
-          return { open: o, high: h, low: lo, close: c }
+          return { open: o, high: h, low: lo, close: c, time: '' }
         })
         // Auto-detect timeframe from Unix timestamp column
         const unixIdx = headers.findIndex(h => h === 'unix')
@@ -149,32 +149,29 @@ export default function App() {
   async function handleUseExample() {
     setUploadError(null)
     try {
-      const res = await axios.get<{ rows: { open: number; high: number; low: number; close: number }[] }>(
-        '/api/example', { params: { n } }
+      console.log('[handleUseExample] fetching', { n, timeframe })
+      const res = await axios.get<{ rows: { open: number; high: number; low: number; close: number; time: string }[] }>(
+        '/api/example', { params: { n, timeframe } }
       )
+      console.log('[handleUseExample] response', res.data)
       const rows: OHLCRow[] = res.data.rows.map(r => ({
-        open: String(r.open), high: String(r.high), low: String(r.low), close: String(r.close),
+        open: String(r.open), high: String(r.high), low: String(r.low), close: String(r.close), time: r.time ?? '',
       }))
+      console.log('[handleUseExample] mapped rows', rows)
       setOhlcData(rows)
       setMatches([])
       setTempSelection(new Set())
       setAppliedSelection(new Set())
       setAppliedData({ matches: [], stats: null, inputs: [] })
-      const result = await predict(rows, [], timeframe)
-      if (!result) return
-      const allIds = new Set(result.matches.map(m => m.id))
-      setMatches(result.matches)
-      setTempSelection(allIds)
-      setAppliedSelection(allIds)
-      setAppliedData({ matches: result.matches, stats: result.stats, inputs: rows })
-    } catch {
+    } catch (e) {
+      console.error('[handleUseExample] error', e)
       setUploadError('Failed to load example data. Is the backend running?')
     }
   }
 
   function handleNChange(newN: number) {
     setN(newN)
-    setOhlcData(Array.from({ length: newN }, () => ({ open: '', high: '', low: '', close: '' })))
+    setOhlcData(Array.from({ length: newN }, () => ({ open: '', high: '', low: '', close: '', time: '' })))
     setMatches([])
     setTempSelection(new Set())
     setAppliedSelection(new Set())
@@ -221,7 +218,7 @@ export default function App() {
       <div className="flex flex-1 gap-4 p-4 min-h-0">
         {/* Left sidebar: editor → compact chart → predict button */}
         <div className="w-80 flex flex-col gap-4">
-          <OHLCEditor rows={ohlcData} onChange={handleCellChange} />
+          <OHLCEditor rows={ohlcData} timeframe={timeframe} onChange={handleCellChange} />
           <div className="flex flex-col gap-1">
             <div className="flex rounded overflow-hidden border border-gray-700">
               {(['1H', '1D'] as const).map(tf => (
@@ -254,7 +251,7 @@ export default function App() {
         <div className="flex-1 flex flex-col gap-4 min-h-0">
           <div className="flex-1 min-h-0 flex flex-col">
             <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider flex-shrink-0">Match List</h3>
-            <MatchList matches={matches} selected={tempSelection} onToggle={handleToggle} />
+            <MatchList matches={matches} selected={tempSelection} onToggle={handleToggle} timeframe={timeframe} />
           </div>
           <div className="flex-shrink-0">
             <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>

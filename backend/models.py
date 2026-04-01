@@ -19,6 +19,7 @@ class MatchCase(BaseModel):
     historical_ohlc: List[OHLCBar]
     future_ohlc: List[OHLCBar]
     start_date: str
+    end_date: str
 
 class PredictStats(BaseModel):
     optimistic: float
