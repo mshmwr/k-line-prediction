@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { OHLCRow, MatchCase, OrderSuggestion, PredictStats } from './types'
+import { useEffect, useMemo, useState } from 'react'
+import { OHLCRow, MatchCase, OrderSuggestion, PredictStats, DayStats } from './types'
 import { OHLCEditor } from './components/OHLCEditor'
 import { TopBar } from './components/TopBar'
 import { PredictButton } from './components/PredictButton'
@@ -44,14 +44,14 @@ function parseExchangeTimestamp(rawValue: string): string {
   return `${year}-${month}-${day} ${hour}:${minute}`
 }
 
-function parseOfficialCsv(text: string): OHLCRow[] {
+function parseOfficialCsvFile(text: string, filename: string): OHLCRow[] {
   const lines = text.split('\n').map(line => line.trim()).filter(Boolean)
-  if (!lines.length) throw new Error('CSV is empty.')
+  if (!lines.length) throw new Error(`${filename}: CSV is empty.`)
 
   const rows = lines.map((line, index) => {
     const cols = line.split(',').map(col => col.trim())
     if (cols.length < 5) {
-      throw new Error(`Line ${index + 1} does not contain timestamp/open/high/low/close.`)
+      throw new Error(`${filename} line ${index + 1}: does not contain timestamp/open/high/low/close.`)
     }
 
     const time = parseExchangeTimestamp(cols[0])
@@ -61,7 +61,7 @@ function parseOfficialCsv(text: string): OHLCRow[] {
     const close = Number(cols[4])
 
     if ([open, high, low, close].some(value => !Number.isFinite(value))) {
-      throw new Error(`Line ${index + 1} contains invalid OHLC values.`)
+      throw new Error(`${filename} line ${index + 1}: contains invalid OHLC values.`)
     }
 
     return {
@@ -74,7 +74,7 @@ function parseOfficialCsv(text: string): OHLCRow[] {
   })
 
   if (rows.length !== OFFICIAL_ROW_COUNT) {
-    throw new Error(`Official input must contain exactly ${OFFICIAL_ROW_COUNT} rows, but received ${rows.length}.`)
+    throw new Error(`${filename}: expected ${OFFICIAL_ROW_COUNT} rows, got ${rows.length}.`)
   }
 
   return rows
@@ -105,8 +105,17 @@ function inferTrendOverride(rows: OHLCRow[]): TrendOverride {
   return 'flat'
 }
 
-function buildOccurrenceWindow(barIndex: number, timeframe: string): string {
-  return timeframe === '1D' ? `Day +${barIndex}` : `Hour +${barIndex}`
+function addHoursToUtc8(baseTimeStr: string, hours: number): [string, number] {
+  const parts = baseTimeStr.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/)
+  if (!parts) return [`Hour +${hours}`, hours * 3600]
+  const [, y, mo, d, h, mi] = parts.map(Number)
+  const newMs = Date.UTC(y, mo - 1, d, h, mi) + hours * 3600000
+  const dt = new Date(newMs)
+  const month = String(dt.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(dt.getUTCDate()).padStart(2, '0')
+  const hour = String(dt.getUTCHours()).padStart(2, '0')
+  const minute = String(dt.getUTCMinutes()).padStart(2, '0')
+  return [`${month}/${day} ${hour}:${minute}`, newMs / 1000]
 }
 
 function buildProjectedSuggestion(
@@ -114,6 +123,7 @@ function buildProjectedSuggestion(
   price: number,
   pct: number,
   occurrenceBar: number,
+  occurrenceTime: string,
   historicalTime: string,
 ): OrderSuggestion {
   return {
@@ -121,7 +131,7 @@ function buildProjectedSuggestion(
     price: Math.round(price * 100) / 100,
     pct: Math.round(pct * 100) / 100,
     occurrenceBar,
-    occurrenceWindow: buildOccurrenceWindow(occurrenceBar, TIMEFRAME),
+    occurrenceWindow: occurrenceTime,
     historicalTime,
   }
 }
@@ -134,10 +144,10 @@ function computeDisplayStats(matches: MatchCase[], projectedBars: Array<{ occurr
   const wins = projectedBars.filter(bar => bar.close > currentClose)
 
   return {
-    highest: buildProjectedSuggestion('Highest', sortedHighs[0].high, (sortedHighs[0].high - currentClose) / currentClose, sortedHighs[0].occurrenceBar, 'Consensus'),
-    secondHighest: buildProjectedSuggestion('Second Highest', sortedHighs[1].high, (sortedHighs[1].high - currentClose) / currentClose, sortedHighs[1].occurrenceBar, 'Consensus'),
-    secondLowest: buildProjectedSuggestion('Second Lowest', sortedLows[1].low, (sortedLows[1].low - currentClose) / currentClose, sortedLows[1].occurrenceBar, 'Consensus'),
-    lowest: buildProjectedSuggestion('Lowest', sortedLows[0].low, (sortedLows[0].low - currentClose) / currentClose, sortedLows[0].occurrenceBar, 'Consensus'),
+    highest: buildProjectedSuggestion('Highest', sortedHighs[0].high, (sortedHighs[0].high - currentClose) / currentClose, sortedHighs[0].occurrenceBar, sortedHighs[0].time, 'Consensus'),
+    secondHighest: buildProjectedSuggestion('Second Highest', sortedHighs[1].high, (sortedHighs[1].high - currentClose) / currentClose, sortedHighs[1].occurrenceBar, sortedHighs[1].time, 'Consensus'),
+    secondLowest: buildProjectedSuggestion('Second Lowest', sortedLows[1].low, (sortedLows[1].low - currentClose) / currentClose, sortedLows[1].occurrenceBar, sortedLows[1].time, 'Consensus'),
+    lowest: buildProjectedSuggestion('Lowest', sortedLows[0].low, (sortedLows[0].low - currentClose) / currentClose, sortedLows[0].occurrenceBar, sortedLows[0].time, 'Consensus'),
     winRate: wins.length / projectedBars.length,
     meanCorrelation: corrs.length > 0 ? corrs.reduce((a, b) => a + b, 0) / corrs.length : 0,
   }
@@ -150,8 +160,8 @@ function median(values: number[]): number {
   return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid]
 }
 
-function computeProjectedFutureBars(matches: MatchCase[], currentClose: number) {
-  return Array.from({ length: 24 }, (_, index) => {
+function computeProjectedFutureBars(matches: MatchCase[], currentClose: number, lastBarTime?: string) {
+  return Array.from({ length: 72 }, (_, index) => {
     const projected = matches.flatMap(match => {
       const base = match.historicalOhlc[match.historicalOhlc.length - 1]?.close
       const bar = match.futureOhlc[index]
@@ -171,19 +181,49 @@ function computeProjectedFutureBars(matches: MatchCase[], currentClose: number) 
     const high = Math.max(median(projected.map(bar => bar.high)), open, close)
     const low = Math.min(median(projected.map(bar => bar.low)), open, close)
 
+    const [timeStr, ts] = lastBarTime
+      ? addHoursToUtc8(lastBarTime, index + 1)
+      : [`Hour +${index + 1}`, (index + 1) * 3600]
+
     return {
       occurrenceBar: index + 1,
-      time: `Hour +${index + 1}`,
+      time: timeStr,
+      ts,
       open: Math.round(open * 100) / 100,
       high: Math.round(high * 100) / 100,
       low: Math.round(low * 100) / 100,
       close: Math.round(close * 100) / 100,
     }
-  }).filter((bar): bar is { occurrenceBar: number; time: string; open: number; high: number; low: number; close: number } => bar != null)
+  }).filter((bar): bar is { occurrenceBar: number; time: string; ts: number; open: number; high: number; low: number; close: number } => bar != null)
+}
+
+function computeStatsByDay(projectedBars: Array<{ time: string; high: number; low: number }>, currentClose: number): DayStats[] {
+  return [0, 1, 2].map(dayIndex => {
+    const dayBars = projectedBars.slice(dayIndex * 24, (dayIndex + 1) * 24)
+    if (dayBars.length === 0) return null
+    const sortedHighs = [...dayBars].sort((a, b) => b.high - a.high)
+    const sortedLows = [...dayBars].sort((a, b) => a.low - b.low)
+    return {
+      label: `Day ${dayIndex + 1}`,
+      highest: {
+        price: Math.round(sortedHighs[0].high * 100) / 100,
+        pct: Math.round(((sortedHighs[0].high - currentClose) / currentClose) * 10000) / 100,
+        time: sortedHighs[0].time,
+      },
+      lowest: {
+        price: Math.round(sortedLows[0].low * 100) / 100,
+        pct: Math.round(((sortedLows[0].low - currentClose) / currentClose) * 10000) / 100,
+        time: sortedLows[0].time,
+      },
+    }
+  }).filter((d): d is DayStats => d != null)
 }
 
 export default function App() {
-  const [ohlcData, setOhlcData] = useState<OHLCRow[]>(() => emptyRows(OFFICIAL_ROW_COUNT))
+  type HistoryEntry = { filename: string; latest: string | null; bar_count: number }
+  type HistoryInfo = { '1H': HistoryEntry; '1D': HistoryEntry }
+
+  const [ohlcData, setOhlcData] = useState<OHLCRow[]>(() => emptyRows(48))
   const [matches, setMatches] = useState<MatchCase[]>([])
   const [tempSelection, setTempSelection] = useState<Set<string>>(new Set())
   const [appliedSelection, setAppliedSelection] = useState<Set<string>>(new Set())
@@ -192,7 +232,15 @@ export default function App() {
   })
   const [loadError, setLoadError] = useState<string | null>(null)
   const [sourcePath, setSourcePath] = useState('No file uploaded yet.')
+  const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null)
   const { predict, loading, error: predictionError } = usePrediction()
+
+  useEffect(() => {
+    fetch('/api/history-info')
+      .then(r => r.json())
+      .then(data => setHistoryInfo(data as HistoryInfo))
+      .catch(() => {})
+  }, [])
 
   const ohlcComplete = useMemo(() => ohlcData.every(isRowComplete), [ohlcData])
   const hasSelection = tempSelection.size > 0
@@ -205,22 +253,28 @@ export default function App() {
     return null
   }, [ohlcComplete, hasSelection, matches.length])
 
-  const displayStats = useMemo(() => {
-    if (!appliedData.stats) return null
-    const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
-    if (activeMatches.length === 0) return appliedData.stats
-    const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
-    const projectedBars = computeProjectedFutureBars(activeMatches, currentClose)
-    return computeDisplayStats(activeMatches, projectedBars, currentClose) ?? appliedData.stats
-  }, [appliedData, appliedSelection])
-
   const projectedFutureBars = useMemo(() => {
     if (!appliedData.stats) return []
     const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
     if (activeMatches.length === 0) return []
     const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
-    return computeProjectedFutureBars(activeMatches, currentClose)
+    const lastBarTime = appliedData.inputs[appliedData.inputs.length - 1]?.time
+    return computeProjectedFutureBars(activeMatches, currentClose, lastBarTime)
   }, [appliedData, appliedSelection])
+
+  const displayStats = useMemo(() => {
+    if (!appliedData.stats) return null
+    if (projectedFutureBars.length === 0) return appliedData.stats
+    const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
+    const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
+    return computeDisplayStats(activeMatches, projectedFutureBars, currentClose) ?? appliedData.stats
+  }, [appliedData, appliedSelection, projectedFutureBars])
+
+  const displayStatsByDay = useMemo(() => {
+    if (projectedFutureBars.length === 0) return []
+    const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
+    return computeStatsByDay(projectedFutureBars, currentClose)
+  }, [projectedFutureBars, appliedData.inputs])
 
   const isDirty = useMemo(() => {
     if (!appliedData.stats) return false
@@ -236,27 +290,38 @@ export default function App() {
     setAppliedData({ matches: [], stats: null, inputs: [] })
   }
 
-  function handleOfficialFileUpload(file: File) {
+  function handleOfficialFilesUpload(files: FileList) {
     setLoadError(null)
-    const reader = new FileReader()
+    const fileList = Array.from(files)
+    Promise.all(
+      fileList.map(file => new Promise<OHLCRow[]>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = e => {
+          try {
+            resolve(parseOfficialCsvFile(String(e.target?.result ?? ''), file.name))
+          } catch (err) {
+            reject(err)
+          }
+        }
+        reader.onerror = () => reject(new Error(`Failed to read ${file.name}`))
+        reader.readAsText(file)
+      }))
+    ).then(results => {
+      const combined = results.flat().sort((a, b) => a.time.localeCompare(b.time))
+      setOhlcData(combined)
+      setSourcePath(fileList.map(f => f.name).join(' + '))
+      resetPredictionState()
+    }).catch(err => setLoadError((err as Error).message))
+  }
 
-    reader.onload = event => {
-      try {
-        const text = String(event.target?.result ?? '')
-        const rows = parseOfficialCsv(text)
-        setOhlcData(rows)
-        setSourcePath(file.name)
-        resetPredictionState()
-      } catch (error) {
-        setLoadError((error as Error).message)
-      }
-    }
-
-    reader.onerror = () => {
-      setLoadError('Failed to read the uploaded CSV file.')
-    }
-
-    reader.readAsText(file)
+  function handleHistoryUpload(file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    fetch('/api/upload-history', { method: 'POST', body: formData })
+      .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(new Error(d.detail ?? 'Upload failed'))))
+      .then(() => fetch('/api/history-info').then(r => r.json()))
+      .then(data => setHistoryInfo(data))
+      .catch(err => setLoadError((err as Error).message))
   }
 
   function handleCellChange(rowIdx: number, field: keyof OHLCRow, value: string) {
@@ -302,17 +367,18 @@ export default function App() {
             <div className="text-xs uppercase tracking-wider text-gray-400">Official Input</div>
             <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300">
               <div className="text-gray-500">Source file</div>
-              <div className="mt-1 break-all font-mono text-[11px]">{sourcePath || 'Loading...'}</div>
+              <div className="mt-1 break-all font-mono text-[11px]">{sourcePath || 'No file uploaded yet.'}</div>
             </div>
             <label className="flex cursor-pointer items-center justify-center rounded border border-dashed border-gray-600 px-3 py-4 text-center text-xs text-gray-300 transition-colors hover:border-orange-400 hover:text-white">
-              Upload official 1H CSV
+              Upload 2 × 1H CSV (Day 1 + Day 2)
               <input
                 type="file"
                 accept=".csv,text/csv"
+                multiple
                 className="hidden"
                 onChange={event => {
-                  const file = event.target.files?.[0]
-                  if (file) handleOfficialFileUpload(file)
+                  const files = event.target.files
+                  if (files && files.length > 0) handleOfficialFilesUpload(files)
                   event.currentTarget.value = ''
                 }}
               />
@@ -320,16 +386,35 @@ export default function App() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
                 <div className="text-gray-500">Expected format</div>
-                <div className="mt-1 text-gray-200">24 x 1H bars, source timestamps in UTC+0</div>
+                <div className="mt-1 text-gray-200">2 files × 24 x 1H bars, UTC+0</div>
               </div>
               <div className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
                 <div className="text-gray-500">Displayed timezone</div>
                 <div className="mt-1 text-gray-200">UTC+8</div>
               </div>
             </div>
-            <p className="text-[11px] leading-4 text-gray-500">
-              Screenshot OCR flow has been removed. Upload the official one-day ETHUSDT 1H CSV here; the app will convert source timestamps from UTC+0 to UTC+8, then use that same data for the table, chart, and prediction flow.
-            </p>
+          </div>
+
+          <div className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
+            <div className="text-xs uppercase tracking-wider text-gray-400">History Reference</div>
+            <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">
+              {historyInfo
+                ? `${historyInfo['1H'].filename}（最新：${historyInfo['1H'].latest ?? 'N/A'}）`
+                : 'Loading...'}
+            </div>
+            <label className="flex cursor-pointer items-center justify-center rounded border border-dashed border-gray-600 px-3 py-3 text-center text-xs text-gray-300 transition-colors hover:border-blue-400 hover:text-white">
+              Upload CryptoDataDownload CSV
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={event => {
+                  const file = event.target.files?.[0]
+                  if (file) handleHistoryUpload(file)
+                  event.currentTarget.value = ''
+                }}
+              />
+            </label>
           </div>
 
           <OHLCEditor rows={ohlcData} timeframe={TIMEFRAME} onChange={handleCellChange} />
@@ -358,6 +443,7 @@ export default function App() {
             <StatsPanel
               stats={displayStats}
               projectedFutureBars={projectedFutureBars}
+              dayStats={displayStatsByDay}
               isDirty={isDirty}
               selectedCount={appliedSelection.size}
               totalCount={matches.length}
