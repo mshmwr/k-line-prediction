@@ -1,7 +1,7 @@
 # backend/mock_data.py
 import csv
 import numpy as np
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Dict
 
@@ -47,4 +47,47 @@ def load_csv_history(path: Path) -> List[Dict]:
         except (KeyError, ValueError):
             continue
     bars.reverse()  # CryptoDataDownload is newest-first → reverse to chronological
+    return bars
+
+
+def _parse_exchange_timestamp(raw_value: str) -> str:
+    raw = (raw_value or '').strip()
+    if not raw:
+        raise ValueError("Missing timestamp.")
+
+    numeric = int(raw)
+    abs_numeric = abs(numeric)
+    if abs_numeric >= 10**18:
+        seconds = numeric / 1_000_000_000
+    elif abs_numeric >= 10**15:
+        seconds = numeric / 1_000_000
+    elif abs_numeric >= 10**12:
+        seconds = numeric / 1_000
+    else:
+        seconds = numeric
+
+    dt = datetime.fromtimestamp(seconds, tz=timezone.utc)
+    return dt.strftime('%Y-%m-%d %H:%M')
+
+
+def load_official_day_csv(path: Path) -> List[Dict]:
+    bars = []
+    with open(path, newline='', encoding='utf-8') as f:
+        for line_number, raw_line in enumerate(f, start=1):
+            line = raw_line.strip()
+            if not line:
+                continue
+            cols = [col.strip() for col in line.split(',')]
+            if len(cols) < 5:
+                raise ValueError(f"Line {line_number} does not contain OHLC columns.")
+            try:
+                bars.append({
+                    'open': float(cols[1]),
+                    'high': float(cols[2]),
+                    'low': float(cols[3]),
+                    'close': float(cols[4]),
+                    'date': _parse_exchange_timestamp(cols[0]),
+                })
+            except ValueError as exc:
+                raise ValueError(f"Line {line_number} could not be parsed as official 1H OHLC data.") from exc
     return bars

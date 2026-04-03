@@ -26,11 +26,11 @@ export function OHLCEditor({ rows, timeframe, onChange }: Props) {
   const filled = rows.filter(isRowComplete).length
   return (
     <div className="flex flex-col gap-2">
-      <div className="text-sm text-yellow-400 font-mono mb-1">
+      <div className="text-xs text-yellow-400 font-mono">
         {filled}/{rows.length} rows filled
       </div>
-      <div className="overflow-auto max-h-80">
-        <table className="w-full text-xs text-gray-200">
+      <div className="overflow-auto max-h-48 rounded border border-gray-800">
+        <table className="w-full text-[11px] text-gray-200">
           <thead>
             <tr className="text-gray-400 uppercase">
               {['#', 'Time', 'Open', 'High', 'Low', 'Close'].map(h => (
@@ -45,7 +45,7 @@ export function OHLCEditor({ rows, timeframe, onChange }: Props) {
                 <td className="px-1 py-0.5">
                   <input
                     type={timeframe === '1H' ? 'datetime-local' : 'date'}
-                    className="w-40 bg-gray-700 text-gray-100 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                    className="w-36 bg-gray-700 text-gray-100 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-orange-400"
                     value={toInputValue(row.time, timeframe)}
                     onChange={e => onChange(i, 'time', fromInputValue(e.target.value, timeframe))}
                   />
@@ -53,7 +53,7 @@ export function OHLCEditor({ rows, timeframe, onChange }: Props) {
                 {(['open', 'high', 'low', 'close'] as const).map(field => (
                   <td key={field} className="px-1 py-0.5">
                     <input
-                      className="w-20 bg-gray-700 text-gray-100 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                      className="w-16 bg-gray-700 text-gray-100 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-orange-400"
                       placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                       value={row[field]}
                       onChange={e => onChange(i, field, e.target.value)}
