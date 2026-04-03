@@ -1,117 +1,98 @@
-這是一份完整且結構化的 **PRD (產品需求文件)**，採用 Markdown 格式編寫，方便你直接貼入專案文檔或 GitHub Wiki。
+# Product Requirements Document
 
----
+## Product
+K-Line historical pattern matching and scenario forecasting
 
-# 📄 產品需求文件 (PRD)：AI 歷史走勢匹配與預測系統
+## Goal
+Find historical segments that are similar to the user's current K-line structure while keeping the MA99 trend aligned. The system should avoid cases where the current setup is under a falling MA99 but the returned matches come from rising-MA99 environments, or vice versa.
 
-## 1. 產品概述
-本系統是一個專業的金融技術分析工具，旨在透過「歷史相似性」來輔助交易決策。用戶提供目前的 K 線走勢，系統利用 **Pearson 相關係數** 在歷史資料庫中尋找相似片段，並統計這些片段後的「真實走勢」，產出預測情境。
+## Core Matching Logic
 
----
+### Input sources
+- OHLC input remains the primary data source.
+- Users can provide OHLC through CSV upload, JSON import, manual editing, or example data.
+- Users may additionally upload a chart screenshot that shows the MA99 line and choose the MA99 trend direction from the screenshot.
 
-## 2. 核心功能與邏輯 (Core Logic)
+### Similarity model
+- Do not match on `close` only.
+- For each bar, derive candle-shape features:
+  - body percent
+  - full range percent
+  - upper wick percent
+  - lower wick percent
+  - close-to-close return percent
+- Compare historical windows using normalized similarity over the derived candle feature vector.
 
-### 2.1 數據準備階段 (Data Prep Phase)
-*   **N 行樣本定義：** 用戶需設定回溯的 K 棒數量 $N$（如：最近 20 根）。
-*   **雙軌輸入機制：**
-    *   **自動化：** 支持 CSV 上傳或 K 線截圖（透過 Vision AI 辨識 OHLC）。
-    *   **手動保底：** 若自動辨識失敗，用戶可手動在編輯器中輸入或修正數據。
-*   **按鈕鎖定邏輯 (Validation)：**
-    *   **預測按鈕 (PredictBtn)** 初始狀態為 `Disabled`。
-    *   只有當 $N$ 行數據（Open, High, Low, Close）全部填寫完整且數值合法時，按鈕才轉為 `Enabled`。
+### MA99 trend requirement
+- Historical candidates must have an MA99 trend direction that matches the query trend direction.
+- MA99 direction should be treated as a gate before final ranking.
+- When MA99 direction differs, the candidate must be excluded.
 
-### 2.2 結果調整階段 (Refinement Phase - Scenario D)
-*   **批次更新邏輯：**
-    *   當用戶在「匹配列表」中勾選或取消勾選案例時，系統**僅更新暫存狀態 (tempSelection)**。
-    *   **右側結果區 (Stats & Forecast) 保持凍結**，不隨勾選即時連動，以維持介面穩定性。
-*   **二次鎖定邏輯：**
-    *   若用戶將所有案例取消勾選（Count = 0），**預測按鈕** 立即轉為 `Disabled`，防止空數據計算。
-*   **同步更新觸發：**
-    *   用戶必須再次點擊「開始預測」，系統才會將目前的勾選狀態同步至結果區，重新計算統計指標與更新圖表。
+### MA99 source priority
+1. Direct OHLC calculation
+   - If the input segment contains enough data to compute MA99 directly, use the query OHLC itself.
+2. Historical backfill
+   - If the input segment is shorter than 99 bars but each row includes time values that can be aligned to the project history database, the system should fetch the bars immediately before the input segment and use them to compute MA99.
+3. Screenshot-assisted override
+   - If direct calculation and historical backfill are both unavailable, the user may upload a screenshot and manually specify whether MA99 is `up`, `down`, or `flat`.
+   - In this mode, MA99 is used as a trend-direction filter only.
+   - In this mode, no precise MA99 similarity score is computed for the query segment.
 
----
+### Final ranking
+- If query MA99 is available as a numeric series:
+  - `final_score = 0.6 * candle_score + 0.4 * ma_score`
+- If query MA99 comes from screenshot override only:
+  - `final_score = candle_score`
+  - MA99 direction is still used as a hard gate
 
-## 3. UI 佈局規範 (Layout Suggestion)
+## Statistics Logic
+- Stats are computed from the selected match set.
+- Match List:
+  - each match includes the matched historical segment plus the actual next 24 x 1H bars from history
+  - the expanded match chart must show these raw future bars, not a projected or aggregated chart
+- Statistics:
+  - build a projected 24 x 1H candle path from the selected match set
+  - for each future hour bucket, rebase every selected match's future OHLC by its historical base close and project it onto the current input close
+  - aggregate each hour bucket with median open, median close, median high, and median low to form one projected candle
+  - the Statistics chart must visualize this aggregated projected 24-hour path
+- Returned stats:
+  - highest = highest `high` found on the projected 24-hour chart
+  - second highest = second-highest `high` found on the projected 24-hour chart
+  - lowest = lowest `low` found on the projected 24-hour chart
+  - second lowest = second-lowest `low` found on the projected 24-hour chart
+  - occurrence window = the `Hour +N` bucket where that projected extreme appears
+  - win rate = share of projected candles whose close is above the current close
+  - mean correlation = average match score
 
-系統採用 **SPA (單頁式應用)** 佈局，建議使用 **Dark Mode** 以符合金融交易工具之專業感。
+## Input Validation
+- The predict button is enabled only when all visible OHLC rows are numerically complete.
+- If all matches are unchecked, prediction must be disabled until at least one case is selected.
+- If the query is shorter than 99 bars and cannot be aligned to history by time, the backend must require either:
+  - aligned timestamps that allow historical backfill, or
+  - an MA99 screenshot override direction
 
-### 3.1 頂部：輸入與配置區 (Input Bar)
-*   **左側：** 檔案上傳組件（Drag & Drop Zone）。
-*   **右側：** Timeframe 下拉選單、N 值輸入框。
-
-### 3.2 中部：編輯與主視覺區 (Main Content)
-*   **左側 (Dynamic Editor)：** 
-    *   $N$ 行 OHLC 編輯表格。
-    *   底部放置顯眼的 **[▶ 開始預測]** 動作按鈕。
-*   **右側 (Interactive Chart)：**
-    *   顯示目前走勢與匹配成功的歷史走勢線條。
-    *   **關鍵視覺：** 使用一條「垂直橘色虛線」區隔「歷史比對區（過去）」與「走勢預測區（未來）」。
-
-### 3.3 底部：結果分析區 (Result Gallery)
-*   **左側 (Match List)：** 
-    *   卡片式列表，顯示相似度 $r$。
-    *   每張卡片附帶 Checkbox。取消勾選時，卡片透明度降至 50%。
-*   **右側 (Analytics Dashboard)：**
-    *   **統計指標：** 平均相關係數、勝率、收益標準差。
-    *   **情境預測卡片：** 樂觀 (Bullish)、基準 (Base)、悲觀 (Bearish) 的目標價位。
-
----
-
-## 4. 用戶場景流程 (User Scenarios)
-
-### Scenario A: 成功路徑 (Happy Flow)
-1. 用戶設定 $N=15$ 並上傳截圖。
-2. Vision AI 填充 15 行數據，按鈕解鎖。
-3. 用戶點擊「開始預測」，右側出現 10 組匹配結果。
-4. 用戶取消其中 2 組異常案例，點擊「開始預測」更新統計，獲得最終預測目標價。
-
-### Scenario B: 手動復原 (Manual Recovery)
-1. 圖片辨識失敗，編輯器呈現空白 $N$ 行。
-2. 用戶手動填入數據，填滿最後一格時，按鈕解鎖。
-
-### Scenario C: 全取消鎖定 (Zero-Selection)
-1. 用戶在結果區取消所有案例勾選。
-2. 「開始預測」按鈕變為灰色禁用狀態，提示「請至少選擇一個案例」。
-
----
-
-## 5. 非功能性需求 (Non-functional Requirements)
-*   **視覺引導：** 當勾選狀態與目前顯示結果不一致時，統計區應顯示「⚠️ 數據已變更，請點擊更新」之提示。
-*   **效能優化：** 統計計算與圖表重新渲染應在點擊按鈕後的 500ms 內完成。
-*   **響應式設計：** 確保在不同尺寸的螢幕上（尤其是寬螢幕）編輯區與圖表能並排顯示。
-
----
-
-## 6. 技術介面定義 (API Specification)
+## API
 
 ### POST `/api/predict`
-*   **Payload:**
-    *   `ohlc_data`: Array (Length N)
-    *   `selected_ids`: Array (可為空，用於過濾歷史案例)
-*   **Response:**
-    *   `matches`: Array (包含歷史片段數據與相關係數)
-    *   `stats`: Object (包含樂觀/基準/悲觀之數值)
+Payload
+- `ohlc_data`: array of OHLC rows with optional `time`
+- `selected_ids`: array of selected match ids
+- `timeframe`: `1H` or `1D`
+- `ma99_trend_override`: optional `up`, `down`, or `flat`
 
----
+Response
+- `matches`
+- `stats`
 
-## 7. 系統邏輯流程圖 (Mermaid)
+## UX Notes
+- Keep OHLC input and MA99 assistance as separate UI concepts.
+- Screenshot upload is optional and should be described as an MA99 assist path, not as the main data input.
+- When screenshot-assisted override is active, users should understand that MA99 is being used as a directional filter rather than a fully reconstructed MA99 series.
+- Match List and Statistics must be labeled clearly so users can distinguish between:
+  - actual future historical bars in each matched case
+  - the aggregated projected chart used for statistics and order suggestions
 
-```mermaid
-graph TD
-    Start([開始]) --> Input[輸入數據/上傳圖片]
-    Input --> CheckN{N 行數據是否完整?}
-    CheckN -- 否 --> BtnOff[按鈕禁用]
-    CheckN -- 是 --> BtnOn[按鈕啟用]
-    
-    BtnOn -->|點擊預測| Backend[後端執行 Pearson 比對]
-    Backend --> Display[渲染圖表與匹配列表]
-    
-    Display --> Toggle[用戶調整 Checkbox]
-    Toggle --> UpdateTemp[更新暫存狀態]
-    UpdateTemp --> CheckCount{選中數 > 0?}
-    CheckCount -- 否 --> BtnOff
-    CheckCount -- 是 --> BtnOn
-    
-    BtnOn -.->|再次點擊| Sync[同步數據並更新統計區]
-    Sync --> Display
-```
+## Non-functional Requirements
+- Prediction refresh after clicking the button should remain responsive.
+- The matching logic should not return opposite-MA99-trend cases.
+- The interface should remain usable on desktop widths without collapsing the editor and chart into an unreadable layout.

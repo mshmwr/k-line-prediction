@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
-import { createChart, IChartApi, UTCTimestamp, CandlestickSeries } from 'lightweight-charts'
+import { BusinessDay, createChart, IChartApi, UTCTimestamp, CandlestickSeries } from 'lightweight-charts'
 import { MatchCase } from '../types'
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
   onToggle: (id: string) => void
 }
 
-type CandleTime = UTCTimestamp | string
+type CandleTime = UTCTimestamp | BusinessDay
 
 interface OHLCTooltip {
   x: number
@@ -24,34 +24,61 @@ function addStep(base: CandleTime, steps: number, timeframe: '1H' | '1D'): Candl
   if (timeframe === '1H') {
     return ((base as number) + steps * 3600) as UTCTimestamp
   }
-  const d = new Date((base as string) + 'T00:00:00Z')
+  const day = base as BusinessDay
+  const d = new Date(Date.UTC(day.year, day.month - 1, day.day))
   d.setUTCDate(d.getUTCDate() + steps)
-  return d.toISOString().substring(0, 10)
+  return {
+    year: d.getUTCFullYear(),
+    month: d.getUTCMonth() + 1,
+    day: d.getUTCDate(),
+  }
 }
 
-function startTime(t: string, timeframe: '1H' | '1D'): CandleTime {
-  if (timeframe === '1D') return t.substring(0, 10)
-  const s = t.includes(' ') ? t.replace(' ', 'T') + 'Z' : t + 'Z'
-  return Math.floor(new Date(s).getTime() / 1000) as UTCTimestamp
+function startTime(t: string, timeframe: '1H' | '1D'): CandleTime | null {
+  const raw = (t || '').trim()
+  if (!raw) return null
+  if (timeframe === '1D') {
+    const day = raw.substring(0, 10)
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day)
+    if (!match) return null
+    const year = Number(match[1])
+    const month = Number(match[2])
+    const date = Number(match[3])
+    if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(date)) return null
+    return { year, month, day: date }
+  }
+  const s = raw.includes(' ') ? raw.replace(' ', 'T') + 'Z' : raw + 'Z'
+  const timestamp = new Date(s).getTime()
+  if (Number.isNaN(timestamp)) return null
+  return Math.floor(timestamp / 1000) as UTCTimestamp
 }
 
 // Fix 1: deduplicate by time key and sort ascending before setData()
+function serializeTimeKey(time: CandleTime): string {
+  if (typeof time === 'number') return String(time)
+  return `${time.year}-${String(time.month).padStart(2, '0')}-${String(time.day).padStart(2, '0')}`
+}
+
+function toSortableValue(time: CandleTime): number {
+  if (typeof time === 'number') return time
+  return Date.UTC(time.year, time.month - 1, time.day)
+}
+
 function dedupeAndSort<T extends { time: CandleTime }>(data: T[]): T[] {
-  const seen = new Set<string | number>()
+  const seen = new Set<string>()
   const deduped = data.filter(d => {
-    const k = String(d.time)
+    const k = serializeTimeKey(d.time)
     if (seen.has(k)) return false
     seen.add(k)
     return true
   })
-  return deduped.sort((a, b) =>
-    typeof a.time === 'number'
-      ? (a.time as number) - (b.time as number)
-      : new Date(a.time as string).getTime() - new Date(b.time as string).getTime()
-  )
+  return deduped.sort((a, b) => toSortableValue(a.time) - toSortableValue(b.time))
 }
 
 function formatInterval(startDate: string, endDate: string, timeframe: '1H' | '1D'): string {
+  if (!startDate && !endDate) return 'Unknown interval'
+  if (!startDate) return endDate || 'Unknown interval'
+  if (!endDate) return startDate
   if (timeframe === '1D') return `${startDate} ~ ${endDate}`
   const sParts = startDate.split(' ')
   const eParts = endDate.split(' ')
@@ -75,101 +102,143 @@ function PredictorChart({
   timeframe: '1H' | '1D'
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const chartRef = useRef<IChartApi | null>(null)
   const [splitX, setSplitX] = useState<number | null>(null)
   const [tooltip, setTooltip] = useState<OHLCTooltip | null>(null)
+  const [chartError, setChartError] = useState<string | null>(null)
 
   const base = startTime(startDate, timeframe)
-  const histData = historical.map((c, i) => ({ time: addStep(base, i, timeframe), ...c }))
-  const futData = future.map((c, j) => ({ time: addStep(base, historical.length + j, timeframe), ...c }))
+  const histData = base == null ? [] : historical.map((c, i) => ({ ...c, time: addStep(base, i, timeframe) }))
+  const futData = base == null ? [] : future.map((c, j) => ({ ...c, time: addStep(base, historical.length + j, timeframe) }))
 
   useEffect(() => {
+    if (base == null) return
     if (!containerRef.current) return
-    const chart = createChart(containerRef.current, {
-      width: containerRef.current.clientWidth,
-      height: CHART_HEIGHT,
-      layout: { background: { color: '#1f2937' }, textColor: '#9ca3af' },
-      grid: { vertLines: { color: '#374151' }, horzLines: { color: '#374151' } },
-      crosshair: { mode: 1 },
-      // Fix 3: enable scroll and scale for interactivity
-      handleScroll: true,
-      handleScale: true,
-      rightPriceScale: { borderColor: '#374151', scaleMargins: { top: 0.1, bottom: 0.1 } },
-      timeScale: { borderColor: '#374151', timeVisible: true, fixLeftEdge: true, fixRightEdge: true },
-    })
-    chartRef.current = chart
+    setChartError(null)
 
-    // Fix 3: set priceFormat precision so values are not rounded
-    const seriesOpts = {
-      priceFormat: { type: 'price' as const, precision: 4, minMove: 0.0001 },
+    let chart: IChartApi | null = null
+    let ro: ResizeObserver | null = null
+    let updateSplitX: (() => void) | null = null
+    let onCrosshair: ((param: Parameters<Parameters<IChartApi['subscribeCrosshairMove']>[0]>[0]) => void) | null = null
+    let disposed = false
+
+    const disposeChart = () => {
+      if (disposed) return
+      disposed = true
+      ro?.disconnect()
+      ro = null
+      try {
+        if (chart && updateSplitX) chart.timeScale().unsubscribeVisibleTimeRangeChange(updateSplitX)
+      } catch {}
+      try {
+        if (chart && onCrosshair) chart.unsubscribeCrosshairMove(onCrosshair)
+      } catch {}
+      try {
+        chart?.remove()
+      } catch {}
+      chart = null
     }
-    const histSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#22c55e', downColor: '#ef4444',
-      borderUpColor: '#22c55e', borderDownColor: '#ef4444',
-      wickUpColor: '#22c55e', wickDownColor: '#ef4444',
-      ...seriesOpts,
-    })
-    const futSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#86efac', downColor: '#fca5a5',
-      borderUpColor: '#86efac', borderDownColor: '#fca5a5',
-      wickUpColor: '#86efac', wickDownColor: '#fca5a5',
-      ...seriesOpts,
-    })
 
-    // Fix 1: deduplicate + sort before injecting data
-    histSeries.setData(dedupeAndSort(histData))
-    futSeries.setData(dedupeAndSort(futData))
-    chart.timeScale().fitContent()
+    try {
+      chart = createChart(containerRef.current, {
+        width: containerRef.current.clientWidth,
+        height: CHART_HEIGHT,
+        layout: { background: { color: '#1f2937' }, textColor: '#9ca3af' },
+        grid: { vertLines: { color: '#374151' }, horzLines: { color: '#374151' } },
+        crosshair: { mode: 1 },
+        handleScroll: true,
+        handleScale: true,
+        rightPriceScale: { borderColor: '#374151', scaleMargins: { top: 0.1, bottom: 0.1 } },
+        timeScale: { borderColor: '#374151', timeVisible: true, fixLeftEdge: true, fixRightEdge: true },
+      })
 
-    // Fix 2: orange vertical line — midpoint between last hist bar and first future bar
-    const updateSplitX = () => {
-      const lastHistTime = histData.length > 0 ? histData[histData.length - 1].time : null
-      const firstFutTime = futData.length > 0 ? futData[0].time : null
-      if (!lastHistTime) return
-      const x1 = chart.timeScale().timeToCoordinate(lastHistTime)
-      const x2 = firstFutTime ? chart.timeScale().timeToCoordinate(firstFutTime) : null
-      if (x1 !== null && x2 !== null) {
-        setSplitX(((x1 as number) + (x2 as number)) / 2)
-      } else if (x1 !== null) {
-        setSplitX(x1 as number)
+      const seriesOpts = {
+        priceFormat: { type: 'price' as const, precision: 4, minMove: 0.0001 },
       }
-    }
-    updateSplitX()
-    chart.timeScale().subscribeVisibleTimeRangeChange(updateSplitX)
+      const histSeries = chart.addSeries(CandlestickSeries, {
+        upColor: '#22c55e', downColor: '#ef4444',
+        borderUpColor: '#22c55e', borderDownColor: '#ef4444',
+        wickUpColor: '#22c55e', wickDownColor: '#ef4444',
+        ...seriesOpts,
+      })
+      const futSeries = chart.addSeries(CandlestickSeries, {
+        upColor: '#86efac', downColor: '#fca5a5',
+        borderUpColor: '#86efac', borderDownColor: '#fca5a5',
+        wickUpColor: '#86efac', wickDownColor: '#fca5a5',
+        ...seriesOpts,
+      })
 
-    // Fix 3: OHLC tooltip via subscribeCrosshairMove
-    const allBars = [...dedupeAndSort(histData), ...dedupeAndSort(futData)]
-    const dataMap = new Map(allBars.map(d => [String(d.time), d]))
-    const onCrosshair = (param: Parameters<Parameters<typeof chart.subscribeCrosshairMove>[0]>[0]) => {
-      if (!param.point || !param.time) { setTooltip(null); return }
-      const bar = dataMap.get(String(param.time))
-      if (!bar) { setTooltip(null); return }
-      setTooltip({ x: param.point.x, y: param.point.y, open: bar.open, high: bar.high, low: bar.low, close: bar.close })
-    }
-    chart.subscribeCrosshairMove(onCrosshair)
+      const sortedHistData = dedupeAndSort(histData)
+      const sortedFutData = dedupeAndSort(futData)
+      histSeries.setData(sortedHistData)
+      futSeries.setData(sortedFutData)
+      chart.timeScale().fitContent()
 
-    const ro = new ResizeObserver(() => {
-      chart.applyOptions({ width: containerRef.current!.clientWidth })
+      updateSplitX = () => {
+        if (disposed || !chart) return
+        const lastHistTime = sortedHistData.length > 0 ? sortedHistData[sortedHistData.length - 1].time : null
+        const firstFutTime = sortedFutData.length > 0 ? sortedFutData[0].time : null
+        if (!lastHistTime) return
+        const x1 = chart.timeScale().timeToCoordinate(lastHistTime)
+        const x2 = firstFutTime ? chart.timeScale().timeToCoordinate(firstFutTime) : null
+        if (x1 !== null && x2 !== null) {
+          setSplitX(((x1 as number) + (x2 as number)) / 2)
+        } else if (x1 !== null) {
+          setSplitX(x1 as number)
+        }
+      }
       updateSplitX()
-    })
-    ro.observe(containerRef.current)
+      chart.timeScale().subscribeVisibleTimeRangeChange(updateSplitX)
+
+      const allBars = [...sortedHistData, ...sortedFutData]
+      const dataMap = new Map(allBars.map(d => [serializeTimeKey(d.time), d]))
+      onCrosshair = (param) => {
+        if (disposed) return
+        if (!param.point || !param.time) { setTooltip(null); return }
+        const key = typeof param.time === 'number'
+          ? String(param.time)
+          : serializeTimeKey(param.time as BusinessDay)
+        const bar = dataMap.get(key)
+        if (!bar) { setTooltip(null); return }
+        setTooltip({ x: param.point.x, y: param.point.y, open: bar.open, high: bar.high, low: bar.low, close: bar.close })
+      }
+      chart.subscribeCrosshairMove(onCrosshair)
+
+      ro = new ResizeObserver(() => {
+        if (disposed || !chart || !containerRef.current) return
+        chart.applyOptions({ width: containerRef.current.clientWidth })
+        updateSplitX?.()
+      })
+      ro.observe(containerRef.current)
+    } catch (error) {
+      setChartError((error as Error).message || 'Unknown chart rendering error')
+      setSplitX(null)
+      setTooltip(null)
+      disposeChart()
+    }
 
     return () => {
-      ro.disconnect()
-      chart.timeScale().unsubscribeVisibleTimeRangeChange(updateSplitX)
-      chart.unsubscribeCrosshairMove(onCrosshair)
-      chart.remove()
-      chartRef.current = null
+      disposeChart()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, timeframe, historical.length, future.length])
+  }, [base, startDate, timeframe, historical.length, future.length])
 
   return (
     <div className="relative w-full rounded overflow-hidden" style={{ height: CHART_HEIGHT }}>
-      <div ref={containerRef} className="w-full h-full" />
+      {base == null ? (
+        <div className="flex h-full items-center justify-center rounded bg-gray-900/70 px-3 text-center text-xs text-gray-500">
+          Match chart unavailable because this case does not have a valid start date.
+        </div>
+      ) : chartError ? (
+        <div className="flex h-full items-center justify-center rounded bg-gray-900/70 px-3 text-center text-xs text-gray-500">
+          Match chart unavailable because this case has an invalid date value. {chartError}
+        </div>
+      ) : (
+        <>
+      <div ref={containerRef} className="w-full h-full" data-testid="match-chart" />
       {/* Fix 2: orange vertical line at boundary between hist and future */}
       {splitX !== null && (
         <div
+          data-testid="match-chart-split-line"
           className="absolute top-0 bottom-0 pointer-events-none"
           style={{ left: splitX, width: 2, background: '#f97316', opacity: 0.9 }}
         />
@@ -189,8 +258,15 @@ function PredictorChart({
           <div><span className="text-gray-500">C </span>{tooltip.close.toFixed(4)}</div>
         </div>
       )}
+        </>
+      )}
     </div>
   )
+}
+
+function futureSegmentLabel(count: number, timeframe: '1H' | '1D'): string {
+  if (count <= 0) return 'No future bars'
+  return timeframe === '1D' ? `Actual future ${count}D bars` : `Actual future ${count} x 1H bars`
 }
 
 export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
@@ -265,6 +341,12 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
               {/* Expandable Chart */}
               {isOpen && (
                 <div className="px-3 pb-3">
+                  <div className="mb-2 flex items-center justify-between text-[11px] text-gray-400">
+                    <span>Left = matched historical segment</span>
+                    <span className="rounded border border-orange-700/60 bg-orange-950/40 px-2 py-0.5 text-orange-300">
+                      Right = {futureSegmentLabel(fut.length, timeframe)}
+                    </span>
+                  </div>
                   <PredictorChart
                     historical={hist}
                     future={fut}

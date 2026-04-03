@@ -11,18 +11,25 @@ export interface MatchCase {
   id: string;
   correlation: number;
   historicalOhlc: Array<{ open: number; high: number; low: number; close: number }>;
-  futureOhlc: Array<{ open: number; high: number; low: number; close: number }>;
+  futureOhlc: Array<{ open: number; high: number; low: number; close: number; time?: string }>;
   startDate: string;
   endDate: string;
 }
 
+export interface OrderSuggestion {
+  label: string;
+  price: number;
+  pct: number;
+  occurrenceBar: number;
+  occurrenceWindow: string;
+  historicalTime: string;
+}
+
 export interface PredictStats {
-  optimistic: number;
-  baseline: number;
-  pessimistic: number;
-  optimisticPct: number;
-  baselinePct: number;
-  pessimisticPct: number;
+  highest: OrderSuggestion;
+  secondHighest: OrderSuggestion;
+  secondLowest: OrderSuggestion;
+  lowest: OrderSuggestion;
   winRate: number;
   meanCorrelation: number;
 }
