@@ -38,3 +38,9 @@ export interface PredictResponse {
   matches: MatchCase[];
   stats: PredictStats;
 }
+
+export interface DayStats {
+  label: string;
+  highest: { price: number; pct: number; time: string };
+  lowest: { price: number; pct: number; time: string };
+}

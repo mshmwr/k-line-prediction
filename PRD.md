@@ -48,21 +48,28 @@ Find historical segments that are similar to the user's current K-line structure
 ## Statistics Logic
 - Stats are computed from the selected match set.
 - Match List:
-  - each match includes the matched historical segment plus the actual next 24 x 1H bars from history
+  - each match includes the matched historical segment plus the actual next 72 x 1H bars from history
   - the expanded match chart must show these raw future bars, not a projected or aggregated chart
 - Statistics:
-  - build a projected 24 x 1H candle path from the selected match set
+  - build a projected 72 x 1H candle path from the selected match set
   - for each future hour bucket, rebase every selected match's future OHLC by its historical base close and project it onto the current input close
   - aggregate each hour bucket with median open, median close, median high, and median low to form one projected candle
-  - the Statistics chart must visualize this aggregated projected 24-hour path
-- Returned stats:
-  - highest = highest `high` found on the projected 24-hour chart
-  - second highest = second-highest `high` found on the projected 24-hour chart
-  - lowest = lowest `low` found on the projected 24-hour chart
-  - second lowest = second-lowest `low` found on the projected 24-hour chart
-  - occurrence window = the `Hour +N` bucket where that projected extreme appears
+  - the Statistics chart must visualize this aggregated projected 72-hour path
+- Overall stats (across all 72 projected bars):
+  - highest = highest `high` found on the projected 72-hour chart
+  - second highest = second-highest `high` found on the projected 72-hour chart
+  - lowest = lowest `low` found on the projected 72-hour chart
+  - second lowest = second-lowest `low` found on the projected 72-hour chart
+  - occurrence window = the actual UTC+8 datetime where that projected extreme appears
   - win rate = share of projected candles whose close is above the current close
   - mean correlation = average match score
+- Per-day stats (Day 1 / Day 2 / Day 3, each covering 24 projected bars):
+  - highest = highest `high` within that day's 24 projected bars
+  - lowest = lowest `low` within that day's 24 projected bars
+  - occurrence window = actual UTC+8 datetime of the extreme within that day
+- Time display:
+  - all occurrence windows must show actual UTC+8 datetimes (format: MM/DD HH:mm) derived from the last bar of the user's input
+  - the Statistics chart x-axis must show actual UTC+8 datetimes at day boundaries (Hour +1, Hour +25, Hour +49, Hour +72)
 
 ## Input Validation
 - The predict button is enabled only when all visible OHLC rows are numerically complete.

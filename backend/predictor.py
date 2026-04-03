@@ -7,7 +7,7 @@ from mock_data import MOCK_HISTORY
 
 MA_WINDOW = 99
 MIN_BARS_FOR_MA_TREND = 2
-FUTURE_LOOKAHEAD_BARS = 24
+FUTURE_LOOKAHEAD_BARS = 72
 
 def z_score_normalize(series: List[float]) -> List[float]:
     arr = np.array(series, dtype=float)

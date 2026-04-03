@@ -1,7 +1,8 @@
 import os
 import csv
+import io
 from pathlib import Path
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from models import PredictRequest, PredictResponse
 from predictor import find_top_matches, compute_stats
@@ -10,14 +11,13 @@ from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
 HISTORY_DB = Path(__file__).parent.parent / "history_database"
 HISTORY_1H_PATH = HISTORY_DB / "Binance_ETHUSDT_1h.csv"
 HISTORY_1D_PATH = HISTORY_DB / "Binance_ETHUSDT_d.csv"
-EXAMPLE_1H_PATH = HISTORY_DB / "Binance_ETHUSDT_1h_test.csv"
-EXAMPLE_1D_PATH = HISTORY_DB / "Binance_ETHUSDT_1d_test.csv"
 OFFICIAL_INPUT_PATH = Path(
     os.environ.get("OFFICIAL_INPUT_CSV_PATH", "/Users/yclee/Desktop/ETHUSDT-1h-2026-04-02.csv")
 )
 
-HISTORY_1H = load_csv_history(HISTORY_1H_PATH) if HISTORY_1H_PATH.exists() else MOCK_HISTORY
-HISTORY_1D = load_csv_history(HISTORY_1D_PATH) if HISTORY_1D_PATH.exists() else MOCK_HISTORY
+# Mutable in-memory history (updated by upload and predict endpoints)
+_history_1h: list = list(load_csv_history(HISTORY_1H_PATH) if HISTORY_1H_PATH.exists() else MOCK_HISTORY)
+_history_1d: list = list(load_csv_history(HISTORY_1D_PATH) if HISTORY_1D_PATH.exists() else MOCK_HISTORY)
 
 app = FastAPI()
 app.add_middleware(
@@ -27,6 +27,106 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+def _merge_bars(existing: list, new_bars: list) -> list:
+    """Merge new_bars into existing, dedup by 'date', sort chronologically."""
+    combined = {bar['date']: bar for bar in existing}
+    combined.update({bar['date']: bar for bar in new_bars})
+    return sorted(combined.values(), key=lambda b: b['date'])
+
+
+def _save_history_csv(bars: list, path: Path) -> None:
+    """Save bars to CSV in minimal date,open,high,low,close format."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['date', 'open', 'high', 'low', 'close'])
+        writer.writeheader()
+        for bar in bars:
+            writer.writerow({
+                'date': bar['date'],
+                'open': bar['open'],
+                'high': bar['high'],
+                'low': bar['low'],
+                'close': bar['close'],
+            })
+
+
+def _parse_csv_history_from_text(text: str) -> list:
+    """Parse CryptoDataDownload-format CSV history from text content."""
+    lines = [l for l in text.splitlines() if l.strip()]
+    if not lines:
+        return []
+    header_idx = 1 if lines[0].strip().startswith('http') else 0
+    reader = csv.DictReader(lines[header_idx:])
+    headers = {k.strip().lower(): k for k in (reader.fieldnames or [])}
+    bars = []
+    for row in reader:
+        try:
+            date_key = headers.get('date') or headers.get('unix') or next(iter(headers.values()))
+            raw_date = row[date_key].strip() if date_key else ''
+            bars.append({
+                'open': float(row[headers['open']]),
+                'high': float(row[headers['high']]),
+                'low': float(row[headers['low']]),
+                'close': float(row[headers['close']]),
+                'date': raw_date,
+            })
+        except (KeyError, ValueError):
+            continue
+    bars.reverse()  # CryptoDataDownload is newest-first → reverse to chronological
+    return bars
+
+
+@app.get("/api/history-info")
+def get_history_info():
+    def info(history: list, path: Path) -> dict:
+        return {
+            'filename': path.name if path.exists() else 'mock data (no file)',
+            'latest': history[-1]['date'] if history else None,
+            'bar_count': len(history),
+        }
+    return {
+        '1H': info(_history_1h, HISTORY_1H_PATH),
+        '1D': info(_history_1d, HISTORY_1D_PATH),
+    }
+
+
+@app.post("/api/upload-history")
+async def upload_history_file(file: UploadFile = File(...)):
+    global _history_1h, _history_1d
+    content = await file.read()
+    try:
+        text = content.decode('utf-8')
+    except UnicodeDecodeError:
+        text = content.decode('latin-1')
+
+    new_bars = _parse_csv_history_from_text(text)
+    if not new_bars:
+        raise HTTPException(status_code=422, detail='Could not parse any bars from the uploaded file.')
+
+    filename = file.filename or ''
+    name_lower = filename.lower()
+    is_1d = ('1d' in name_lower or name_lower.endswith('_d.csv') or '_d_' in name_lower)
+    target_path = HISTORY_1D_PATH if is_1d else HISTORY_1H_PATH
+    existing = _history_1d if is_1d else _history_1h
+
+    merged = _merge_bars(existing, new_bars)
+    _save_history_csv(merged, target_path)
+
+    if is_1d:
+        _history_1d = merged
+    else:
+        _history_1h = merged
+
+    latest = merged[-1]['date'] if merged else None
+    return {
+        'filename': target_path.name,
+        'latest': latest,
+        'bar_count': len(merged),
+        'timeframe': '1D' if is_1d else '1H',
+    }
+
+
 @app.get("/api/example")
 def get_example(n: int = Query(default=5, ge=1, le=300), timeframe: str = Query(default='1H')):
     path = HISTORY_1D_PATH if timeframe == '1D' else HISTORY_1H_PATH
@@ -35,7 +135,6 @@ def get_example(n: int = Query(default=5, ge=1, le=300), timeframe: str = Query(
     rows = []
     with open(path, newline='', encoding='utf-8') as f:
         lines = [l for l in f if l.strip()]
-    # Skip URL header line if present
     header_idx = 1 if lines[0].strip().startswith('http') else 0
     reader = csv.DictReader(lines[header_idx:])
     headers = {k.strip().lower(): k for k in (reader.fieldnames or [])}
@@ -87,7 +186,26 @@ def get_official_input():
 
 @app.post("/api/predict", response_model=PredictResponse)
 def predict(req: PredictRequest) -> PredictResponse:
-    history = HISTORY_1D if req.timeframe == "1D" else HISTORY_1H
+    global _history_1h, _history_1d
+
+    is_1d = req.timeframe == "1D"
+    history = _history_1d if is_1d else _history_1h
+    target_path = HISTORY_1D_PATH if is_1d else HISTORY_1H_PATH
+
+    # Append input bars (that have timestamps) to history_database
+    input_bars_with_time = [
+        {'date': bar.time, 'open': bar.open, 'high': bar.high, 'low': bar.low, 'close': bar.close}
+        for bar in req.ohlc_data if bar.time
+    ]
+    if input_bars_with_time:
+        merged = _merge_bars(history, input_bars_with_time)
+        _save_history_csv(merged, target_path)
+        if is_1d:
+            _history_1d = merged
+        else:
+            _history_1h = merged
+        history = merged
+
     try:
         all_matches = find_top_matches(
             req.ohlc_data,
