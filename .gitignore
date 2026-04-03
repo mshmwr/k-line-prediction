@@ -1,0 +1,11 @@
+# Node / frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local environment / OS noise
+.DS_Store
