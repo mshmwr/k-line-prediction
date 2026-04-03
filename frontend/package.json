@@ -3,11 +3,16 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=18 <21",
+    "npm": ">=9"
+  },
   "scripts": {
+    "pretest": "node ./scripts/patch-vitest-node16.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "node ./scripts/patch-vitest-node16.mjs && vitest"
   },
   "dependencies": {
     "axios": "^1.7.2",
