@@ -10,7 +10,28 @@ This project now expects Node 20 for the frontend toolchain.
 
 ## Quick Start
 
-From the project root:
+### 後端（FastAPI）
+
+```bash
+cd backend
+python3 -m uvicorn main:app --reload --port 8000
+```
+
+後端啟動後在 `http://localhost:8000`。
+
+### 前端（React/Vite）
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+前端啟動後在 `http://localhost:5173`。
+
+> 前後端需同時執行，請開兩個終端視窗分別啟動。
+
+### 執行測試
 
 ```bash
 cd frontend
