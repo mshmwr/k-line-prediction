@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { OHLCRow, MatchCase, OrderSuggestion, PredictStats, DayStats } from './types'
+import { OHLCRow, MatchCase, OrderSuggestion, PredictStats, DayStats, Ma99Gap } from './types'
 import { OHLCEditor } from './components/OHLCEditor'
 import { TopBar } from './components/TopBar'
 import { PredictButton } from './components/PredictButton'
@@ -225,6 +225,8 @@ export default function App() {
 
   const [ohlcData, setOhlcData] = useState<OHLCRow[]>(() => emptyRows(48))
   const [matches, setMatches] = useState<MatchCase[]>([])
+  const [queryMa99, setQueryMa99] = useState<(number | null)[]>([])
+  const [queryMa99Gap, setQueryMa99Gap] = useState<Ma99Gap | null>(null)
   const [tempSelection, setTempSelection] = useState<Set<string>>(new Set())
   const [appliedSelection, setAppliedSelection] = useState<Set<string>>(new Set())
   const [appliedData, setAppliedData] = useState<{ matches: MatchCase[]; stats: PredictStats | null; inputs: OHLCRow[] }>({
@@ -285,6 +287,8 @@ export default function App() {
 
   function resetPredictionState() {
     setMatches([])
+    setQueryMa99([])
+    setQueryMa99Gap(null)
     setTempSelection(new Set())
     setAppliedSelection(new Set())
     setAppliedData({ matches: [], stats: null, inputs: [] })
@@ -348,6 +352,8 @@ export default function App() {
 
     const allIds = new Set(result.matches.map(m => m.id))
     setMatches(result.matches)
+    setQueryMa99(result.queryMa99 ?? [])
+    setQueryMa99Gap(result.queryMa99Gap ?? null)
     setTempSelection(allIds)
     setAppliedSelection(allIds)
     setAppliedData({ matches: result.matches, stats: result.stats, inputs: ohlcData })
@@ -420,7 +426,12 @@ export default function App() {
           <OHLCEditor rows={ohlcData} timeframe={TIMEFRAME} onChange={handleCellChange} />
 
           <div className="h-[360px]">
-            <MainChart key={TIMEFRAME} userOhlc={ohlcData} timeframe={TIMEFRAME} />
+            <MainChart
+              key={TIMEFRAME}
+              userOhlc={ohlcData}
+              timeframe={TIMEFRAME}
+              {...({ ma99Values: queryMa99, ma99Gap: queryMa99Gap } as any)}
+            />
           </div>
 
           <div className="sticky bottom-0 z-10 mt-auto bg-gray-950 pt-2 pb-1">
