@@ -168,3 +168,121 @@ def test_predict_endpoint_requires_alignment_or_override_for_short_input():
     res = client.post("/api/predict", json=payload)
     assert res.status_code == 422
     assert "MA99" in res.text
+
+
+# ──────────────────────────────────────────────
+# Task 2: _compute_ma99_for_window, _extract_ma99_gap, get_prefix_bars
+# ──────────────────────────────────────────────
+
+from predictor import _compute_ma99_for_window, _extract_ma99_gap, get_prefix_bars
+from models import Ma99Gap
+
+
+def _make_bars(closes: list, with_time: bool = False) -> list:
+    """Build minimal OHLCBar list from close prices."""
+    return [
+        OHLCBar(
+            open=c, high=c + 1, low=c - 1, close=c,
+            time=f"2024-01-{i+1:02d} 00:00" if with_time else "",
+        )
+        for i, c in enumerate(closes)
+    ]
+
+
+def _make_dict_bars(closes: list) -> list:
+    """Build history-style dict bars."""
+    return [
+        {"open": c, "high": c + 1, "low": c - 1, "close": c, "date": f"2024-01-{i+1:04d} 00:00"}
+        for i, c in enumerate(closes)
+    ]
+
+
+# --- _compute_ma99_for_window ---
+
+def test_compute_ma99_full_prefix_returns_all_values():
+    """98 prefix bars + 5 window bars → 5 valid float values."""
+    prefix = _make_dict_bars([100.0] * 98)
+    window = _make_bars([101.0, 102.0, 103.0, 104.0, 105.0])
+    result = _compute_ma99_for_window(window, prefix)
+    assert len(result) == 5
+    assert all(v is not None for v in result)
+    assert all(isinstance(v, float) for v in result)
+
+
+def test_compute_ma99_empty_prefix_short_window_returns_all_none():
+    """0 prefix + 5 window bars (< 99 total) → all None."""
+    result = _compute_ma99_for_window(_make_bars([100.0] * 5), [])
+    assert result == [None] * 5
+
+
+def test_compute_ma99_partial_prefix_partial_nones():
+    """60 prefix + 48 window: first 38 bars → None, bars 38~47 → float."""
+    prefix = _make_dict_bars([100.0] * 60)
+    window = _make_bars([101.0] * 48)
+    result = _compute_ma99_for_window(window, prefix)
+    assert len(result) == 48
+    # 60 + j - 98 >= 0 → j >= 38; so result[37] is None, result[38] is not None
+    assert result[37] is None
+    assert result[38] is not None
+
+
+def test_compute_ma99_99_total_gives_one_valid():
+    """98 prefix + 1 window = exactly 99 → 1 valid value."""
+    prefix = _make_dict_bars([100.0] * 98)
+    window = _make_bars([101.0])
+    result = _compute_ma99_for_window(window, prefix)
+    assert len(result) == 1
+    assert result[0] is not None
+
+
+# --- _extract_ma99_gap ---
+
+def test_extract_ma99_gap_no_nones_returns_none():
+    bars = _make_bars([100.0] * 5, with_time=True)
+    ma99 = [100.0] * 5
+    assert _extract_ma99_gap(bars, ma99) is None
+
+
+def test_extract_ma99_gap_all_nones_with_time_returns_gap():
+    bars = _make_bars([100.0] * 5, with_time=True)
+    ma99 = [None] * 5
+    gap = _extract_ma99_gap(bars, ma99)
+    assert gap is not None
+    assert gap.from_date == "2024-01-01 00:00"
+    assert gap.to_date == "2024-01-05 00:00"
+
+
+def test_extract_ma99_gap_partial_nones_gap_matches_none_range():
+    bars = _make_bars([100.0] * 5, with_time=True)
+    ma99 = [None, None, None, 100.5, 100.6]
+    gap = _extract_ma99_gap(bars, ma99)
+    assert gap is not None
+    assert gap.from_date == "2024-01-01 00:00"
+    assert gap.to_date == "2024-01-03 00:00"
+
+
+def test_extract_ma99_gap_no_time_returns_none():
+    """Bars without timestamps → no gap (can't report date range)."""
+    bars = _make_bars([100.0] * 5, with_time=False)
+    ma99 = [None] * 5
+    assert _extract_ma99_gap(bars, ma99) is None
+
+
+# --- get_prefix_bars ---
+
+def test_get_prefix_bars_returns_bars_before_time():
+    history = _make_dict_bars([100.0] * 10)
+    # history[5]["date"] = "2024-01-0006 00:00" → expect 5 bars before it
+    prefix = get_prefix_bars(history, history[5]["date"], "1H")
+    assert len(prefix) == 5
+
+
+def test_get_prefix_bars_time_not_in_history_returns_empty():
+    history = _make_dict_bars([100.0] * 5)
+    prefix = get_prefix_bars(history, "2099-01-01 00:00", "1H")
+    assert prefix == []
+
+
+def test_get_prefix_bars_empty_time_returns_empty():
+    history = _make_dict_bars([100.0] * 5)
+    assert get_prefix_bars(history, "", "1H") == []

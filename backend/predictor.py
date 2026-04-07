@@ -70,6 +70,61 @@ def _aligned_ma_series(window_bars, preceding_bars) -> List[float]:
         return []
     return ma[-len(window_bars):]
 
+def _compute_ma99_for_window(
+    window_bars,   # List[OHLCBar] or List[dict]
+    prefix_bars,   # List[OHLCBar] or List[dict]
+) -> List[Optional[float]]:
+    """
+    用 prefix_bars + window_bars 計算 MA99。
+    回傳 len(window_bars) 個值，不足以計算的位置填 None。
+    """
+    combined = list(prefix_bars) + list(window_bars)
+    closes = _extract_closes(combined)
+    n_prefix = len(prefix_bars)
+
+    if len(closes) < MA_WINDOW:
+        return [None] * len(window_bars)
+
+    ma_full = _rolling_mean(closes, MA_WINDOW)
+
+    result: List[Optional[float]] = []
+    for j in range(len(window_bars)):
+        ma_idx = n_prefix + j - (MA_WINDOW - 1)
+        result.append(float(ma_full[ma_idx]) if ma_idx >= 0 else None)
+    return result
+
+
+def _extract_ma99_gap(window_bars, ma99_values: List[Optional[float]]):
+    """
+    找出 ma99_values 開頭連續為 None 的日期範圍。
+    若 bars 無時間戳，回傳 None（無法告知使用者日期）。
+    """
+    from models import Ma99Gap
+    gap_start: Optional[str] = None
+    gap_end: Optional[str] = None
+    for bar, val in zip(window_bars, ma99_values):
+        if val is None:
+            t = _bar_time(bar)
+            if t and gap_start is None:
+                gap_start = t
+            if t:
+                gap_end = t
+        else:
+            break
+    if gap_start:
+        return Ma99Gap(from_date=gap_start, to_date=gap_end or gap_start)
+    return None
+
+
+def get_prefix_bars(history: list, first_time: str, timeframe: str) -> list:
+    """回傳 history 中 first_time 之前的所有 bars（不含 first_time 本身）。"""
+    if not first_time:
+        return []
+    norm = _normalize_time(first_time, timeframe)
+    idx = _history_time_index(history, timeframe).get(norm)
+    return history[:idx] if idx is not None else []
+
+
 def _query_ma_series(input_bars, history, timeframe: str) -> Tuple[List[float], str]:
     input_times = [_normalize_time(_bar_time(bar), timeframe) for bar in input_bars]
     first_time = input_times[0] if input_times else ''
