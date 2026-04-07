@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
-import { BusinessDay, createChart, IChartApi, UTCTimestamp, CandlestickSeries } from 'lightweight-charts'
+import { BusinessDay, createChart, IChartApi, LineSeries, UTCTimestamp, CandlestickSeries } from 'lightweight-charts'
 import { MatchCase } from '../types'
 
 interface Props {
@@ -95,11 +95,15 @@ function PredictorChart({
   future,
   startDate,
   timeframe,
+  historicalMa99 = [],
+  futureMa99 = [],
 }: {
   historical: Array<{ open: number; high: number; low: number; close: number }>
   future: Array<{ open: number; high: number; low: number; close: number }>
   startDate: string
   timeframe: '1H' | '1D'
+  historicalMa99?: (number | null)[]
+  futureMa99?: (number | null)[]
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [splitX, setSplitX] = useState<number | null>(null)
@@ -167,10 +171,31 @@ function PredictorChart({
         ...seriesOpts,
       })
 
+      const ma99Series = chart.addSeries(LineSeries, {
+        color: '#b889ff',
+        lineWidth: 2,
+        crosshairMarkerVisible: false,
+        lastValueVisible: false,
+        priceLineVisible: false,
+      })
+
       const sortedHistData = dedupeAndSort(histData)
       const sortedFutData = dedupeAndSort(futData)
       histSeries.setData(sortedHistData)
       futSeries.setData(sortedFutData)
+
+      const ma99Data = [
+        ...sortedHistData.map((bar, i) => {
+          const val = historicalMa99[i]
+          return val != null ? { time: bar.time, value: val } : null
+        }),
+        ...sortedFutData.map((bar, j) => {
+          const val = futureMa99[j]
+          return val != null ? { time: bar.time, value: val } : null
+        }),
+      ].filter((d): d is { time: CandleTime; value: number } => d !== null)
+      ma99Series.setData(dedupeAndSort(ma99Data))
+
       chart.timeScale().fitContent()
 
       updateSplitX = () => {
@@ -220,7 +245,7 @@ function PredictorChart({
       disposeChart()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [base, startDate, timeframe, historical.length, future.length])
+  }, [base, startDate, timeframe, historical.length, future.length, historicalMa99.length, futureMa99.length])
 
   return (
     <div className="relative w-full rounded overflow-hidden" style={{ height: CHART_HEIGHT }}>
@@ -352,6 +377,8 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
                     future={fut}
                     startDate={m.startDate}
                     timeframe={timeframe}
+                    historicalMa99={m.historicalMa99 ?? []}
+                    futureMa99={m.futureMa99 ?? []}
                   />
                 </div>
               )}
