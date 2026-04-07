@@ -430,7 +430,8 @@ export default function App() {
               key={TIMEFRAME}
               userOhlc={ohlcData}
               timeframe={TIMEFRAME}
-              {...({ ma99Values: queryMa99, ma99Gap: queryMa99Gap } as any)}
+              ma99Values={queryMa99}
+              ma99Gap={queryMa99Gap}
             />
           </div>
 

@@ -12,6 +12,8 @@ import { OHLCRow } from '../types'
 interface Props {
   userOhlc: OHLCRow[]
   timeframe: '1H' | '1D'
+  ma99Values?: (number | null)[]
+  ma99Gap?: { fromDate: string; toDate: string } | null
 }
 
 type CandleTime = UTCTimestamp | string
@@ -106,7 +108,7 @@ function buildSma(data: CandleDatum[], period: number) {
   })
 }
 
-export function MainChart({ userOhlc, timeframe }: Props) {
+export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleSeriesRef = useRef<ReturnType<IChartApi['addSeries']> | null>(null)
@@ -126,7 +128,15 @@ export function MainChart({ userOhlc, timeframe }: Props) {
     return sortData(rows)
   }, [userOhlc, timeframe])
 
-  const ma99 = useMemo(() => buildSma(data, 99), [data])
+  const ma99LineData = useMemo(() => {
+    if (!ma99Values?.length) return []
+    return data
+      .map((bar, i) => {
+        const val = ma99Values[i]
+        return val != null ? { time: bar.time, value: val } : null
+      })
+      .filter((d): d is { time: CandleTime; value: number } => d !== null)
+  }, [data, ma99Values])
   const timeMarkers = useMemo(() => {
     if (!data.length) return []
     const first = data[0]
@@ -207,12 +217,12 @@ export function MainChart({ userOhlc, timeframe }: Props) {
     if (!candleSeriesRef.current) return
 
     candleSeriesRef.current.setData(data)
-    ma99SeriesRef.current?.setData(ma99)
+    ma99SeriesRef.current?.setData(ma99LineData)
 
     if (data.length > 0) {
       chartRef.current?.timeScale().fitContent()
     }
-  }, [data, ma99])
+  }, [data, ma99LineData])
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-[#252c39] bg-[#171b24] shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
@@ -233,8 +243,17 @@ export function MainChart({ userOhlc, timeframe }: Props) {
           </span>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-          <span className="text-[#b889ff]">MA(99) {formatPrice(ma99[ma99.length - 1]?.value ?? null)}</span>
+          <span className="text-[#b889ff]">
+            MA(99) {formatPrice(
+              [...(ma99Values ?? [])].reverse().find(v => v != null) ?? null
+            )}
+          </span>
         </div>
+        {ma99Gap && (
+          <div className="mt-1.5 rounded bg-yellow-950/60 border border-yellow-700/50 px-3 py-1 text-[11px] text-yellow-300">
+            ⚠ MA99 資料缺失：{ma99Gap.fromDate} ~ {ma99Gap.toDate}（歷史前置資料不足 99 根）
+          </div>
+        )}
       </div>
 
       <div className="relative min-h-[220px] flex-1">
