@@ -33,6 +33,8 @@ export function usePrediction() {
           futureOhlc: m.future_ohlc,
           startDate: m.start_date,
           endDate: m.end_date,
+          historicalMa99: m.historical_ma99 ?? [],
+          futureMa99: m.future_ma99 ?? [],
         })),
         stats: {
           highest: {
@@ -70,6 +72,10 @@ export function usePrediction() {
           winRate: raw.stats.win_rate,
           meanCorrelation: raw.stats.mean_correlation,
         },
+        queryMa99: raw.query_ma99 ?? [],
+        queryMa99Gap: raw.query_ma99_gap
+          ? { fromDate: raw.query_ma99_gap.from_date, toDate: raw.query_ma99_gap.to_date }
+          : null,
       }
       console.log("Mapped Stats:", result.stats)
       return result

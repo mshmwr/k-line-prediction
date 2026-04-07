@@ -7,6 +7,11 @@ export interface OHLCRow {
   time: string;
 }
 
+export interface Ma99Gap {
+  fromDate: string;
+  toDate: string;
+}
+
 export interface MatchCase {
   id: string;
   correlation: number;
@@ -14,6 +19,8 @@ export interface MatchCase {
   futureOhlc: Array<{ open: number; high: number; low: number; close: number; time?: string }>;
   startDate: string;
   endDate: string;
+  historicalMa99: (number | null)[];
+  futureMa99: (number | null)[];
 }
 
 export interface OrderSuggestion {
@@ -37,6 +44,8 @@ export interface PredictStats {
 export interface PredictResponse {
   matches: MatchCase[];
   stats: PredictStats;
+  queryMa99: (number | null)[];
+  queryMa99Gap: Ma99Gap | null;
 }
 
 export interface DayStats {

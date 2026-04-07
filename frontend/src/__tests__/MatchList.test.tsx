@@ -4,7 +4,8 @@ import { MatchCase } from '../types'
 
 const makeMatch = (id: string, correlation: number): MatchCase => ({
   id, correlation,
-  historicalOhlc: [], futureOhlc: [], startDate: '2023-01-01', endDate: '2023-01-02'
+  historicalOhlc: [], futureOhlc: [], startDate: '2023-01-01', endDate: '2023-01-02',
+  historicalMa99: [], futureMa99: [],
 })
 
 test('renders match cards', () => {
@@ -72,6 +73,7 @@ test('expanded match item renders chart container when OHLC data provided', () =
         futureOhlc: [{ open: 110, high: 120, low: 105, close: 115 }],
         startDate: '2023-06-15',
         endDate: '2023-06-16',
+        historicalMa99: [], futureMa99: [],
       }]}
       selected={new Set(['m1'])}
       onToggle={() => {}}
@@ -104,6 +106,7 @@ test('expanded match chart shows orange split line when both historical and futu
         futureOhlc: [{ open: 110, high: 120, low: 105, close: 115 }],
         startDate: '2023-01-01',
         endDate: '2023-01-02',
+        historicalMa99: [], futureMa99: [],
       }]}
       selected={new Set(['m1'])}
       onToggle={() => {}}
@@ -117,7 +120,7 @@ test('expanded match chart shows orange split line when both historical and futu
 // ── Null-safety tests (regression for toFixed crash) ──────────────────────────
 
 test('does not crash when correlation is null/undefined', () => {
-  const malformed = { id: 'm1', correlation: null as unknown as number, historicalOhlc: [], futureOhlc: [], startDate: '', endDate: '' }
+  const malformed = { id: 'm1', correlation: null as unknown as number, historicalOhlc: [], futureOhlc: [], startDate: '', endDate: '', historicalMa99: [], futureMa99: [] }
   expect(() =>
     render(<MatchList matches={[malformed]} selected={new Set(['m1'])} onToggle={() => {}} timeframe="1H" />)
   ).not.toThrow()
@@ -125,7 +128,7 @@ test('does not crash when correlation is null/undefined', () => {
 })
 
 test('does not crash when futureOhlc is missing', () => {
-  const malformed = { id: 'm2', correlation: 0.8, historicalOhlc: [], futureOhlc: undefined as any, startDate: '2023-01-01', endDate: '2023-01-02' }
+  const malformed = { id: 'm2', correlation: 0.8, historicalOhlc: [], futureOhlc: undefined as any, startDate: '2023-01-01', endDate: '2023-01-02', historicalMa99: [], futureMa99: [] }
   expect(() =>
     render(<MatchList matches={[malformed]} selected={new Set()} onToggle={() => {}} timeframe="1H" />)
   ).not.toThrow()
@@ -139,6 +142,7 @@ test('expanded match with missing start date shows fallback instead of crashing'
     futureOhlc: [{ open: 105, high: 115, low: 100, close: 110 }],
     startDate: '',
     endDate: '',
+    historicalMa99: [], futureMa99: [],
   }
   render(<MatchList matches={[malformed]} selected={new Set(['m3'])} onToggle={() => {}} timeframe="1H" />)
   fireEvent.click(screen.getByText(/unknown interval/i))
