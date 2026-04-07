@@ -313,3 +313,46 @@ def test_find_top_matches_ma99_values_are_float_or_none():
     for match in matches:
         for v in match.historical_ma99 + match.future_ma99:
             assert v is None or isinstance(v, float)
+
+
+# ──────────────────────────────────────────────
+# Task 4: predict endpoint returns query_ma99 / query_ma99_gap
+# ──────────────────────────────────────────────
+
+def test_predict_endpoint_returns_query_ma99():
+    """predict endpoint 應回傳 query_ma99 陣列，長度等於輸入的 bar 數。"""
+    payload = {
+        "ohlc_data": [
+            {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i}
+            for i in range(MA_WINDOW + 1)
+        ],
+        "selected_ids": [],
+        "timeframe": "1H",
+    }
+    res = client.post("/api/predict", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert "query_ma99" in data
+    assert len(data["query_ma99"]) == MA_WINDOW + 1
+    # query_ma99_gap should be None (no timestamps → no gap info)
+    assert data["query_ma99_gap"] is None
+
+
+def test_predict_endpoint_matches_include_ma99():
+    """每個 match 應包含 historical_ma99 和 future_ma99。"""
+    payload = {
+        "ohlc_data": [
+            {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i}
+            for i in range(MA_WINDOW + 1)
+        ],
+        "selected_ids": [],
+        "timeframe": "1H",
+    }
+    res = client.post("/api/predict", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    for match in data["matches"]:
+        assert "historical_ma99" in match
+        assert "future_ma99" in match
+        assert len(match["historical_ma99"]) == len(match["historical_ohlc"])
+        assert len(match["future_ma99"]) == len(match["future_ohlc"])

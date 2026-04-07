@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from models import PredictRequest, PredictResponse
-from predictor import find_top_matches, compute_stats
+from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
 
 HISTORY_DB = Path(__file__).parent.parent / "history_database"
@@ -225,4 +225,16 @@ def predict(req: PredictRequest) -> PredictResponse:
         active = all_matches
     current_close = req.ohlc_data[-1].close
     stats = compute_stats(active, current_close, req.timeframe)
-    return PredictResponse(matches=all_matches, stats=stats)
+
+    # 計算 query MA99
+    first_input_time = req.ohlc_data[0].time if req.ohlc_data else ''
+    query_prefix = get_prefix_bars(history, first_input_time, req.timeframe)
+    query_ma99 = _compute_ma99_for_window(req.ohlc_data, query_prefix)
+    query_ma99_gap = _extract_ma99_gap(req.ohlc_data, query_ma99)
+
+    return PredictResponse(
+        matches=all_matches,
+        stats=stats,
+        query_ma99=query_ma99,
+        query_ma99_gap=query_ma99_gap,
+    )
