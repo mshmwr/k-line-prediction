@@ -273,13 +273,21 @@ def find_top_matches(
     top = results[:10]
     matches = []
     for r, i, window, future in top:
+        prefix = history[:i]
+        combined_ma99 = _compute_ma99_for_window(
+            list(window) + list(future),
+            prefix,
+        )
+        n = len(window)
         matches.append(MatchCase(
             id=f"match_{i}",
             correlation=round(r, 4),
             historical_ohlc=[OHLCBar(**b) for b in window],
             future_ohlc=[OHLCBar(**b) for b in future],
             start_date=window[0]['date'],
-            end_date=future[-1]['date']
+            end_date=future[-1]['date'],
+            historical_ma99=combined_ma99[:n],
+            future_ma99=combined_ma99[n:],
         ))
     return matches
 

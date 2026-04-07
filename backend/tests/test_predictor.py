@@ -286,3 +286,30 @@ def test_get_prefix_bars_time_not_in_history_returns_empty():
 def test_get_prefix_bars_empty_time_returns_empty():
     history = _make_dict_bars([100.0] * 5)
     assert get_prefix_bars(history, "", "1H") == []
+
+
+# ──────────────────────────────────────────────
+# Task 3: find_top_matches includes historical_ma99 / future_ma99
+# ──────────────────────────────────────────────
+
+def test_find_top_matches_includes_historical_ma99():
+    """Matches 應包含 historical_ma99，長度等於 historical_ohlc 長度。"""
+    history = _build_segment(100.0, 300, 0.8, 1)
+    input_slice = history[150:180]
+    input_bars = [OHLCBar(open=b['open'], high=b['high'], low=b['low'], close=b['close'], time=b['date']) for b in input_slice]
+    matches = find_top_matches(input_bars, future_n=10, history=history, timeframe='1H')
+    assert matches
+    for match in matches:
+        assert len(match.historical_ma99) == len(match.historical_ohlc)
+        assert len(match.future_ma99) == len(match.future_ohlc)
+
+
+def test_find_top_matches_ma99_values_are_float_or_none():
+    """MA99 值應為 float 或 None，不得為其他型別。"""
+    history = _build_segment(100.0, 300, 0.8, 1)
+    input_slice = history[150:165]
+    input_bars = [OHLCBar(open=b['open'], high=b['high'], low=b['low'], close=b['close'], time=b['date']) for b in input_slice]
+    matches = find_top_matches(input_bars, future_n=5, history=history, timeframe='1H')
+    for match in matches:
+        for v in match.historical_ma99 + match.future_ma99:
+            assert v is None or isinstance(v, float)
