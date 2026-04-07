@@ -31,7 +31,7 @@ npm run dev
 
 > 前後端需同時執行，請開兩個終端視窗分別啟動。
 
-### 執行測試
+### 執行單元測試
 
 ```bash
 cd frontend
@@ -39,6 +39,17 @@ npm install
 npm run build
 npm test -- --run
 ```
+
+### 執行 E2E 測試（Playwright）
+
+```bash
+cd frontend
+npm install
+npx playwright install chromium   # 第一次需要安裝瀏覽器
+npm run test:e2e
+```
+
+E2E 測試會自動啟動 Vite dev server（port 5173）並透過 `page.route()` mock API 回應，不需要後端服務。
 
 ## Node Version Notes
 

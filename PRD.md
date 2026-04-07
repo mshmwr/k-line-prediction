@@ -88,8 +88,16 @@ Payload
 - `ma99_trend_override`: optional `up`, `down`, or `flat`
 
 Response
-- `matches`
-- `stats`
+- `matches`: array of match cases; each case includes:
+  - `historical_ohlc`: matched historical segment
+  - `future_ohlc`: actual future bars following the matched segment
+  - `historical_ma99`: MA99 values aligned to the matched historical segment (`(number | null)[]`)
+  - `future_ma99`: MA99 values aligned to the future bars (`(number | null)[]`)
+  - `start_date`, `end_date`: time range of the matched historical segment
+  - `correlation`: similarity score
+- `stats`: aggregated statistics across all selected matches
+- `query_ma99`: MA99 series for the current query segment (`(number | null)[]`); used to render the MA99 line on the main chart and display the latest value in the chart header
+- `query_ma99_gap`: `null` if the MA99 series is fully populated; otherwise `{ from_date, to_date }` indicating the date range where data was missing and MA99 could not be computed
 
 ## UX Notes
 - Keep OHLC input and MA99 assistance as separate UI concepts.
@@ -98,6 +106,9 @@ Response
 - Match List and Statistics must be labeled clearly so users can distinguish between:
   - actual future historical bars in each matched case
   - the aggregated projected chart used for statistics and order suggestions
+- After prediction, the main chart header must display the latest non-null value from `query_ma99` formatted as `MA(99) x,xxx.xx`.
+- If `query_ma99_gap` is non-null, a warning banner must appear below the main chart indicating the affected date range (e.g., `MA99 資料缺失：2024-01-01 ~ 2024-01-10`).
+- Each expanded match card must display a mini chart that overlays the `historical_ma99` and `future_ma99` as a purple MA99 line alongside the candlestick data; a vertical orange line separates the historical from the future segment.
 
 ## Non-functional Requirements
 - Prediction refresh after clicking the button should remain responsive.
