@@ -15,6 +15,11 @@ class PredictRequest(BaseModel):
     timeframe: str = "1H"
     ma99_trend_override: Optional[str] = None
 
+class Ma99Gap(BaseModel):
+    """MA99 無法計算的日期缺口（歷史前置資料不足 99 根）"""
+    from_date: str
+    to_date: str
+
 class MatchCase(BaseModel):
     id: str
     correlation: float
@@ -22,6 +27,8 @@ class MatchCase(BaseModel):
     future_ohlc: List[OHLCBar]
     start_date: str
     end_date: str
+    historical_ma99: List[Optional[float]] = []
+    future_ma99: List[Optional[float]] = []
 
 class OrderSuggestion(BaseModel):
     label: str
@@ -42,3 +49,5 @@ class PredictStats(BaseModel):
 class PredictResponse(BaseModel):
     matches: List[MatchCase]
     stats: PredictStats
+    query_ma99: List[Optional[float]] = []
+    query_ma99_gap: Optional[Ma99Gap] = None
