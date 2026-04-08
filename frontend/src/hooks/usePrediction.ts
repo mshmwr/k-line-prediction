@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { OHLCRow, PredictResponse } from '../types'
+import { OHLCRow, PredictResponse, Ma99Gap } from '../types'
 
 export function usePrediction() {
   const [loading, setLoading] = useState(false)
@@ -87,5 +87,28 @@ export function usePrediction() {
     }
   }
 
-  return { predict, loading, error }
+  async function computeMa99(
+    ohlcRows: OHLCRow[],
+    timeframe: string = '1H',
+  ): Promise<{ queryMa99: (number | null)[]; queryMa99Gap: Ma99Gap | null }> {
+    const res = await axios.post<any>('/api/merge-and-compute-ma99', {
+      ohlc_data: ohlcRows.map(r => ({
+        open: Number(r.open),
+        high: Number(r.high),
+        low: Number(r.low),
+        close: Number(r.close),
+        time: r.time ?? '',
+      })),
+      timeframe,
+    })
+    const raw = res.data
+    return {
+      queryMa99: raw.query_ma99 ?? [],
+      queryMa99Gap: raw.query_ma99_gap
+        ? { fromDate: raw.query_ma99_gap.from_date, toDate: raw.query_ma99_gap.to_date }
+        : null,
+    }
+  }
+
+  return { predict, computeMa99, loading, error }
 }
