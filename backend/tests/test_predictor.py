@@ -417,3 +417,36 @@ def test_merge_and_compute_ma99_gap_when_no_prefix():
     data = res.json()
     # With only 10 bars and no prefix, MA99 gap should exist (< 99 bars available)
     assert data["query_ma99_gap"] is not None
+
+
+def test_merge_and_compute_ma99_empty_input():
+    """Endpoint handles ohlc_data=[] gracefully: returns 200 with empty query_ma99."""
+    res = client.post("/api/merge-and-compute-ma99", json={"ohlc_data": [], "timeframe": "1H"})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["query_ma99"] == []
+    assert data["query_ma99_gap"] is None
+
+
+def test_make_endpoint_bars_count_over_99_produces_valid_dates():
+    """_make_endpoint_bars with count > 99 generates dates spanning multiple days correctly."""
+    bars = _make_endpoint_bars(110, "2022-01-01")
+    assert len(bars) == 110
+    # Bar at index 99 should be 2022-01-05 03:00 (99 hours after 2022-01-01 00:00)
+    from datetime import datetime
+    first_dt = datetime.fromisoformat(bars[0]['date'])
+    last_dt = datetime.fromisoformat(bars[-1]['date'])
+    assert last_dt > first_dt
+    # All dates should parse without error and be unique
+    dates = [b['date'] for b in bars]
+    assert len(set(dates)) == 110
+
+
+def test_extract_ma99_gap_ignores_isolated_none_in_middle():
+    """_extract_ma99_gap only reports prefix Nones; isolated Nones in the middle are ignored."""
+    from predictor import _extract_ma99_gap
+    # Simulate: first bar has MA (not None), middle has isolated None, rest have values
+    bars = [{'date': f'2024-01-0{i+1} 00:00'} for i in range(5)]
+    ma99 = [1800.0, None, 1802.0, 1803.0, 1804.0]  # isolated None at index 1
+    gap = _extract_ma99_gap(bars, ma99)
+    assert gap is None  # no prefix gap → should return None

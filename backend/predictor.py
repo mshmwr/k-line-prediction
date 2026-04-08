@@ -98,6 +98,9 @@ def _extract_ma99_gap(window_bars, ma99_values: List[Optional[float]]):
     """
     找出 ma99_values 開頭連續為 None 的日期範圍。
     若 bars 無時間戳，回傳 None（無法告知使用者日期）。
+
+    注意：只偵測前綴連續 None（前置資料不足造成的缺口）。
+    中間或末尾孤立的 None 不會被回報，也不屬於此函式的職責範圍。
     """
     from models import Ma99Gap
     gap_start: Optional[str] = None
