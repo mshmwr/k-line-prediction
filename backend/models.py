@@ -51,3 +51,11 @@ class PredictResponse(BaseModel):
     stats: PredictStats
     query_ma99: List[Optional[float]] = []
     query_ma99_gap: Optional[Ma99Gap] = None
+
+class Ma99Request(BaseModel):
+    ohlc_data: List[OHLCBar]
+    timeframe: str = "1H"
+
+class Ma99Response(BaseModel):
+    query_ma99: List[Optional[float]] = []
+    query_ma99_gap: Optional[Ma99Gap] = None
