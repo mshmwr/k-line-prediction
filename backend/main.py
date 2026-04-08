@@ -4,7 +4,7 @@ import io
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from models import PredictRequest, PredictResponse
+from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
 
@@ -182,6 +182,41 @@ def get_official_input():
         "source_path": str(OFFICIAL_INPUT_PATH),
         "timeframe": "1H",
     }
+
+
+@app.post("/api/merge-and-compute-ma99", response_model=Ma99Response)
+def merge_and_compute_ma99(req: Ma99Request) -> Ma99Response:
+    global _history_1h, _history_1d
+    is_1d = req.timeframe == "1D"
+    history = _history_1d if is_1d else _history_1h
+    target_path = HISTORY_1D_PATH if is_1d else HISTORY_1H_PATH
+
+    input_bars_with_time = [
+        {
+            'date': bar.time,
+            'open': bar.open,
+            'high': bar.high,
+            'low': bar.low,
+            'close': bar.close,
+        }
+        for bar in req.ohlc_data
+        if bar.time
+    ]
+    if input_bars_with_time:
+        merged = _merge_bars(history, input_bars_with_time)
+        _save_history_csv(merged, target_path)
+        if is_1d:
+            _history_1d = merged
+        else:
+            _history_1h = merged
+        history = merged
+
+    first_input_time = req.ohlc_data[0].time if req.ohlc_data else ''
+    query_prefix = get_prefix_bars(history, first_input_time, req.timeframe)
+    query_ma99 = _compute_ma99_for_window(req.ohlc_data, query_prefix)
+    query_ma99_gap = _extract_ma99_gap(req.ohlc_data, query_ma99)
+
+    return Ma99Response(query_ma99=query_ma99, query_ma99_gap=query_ma99_gap)
 
 
 @app.post("/api/predict", response_model=PredictResponse)

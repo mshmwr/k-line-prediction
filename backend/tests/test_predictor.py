@@ -356,3 +356,64 @@ def test_predict_endpoint_matches_include_ma99():
         assert "future_ma99" in match
         assert len(match["historical_ma99"]) == len(match["historical_ohlc"])
         assert len(match["future_ma99"]) == len(match["future_ohlc"])
+
+
+# ──────────────────────────────────────────────
+# Task 2: /api/merge-and-compute-ma99 endpoint
+# ──────────────────────────────────────────────
+
+def _make_endpoint_bars(count: int, start_date: str = "2022-01-01") -> list[dict]:
+    """Generate `count` simple ascending bars from start_date (hourly)."""
+    from datetime import datetime, timedelta
+    bars = []
+    base = datetime.fromisoformat(start_date)
+    price = 1000.0
+    for i in range(count):
+        dt = base + timedelta(hours=i)
+        close = price + i * 0.5
+        bars.append({
+            'date': dt.strftime('%Y-%m-%d %H:%M'),
+            'open': price + i * 0.5,
+            'high': price + i * 0.5 + 2,
+            'low': price + i * 0.5 - 2,
+            'close': close,
+        })
+    return bars
+
+
+def test_merge_and_compute_ma99_returns_query_ma99():
+    """Endpoint returns query_ma99 array with same length as input."""
+    bars = _make_endpoint_bars(24, "2024-03-01")
+    payload = {
+        "ohlc_data": [
+            {"open": b["open"], "high": b["high"], "low": b["low"],
+             "close": b["close"], "time": b["date"]}
+            for b in bars
+        ],
+        "timeframe": "1H",
+    }
+    res = client.post("/api/merge-and-compute-ma99", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert "query_ma99" in data
+    assert len(data["query_ma99"]) == 24
+
+
+def test_merge_and_compute_ma99_gap_when_no_prefix():
+    """When bars use very early dates (no prefix in history), query_ma99_gap is not None."""
+    # Use very early dates (1900s) → no prefix bars exist → MA99 cannot be calculated
+    # bar count (10) < MA_WINDOW (99) → all MA99 values are None → gap is reported
+    bars = _make_endpoint_bars(10, "1900-01-01")
+    payload = {
+        "ohlc_data": [
+            {"open": b["open"], "high": b["high"], "low": b["low"],
+             "close": b["close"], "time": b["date"]}
+            for b in bars
+        ],
+        "timeframe": "1H",
+    }
+    res = client.post("/api/merge-and-compute-ma99", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    # With only 10 bars and no prefix, MA99 gap should exist (< 99 bars available)
+    assert data["query_ma99_gap"] is not None
