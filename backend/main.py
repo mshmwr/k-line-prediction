@@ -52,11 +52,12 @@ def _save_history_csv(bars: list, path: Path) -> None:
 
 
 def _parse_csv_history_from_text(text: str) -> list:
-    """Parse CryptoDataDownload-format CSV history from text content."""
+    """Parse CSV history from text content. Supports both CryptoDataDownload (newest-first) and chronological formats."""
     lines = [l for l in text.splitlines() if l.strip()]
     if not lines:
         return []
-    header_idx = 1 if lines[0].strip().startswith('http') else 0
+    is_cryptodatadownload = lines[0].strip().startswith('http')
+    header_idx = 1 if is_cryptodatadownload else 0
     reader = csv.DictReader(lines[header_idx:])
     headers = {k.strip().lower(): k for k in (reader.fieldnames or [])}
     bars = []
@@ -73,7 +74,8 @@ def _parse_csv_history_from_text(text: str) -> list:
             })
         except (KeyError, ValueError):
             continue
-    bars.reverse()  # CryptoDataDownload is newest-first → reverse to chronological
+    if is_cryptodatadownload:
+        bars.reverse()  # CryptoDataDownload is newest-first → reverse to chronological
     return bars
 
 
@@ -186,10 +188,8 @@ def get_official_input():
 
 @app.post("/api/merge-and-compute-ma99", response_model=Ma99Response)
 def merge_and_compute_ma99(req: Ma99Request) -> Ma99Response:
-    global _history_1h, _history_1d
     is_1d = req.timeframe == "1D"
     history = _history_1d if is_1d else _history_1h
-    target_path = HISTORY_1D_PATH if is_1d else HISTORY_1H_PATH
 
     input_bars_with_time = [
         {
@@ -202,14 +202,9 @@ def merge_and_compute_ma99(req: Ma99Request) -> Ma99Response:
         for bar in req.ohlc_data
         if bar.time
     ]
+    # Merge in memory only for prefix context computation — do NOT persist to disk
     if input_bars_with_time:
-        merged = _merge_bars(history, input_bars_with_time)
-        _save_history_csv(merged, target_path)
-        if is_1d:
-            _history_1d = merged
-        else:
-            _history_1h = merged
-        history = merged
+        history = _merge_bars(history, input_bars_with_time)
 
     first_input_time = req.ohlc_data[0].time if req.ohlc_data else ''
     query_prefix = get_prefix_bars(history, first_input_time, req.timeframe)
@@ -221,25 +216,16 @@ def merge_and_compute_ma99(req: Ma99Request) -> Ma99Response:
 
 @app.post("/api/predict", response_model=PredictResponse)
 def predict(req: PredictRequest) -> PredictResponse:
-    global _history_1h, _history_1d
-
     is_1d = req.timeframe == "1D"
     history = _history_1d if is_1d else _history_1h
-    target_path = HISTORY_1D_PATH if is_1d else HISTORY_1H_PATH
 
-    # Append input bars (that have timestamps) to history_database
+    # Merge input bars in memory only for pattern matching context — do NOT persist to disk
     input_bars_with_time = [
         {'date': bar.time, 'open': bar.open, 'high': bar.high, 'low': bar.low, 'close': bar.close}
         for bar in req.ohlc_data if bar.time
     ]
     if input_bars_with_time:
-        merged = _merge_bars(history, input_bars_with_time)
-        _save_history_csv(merged, target_path)
-        if is_1d:
-            _history_1d = merged
-        else:
-            _history_1h = merged
-        history = merged
+        history = _merge_bars(history, input_bars_with_time)
 
     try:
         all_matches = find_top_matches(

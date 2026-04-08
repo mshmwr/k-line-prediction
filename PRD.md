@@ -91,6 +91,8 @@ Response
 
 Purpose: Called immediately after the official CSV files are uploaded (before prediction) so that the MA99 line and header value can be rendered on the main chart without waiting for the user to click the predict button.
 
+Note: This endpoint does NOT persist uploaded OHLC data to the history database. The merge is performed in memory only to provide the historical prefix needed for MA99 computation. History database updates must go through `/api/upload-history`.
+
 ### POST `/api/predict`
 Payload
 - `ohlc_data`: array of OHLC rows with optional `time`
@@ -109,6 +111,8 @@ Response
 - `stats`: aggregated statistics across all selected matches
 - `query_ma99`: MA99 series for the current query segment (`(number | null)[]`); used to render the MA99 line on the main chart and display the latest value in the chart header
 - `query_ma99_gap`: `null` if the MA99 series is fully populated; otherwise `{ from_date, to_date }` indicating the date range where data was missing and MA99 could not be computed
+
+Note: This endpoint does NOT persist uploaded OHLC data to the history database. The merge is in-memory only.
 
 ## UX Notes
 - Keep OHLC input and MA99 assistance as separate UI concepts.

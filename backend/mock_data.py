@@ -29,7 +29,8 @@ MOCK_HISTORY = generate_mock_history(seed=99)
 def load_csv_history(path: Path) -> List[Dict]:
     with open(path, newline='', encoding='utf-8') as f:
         lines = [l for l in f if l.strip()]
-    header_idx = 1 if lines[0].strip().startswith('http') else 0
+    is_cryptodatadownload = lines[0].strip().startswith('http')
+    header_idx = 1 if is_cryptodatadownload else 0
     reader = csv.DictReader(lines[header_idx:])
     headers = {k.strip().lower(): k for k in (reader.fieldnames or [])}
     bars = []
@@ -46,7 +47,8 @@ def load_csv_history(path: Path) -> List[Dict]:
             })
         except (KeyError, ValueError):
             continue
-    bars.reverse()  # CryptoDataDownload is newest-first → reverse to chronological
+    if is_cryptodatadownload:
+        bars.reverse()  # CryptoDataDownload is newest-first → reverse to chronological
     return bars
 
 
