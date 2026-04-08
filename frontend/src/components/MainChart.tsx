@@ -14,6 +14,7 @@ interface Props {
   timeframe: '1H' | '1D'
   ma99Values?: (number | null)[]
   ma99Gap?: { fromDate: string; toDate: string } | null
+  maLoading?: boolean
 }
 
 type CandleTime = UTCTimestamp | string
@@ -108,7 +109,7 @@ function buildSma(data: CandleDatum[], period: number) {
   })
 }
 
-export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap }: Props) {
+export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap, maLoading }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleSeriesRef = useRef<ReturnType<IChartApi['addSeries']> | null>(null)
@@ -244,9 +245,9 @@ export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap }: Props) {
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
           <span className="text-[#b889ff]">
-            MA(99) {formatPrice(
-              [...(ma99Values ?? [])].reverse().find(v => v != null) ?? null
-            )}
+            {maLoading
+              ? 'MA(99) 計算中…'
+              : `MA(99) ${formatPrice([...(ma99Values ?? [])].reverse().find(v => v != null) ?? null)}`}
           </span>
         </div>
         {ma99Gap && (

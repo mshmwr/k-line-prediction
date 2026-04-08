@@ -46,6 +46,11 @@ const MOCK_STATS = {
 /** 48 non-null MA99 values; last value = 1897, formatted as "1,897.00". */
 const QUERY_MA99 = Array.from({ length: 48 }, (_, i) => 1850 + i)
 
+const MOCK_MA99_RESPONSE = {
+  query_ma99: QUERY_MA99,
+  query_ma99_gap: null,
+}
+
 const MOCK_PREDICT_BASE = {
   matches: [
     {
@@ -66,6 +71,30 @@ const MOCK_PREDICT_BASE = {
   query_ma99: QUERY_MA99,
 }
 
+/** Match with uptrend future_ma99 (10 values, 1900→1990, slope > 0, pct ≈ +4.74%) */
+const MOCK_PREDICT_WITH_UPTREND = {
+  ...MOCK_PREDICT_BASE,
+  matches: [
+    {
+      ...MOCK_PREDICT_BASE.matches[0],
+      future_ma99: Array.from({ length: 10 }, (_, i) => 1900 + i * 10),
+    },
+  ],
+  query_ma99_gap: null,
+}
+
+/** Match with downtrend future_ma99 (10 values, 1990→1900, slope < 0, pct ≈ -4.52%) */
+const MOCK_PREDICT_WITH_DOWNTREND = {
+  ...MOCK_PREDICT_BASE,
+  matches: [
+    {
+      ...MOCK_PREDICT_BASE.matches[0],
+      future_ma99: Array.from({ length: 10 }, (_, i) => 1990 - i * 10),
+    },
+  ],
+  query_ma99_gap: null,
+}
+
 const MOCK_PREDICT_NO_GAP = { ...MOCK_PREDICT_BASE, query_ma99_gap: null }
 const MOCK_PREDICT_WITH_GAP = {
   ...MOCK_PREDICT_BASE,
@@ -74,9 +103,16 @@ const MOCK_PREDICT_WITH_GAP = {
 
 // ── Shared helper ────────────────────────────────────────────────────────────
 
-async function setupAndPredict(page: Page, predictResponse: object) {
+async function setupAndPredict(
+  page: Page,
+  predictResponse: object,
+  ma99Response: object = MOCK_MA99_RESPONSE,
+) {
   await page.route('/api/history-info', route =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_HISTORY_INFO) })
+  )
+  await page.route('/api/merge-and-compute-ma99', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(ma99Response) })
   )
   await page.route('/api/predict', route =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(predictResponse) })
@@ -92,7 +128,7 @@ async function setupAndPredict(page: Page, predictResponse: object) {
     { name: 'day2.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY2) },
   ])
 
-  // Wait for the predict button to become enabled (ohlcComplete flips to true)
+  // Wait for the predict button to become enabled (maLoading resolves + ohlcComplete = true)
   await expect(page.getByRole('button', { name: /Start Prediction/ })).toBeEnabled({ timeout: 5000 })
 
   await page.getByRole('button', { name: /Start Prediction/ }).click()
@@ -133,4 +169,93 @@ test('expanding a match card renders the PredictorChart container', async ({ pag
   // Split line is absolutely-positioned and may be clipped in headless viewport;
   // checking it is attached to the DOM confirms splitX was computed successfully.
   await expect(page.getByTestId('match-chart-split-line')).toHaveCount(1)
+})
+
+// ── Early MA99 flow ──────────────────────────────────────────────────────────
+
+test('predict button is disabled with maLoading tooltip while MA99 is computing', async ({ page }) => {
+  let resolveMA99: ((value: unknown) => void) | null = null
+  const ma99Pending = new Promise(resolve => { resolveMA99 = resolve })
+
+  await page.route('/api/history-info', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_HISTORY_INFO) })
+  )
+  await page.route('/api/merge-and-compute-ma99', async route => {
+    await ma99Pending
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_MA99_RESPONSE) })
+  })
+
+  await page.goto('/')
+
+  const fileInput = page.locator('input[type="file"][multiple]')
+  await fileInput.setInputFiles([
+    { name: 'day1.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY1) },
+    { name: 'day2.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY2) },
+  ])
+
+  // Button should be disabled while MA99 is loading
+  const predictBtn = page.getByRole('button', { name: /Start Prediction/ })
+  await expect(predictBtn).toBeDisabled({ timeout: 3000 })
+  await expect(predictBtn).toHaveAttribute('title', 'MA99 計算中，請稍候…')
+
+  // Unblock the MA99 response
+  resolveMA99!(undefined)
+
+  // Button should become enabled after MA99 resolves
+  await expect(predictBtn).toBeEnabled({ timeout: 5000 })
+})
+
+test('MainChart shows MA99 計算中 label while loading, then value after load', async ({ page }) => {
+  let resolveMA99: ((value: unknown) => void) | null = null
+  const ma99Pending = new Promise(resolve => { resolveMA99 = resolve })
+
+  await page.route('/api/history-info', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_HISTORY_INFO) })
+  )
+  await page.route('/api/merge-and-compute-ma99', async route => {
+    await ma99Pending
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_MA99_RESPONSE) })
+  })
+
+  await page.goto('/')
+
+  const fileInput = page.locator('input[type="file"][multiple]')
+  await fileInput.setInputFiles([
+    { name: 'day1.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY1) },
+    { name: 'day2.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY2) },
+  ])
+
+  // Loading label should appear
+  await expect(page.getByText('MA(99) 計算中…')).toBeVisible({ timeout: 3000 })
+
+  // Unblock
+  resolveMA99!(undefined)
+
+  // Loading label disappears, value appears
+  await expect(page.getByText('MA(99) 計算中…')).not.toBeVisible({ timeout: 5000 })
+  await expect(page.getByText(/MA\(99\)\s+1,897/)).toBeVisible({ timeout: 3000 })
+})
+
+// ── MatchList Trend Labels ───────────────────────────────────────────────────
+
+test('MatchList card shows uptrend label after prediction with rising future MA99', async ({ page }) => {
+  await setupAndPredict(page, MOCK_PREDICT_WITH_UPTREND)
+
+  // Trend label should show ↑ with positive percentage
+  // valid[0]=1900, valid[9]=1990 → pct = (1990-1900)/1900*100 ≈ 4.74%
+  await expect(page.getByText(/↑\s+\+4\.74%/)).toBeVisible({ timeout: 5000 })
+})
+
+test('MatchList card shows downtrend label after prediction with falling future MA99', async ({ page }) => {
+  await setupAndPredict(page, MOCK_PREDICT_WITH_DOWNTREND)
+
+  // valid[0]=1990, valid[9]=1900 → pct = (1900-1990)/1990*100 ≈ -4.52%
+  await expect(page.getByText(/↓\s+-4\.52%/)).toBeVisible({ timeout: 5000 })
+})
+
+test('MatchList card shows no trend label when future_ma99 has fewer than 2 values', async ({ page }) => {
+  // MOCK_PREDICT_NO_GAP has future_ma99: [1920] → only 1 value, no trend
+  await setupAndPredict(page, MOCK_PREDICT_NO_GAP)
+
+  await expect(page.getByText(/↑|↓/)).not.toBeVisible()
 })

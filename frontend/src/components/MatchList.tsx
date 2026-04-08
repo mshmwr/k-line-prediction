@@ -289,6 +289,23 @@ function PredictorChart({
   )
 }
 
+function computeMaTrend(futureMa99: (number | null)[]): { direction: 'up' | 'down'; pct: number } | null {
+  const valid = futureMa99.filter((v): v is number => v !== null)
+  if (valid.length < 2) return null
+
+  const n = valid.length
+  const xs = valid.map((_, i) => i)
+  const meanX = (n - 1) / 2
+  const meanY = valid.reduce((a, b) => a + b, 0) / n
+  const denom = xs.reduce((sum, x) => sum + (x - meanX) ** 2, 0)
+  if (denom === 0) return null
+  const slope = xs.reduce((sum, x, i) => sum + (x - meanX) * (valid[i] - meanY), 0) / denom
+
+  const pct = ((valid[valid.length - 1] - valid[0]) / valid[0]) * 100
+
+  return { direction: slope >= 0 ? 'up' : 'down', pct }
+}
+
 function futureSegmentLabel(count: number, timeframe: '1H' | '1D'): string {
   if (count <= 0) return 'No future bars'
   return timeframe === '1D' ? `Actual future ${count}D bars` : `Actual future ${count} x 1H bars`
@@ -337,6 +354,7 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
           const isOpen = openSet.has(m.id)
           const hist = m.historicalOhlc ?? []
           const fut = m.futureOhlc ?? []
+          const trend = computeMaTrend(m.futureMa99 ?? [])
           return (
             <div
               key={m.id}
@@ -358,8 +376,15 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
                   r = {m.correlation != null ? m.correlation.toFixed(4) : '—'}
                 </span>
                 <span className="text-gray-500 flex-shrink-0">|</span>
-                <span className="text-xs text-gray-400 flex-1 truncate">
-                  {formatInterval(m.startDate, m.endDate, timeframe)}
+                <span className="flex-1 min-w-0 flex items-center gap-2">
+                  <span className="text-xs text-gray-400 truncate">
+                    {formatInterval(m.startDate, m.endDate, timeframe)}
+                  </span>
+                  {trend && (
+                    <span className={`text-xs flex-shrink-0 ${trend.direction === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+                      {trend.direction === 'up' ? '↑' : '↓'} {trend.direction === 'up' && trend.pct >= 0 ? '+' : ''}{trend.pct.toFixed(2)}%
+                    </span>
+                  )}
                 </span>
                 <span className="text-gray-500 text-xs flex-shrink-0">{isOpen ? '▲' : '▼'}</span>
               </div>

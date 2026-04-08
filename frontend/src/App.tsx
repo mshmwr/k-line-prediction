@@ -446,6 +446,7 @@ export default function App() {
               timeframe={TIMEFRAME}
               ma99Values={queryMa99}
               ma99Gap={queryMa99Gap}
+              maLoading={maLoading}
             />
           </div>
 
