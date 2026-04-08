@@ -234,8 +234,9 @@ export default function App() {
   })
   const [loadError, setLoadError] = useState<string | null>(null)
   const [sourcePath, setSourcePath] = useState('No file uploaded yet.')
+  const [maLoading, setMaLoading] = useState(false)
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null)
-  const { predict, loading, error: predictionError } = usePrediction()
+  const { predict, computeMa99, loading, error: predictionError } = usePrediction()
 
   useEffect(() => {
     fetch('/api/history-info')
@@ -250,10 +251,11 @@ export default function App() {
   const trendOverride = useMemo(() => inferTrendOverride(ohlcData), [ohlcData])
 
   const disabledReason = useMemo(() => {
+    if (maLoading) return 'maLoading' as const
     if (!ohlcComplete) return 'ohlcIncomplete' as const
     if (matches.length > 0 && !hasSelection) return 'noSelection' as const
     return null
-  }, [ohlcComplete, hasSelection, matches.length])
+  }, [maLoading, ohlcComplete, hasSelection, matches.length])
 
   const projectedFutureBars = useMemo(() => {
     if (!appliedData.stats) return []
@@ -310,11 +312,23 @@ export default function App() {
         reader.onerror = () => reject(new Error(`Failed to read ${file.name}`))
         reader.readAsText(file)
       }))
-    ).then(results => {
+    ).then(async results => {
       const combined = results.flat().sort((a, b) => a.time.localeCompare(b.time))
       setOhlcData(combined)
       setSourcePath(fileList.map(f => f.name).join(' + '))
       resetPredictionState()
+      setQueryMa99([])
+      setQueryMa99Gap(null)
+      setMaLoading(true)
+      try {
+        const ma99Result = await computeMa99(combined, TIMEFRAME)
+        setQueryMa99(ma99Result.queryMa99)
+        setQueryMa99Gap(ma99Result.queryMa99Gap)
+      } catch (err) {
+        setLoadError((err as Error).message)
+      } finally {
+        setMaLoading(false)
+      }
     }).catch(err => setLoadError((err as Error).message))
   }
 
