@@ -80,6 +80,17 @@ Find historical segments that are similar to the user's current K-line structure
 
 ## API
 
+### POST `/api/merge-and-compute-ma99`
+Payload
+- `ohlc_data`: array of OHLC rows (merged from the two uploaded CSV files)
+- `timeframe`: `1H` or `1D`
+
+Response
+- `query_ma99`: MA99 series for the uploaded query segment (`(number | null)[]`)
+- `query_ma99_gap`: `null` if fully populated; otherwise `{ from_date, to_date }` indicating the date range where data was missing
+
+Purpose: Called immediately after the official CSV files are uploaded (before prediction) so that the MA99 line and header value can be rendered on the main chart without waiting for the user to click the predict button.
+
 ### POST `/api/predict`
 Payload
 - `ohlc_data`: array of OHLC rows with optional `time`
@@ -109,6 +120,8 @@ Response
 - After prediction, the main chart header must display the latest non-null value from `query_ma99` formatted as `MA(99) x,xxx.xx`.
 - If `query_ma99_gap` is non-null, a warning banner must appear below the main chart indicating the affected date range (e.g., `MA99 資料缺失：2024-01-01 ~ 2024-01-10`).
 - Each expanded match card must display a mini chart that overlays the `historical_ma99` and `future_ma99` as a purple MA99 line alongside the candlestick data; a vertical orange line separates the historical from the future segment.
+- Early MA99 loading state: immediately after the official CSV files are uploaded, the system calls `/api/merge-and-compute-ma99` to pre-compute MA99. During this call, the main chart header shows `MA(99) 計算中…` and the predict button is disabled with tooltip `MA99 計算中，請稍候…`. Once resolved, the header shows the latest MA99 value and the predict button becomes enabled.
+- Each match card header must display a MA99 trend label derived from the match's `future_ma99` series using linear regression slope: `↑ +X.XX%` (green) if slope ≥ 0, `↓ -X.XX%` (red) if slope < 0. The percentage is `(last − first) / first × 100`. The label is omitted when `future_ma99` has fewer than 2 non-null values.
 
 ## Non-functional Requirements
 - Prediction refresh after clicking the button should remain responsive.
