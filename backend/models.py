@@ -25,10 +25,14 @@ class MatchCase(BaseModel):
     correlation: float
     historical_ohlc: List[OHLCBar]
     future_ohlc: List[OHLCBar]
+    historical_ohlc_1d: List[OHLCBar] = []
+    future_ohlc_1d: List[OHLCBar] = []
     start_date: str
     end_date: str
     historical_ma99: List[Optional[float]] = []
     future_ma99: List[Optional[float]] = []
+    historical_ma99_1d: List[Optional[float]] = []
+    future_ma99_1d: List[Optional[float]] = []
 
 class OrderSuggestion(BaseModel):
     label: str
@@ -38,6 +42,13 @@ class OrderSuggestion(BaseModel):
     occurrence_window: str
     historical_time: str
 
+class ForecastBar(BaseModel):
+    time: str
+    open: float
+    high: float
+    low: float
+    close: float
+
 class PredictStats(BaseModel):
     highest: OrderSuggestion
     second_highest: OrderSuggestion
@@ -45,17 +56,23 @@ class PredictStats(BaseModel):
     lowest: OrderSuggestion
     win_rate: float
     mean_correlation: float
+    consensus_forecast_1h: List[ForecastBar] = []
+    consensus_forecast_1d: List[ForecastBar] = []
 
 class PredictResponse(BaseModel):
     matches: List[MatchCase]
     stats: PredictStats
-    query_ma99: List[Optional[float]] = []
-    query_ma99_gap: Optional[Ma99Gap] = None
+    query_ma99_1h: List[Optional[float]] = []
+    query_ma99_1d: List[Optional[float]] = []
+    query_ma99_gap_1h: Optional[Ma99Gap] = None
+    query_ma99_gap_1d: Optional[Ma99Gap] = None
 
 class Ma99Request(BaseModel):
     ohlc_data: List[OHLCBar]
     timeframe: str = "1H"
 
 class Ma99Response(BaseModel):
-    query_ma99: List[Optional[float]] = []
-    query_ma99_gap: Optional[Ma99Gap] = None
+    query_ma99_1h: List[Optional[float]] = []
+    query_ma99_1d: List[Optional[float]] = []
+    query_ma99_gap_1h: Optional[Ma99Gap] = None
+    query_ma99_gap_1d: Optional[Ma99Gap] = None

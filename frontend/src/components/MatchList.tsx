@@ -82,7 +82,7 @@ function formatInterval(startDate: string, endDate: string, timeframe: '1H' | '1
   if (!s && !e) return 'Unknown interval'
   if (!s) return e || 'Unknown interval'
   if (!e) return s
-  if (timeframe === '1D') return `${s} ~ ${e}`
+  if (timeframe === '1D') return `${s.slice(0, 10)} ~ ${e.slice(0, 10)}`
   const sParts = s.split(' ')
   const eParts = e.split(' ')
   const sTime = sParts[1]?.substring(0, 5) ?? ''
@@ -356,9 +356,9 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
         {matches.map(m => {
           const checked = selected.has(m.id)
           const isOpen = openSet.has(m.id)
-          const hist = m.historicalOhlc ?? []
-          const fut = m.futureOhlc ?? []
-          const trend = computeMaTrend(m.futureMa99 ?? [])
+          const hist = timeframe === '1D' ? (m.historicalOhlc1d ?? []) : (m.historicalOhlc ?? [])
+          const fut = timeframe === '1D' ? (m.futureOhlc1d ?? []) : (m.futureOhlc ?? [])
+          const trend = computeMaTrend(timeframe === '1D' ? (m.futureMa991d ?? []) : (m.futureMa99 ?? []))
           return (
             <div
               key={m.id}
@@ -406,8 +406,8 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
                     future={fut}
                     startDate={m.startDate}
                     timeframe={timeframe}
-                    historicalMa99={m.historicalMa99 ?? []}
-                    futureMa99={m.futureMa99 ?? []}
+                    historicalMa99={timeframe === '1D' ? (m.historicalMa991d ?? []) : (m.historicalMa99 ?? [])}
+                    futureMa99={timeframe === '1D' ? (m.futureMa991d ?? []) : (m.futureMa99 ?? [])}
                   />
                 </div>
               )}

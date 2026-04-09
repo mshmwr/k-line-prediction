@@ -6,13 +6,19 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import main
 from main import app
-from mock_data import generate_mock_history
+from mock_data import MOCK_HISTORY, generate_mock_history
 from models import MatchCase, OHLCBar
 from predictor import MA_WINDOW, compute_stats, find_top_matches, pearson_correlation, z_score_normalize
 
 
 client = TestClient(app)
+
+
+def _use_mock_histories():
+    main._history_1h = list(MOCK_HISTORY)
+    main._history_1d = list(MOCK_HISTORY)
 
 
 def test_mock_history_returns_500_bars():
@@ -126,9 +132,16 @@ def test_compute_stats_returns_extreme_order_suggestions():
 
 
 def test_predict_endpoint_happy_path():
+    _use_mock_histories()
     payload = {
         "ohlc_data": [
-            {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i}
+            {
+                "open": 2000 + i,
+                "high": 2010 + i,
+                "low": 1990 + i,
+                "close": 2005 + i,
+                "time": MOCK_HISTORY[120 + i]["date"],
+            }
             for i in range(MA_WINDOW + 1)
         ],
         "selected_ids": [],
@@ -140,9 +153,13 @@ def test_predict_endpoint_happy_path():
     assert len(data["matches"]) == 10
     assert "stats" in data
     assert "highest" in data["stats"]
+    assert "consensus_forecast_1h" in data["stats"]
+    assert "consensus_forecast_1d" in data["stats"]
+    assert "query_ma99_1d" in data
 
 
 def test_predict_endpoint_accepts_short_input_with_override():
+    _use_mock_histories()
     payload = {
         "ohlc_data": [
             {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i, "time": ""}
@@ -157,6 +174,7 @@ def test_predict_endpoint_accepts_short_input_with_override():
 
 
 def test_predict_endpoint_requires_alignment_or_override_for_short_input():
+    _use_mock_histories()
     payload = {
         "ohlc_data": [
             {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i, "time": ""}
@@ -320,10 +338,17 @@ def test_find_top_matches_ma99_values_are_float_or_none():
 # ──────────────────────────────────────────────
 
 def test_predict_endpoint_returns_query_ma99():
-    """predict endpoint 應回傳 query_ma99 陣列，長度等於輸入的 bar 數。"""
+    """predict endpoint 應回傳 1H/1D query_ma99 陣列。"""
+    _use_mock_histories()
     payload = {
         "ohlc_data": [
-            {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i}
+            {
+                "open": 2000 + i,
+                "high": 2010 + i,
+                "low": 1990 + i,
+                "close": 2005 + i,
+                "time": MOCK_HISTORY[120 + i]["date"],
+            }
             for i in range(MA_WINDOW + 1)
         ],
         "selected_ids": [],
@@ -332,17 +357,25 @@ def test_predict_endpoint_returns_query_ma99():
     res = client.post("/api/predict", json=payload)
     assert res.status_code == 200
     data = res.json()
-    assert "query_ma99" in data
-    assert len(data["query_ma99"]) == MA_WINDOW + 1
-    # query_ma99_gap should be None (no timestamps → no gap info)
-    assert data["query_ma99_gap"] is None
+    assert "query_ma99_1h" in data
+    assert "query_ma99_1d" in data
+    assert len(data["query_ma99_1h"]) == MA_WINDOW + 1
+    assert "query_ma99_gap_1h" in data
+    assert isinstance(data["query_ma99_1d"], list)
 
 
 def test_predict_endpoint_matches_include_ma99():
     """每個 match 應包含 historical_ma99 和 future_ma99。"""
+    _use_mock_histories()
     payload = {
         "ohlc_data": [
-            {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i}
+            {
+                "open": 2000 + i,
+                "high": 2010 + i,
+                "low": 1990 + i,
+                "close": 2005 + i,
+                "time": MOCK_HISTORY[120 + i]["date"],
+            }
             for i in range(MA_WINDOW + 1)
         ],
         "selected_ids": [],
@@ -354,6 +387,8 @@ def test_predict_endpoint_matches_include_ma99():
     for match in data["matches"]:
         assert "historical_ma99" in match
         assert "future_ma99" in match
+        assert "historical_ma99_1d" in match
+        assert "future_ma99_1d" in match
         assert len(match["historical_ma99"]) == len(match["historical_ohlc"])
         assert len(match["future_ma99"]) == len(match["future_ohlc"])
 
@@ -383,6 +418,7 @@ def _make_endpoint_bars(count: int, start_date: str = "2022-01-01") -> list[dict
 
 def test_merge_and_compute_ma99_returns_query_ma99():
     """Endpoint returns query_ma99 array with same length as input."""
+    _use_mock_histories()
     bars = _make_endpoint_bars(24, "2024-03-01")
     payload = {
         "ohlc_data": [
@@ -395,12 +431,14 @@ def test_merge_and_compute_ma99_returns_query_ma99():
     res = client.post("/api/merge-and-compute-ma99", json=payload)
     assert res.status_code == 200
     data = res.json()
-    assert "query_ma99" in data
-    assert len(data["query_ma99"]) == 24
+    assert "query_ma99_1h" in data
+    assert len(data["query_ma99_1h"]) == 24
+    assert "query_ma99_1d" in data
 
 
 def test_merge_and_compute_ma99_gap_when_no_prefix():
     """When bars use very early dates (no prefix in history), query_ma99_gap is not None."""
+    _use_mock_histories()
     # Use very early dates (1900s) → no prefix bars exist → MA99 cannot be calculated
     # bar count (10) < MA_WINDOW (99) → all MA99 values are None → gap is reported
     bars = _make_endpoint_bars(10, "1900-01-01")
@@ -416,16 +454,17 @@ def test_merge_and_compute_ma99_gap_when_no_prefix():
     assert res.status_code == 200
     data = res.json()
     # With only 10 bars and no prefix, MA99 gap should exist (< 99 bars available)
-    assert data["query_ma99_gap"] is not None
+    assert data["query_ma99_gap_1h"] is not None
 
 
 def test_merge_and_compute_ma99_empty_input():
     """Endpoint handles ohlc_data=[] gracefully: returns 200 with empty query_ma99."""
+    _use_mock_histories()
     res = client.post("/api/merge-and-compute-ma99", json={"ohlc_data": [], "timeframe": "1H"})
     assert res.status_code == 200
     data = res.json()
-    assert data["query_ma99"] == []
-    assert data["query_ma99_gap"] is None
+    assert data["query_ma99_1h"] == []
+    assert data["query_ma99_gap_1h"] is None
 
 
 def test_make_endpoint_bars_count_over_99_produces_valid_dates():

@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { OHLCRow, PredictResponse, Ma99Gap } from '../types'
+import { Ma99Gap, OHLCRow, PredictResponse } from '../types'
 
 interface Ma99RawResponse {
-  query_ma99: (number | null)[]
-  query_ma99_gap: { from_date: string; to_date: string } | null
+  query_ma99_1h: (number | null)[]
+  query_ma99_1d: (number | null)[]
+  query_ma99_gap_1h: { from_date: string; to_date: string } | null
+  query_ma99_gap_1d: { from_date: string; to_date: string } | null
+}
+
+function mapGap(raw: { from_date: string; to_date: string } | null | undefined): Ma99Gap | null {
+  return raw ? { fromDate: raw.from_date, toDate: raw.to_date } : null
 }
 
 export function usePrediction() {
@@ -22,24 +28,31 @@ export function usePrediction() {
     try {
       const res = await axios.post<any>('/api/predict', {
         ohlc_data: ohlcRows.map(r => ({
-          open: Number(r.open), high: Number(r.high),
-          low: Number(r.low), close: Number(r.close), time: r.time ?? ''
+          open: Number(r.open),
+          high: Number(r.high),
+          low: Number(r.low),
+          close: Number(r.close),
+          time: r.time ?? '',
         })),
         selected_ids: selectedIds,
         timeframe,
         ma99_trend_override: ma99TrendOverride ?? null,
       })
       const raw = res.data
-      const result: PredictResponse = {
+      return {
         matches: raw.matches.map((m: any) => ({
           id: m.id,
           correlation: m.correlation,
-          historicalOhlc: m.historical_ohlc,
-          futureOhlc: m.future_ohlc,
+          historicalOhlc: m.historical_ohlc ?? [],
+          futureOhlc: m.future_ohlc ?? [],
+          historicalOhlc1d: m.historical_ohlc_1d ?? [],
+          futureOhlc1d: m.future_ohlc_1d ?? [],
           startDate: m.start_date,
           endDate: m.end_date,
           historicalMa99: m.historical_ma99 ?? [],
           futureMa99: m.future_ma99 ?? [],
+          historicalMa991d: m.historical_ma99_1d ?? [],
+          futureMa991d: m.future_ma99_1d ?? [],
         })),
         stats: {
           highest: {
@@ -76,14 +89,14 @@ export function usePrediction() {
           },
           winRate: raw.stats.win_rate,
           meanCorrelation: raw.stats.mean_correlation,
+          consensusForecast1h: raw.stats.consensus_forecast_1h ?? [],
+          consensusForecast1d: raw.stats.consensus_forecast_1d ?? [],
         },
-        queryMa99: raw.query_ma99 ?? [],
-        queryMa99Gap: raw.query_ma99_gap
-          ? { fromDate: raw.query_ma99_gap.from_date, toDate: raw.query_ma99_gap.to_date }
-          : null,
+        queryMa991h: raw.query_ma99_1h ?? [],
+        queryMa991d: raw.query_ma99_1d ?? [],
+        queryMa99Gap1h: mapGap(raw.query_ma99_gap_1h),
+        queryMa99Gap1d: mapGap(raw.query_ma99_gap_1d),
       }
-      console.log("Mapped Stats:", result.stats)
-      return result
     } catch (e: any) {
       setError(e?.response?.data?.detail || 'Prediction failed. Is the backend running?')
       return null
@@ -95,7 +108,12 @@ export function usePrediction() {
   async function computeMa99(
     ohlcRows: OHLCRow[],
     timeframe: string = '1H',
-  ): Promise<{ queryMa99: (number | null)[]; queryMa99Gap: Ma99Gap | null }> {
+  ): Promise<{
+    queryMa991h: (number | null)[]
+    queryMa991d: (number | null)[]
+    queryMa99Gap1h: Ma99Gap | null
+    queryMa99Gap1d: Ma99Gap | null
+  }> {
     const res = await axios.post<Ma99RawResponse>('/api/merge-and-compute-ma99', {
       ohlc_data: ohlcRows.map(r => ({
         open: Number(r.open),
@@ -108,10 +126,10 @@ export function usePrediction() {
     })
     const raw = res.data
     return {
-      queryMa99: raw.query_ma99 ?? [],
-      queryMa99Gap: raw.query_ma99_gap
-        ? { fromDate: raw.query_ma99_gap.from_date, toDate: raw.query_ma99_gap.to_date }
-        : null,
+      queryMa991h: raw.query_ma99_1h ?? [],
+      queryMa991d: raw.query_ma99_1d ?? [],
+      queryMa99Gap1h: mapGap(raw.query_ma99_gap_1h),
+      queryMa99Gap1d: mapGap(raw.query_ma99_gap_1d),
     }
   }
 
