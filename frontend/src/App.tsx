@@ -7,8 +7,16 @@ import { MatchList } from './components/MatchList'
 import { StatsPanel } from './components/StatsPanel'
 import { MainChart } from './components/MainChart'
 import { usePrediction } from './hooks/usePrediction'
+import {
+  aggregateMaValuesTo1D,
+  aggregateProjectedBarsTo1D,
+  aggregateRowsTo1D,
+  computeProjectedFutureBars,
+  ProjectionBar,
+  toDisplayMatch,
+} from './utils/aggregation'
 
-const TIMEFRAME = '1H' as const
+const API_TIMEFRAME = '1H' as const
 const OFFICIAL_ROW_COUNT = 24
 
 type TrendOverride = 'up' | 'down' | 'flat'
@@ -92,21 +100,6 @@ function inferMa99TrendOverride(ma99Values: (number | null)[]): TrendOverride {
   return 'flat'
 }
 
-function addHoursToUtc8(baseTimeStr: string, hours: number): [string, number] {
-  const parts = baseTimeStr.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/)
-  if (!parts) return [`Hour +${hours}`, hours * 3600]
-  const [, y, mo, d, h, mi] = parts.map(Number)
-  const newMs = Date.UTC(y, mo - 1, d, h, mi) + hours * 3600000
-  // Display in UTC+8; ts shifted by +8h so lightweight-charts (UTC display) shows UTC+8
-  const displayMs = newMs + 8 * 3600000
-  const dt = new Date(displayMs)
-  const month = String(dt.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(dt.getUTCDate()).padStart(2, '0')
-  const hour = String(dt.getUTCHours()).padStart(2, '0')
-  const minute = String(dt.getUTCMinutes()).padStart(2, '0')
-  return [`${month}/${day} ${hour}:${minute}`, displayMs / 1000]
-}
-
 function buildProjectedSuggestion(
   label: string,
   price: number,
@@ -125,7 +118,7 @@ function buildProjectedSuggestion(
   }
 }
 
-function computeDisplayStats(matches: MatchCase[], projectedBars: Array<{ occurrenceBar: number; time: string; open: number; high: number; low: number; close: number }>, currentClose: number): PredictStats | null {
+function computeDisplayStats(matches: MatchCase[], projectedBars: ProjectionBar[], currentClose: number): PredictStats | null {
   if (projectedBars.length < 2) return null
   const sortedHighs = [...projectedBars].sort((a, b) => b.high - a.high)
   const sortedLows = [...projectedBars].sort((a, b) => a.low - b.low)
@@ -140,50 +133,6 @@ function computeDisplayStats(matches: MatchCase[], projectedBars: Array<{ occurr
     winRate: wins.length / projectedBars.length,
     meanCorrelation: corrs.length > 0 ? corrs.reduce((a, b) => a + b, 0) / corrs.length : 0,
   }
-}
-
-function median(values: number[]): number {
-  if (values.length === 0) return 0
-  const sorted = [...values].sort((a, b) => a - b)
-  const mid = Math.floor(sorted.length / 2)
-  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid]
-}
-
-function computeProjectedFutureBars(matches: MatchCase[], currentClose: number, lastBarTime?: string) {
-  return Array.from({ length: 72 }, (_, index) => {
-    const projected = matches.flatMap(match => {
-      const base = match.historicalOhlc[match.historicalOhlc.length - 1]?.close
-      const bar = match.futureOhlc[index]
-      if (!base || !bar) return []
-      return [{
-        open: currentClose * (bar.open / base),
-        high: currentClose * (bar.high / base),
-        low: currentClose * (bar.low / base),
-        close: currentClose * (bar.close / base),
-      }]
-    })
-
-    if (projected.length === 0) return null
-
-    const open = median(projected.map(bar => bar.open))
-    const close = median(projected.map(bar => bar.close))
-    const high = Math.max(median(projected.map(bar => bar.high)), open, close)
-    const low = Math.min(median(projected.map(bar => bar.low)), open, close)
-
-    const [timeStr, ts] = lastBarTime
-      ? addHoursToUtc8(lastBarTime, index + 1)
-      : [`Hour +${index + 1}`, (index + 1) * 3600]
-
-    return {
-      occurrenceBar: index + 1,
-      time: timeStr,
-      ts,
-      open: Math.round(open * 100) / 100,
-      high: Math.round(high * 100) / 100,
-      low: Math.round(low * 100) / 100,
-      close: Math.round(close * 100) / 100,
-    }
-  }).filter((bar): bar is { occurrenceBar: number; time: string; ts: number; open: number; high: number; low: number; close: number } => bar != null)
 }
 
 function computeStatsByDay(projectedBars: Array<{ time: string; high: number; low: number }>, currentClose: number): DayStats[] {
@@ -225,6 +174,7 @@ export default function App() {
   type HistoryInfo = { '1H': HistoryEntry; '1D': HistoryEntry }
 
   const [ohlcData, setOhlcData] = useState<OHLCRow[]>(() => emptyRows(48))
+  const [viewTimeframe, setViewTimeframe] = useState<'1H' | '1D'>('1H')
   const [matches, setMatches] = useState<MatchCase[]>([])
   const [queryMa99, setQueryMa99] = useState<(number | null)[]>([])
   const [queryMa99Gap, setQueryMa99Gap] = useState<Ma99Gap | null>(null)
@@ -252,6 +202,19 @@ export default function App() {
   const ohlcComplete = useMemo(() => ohlcData.every(isRowComplete), [ohlcData])
   const hasSelection = tempSelection.size > 0
   const errorMessage = loadError ?? predictionError
+  const completedRows = useMemo(() => ohlcData.filter(isRowComplete), [ohlcData])
+  const chartRows = useMemo(
+    () => (viewTimeframe === '1D' ? aggregateRowsTo1D(completedRows) : completedRows),
+    [completedRows, viewTimeframe],
+  )
+  const chartMa99 = useMemo(
+    () => (viewTimeframe === '1D' ? aggregateMaValuesTo1D(completedRows, queryMa99) : queryMa99),
+    [completedRows, queryMa99, viewTimeframe],
+  )
+  const displayMatches = useMemo(
+    () => matches.map(match => toDisplayMatch(match, viewTimeframe)),
+    [matches, viewTimeframe],
+  )
 
   const disabledReason = useMemo(() => {
     if (maLoading) return 'maLoading' as const
@@ -268,6 +231,7 @@ export default function App() {
     const lastBarTime = appliedData.inputs[appliedData.inputs.length - 1]?.time
     return computeProjectedFutureBars(activeMatches, currentClose, lastBarTime)
   }, [appliedData, appliedSelection])
+  const projectedFutureBars1D = useMemo(() => aggregateProjectedBarsTo1D(projectedFutureBars), [projectedFutureBars])
 
   const displayStats = useMemo(() => {
     if (!appliedData.stats) return null
@@ -324,7 +288,7 @@ export default function App() {
       setQueryMa99Gap(null)
       setMaLoading(true)
       try {
-        const ma99Result = await computeMa99(combined, TIMEFRAME)
+        const ma99Result = await computeMa99(combined, API_TIMEFRAME)
         setQueryMa99(ma99Result.queryMa99)
         setQueryMa99Gap(ma99Result.queryMa99Gap)
       } catch (err) {
@@ -372,7 +336,7 @@ export default function App() {
     }
 
     const ma99Trend = inferMa99TrendOverride(queryMa99)
-    const result = await predict(ohlcData, [], TIMEFRAME, ma99Trend)
+    const result = await predict(ohlcData, [], API_TIMEFRAME, ma99Trend)
     if (!result) return
 
     const allIds = new Set(result.matches.map(m => m.id))
@@ -471,16 +435,17 @@ export default function App() {
             )}
           </div>
 
-          <OHLCEditor rows={ohlcData} timeframe={TIMEFRAME} onChange={handleCellChange} />
+          <OHLCEditor rows={ohlcData} timeframe={API_TIMEFRAME} onChange={handleCellChange} />
 
           <div className="h-[360px]">
             <MainChart
-              key={TIMEFRAME}
-              userOhlc={ohlcData}
-              timeframe={TIMEFRAME}
-              ma99Values={queryMa99}
+              key={viewTimeframe}
+              userOhlc={chartRows}
+              timeframe={viewTimeframe}
+              ma99Values={chartMa99}
               ma99Gap={queryMa99Gap}
               maLoading={maLoading}
+              onTimeframeChange={setViewTimeframe}
             />
           </div>
 
@@ -497,13 +462,14 @@ export default function App() {
         <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-hidden">
           <div className="flex-1 min-h-[260px] flex flex-col overflow-hidden">
             <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider flex-shrink-0">Match List</h3>
-            <MatchList matches={matches} selected={tempSelection} onToggle={handleToggle} timeframe={TIMEFRAME} />
+            <MatchList matches={displayMatches} selected={tempSelection} onToggle={handleToggle} timeframe={viewTimeframe} />
           </div>
           <div className="max-h-[48vh] flex-shrink-0 overflow-y-auto pr-1">
             <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>
             <StatsPanel
               stats={displayStats}
               projectedFutureBars={projectedFutureBars}
+              projectedFutureBars1D={projectedFutureBars1D}
               dayStats={displayStatsByDay}
               isDirty={isDirty}
               selectedCount={appliedSelection.size}

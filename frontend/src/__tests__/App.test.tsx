@@ -72,7 +72,7 @@ test('official input upload fills the editor and enables prediction', async () =
   await uploadOfficialCsv()
 
   expect(screen.getByText('ETHUSDT-1h.csv')).toBeInTheDocument()
-  expect(screen.getByText(/24 x 1H bars, source timestamps in UTC\+0/i)).toBeInTheDocument()
+  expect(screen.getByText(/official input upload: 24 x 1h bars/i)).toBeInTheDocument()
   expect(screen.getAllByDisplayValue('2026-04-02T08:00')[0]).toBeInTheDocument()
   expect(screen.getByRole('button', { name: /start prediction/i })).not.toBeDisabled()
 })
@@ -117,44 +117,51 @@ test('screenshot ocr controls are removed from the app shell', async () => {
 })
 
 test('second prediction with unchanged inputs preserves unchecked matches', async () => {
-  vi.mocked(axios.post).mockResolvedValueOnce({
-    data: {
-      matches: [
-        {
-          id: 'm1',
-          correlation: 0.95,
-          historical_ohlc: [{ open: 100, high: 110, low: 90, close: 105 }],
-          future_ohlc: [{ open: 105, high: 115, low: 100, close: 110 }],
-          start_date: '2023-01-01',
-          end_date: '2023-01-02',
-        },
-        {
-          id: 'm2',
-          correlation: 0.85,
-          historical_ohlc: [{ open: 100, high: 110, low: 90, close: 105 }],
-          future_ohlc: [{ open: 105, high: 115, low: 100, close: 110 }],
-          start_date: '2023-02-01',
-          end_date: '2023-02-02',
-        },
-        {
-          id: 'm3',
-          correlation: 0.75,
-          historical_ohlc: [{ open: 100, high: 110, low: 90, close: 105 }],
-          future_ohlc: [{ open: 105, high: 115, low: 100, close: 110 }],
-          start_date: '2023-03-01',
-          end_date: '2023-03-02',
-        },
-      ],
-      stats: {
-        highest: { label: 'Highest', price: 2200, pct: 5, occurrence_bar: 8, occurrence_window: 'Hour +8', historical_time: '2023-01-02 08:00' },
-        second_highest: { label: 'Second Highest', price: 2175, pct: 3.75, occurrence_bar: 6, occurrence_window: 'Hour +6', historical_time: '2023-01-02 06:00' },
-        second_lowest: { label: 'Second Lowest', price: 1925, pct: -3.75, occurrence_bar: 4, occurrence_window: 'Hour +4', historical_time: '2023-01-02 04:00' },
-        lowest: { label: 'Lowest', price: 1900, pct: -5, occurrence_bar: 2, occurrence_window: 'Hour +2', historical_time: '2023-01-02 02:00' },
-        win_rate: 0.7,
-        mean_correlation: 0.85,
+  vi.mocked(axios.post)
+    .mockResolvedValueOnce({
+      data: {
+        query_ma99: [],
+        query_ma99_gap: null,
       },
-    },
-  })
+    })
+    .mockResolvedValueOnce({
+      data: {
+        matches: [
+          {
+            id: 'm1',
+            correlation: 0.95,
+            historical_ohlc: [{ open: 100, high: 110, low: 90, close: 105 }],
+            future_ohlc: [{ open: 105, high: 115, low: 100, close: 110 }],
+            start_date: '2023-01-01',
+            end_date: '2023-01-02',
+          },
+          {
+            id: 'm2',
+            correlation: 0.85,
+            historical_ohlc: [{ open: 100, high: 110, low: 90, close: 105 }],
+            future_ohlc: [{ open: 105, high: 115, low: 100, close: 110 }],
+            start_date: '2023-02-01',
+            end_date: '2023-02-02',
+          },
+          {
+            id: 'm3',
+            correlation: 0.75,
+            historical_ohlc: [{ open: 100, high: 110, low: 90, close: 105 }],
+            future_ohlc: [{ open: 105, high: 115, low: 100, close: 110 }],
+            start_date: '2023-03-01',
+            end_date: '2023-03-02',
+          },
+        ],
+        stats: {
+          highest: { label: 'Highest', price: 2200, pct: 5, occurrence_bar: 8, occurrence_window: 'Hour +8', historical_time: '2023-01-02 08:00' },
+          second_highest: { label: 'Second Highest', price: 2175, pct: 3.75, occurrence_bar: 6, occurrence_window: 'Hour +6', historical_time: '2023-01-02 06:00' },
+          second_lowest: { label: 'Second Lowest', price: 1925, pct: -3.75, occurrence_bar: 4, occurrence_window: 'Hour +4', historical_time: '2023-01-02 04:00' },
+          lowest: { label: 'Lowest', price: 1900, pct: -5, occurrence_bar: 2, occurrence_window: 'Hour +2', historical_time: '2023-01-02 02:00' },
+          win_rate: 0.7,
+          mean_correlation: 0.85,
+        },
+      },
+    })
 
   render(<App />)
 
@@ -184,4 +191,14 @@ test('official input upload also updates the chart data source', async () => {
 
   expect(container.querySelector('[data-testid="main-chart-container"]')).toBeInTheDocument()
   expect(screen.getByText('ETHUSDT-1h.csv')).toBeInTheDocument()
+})
+
+test('shared timeframe toggle switches the main chart to 1D view', async () => {
+  render(<App />)
+
+  await uploadOfficialCsv()
+
+  fireEvent.click(screen.getByRole('button', { name: '1D' }))
+
+  expect(screen.getByRole('button', { name: '1D' })).toHaveClass('bg-orange-500/15')
 })

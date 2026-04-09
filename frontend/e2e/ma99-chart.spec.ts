@@ -259,3 +259,19 @@ test('MatchList card shows no trend label when future_ma99 has fewer than 2 valu
 
   await expect(page.getByText(/↑|↓/)).not.toBeVisible()
 })
+
+test('Statistics shows both Consensus Forecast (1H) and Consensus Forecast (1D)', async ({ page }) => {
+  await setupAndPredict(page, MOCK_PREDICT_NO_GAP)
+
+  await expect(page.getByText('Consensus Forecast (1H)')).toBeVisible()
+  await expect(page.getByText('Consensus Forecast (1D)')).toBeVisible()
+})
+
+test('shared 1D toggle updates match list header to date-only display', async ({ page }) => {
+  await setupAndPredict(page, MOCK_PREDICT_NO_GAP)
+
+  await page.getByRole('button', { name: '1D' }).click()
+
+  await expect(page.getByRole('button', { name: '1D' })).toHaveClass(/bg-orange-500\/15/)
+  await expect(page.getByText('2023-06-15 ~ 2023-06-15')).toBeVisible()
+})

@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Mock ResizeObserver for recharts ResponsiveContainer
 globalThis.ResizeObserver = class ResizeObserver {
@@ -47,3 +48,11 @@ const canvasContextStub = {
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: () => canvasContextStub,
 })
+
+globalThis.fetch = vi.fn(async () => ({
+  ok: true,
+  json: async () => ({
+    '1H': { filename: 'Binance_ETHUSDT_1h.csv', latest: '2026-04-01 00:00', bar_count: 1000 },
+    '1D': { filename: 'Binance_ETHUSDT_d.csv', latest: '2026-04-01', bar_count: 100 },
+  }),
+})) as unknown as typeof fetch

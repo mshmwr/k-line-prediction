@@ -15,6 +15,7 @@ interface Props {
   ma99Values?: (number | null)[]
   ma99Gap?: { fromDate: string; toDate: string } | null
   maLoading?: boolean
+  onTimeframeChange?: (timeframe: '1H' | '1D') => void
 }
 
 type CandleTime = UTCTimestamp | string
@@ -113,7 +114,7 @@ function buildSma(data: CandleDatum[], period: number) {
   })
 }
 
-export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap, maLoading }: Props) {
+export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap, maLoading, onTimeframeChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleSeriesRef = useRef<ReturnType<IChartApi['addSeries']> | null>(null)
@@ -237,9 +238,18 @@ export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap, maLoading 
             <span className="text-sm font-semibold tracking-wide text-[#eef2ff]">ETHUSDT</span>
             <div className="flex items-center gap-3 text-xs text-[#8d95a6]">
               {(['1H', '1D'] as const).map(label => (
-                <span key={label} className={label === timeframe ? 'font-semibold text-white' : ''}>
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => onTimeframeChange?.(label)}
+                  className={`rounded-full border px-2 py-0.5 transition-colors ${
+                    label === timeframe
+                      ? 'border-orange-400 bg-orange-500/15 font-semibold text-white'
+                      : 'border-transparent text-[#8d95a6] hover:border-[#313849] hover:text-white'
+                  }`}
+                >
                   {label}
-                </span>
+                </button>
               ))}
             </div>
           </div>

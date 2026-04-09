@@ -1,10 +1,10 @@
 import { useRef, useEffect, useState } from 'react'
 import { toUTC8Display } from '../utils/time'
 import { BusinessDay, createChart, IChartApi, LineSeries, UTCTimestamp, CandlestickSeries } from 'lightweight-charts'
-import { MatchCase } from '../types'
+import { AggregatedMatch } from '../utils/aggregation'
 
 interface Props {
-  matches: MatchCase[]
+  matches: AggregatedMatch[]
   selected: Set<string>
   timeframe: '1H' | '1D'
   onToggle: (id: string) => void
@@ -77,12 +77,17 @@ function dedupeAndSort<T extends { time: CandleTime }>(data: T[]): T[] {
 }
 
 function formatInterval(startDate: string, endDate: string, timeframe: '1H' | '1D'): string {
+  if (timeframe === '1D') {
+    if (!startDate && !endDate) return 'Unknown interval'
+    if (!startDate) return endDate || 'Unknown interval'
+    if (!endDate) return startDate
+    return `${startDate} ~ ${endDate}`
+  }
   const s = toUTC8Display(startDate)
   const e = toUTC8Display(endDate)
   if (!s && !e) return 'Unknown interval'
   if (!s) return e || 'Unknown interval'
   if (!e) return s
-  if (timeframe === '1D') return `${s} ~ ${e}`
   const sParts = s.split(' ')
   const eParts = e.split(' ')
   const sTime = sParts[1]?.substring(0, 5) ?? ''
@@ -359,6 +364,7 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
           const hist = m.historicalOhlc ?? []
           const fut = m.futureOhlc ?? []
           const trend = computeMaTrend(m.futureMa99 ?? [])
+          const interval = formatInterval(m.displayStartDate, m.displayEndDate, timeframe)
           return (
             <div
               key={m.id}
@@ -382,8 +388,13 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
                 <span className="text-gray-500 flex-shrink-0">|</span>
                 <span className="flex-1 min-w-0 flex items-center gap-2">
                   <span className="text-xs text-gray-400 truncate">
-                    {formatInterval(m.startDate, m.endDate, timeframe)}
+                    {interval}
                   </span>
+                  {m.displayReturnPct != null && (
+                    <span className={`text-xs font-mono ${m.displayReturnPct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {m.displayReturnPct >= 0 ? '+' : ''}{m.displayReturnPct.toFixed(2)}%
+                    </span>
+                  )}
                   {trend && (
                     <span className={`text-xs flex-shrink-0 ${trend.direction === 'up' ? 'text-green-400' : 'text-red-400'}`}>
                       {trend.direction === 'up' ? '↑' : '↓'} {trend.direction === 'up' && trend.pct >= 0 ? '+' : ''}{trend.pct.toFixed(2)}%
@@ -404,7 +415,7 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
                   <PredictorChart
                     historical={hist}
                     future={fut}
-                    startDate={m.startDate}
+                    startDate={m.displayStartDate}
                     timeframe={timeframe}
                     historicalMa99={m.historicalMa99 ?? []}
                     futureMa99={m.futureMa99 ?? []}

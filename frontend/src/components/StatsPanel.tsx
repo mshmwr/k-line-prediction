@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { toUTC8Display } from '../utils/time'
 import { CandlestickSeries, ColorType, createChart, IChartApi, UTCTimestamp } from 'lightweight-charts'
 import { PredictStats, DayStats } from '../types'
 
@@ -15,13 +14,14 @@ type ProjectionBar = {
 interface Props {
   stats: PredictStats | null
   projectedFutureBars: ProjectionBar[]
+  projectedFutureBars1D: ProjectionBar[]
   dayStats: DayStats[]
   isDirty: boolean
   selectedCount: number
   totalCount: number
 }
 
-function StatsProjectionChart({ bars }: { bars: ProjectionBar[] }) {
+function StatsProjectionChart({ bars, title, subtitle }: { bars: ProjectionBar[]; title: string; subtitle: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
 
@@ -35,12 +35,13 @@ function StatsProjectionChart({ bars }: { bars: ProjectionBar[] }) {
     }))
   ), [bars])
 
-  const footerLabels = useMemo(() => [
-    bars[0]?.time ?? 'Hour +1',
-    bars[24]?.time ?? 'Hour +25',
-    bars[48]?.time ?? 'Hour +49',
-    bars[71]?.time ?? 'Hour +72',
-  ], [bars])
+  const footerLabels = useMemo(() => {
+    if (!bars.length) return ['—', '—', '—']
+    const first = bars[0]?.time ?? '—'
+    const middle = bars[Math.floor((bars.length - 1) / 2)]?.time ?? '—'
+    const last = bars[bars.length - 1]?.time ?? '—'
+    return [first, middle, last]
+  }, [bars])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -98,24 +99,23 @@ function StatsProjectionChart({ bars }: { bars: ProjectionBar[] }) {
 
   if (!bars.length) {
     return (
-      <div className="flex h-[220px] items-center justify-center rounded-xl border border-[#252c39] bg-[#171b24] px-4 text-center text-sm text-[#6f788b]">
-        Select at least one match to render the projected 72H candlestick view.
-      </div>
+        <div className="flex h-[220px] items-center justify-center rounded-xl border border-[#252c39] bg-[#171b24] px-4 text-center text-sm text-[#6f788b]">
+        Select at least one match to render the consensus forecast.
+        </div>
     )
   }
 
   return (
     <div className="overflow-hidden rounded-xl border border-[#252c39] bg-[#171b24]">
       <div className="flex items-center justify-between border-b border-[#252c39] px-3 py-2 text-[11px] text-[#c9d1e4]">
-        <span>Projected Future 72 x 1H Candles</span>
-        <span>Consensus view, not raw historical bars</span>
+        <span>{title}</span>
+        <span>{subtitle}</span>
       </div>
       <div ref={containerRef} className="h-[220px] w-full" data-testid="stats-projection-chart" />
       <div className="flex items-center justify-between border-t border-[#252c39] px-3 py-1.5 text-[10px] text-[#8d95a6]">
         <span>{footerLabels[0]}</span>
         <span>{footerLabels[1]}</span>
         <span>{footerLabels[2]}</span>
-        <span>{footerLabels[3]}</span>
       </div>
     </div>
   )
@@ -147,13 +147,8 @@ function DayStatsRow({ day }: { day: DayStats }) {
   )
 }
 
-export function StatsPanel({ stats, projectedFutureBars, dayStats, isDirty, selectedCount, totalCount }: Props) {
+export function StatsPanel({ stats, projectedFutureBars, projectedFutureBars1D, dayStats, isDirty, selectedCount, totalCount }: Props) {
   if (!stats) return <div className="text-gray-500 text-sm">Run prediction to see results.</div>
-
-  const overallCards = [
-    { item: stats.highest, color: 'text-green-400', border: 'border-green-700/60', hint: 'Primary take-profit ceiling' },
-    { item: stats.lowest, color: 'text-red-400', border: 'border-red-700/60', hint: 'Deep pullback support' },
-  ]
 
   return (
     <div className="flex flex-col gap-3">
@@ -162,35 +157,30 @@ export function StatsPanel({ stats, projectedFutureBars, dayStats, isDirty, sele
           ⚠️ Selection changed. Click 'Start Prediction' to sync.
         </div>
       )}
-      <div className="grid grid-cols-2 gap-2">
-        {overallCards.map(({ item, color, border, hint }) => (
-          <div key={item.label} className={`bg-gray-800 rounded p-3 border ${border}`}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-xs text-gray-400">{item.label}</div>
-                <div className={`text-lg font-bold font-mono ${color}`}>{item.price != null ? item.price.toFixed(2) : '—'}</div>
-                <div className={`text-xs font-mono ${item.pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {item.pct != null ? `${item.pct >= 0 ? '+' : ''}${item.pct.toFixed(2)}%` : '—'}
-                </div>
-              </div>
-              <div className="text-right text-[11px] leading-4 text-gray-400">
-                <div>{item.occurrenceWindow}</div>
-                <div>{toUTC8Display(item.historicalTime) || 'Time unavailable'}</div>
-              </div>
-            </div>
-            <div className="mt-2 text-[11px] text-gray-500">{hint}</div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 gap-2 rounded border border-[#252c39] bg-[#171b24] px-3 py-2 text-sm md:grid-cols-4">
+        <span className="text-gray-400">Win Rate: <span className="text-white">{stats.winRate != null ? (stats.winRate * 100).toFixed(1) : '—'}%</span></span>
+        <span className="text-gray-400">Avg r: <span className="text-white">{stats.meanCorrelation != null ? stats.meanCorrelation.toFixed(4) : '—'}</span></span>
+        <span className="text-gray-400">Highest: <span className="text-white">{stats.highest.price != null ? stats.highest.price.toFixed(2) : '—'}</span></span>
+        <span className="text-gray-400">Lowest: <span className="text-white">{stats.lowest.price != null ? stats.lowest.price.toFixed(2) : '—'}</span></span>
       </div>
       {dayStats.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {dayStats.map(day => <DayStatsRow key={day.label} day={day} />)}
         </div>
       )}
-      <StatsProjectionChart bars={projectedFutureBars} />
+      <div className="grid gap-3 xl:grid-cols-2">
+        <StatsProjectionChart
+          bars={projectedFutureBars}
+          title="Consensus Forecast (1H)"
+          subtitle="Aggregated median path from selected matches"
+        />
+        <StatsProjectionChart
+          bars={projectedFutureBars1D}
+          title="Consensus Forecast (1D)"
+          subtitle="UTC+8 daily aggregation of the same forecast"
+        />
+      </div>
       <div className="flex gap-4 text-sm flex-wrap">
-        <span className="text-gray-400">Win Rate: <span className="text-white">{stats.winRate != null ? (stats.winRate * 100).toFixed(1) : '—'}%</span></span>
-        <span className="text-gray-400">Avg r: <span className="text-white">{stats.meanCorrelation != null ? stats.meanCorrelation.toFixed(4) : '—'}</span></span>
         {totalCount > 0 && (
           <span className="text-gray-400 ml-auto">Using <span className="text-white">{selectedCount}</span> / {totalCount} matches</span>
         )}

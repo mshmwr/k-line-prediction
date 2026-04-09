@@ -1,11 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MatchList } from '../components/MatchList'
-import { MatchCase } from '../types'
+import { AggregatedMatch } from '../utils/aggregation'
 
-const makeMatch = (id: string, correlation: number): MatchCase => ({
+const makeMatch = (id: string, correlation: number): AggregatedMatch => ({
   id, correlation,
   historicalOhlc: [], futureOhlc: [], startDate: '2023-01-01', endDate: '2023-01-02',
   historicalMa99: [], futureMa99: [],
+  displayStartDate: '2023-01-01',
+  displayEndDate: '2023-01-02',
+  displayReturnPct: 1.25,
 })
 
 test('renders match cards', () => {
@@ -74,6 +77,9 @@ test('expanded match item renders chart container when OHLC data provided', () =
         startDate: '2023-06-15',
         endDate: '2023-06-16',
         historicalMa99: [], futureMa99: [],
+        displayStartDate: '2023-06-15',
+        displayEndDate: '2023-06-16',
+        displayReturnPct: 4.55,
       }]}
       selected={new Set(['m1'])}
       onToggle={() => {}}
@@ -107,6 +113,9 @@ test('expanded match chart shows orange split line when both historical and futu
         startDate: '2023-01-01',
         endDate: '2023-01-02',
         historicalMa99: [], futureMa99: [],
+        displayStartDate: '2023-01-01',
+        displayEndDate: '2023-01-02',
+        displayReturnPct: 9.52,
       }]}
       selected={new Set(['m1'])}
       onToggle={() => {}}
@@ -120,7 +129,7 @@ test('expanded match chart shows orange split line when both historical and futu
 // ── Null-safety tests (regression for toFixed crash) ──────────────────────────
 
 test('does not crash when correlation is null/undefined', () => {
-  const malformed = { id: 'm1', correlation: null as unknown as number, historicalOhlc: [], futureOhlc: [], startDate: '', endDate: '', historicalMa99: [], futureMa99: [] }
+  const malformed = { id: 'm1', correlation: null as unknown as number, historicalOhlc: [], futureOhlc: [], startDate: '', endDate: '', historicalMa99: [], futureMa99: [], displayStartDate: '', displayEndDate: '', displayReturnPct: null }
   expect(() =>
     render(<MatchList matches={[malformed]} selected={new Set(['m1'])} onToggle={() => {}} timeframe="1H" />)
   ).not.toThrow()
@@ -128,7 +137,7 @@ test('does not crash when correlation is null/undefined', () => {
 })
 
 test('does not crash when futureOhlc is missing', () => {
-  const malformed = { id: 'm2', correlation: 0.8, historicalOhlc: [], futureOhlc: undefined as any, startDate: '2023-01-01', endDate: '2023-01-02', historicalMa99: [], futureMa99: [] }
+  const malformed = { id: 'm2', correlation: 0.8, historicalOhlc: [], futureOhlc: undefined as any, startDate: '2023-01-01', endDate: '2023-01-02', historicalMa99: [], futureMa99: [], displayStartDate: '2023-01-01', displayEndDate: '2023-01-02', displayReturnPct: null }
   expect(() =>
     render(<MatchList matches={[malformed]} selected={new Set()} onToggle={() => {}} timeframe="1H" />)
   ).not.toThrow()
@@ -143,8 +152,30 @@ test('expanded match with missing start date shows fallback instead of crashing'
     startDate: '',
     endDate: '',
     historicalMa99: [], futureMa99: [],
+    displayStartDate: '',
+    displayEndDate: '',
+    displayReturnPct: null,
   }
   render(<MatchList matches={[malformed]} selected={new Set(['m3'])} onToggle={() => {}} timeframe="1H" />)
   fireEvent.click(screen.getByText(/unknown interval/i))
   expect(screen.getByText(/match chart unavailable because this case does not have a valid start date/i)).toBeInTheDocument()
+})
+
+test('1D view uses date-only interval and return label', () => {
+  render(
+    <MatchList
+      matches={[{
+        ...makeMatch('m4', 0.88),
+        displayStartDate: '2023-01-01',
+        displayEndDate: '2023-01-03',
+        displayReturnPct: 6.5,
+      }]}
+      selected={new Set(['m4'])}
+      onToggle={() => {}}
+      timeframe="1D"
+    />
+  )
+
+  expect(screen.getByText('2023-01-01 ~ 2023-01-03')).toBeInTheDocument()
+  expect(screen.getByText('+6.50%')).toBeInTheDocument()
 })
