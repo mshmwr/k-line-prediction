@@ -202,3 +202,27 @@ test('shared timeframe toggle switches the main chart to 1D view', async () => {
 
   expect(screen.getByRole('button', { name: '1D' })).toHaveClass('bg-orange-500/15')
 })
+
+test('1D toggle makes MA99 and predict requests use timeframe 1D', async () => {
+  render(<App />)
+
+  await uploadOfficialCsv()
+
+  fireEvent.click(screen.getByRole('button', { name: '1D' }))
+
+  await waitFor(() => {
+    expect(vi.mocked(axios.post)).toHaveBeenCalledWith(
+      '/api/merge-and-compute-ma99',
+      expect.objectContaining({ timeframe: '1D' }),
+    )
+  })
+
+  fireEvent.click(screen.getByRole('button', { name: /start prediction/i }))
+
+  await waitFor(() => {
+    expect(vi.mocked(axios.post)).toHaveBeenCalledWith(
+      '/api/predict',
+      expect.objectContaining({ timeframe: '1D' }),
+    )
+  })
+})

@@ -82,7 +82,6 @@ export function usePrediction() {
           ? { fromDate: raw.query_ma99_gap.from_date, toDate: raw.query_ma99_gap.to_date }
           : null,
       }
-      console.log("Mapped Stats:", result.stats)
       return result
     } catch (e: any) {
       setError(e?.response?.data?.detail || 'Prediction failed. Is the backend running?')

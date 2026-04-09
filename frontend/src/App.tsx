@@ -8,15 +8,12 @@ import { StatsPanel } from './components/StatsPanel'
 import { MainChart } from './components/MainChart'
 import { usePrediction } from './hooks/usePrediction'
 import {
-  aggregateMaValuesTo1D,
   aggregateProjectedBarsTo1D,
   aggregateRowsTo1D,
   computeProjectedFutureBars,
   ProjectionBar,
   toDisplayMatch,
 } from './utils/aggregation'
-
-const API_TIMEFRAME = '1H' as const
 const OFFICIAL_ROW_COUNT = 24
 
 type TrendOverride = 'up' | 'down' | 'flat'
@@ -203,17 +200,13 @@ export default function App() {
   const hasSelection = tempSelection.size > 0
   const errorMessage = loadError ?? predictionError
   const completedRows = useMemo(() => ohlcData.filter(isRowComplete), [ohlcData])
-  const chartRows = useMemo(
+  const apiRows = useMemo(
     () => (viewTimeframe === '1D' ? aggregateRowsTo1D(completedRows) : completedRows),
     [completedRows, viewTimeframe],
   )
-  const chartMa99 = useMemo(
-    () => (viewTimeframe === '1D' ? aggregateMaValuesTo1D(completedRows, queryMa99) : queryMa99),
-    [completedRows, queryMa99, viewTimeframe],
-  )
   const displayMatches = useMemo(
-    () => matches.map(match => toDisplayMatch(match, viewTimeframe)),
-    [matches, viewTimeframe],
+    () => matches.map(match => toDisplayMatch(match)),
+    [matches],
   )
 
   const disabledReason = useMemo(() => {
@@ -231,7 +224,10 @@ export default function App() {
     const lastBarTime = appliedData.inputs[appliedData.inputs.length - 1]?.time
     return computeProjectedFutureBars(activeMatches, currentClose, lastBarTime)
   }, [appliedData, appliedSelection])
-  const projectedFutureBars1D = useMemo(() => aggregateProjectedBarsTo1D(projectedFutureBars), [projectedFutureBars])
+  const projectedFutureBars1D = useMemo(
+    () => (viewTimeframe === '1H' ? aggregateProjectedBarsTo1D(projectedFutureBars) : []),
+    [projectedFutureBars, viewTimeframe],
+  )
 
   const displayStats = useMemo(() => {
     if (!appliedData.stats) return null
@@ -242,10 +238,11 @@ export default function App() {
   }, [appliedData, appliedSelection, projectedFutureBars])
 
   const displayStatsByDay = useMemo(() => {
+    if (viewTimeframe === '1D') return []
     if (projectedFutureBars.length === 0) return []
     const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
     return computeStatsByDay(projectedFutureBars, currentClose)
-  }, [projectedFutureBars, appliedData.inputs])
+  }, [projectedFutureBars, appliedData.inputs, viewTimeframe])
 
   const isDirty = useMemo(() => {
     if (!appliedData.stats) return false
@@ -281,6 +278,7 @@ export default function App() {
       }))
     ).then(async results => {
       const combined = results.flat().sort((a, b) => a.time.localeCompare(b.time))
+      const nextApiRows = viewTimeframe === '1D' ? aggregateRowsTo1D(combined) : combined
       setOhlcData(combined)
       setSourcePath(fileList.map(f => f.name).join(' + '))
       resetPredictionState()
@@ -288,7 +286,7 @@ export default function App() {
       setQueryMa99Gap(null)
       setMaLoading(true)
       try {
-        const ma99Result = await computeMa99(combined, API_TIMEFRAME)
+        const ma99Result = await computeMa99(nextApiRows, viewTimeframe)
         setQueryMa99(ma99Result.queryMa99)
         setQueryMa99Gap(ma99Result.queryMa99Gap)
       } catch (err) {
@@ -320,6 +318,27 @@ export default function App() {
     setOhlcData(prev => prev.map((row, index) => index === rowIdx ? { ...row, [field]: value } : row))
   }
 
+  async function handleTimeframeChange(nextTimeframe: '1H' | '1D') {
+    if (nextTimeframe === viewTimeframe) return
+    setViewTimeframe(nextTimeframe)
+    resetPredictionState()
+    setLoadError(null)
+    setQueryMa99([])
+    setQueryMa99Gap(null)
+    if (!ohlcComplete) return
+    const nextApiRows = nextTimeframe === '1D' ? aggregateRowsTo1D(completedRows) : completedRows
+    setMaLoading(true)
+    try {
+      const ma99Result = await computeMa99(nextApiRows, nextTimeframe)
+      setQueryMa99(ma99Result.queryMa99)
+      setQueryMa99Gap(ma99Result.queryMa99Gap)
+    } catch (err) {
+      setLoadError((err as Error).message)
+    } finally {
+      setMaLoading(false)
+    }
+  }
+
   function handleToggle(id: string) {
     setTempSelection(prev => {
       const next = new Set(prev)
@@ -329,14 +348,14 @@ export default function App() {
   }
 
   async function handlePredict() {
-    const inputsChanged = JSON.stringify(ohlcData) !== JSON.stringify(appliedData.inputs)
+    const inputsChanged = JSON.stringify(apiRows) !== JSON.stringify(appliedData.inputs)
     if (!inputsChanged && appliedData.stats) {
       setAppliedSelection(new Set(tempSelection))
       return
     }
 
     const ma99Trend = inferMa99TrendOverride(queryMa99)
-    const result = await predict(ohlcData, [], API_TIMEFRAME, ma99Trend)
+    const result = await predict(apiRows, [], viewTimeframe, ma99Trend)
     if (!result) return
 
     const allIds = new Set(result.matches.map(m => m.id))
@@ -345,7 +364,7 @@ export default function App() {
     setQueryMa99Gap(result.queryMa99Gap ?? null)
     setTempSelection(allIds)
     setAppliedSelection(allIds)
-    setAppliedData({ matches: result.matches, stats: result.stats, inputs: ohlcData })
+    setAppliedData({ matches: result.matches, stats: result.stats, inputs: apiRows })
   }
 
   return (
@@ -435,17 +454,17 @@ export default function App() {
             )}
           </div>
 
-          <OHLCEditor rows={ohlcData} timeframe={API_TIMEFRAME} onChange={handleCellChange} />
+          <OHLCEditor rows={ohlcData} timeframe={'1H'} onChange={handleCellChange} />
 
           <div className="h-[360px]">
             <MainChart
               key={viewTimeframe}
-              userOhlc={chartRows}
+              userOhlc={apiRows}
               timeframe={viewTimeframe}
-              ma99Values={chartMa99}
+              ma99Values={queryMa99}
               ma99Gap={queryMa99Gap}
               maLoading={maLoading}
-              onTimeframeChange={setViewTimeframe}
+              onTimeframeChange={handleTimeframeChange}
             />
           </div>
 
@@ -471,6 +490,7 @@ export default function App() {
               projectedFutureBars={projectedFutureBars}
               projectedFutureBars1D={projectedFutureBars1D}
               dayStats={displayStatsByDay}
+              timeframe={viewTimeframe}
               isDirty={isDirty}
               selectedCount={appliedSelection.size}
               totalCount={matches.length}

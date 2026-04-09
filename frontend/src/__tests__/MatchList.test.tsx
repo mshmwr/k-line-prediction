@@ -179,3 +179,21 @@ test('1D view uses date-only interval and return label', () => {
   expect(screen.getByText('2023-01-01 ~ 2023-01-03')).toBeInTheDocument()
   expect(screen.getByText('+6.50%')).toBeInTheDocument()
 })
+
+test('1D expanded label uses actual daily future wording', () => {
+  render(
+    <MatchList
+      matches={[{
+        ...makeMatch('m5', 0.88),
+        historicalOhlc: [{ open: 100, high: 110, low: 95, close: 105 }],
+        futureOhlc: [{ time: '2023-01-02', open: 106, high: 112, low: 101, close: 110 }],
+      }]}
+      selected={new Set(['m5'])}
+      onToggle={() => {}}
+      timeframe="1D"
+    />
+  )
+
+  fireEvent.click(screen.getByText(/2023-01-01 ~ 2023-01-02/i))
+  expect(screen.getByText('Right = Actual future 1D bars')).toBeInTheDocument()
+})

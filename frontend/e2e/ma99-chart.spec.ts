@@ -96,6 +96,28 @@ const MOCK_PREDICT_WITH_DOWNTREND = {
 }
 
 const MOCK_PREDICT_NO_GAP = { ...MOCK_PREDICT_BASE, query_ma99_gap: null }
+const MOCK_PREDICT_NATIVE_1D = {
+  matches: [
+    {
+      id: 'match-1d',
+      correlation: 0.93,
+      historical_ohlc: [
+        { time: '2023-06-13', open: 2000, high: 2100, low: 1950, close: 2050 },
+        { time: '2023-06-14', open: 2050, high: 2150, low: 2000, close: 2100 },
+      ],
+      future_ohlc: [
+        { time: '2023-06-15', open: 2100, high: 2200, low: 2050, close: 2150 },
+      ],
+      start_date: '2023-06-13',
+      end_date: '2023-06-15',
+      historical_ma99: [1900, 1910],
+      future_ma99: [1920],
+    },
+  ],
+  stats: MOCK_STATS,
+  query_ma99: [1880, 1890],
+  query_ma99_gap: null,
+}
 const MOCK_PREDICT_WITH_GAP = {
   ...MOCK_PREDICT_BASE,
   query_ma99_gap: { from_date: '2024-01-01', to_date: '2024-01-10' },
@@ -260,6 +282,39 @@ test('MatchList card shows no trend label when future_ma99 has fewer than 2 valu
   await expect(page.getByText(/↑|↓/)).not.toBeVisible()
 })
 
+test('shared 1D toggle sends native 1D timeframe to MA99 and predict APIs', async ({ page }) => {
+  let ma99Timeframe = ''
+  let predictTimeframe = ''
+
+  await page.route('/api/history-info', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_HISTORY_INFO) })
+  )
+  await page.route('/api/merge-and-compute-ma99', async route => {
+    const body = route.request().postDataJSON() as { timeframe?: string }
+    ma99Timeframe = body.timeframe ?? ''
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_MA99_RESPONSE) })
+  })
+  await page.route('/api/predict', async route => {
+    const body = route.request().postDataJSON() as { timeframe?: string }
+    predictTimeframe = body.timeframe ?? ''
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NO_GAP) })
+  })
+
+  await page.goto('/')
+
+  const fileInput = page.locator('input[type="file"][multiple]')
+  await fileInput.setInputFiles([
+    { name: 'day1.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY1) },
+    { name: 'day2.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY2) },
+  ])
+
+  await page.getByRole('button', { name: '1D' }).click()
+  await expect.poll(() => ma99Timeframe).toBe('1D')
+
+  await page.getByRole('button', { name: /Start Prediction/ }).click()
+  await expect.poll(() => predictTimeframe).toBe('1D')
+})
+
 test('Statistics shows both Consensus Forecast (1H) and Consensus Forecast (1D)', async ({ page }) => {
   await setupAndPredict(page, MOCK_PREDICT_NO_GAP)
 
@@ -268,10 +323,27 @@ test('Statistics shows both Consensus Forecast (1H) and Consensus Forecast (1D)'
 })
 
 test('shared 1D toggle updates match list header to date-only display', async ({ page }) => {
-  await setupAndPredict(page, MOCK_PREDICT_NO_GAP)
+  await page.route('/api/history-info', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_HISTORY_INFO) })
+  )
+  await page.route('/api/merge-and-compute-ma99', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ query_ma99: [1880, 1890], query_ma99_gap: null }) })
+  )
+  await page.route('/api/predict', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NATIVE_1D) })
+  )
+
+  await page.goto('/')
+
+  const fileInput = page.locator('input[type="file"][multiple]')
+  await fileInput.setInputFiles([
+    { name: 'day1.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY1) },
+    { name: 'day2.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY2) },
+  ])
 
   await page.getByRole('button', { name: '1D' }).click()
+  await page.getByRole('button', { name: /Start Prediction/ }).click()
 
   await expect(page.getByRole('button', { name: '1D' })).toHaveClass(/bg-orange-500\/15/)
-  await expect(page.getByText('2023-06-15 ~ 2023-06-15')).toBeVisible()
+  await expect(page.getByText('2023-06-13 ~ 2023-06-15')).toBeVisible()
 })

@@ -86,6 +86,8 @@ function groupByUtc8Day<T extends { open: number; high: number; low: number; clo
 }
 
 export function aggregateNumericBarsTo1D(bars: NumericBar[]): NumericBar[] {
+  // Build daily OHLC rows from uploaded 1H bars using UTC+8 calendar days.
+  // The result is used as the frontend-side query input when the user switches to 1D mode.
   return groupByUtc8Day(bars).map(group => {
     const first = group[0]
     const last = group[group.length - 1]
@@ -150,34 +152,7 @@ function calculateReturnPct(historical: Array<{ close: number }>, future: Array<
   return ((futureClose - baseClose) / baseClose) * 100
 }
 
-export function aggregateMatchTo1D(match: MatchCase): AggregatedMatch {
-  const historicalTimed = matchBarsWithTime(match.historicalOhlc, match.startDate)
-  const futureStart = addHours(match.startDate, match.historicalOhlc.length)
-  const futureTimed = futureStart ? matchBarsWithTime(match.futureOhlc, futureStart) : []
-
-  const historical1D = aggregateNumericBarsTo1D(historicalTimed)
-  const future1D = aggregateNumericBarsTo1D(futureTimed)
-
-  const historicalMa99 = aggregateMaSeriesTo1D(historicalTimed.map(bar => bar.time), match.historicalMa99 ?? [])
-  const futureMa99 = aggregateMaSeriesTo1D(futureTimed.map(bar => bar.time), match.futureMa99 ?? [])
-
-  const displayStartDate = historical1D[0]?.time ?? toUTC8Display(match.startDate).slice(0, 10)
-  const displayEndDate = future1D[future1D.length - 1]?.time ?? toUTC8Display(match.endDate).slice(0, 10)
-
-  return {
-    ...match,
-    historicalOhlc: historical1D.map(({ open, high, low, close }) => ({ open, high, low, close })),
-    futureOhlc: future1D.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })),
-    historicalMa99,
-    futureMa99,
-    displayStartDate,
-    displayEndDate,
-    displayReturnPct: calculateReturnPct(historical1D, future1D),
-  }
-}
-
-export function toDisplayMatch(match: MatchCase, timeframe: '1H' | '1D'): AggregatedMatch {
-  if (timeframe === '1D') return aggregateMatchTo1D(match)
+export function toDisplayMatch(match: MatchCase): AggregatedMatch {
   return {
     ...match,
     displayStartDate: match.startDate,
@@ -236,6 +211,7 @@ export function computeProjectedFutureBars(matches: MatchCase[], currentClose: n
 }
 
 export function aggregateProjectedBarsTo1D(bars: ProjectionBar[]): ProjectionBar[] {
+  // Keep the secondary statistics chart in 1H mode by rolling the projected 1H consensus path up to UTC+8 days.
   const datedBars = bars.flatMap(bar => {
     if (bar.ts == null) return []
     const dt = new Date(bar.ts * 1000)

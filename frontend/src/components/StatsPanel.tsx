@@ -16,6 +16,7 @@ interface Props {
   projectedFutureBars: ProjectionBar[]
   projectedFutureBars1D: ProjectionBar[]
   dayStats: DayStats[]
+  timeframe: '1H' | '1D'
   isDirty: boolean
   selectedCount: number
   totalCount: number
@@ -147,7 +148,7 @@ function DayStatsRow({ day }: { day: DayStats }) {
   )
 }
 
-export function StatsPanel({ stats, projectedFutureBars, projectedFutureBars1D, dayStats, isDirty, selectedCount, totalCount }: Props) {
+export function StatsPanel({ stats, projectedFutureBars, projectedFutureBars1D, dayStats, timeframe, isDirty, selectedCount, totalCount }: Props) {
   if (!stats) return <div className="text-gray-500 text-sm">Run prediction to see results.</div>
 
   return (
@@ -168,17 +169,19 @@ export function StatsPanel({ stats, projectedFutureBars, projectedFutureBars1D, 
           {dayStats.map(day => <DayStatsRow key={day.label} day={day} />)}
         </div>
       )}
-      <div className="grid gap-3 xl:grid-cols-2">
+      <div className={`grid gap-3 ${timeframe === '1H' ? 'xl:grid-cols-2' : ''}`}>
         <StatsProjectionChart
           bars={projectedFutureBars}
-          title="Consensus Forecast (1H)"
-          subtitle="Aggregated median path from selected matches"
+          title={timeframe === '1H' ? 'Consensus Forecast (1H)' : 'Consensus Forecast (1D)'}
+          subtitle={timeframe === '1H' ? 'Aggregated median path from selected matches' : 'Backend-native 1D projected path from selected matches'}
         />
-        <StatsProjectionChart
-          bars={projectedFutureBars1D}
-          title="Consensus Forecast (1D)"
-          subtitle="UTC+8 daily aggregation of the same forecast"
-        />
+        {timeframe === '1H' && (
+          <StatsProjectionChart
+            bars={projectedFutureBars1D}
+            title="Consensus Forecast (1D)"
+            subtitle="UTC+8 daily aggregation of the same 1H forecast"
+          />
+        )}
       </div>
       <div className="flex gap-4 text-sm flex-wrap">
         {totalCount > 0 && (

@@ -29,12 +29,12 @@ const projectedFutureBars1D = Array.from({ length: 3 }, (_, index) => ({
 }))
 
 test('renders nothing meaningful when stats is null', () => {
-  render(<StatsPanel stats={null} projectedFutureBars={[]} projectedFutureBars1D={[]} dayStats={[]} isDirty={false} selectedCount={0} totalCount={0} />)
+  render(<StatsPanel stats={null} projectedFutureBars={[]} projectedFutureBars1D={[]} dayStats={[]} timeframe="1H" isDirty={false} selectedCount={0} totalCount={0} />)
   expect(screen.getByText(/run prediction/i)).toBeInTheDocument()
 })
 
 test('renders full stats correctly', () => {
-  render(<StatsPanel stats={fullStats} projectedFutureBars={projectedFutureBars} projectedFutureBars1D={projectedFutureBars1D} dayStats={[]} isDirty={false} selectedCount={1} totalCount={1} />)
+  render(<StatsPanel stats={fullStats} projectedFutureBars={projectedFutureBars} projectedFutureBars1D={projectedFutureBars1D} dayStats={[]} timeframe="1H" isDirty={false} selectedCount={1} totalCount={1} />)
   expect(screen.getByText('2200.00')).toBeInTheDocument()
   expect(screen.getByText('Consensus Forecast (1H)')).toBeInTheDocument()
   expect(screen.getByText('Consensus Forecast (1D)')).toBeInTheDocument()
@@ -54,20 +54,27 @@ test('does not crash when stat values are null/undefined', () => {
     meanCorrelation: undefined,
   } as unknown as PredictStats
   expect(() =>
-    render(<StatsPanel stats={partial} projectedFutureBars={projectedFutureBars} projectedFutureBars1D={projectedFutureBars1D} dayStats={[]} isDirty={false} selectedCount={1} totalCount={1} />)
+    render(<StatsPanel stats={partial} projectedFutureBars={projectedFutureBars} projectedFutureBars1D={projectedFutureBars1D} dayStats={[]} timeframe="1H" isDirty={false} selectedCount={1} totalCount={1} />)
   ).not.toThrow()
   // Page must still be interactive — not a blank screen
   expect(document.body.innerHTML).not.toBe('')
 })
 
 test('win rate and avg r display actual values (not dashes)', () => {
-  render(<StatsPanel stats={fullStats} projectedFutureBars={projectedFutureBars} projectedFutureBars1D={projectedFutureBars1D} dayStats={[]} isDirty={false} selectedCount={1} totalCount={1} />)
+  render(<StatsPanel stats={fullStats} projectedFutureBars={projectedFutureBars} projectedFutureBars1D={projectedFutureBars1D} dayStats={[]} timeframe="1H" isDirty={false} selectedCount={1} totalCount={1} />)
   expect(screen.getByText('70.0%')).toBeInTheDocument()
   expect(screen.getByText('0.9500')).toBeInTheDocument()
   expect(screen.getByText('2200.00')).toBeInTheDocument()
 })
 
 test('shows dirty banner when isDirty is true', () => {
-  render(<StatsPanel stats={fullStats} projectedFutureBars={projectedFutureBars} projectedFutureBars1D={projectedFutureBars1D} dayStats={[]} isDirty={true} selectedCount={1} totalCount={2} />)
+  render(<StatsPanel stats={fullStats} projectedFutureBars={projectedFutureBars} projectedFutureBars1D={projectedFutureBars1D} dayStats={[]} timeframe="1H" isDirty={true} selectedCount={1} totalCount={2} />)
   expect(screen.getByText(/selection changed/i)).toBeInTheDocument()
+})
+
+test('1D timeframe shows only the native 1D chart', () => {
+  render(<StatsPanel stats={fullStats} projectedFutureBars={projectedFutureBars1D} projectedFutureBars1D={[]} dayStats={[]} timeframe="1D" isDirty={false} selectedCount={1} totalCount={1} />)
+  expect(screen.getByText('Consensus Forecast (1D)')).toBeInTheDocument()
+  expect(screen.queryByText('Consensus Forecast (1H)')).not.toBeInTheDocument()
+  expect(screen.getAllByTestId('stats-projection-chart')).toHaveLength(1)
 })
