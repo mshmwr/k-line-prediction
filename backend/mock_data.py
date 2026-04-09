@@ -4,6 +4,7 @@ import numpy as np
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Dict
+from time_utils import normalize_bar_time
 
 def generate_mock_history(seed: int = 0) -> List[Dict]:
     rng = np.random.default_rng(seed)
@@ -43,7 +44,7 @@ def load_csv_history(path: Path) -> List[Dict]:
                 'high': float(row[headers['high']]),
                 'low': float(row[headers['low']]),
                 'close': float(row[headers['close']]),
-                'date': raw_date,
+                'date': normalize_bar_time(raw_date),
             })
         except (KeyError, ValueError):
             continue
@@ -88,7 +89,7 @@ def load_official_day_csv(path: Path) -> List[Dict]:
                     'high': float(cols[2]),
                     'low': float(cols[3]),
                     'close': float(cols[4]),
-                    'date': _parse_exchange_timestamp(cols[0]),
+                    'date': normalize_bar_time(_parse_exchange_timestamp(cols[0])),
                 })
             except ValueError as exc:
                 raise ValueError(f"Line {line_number} could not be parsed as official 1H OHLC data.") from exc

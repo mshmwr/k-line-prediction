@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
+import { toUTC8Display } from '../utils/time'
 import { BusinessDay, createChart, IChartApi, LineSeries, UTCTimestamp, CandlestickSeries } from 'lightweight-charts'
 import { MatchCase } from '../types'
 
@@ -76,12 +77,14 @@ function dedupeAndSort<T extends { time: CandleTime }>(data: T[]): T[] {
 }
 
 function formatInterval(startDate: string, endDate: string, timeframe: '1H' | '1D'): string {
-  if (!startDate && !endDate) return 'Unknown interval'
-  if (!startDate) return endDate || 'Unknown interval'
-  if (!endDate) return startDate
-  if (timeframe === '1D') return `${startDate} ~ ${endDate}`
-  const sParts = startDate.split(' ')
-  const eParts = endDate.split(' ')
+  const s = toUTC8Display(startDate)
+  const e = toUTC8Display(endDate)
+  if (!s && !e) return 'Unknown interval'
+  if (!s) return e || 'Unknown interval'
+  if (!e) return s
+  if (timeframe === '1D') return `${s} ~ ${e}`
+  const sParts = s.split(' ')
+  const eParts = e.split(' ')
   const sTime = sParts[1]?.substring(0, 5) ?? ''
   const eTime = eParts[1]?.substring(0, 5) ?? ''
   if (sParts[0] === eParts[0]) return `${sParts[0]} ${sTime} ~ ${eTime}`
@@ -333,7 +336,7 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0">
       {matches.length > 0 && (
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex gap-2 flex-shrink-0 items-center">
           <button
             onClick={expandAll}
             className="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
@@ -346,6 +349,7 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
           >
             Collapse All
           </button>
+          <span className="ml-auto text-[10px] text-gray-500">All times UTC+8</span>
         </div>
       )}
       <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0">

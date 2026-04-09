@@ -43,15 +43,19 @@ function parseLocalizedDateTime(value: string) {
   return Math.floor(Date.UTC(Number(year), Number(month) - 1, Number(day), hour, Number(minute)) / 1000) as UTCTimestamp
 }
 
+const UTC8_OFFSET = 8 * 3600
+
 function toTimestamp(value: string) {
   const localized = parseLocalizedDateTime(value)
-  if (localized) return localized
+  // parseLocalizedDateTime treats the input as already UTC+8; shift to display as UTC+8 in chart
+  if (localized) return (localized + UTC8_OFFSET) as UTCTimestamp
 
+  // row.time is stored as UTC+0; shift +8h so lightweight-charts displays UTC+8
   const directMatch = value.trim().match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?$/)
   if (directMatch) {
     const [, year, month, day, rawHour = '0', minute = '0'] = directMatch
     return Math.floor(
-      Date.UTC(Number(year), Number(month) - 1, Number(day), Number(rawHour), Number(minute)) / 1000
+      Date.UTC(Number(year), Number(month) - 1, Number(day), Number(rawHour), Number(minute)) / 1000 + UTC8_OFFSET
     ) as UTCTimestamp
   }
 
@@ -59,7 +63,7 @@ function toTimestamp(value: string) {
   const isoValue = normalized.includes(' ') ? `${normalized.replace(' ', 'T')}Z` : `${normalized}Z`
   const parsed = new Date(isoValue)
   if (!Number.isNaN(parsed.getTime())) {
-    return Math.floor(parsed.getTime() / 1000) as UTCTimestamp
+    return Math.floor(parsed.getTime() / 1000 + UTC8_OFFSET) as UTCTimestamp
   }
   return null
 }

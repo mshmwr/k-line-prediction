@@ -10,7 +10,6 @@ import { usePrediction } from './hooks/usePrediction'
 
 const TIMEFRAME = '1H' as const
 const OFFICIAL_ROW_COUNT = 24
-const OFFICIAL_INPUT_UTC_OFFSET_HOURS = 8
 
 type TrendOverride = 'up' | 'down' | 'flat'
 
@@ -30,8 +29,6 @@ function parseExchangeTimestamp(rawValue: string): string {
   else if (Math.abs(numeric) >= 1e15) milliseconds = numeric / 1e3
   else if (Math.abs(numeric) >= 1e12) milliseconds = numeric
   else milliseconds = numeric * 1e3
-
-  milliseconds += OFFICIAL_INPUT_UTC_OFFSET_HOURS * 60 * 60 * 1000
 
   const date = new Date(milliseconds)
   if (Number.isNaN(date.getTime())) throw new Error(`Unparseable timestamp: ${raw}`)
@@ -86,22 +83,12 @@ function isRowComplete(row: OHLCRow): boolean {
   )
 }
 
-function inferTrendOverride(rows: OHLCRow[]): TrendOverride {
-  const completeRows = rows.filter(isRowComplete)
-  if (completeRows.length < 4) return 'flat'
-
-  const window = Math.min(6, Math.max(2, Math.floor(completeRows.length / 4)))
-  const firstAvg = completeRows
-    .slice(0, window)
-    .reduce((sum, row) => sum + Number(row.close), 0) / window
-  const lastAvg = completeRows
-    .slice(-window)
-    .reduce((sum, row) => sum + Number(row.close), 0) / window
-
-  if (!Number.isFinite(firstAvg) || !Number.isFinite(lastAvg) || firstAvg === 0) return 'flat'
-  const deltaPct = (lastAvg - firstAvg) / firstAvg
-  if (deltaPct > 0.0015) return 'up'
-  if (deltaPct < -0.0015) return 'down'
+function inferMa99TrendOverride(ma99Values: (number | null)[]): TrendOverride {
+  const valid = ma99Values.filter((v): v is number => v !== null)
+  if (valid.length < 2) return 'flat'
+  const delta = valid[valid.length - 1] - valid[0]
+  if (delta > 0.01) return 'up'
+  if (delta < -0.01) return 'down'
   return 'flat'
 }
 
@@ -110,12 +97,14 @@ function addHoursToUtc8(baseTimeStr: string, hours: number): [string, number] {
   if (!parts) return [`Hour +${hours}`, hours * 3600]
   const [, y, mo, d, h, mi] = parts.map(Number)
   const newMs = Date.UTC(y, mo - 1, d, h, mi) + hours * 3600000
-  const dt = new Date(newMs)
+  // Display in UTC+8; ts shifted by +8h so lightweight-charts (UTC display) shows UTC+8
+  const displayMs = newMs + 8 * 3600000
+  const dt = new Date(displayMs)
   const month = String(dt.getUTCMonth() + 1).padStart(2, '0')
   const day = String(dt.getUTCDate()).padStart(2, '0')
   const hour = String(dt.getUTCHours()).padStart(2, '0')
   const minute = String(dt.getUTCMinutes()).padStart(2, '0')
-  return [`${month}/${day} ${hour}:${minute}`, newMs / 1000]
+  return [`${month}/${day} ${hour}:${minute}`, displayMs / 1000]
 }
 
 function buildProjectedSuggestion(
@@ -198,9 +187,21 @@ function computeProjectedFutureBars(matches: MatchCase[], currentClose: number, 
 }
 
 function computeStatsByDay(projectedBars: Array<{ time: string; high: number; low: number }>, currentClose: number): DayStats[] {
-  return [0, 1, 2].map(dayIndex => {
-    const dayBars = projectedBars.slice(dayIndex * 24, (dayIndex + 1) * 24)
-    if (dayBars.length === 0) return null
+  // Group bars by UTC+8 calendar date (MM/DD from "MM/DD HH:MM"), preserving chronological order.
+  // Falls back to position-based grouping when bars lack a date label.
+  const orderedDates: string[] = []
+  const dateMap = new Map<string, Array<{ time: string; high: number; low: number }>>()
+  projectedBars.forEach((bar, i) => {
+    const date = /^\d{2}\/\d{2}/.test(bar.time) ? bar.time.substring(0, 5) : String(Math.floor(i / 24))
+    if (!dateMap.has(date)) {
+      orderedDates.push(date)
+      dateMap.set(date, [])
+    }
+    dateMap.get(date)!.push(bar)
+  })
+
+  return orderedDates.slice(0, 3).map((date, dayIndex) => {
+    const dayBars = dateMap.get(date)!
     const sortedHighs = [...dayBars].sort((a, b) => b.high - a.high)
     const sortedLows = [...dayBars].sort((a, b) => a.low - b.low)
     return {
@@ -216,7 +217,7 @@ function computeStatsByDay(projectedBars: Array<{ time: string; high: number; lo
         time: sortedLows[0].time,
       },
     }
-  }).filter((d): d is DayStats => d != null)
+  })
 }
 
 export default function App() {
@@ -236,6 +237,9 @@ export default function App() {
   const [sourcePath, setSourcePath] = useState('No file uploaded yet.')
   const [maLoading, setMaLoading] = useState(false)
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null)
+  const [lastHistoryUpload, setLastHistoryUpload] = useState<{ filename: string; latest: string | null; barCount: number; addedCount: number } | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploadLoading, setUploadLoading] = useState(false)
   const { predict, computeMa99, loading, error: predictionError } = usePrediction()
 
   useEffect(() => {
@@ -248,7 +252,6 @@ export default function App() {
   const ohlcComplete = useMemo(() => ohlcData.every(isRowComplete), [ohlcData])
   const hasSelection = tempSelection.size > 0
   const errorMessage = loadError ?? predictionError
-  const trendOverride = useMemo(() => inferTrendOverride(ohlcData), [ohlcData])
 
   const disabledReason = useMemo(() => {
     if (maLoading) return 'maLoading' as const
@@ -333,13 +336,20 @@ export default function App() {
   }
 
   function handleHistoryUpload(file: File) {
+    setLastHistoryUpload(null)
+    setUploadError(null)
+    setUploadLoading(true)
     const formData = new FormData()
     formData.append('file', file)
     fetch('/api/upload-history', { method: 'POST', body: formData })
       .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(new Error(d.detail ?? 'Upload failed'))))
-      .then(() => fetch('/api/history-info').then(r => r.json()))
+      .then(uploadResult => {
+        setLastHistoryUpload({ filename: file.name, latest: uploadResult.latest ?? null, barCount: uploadResult.bar_count ?? 0, addedCount: uploadResult.added_count ?? 0 })
+        return fetch('/api/history-info').then(r => r.json())
+      })
       .then(data => setHistoryInfo(data))
-      .catch(err => setLoadError((err as Error).message))
+      .catch(err => setUploadError((err as Error).message))
+      .finally(() => setUploadLoading(false))
   }
 
   function handleCellChange(rowIdx: number, field: keyof OHLCRow, value: string) {
@@ -361,7 +371,8 @@ export default function App() {
       return
     }
 
-    const result = await predict(ohlcData, [], TIMEFRAME, trendOverride)
+    const ma99Trend = inferMa99TrendOverride(queryMa99)
+    const result = await predict(ohlcData, [], TIMEFRAME, ma99Trend)
     if (!result) return
 
     const allIds = new Set(result.matches.map(m => m.id))
@@ -390,7 +401,7 @@ export default function App() {
               <div className="mt-1 break-all font-mono text-[11px]">{sourcePath || 'No file uploaded yet.'}</div>
             </div>
             <label className="flex cursor-pointer items-center justify-center rounded border border-dashed border-gray-600 px-3 py-4 text-center text-xs text-gray-300 transition-colors hover:border-orange-400 hover:text-white">
-              Upload 2 × 1H CSV (Day 1 + Day 2)
+              Upload 1H CSV（可多選）
               <input
                 type="file"
                 accept=".csv,text/csv"
@@ -406,7 +417,7 @@ export default function App() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
                 <div className="text-gray-500">Expected format</div>
-                <div className="mt-1 text-gray-200">2 files × 24 x 1H bars, UTC+0</div>
+                <div className="mt-1 text-gray-200">多檔合併 · 每檔 24 × 1H bars · UTC+0</div>
               </div>
               <div className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
                 <div className="text-gray-500">Displayed timezone</div>
@@ -419,15 +430,19 @@ export default function App() {
             <div className="text-xs uppercase tracking-wider text-gray-400">History Reference</div>
             <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">
               {historyInfo
-                ? `${historyInfo['1H'].filename}（最新：${historyInfo['1H'].latest ?? 'N/A'}）`
+                ? `${historyInfo['1H'].filename}（最新：${historyInfo['1H'].latest ?? 'N/A'} UTC+0）`
                 : 'Loading...'}
             </div>
-            <label className="flex cursor-pointer items-center justify-center rounded border border-dashed border-gray-600 px-3 py-3 text-center text-xs text-gray-300 transition-colors hover:border-blue-400 hover:text-white">
-              Upload CryptoDataDownload CSV
+            <label className={`flex items-center justify-center rounded border border-dashed px-3 py-3 text-center text-xs transition-colors ${uploadLoading ? 'cursor-not-allowed border-gray-700 text-gray-500' : 'cursor-pointer border-gray-600 text-gray-300 hover:border-blue-400 hover:text-white'}`}>
+              <span className="flex flex-col items-center gap-0.5">
+                <span>{uploadLoading ? '上傳中…' : 'Upload History CSV'}</span>
+                {!uploadLoading && <span className="text-[10px] text-gray-500">時間欄位須為 UTC+0</span>}
+              </span>
               <input
                 type="file"
                 accept=".csv,text/csv"
                 className="hidden"
+                disabled={uploadLoading}
                 onChange={event => {
                   const file = event.target.files?.[0]
                   if (file) handleHistoryUpload(file)
@@ -435,6 +450,25 @@ export default function App() {
                 }}
               />
             </label>
+            {lastHistoryUpload && (
+              <div className={`flex items-start gap-1.5 rounded border px-2 py-1.5 text-[11px] ${lastHistoryUpload.addedCount === 0 ? 'border-gray-700 bg-gray-800/40 text-gray-400' : 'border-green-800 bg-green-950/40 text-green-400'}`}>
+                <span className="mt-px shrink-0">{lastHistoryUpload.addedCount === 0 ? '–' : '✓'}</span>
+                <div className="min-w-0">
+                  <div className="break-all font-mono">{lastHistoryUpload.filename}</div>
+                  <div className={`mt-0.5 ${lastHistoryUpload.addedCount === 0 ? 'text-gray-500' : 'text-green-600'}`}>
+                    {lastHistoryUpload.addedCount === 0
+                      ? `資料已是最新，無需更新（共 ${lastHistoryUpload.barCount} bars）`
+                      : `新增 ${lastHistoryUpload.addedCount} bars · 共 ${lastHistoryUpload.barCount} bars · 最新 ${lastHistoryUpload.latest ?? 'N/A'} UTC+0`}
+                  </div>
+                </div>
+              </div>
+            )}
+            {uploadError && (
+              <div className="flex items-start gap-1.5 rounded border border-red-800 bg-red-950/40 px-2 py-1.5 text-[11px] text-red-400">
+                <span className="mt-px shrink-0">✗</span>
+                <div className="min-w-0 break-all">{uploadError}</div>
+              </div>
+            )}
           </div>
 
           <OHLCEditor rows={ohlcData} timeframe={TIMEFRAME} onChange={handleCellChange} />

@@ -1,4 +1,5 @@
 import { OHLCRow } from '../types'
+import { toUTC8Display, fromUTC8Input } from '../utils/time'
 
 interface Props {
   rows: OHLCRow[]
@@ -14,12 +15,14 @@ function isRowComplete(row: OHLCRow): boolean {
 
 function toInputValue(time: string, timeframe: '1H' | '1D'): string {
   if (!time) return ''
-  return timeframe === '1H' ? time.replace(' ', 'T') : time
+  if (timeframe === '1H') return toUTC8Display(time).replace(' ', 'T')
+  return time
 }
 
 function fromInputValue(value: string, timeframe: '1H' | '1D'): string {
   if (!value) return ''
-  return timeframe === '1H' ? value.replace('T', ' ') : value
+  if (timeframe === '1H') return fromUTC8Input(value.replace('T', ' '))
+  return value
 }
 
 export function OHLCEditor({ rows, timeframe, onChange }: Props) {
@@ -33,7 +36,7 @@ export function OHLCEditor({ rows, timeframe, onChange }: Props) {
         <table className="w-full text-[11px] text-gray-200">
           <thead>
             <tr className="text-gray-400 uppercase">
-              {['#', 'Time', 'Open', 'High', 'Low', 'Close'].map(h => (
+              {['#', 'Time (UTC+8)', 'Open', 'High', 'Low', 'Close'].map(h => (
                 <th key={h} className="px-2 py-1 text-left">{h}</th>
               ))}
             </tr>

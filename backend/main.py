@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
+from time_utils import normalize_bar_time
 
 HISTORY_DB = Path(__file__).parent.parent / "history_database"
 HISTORY_1H_PATH = HISTORY_DB / "Binance_ETHUSDT_1h.csv"
@@ -15,9 +16,15 @@ OFFICIAL_INPUT_PATH = Path(
     os.environ.get("OFFICIAL_INPUT_CSV_PATH", "/Users/yclee/Desktop/ETHUSDT-1h-2026-04-02.csv")
 )
 
+def _load_or_mock(path: Path) -> list:
+    if path.exists():
+        bars = load_csv_history(path)
+        return bars if bars else list(MOCK_HISTORY)
+    return list(MOCK_HISTORY)
+
 # Mutable in-memory history (updated by upload and predict endpoints)
-_history_1h: list = list(load_csv_history(HISTORY_1H_PATH) if HISTORY_1H_PATH.exists() else MOCK_HISTORY)
-_history_1d: list = list(load_csv_history(HISTORY_1D_PATH) if HISTORY_1D_PATH.exists() else MOCK_HISTORY)
+_history_1h: list = _load_or_mock(HISTORY_1H_PATH)
+_history_1d: list = _load_or_mock(HISTORY_1D_PATH)
 
 app = FastAPI()
 app.add_middleware(
@@ -29,9 +36,9 @@ app.add_middleware(
 
 
 def _merge_bars(existing: list, new_bars: list) -> list:
-    """Merge new_bars into existing, dedup by 'date', sort chronologically."""
-    combined = {bar['date']: bar for bar in existing}
-    combined.update({bar['date']: bar for bar in new_bars})
+    """Merge new_bars into existing, dedup by normalized 'date', sort chronologically."""
+    combined = {normalize_bar_time(bar['date']): {**bar, 'date': normalize_bar_time(bar['date'])} for bar in existing}
+    combined.update({normalize_bar_time(bar['date']): {**bar, 'date': normalize_bar_time(bar['date'])} for bar in new_bars})
     return sorted(combined.values(), key=lambda b: b['date'])
 
 
@@ -52,10 +59,35 @@ def _save_history_csv(bars: list, path: Path) -> None:
 
 
 def _parse_csv_history_from_text(text: str) -> list:
-    """Parse CSV history from text content. Supports both CryptoDataDownload (newest-first) and chronological formats."""
+    """Parse CSV history from text content. Supports:
+    - CryptoDataDownload (newest-first, starts with http URL)
+    - Standard CSV with date/unix/open/high/low/close header
+    - Binance raw API (no header, positional: open_time,open,high,low,close,...)
+    """
     lines = [l for l in text.splitlines() if l.strip()]
     if not lines:
         return []
+
+    # Detect Binance raw API format: first field of first line is a pure integer timestamp
+    first_field = lines[0].strip().split(',')[0].strip()
+    if first_field.lstrip('-').isdigit():
+        bars = []
+        for line in lines:
+            cols = [c.strip() for c in line.split(',')]
+            if len(cols) < 5:
+                continue
+            try:
+                bars.append({
+                    'date': normalize_bar_time(cols[0]),
+                    'open': float(cols[1]),
+                    'high': float(cols[2]),
+                    'low': float(cols[3]),
+                    'close': float(cols[4]),
+                })
+            except (ValueError, OSError):
+                continue
+        return bars
+
     is_cryptodatadownload = lines[0].strip().startswith('http')
     header_idx = 1 if is_cryptodatadownload else 0
     reader = csv.DictReader(lines[header_idx:])
@@ -70,7 +102,7 @@ def _parse_csv_history_from_text(text: str) -> list:
                 'high': float(row[headers['high']]),
                 'low': float(row[headers['low']]),
                 'close': float(row[headers['close']]),
-                'date': raw_date,
+                'date': normalize_bar_time(raw_date),
             })
         except (KeyError, ValueError):
             continue
@@ -112,19 +144,23 @@ async def upload_history_file(file: UploadFile = File(...)):
     target_path = HISTORY_1D_PATH if is_1d else HISTORY_1H_PATH
     existing = _history_1d if is_1d else _history_1h
 
+    original_count = len(existing)
     merged = _merge_bars(existing, new_bars)
-    _save_history_csv(merged, target_path)
+    added_count = len(merged) - original_count
 
-    if is_1d:
-        _history_1d = merged
-    else:
-        _history_1h = merged
+    if added_count > 0:
+        _save_history_csv(merged, target_path)
+        if is_1d:
+            _history_1d = merged
+        else:
+            _history_1h = merged
 
     latest = merged[-1]['date'] if merged else None
     return {
         'filename': target_path.name,
         'latest': latest,
         'bar_count': len(merged),
+        'added_count': added_count,
         'timeframe': '1D' if is_1d else '1H',
     }
 

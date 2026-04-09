@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { toUTC8Display } from '../utils/time'
 import { CandlestickSeries, ColorType, createChart, IChartApi, UTCTimestamp } from 'lightweight-charts'
 import { PredictStats, DayStats } from '../types'
 
@@ -174,7 +175,7 @@ export function StatsPanel({ stats, projectedFutureBars, dayStats, isDirty, sele
               </div>
               <div className="text-right text-[11px] leading-4 text-gray-400">
                 <div>{item.occurrenceWindow}</div>
-                <div>{item.historicalTime || 'Time unavailable'}</div>
+                <div>{toUTC8Display(item.historicalTime) || 'Time unavailable'}</div>
               </div>
             </div>
             <div className="mt-2 text-[11px] text-gray-500">{hint}</div>

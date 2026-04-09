@@ -114,6 +114,34 @@ Response
 
 Note: This endpoint does NOT persist uploaded OHLC data to the history database. The merge is in-memory only.
 
+### POST `/api/upload-history`
+Payload: multipart/form-data with a single `file` field (CSV).
+
+Response
+- `filename`: the canonical filename saved to disk (e.g. `Binance_ETHUSDT_1h.csv`)
+- `latest`: the most recent bar's date string in UTC+0 `YYYY-MM-DD HH:MM` format, or `null` if the database is empty
+- `bar_count`: total number of bars currently in the database after the merge
+- `added_count`: number of net-new bars added in this upload (0 means all bars already existed)
+- `timeframe`: `"1H"` or `"1D"` as detected from the uploaded file
+
+Purpose: Appends new bars to the persistent history database on disk. The endpoint deduplicates by normalized UTC timestamp so re-uploading overlapping data is safe.
+
+Supported CSV formats:
+- **CryptoDataDownload**: first line is a URL comment; header on second line; rows ordered newest-first (auto-reversed)
+- **Standard CSV**: header on first line with `date`/`unix`/`open`/`high`/`low`/`close` columns; chronological order
+- **Binance raw API**: no header; positional columns `open_time, open, high, low, close, …`; `open_time` is a Unix timestamp in milliseconds
+
+Note: All timestamp formats are normalized to UTC `YYYY-MM-DD HH:MM` by `time_utils.normalize_bar_time` before storage. The file is only written to disk when `added_count > 0`.
+
+## Timezone Convention
+
+All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` format (16 characters). The display layer is responsible for converting to **UTC+8** for user-facing text.
+
+- Backend (`time_utils.normalize_bar_time`): accepts any input format (Unix timestamps in any unit, ISO strings, `HH:MM:SS`) and outputs UTC+0 `YYYY-MM-DD HH:MM`.
+- Frontend storage / API payloads: UTC+0.
+- Frontend display (`utils/time.toUTC8Display`): converts UTC+0 → UTC+8 at render time only.
+- Chart rendering (lightweight-charts): timestamps are shifted by +8 h before passing to the library so that the chart's UTC-based x-axis shows UTC+8 labels.
+
 ## UX Notes
 - Keep OHLC input and MA99 assistance as separate UI concepts.
 - Screenshot upload is optional and should be described as an MA99 assist path, not as the main data input.
@@ -126,6 +154,8 @@ Note: This endpoint does NOT persist uploaded OHLC data to the history database.
 - Each expanded match card must display a mini chart that overlays the `historical_ma99` and `future_ma99` as a purple MA99 line alongside the candlestick data; a vertical orange line separates the historical from the future segment.
 - Early MA99 loading state: immediately after the official CSV files are uploaded, the system calls `/api/merge-and-compute-ma99` to pre-compute MA99. During this call, the main chart header shows `MA(99) 計算中…` and the predict button is disabled with tooltip `MA99 計算中，請稍候…`. Once resolved, the header shows the latest MA99 value and the predict button becomes enabled.
 - Each match card header must display a MA99 trend label derived from the match's `future_ma99` series using linear regression slope: `↑ +X.XX%` (green) if slope ≥ 0, `↓ -X.XX%` (red) if slope < 0. The percentage is `(last − first) / first × 100`. The label is omitted when `future_ma99` has fewer than 2 non-null values.
+- History upload feedback: after uploading a history CSV, a status badge must appear below the upload button showing either (a) new bars added with `added_count`, total `bar_count`, and latest timestamp in UTC+0, or (b) "資料已是最新，無需更新" when `added_count === 0`. Upload errors must be shown in a red error badge. While uploading, the button must be disabled with "上傳中…" label.
+- All match interval timestamps and occurrence windows must display UTC+8 datetimes. A "All times UTC+8" label must appear in the match list header.
 
 ## Non-functional Requirements
 - Prediction refresh after clicking the button should remain responsive.
