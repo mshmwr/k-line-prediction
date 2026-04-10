@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { OHLCRow, MatchCase, OrderSuggestion, PredictStats, DayStats, Ma99Gap } from './types'
 import { OHLCEditor } from './components/OHLCEditor'
 import { TopBar } from './components/TopBar'
 import { PredictButton } from './components/PredictButton'
@@ -7,16 +6,14 @@ import { MatchList } from './components/MatchList'
 import { StatsPanel } from './components/StatsPanel'
 import { MainChart } from './components/MainChart'
 import { usePrediction } from './hooks/usePrediction'
-import {
-  aggregateProjectedBarsTo1D,
-  aggregateRowsTo1D,
-  computeProjectedFutureBars,
-  ProjectionBar,
-  toDisplayMatch,
-} from './utils/aggregation'
+import { DayStats, Ma99Gap, MatchCase, OHLCRow, PredictStats } from './types'
+import { toUTC8Display } from './utils/time'
+
+const TIMEFRAME = '1H' as const
 const OFFICIAL_ROW_COUNT = 24
 
 type TrendOverride = 'up' | 'down' | 'flat'
+type DisplayMode = '1H' | '1D'
 
 function emptyRows(count: number): OHLCRow[] {
   return Array.from({ length: count }, () => ({ open: '', high: '', low: '', close: '', time: '' }))
@@ -25,7 +22,6 @@ function emptyRows(count: number): OHLCRow[] {
 function parseExchangeTimestamp(rawValue: string): string {
   const raw = rawValue.trim()
   if (!raw) throw new Error('Missing timestamp column.')
-
   const numeric = Number(raw)
   if (!Number.isFinite(numeric)) throw new Error(`Invalid timestamp: ${raw}`)
 
@@ -66,13 +62,7 @@ function parseOfficialCsvFile(text: string, filename: string): OHLCRow[] {
       throw new Error(`${filename} line ${index + 1}: contains invalid OHLC values.`)
     }
 
-    return {
-      time,
-      open: String(open),
-      high: String(high),
-      low: String(low),
-      close: String(close),
-    }
+    return { time, open: String(open), high: String(high), low: String(low), close: String(close) }
   })
 
   if (rows.length !== OFFICIAL_ROW_COUNT) {
@@ -84,7 +74,7 @@ function parseOfficialCsvFile(text: string, filename: string): OHLCRow[] {
 
 function isRowComplete(row: OHLCRow): boolean {
   return Boolean(row.time) && (['open', 'high', 'low', 'close'] as const).every(
-    field => row[field] !== '' && !Number.isNaN(Number(row[field]))
+    field => row[field] !== '' && !Number.isNaN(Number(row[field])),
   )
 }
 
@@ -97,70 +87,55 @@ function inferMa99TrendOverride(ma99Values: (number | null)[]): TrendOverride {
   return 'flat'
 }
 
-function buildProjectedSuggestion(
-  label: string,
-  price: number,
-  pct: number,
-  occurrenceBar: number,
-  occurrenceTime: string,
-  historicalTime: string,
-): OrderSuggestion {
-  return {
-    label,
-    price: Math.round(price * 100) / 100,
-    pct: Math.round(pct * 100) / 100,
-    occurrenceBar,
-    occurrenceWindow: occurrenceTime,
-    historicalTime,
-  }
-}
-
-function computeDisplayStats(matches: MatchCase[], projectedBars: ProjectionBar[], currentClose: number): PredictStats | null {
-  if (projectedBars.length < 2) return null
-  const sortedHighs = [...projectedBars].sort((a, b) => b.high - a.high)
-  const sortedLows = [...projectedBars].sort((a, b) => a.low - b.low)
-  const corrs = matches.map(match => match.correlation).filter((value): value is number => value != null)
-  const wins = projectedBars.filter(bar => bar.close > currentClose)
-
-  return {
-    highest: buildProjectedSuggestion('Highest', sortedHighs[0].high, (sortedHighs[0].high - currentClose) / currentClose, sortedHighs[0].occurrenceBar, sortedHighs[0].time, 'Consensus'),
-    secondHighest: buildProjectedSuggestion('Second Highest', sortedHighs[1].high, (sortedHighs[1].high - currentClose) / currentClose, sortedHighs[1].occurrenceBar, sortedHighs[1].time, 'Consensus'),
-    secondLowest: buildProjectedSuggestion('Second Lowest', sortedLows[1].low, (sortedLows[1].low - currentClose) / currentClose, sortedLows[1].occurrenceBar, sortedLows[1].time, 'Consensus'),
-    lowest: buildProjectedSuggestion('Lowest', sortedLows[0].low, (sortedLows[0].low - currentClose) / currentClose, sortedLows[0].occurrenceBar, sortedLows[0].time, 'Consensus'),
-    winRate: wins.length / projectedBars.length,
-    meanCorrelation: corrs.length > 0 ? corrs.reduce((a, b) => a + b, 0) / corrs.length : 0,
-  }
-}
-
-function computeStatsByDay(projectedBars: Array<{ time: string; high: number; low: number }>, currentClose: number): DayStats[] {
-  // Group bars by UTC+8 calendar date (MM/DD from "MM/DD HH:MM"), preserving chronological order.
-  // Falls back to position-based grouping when bars lack a date label.
-  const orderedDates: string[] = []
-  const dateMap = new Map<string, Array<{ time: string; high: number; low: number }>>()
-  projectedBars.forEach((bar, i) => {
-    const date = /^\d{2}\/\d{2}/.test(bar.time) ? bar.time.substring(0, 5) : String(Math.floor(i / 24))
-    if (!dateMap.has(date)) {
-      orderedDates.push(date)
-      dateMap.set(date, [])
+function aggregateRowsTo1D(rows: OHLCRow[]): OHLCRow[] {
+  const completed = rows.filter(isRowComplete)
+  const byDay = new Map<string, OHLCRow[]>()
+  completed.forEach(row => {
+    const day = row.time.slice(0, 10)
+    const dayRows = byDay.get(day) ?? []
+    dayRows.push(row)
+    byDay.set(day, dayRows)
+  })
+  return [...byDay.entries()].map(([day, dayRows]) => {
+    const opens = dayRows[0]
+    const closes = dayRows[dayRows.length - 1]
+    const highs = Math.max(...dayRows.map(row => Number(row.high)))
+    const lows = Math.min(...dayRows.map(row => Number(row.low)))
+    return {
+      time: day,
+      open: opens.open,
+      high: String(highs),
+      low: String(lows),
+      close: closes.close,
     }
-    dateMap.get(date)!.push(bar)
+  })
+}
+
+function computeStatsByDay(stats: PredictStats | null, currentClose: number): DayStats[] {
+  if (!stats?.consensusForecast1h?.length) return []
+  const grouped = new Map<string, typeof stats.consensusForecast1h>()
+  stats.consensusForecast1h.forEach(bar => {
+    const display = toUTC8Display(bar.time)
+    const key = display ? display.slice(0, 10) : bar.time.slice(0, 10)
+    const entries = grouped.get(key) ?? []
+    entries.push(bar)
+    grouped.set(key, entries)
   })
 
-  return orderedDates.slice(0, 3).map((date, dayIndex) => {
-    const dayBars = dateMap.get(date)!
-    const sortedHighs = [...dayBars].sort((a, b) => b.high - a.high)
-    const sortedLows = [...dayBars].sort((a, b) => a.low - b.low)
+  return [...grouped.entries()].slice(0, 3).map(([_, bars], index) => {
+    const highest = [...bars].sort((a, b) => b.high - a.high)[0]
+    const lowest = [...bars].sort((a, b) => a.low - b.low)[0]
     return {
-      label: `Day ${dayIndex + 1}`,
+      label: `Day ${index + 1}`,
       highest: {
-        price: Math.round(sortedHighs[0].high * 100) / 100,
-        pct: Math.round(((sortedHighs[0].high - currentClose) / currentClose) * 10000) / 100,
-        time: sortedHighs[0].time,
+        price: highest.high,
+        pct: ((highest.high - currentClose) / currentClose) * 100,
+        time: toUTC8Display(highest.time),
       },
       lowest: {
-        price: Math.round(sortedLows[0].low * 100) / 100,
-        pct: Math.round(((sortedLows[0].low - currentClose) / currentClose) * 10000) / 100,
-        time: sortedLows[0].time,
+        price: lowest.low,
+        pct: ((lowest.low - currentClose) / currentClose) * 100,
+        time: toUTC8Display(lowest.time),
       },
     }
   })
@@ -170,16 +145,16 @@ export default function App() {
   type HistoryEntry = { filename: string; latest: string | null; bar_count: number }
   type HistoryInfo = { '1H': HistoryEntry; '1D': HistoryEntry }
 
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('1H')
   const [ohlcData, setOhlcData] = useState<OHLCRow[]>(() => emptyRows(48))
-  const [viewTimeframe, setViewTimeframe] = useState<'1H' | '1D'>('1H')
   const [matches, setMatches] = useState<MatchCase[]>([])
-  const [queryMa99, setQueryMa99] = useState<(number | null)[]>([])
-  const [queryMa99Gap, setQueryMa99Gap] = useState<Ma99Gap | null>(null)
+  const [queryMa991h, setQueryMa991h] = useState<(number | null)[]>([])
+  const [queryMa991d, setQueryMa991d] = useState<(number | null)[]>([])
+  const [queryMa99Gap1h, setQueryMa99Gap1h] = useState<Ma99Gap | null>(null)
+  const [queryMa99Gap1d, setQueryMa99Gap1d] = useState<Ma99Gap | null>(null)
   const [tempSelection, setTempSelection] = useState<Set<string>>(new Set())
   const [appliedSelection, setAppliedSelection] = useState<Set<string>>(new Set())
-  const [appliedData, setAppliedData] = useState<{ matches: MatchCase[]; stats: PredictStats | null; inputs: OHLCRow[] }>({
-    matches: [], stats: null, inputs: []
-  })
+  const [appliedData, setAppliedData] = useState<{ matches: MatchCase[]; stats: PredictStats | null; inputs: OHLCRow[] }>({ matches: [], stats: null, inputs: [] })
   const [loadError, setLoadError] = useState<string | null>(null)
   const [sourcePath, setSourcePath] = useState('No file uploaded yet.')
   const [maLoading, setMaLoading] = useState(false)
@@ -199,15 +174,7 @@ export default function App() {
   const ohlcComplete = useMemo(() => ohlcData.every(isRowComplete), [ohlcData])
   const hasSelection = tempSelection.size > 0
   const errorMessage = loadError ?? predictionError
-  const completedRows = useMemo(() => ohlcData.filter(isRowComplete), [ohlcData])
-  const apiRows = useMemo(
-    () => (viewTimeframe === '1D' ? aggregateRowsTo1D(completedRows) : completedRows),
-    [completedRows, viewTimeframe],
-  )
-  const displayMatches = useMemo(
-    () => matches.map(match => toDisplayMatch(match)),
-    [matches],
-  )
+  const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
 
   const disabledReason = useMemo(() => {
     if (maLoading) return 'maLoading' as const
@@ -216,45 +183,31 @@ export default function App() {
     return null
   }, [maLoading, ohlcComplete, hasSelection, matches.length])
 
-  const projectedFutureBars = useMemo(() => {
-    if (!appliedData.stats) return []
-    const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
-    if (activeMatches.length === 0) return []
-    const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
-    const lastBarTime = appliedData.inputs[appliedData.inputs.length - 1]?.time
-    return computeProjectedFutureBars(activeMatches, currentClose, lastBarTime)
-  }, [appliedData, appliedSelection])
-  const projectedFutureBars1D = useMemo(
-    () => (viewTimeframe === '1H' ? aggregateProjectedBarsTo1D(projectedFutureBars) : []),
-    [projectedFutureBars, viewTimeframe],
+  const displayRows = useMemo(
+    () => (displayMode === '1D' ? aggregateRowsTo1D(ohlcData) : ohlcData),
+    [displayMode, ohlcData],
   )
 
-  const displayStats = useMemo(() => {
-    if (!appliedData.stats) return null
-    if (projectedFutureBars.length === 0) return appliedData.stats
-    const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
-    const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
-    return computeDisplayStats(activeMatches, projectedFutureBars, currentClose) ?? appliedData.stats
-  }, [appliedData, appliedSelection, projectedFutureBars])
+  const displayMa99 = displayMode === '1D' ? queryMa991d : queryMa991h
+  const displayMa99Gap = displayMode === '1D' ? queryMa99Gap1d : queryMa99Gap1h
 
-  const displayStatsByDay = useMemo(() => {
-    if (viewTimeframe === '1D') return []
-    if (projectedFutureBars.length === 0) return []
-    const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
-    return computeStatsByDay(projectedFutureBars, currentClose)
-  }, [projectedFutureBars, appliedData.inputs, viewTimeframe])
+  const dayStats = useMemo(() => computeStatsByDay(appliedData.stats, currentClose), [appliedData.stats, currentClose])
 
   const isDirty = useMemo(() => {
     if (!appliedData.stats) return false
     if (appliedSelection.size !== tempSelection.size) return true
-    for (const id of tempSelection) if (!appliedSelection.has(id)) return true
+    for (const id of tempSelection) {
+      if (!appliedSelection.has(id)) return true
+    }
     return false
   }, [tempSelection, appliedSelection, appliedData.stats])
 
   function resetPredictionState() {
     setMatches([])
-    setQueryMa99([])
-    setQueryMa99Gap(null)
+    setQueryMa991h([])
+    setQueryMa991d([])
+    setQueryMa99Gap1h(null)
+    setQueryMa99Gap1d(null)
     setTempSelection(new Set())
     setAppliedSelection(new Set())
     setAppliedData({ matches: [], stats: null, inputs: [] })
@@ -275,20 +228,19 @@ export default function App() {
         }
         reader.onerror = () => reject(new Error(`Failed to read ${file.name}`))
         reader.readAsText(file)
-      }))
+      })),
     ).then(async results => {
       const combined = results.flat().sort((a, b) => a.time.localeCompare(b.time))
-      const nextApiRows = viewTimeframe === '1D' ? aggregateRowsTo1D(combined) : combined
       setOhlcData(combined)
       setSourcePath(fileList.map(f => f.name).join(' + '))
       resetPredictionState()
-      setQueryMa99([])
-      setQueryMa99Gap(null)
       setMaLoading(true)
       try {
-        const ma99Result = await computeMa99(nextApiRows, viewTimeframe)
-        setQueryMa99(ma99Result.queryMa99)
-        setQueryMa99Gap(ma99Result.queryMa99Gap)
+        const ma99Result = await computeMa99(combined, TIMEFRAME)
+        setQueryMa991h(ma99Result.queryMa991h)
+        setQueryMa991d(ma99Result.queryMa991d)
+        setQueryMa99Gap1h(ma99Result.queryMa99Gap1h)
+        setQueryMa99Gap1d(ma99Result.queryMa99Gap1d)
       } catch (err) {
         setLoadError((err as Error).message)
       } finally {
@@ -306,7 +258,12 @@ export default function App() {
     fetch('/api/upload-history', { method: 'POST', body: formData })
       .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(new Error(d.detail ?? 'Upload failed'))))
       .then(uploadResult => {
-        setLastHistoryUpload({ filename: file.name, latest: uploadResult.latest ?? null, barCount: uploadResult.bar_count ?? 0, addedCount: uploadResult.added_count ?? 0 })
+        setLastHistoryUpload({
+          filename: file.name,
+          latest: uploadResult.latest ?? null,
+          barCount: uploadResult.bar_count ?? 0,
+          addedCount: uploadResult.added_count ?? 0,
+        })
         return fetch('/api/history-info').then(r => r.json())
       })
       .then(data => setHistoryInfo(data))
@@ -318,25 +275,8 @@ export default function App() {
     setOhlcData(prev => prev.map((row, index) => index === rowIdx ? { ...row, [field]: value } : row))
   }
 
-  async function handleTimeframeChange(nextTimeframe: '1H' | '1D') {
-    if (nextTimeframe === viewTimeframe) return
-    setViewTimeframe(nextTimeframe)
-    resetPredictionState()
-    setLoadError(null)
-    setQueryMa99([])
-    setQueryMa99Gap(null)
-    if (!ohlcComplete) return
-    const nextApiRows = nextTimeframe === '1D' ? aggregateRowsTo1D(completedRows) : completedRows
-    setMaLoading(true)
-    try {
-      const ma99Result = await computeMa99(nextApiRows, nextTimeframe)
-      setQueryMa99(ma99Result.queryMa99)
-      setQueryMa99Gap(ma99Result.queryMa99Gap)
-    } catch (err) {
-      setLoadError((err as Error).message)
-    } finally {
-      setMaLoading(false)
-    }
+  function handleTimeframeChange(nextTimeframe: '1H' | '1D') {
+    setDisplayMode(nextTimeframe)
   }
 
   function handleToggle(id: string) {
@@ -348,35 +288,37 @@ export default function App() {
   }
 
   async function handlePredict() {
-    const inputsChanged = JSON.stringify(apiRows) !== JSON.stringify(appliedData.inputs)
+    const inputsChanged = JSON.stringify(ohlcData) !== JSON.stringify(appliedData.inputs)
     if (!inputsChanged && appliedData.stats) {
       setAppliedSelection(new Set(tempSelection))
       return
     }
 
-    const ma99Trend = inferMa99TrendOverride(queryMa99)
-    const result = await predict(apiRows, [], viewTimeframe, ma99Trend)
+    const ma99Trend = inferMa99TrendOverride(queryMa991d)
+    const result = await predict(ohlcData, [], TIMEFRAME, ma99Trend)
     if (!result) return
 
     const allIds = new Set(result.matches.map(m => m.id))
     setMatches(result.matches)
-    setQueryMa99(result.queryMa99 ?? [])
-    setQueryMa99Gap(result.queryMa99Gap ?? null)
+    setQueryMa991h(result.queryMa991h)
+    setQueryMa991d(result.queryMa991d)
+    setQueryMa99Gap1h(result.queryMa99Gap1h)
+    setQueryMa99Gap1d(result.queryMa99Gap1d)
     setTempSelection(allIds)
     setAppliedSelection(allIds)
-    setAppliedData({ matches: result.matches, stats: result.stats, inputs: apiRows })
+    setAppliedData({ matches: result.matches, stats: result.stats, inputs: ohlcData })
   }
 
   return (
-    <div className="h-screen bg-gray-950 text-gray-100 flex flex-col overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden bg-gray-950 text-gray-100">
       <TopBar rowCount={ohlcData.filter(isRowComplete).length} />
       {errorMessage && (
-        <div className="mx-4 mt-1 text-red-400 text-xs border border-red-700 rounded px-3 py-1.5 bg-red-950 flex-shrink-0">
+        <div className="mx-4 mt-1 flex-shrink-0 rounded border border-red-700 bg-red-950 px-3 py-1.5 text-xs text-red-400">
           ✗ {errorMessage}
         </div>
       )}
       <div className="flex flex-1 gap-4 px-4 pb-4 pt-3 min-h-0">
-        <div className="w-80 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2 pb-20">
+        <div className="flex w-80 min-h-0 flex-col gap-2 overflow-y-auto pr-1 pb-20">
           <div className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
             <div className="text-xs uppercase tracking-wider text-gray-400">Official Input</div>
             <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300">
@@ -412,9 +354,7 @@ export default function App() {
           <div className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
             <div className="text-xs uppercase tracking-wider text-gray-400">History Reference</div>
             <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">
-              {historyInfo
-                ? `${historyInfo['1H'].filename}（最新：${historyInfo['1H'].latest ?? 'N/A'} UTC+0）`
-                : 'Loading...'}
+              {historyInfo ? `${historyInfo['1H'].filename}（最新：${historyInfo['1H'].latest ?? 'N/A'} UTC+0）` : 'Loading...'}
             </div>
             <label className={`flex items-center justify-center rounded border border-dashed px-3 py-3 text-center text-xs transition-colors ${uploadLoading ? 'cursor-not-allowed border-gray-700 text-gray-500' : 'cursor-pointer border-gray-600 text-gray-300 hover:border-blue-400 hover:text-white'}`}>
               <span className="flex flex-col items-center gap-0.5">
@@ -458,39 +398,43 @@ export default function App() {
 
           <div className="h-[360px]">
             <MainChart
-              key={viewTimeframe}
-              userOhlc={apiRows}
-              timeframe={viewTimeframe}
-              ma99Values={queryMa99}
-              ma99Gap={queryMa99Gap}
+              key={displayMode}
+              userOhlc={displayRows}
+              timeframe={displayMode}
+              ma99Values={displayMa99}
+              ma99Gap={displayMa99Gap}
               maLoading={maLoading}
               onTimeframeChange={handleTimeframeChange}
             />
           </div>
 
           <div className="sticky bottom-0 z-10 mt-auto bg-gray-950 pt-2 pb-1">
-            <PredictButton
-              disabled={!!disabledReason}
-              disabledReason={disabledReason}
-              onClick={handlePredict}
-              loading={loading}
-            />
+            <PredictButton disabled={!!disabledReason} disabledReason={disabledReason} onClick={handlePredict} loading={loading} />
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-hidden">
+        <div className="flex flex-1 flex-col gap-4 min-h-0 overflow-hidden">
+          <div className="flex items-center justify-end gap-2">
+            {(['1H', '1D'] as const).map(mode => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setDisplayMode(mode)}
+                className={`rounded border px-3 py-1 text-xs ${displayMode === mode ? 'border-orange-400 bg-orange-500/10 text-orange-300' : 'border-gray-700 text-gray-400'}`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
           <div className="flex-1 min-h-[260px] flex flex-col overflow-hidden">
-            <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider flex-shrink-0">Match List</h3>
-            <MatchList matches={displayMatches} selected={tempSelection} onToggle={handleToggle} timeframe={viewTimeframe} />
+            <h3 className="mb-2 flex-shrink-0 text-sm uppercase tracking-wider text-gray-400">Match List</h3>
+            <MatchList matches={matches} selected={tempSelection} onToggle={handleToggle} timeframe={displayMode} />
           </div>
           <div className="max-h-[48vh] flex-shrink-0 overflow-y-auto pr-1">
-            <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>
+            <h3 className="mb-2 text-sm uppercase tracking-wider text-gray-400">Statistics</h3>
             <StatsPanel
-              stats={displayStats}
-              projectedFutureBars={projectedFutureBars}
-              projectedFutureBars1D={projectedFutureBars1D}
-              dayStats={displayStatsByDay}
-              timeframe={viewTimeframe}
+              stats={appliedData.stats}
+              dayStats={dayStats}
               isDirty={isDirty}
               selectedCount={appliedSelection.size}
               totalCount={matches.length}

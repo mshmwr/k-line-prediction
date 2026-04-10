@@ -1,14 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MatchList } from '../components/MatchList'
-import { AggregatedMatch } from '../utils/aggregation'
+import { MatchCase } from '../types'
 
-const makeMatch = (id: string, correlation: number): AggregatedMatch => ({
+const makeMatch = (id: string, correlation: number): MatchCase => ({
   id, correlation,
-  historicalOhlc: [], futureOhlc: [], startDate: '2023-01-01', endDate: '2023-01-02',
+  historicalOhlc: [], futureOhlc: [],
+  historicalOhlc1d: [], futureOhlc1d: [],
+  startDate: '2023-01-01',
+  endDate: '2023-01-02',
   historicalMa99: [], futureMa99: [],
-  displayStartDate: '2023-01-01',
-  displayEndDate: '2023-01-02',
-  displayReturnPct: 1.25,
+  historicalMa991d: [], futureMa991d: [],
 })
 
 test('renders match cards', () => {
@@ -74,12 +75,11 @@ test('expanded match item renders chart container when OHLC data provided', () =
           { open: 105, high: 115, low: 100, close: 110 },
         ],
         futureOhlc: [{ open: 110, high: 120, low: 105, close: 115 }],
+        historicalOhlc1d: [], futureOhlc1d: [],
         startDate: '2023-06-15',
         endDate: '2023-06-16',
         historicalMa99: [], futureMa99: [],
-        displayStartDate: '2023-06-15',
-        displayEndDate: '2023-06-16',
-        displayReturnPct: 4.55,
+        historicalMa991d: [], futureMa991d: [],
       }]}
       selected={new Set(['m1'])}
       onToggle={() => {}}
@@ -110,12 +110,11 @@ test('expanded match chart shows orange split line when both historical and futu
         id: 'm1', correlation: 0.9,
         historicalOhlc: [{ open: 100, high: 110, low: 95, close: 105 }],
         futureOhlc: [{ open: 110, high: 120, low: 105, close: 115 }],
+        historicalOhlc1d: [], futureOhlc1d: [],
         startDate: '2023-01-01',
         endDate: '2023-01-02',
         historicalMa99: [], futureMa99: [],
-        displayStartDate: '2023-01-01',
-        displayEndDate: '2023-01-02',
-        displayReturnPct: 9.52,
+        historicalMa991d: [], futureMa991d: [],
       }]}
       selected={new Set(['m1'])}
       onToggle={() => {}}
@@ -129,7 +128,14 @@ test('expanded match chart shows orange split line when both historical and futu
 // ── Null-safety tests (regression for toFixed crash) ──────────────────────────
 
 test('does not crash when correlation is null/undefined', () => {
-  const malformed = { id: 'm1', correlation: null as unknown as number, historicalOhlc: [], futureOhlc: [], startDate: '', endDate: '', historicalMa99: [], futureMa99: [], displayStartDate: '', displayEndDate: '', displayReturnPct: null }
+  const malformed = {
+    id: 'm1', correlation: null as unknown as number,
+    historicalOhlc: [], futureOhlc: [],
+    historicalOhlc1d: [], futureOhlc1d: [],
+    startDate: '', endDate: '',
+    historicalMa99: [], futureMa99: [],
+    historicalMa991d: [], futureMa991d: [],
+  }
   expect(() =>
     render(<MatchList matches={[malformed]} selected={new Set(['m1'])} onToggle={() => {}} timeframe="1H" />)
   ).not.toThrow()
@@ -137,7 +143,14 @@ test('does not crash when correlation is null/undefined', () => {
 })
 
 test('does not crash when futureOhlc is missing', () => {
-  const malformed = { id: 'm2', correlation: 0.8, historicalOhlc: [], futureOhlc: undefined as any, startDate: '2023-01-01', endDate: '2023-01-02', historicalMa99: [], futureMa99: [], displayStartDate: '2023-01-01', displayEndDate: '2023-01-02', displayReturnPct: null }
+  const malformed = {
+    id: 'm2', correlation: 0.8,
+    historicalOhlc: [], futureOhlc: undefined as any,
+    historicalOhlc1d: [], futureOhlc1d: [],
+    startDate: '2023-01-01', endDate: '2023-01-02',
+    historicalMa99: [], futureMa99: [],
+    historicalMa991d: [], futureMa991d: [],
+  }
   expect(() =>
     render(<MatchList matches={[malformed]} selected={new Set()} onToggle={() => {}} timeframe="1H" />)
   ).not.toThrow()
@@ -149,35 +162,27 @@ test('expanded match with missing start date shows fallback instead of crashing'
     correlation: 0.7,
     historicalOhlc: [{ open: 100, high: 110, low: 95, close: 105 }],
     futureOhlc: [{ open: 105, high: 115, low: 100, close: 110 }],
+    historicalOhlc1d: [], futureOhlc1d: [],
     startDate: '',
     endDate: '',
     historicalMa99: [], futureMa99: [],
-    displayStartDate: '',
-    displayEndDate: '',
-    displayReturnPct: null,
+    historicalMa991d: [], futureMa991d: [],
   }
   render(<MatchList matches={[malformed]} selected={new Set(['m3'])} onToggle={() => {}} timeframe="1H" />)
   fireEvent.click(screen.getByText(/unknown interval/i))
   expect(screen.getByText(/match chart unavailable because this case does not have a valid start date/i)).toBeInTheDocument()
 })
 
-test('1D view uses date-only interval and return label', () => {
+test('1D view uses date-only interval', () => {
   render(
     <MatchList
-      matches={[{
-        ...makeMatch('m4', 0.88),
-        displayStartDate: '2023-01-01',
-        displayEndDate: '2023-01-03',
-        displayReturnPct: 6.5,
-      }]}
+      matches={[makeMatch('m4', 0.88)]}
       selected={new Set(['m4'])}
       onToggle={() => {}}
       timeframe="1D"
     />
   )
-
-  expect(screen.getByText('2023-01-01 ~ 2023-01-03')).toBeInTheDocument()
-  expect(screen.getByText('+6.50%')).toBeInTheDocument()
+  expect(screen.getByText('2023-01-01 ~ 2023-01-02')).toBeInTheDocument()
 })
 
 test('1D expanded label uses actual daily future wording', () => {
@@ -185,8 +190,8 @@ test('1D expanded label uses actual daily future wording', () => {
     <MatchList
       matches={[{
         ...makeMatch('m5', 0.88),
-        historicalOhlc: [{ open: 100, high: 110, low: 95, close: 105 }],
-        futureOhlc: [{ time: '2023-01-02', open: 106, high: 112, low: 101, close: 110 }],
+        historicalOhlc1d: [{ open: 100, high: 110, low: 95, close: 105 }],
+        futureOhlc1d: [{ open: 106, high: 112, low: 101, close: 110 }],
       }]}
       selected={new Set(['m5'])}
       onToggle={() => {}}

@@ -1,10 +1,10 @@
 import { useRef, useEffect, useState } from 'react'
 import { toUTC8Display } from '../utils/time'
 import { BusinessDay, createChart, IChartApi, LineSeries, UTCTimestamp, CandlestickSeries } from 'lightweight-charts'
-import { AggregatedMatch } from '../utils/aggregation'
+import { MatchCase } from '../types'
 
 interface Props {
-  matches: AggregatedMatch[]
+  matches: MatchCase[]
   selected: Set<string>
   timeframe: '1H' | '1D'
   onToggle: (id: string) => void
@@ -361,10 +361,10 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
         {matches.map(m => {
           const checked = selected.has(m.id)
           const isOpen = openSet.has(m.id)
-          const hist = m.historicalOhlc ?? []
-          const fut = m.futureOhlc ?? []
-          const trend = computeMaTrend(m.futureMa99 ?? [])
-          const interval = formatInterval(m.displayStartDate, m.displayEndDate, timeframe)
+          const hist = timeframe === '1D' ? (m.historicalOhlc1d ?? []) : (m.historicalOhlc ?? [])
+          const fut = timeframe === '1D' ? (m.futureOhlc1d ?? []) : (m.futureOhlc ?? [])
+          const trend = computeMaTrend(timeframe === '1D' ? (m.futureMa991d ?? []) : (m.futureMa99 ?? []))
+          const interval = formatInterval(m.startDate, m.endDate, timeframe)
           return (
             <div
               key={m.id}
@@ -390,11 +390,6 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
                   <span className="text-xs text-gray-400 truncate">
                     {interval}
                   </span>
-                  {m.displayReturnPct != null && (
-                    <span className={`text-xs font-mono ${m.displayReturnPct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {m.displayReturnPct >= 0 ? '+' : ''}{m.displayReturnPct.toFixed(2)}%
-                    </span>
-                  )}
                   {trend && (
                     <span className={`text-xs flex-shrink-0 ${trend.direction === 'up' ? 'text-green-400' : 'text-red-400'}`}>
                       {trend.direction === 'up' ? '↑' : '↓'} {trend.direction === 'up' && trend.pct >= 0 ? '+' : ''}{trend.pct.toFixed(2)}%
@@ -415,10 +410,10 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
                   <PredictorChart
                     historical={hist}
                     future={fut}
-                    startDate={m.displayStartDate}
+                    startDate={m.startDate}
                     timeframe={timeframe}
-                    historicalMa99={m.historicalMa99 ?? []}
-                    futureMa99={m.futureMa99 ?? []}
+                    historicalMa99={timeframe === '1D' ? (m.historicalMa991d ?? []) : (m.historicalMa99 ?? [])}
+                    futureMa99={timeframe === '1D' ? (m.futureMa991d ?? []) : (m.futureMa99 ?? [])}
                   />
                 </div>
               )}

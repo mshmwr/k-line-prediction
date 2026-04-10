@@ -198,31 +198,33 @@ test('shared timeframe toggle switches the main chart to 1D view', async () => {
 
   await uploadOfficialCsv()
 
-  fireEvent.click(screen.getByRole('button', { name: '1D' }))
+  // index 0 = MainChart's pill button; index 1 = right-panel square button
+  const buttons1D = screen.getAllByRole('button', { name: '1D' })
+  fireEvent.click(buttons1D[1])
 
-  expect(screen.getByRole('button', { name: '1D' })).toHaveClass('bg-orange-500/15')
+  expect(screen.getAllByRole('button', { name: '1D' })[1]).toHaveClass('bg-orange-500/10')
 })
 
-test('1D toggle makes MA99 and predict requests use timeframe 1D', async () => {
+test('display mode toggle does not trigger API recompute; predict always uses timeframe 1H', async () => {
   render(<App />)
 
   await uploadOfficialCsv()
 
-  fireEvent.click(screen.getByRole('button', { name: '1D' }))
+  vi.mocked(axios.post).mockClear()
 
-  await waitFor(() => {
-    expect(vi.mocked(axios.post)).toHaveBeenCalledWith(
-      '/api/merge-and-compute-ma99',
-      expect.objectContaining({ timeframe: '1D' }),
-    )
-  })
+  // Toggle to 1D display — should only update UI state, no API call
+  fireEvent.click(screen.getAllByRole('button', { name: '1D' })[1])
 
+  await new Promise(r => setTimeout(r, 20))
+  expect(vi.mocked(axios.post)).not.toHaveBeenCalled()
+
+  // Predict API should always use '1H' regardless of displayMode
   fireEvent.click(screen.getByRole('button', { name: /start prediction/i }))
 
   await waitFor(() => {
     expect(vi.mocked(axios.post)).toHaveBeenCalledWith(
       '/api/predict',
-      expect.objectContaining({ timeframe: '1D' }),
+      expect.objectContaining({ timeframe: '1H' }),
     )
   })
 })
