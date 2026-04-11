@@ -8,6 +8,8 @@ from mock_data import MOCK_HISTORY
 MA_WINDOW = 99
 MIN_BARS_FOR_MA_TREND = 2
 FUTURE_LOOKAHEAD_BARS = 72
+MA_TREND_WINDOW_DAYS = 30
+MA_TREND_PEARSON_THRESHOLD = 0.4
 
 def z_score_normalize(series: List[float]) -> List[float]:
     arr = np.array(series, dtype=float)
@@ -128,6 +130,40 @@ def get_prefix_bars(history: list, first_time: str, timeframe: str) -> list:
     return history[:idx] if idx is not None else []
 
 
+def _fetch_30d_ma_series(anchor_end_time: str, ma_history_1d: list) -> List[float]:
+    """Fetch trailing 30-day MA99 series ending at anchor_end_time from 1D history.
+    Returns 30 floats, or [] if history is insufficient or anchor not found.
+    """
+    if not anchor_end_time or not ma_history_1d:
+        return []
+
+    norm = _normalize_time(anchor_end_time, '1D')
+    idx = _history_time_index(ma_history_1d, '1D').get(norm)
+    if idx is None:
+        return []
+
+    window_end = idx + 1
+    window_start = max(0, window_end - MA_TREND_WINDOW_DAYS)
+    window_bars = ma_history_1d[window_start:window_end]
+    if not window_bars:
+        return []
+
+    prefix_start = max(0, window_start - MA_WINDOW)
+    prefix_bars = ma_history_1d[prefix_start:window_start]
+
+    combined_closes = _extract_closes(prefix_bars) + _extract_closes(window_bars)
+    if len(combined_closes) < MA_WINDOW:
+        return []
+
+    ma_full = _rolling_mean(combined_closes, MA_WINDOW)
+    n_prefix = len(prefix_bars)
+    result = []
+    for j in range(len(window_bars)):
+        ma_idx = n_prefix + j - (MA_WINDOW - 1)
+        if ma_idx >= 0:
+            result.append(float(ma_full[ma_idx]))
+    return result
+
 def _query_ma_series(input_bars, history, timeframe: str) -> Tuple[List[float], str]:
     input_times = [_normalize_time(_bar_time(bar), timeframe) for bar in input_bars]
     first_time = input_times[0] if input_times else ''
@@ -161,6 +197,21 @@ def _trend_direction(series: List[float], epsilon: float = 1e-9) -> int:
         return -1
     return 0
 
+def _classify_trend_by_pearson(series: List[float]) -> int:
+    """Classify MA trend by Pearson correlation against a linear reference line.
+    Returns 1 (up), -1 (down), or 0 (flat).
+    """
+    clean = [v for v in series if v is not None]
+    if len(clean) < 2:
+        return 0
+    reference = list(range(len(clean)))
+    r = pearson_correlation(clean, reference)
+    if r >= MA_TREND_PEARSON_THRESHOLD:
+        return 1
+    if r <= -MA_TREND_PEARSON_THRESHOLD:
+        return -1
+    return 0
+
 def _candle_feature_vector(bars) -> List[float]:
     features = []
     prev_close = None
@@ -181,14 +232,6 @@ def _candle_feature_vector(bars) -> List[float]:
 def _normalized_similarity(a: List[float], b: List[float]) -> float:
     return pearson_correlation(z_score_normalize(a), z_score_normalize(b))
 
-def _override_direction(label: Optional[str]) -> Optional[int]:
-    if label == 'up':
-        return 1
-    if label == 'down':
-        return -1
-    if label == 'flat':
-        return 0
-    return None
 
 def _future_window_label(bar_index: int, timeframe: str) -> str:
     if timeframe == '1D':
@@ -235,43 +278,47 @@ def find_top_matches(
     future_n: int = FUTURE_LOOKAHEAD_BARS,
     history=None,
     timeframe: str = '1H',
-    ma99_trend_override: Optional[str] = None,
+    ma_history=None,
 ) -> List[MatchCase]:
     if history is None:
         history = MOCK_HISTORY
+    if ma_history is None:
+        ma_history = history
     n = len(input_bars)
     if n < MIN_BARS_FOR_MA_TREND:
         raise ValueError(f"At least {MIN_BARS_FOR_MA_TREND} bars are required to compare trends.")
     query_candle_features = _candle_feature_vector(input_bars)
-    query_ma: List[float] = []
-    ma_mode = 'override'
-    override_direction = _override_direction(ma99_trend_override)
-    if override_direction is None:
-        query_ma, ma_mode = _query_ma_series(input_bars, history, timeframe)
-        query_direction = _trend_direction(query_ma)
-    else:
-        query_direction = override_direction
+    input_end_time = _normalize_time(_bar_time(input_bars[-1]), '1D') if input_bars else ''
+    query_30d_ma = _fetch_30d_ma_series(input_end_time, ma_history)
+    if not query_30d_ma:
+        raise ValueError(
+            f"Unable to compute 30-day MA99 trend for {input_end_time}: "
+            "ma_history requires at least 129 daily bars ending at that date."
+        )
+    query_direction = _classify_trend_by_pearson(query_30d_ma)
     results = []
-    needs_candidate_context = ma_mode in {'aligned', 'override'} or n < MA_WINDOW
-    start_idx = MA_WINDOW - 1 if needs_candidate_context else 0
-    for i in range(start_idx, len(history) - n - future_n):
+    for i in range(0, len(history) - n - future_n):
         window = history[i:i + n]
-        if needs_candidate_context:
-            window_ma = _aligned_ma_series(window, history[i - (MA_WINDOW - 1):i])
-        else:
-            window_ma = _ma_trend_series(window)
-        if ma_mode != 'override' and len(window_ma) != len(query_ma):
+        candidate_end_time = _normalize_time(_bar_time(window[-1]), '1D')
+        candidate_30d_ma = _fetch_30d_ma_series(candidate_end_time, ma_history)
+        if not candidate_30d_ma:
             continue
-        if _trend_direction(window_ma) != query_direction:
+        if _classify_trend_by_pearson(candidate_30d_ma) != query_direction:
             continue
         candle_score = _normalized_similarity(query_candle_features, _candle_feature_vector(window))
-        if ma_mode == 'override':
+        if len(candidate_30d_ma) != len(query_30d_ma):
             r = round(candle_score, 4)
         else:
-            ma_score = _normalized_similarity(query_ma, window_ma)
+            ma_score = pearson_correlation(query_30d_ma, candidate_30d_ma)
             r = round(0.6 * candle_score + 0.4 * ma_score, 4)
         future = history[i + n:i + n + future_n]
         results.append((r, i, window, future))
+    if not results:
+        direction_label = {1: 'up', -1: 'down', 0: 'flat'}.get(query_direction, 'unknown')
+        raise ValueError(
+            f"No historical matches found with MA99 trend direction '{direction_label}'. "
+            "Try a different input range."
+        )
     results.sort(key=lambda x: x[0], reverse=True)
     top = results[:10]
     matches = []

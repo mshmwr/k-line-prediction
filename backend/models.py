@@ -13,7 +13,6 @@ class PredictRequest(BaseModel):
     ohlc_data: List[OHLCBar]
     selected_ids: List[str]
     timeframe: str = "1H"
-    ma99_trend_override: Optional[str] = None
 
 class Ma99Gap(BaseModel):
     """MA99 無法計算的日期缺口（歷史前置資料不足 99 根）"""

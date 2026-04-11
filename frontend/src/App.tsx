@@ -16,8 +16,6 @@ import {
 } from './utils/aggregation'
 const OFFICIAL_ROW_COUNT = 24
 
-type TrendOverride = 'up' | 'down' | 'flat'
-
 function emptyRows(count: number): OHLCRow[] {
   return Array.from({ length: count }, () => ({ open: '', high: '', low: '', close: '', time: '' }))
 }
@@ -86,15 +84,6 @@ function isRowComplete(row: OHLCRow): boolean {
   return Boolean(row.time) && (['open', 'high', 'low', 'close'] as const).every(
     field => row[field] !== '' && !Number.isNaN(Number(row[field]))
   )
-}
-
-function inferMa99TrendOverride(ma99Values: (number | null)[]): TrendOverride {
-  const valid = ma99Values.filter((v): v is number => v !== null)
-  if (valid.length < 2) return 'flat'
-  const delta = valid[valid.length - 1] - valid[0]
-  if (delta > 0.01) return 'up'
-  if (delta < -0.01) return 'down'
-  return 'flat'
 }
 
 function buildProjectedSuggestion(
@@ -354,8 +343,7 @@ export default function App() {
       return
     }
 
-    const ma99Trend = inferMa99TrendOverride(queryMa99)
-    const result = await predict(apiRows, [], viewTimeframe, ma99Trend)
+    const result = await predict(apiRows, [], viewTimeframe)
     if (!result) return
 
     const allIds = new Set(result.matches.map(m => m.id))
