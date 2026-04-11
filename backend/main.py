@@ -5,14 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
-from predictor import (
-    find_top_matches,
-    compute_stats,
-    get_prefix_bars,
-    _compute_ma99_for_window,
-    _extract_ma99_gap,
-    aggregate_ohlc_bars,
-)
+from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
 from time_utils import normalize_bar_time
 
@@ -47,47 +40,6 @@ def _merge_bars(existing: list, new_bars: list) -> list:
     combined = {normalize_bar_time(bar['date']): {**bar, 'date': normalize_bar_time(bar['date'])} for bar in existing}
     combined.update({normalize_bar_time(bar['date']): {**bar, 'date': normalize_bar_time(bar['date'])} for bar in new_bars})
     return sorted(combined.values(), key=lambda b: b['date'])
-
-
-def _bars_to_dicts(ohlc_bars) -> list:
-    return [
-        {
-            'date': bar.time,
-            'open': bar.open,
-            'high': bar.high,
-            'low': bar.low,
-            'close': bar.close,
-        }
-        for bar in ohlc_bars
-        if bar.time
-    ]
-
-
-def _compute_query_ma_payload(ohlc_data, history_1h: list, history_1d: list):
-    input_bars_with_time = _bars_to_dicts(ohlc_data)
-    history_1h_merged = _merge_bars(history_1h, input_bars_with_time) if input_bars_with_time else history_1h
-    aggregated_input_1d = aggregate_ohlc_bars(input_bars_with_time, '1D')
-    history_1d_merged = _merge_bars(history_1d, aggregated_input_1d) if aggregated_input_1d else history_1d
-
-    first_input_time_1h = ohlc_data[0].time if ohlc_data else ''
-    query_prefix_1h = get_prefix_bars(history_1h_merged, first_input_time_1h, '1H')
-    query_ma99_1h = _compute_ma99_for_window(ohlc_data, query_prefix_1h)
-    query_ma99_gap_1h = _extract_ma99_gap(ohlc_data, query_ma99_1h)
-
-    input_bars_1d = aggregate_ohlc_bars(ohlc_data, '1D')
-    first_input_time_1d = input_bars_1d[0]['date'] if input_bars_1d else ''
-    query_prefix_1d = get_prefix_bars(history_1d_merged, first_input_time_1d, '1D')
-    query_ma99_1d = _compute_ma99_for_window(input_bars_1d, query_prefix_1d) if input_bars_1d else []
-    query_ma99_gap_1d = _extract_ma99_gap(input_bars_1d, query_ma99_1d) if input_bars_1d else None
-
-    return {
-        'history_1h': history_1h_merged,
-        'history_1d': history_1d_merged,
-        'query_ma99_1h': query_ma99_1h,
-        'query_ma99_gap_1h': query_ma99_gap_1h,
-        'query_ma99_1d': query_ma99_1d,
-        'query_ma99_gap_1d': query_ma99_gap_1d,
-    }
 
 
 def _save_history_csv(bars: list, path: Path) -> None:
@@ -272,28 +224,50 @@ def get_official_input():
 
 @app.post("/api/merge-and-compute-ma99", response_model=Ma99Response)
 def merge_and_compute_ma99(req: Ma99Request) -> Ma99Response:
-    payload = _compute_query_ma_payload(req.ohlc_data, _history_1h, _history_1d)
-    return Ma99Response(
-        query_ma99_1h=payload['query_ma99_1h'],
-        query_ma99_1d=payload['query_ma99_1d'],
-        query_ma99_gap_1h=payload['query_ma99_gap_1h'],
-        query_ma99_gap_1d=payload['query_ma99_gap_1d'],
-    )
+    is_1d = req.timeframe == "1D"
+    history = _history_1d if is_1d else _history_1h
+
+    input_bars_with_time = [
+        {
+            'date': bar.time,
+            'open': bar.open,
+            'high': bar.high,
+            'low': bar.low,
+            'close': bar.close,
+        }
+        for bar in req.ohlc_data
+        if bar.time
+    ]
+    # Merge in memory only for prefix context computation — do NOT persist to disk
+    if input_bars_with_time:
+        history = _merge_bars(history, input_bars_with_time)
+
+    first_input_time = req.ohlc_data[0].time if req.ohlc_data else ''
+    query_prefix = get_prefix_bars(history, first_input_time, req.timeframe)
+    query_ma99 = _compute_ma99_for_window(req.ohlc_data, query_prefix)
+    query_ma99_gap = _extract_ma99_gap(req.ohlc_data, query_ma99)
+
+    return Ma99Response(query_ma99=query_ma99, query_ma99_gap=query_ma99_gap)
 
 
 @app.post("/api/predict", response_model=PredictResponse)
 def predict(req: PredictRequest) -> PredictResponse:
-    query_payload = _compute_query_ma_payload(req.ohlc_data, _history_1h, _history_1d)
-    history = query_payload['history_1d'] if req.timeframe == "1D" else query_payload['history_1h']
-    ma_history = query_payload['history_1d']
+    is_1d = req.timeframe == "1D"
+    history = _history_1d if is_1d else _history_1h
+
+    # Merge input bars in memory only for pattern matching context — do NOT persist to disk
+    input_bars_with_time = [
+        {'date': bar.time, 'open': bar.open, 'high': bar.high, 'low': bar.low, 'close': bar.close}
+        for bar in req.ohlc_data if bar.time
+    ]
+    if input_bars_with_time:
+        history = _merge_bars(history, input_bars_with_time)
 
     try:
         all_matches = find_top_matches(
             req.ohlc_data,
             history=history,
             timeframe=req.timeframe,
-            ma99_trend_override=req.ma99_trend_override,
-            ma_history=ma_history,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -306,13 +280,17 @@ def predict(req: PredictRequest) -> PredictResponse:
     else:
         active = all_matches
     current_close = req.ohlc_data[-1].close
-    stats = compute_stats(active, current_close, req.timeframe, req.ohlc_data[-1].time if req.ohlc_data else '')
+    stats = compute_stats(active, current_close, req.timeframe)
+
+    # 計算 query MA99
+    first_input_time = req.ohlc_data[0].time if req.ohlc_data else ''
+    query_prefix = get_prefix_bars(history, first_input_time, req.timeframe)
+    query_ma99 = _compute_ma99_for_window(req.ohlc_data, query_prefix)
+    query_ma99_gap = _extract_ma99_gap(req.ohlc_data, query_ma99)
 
     return PredictResponse(
         matches=all_matches,
         stats=stats,
-        query_ma99_1h=query_payload['query_ma99_1h'],
-        query_ma99_1d=query_payload['query_ma99_1d'],
-        query_ma99_gap_1h=query_payload['query_ma99_gap_1h'],
-        query_ma99_gap_1d=query_payload['query_ma99_gap_1d'],
+        query_ma99=query_ma99,
+        query_ma99_gap=query_ma99_gap,
     )

@@ -6,19 +6,14 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import main
 from main import app
-from mock_data import MOCK_HISTORY, generate_mock_history
+from mock_data import generate_mock_history
 from models import MatchCase, OHLCBar
 from predictor import MA_WINDOW, compute_stats, find_top_matches, pearson_correlation, z_score_normalize
+from predictor import _classify_trend_by_pearson, _fetch_30d_ma_series
 
 
 client = TestClient(app)
-
-
-def _use_mock_histories():
-    main._history_1h = list(MOCK_HISTORY)
-    main._history_1d = list(MOCK_HISTORY)
 
 
 def test_mock_history_returns_500_bars():
@@ -80,25 +75,28 @@ def test_find_top_matches_uses_history_backfill_for_short_queries():
     assert matches
 
 
+def _make_real_date_1d_bars(n: int, start: str = "2020-01-01", step: float = 1.0) -> list:
+    from datetime import datetime, timedelta
+    base = datetime.fromisoformat(start)
+    bars, price = [], 1000.0
+    for i in range(n):
+        d = (base + timedelta(days=i)).strftime('%Y-%m-%d')
+        bars.append({'date': d, 'open': price, 'high': price+1, 'low': price-1, 'close': price + step*i})
+    return bars
+
+
 def test_find_top_matches_filters_opposite_ma99_direction():
-    up_history = _build_segment(100.0, 160, 0.9, 1)
-    down_history = _build_segment(500.0, 160, -1.0, 161)
-    history = up_history + down_history
-    input_slice = up_history[110:140]
-    input_bars = [OHLCBar(open=b['open'], high=b['high'], low=b['low'], close=b['close'], time=b['date']) for b in input_slice]
-    matches = find_top_matches(input_bars, future_n=5, history=history, timeframe='1H')
+    up_bars = _make_real_date_1d_bars(200, "2020-01-01", step=1.0)
+    down_bars = _make_real_date_1d_bars(200, "2020-07-19", step=-1.0)
+    ma_history = up_bars + down_bars
+    input_slice = up_bars[180:190]
+    input_bars = [OHLCBar(open=b['open'], high=b['high'], low=b['low'],
+                          close=b['close'], time=b['date']) for b in input_slice]
+    matches = find_top_matches(input_bars, future_n=5, history=ma_history,
+                               timeframe='1D', ma_history=ma_history)
     assert matches
-    assert all(match.start_date < '2024-01-161' for match in matches)
+    assert all(m.start_date < "2020-07-19" for m in matches)
 
-
-def test_find_top_matches_allows_override_without_time_alignment():
-    history = _build_segment(100.0, 220, 0.8, 1)
-    input_bars = [
-        OHLCBar(open=200 + i, high=202 + i, low=198 + i, close=201 + i, time='')
-        for i in range(20)
-    ]
-    matches = find_top_matches(input_bars, future_n=5, history=history, timeframe='1H', ma99_trend_override='up')
-    assert matches
 
 
 def test_compute_stats_returns_extreme_order_suggestions():
@@ -132,20 +130,18 @@ def test_compute_stats_returns_extreme_order_suggestions():
 
 
 def test_predict_endpoint_happy_path():
-    _use_mock_histories()
+    # Use bars from MOCK_HISTORY (seed=99, 500 daily bars from 2022-01-01) so
+    # _fetch_30d_ma_series can find a valid 30-day MA99 anchor in _history_1d.
+    history = generate_mock_history(seed=99)
+    sample = history[250:256]  # 6 bars, anchor has 250 prior bars → ample for 30d MA99
     payload = {
         "ohlc_data": [
-            {
-                "open": 2000 + i,
-                "high": 2010 + i,
-                "low": 1990 + i,
-                "close": 2005 + i,
-                "time": MOCK_HISTORY[120 + i]["date"],
-            }
-            for i in range(MA_WINDOW + 1)
+            {"open": b["open"], "high": b["high"], "low": b["low"],
+             "close": b["close"], "time": b["date"]}
+            for b in sample
         ],
         "selected_ids": [],
-        "timeframe": "1H",
+        "timeframe": "1D",
     }
     res = client.post("/api/predict", json=payload)
     assert res.status_code == 200
@@ -153,28 +149,10 @@ def test_predict_endpoint_happy_path():
     assert len(data["matches"]) == 10
     assert "stats" in data
     assert "highest" in data["stats"]
-    assert "consensus_forecast_1h" in data["stats"]
-    assert "consensus_forecast_1d" in data["stats"]
-    assert "query_ma99_1d" in data
 
 
-def test_predict_endpoint_accepts_short_input_with_override():
-    _use_mock_histories()
-    payload = {
-        "ohlc_data": [
-            {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i, "time": ""}
-            for i in range(20)
-        ],
-        "selected_ids": [],
-        "timeframe": "1H",
-        "ma99_trend_override": "up",
-    }
-    res = client.post("/api/predict", json=payload)
-    assert res.status_code == 200
 
-
-def test_predict_endpoint_requires_alignment_or_override_for_short_input():
-    _use_mock_histories()
+def test_predict_endpoint_requires_valid_date_for_ma99_trend():
     payload = {
         "ohlc_data": [
             {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i, "close": 2005 + i, "time": ""}
@@ -338,48 +316,38 @@ def test_find_top_matches_ma99_values_are_float_or_none():
 # ──────────────────────────────────────────────
 
 def test_predict_endpoint_returns_query_ma99():
-    """predict endpoint 應回傳 1H/1D query_ma99 陣列。"""
-    _use_mock_histories()
+    """predict endpoint 應回傳 query_ma99 陣列，長度等於輸入的 bar 數。"""
+    history = generate_mock_history(seed=99)
+    sample = history[250:256]
     payload = {
         "ohlc_data": [
-            {
-                "open": 2000 + i,
-                "high": 2010 + i,
-                "low": 1990 + i,
-                "close": 2005 + i,
-                "time": MOCK_HISTORY[120 + i]["date"],
-            }
-            for i in range(MA_WINDOW + 1)
+            {"open": b["open"], "high": b["high"], "low": b["low"],
+             "close": b["close"], "time": b["date"]}
+            for b in sample
         ],
         "selected_ids": [],
-        "timeframe": "1H",
+        "timeframe": "1D",
     }
     res = client.post("/api/predict", json=payload)
     assert res.status_code == 200
     data = res.json()
-    assert "query_ma99_1h" in data
-    assert "query_ma99_1d" in data
-    assert len(data["query_ma99_1h"]) == MA_WINDOW + 1
-    assert "query_ma99_gap_1h" in data
-    assert isinstance(data["query_ma99_1d"], list)
+    assert "query_ma99" in data
+    assert len(data["query_ma99"]) == len(sample)
+    assert data["query_ma99_gap"] is None
 
 
 def test_predict_endpoint_matches_include_ma99():
     """每個 match 應包含 historical_ma99 和 future_ma99。"""
-    _use_mock_histories()
+    history = generate_mock_history(seed=99)
+    sample = history[250:256]
     payload = {
         "ohlc_data": [
-            {
-                "open": 2000 + i,
-                "high": 2010 + i,
-                "low": 1990 + i,
-                "close": 2005 + i,
-                "time": MOCK_HISTORY[120 + i]["date"],
-            }
-            for i in range(MA_WINDOW + 1)
+            {"open": b["open"], "high": b["high"], "low": b["low"],
+             "close": b["close"], "time": b["date"]}
+            for b in sample
         ],
         "selected_ids": [],
-        "timeframe": "1H",
+        "timeframe": "1D",
     }
     res = client.post("/api/predict", json=payload)
     assert res.status_code == 200
@@ -387,8 +355,6 @@ def test_predict_endpoint_matches_include_ma99():
     for match in data["matches"]:
         assert "historical_ma99" in match
         assert "future_ma99" in match
-        assert "historical_ma99_1d" in match
-        assert "future_ma99_1d" in match
         assert len(match["historical_ma99"]) == len(match["historical_ohlc"])
         assert len(match["future_ma99"]) == len(match["future_ohlc"])
 
@@ -418,7 +384,6 @@ def _make_endpoint_bars(count: int, start_date: str = "2022-01-01") -> list[dict
 
 def test_merge_and_compute_ma99_returns_query_ma99():
     """Endpoint returns query_ma99 array with same length as input."""
-    _use_mock_histories()
     bars = _make_endpoint_bars(24, "2024-03-01")
     payload = {
         "ohlc_data": [
@@ -431,14 +396,12 @@ def test_merge_and_compute_ma99_returns_query_ma99():
     res = client.post("/api/merge-and-compute-ma99", json=payload)
     assert res.status_code == 200
     data = res.json()
-    assert "query_ma99_1h" in data
-    assert len(data["query_ma99_1h"]) == 24
-    assert "query_ma99_1d" in data
+    assert "query_ma99" in data
+    assert len(data["query_ma99"]) == 24
 
 
 def test_merge_and_compute_ma99_gap_when_no_prefix():
     """When bars use very early dates (no prefix in history), query_ma99_gap is not None."""
-    _use_mock_histories()
     # Use very early dates (1900s) → no prefix bars exist → MA99 cannot be calculated
     # bar count (10) < MA_WINDOW (99) → all MA99 values are None → gap is reported
     bars = _make_endpoint_bars(10, "1900-01-01")
@@ -454,17 +417,16 @@ def test_merge_and_compute_ma99_gap_when_no_prefix():
     assert res.status_code == 200
     data = res.json()
     # With only 10 bars and no prefix, MA99 gap should exist (< 99 bars available)
-    assert data["query_ma99_gap_1h"] is not None
+    assert data["query_ma99_gap"] is not None
 
 
 def test_merge_and_compute_ma99_empty_input():
     """Endpoint handles ohlc_data=[] gracefully: returns 200 with empty query_ma99."""
-    _use_mock_histories()
     res = client.post("/api/merge-and-compute-ma99", json={"ohlc_data": [], "timeframe": "1H"})
     assert res.status_code == 200
     data = res.json()
-    assert data["query_ma99_1h"] == []
-    assert data["query_ma99_gap_1h"] is None
+    assert data["query_ma99"] == []
+    assert data["query_ma99_gap"] is None
 
 
 def test_make_endpoint_bars_count_over_99_produces_valid_dates():
@@ -489,3 +451,59 @@ def test_extract_ma99_gap_ignores_isolated_none_in_middle():
     ma99 = [1800.0, None, 1802.0, 1803.0, 1804.0]  # isolated None at index 1
     gap = _extract_ma99_gap(bars, ma99)
     assert gap is None  # no prefix gap → should return None
+
+
+# ──────────────────────────────────────────────
+# Phase 1 新增：_classify_trend_by_pearson 單元測試
+# ──────────────────────────────────────────────
+
+def test_classify_trend_strongly_up_returns_1():
+    series = [100.0 + i for i in range(30)]
+    assert _classify_trend_by_pearson(series) == 1
+
+
+def test_classify_trend_strongly_down_returns_neg1():
+    series = [100.0 - i for i in range(30)]
+    assert _classify_trend_by_pearson(series) == -1
+
+
+def test_classify_trend_flat_oscillating_returns_0():
+    import math
+    series = [100.0 + math.sin(i) for i in range(30)]
+    assert _classify_trend_by_pearson(series) == 0
+
+
+def test_classify_trend_empty_returns_0():
+    assert _classify_trend_by_pearson([]) == 0
+
+
+def test_classify_trend_single_value_returns_0():
+    assert _classify_trend_by_pearson([100.0]) == 0
+
+
+# ──────────────────────────────────────────────
+# Phase 1 新增：_fetch_30d_ma_series 單元測試
+# ──────────────────────────────────────────────
+
+def test_fetch_30d_ma_series_sufficient_returns_30_points():
+    history = _make_real_date_1d_bars(200)
+    anchor = history[150]['date']
+    result = _fetch_30d_ma_series(anchor, history)
+    assert len(result) == 30
+    assert all(isinstance(v, float) for v in result)
+
+
+def test_fetch_30d_ma_series_insufficient_prefix_returns_empty():
+    history = _make_real_date_1d_bars(50)
+    result = _fetch_30d_ma_series(history[-1]['date'], history)
+    assert result == []
+
+
+def test_fetch_30d_ma_series_anchor_not_in_history_returns_empty():
+    history = _make_real_date_1d_bars(200)
+    assert _fetch_30d_ma_series("1900-01-01", history) == []
+
+
+def test_fetch_30d_ma_series_empty_inputs_return_empty():
+    assert _fetch_30d_ma_series("", []) == []
+    assert _fetch_30d_ma_series("2024-01-01", []) == []

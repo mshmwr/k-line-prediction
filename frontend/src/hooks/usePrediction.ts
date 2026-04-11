@@ -21,7 +21,6 @@ export function usePrediction() {
     ohlcRows: OHLCRow[],
     selectedIds: string[],
     timeframe: string = '1H',
-    ma99TrendOverride?: 'up' | 'down' | 'flat' | null,
   ): Promise<PredictResponse | null> {
     setLoading(true)
     setError(null)
@@ -36,7 +35,6 @@ export function usePrediction() {
         })),
         selected_ids: selectedIds,
         timeframe,
-        ma99_trend_override: ma99TrendOverride ?? null,
       })
       const raw = res.data
       return {
