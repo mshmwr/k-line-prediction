@@ -211,9 +211,10 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 **Given** 使用者訪問 `/`
 **When** 頁面載入
 **Then** 頁面顯示 Hero、專案邏輯、技術棧、開發日記四個 Section
-**And** Hero tagline 為 "K-Line pattern matching with MA99 trend filtering — find historical analogs for your current chart structure"
+**And** Hero 主標題為 "Predict the Next Move Before It Happens"
+**And** Hero 副標題含 pattern-matching 說明（"Pattern-matching engine for K-line candlestick charts..."）
 **And** 開發日記從 `diary.json` 渲染，`milestone` 為可展開收起的大標題，`items` 為展開後細節，最新在前
-**And** "→ Launch App" 按鈕導向 `/app`
+**And** "Open App →" 按鈕導向 `/app`
 
 ### AC-AUTH-1: 正確密碼取得 token 並顯示內容
 

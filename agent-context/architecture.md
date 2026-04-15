@@ -2,12 +2,12 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-09
+updated: 2026-04-15
 ---
 
 ## Summary
 
-ETH/USDT K 線型態相似度預測系統。使用者輸入近期 OHLC 數據，後端在歷史資料庫中找出最相似的歷史片段，計算 MA99 並提供後續走勢統計。
+ETH/USDT K 線型態相似度預測系統。使用者輸入近期 OHLC 數據，後端在歷史資料庫中找出最相似的歷史片段，計算 MA99 並提供後續走勢統計。新增 Homepage、多頁路由（BrowserRouter）、Business Logic 密碼保護頁（JWT 驗證）。
 
 ---
 
@@ -15,7 +15,7 @@ ETH/USDT K 線型態相似度預測系統。使用者輸入近期 OHLC 數據，
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | TypeScript + React + Recharts + Vite |
+| Frontend | TypeScript + React + Recharts + Vite + react-router-dom |
 | Backend | Python + FastAPI |
 | Tests (FE) | Vitest + Playwright |
 | Tests (BE) | pytest |
@@ -31,22 +31,69 @@ ClaudeCodeProject/
 ├── AGENTS.md                ← Codex 專案指令
 ├── K-Line-Prediction/
 │   ├── backend/
-│   │   ├── main.py          ← FastAPI app + endpoints
-│   │   ├── models.py        ← Pydantic request/response models
-│   │   ├── predictor.py     ← 相似度搜尋 + MA99 計算核心
-│   │   ├── time_utils.py    ← 時間格式正規化（統一 UTC+0）
-│   │   ├── mock_data.py     ← 測試用假資料 + CSV loader
+│   │   ├── main.py               ← FastAPI app + endpoints + SPA fallback（最後一個 route）
+│   │   ├── models.py             ← Pydantic request/response models
+│   │   ├── predictor.py          ← 相似度搜尋 + MA99 計算核心
+│   │   ├── time_utils.py         ← 時間格式正規化（統一 UTC+0）
+│   │   ├── mock_data.py          ← 測試用假資料 + CSV loader
+│   │   ├── auth.py               ← APIRouter + require_jwt dependency
+│   │   ├── business_logic.md     ← 交易邏輯（密碼保護內容）
 │   │   └── tests/
+│   │       └── test_auth.py      ← AC-AUTH-1/2/4 測試
 │   ├── frontend/
+│   │   ├── public/
+│   │   │   └── diary.json        ← DiaryMilestone[] 靜態資料
+│   │   ├── e2e/
+│   │   │   ├── business-logic.spec.ts
+│   │   │   ├── pages.spec.ts
+│   │   │   └── fixtures/
+│   │   │       └── expired-token.ts
 │   │   └── src/
-│   │       ├── App.tsx
+│   │       ├── main.tsx          ← BrowserRouter + Routes 入口
+│   │       ├── AppPage.tsx       ← 原 App.tsx（K-Line 預測主頁）
+│   │       ├── types/
+│   │       │   └── diary.ts      ← DiaryItem / DiaryMilestone
+│   │       ├── hooks/
+│   │       │   └── useAsyncState.ts ← async state hook
+│   │       ├── pages/
+│   │       │   ├── HomePage.tsx
+│   │       │   ├── AboutPage.tsx
+│   │       │   ├── DiaryPage.tsx
+│   │       │   └── BusinessLogicPage.tsx
 │   │       └── components/
-│   │           ├── MainChart.tsx   ← 主圖表（歷史 + 預測走勢）
-│   │           ├── MatchList.tsx   ← 相似案例列表
-│   │           ├── OHLCEditor.tsx  ← OHLC 輸入表格
-│   │           ├── StatsPanel.tsx  ← 統計面板
+│   │           ├── NavBar.tsx
+│   │           ├── MainChart.tsx       ← 主圖表（歷史 + 預測走勢）
+│   │           ├── MatchList.tsx       ← 相似案例列表
+│   │           ├── OHLCEditor.tsx      ← OHLC 輸入表格
+│   │           ├── StatsPanel.tsx      ← 統計面板
 │   │           ├── PredictButton.tsx
-│   │           └── TopBar.tsx
+│   │           ├── TopBar.tsx
+│   │           ├── home/
+│   │           │   ├── HeroSection.tsx
+│   │           │   ├── ProjectsSection.tsx
+│   │           │   ├── ProjectCard.tsx
+│   │           │   ├── SkillsSection.tsx
+│   │           │   ├── SkillTag.tsx
+│   │           │   └── ContactSection.tsx
+│   │           ├── about/
+│   │           │   ├── AboutHeroSection.tsx
+│   │           │   ├── ExperienceSection.tsx
+│   │           │   ├── ExperienceItem.tsx
+│   │           │   ├── EducationSection.tsx
+│   │           │   ├── EducationItem.tsx
+│   │           │   ├── OpenSourceSection.tsx
+│   │           │   ├── RepoCard.tsx
+│   │           │   └── ValuesSection.tsx
+│   │           ├── diary/
+│   │           │   ├── DiaryTimeline.tsx
+│   │           │   ├── MilestoneSection.tsx
+│   │           │   └── DiaryEntry.tsx
+│   │           ├── business-logic/
+│   │           │   ├── PasswordForm.tsx
+│   │           │   └── BusinessLogicContent.tsx
+│   │           └── common/
+│   │               ├── LoadingSpinner.tsx
+│   │               └── ErrorMessage.tsx
 │   └── history_database/
 │       ├── Binance_ETHUSDT_1h.csv
 │       └── Binance_ETHUSDT_d.csv
@@ -116,8 +163,59 @@ ClaudeCodeProject/
 
 ---
 
+### `POST /api/auth`
+
+密碼驗證，回傳 JWT token。
+
+**Request** (`AuthRequest`):
+```json
+{ "password": "<string>" }
+```
+
+**Response** (`AuthResponse`):
+```json
+{ "token": "<JWT>" }
+```
+或 401（密碼錯誤）
+
+**規格：**
+- 密碼從 env var `BUSINESS_LOGIC_PASSWORD` 讀取
+- JWT secret 從 env var `JWT_SECRET` 讀取
+- JWT payload: `{ "sub": "business-logic-access", "iat": <unix>, "exp": iat + 86400 }`
+- 密碼比對用 `hmac.compare_digest`（防 timing attack）
+- `jwt.decode` 必須 pin `algorithms=["HS256"]`
+
+---
+
+### `GET /api/business-logic`
+
+回傳密碼保護的交易邏輯內容。
+
+**Header:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{ "content": "<markdown string>" }
+```
+或 401（token 無效或過期）
+
+**規格：**
+- 內容從 `backend/business_logic.md` 讀取
+- 驗證用 `HTTPBearer` + `Depends(require_jwt)`（定義於 `auth.py`）
+
+---
+
+### SPA Fallback
+
+`GET /{full_path:path}` → `FileResponse("dist/index.html")`
+
+**必須是 main.py 最後一個 route**，在所有 `include_router()` 之後，讓前端 BrowserRouter 的路由由客戶端接管。
+
+---
+
 ## Key Data Models
 
+**後端 Pydantic Models:**
 ```python
 OHLCBar:       open, high, low, close: float; time: str (ISO UTC)
 MatchCase:     id, correlation, historical_ohlc, future_ohlc,
@@ -125,6 +223,16 @@ MatchCase:     id, correlation, historical_ohlc, future_ohlc,
 PredictStats:  highest/second_highest/second_lowest/lowest (OrderSuggestion),
                win_rate, mean_correlation
 Ma99Gap:       from_date, to_date  # MA99 無法計算的缺口區間
+AuthRequest:   password: str
+AuthResponse:  token: str
+```
+
+**前端 TypeScript Types:**
+```typescript
+interface DiaryItem      { date: string; text: string }
+interface DiaryMilestone { milestone: string; items: DiaryItem[] }
+type AuthState = 'IDLE' | 'SHOW_PASSWORD_FORM' | 'LOADING_CONTENT' | 'SHOW_CONTENT' | 'SHOW_ERROR'
+type AsyncStatus = 'idle' | 'loading' | 'success' | 'error'
 ```
 
 ---
@@ -175,3 +283,51 @@ Ma99Gap:       from_date, to_date  # MA99 無法計算的缺口區間
 | `mean_correlation` | `meanCorrelation` |
 | `query_ma99` | `queryMa99` |
 | `query_ma99_gap` | `queryMa99Gap` |
+
+---
+
+## Frontend Routing
+
+使用 `react-router-dom` BrowserRouter，路由定義於 `main.tsx`。
+
+| Path | Component | 說明 |
+|------|-----------|------|
+| `/` | `HomePage` | 個人首頁（Hero、Projects、Skills、Contact） |
+| `/app` | `AppPage` | 原 K-Line 預測功能（原 App.tsx） |
+| `/about` | `AboutPage` | 個人介紹（Experience、Education、OpenSource、Values） |
+| `/diary` | `DiaryPage` | 工作日誌 Timeline（讀取 `public/diary.json`） |
+| `/business-logic` | `BusinessLogicPage` | 交易邏輯（密碼保護，JWT 驗證後顯示） |
+| `*` | `Navigate to /` | 未匹配路徑一律導回首頁 |
+
+**注意：** `App.tsx` 已改名為 `AppPage.tsx`，原有的 K-Line 功能維持不變。
+
+---
+
+## Auth Flow（Business Logic）
+
+`BusinessLogicPage` 掛載時的 token 狀態機：
+
+```
+mount → 讀 localStorage('bl_token')
+  ├─ 無 token
+  │   └─ → SHOW_PASSWORD_FORM
+  ├─ 有 token，exp ≤ now（已過期）
+  │   └─ 清除 localStorage → SHOW_PASSWORD_FORM + 過期提示
+  └─ 有 token，exp > now（有效）
+      └─ → LOADING_CONTENT → GET /api/business-logic
+            ├─ 200 → SHOW_CONTENT（渲染 Markdown）
+            └─ 401 → 清除 localStorage → SHOW_ERROR
+
+SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
+  ├─ 200 → 存 token 至 localStorage → LOADING_CONTENT（接上面流程）
+  └─ 401 → SHOW_ERROR（密碼錯誤提示）
+```
+
+**環境變數：**
+- `BUSINESS_LOGIC_PASSWORD` — 驗證密碼
+- `JWT_SECRET` — JWT 簽名 secret
+
+**Token 規格：**
+- Algorithm: HS256
+- 有效期：24 小時（`exp = iat + 86400`）
+- Subject: `"business-logic-access"`
