@@ -3,11 +3,13 @@ import csv
 import io
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
 from time_utils import normalize_bar_time
+from auth import router as auth_router
 
 HISTORY_DB = Path(__file__).parent.parent / "history_database"
 HISTORY_1H_PATH = HISTORY_DB / "Binance_ETHUSDT_1h.csv"
@@ -34,6 +36,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router, prefix="/api")
 
 
 def _merge_bars(existing: list, new_bars: list) -> list:
@@ -307,3 +311,9 @@ def predict(req: PredictRequest) -> PredictResponse:
             query_ma99_1h=query_ma99,
             query_ma99_gap_1h=query_ma99_gap,
         )
+
+
+# SPA fallback — must be the LAST route in main.py
+@app.get("/{full_path:path}")
+async def spa_fallback(full_path: str):
+    return FileResponse("dist/index.html")

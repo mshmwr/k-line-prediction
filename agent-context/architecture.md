@@ -112,8 +112,7 @@ ClaudeCodeProject/
 {
   "ohlc_data": [{"open": 0, "high": 0, "low": 0, "close": 0, "time": "2026-01-01T00:00:00"}],
   "selected_ids": [],
-  "timeframe": "1H",
-  "ma99_trend_override": null
+  "timeframe": "1H"
 }
 ```
 
@@ -122,8 +121,10 @@ ClaudeCodeProject/
 {
   "matches": [MatchCase],
   "stats": PredictStats,
-  "query_ma99": [float | null],
-  "query_ma99_gap": {"from_date": "...", "to_date": "..."} | null
+  "query_ma99_1h": [float | null],
+  "query_ma99_1d": [float | null],
+  "query_ma99_gap_1h": {"from_date": "...", "to_date": "..."} | null,
+  "query_ma99_gap_1d": {"from_date": "...", "to_date": "..."} | null
 }
 ```
 
@@ -134,7 +135,7 @@ ClaudeCodeProject/
 僅計算 MA99，不做預測（前端早期載入 MA99 用）。
 
 **Request** (`Ma99Request`): `{ ohlc_data, timeframe }`
-**Response** (`Ma99Response`): `{ query_ma99, query_ma99_gap }`
+**Response** (`Ma99Response`): `{ query_ma99_1h, query_ma99_1d, query_ma99_gap_1h, query_ma99_gap_1d }`
 
 ---
 
@@ -200,8 +201,9 @@ ClaudeCodeProject/
 或 401（token 無效或過期）
 
 **規格：**
-- 內容從 `backend/business_logic.md` 讀取
+- 內容從 `Path(__file__).parent / "business_logic.md"` 讀取（不用相對路徑，避免 Railway 工作目錄不一致）
 - 驗證用 `HTTPBearer` + `Depends(require_jwt)`（定義於 `auth.py`）
+- `auth.py` 用**單一** `APIRouter`，同時定義 `POST /api/auth` 和 `GET /api/business-logic`；`main.py` 只需一行 `include_router`
 
 ---
 
@@ -272,7 +274,6 @@ type AsyncStatus = 'idle' | 'loading' | 'success' | 'error'
 |---------------------|---------------------|
 | `ohlc_data` | `ohlcData` |
 | `selected_ids` | `selectedIds` |
-| `ma99_trend_override` | `ma99TrendOverride` |
 | `start_date` | `startDate` |
 | `end_date` | `endDate` |
 | `historical_ohlc` | `historicalOhlc` |
@@ -281,8 +282,10 @@ type AsyncStatus = 'idle' | 'loading' | 'success' | 'error'
 | `future_ma99` | `futureMa99` |
 | `win_rate` | `winRate` |
 | `mean_correlation` | `meanCorrelation` |
-| `query_ma99` | `queryMa99` |
-| `query_ma99_gap` | `queryMa99Gap` |
+| `query_ma99_1h` | `queryMa991h` |
+| `query_ma99_1d` | `queryMa991d` |
+| `query_ma99_gap_1h` | `queryMa99Gap1h` |
+| `query_ma99_gap_1d` | `queryMa99Gap1d` |
 
 ---
 
