@@ -75,3 +75,9 @@ class Ma99Response(BaseModel):
     query_ma99_1d: List[Optional[float]] = []
     query_ma99_gap_1h: Optional[Ma99Gap] = None
     query_ma99_gap_1d: Optional[Ma99Gap] = None
+
+class AuthRequest(BaseModel):
+    password: str
+
+class AuthResponse(BaseModel):
+    token: str
