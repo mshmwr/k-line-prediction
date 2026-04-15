@@ -110,8 +110,14 @@ function StatsProjectionChart({ bars, title, timeframe, testId }: { bars: Projec
 
   if (!bars.length) {
     return (
-      <div className="flex h-[220px] items-center justify-center rounded-xl border border-[#252c39] bg-[#171b24] px-4 text-center text-sm text-[#6f788b]">
-        Forecast unavailable until prediction results are ready.
+      <div className="overflow-hidden rounded-xl border border-[#252c39] bg-[#171b24]">
+        <div className="flex items-center justify-between border-b border-[#252c39] px-3 py-2 text-[11px] text-[#c9d1e4]">
+          <span>{title}</span>
+          <span>Consensus view, not raw historical bars</span>
+        </div>
+        <div className="flex h-[220px] items-center justify-center px-4 text-center text-sm text-[#6f788b]">
+          Forecast unavailable until prediction results are ready.
+        </div>
       </div>
     )
   }

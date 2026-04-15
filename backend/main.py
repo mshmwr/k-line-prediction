@@ -247,7 +247,10 @@ def merge_and_compute_ma99(req: Ma99Request) -> Ma99Response:
     query_ma99 = _compute_ma99_for_window(req.ohlc_data, query_prefix)
     query_ma99_gap = _extract_ma99_gap(req.ohlc_data, query_ma99)
 
-    return Ma99Response(query_ma99=query_ma99, query_ma99_gap=query_ma99_gap)
+    if is_1d:
+        return Ma99Response(query_ma99_1d=query_ma99, query_ma99_gap_1d=query_ma99_gap)
+    else:
+        return Ma99Response(query_ma99_1h=query_ma99, query_ma99_gap_1h=query_ma99_gap)
 
 
 @app.post("/api/predict", response_model=PredictResponse)
@@ -288,9 +291,17 @@ def predict(req: PredictRequest) -> PredictResponse:
     query_ma99 = _compute_ma99_for_window(req.ohlc_data, query_prefix)
     query_ma99_gap = _extract_ma99_gap(req.ohlc_data, query_ma99)
 
-    return PredictResponse(
-        matches=all_matches,
-        stats=stats,
-        query_ma99=query_ma99,
-        query_ma99_gap=query_ma99_gap,
-    )
+    if is_1d:
+        return PredictResponse(
+            matches=all_matches,
+            stats=stats,
+            query_ma99_1d=query_ma99,
+            query_ma99_gap_1d=query_ma99_gap,
+        )
+    else:
+        return PredictResponse(
+            matches=all_matches,
+            stats=stats,
+            query_ma99_1h=query_ma99,
+            query_ma99_gap_1h=query_ma99_gap,
+        )

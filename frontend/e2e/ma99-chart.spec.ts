@@ -41,14 +41,16 @@ const MOCK_STATS = {
   },
   win_rate: 0.7,
   mean_correlation: 0.85,
+  consensus_forecast_1h: [],
+  consensus_forecast_1d: [],
 }
 
 /** 48 non-null MA99 values; last value = 1897, formatted as "1,897.00". */
 const QUERY_MA99 = Array.from({ length: 48 }, (_, i) => 1850 + i)
 
 const MOCK_MA99_RESPONSE = {
-  query_ma99: QUERY_MA99,
-  query_ma99_gap: null,
+  query_ma99_1h: QUERY_MA99,
+  query_ma99_gap_1h: null,
 }
 
 const MOCK_PREDICT_BASE = {
@@ -68,7 +70,7 @@ const MOCK_PREDICT_BASE = {
     },
   ],
   stats: MOCK_STATS,
-  query_ma99: QUERY_MA99,
+  query_ma99_1h: QUERY_MA99,
 }
 
 /** Match with uptrend future_ma99 (10 values, 1900→1990, slope > 0, pct ≈ +4.74%) */
@@ -80,7 +82,7 @@ const MOCK_PREDICT_WITH_UPTREND = {
       future_ma99: Array.from({ length: 10 }, (_, i) => 1900 + i * 10),
     },
   ],
-  query_ma99_gap: null,
+  query_ma99_gap_1h: null,
 }
 
 /** Match with downtrend future_ma99 (10 values, 1990→1900, slope < 0, pct ≈ -4.52%) */
@@ -92,10 +94,10 @@ const MOCK_PREDICT_WITH_DOWNTREND = {
       future_ma99: Array.from({ length: 10 }, (_, i) => 1990 - i * 10),
     },
   ],
-  query_ma99_gap: null,
+  query_ma99_gap_1h: null,
 }
 
-const MOCK_PREDICT_NO_GAP = { ...MOCK_PREDICT_BASE, query_ma99_gap: null }
+const MOCK_PREDICT_NO_GAP = { ...MOCK_PREDICT_BASE, query_ma99_gap_1h: null }
 const MOCK_PREDICT_NATIVE_1D = {
   matches: [
     {
@@ -115,12 +117,12 @@ const MOCK_PREDICT_NATIVE_1D = {
     },
   ],
   stats: MOCK_STATS,
-  query_ma99: [1880, 1890],
-  query_ma99_gap: null,
+  query_ma99_1d: [1880, 1890],
+  query_ma99_gap_1d: null,
 }
 const MOCK_PREDICT_WITH_GAP = {
   ...MOCK_PREDICT_BASE,
-  query_ma99_gap: { from_date: '2024-01-01', to_date: '2024-01-10' },
+  query_ma99_gap_1h: { from_date: '2024-01-01', to_date: '2024-01-10' },
 }
 
 // ── Shared helper ────────────────────────────────────────────────────────────
@@ -327,7 +329,7 @@ test('shared 1D toggle updates match list header to date-only display', async ({
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_HISTORY_INFO) })
   )
   await page.route('/api/merge-and-compute-ma99', route =>
-    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ query_ma99: [1880, 1890], query_ma99_gap: null }) })
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ query_ma99_1d: [1880, 1890], query_ma99_gap_1d: null }) })
   )
   await page.route('/api/predict', route =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NATIVE_1D) })

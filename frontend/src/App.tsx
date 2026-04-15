@@ -276,8 +276,8 @@ export default function App() {
       setMaLoading(true)
       try {
         const ma99Result = await computeMa99(nextApiRows, viewTimeframe)
-        setQueryMa99(ma99Result.queryMa99)
-        setQueryMa99Gap(ma99Result.queryMa99Gap)
+        setQueryMa99(viewTimeframe === '1D' ? (ma99Result.queryMa991d ?? []) : (ma99Result.queryMa991h ?? []))
+        setQueryMa99Gap(viewTimeframe === '1D' ? (ma99Result.queryMa99Gap1d ?? null) : (ma99Result.queryMa99Gap1h ?? null))
       } catch (err) {
         setLoadError((err as Error).message)
       } finally {
@@ -319,8 +319,8 @@ export default function App() {
     setMaLoading(true)
     try {
       const ma99Result = await computeMa99(nextApiRows, nextTimeframe)
-      setQueryMa99(ma99Result.queryMa99)
-      setQueryMa99Gap(ma99Result.queryMa99Gap)
+      setQueryMa99(nextTimeframe === '1D' ? (ma99Result.queryMa991d ?? []) : (ma99Result.queryMa991h ?? []))
+      setQueryMa99Gap(nextTimeframe === '1D' ? (ma99Result.queryMa99Gap1d ?? null) : (ma99Result.queryMa99Gap1h ?? null))
     } catch (err) {
       setLoadError((err as Error).message)
     } finally {
@@ -348,8 +348,8 @@ export default function App() {
 
     const allIds = new Set(result.matches.map(m => m.id))
     setMatches(result.matches)
-    setQueryMa99(result.queryMa99 ?? [])
-    setQueryMa99Gap(result.queryMa99Gap ?? null)
+    setQueryMa99(viewTimeframe === '1D' ? (result.queryMa991d ?? []) : (result.queryMa991h ?? []))
+    setQueryMa99Gap(viewTimeframe === '1D' ? (result.queryMa99Gap1d ?? null) : (result.queryMa99Gap1h ?? null))
     setTempSelection(allIds)
     setAppliedSelection(allIds)
     setAppliedData({ matches: result.matches, stats: result.stats, inputs: apiRows })
