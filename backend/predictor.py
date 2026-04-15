@@ -244,6 +244,30 @@ def _median(values: List[float]) -> float:
         return 0.0
     return float(statistics.median(values))
 
+def _aggregate_bars_to_1d(bars: list) -> list:
+    """Aggregate list of bar dicts (with 'date' key) into daily OHLC bar dicts."""
+    groups: dict = {}
+    order: list = []
+    for bar in bars:
+        day = _normalize_time(_bar_time(bar), '1D')
+        if not day:
+            continue
+        if day not in groups:
+            groups[day] = {
+                'date': day,
+                'open': _bar_value(bar, 'open'),
+                'high': _bar_value(bar, 'high'),
+                'low': _bar_value(bar, 'low'),
+                'close': _bar_value(bar, 'close'),
+            }
+            order.append(day)
+        else:
+            groups[day]['high'] = max(groups[day]['high'], _bar_value(bar, 'high'))
+            groups[day]['low'] = min(groups[day]['low'], _bar_value(bar, 'low'))
+            groups[day]['close'] = _bar_value(bar, 'close')
+    return [groups[day] for day in order]
+
+
 def _projected_future_bars(matches: List[MatchCase], current_close: float):
     projected_bars = []
     for index in range(FUTURE_LOOKAHEAD_BARS):
@@ -280,6 +304,7 @@ def find_top_matches(
     history=None,
     timeframe: str = '1H',
     ma_history=None,
+    history_1d=None,
 ) -> List[MatchCase]:
     if history is None:
         history = MOCK_HISTORY
@@ -326,20 +351,48 @@ def find_top_matches(
     matches = []
     for r, i, window, future in top:
         prefix = history[:i]
+        n_win = len(window)
         combined_ma99 = _compute_ma99_for_window(
             list(window) + list(future),
             prefix,
         )
-        n = len(window)
+
+        hist_1d_bars: list = []
+        fut_1d_bars: list = []
+        hist_ma99_1d: List[Optional[float]] = []
+        fut_ma99_1d: List[Optional[float]] = []
+        if history_1d:
+            hist_1d_bars = _aggregate_bars_to_1d(window)
+            fut_1d_bars = _aggregate_bars_to_1d(future)
+            if hist_1d_bars:
+                first_1d_date = hist_1d_bars[0]['date']
+                prefix_1d = get_prefix_bars(history_1d, first_1d_date, '1D')
+                combined_ma99_1d = _compute_ma99_for_window(
+                    hist_1d_bars + fut_1d_bars, prefix_1d
+                )
+                n_hist_1d = len(hist_1d_bars)
+                hist_ma99_1d = combined_ma99_1d[:n_hist_1d]
+                fut_ma99_1d = combined_ma99_1d[n_hist_1d:]
+
         matches.append(MatchCase(
             id=f"match_{i}",
             correlation=round(r, 4),
             historical_ohlc=[OHLCBar(**b) for b in window],
             future_ohlc=[OHLCBar(**b) for b in future],
+            historical_ohlc_1d=[
+                OHLCBar(open=b['open'], high=b['high'], low=b['low'], close=b['close'], time=b['date'])
+                for b in hist_1d_bars
+            ],
+            future_ohlc_1d=[
+                OHLCBar(open=b['open'], high=b['high'], low=b['low'], close=b['close'], time=b['date'])
+                for b in fut_1d_bars
+            ],
             start_date=window[0]['date'],
             end_date=future[-1]['date'],
-            historical_ma99=combined_ma99[:n],
-            future_ma99=combined_ma99[n:],
+            historical_ma99=combined_ma99[:n_win],
+            future_ma99=combined_ma99[n_win:],
+            historical_ma99_1d=hist_ma99_1d,
+            future_ma99_1d=fut_ma99_1d,
         ))
     return matches
 

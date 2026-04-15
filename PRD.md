@@ -102,10 +102,14 @@ Payload
 
 Response
 - `matches`: array of match cases; each case includes:
-  - `historical_ohlc`: matched historical segment
-  - `future_ohlc`: actual future bars following the matched segment
+  - `historical_ohlc`: matched historical segment (1H bars)
+  - `future_ohlc`: actual future 1H bars following the matched segment
   - `historical_ma99`: MA99 values aligned to the matched historical segment (`(number | null)[]`)
-  - `future_ma99`: MA99 values aligned to the future bars (`(number | null)[]`)
+  - `future_ma99`: MA99 values aligned to the future 1H bars (`(number | null)[]`)
+  - `historical_ohlc_1d`: matched historical segment aggregated into daily bars (aggregated from `historical_ohlc`)
+  - `future_ohlc_1d`: future bars aggregated into daily bars (aggregated from `future_ohlc` 1H data)
+  - `historical_ma99_1d`: MA99 values aligned to `historical_ohlc_1d` (computed against `history_1d` prefix)
+  - `future_ma99_1d`: MA99 values aligned to `future_ohlc_1d`
   - `start_date`, `end_date`: time range of the matched historical segment
   - `correlation`: similarity score
 - `stats`: aggregated statistics across all selected matches
@@ -152,10 +156,39 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - After prediction, the main chart header must display the latest non-null value from `query_ma99` formatted as `MA(99) x,xxx.xx`.
 - If `query_ma99_gap` is non-null, a warning banner must appear below the main chart indicating the affected date range (e.g., `MA99 資料缺失：2024-01-01 ~ 2024-01-10`).
 - Each expanded match card must display a mini chart that overlays the `historical_ma99` and `future_ma99` as a purple MA99 line alongside the candlestick data; a vertical orange line separates the historical from the future segment.
+- In 1D mode, the match card mini chart must display `historical_ohlc_1d` / `future_ohlc_1d` bars and `historical_ma99_1d` / `future_ma99_1d` instead of the 1H counterparts. The right badge must show the count of 1D future bars (e.g., "Actual future 3D bars") rather than "No future bars".
 - Early MA99 loading state: immediately after the official CSV files are uploaded, the system calls `/api/merge-and-compute-ma99` to pre-compute MA99. During this call, the main chart header shows `MA(99) 計算中…` and the predict button is disabled with tooltip `MA99 計算中，請稍候…`. Once resolved, the header shows the latest MA99 value and the predict button becomes enabled.
 - Each match card header must display a MA99 trend label derived from the match's `future_ma99` series using linear regression slope: `↑ +X.XX%` (green) if slope ≥ 0, `↓ -X.XX%` (red) if slope < 0. The percentage is `(last − first) / first × 100`. The label is omitted when `future_ma99` has fewer than 2 non-null values.
 - History upload feedback: after uploading a history CSV, a status badge must appear below the upload button showing either (a) new bars added with `added_count`, total `bar_count`, and latest timestamp in UTC+0, or (b) "資料已是最新，無需更新" when `added_count === 0`. Upload errors must be shown in a red error badge. While uploading, the button must be disabled with "上傳中…" label.
 - All match interval timestamps and occurrence windows must display UTC+8 datetimes. A "All times UTC+8" label must appear in the match list header.
+
+## Acceptance Criteria
+
+### AC-1D-1: 1D mode match card badge shows daily bar count
+
+**Given** the user has uploaded 1H OHLC data and run prediction
+**When** the user switches to 1D timeframe mode and expands a match card
+**Then** the right badge displays "Actual future Nd bars" (N = number of aggregated daily future bars)
+**And** the badge "No future bars" is NOT visible
+
+### AC-1D-2: _aggregate_bars_to_1d correctly aggregates 1H bars into daily OHLC
+
+**Given** a list of 1H bars spanning one or more calendar days
+**When** `_aggregate_bars_to_1d` is called
+**Then** each output daily bar's `open` = first 1H bar's open of that day
+**And** `high` = max of all 1H highs for that day
+**And** `low` = min of all 1H lows for that day
+**And** `close` = last 1H bar's close of that day
+**And** bars with missing/empty date are skipped
+
+### AC-1D-3: predict endpoint populates _1d fields when history_1d is provided
+
+**Given** the backend has a non-empty `_history_1d`
+**When** `/api/predict` is called with 1H OHLC data
+**Then** each match in the response has non-empty `future_ohlc_1d`
+**And** `historical_ohlc_1d` contains the aggregated daily bars for the matched window
+
+---
 
 ## Non-functional Requirements
 - Prediction refresh after clicking the button should remain responsive.

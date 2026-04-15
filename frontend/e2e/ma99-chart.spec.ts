@@ -68,10 +68,20 @@ const MOCK_PREDICT_BASE = {
         { open: 2100, high: 2200, low: 2050, close: 2150 },
         { open: 2150, high: 2250, low: 2100, close: 2200 },
       ],
+      historical_ohlc_1d: [
+        { time: '2023-06-15', open: 2000, high: 2150, low: 1950, close: 2100 },
+      ],
+      future_ohlc_1d: [
+        { time: '2023-06-16', open: 2100, high: 2250, low: 2050, close: 2200 },
+        { time: '2023-06-17', open: 2200, high: 2300, low: 2150, close: 2250 },
+        { time: '2023-06-18', open: 2250, high: 2350, low: 2200, close: 2300 },
+      ],
       start_date: '2023-06-15 00:00',
       end_date: '2023-06-15 01:00',
       historical_ma99: [1900, 1910],
       future_ma99: [1920],
+      historical_ma99_1d: [1900],
+      future_ma99_1d: [1910, 1920, 1930],
     },
   ],
   stats: MOCK_STATS,
@@ -353,4 +363,39 @@ test('shared 1D toggle updates match list header to date-only display', async ({
 
   await expect(page.getByRole('button', { name: '1D' })).toHaveClass(/bg-orange-500\/15/)
   await expect(page.getByText('2023-06-13 ~ 2023-06-15')).toBeVisible()
+})
+
+test('AC-1D-1: in 1D mode, match card right badge shows daily bar count not No future bars', async ({ page }) => {
+  const mock1dMA99 = { query_ma99_1d: [1880, 1890], query_ma99_gap_1d: null }
+
+  await page.route('/api/history-info', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_HISTORY_INFO) })
+  )
+  await page.route('/api/merge-and-compute-ma99', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mock1dMA99) })
+  )
+  await page.route('/api/predict', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NO_GAP) })
+  )
+
+  await page.goto('/')
+
+  const fileInput = page.locator('input[type="file"][multiple]')
+  await fileInput.setInputFiles([
+    { name: 'day1.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY1) },
+    { name: 'day2.csv', mimeType: 'text/csv', buffer: Buffer.from(CSV_DAY2) },
+  ])
+
+  await page.getByRole('button', { name: '1D' }).click()
+
+  const predictBtn = page.getByRole('button', { name: /Start Prediction/ })
+  await expect(predictBtn).toBeEnabled({ timeout: 5000 })
+  await predictBtn.click()
+
+  const matchHeader = page.getByText('r = 0.9500')
+  await expect(matchHeader).toBeVisible({ timeout: 5000 })
+  await matchHeader.click()
+
+  await expect(page.getByText('No future bars')).not.toBeVisible()
+  await expect(page.getByText('Actual future 3D bars')).toBeVisible()
 })

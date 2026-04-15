@@ -271,6 +271,7 @@ def predict(req: PredictRequest) -> PredictResponse:
             req.ohlc_data,
             history=history,
             timeframe=req.timeframe,
+            history_1d=_history_1d,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc

@@ -331,9 +331,9 @@ def test_predict_endpoint_returns_query_ma99():
     res = client.post("/api/predict", json=payload)
     assert res.status_code == 200
     data = res.json()
-    assert "query_ma99" in data
-    assert len(data["query_ma99"]) == len(sample)
-    assert data["query_ma99_gap"] is None
+    assert "query_ma99_1d" in data
+    assert len(data["query_ma99_1d"]) == len(sample)
+    assert data["query_ma99_gap_1d"] is None
 
 
 def test_predict_endpoint_matches_include_ma99():
@@ -396,8 +396,8 @@ def test_merge_and_compute_ma99_returns_query_ma99():
     res = client.post("/api/merge-and-compute-ma99", json=payload)
     assert res.status_code == 200
     data = res.json()
-    assert "query_ma99" in data
-    assert len(data["query_ma99"]) == 24
+    assert "query_ma99_1h" in data
+    assert len(data["query_ma99_1h"]) == 24
 
 
 def test_merge_and_compute_ma99_gap_when_no_prefix():
@@ -417,7 +417,7 @@ def test_merge_and_compute_ma99_gap_when_no_prefix():
     assert res.status_code == 200
     data = res.json()
     # With only 10 bars and no prefix, MA99 gap should exist (< 99 bars available)
-    assert data["query_ma99_gap"] is not None
+    assert data["query_ma99_gap_1h"] is not None
 
 
 def test_merge_and_compute_ma99_empty_input():
@@ -425,8 +425,8 @@ def test_merge_and_compute_ma99_empty_input():
     res = client.post("/api/merge-and-compute-ma99", json={"ohlc_data": [], "timeframe": "1H"})
     assert res.status_code == 200
     data = res.json()
-    assert data["query_ma99"] == []
-    assert data["query_ma99_gap"] is None
+    assert data["query_ma99_1h"] == []
+    assert data["query_ma99_gap_1h"] is None
 
 
 def test_make_endpoint_bars_count_over_99_produces_valid_dates():
@@ -475,6 +475,100 @@ def test_classify_trend_flat_oscillating_returns_0():
 
 def test_classify_trend_empty_returns_0():
     assert _classify_trend_by_pearson([]) == 0
+
+
+# ──────────────────────────────────────────────
+# AC-1D-2: _aggregate_bars_to_1d 單元測試
+# ──────────────────────────────────────────────
+
+from predictor import _aggregate_bars_to_1d
+
+
+def _make_1h_bars(day: str, hours: int, base_price: float = 1000.0) -> list:
+    """Generate `hours` 1H bars for a single calendar day starting at 00:00."""
+    from datetime import datetime, timedelta
+    bars = []
+    base = datetime.fromisoformat(f"{day} 00:00")
+    for i in range(hours):
+        dt = base + timedelta(hours=i)
+        open_ = base_price + i
+        bars.append({
+            'date': dt.strftime('%Y-%m-%d %H:%M'),
+            'open': open_,
+            'high': open_ + 5,
+            'low': open_ - 5,
+            'close': open_ + 1,
+        })
+    return bars
+
+
+def test_aggregate_bars_to_1d_empty_input():
+    """AC-1D-2: empty input → empty output."""
+    assert _aggregate_bars_to_1d([]) == []
+
+
+def test_aggregate_bars_to_1d_single_day_open_high_low_close():
+    """AC-1D-2: 24 1H bars on one day aggregate correctly."""
+    bars = _make_1h_bars('2024-01-01', 24)
+    result = _aggregate_bars_to_1d(bars)
+    assert len(result) == 1
+    day = result[0]
+    assert day['date'] == '2024-01-01'
+    assert day['open'] == bars[0]['open']          # first bar open
+    assert day['high'] == max(b['high'] for b in bars)
+    assert day['low'] == min(b['low'] for b in bars)
+    assert day['close'] == bars[-1]['close']        # last bar close
+
+
+def test_aggregate_bars_to_1d_multi_day():
+    """AC-1D-2: bars spanning 3 days produce 3 daily bars in order."""
+    day1 = _make_1h_bars('2024-01-01', 24, base_price=1000.0)
+    day2 = _make_1h_bars('2024-01-02', 24, base_price=2000.0)
+    day3 = _make_1h_bars('2024-01-03', 24, base_price=3000.0)
+    result = _aggregate_bars_to_1d(day1 + day2 + day3)
+    assert len(result) == 3
+    assert result[0]['date'] == '2024-01-01'
+    assert result[1]['date'] == '2024-01-02'
+    assert result[2]['date'] == '2024-01-03'
+    assert result[0]['open'] == 1000.0
+    assert result[1]['open'] == 2000.0
+    assert result[2]['open'] == 3000.0
+
+
+def test_aggregate_bars_to_1d_skips_missing_date():
+    """AC-1D-2: bars with empty date are skipped, valid bars still aggregate."""
+    bars = _make_1h_bars('2024-01-01', 3)
+    bars.insert(1, {'date': '', 'open': 9999, 'high': 9999, 'low': 9999, 'close': 9999})
+    result = _aggregate_bars_to_1d(bars)
+    assert len(result) == 1
+    assert result[0]['high'] != 9999  # the bad bar must not affect high
+
+
+# ──────────────────────────────────────────────
+# AC-1D-3: predict endpoint populates _1d fields
+# ──────────────────────────────────────────────
+
+def test_predict_endpoint_matches_include_1d_fields():
+    """AC-1D-3: each match must have non-empty historical_ohlc_1d and future_ohlc_1d."""
+    history = generate_mock_history(seed=99)
+    sample = history[250:256]
+    payload = {
+        "ohlc_data": [
+            {"open": b["open"], "high": b["high"], "low": b["low"],
+             "close": b["close"], "time": b["date"]}
+            for b in sample
+        ],
+        "selected_ids": [],
+        "timeframe": "1H",
+    }
+    res = client.post("/api/predict", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    for match in data["matches"]:
+        assert "historical_ohlc_1d" in match
+        assert "future_ohlc_1d" in match
+        assert len(match["historical_ohlc_1d"]) > 0, "historical_ohlc_1d must not be empty"
+        assert len(match["future_ohlc_1d"]) > 0, "future_ohlc_1d must not be empty"
 
 
 def test_classify_trend_single_value_returns_0():
