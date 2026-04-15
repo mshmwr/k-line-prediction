@@ -43,13 +43,11 @@ function StatsProjectionChart({ bars, title, timeframe, testId }: { bars: Projec
   const chartRef = useRef<IChartApi | null>(null)
 
   const chartData = useMemo(() => (
-    bars.map((bar, index) => ({
-      time: toChartTs(bar.time, timeframe === '1H' ? (index + 1) * 3600 : (index + 1) * 86400),
-      open: bar.open,
-      high: bar.high,
-      low: bar.low,
-      close: bar.close,
-    }))
+    bars.map((bar, index) => {
+      const fallback = timeframe === '1H' ? (index + 1) * 3600 : (index + 1) * 86400
+      const ts = bar.ts != null ? bar.ts : toChartTs(bar.time, fallback)
+      return { time: ts as UTCTimestamp, open: bar.open, high: bar.high, low: bar.low, close: bar.close }
+    })
   ), [bars, timeframe])
 
   const footerLabels = useMemo(() => buildFooterLabels(bars, timeframe), [bars, timeframe])

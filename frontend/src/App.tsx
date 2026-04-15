@@ -104,7 +104,7 @@ function buildProjectedSuggestion(
   }
 }
 
-function computeDisplayStats(matches: MatchCase[], projectedBars: ProjectionBar[], currentClose: number): PredictStats | null {
+function computeDisplayStats(matches: MatchCase[], projectedBars: ProjectionBar[], currentClose: number): Omit<PredictStats, 'consensusForecast1h' | 'consensusForecast1d'> | null {
   if (projectedBars.length < 2) return null
   const sortedHighs = [...projectedBars].sort((a, b) => b.high - a.high)
   const sortedLows = [...projectedBars].sort((a, b) => a.low - b.low)
@@ -118,8 +118,6 @@ function computeDisplayStats(matches: MatchCase[], projectedBars: ProjectionBar[
     lowest: buildProjectedSuggestion('Lowest', sortedLows[0].low, (sortedLows[0].low - currentClose) / currentClose, sortedLows[0].occurrenceBar, sortedLows[0].time, 'Consensus'),
     winRate: wins.length / projectedBars.length,
     meanCorrelation: corrs.length > 0 ? corrs.reduce((a, b) => a + b, 0) / corrs.length : 0,
-    consensusForecast1h: [],
-    consensusForecast1d: [],
   }
 }
 
@@ -222,11 +220,17 @@ export default function App() {
 
   const displayStats = useMemo(() => {
     if (!appliedData.stats) return null
-    if (projectedFutureBars.length === 0) return appliedData.stats
+    if (projectedFutureBars.length < 2) return appliedData.stats
     const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
     const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
-    return computeDisplayStats(activeMatches, projectedFutureBars, currentClose) ?? appliedData.stats
-  }, [appliedData, appliedSelection, projectedFutureBars])
+    const computed = computeDisplayStats(activeMatches, projectedFutureBars, currentClose)
+    if (!computed) return appliedData.stats
+    return {
+      ...computed,
+      consensusForecast1h: projectedFutureBars,
+      consensusForecast1d: projectedFutureBars1D,
+    }
+  }, [appliedData, appliedSelection, projectedFutureBars, projectedFutureBars1D])
 
   const displayStatsByDay = useMemo(() => {
     if (viewTimeframe === '1D') return []
