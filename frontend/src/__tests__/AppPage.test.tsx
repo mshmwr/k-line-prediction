@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 import axios from 'axios'
-import App from '../App'
+import AppPage from '../AppPage'
 
 const OFFICIAL_CSV = Array.from({ length: 24 }, (_, i) =>
   `${1775088000000000 + i * 3600_000_000},${2000 + i},${2010 + i},${1990 + i},${2005 + i},0,0,0,0,0,0,0`
@@ -67,7 +67,7 @@ async function uploadOfficialCsv() {
 }
 
 test('official input upload fills the editor and enables prediction', async () => {
-  render(<App />)
+  render(<AppPage />)
 
   await uploadOfficialCsv()
 
@@ -78,7 +78,7 @@ test('official input upload fills the editor and enables prediction', async () =
 })
 
 test('uploading a new official csv restores loaded values', async () => {
-  render(<App />)
+  render(<AppPage />)
 
   await uploadOfficialCsv()
 
@@ -92,7 +92,7 @@ test('uploading a new official csv restores loaded values', async () => {
 })
 
 test('uploaded official csv drives prediction and match list rendering', async () => {
-  render(<App />)
+  render(<AppPage />)
 
   await uploadOfficialCsv()
 
@@ -107,7 +107,7 @@ test('uploaded official csv drives prediction and match list rendering', async (
 })
 
 test('screenshot ocr controls are removed from the app shell', async () => {
-  render(<App />)
+  render(<AppPage />)
 
   await waitFor(() => expect(screen.getAllByText(/official input/i).length).toBeGreaterThan(0))
 
@@ -163,7 +163,7 @@ test('second prediction with unchanged inputs preserves unchecked matches', asyn
       },
     })
 
-  render(<App />)
+  render(<AppPage />)
 
   await uploadOfficialCsv()
 
@@ -185,7 +185,7 @@ test('second prediction with unchanged inputs preserves unchecked matches', asyn
 })
 
 test('official input upload also updates the chart data source', async () => {
-  const { container } = render(<App />)
+  const { container } = render(<AppPage />)
 
   await uploadOfficialCsv()
 
@@ -194,7 +194,7 @@ test('official input upload also updates the chart data source', async () => {
 })
 
 test('shared timeframe toggle switches the main chart to 1D view', async () => {
-  render(<App />)
+  render(<AppPage />)
 
   await uploadOfficialCsv()
 
@@ -206,7 +206,7 @@ test('shared timeframe toggle switches the main chart to 1D view', async () => {
 })
 
 test('display mode toggle does not trigger API recompute; predict always uses timeframe 1H', async () => {
-  render(<App />)
+  render(<AppPage />)
 
   await uploadOfficialCsv()
 

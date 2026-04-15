@@ -220,7 +220,7 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 **Given** 使用者訪問 `/business-logic`
 **When** 輸入正確密碼並 Submit
-**Then** `POST /api/auth` 回傳 JWT → 存入 sessionStorage
+**Then** `POST /api/auth` 回傳 JWT → 存入 localStorage（key: `bl_token`）
 **And** 自動呼叫 `GET /api/business-logic` → 渲染 markdown 內容
 
 ### AC-AUTH-2: 錯誤密碼顯示錯誤訊息
@@ -228,19 +228,21 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 **Given** 使用者訪問 `/business-logic`
 **When** 輸入錯誤密碼並 Submit
 **Then** 後端回 401 → 畫面顯示錯誤訊息
-**And** sessionStorage 不存入任何 token
+**And** localStorage 不存入任何 token
 
 ### AC-AUTH-3: 無 token 直接訪問顯示密碼輸入框
 
-**Given** sessionStorage 中無 token
+**Given** localStorage 中無 `bl_token`
 **When** 使用者直接訪問 `/business-logic`
 **Then** 頁面顯示密碼輸入框，不 crash，不顯示內容
 
+> **後端測試缺口（2026-04-15 review）：** GET /api/business-logic 有效 token → 200 的後端單元測試尚未補上。Phase 3 Playwright E2E（AC-AUTH-1 flow）將覆蓋此路徑；若需獨立後端測試，補 `test_auth.py` 並用 `tmp_path` fixture 建立臨時 `business_logic.md`。
+
 ### AC-AUTH-4: Token 過期自動回到密碼輸入
 
-**Given** sessionStorage 中有過期 token
+**Given** localStorage 中有過期 `bl_token`
 **When** 使用者訪問 `/business-logic` 並觸發 `GET /api/business-logic`
-**Then** 後端回 401 → sessionStorage 清除 token → 頁面回到密碼輸入框
+**Then** 後端回 401 → localStorage 清除 `bl_token` → 頁面回到密碼輸入框
 
 ### AC-ABOUT-1: About 頁面各 Section 正確渲染
 

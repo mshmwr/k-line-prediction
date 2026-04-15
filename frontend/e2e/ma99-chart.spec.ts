@@ -157,7 +157,7 @@ async function setupAndPredict(
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(predictResponse) })
   )
 
-  await page.goto('/')
+  await page.goto('/app')
 
   // Upload two 24-row CSV files so ohlcComplete = true
   // The app has two file inputs; use [multiple] to target the official 2-day CSV input
@@ -224,7 +224,7 @@ test('predict button is disabled with maLoading tooltip while MA99 is computing'
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_MA99_RESPONSE) })
   })
 
-  await page.goto('/')
+  await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
   await fileInput.setInputFiles([
@@ -256,7 +256,7 @@ test('MainChart shows MA99 計算中 label while loading, then value after load'
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_MA99_RESPONSE) })
   })
 
-  await page.goto('/')
+  await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
   await fileInput.setInputFiles([
@@ -317,7 +317,7 @@ test('shared 1D toggle sends native 1D timeframe to MA99 and predict APIs', asyn
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NO_GAP) })
   })
 
-  await page.goto('/')
+  await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
   await fileInput.setInputFiles([
@@ -350,7 +350,7 @@ test('shared 1D toggle updates match list header to date-only display', async ({
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NATIVE_1D) })
   )
 
-  await page.goto('/')
+  await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
   await fileInput.setInputFiles([
@@ -378,7 +378,7 @@ test('AC-1D-1: in 1D mode, match card right badge shows daily bar count not No f
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NO_GAP) })
   )
 
-  await page.goto('/')
+  await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
   await fileInput.setInputFiles([

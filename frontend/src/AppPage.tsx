@@ -155,7 +155,7 @@ function computeStatsByDay(projectedBars: Array<{ time: string; high: number; lo
   })
 }
 
-export default function App() {
+export default function AppPage() {
   type HistoryEntry = { filename: string; latest: string | null; bar_count: number }
   type HistoryInfo = { '1H': HistoryEntry; '1D': HistoryEntry }
 
