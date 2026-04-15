@@ -190,6 +190,73 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
+---
+
+## Homepage & Routing Acceptance Criteria
+
+### AC-ROUTE-1: SPA 路由直接訪問不 404
+
+**Given** 使用者在瀏覽器直接輸入 `/app`、`/about`、`/diary`、`/business-logic`
+**When** 頁面載入
+**Then** 畫面顯示對應頁面，不出現 404 或空白頁
+
+### AC-ROUTE-2: 現有 /app 功能不 regression
+
+**Given** 路由重構後（App.tsx → AppPage.tsx，掛於 `/app`）
+**When** 使用者訪問 `/app` 並執行 CSV 上傳、pattern match、chart 渲染
+**Then** 所有原有功能正常運作，Playwright E2E 全通過
+
+### AC-HOME-1: Homepage 各 Section 正確渲染
+
+**Given** 使用者訪問 `/`
+**When** 頁面載入
+**Then** 頁面顯示 Hero、專案邏輯、技術棧、開發日記四個 Section
+**And** Hero tagline 為 "K-Line pattern matching with MA99 trend filtering — find historical analogs for your current chart structure"
+**And** 開發日記從 `diary.json` 渲染，`milestone` 為可展開收起的大標題，`items` 為展開後細節，最新在前
+**And** "→ Launch App" 按鈕導向 `/app`
+
+### AC-AUTH-1: 正確密碼取得 token 並顯示內容
+
+**Given** 使用者訪問 `/business-logic`
+**When** 輸入正確密碼並 Submit
+**Then** `POST /api/auth` 回傳 JWT → 存入 sessionStorage
+**And** 自動呼叫 `GET /api/business-logic` → 渲染 markdown 內容
+
+### AC-AUTH-2: 錯誤密碼顯示錯誤訊息
+
+**Given** 使用者訪問 `/business-logic`
+**When** 輸入錯誤密碼並 Submit
+**Then** 後端回 401 → 畫面顯示錯誤訊息
+**And** sessionStorage 不存入任何 token
+
+### AC-AUTH-3: 無 token 直接訪問顯示密碼輸入框
+
+**Given** sessionStorage 中無 token
+**When** 使用者直接訪問 `/business-logic`
+**Then** 頁面顯示密碼輸入框，不 crash，不顯示內容
+
+### AC-AUTH-4: Token 過期自動回到密碼輸入
+
+**Given** sessionStorage 中有過期 token
+**When** 使用者訪問 `/business-logic` 並觸發 `GET /api/business-logic`
+**Then** 後端回 401 → sessionStorage 清除 token → 頁面回到密碼輸入框
+
+### AC-ABOUT-1: About 頁面各 Section 正確渲染
+
+**Given** 使用者訪問 `/about`
+**When** 頁面載入
+**Then** 頁面顯示以下 Section：Overview、AI 協作開發流程、人的貢獻 vs AI 的貢獻、技術選型決策、Screenshots（佔位圖）、Features
+**And** AI 協作開發流程 Section 說明角色分工（PM / Senior Architect / Designer / Engineer / QA）與 Phase Gate 模型
+**And** "← Home" 按鈕導向 `/`
+
+### AC-DIARY-1: Diary 頁面從 diary.json 正確渲染
+
+**Given** 使用者訪問 `/diary`
+**When** 頁面載入
+**Then** 所有 diary 條目依日期倒序顯示，最新在前
+
+---
+
 ## Non-functional Requirements
 - Prediction refresh after clicking the button should remain responsive.
 - The matching logic should not return opposite-MA99-trend cases.

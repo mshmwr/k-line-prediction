@@ -13,8 +13,8 @@ HISTORY_DB = Path(__file__).parent.parent / "history_database"
 HISTORY_1H_PATH = HISTORY_DB / "Binance_ETHUSDT_1h.csv"
 HISTORY_1D_PATH = HISTORY_DB / "Binance_ETHUSDT_d.csv"
 OFFICIAL_INPUT_PATH = Path(
-    os.environ.get("OFFICIAL_INPUT_CSV_PATH", "/Users/yclee/Desktop/ETHUSDT-1h-2026-04-02.csv")
-)
+    os.environ.get("OFFICIAL_INPUT_CSV_PATH", "")
+) if os.environ.get("OFFICIAL_INPUT_CSV_PATH") else None
 
 def _load_or_mock(path: Path) -> list:
     if path.exists():
@@ -27,9 +27,10 @@ _history_1h: list = _load_or_mock(HISTORY_1H_PATH)
 _history_1d: list = _load_or_mock(HISTORY_1D_PATH)
 
 app = FastAPI()
+_cors_origins = [o.strip() for o in os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=_cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -198,8 +199,8 @@ def get_example(n: int = Query(default=5, ge=1, le=300), timeframe: str = Query(
 
 @app.get("/api/official-input")
 def get_official_input():
-    if not OFFICIAL_INPUT_PATH.exists():
-        raise HTTPException(status_code=404, detail=f"Official input file not found: {OFFICIAL_INPUT_PATH}")
+    if not OFFICIAL_INPUT_PATH or not OFFICIAL_INPUT_PATH.exists():
+        raise HTTPException(status_code=404, detail="Official input file not configured or not found.")
     try:
         rows = load_official_day_csv(OFFICIAL_INPUT_PATH)
     except ValueError as exc:
