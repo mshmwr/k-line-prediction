@@ -16,7 +16,6 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@types/react-router-dom": "^5.3.3",
     "axios": "^1.7.2",
     "lightweight-charts": "^5.1.0",
     "react": "^18.3.1",
