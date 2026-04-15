@@ -118,6 +118,8 @@ function computeDisplayStats(matches: MatchCase[], projectedBars: ProjectionBar[
     lowest: buildProjectedSuggestion('Lowest', sortedLows[0].low, (sortedLows[0].low - currentClose) / currentClose, sortedLows[0].occurrenceBar, sortedLows[0].time, 'Consensus'),
     winRate: wins.length / projectedBars.length,
     meanCorrelation: corrs.length > 0 ? corrs.reduce((a, b) => a + b, 0) / corrs.length : 0,
+    consensusForecast1h: [],
+    consensusForecast1d: [],
   }
 }
 
@@ -475,10 +477,7 @@ export default function App() {
             <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>
             <StatsPanel
               stats={displayStats}
-              projectedFutureBars={projectedFutureBars}
-              projectedFutureBars1D={projectedFutureBars1D}
               dayStats={displayStatsByDay}
-              timeframe={viewTimeframe}
               isDirty={isDirty}
               selectedCount={appliedSelection.size}
               totalCount={matches.length}

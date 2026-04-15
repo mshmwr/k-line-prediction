@@ -62,7 +62,12 @@ const MOCK_PREDICT_BASE = {
         { open: 2000, high: 2100, low: 1950, close: 2050 },
         { open: 2050, high: 2150, low: 2000, close: 2100 },
       ],
-      future_ohlc: [{ open: 2100, high: 2200, low: 2050, close: 2150 }],
+      // ≥2 bars required so computeProjectedFutureBars returns ≥2 bars,
+      // exercising the computeDisplayStats code path (not just the fallback to appliedData.stats)
+      future_ohlc: [
+        { open: 2100, high: 2200, low: 2050, close: 2150 },
+        { open: 2150, high: 2250, low: 2100, close: 2200 },
+      ],
       start_date: '2023-06-15 00:00',
       end_date: '2023-06-15 01:00',
       historical_ma99: [1900, 1910],

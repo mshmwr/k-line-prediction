@@ -130,15 +130,16 @@ def get_prefix_bars(history: list, first_time: str, timeframe: str) -> list:
     return history[:idx] if idx is not None else []
 
 
-def _fetch_30d_ma_series(anchor_end_time: str, ma_history_1d: list) -> List[float]:
+def _fetch_30d_ma_series(anchor_end_time: str, ma_history_1d: list, time_index: Optional[dict] = None) -> List[float]:
     """Fetch trailing 30-day MA99 series ending at anchor_end_time from 1D history.
     Returns 30 floats, or [] if history is insufficient or anchor not found.
+    time_index: pre-built {date_str -> idx} for ma_history_1d; built on-demand if not provided.
     """
     if not anchor_end_time or not ma_history_1d:
         return []
 
     norm = _normalize_time(anchor_end_time, '1D')
-    idx = _history_time_index(ma_history_1d, '1D').get(norm)
+    idx = (time_index if time_index is not None else _history_time_index(ma_history_1d, '1D')).get(norm)
     if idx is None:
         return []
 
@@ -296,11 +297,12 @@ def find_top_matches(
             "ma_history requires at least 129 daily bars ending at that date."
         )
     query_direction = _classify_trend_by_pearson(query_30d_ma)
+    _1d_index = _history_time_index(ma_history, '1D')
     results = []
     for i in range(0, len(history) - n - future_n):
         window = history[i:i + n]
         candidate_end_time = _normalize_time(_bar_time(window[-1]), '1D')
-        candidate_30d_ma = _fetch_30d_ma_series(candidate_end_time, ma_history)
+        candidate_30d_ma = _fetch_30d_ma_series(candidate_end_time, ma_history, _1d_index)
         if not candidate_30d_ma:
             continue
         if _classify_trend_by_pearson(candidate_30d_ma) != query_direction:
