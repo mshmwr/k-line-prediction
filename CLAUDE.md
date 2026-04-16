@@ -7,6 +7,37 @@ ETH/USDT K 線型態相似度預測系統。
 
 ---
 
+## 開發角色與流程
+
+**流程順序：**
+```
+PM (定需求) → Architect (設計) → Engineer (實作) → Code Reviewer (審查) → QA (回歸測試) → PM (下一 Phase)
+```
+
+### PM
+- 寫 PRD、定 AC（Given/When/Then/And）
+- 放行條件：所有 Phase 的 AC + blocking questions 全清才放行 Engineer
+
+### Architect
+- 設計所有 Phase 的系統架構
+- 必須涵蓋：後端 + 前端路由 + 前端組件樹 + props interface
+- 不能只規劃下一個 Phase
+
+### Engineer
+- 實作前確認在最新 main 基礎上
+- 一次實作一個穩定單元，每步驗證後再繼續
+
+### Code Reviewer
+- 每個重要里程碑完成後召喚
+- Review 結果必須寫回計畫文件 / PRD
+
+### QA
+- Code Review 通過後執行
+- 負責回歸測試：跑完整 Playwright E2E suite，確認新功能未破壞既有功能
+- 所有測試 pass 才放行給 PM
+
+---
+
 ## Tech Stack
 
 - **Frontend:** TypeScript / React — after any edit, run `npx tsc --noEmit` to verify no type errors.
@@ -37,3 +68,31 @@ When a change spans both the Python backend and TypeScript frontend:
 After **any** edit to files under `frontend/src/` or `frontend/e2e/`:
 1. Run `/playwright` to execute E2E tests and verify no UI regression
 2. Only proceed to commit after Playwright passes
+
+## Diary Sync Rule
+
+`frontend/public/diary.json` 是前端 Dev Diary 頁面的資料來源。
+**每次 K-Line-Prediction 有重要里程碑（新功能完成、Phase 完成、重大 bug 修復）時，必須同步更新 diary.json。**
+
+格式：
+```json
+{ "milestone": "Phase X — 功能名稱", "items": [{ "date": "YYYY-MM-DD", "text": "一句話說明" }] }
+```
+
+更新步驟：
+1. 在對應 milestone 的 `items` 陣列新增一筆，或新增 milestone 物件
+2. 更新後執行 `/playwright` 確認 DiaryPage E2E 通過
+
+## Frontend Page Implementation Checklist
+
+實作新頁面前，必須：
+
+1. **讀 PRD AC** — `grep "AC-PAGENAME" PRD.md`，逐條列出所有 Then/And 子句
+2. **確認 Tailwind 插件** — 若計畫使用 `prose-*` 等插件類別，先驗證安裝：
+   ```bash
+   npm ls @tailwindcss/typography
+   grep -n "typography" tailwind.config.js
+   ```
+   未安裝則先安裝再繼續
+3. **Playwright 斷言** — section label 等短文字斷言一律加 `{ exact: true }`，防止 description 文字誤命中
+4. **實作後** — E2E 斷言必須覆蓋所有 And 條件
