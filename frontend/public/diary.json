@@ -1,0 +1,36 @@
+[
+  {
+    "milestone": "Phase 3 — Frontend Pages (In Progress)",
+    "items": [
+      { "date": "2026-04-16", "text": "Set up feat/phase3-pages worktree; established common component library (useAsyncState, LoadingSpinner, ErrorMessage, SectionLabel, SectionHeader, CtaButton)" }
+    ]
+  },
+  {
+    "milestone": "Phase 2 — BrowserRouter Routing + Page Shells",
+    "items": [
+      { "date": "2026-04-15", "text": "Added react-router-dom v7; refactored App.tsx → AppPage.tsx; wired BrowserRouter routes for /, /app, /about, /diary, /business-logic" },
+      { "date": "2026-04-15", "text": "Review: fixed orphaned App.tsx + incorrect @types/react-router-dom dependency; confirmed SPA catch-all is last route in main.py" }
+    ]
+  },
+  {
+    "milestone": "Phase 1 — JWT Auth Endpoints",
+    "items": [
+      { "date": "2026-04-15", "text": "Built POST /api/auth (bcrypt password check) and GET /api/business-logic (JWT-protected markdown endpoint) with TDD — tests written before implementation" },
+      { "date": "2026-04-15", "text": "Security: hmac.compare_digest for password comparison; HS256 algorithm pinned; env-var lazy loading for testability" }
+    ]
+  },
+  {
+    "milestone": "Phase 0 — Architecture Planning + Design",
+    "items": [
+      { "date": "2026-04-15", "text": "PM defined ACs for all 4 pages; Architect produced full component tree + props interfaces for Phase 3; Designer built Pencil.dev designs for HomePage, BusinessLogicPage, AboutPage" },
+      { "date": "2026-04-15", "text": "Key decisions: FastAPI serves static files (single Railway service); no Route Guard on /business-logic (page is its own auth entry); Designer added TechStackSection (7th section) to AboutPage after review" }
+    ]
+  },
+  {
+    "milestone": "MA99 Pearson Trend Filter + 1H/1D Forecast",
+    "items": [
+      { "date": "2026-04-01", "text": "Replaced ma99_trend_override with 30-day Pearson slope filter; added shared 1H and 1D consensus forecast UI with native timeframe API contract" },
+      { "date": "2026-04-01", "text": "Fixed computeDisplayStats to populate consensusForecast1h/1d from projectedFutureBars; 13 Playwright tests passing" }
+    ]
+  }
+]
