@@ -18,3 +18,12 @@ __pycache__/
 
 # Git worktrees
 .worktrees/
+
+# Firebase deploy cache
+.firebase/
+
+# Vite root-level build output
+dist/
+
+# pytest coverage data
+backend/.coverage

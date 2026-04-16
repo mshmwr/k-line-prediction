@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { Ma99Gap, OHLCRow, PredictResponse } from '../types'
+import { API_BASE } from '../utils/api'
 
 interface Ma99RawResponse {
   query_ma99_1h: (number | null)[]
@@ -25,7 +26,7 @@ export function usePrediction() {
     setLoading(true)
     setError(null)
     try {
-      const res = await axios.post<any>('/api/predict', {
+      const res = await axios.post<any>(`${API_BASE}/api/predict`, {
         ohlc_data: ohlcRows.map(r => ({
           open: Number(r.open),
           high: Number(r.high),
@@ -112,7 +113,7 @@ export function usePrediction() {
     queryMa99Gap1h: Ma99Gap | null
     queryMa99Gap1d: Ma99Gap | null
   }> {
-    const res = await axios.post<Ma99RawResponse>('/api/merge-and-compute-ma99', {
+    const res = await axios.post<Ma99RawResponse>(`${API_BASE}/api/merge-and-compute-ma99`, {
       ohlc_data: ohlcRows.map(r => ({
         open: Number(r.open),
         high: Number(r.high),

@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
@@ -12,6 +13,7 @@ from time_utils import normalize_bar_time
 from auth import router as auth_router
 
 HISTORY_DB = Path(__file__).parent.parent / "history_database"
+DIST_DIR = Path(__file__).parent.parent / "dist"
 HISTORY_1H_PATH = HISTORY_DB / "Binance_ETHUSDT_1h.csv"
 HISTORY_1D_PATH = HISTORY_DB / "Binance_ETHUSDT_d.csv"
 OFFICIAL_INPUT_PATH = Path(
@@ -38,6 +40,10 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api")
+
+_dist_assets = DIST_DIR / "assets"
+if _dist_assets.exists():
+    app.mount("/assets", StaticFiles(directory=str(_dist_assets)), name="assets")
 
 
 def _merge_bars(existing: list, new_bars: list) -> list:
@@ -316,4 +322,4 @@ def predict(req: PredictRequest) -> PredictResponse:
 # SPA fallback — must be the LAST route in main.py
 @app.get("/{full_path:path}")
 async def spa_fallback(full_path: str):
-    return FileResponse("dist/index.html")
+    return FileResponse(str(DIST_DIR / "index.html"))

@@ -14,6 +14,7 @@ import {
   ProjectionBar,
   toDisplayMatch,
 } from './utils/aggregation'
+import { API_BASE } from './utils/api'
 const OFFICIAL_ROW_COUNT = 24
 
 function emptyRows(count: number): OHLCRow[] {
@@ -179,7 +180,7 @@ export default function AppPage() {
   const { predict, computeMa99, loading, error: predictionError } = usePrediction()
 
   useEffect(() => {
-    fetch('/api/history-info')
+    fetch(`${API_BASE}/api/history-info`)
       .then(r => r.json())
       .then(data => setHistoryInfo(data as HistoryInfo))
       .catch(() => {})
@@ -298,11 +299,11 @@ export default function AppPage() {
     setUploadLoading(true)
     const formData = new FormData()
     formData.append('file', file)
-    fetch('/api/upload-history', { method: 'POST', body: formData })
+    fetch(`${API_BASE}/api/upload-history`, { method: 'POST', body: formData })
       .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(new Error(d.detail ?? 'Upload failed'))))
       .then(uploadResult => {
         setLastHistoryUpload({ filename: file.name, latest: uploadResult.latest ?? null, barCount: uploadResult.bar_count ?? 0, addedCount: uploadResult.added_count ?? 0 })
-        return fetch('/api/history-info').then(r => r.json())
+        return fetch(`${API_BASE}/api/history-info`).then(r => r.json())
       })
       .then(data => setHistoryInfo(data))
       .catch(err => setUploadError((err as Error).message))

@@ -3,6 +3,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import PasswordForm from '../components/business-logic/PasswordForm'
 import ErrorBanner from '../components/business-logic/ErrorBanner'
 import BusinessLogicContent from '../components/business-logic/BusinessLogicContent'
+import { API_BASE } from '../utils/api'
 
 type AuthState = 'SHOW_PASSWORD_FORM' | 'LOADING_CONTENT' | 'SHOW_CONTENT' | 'SHOW_ERROR'
 
@@ -33,7 +34,7 @@ export default function BusinessLogicPage() {
   const fetchContent = useCallback(async (token: string) => {
     setAuthState('LOADING_CONTENT')
     try {
-      const res = await fetch('/api/business-logic', {
+      const res = await fetch(`${API_BASE}/api/business-logic`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (res.status === 401) {
@@ -69,7 +70,7 @@ export default function BusinessLogicPage() {
   const handlePasswordSubmit = async (password: string) => {
     setIsSubmitting(true)
     try {
-      const res = await fetch('/api/auth', {
+      const res = await fetch(`${API_BASE}/api/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
