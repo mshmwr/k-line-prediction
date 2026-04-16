@@ -260,6 +260,45 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
+## Acceptance Criteria — K-005 統一 NavBar `[K-005]`
+
+設計稿參考：homepage.pen `NavBar — Revised` 系列 frame（x=7600）
+
+### AC-NAV-1: 所有頁面顯示統一 NavBar `[K-005]`
+
+**Given** 使用者訪問任一頁面（`/`、`/app`、`/about`、`/diary`、`/business-logic`）
+**When** 頁面載入
+**Then** NavBar 顯示：左側 ⌂ icon，右側連結 App / About / Diary / Logic 🔒
+**And** 不發生 layout shift 或 NavBar 缺失
+
+### AC-NAV-2: ⌂ 導向首頁 `[K-005]`
+
+**Given** 使用者在任何頁面
+**When** 點擊左側 ⌂ icon
+**Then** 頁面導向 `/`，不發生全頁 reload（SPA 路由）
+
+### AC-NAV-3: 各連結導向正確頁面 `[K-005]`
+
+**Given** 使用者在任何頁面
+**When** 點擊 NavBar 連結
+**Then** App → `/app`、About → `/about`、Diary → `/diary`、Logic 🔒 → `/business-logic`
+**And** 不發生全頁 reload
+
+### AC-NAV-4: 當前頁面連結高亮 `[K-005]`
+
+**Given** 使用者在某頁面
+**When** 頁面載入
+**Then** 對應該頁的 NavBar 連結顯示為白色（active），其他連結為灰色
+
+### AC-NAV-5: Business Logic 連結 auth 狀態 `[K-005]`
+
+**Given** 使用者未登入
+**When** 查看 NavBar
+**Then** Logic 🔒 連結顯示鎖頭樣式
+**And** 點擊後導向 `/business-logic` auth gate 頁
+
+---
+
 ## Non-functional Requirements
 - Prediction refresh after clicking the button should remain responsive.
 - The matching logic should not return opposite-MA99-trend cases.
