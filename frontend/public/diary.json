@@ -1,8 +1,16 @@
 [
   {
-    "milestone": "Phase 3 — Frontend Pages (In Progress)",
+    "milestone": "Deployment — Firebase Hosting + Cloud Run",
     "items": [
-      { "date": "2026-04-16", "text": "Set up feat/phase3-pages worktree; established common component library (useAsyncState, LoadingSpinner, ErrorMessage, SectionLabel, SectionHeader, CtaButton)" }
+      { "date": "2026-04-16", "text": "Deployed backend to Cloud Run (multi-stage Docker build); frontend to Firebase Hosting (k-line-prediction.web.app)" },
+      { "date": "2026-04-16", "text": "Fixed cross-origin API calls: added VITE_API_BASE_URL and centralised all fetch/axios calls through API_BASE utility" }
+    ]
+  },
+  {
+    "milestone": "Phase 3 — Frontend Pages",
+    "items": [
+      { "date": "2026-04-16", "text": "Set up feat/phase3-pages worktree; established common component library (useAsyncState, LoadingSpinner, ErrorMessage, SectionLabel, SectionHeader, CtaButton)" },
+      { "date": "2026-04-16", "text": "Completed all 4 pages (Home, About, Diary, BusinessLogic) with 35 components and 22 Playwright E2E tests passing" }
     ]
   },
   {

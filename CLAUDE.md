@@ -72,7 +72,7 @@ After **any** edit to files under `frontend/src/` or `frontend/e2e/`:
 ## Diary Sync Rule
 
 `frontend/public/diary.json` 是前端 Dev Diary 頁面的資料來源。
-**每次 K-Line-Prediction 有重要里程碑（新功能完成、Phase 完成、重大 bug 修復）時，必須同步更新 diary.json。**
+**每次 session 有 K-Line-Prediction 相關工作時，commit 前必須同步更新 diary.json。**
 
 格式：
 ```json
@@ -82,6 +82,19 @@ After **any** edit to files under `frontend/src/` or `frontend/e2e/`:
 更新步驟：
 1. 在對應 milestone 的 `items` 陣列新增一筆，或新增 milestone 物件
 2. 更新後執行 `/playwright` 確認 DiaryPage E2E 通過
+
+## Deploy Checklist（Firebase Hosting + Cloud Run）
+
+部署前必須執行：
+
+1. **掃描所有相對 API 路徑** — 確認 `fetch`、`axios` 等所有 HTTP client 均使用 `API_BASE` 前綴：
+   ```bash
+   grep -r "'/api/" src/
+   grep -r '"/api/' src/
+   ```
+   有任何裸相對路徑 → 先修再 build
+2. **build** — `npm run build`（在 `frontend/` 目錄）
+3. **deploy** — `firebase deploy --only hosting`（在專案根目錄）
 
 ## Frontend Page Implementation Checklist
 

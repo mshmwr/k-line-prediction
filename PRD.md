@@ -264,3 +264,116 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - Prediction refresh after clicking the button should remain responsive.
 - The matching logic should not return opposite-MA99-trend cases.
 - The interface should remain usable on desktop widths without collapsing the editor and chart into an unreadable layout.
+
+---
+
+## 技術債
+
+| 項目 | 說明 | 優先級 | 決策時間 |
+|------|------|--------|---------|
+| 前端 bundle 過大 `[K-003]` | Vite build 出現 chunk > 500 kB 警告，需用 dynamic import / manualChunks 拆分 | 低 | 2026-04-16 |
+| 後端測試覆蓋率不足 `[K-001]` | 整體 71%，`main.py` 僅 45%；所有 FastAPI route handler 缺乏直接測試 | 中 | 2026-04-16 |
+
+---
+
+## Backlog — 後端測試補強（Backend Test Coverage）
+
+**Ticket：** [K-001](docs/tickets/K-001-backend-test-coverage.md)
+
+**背景：** 目前後端 coverage 71%，`main.py` 45%。所有 FastAPI route handler 均缺乏直接整合測試，僅靠 `predictor.py` unit test 間接覆蓋部分邏輯。
+
+**目標：** `main.py` coverage ≥ 80%，補齊所有 route 的 happy path 與主要錯誤路徑。
+
+**測試策略：** 使用 `httpx.AsyncClient` 或 `TestClient`（FastAPI），搭配 `tmp_path` fixture 建立臨時 history CSV，不依賴磁碟上的真實資料庫。
+
+---
+
+### AC-TEST-AUTH-3 `[K-001]`: 有效 token → GET /api/business-logic 回傳 200 與內容
+
+**Given** `business_logic.md` 存在（用 `tmp_path` 建立臨時檔）
+**When** 以有效 JWT token 呼叫 `GET /api/business-logic`
+**Then** 回傳 200，body 包含 `content` 欄位，值為 markdown 文字
+
+### AC-TEST-AUTH-5 `[K-001]`: business_logic.md 不存在 → 404
+
+**Given** `business_logic.md` 不存在
+**When** 以有效 JWT token 呼叫 `GET /api/business-logic`
+**Then** 回傳 404
+
+---
+
+### AC-TEST-HISTORY-INFO-1 `[K-001]`: GET /api/history-info 回傳兩個 timeframe 的資訊
+
+**Given** backend 已載入 mock history（`_history_1h`、`_history_1d`）
+**When** `GET /api/history-info`
+**Then** 回傳 200，body 包含 `1H` 與 `1D` 兩個 key，各含 `bar_count`、`latest`、`filename`
+
+---
+
+### AC-TEST-UPLOAD-1 `[K-001]`: POST /api/upload-history — 1H CSV happy path
+
+**Given** 上傳一份包含有效 OHLC 資料的 standard CSV（檔名不含 `1d`）
+**When** `POST /api/upload-history`
+**Then** 回傳 200，`timeframe` 為 `1H`，`added_count > 0`，`bar_count` 正確
+
+### AC-TEST-UPLOAD-2 `[K-001]`: POST /api/upload-history — 1D CSV 檔名偵測
+
+**Given** 上傳一份檔名含 `_d.csv` 的 CSV
+**When** `POST /api/upload-history`
+**Then** 回傳 200，`timeframe` 為 `1D`
+
+### AC-TEST-UPLOAD-3 `[K-001]`: POST /api/upload-history — 空檔案 → 422
+
+**Given** 上傳空內容的檔案
+**When** `POST /api/upload-history`
+**Then** 回傳 422
+
+### AC-TEST-UPLOAD-4 `[K-001]`: POST /api/upload-history — 重複上傳不新增
+
+**Given** 上傳與已有 history 完全重疊的 CSV
+**When** `POST /api/upload-history`
+**Then** 回傳 200，`added_count` 為 0
+
+---
+
+### AC-TEST-EXAMPLE-1 `[K-001]`: GET /api/example — 檔案不存在 → 404
+
+**Given** history CSV 不存在
+**When** `GET /api/example`
+**Then** 回傳 404
+
+---
+
+### AC-TEST-PARSE-1 `[K-001]`: _parse_csv_history_from_text — CryptoDataDownload 格式
+
+**Given** CSV 文字第一行為 `http://...` URL，資料為 newest-first
+**When** 呼叫 `_parse_csv_history_from_text`
+**Then** 回傳 bars 為 chronological 順序（最舊在前）
+
+### AC-TEST-PARSE-2 `[K-001]`: _parse_csv_history_from_text — Binance raw API 格式
+
+**Given** CSV 無 header，第一欄為 Unix ms timestamp
+**When** 呼叫 `_parse_csv_history_from_text`
+**Then** 回傳 bars 含正確的 `date`（UTC `YYYY-MM-DD HH:MM`）、`open`、`high`、`low`、`close`
+
+### AC-TEST-PARSE-3 `[K-001]`: _parse_csv_history_from_text — 空字串
+
+**Given** 空字串輸入
+**When** 呼叫 `_parse_csv_history_from_text`
+**Then** 回傳空 list
+
+---
+
+### AC-TEST-MERGE-1 `[K-001]`: _merge_bars — 去重並排序
+
+**Given** 兩份含部分重疊時間戳的 bars list
+**When** 呼叫 `_merge_bars`
+**Then** 結果無重複時間戳，且依 `date` 升冪排序
+
+## UI 優化 Backlog
+
+| 項目 | 說明 | 狀態 |
+|------|------|------|
+| Icon `[K-002]` | NavBar、按鈕、Section 標題等加入 icon（目前無 icon library） | 待設計 |
+| 網頁排版 `[K-002]` | 整體版面優化（spacing、typography、視覺層次） | 待設計 |
+| Loading 動畫 `[K-002]` | 現有 LoadingSpinner 只是 CSS border-spin；改為較豐富的動畫效果 | 待設計 |
