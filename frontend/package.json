@@ -16,6 +16,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "axios": "^1.7.2",
     "lightweight-charts": "^5.1.0",
     "react": "^18.3.1",
