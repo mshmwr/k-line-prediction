@@ -1,5 +1,13 @@
 [
   {
+    "milestone": "K-005 — UnifiedNavBar 統一五頁導覽列",
+    "items": [
+      { "date": "2026-04-17", "text": "新增 UnifiedNavBar 共用組件（auth.ts utility），統一 5 個頁面的 NavBar；修復 CRITICAL-1（useState re-render）、CRITICAL-2（desktop ⌂ active class）、mobile ⌂ active state 不一致；46 Playwright tests passing" },
+      { "date": "2026-04-17", "text": "補填 diary.json 4/8–4/11 缺漏里程碑（Early MA99 / Shared Forecast / Pearson Filter），修正 4/1 錯誤日期" },
+      { "date": "2026-04-17", "text": "更正 About 頁面過時描述：Railway 單服務架構改為 Firebase Hosting + Cloud Run 分離部署，移除 Phase 5 截圖說法" }
+    ]
+  },
+  {
     "milestone": "Deployment — Firebase Hosting + Cloud Run",
     "items": [
       { "date": "2026-04-16", "text": "Deployed backend to Cloud Run (multi-stage Docker build); frontend to Firebase Hosting (k-line-prediction.web.app)" },
@@ -35,10 +43,24 @@
     ]
   },
   {
-    "milestone": "MA99 Pearson Trend Filter + 1H/1D Forecast",
+    "milestone": "MA99 Pearson 趨勢過濾器",
     "items": [
-      { "date": "2026-04-01", "text": "Replaced ma99_trend_override with 30-day Pearson slope filter; added shared 1H and 1D consensus forecast UI with native timeframe API contract" },
-      { "date": "2026-04-01", "text": "Fixed computeDisplayStats to populate consensusForecast1h/1d from projectedFutureBars; 13 Playwright tests passing" }
+      { "date": "2026-04-11", "text": "以 30 天 Pearson 斜率取代手動 ma99_trend_override；趨勢判斷改由統計驗算，移除人工覆蓋欄位" }
+    ]
+  },
+  {
+    "milestone": "Shared 1H/1D Forecast UI",
+    "items": [
+      { "date": "2026-04-09", "text": "統一所有時間戳為 UTC+0，修復 UTC+8 混用導致的顯示錯誤" },
+      { "date": "2026-04-10", "text": "加入共用 1H/1D Consensus Forecast UI；採 native timeframe API contract，直接傳 timeframe 給後端不做 bar 轉換" }
+    ]
+  },
+  {
+    "milestone": "Early MA99 計算 + Match Trend Labels",
+    "items": [
+      { "date": "2026-04-08", "text": "新增 /api/merge-and-compute-ma99 endpoint 與 computeMa99 function，提供後端 MA99 計算核心" },
+      { "date": "2026-04-08", "text": "前端上傳後立即觸發 MA99 計算（early loading state），提升操作體感速度" },
+      { "date": "2026-04-08", "text": "在 MatchList 每張 match card 新增 trend label（漲/跌/持平），從 projectedFutureBars 計算趨勢方向" }
     ]
   }
 ]

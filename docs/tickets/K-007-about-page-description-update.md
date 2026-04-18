@@ -3,7 +3,7 @@ id: K-007
 title: About 頁面描述更新
 type: content
 priority: medium
-status: open
+status: closed
 created: 2026-04-16
 ---
 

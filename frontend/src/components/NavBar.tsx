@@ -1,3 +1,7 @@
+/**
+ * @deprecated Use UnifiedNavBar instead.
+ * This component is kept for reference only and will be removed in a future cleanup.
+ */
 import { Link } from 'react-router-dom'
 
 export default function NavBar() {

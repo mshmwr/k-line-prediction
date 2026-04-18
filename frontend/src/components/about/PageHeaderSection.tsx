@@ -12,7 +12,6 @@ export default function PageHeaderSection() {
         This page documents the methodology, role assignments, and technical decisions behind it.
       </p>
       <div className="flex gap-4 justify-center flex-wrap">
-        <CtaButton label="← Home" href="/" variant="secondary" />
         <CtaButton label="→ Launch App" href="/app" variant="primary" />
       </div>
     </section>

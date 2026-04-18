@@ -1,3 +1,4 @@
+import { Sparkles } from 'lucide-react'
 import SectionHeader from '../common/SectionHeader'
 import FeatureBlock from './FeatureBlock'
 
@@ -27,6 +28,7 @@ export default function FeaturesSection() {
         label="FEATURES"
         labelColor="purple"
         title="What It Can Do"
+        icon={Sparkles}
       />
       <div className="grid sm:grid-cols-2 gap-10">
         {FEATURES.map(f => (

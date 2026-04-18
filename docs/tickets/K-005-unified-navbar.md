@@ -1,7 +1,7 @@
 ---
 id: K-005
 title: 統一 NavBar — 所有頁面
-status: open
+status: closed
 type: feat
 priority: high
 created: 2026-04-16

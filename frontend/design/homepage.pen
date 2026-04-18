@@ -3764,6 +3764,18 @@
                   "alignItems": "center",
                   "children": [
                     {
+                      "type": "path",
+                      "id": "ap_play_icon",
+                      "name": "icon_Play_16px",
+                      "x": 0,
+                      "y": 0,
+                      "width": 16,
+                      "height": 16,
+                      "geometry": "M0 0 L16 8 L0 16 Z",
+                      "fill": "#FFFFFF",
+                      "annotation": "Play icon — right-pointing triangle, white fill, 16×16"
+                    },
+                    {
                       "type": "text",
                       "id": "ap037",
                       "fill": "#FFFFFF",
@@ -3772,7 +3784,8 @@
                       "fontSize": 13,
                       "fontWeight": "700"
                     }
-                  ]
+                  ],
+                  "gap": 8
                 }
               ]
             },
@@ -4388,40 +4401,91 @@
     },
     {
       "type": "frame",
-      "id": "navbar_revised_001",
-      "x": 7600,
+      "id": "k002_navbar_desktop",
+      "x": 9200,
       "y": 0,
-      "name": "NavBar — Revised",
+      "name": "K-002 NavBar — Desktop (responsive, no brand text)",
       "width": 1440,
       "height": 72,
-      "fill": "#111827",
+      "fill": "#0D0D0D",
       "padding": [
         0,
-        16
+        120
       ],
       "justifyContent": "space_between",
       "alignItems": "center",
+      "stroke": {
+        "align": "center",
+        "thickness": {
+          "bottom": 1
+        },
+        "fill": "#1F1F1F"
+      },
+      "annotation": "No brand text. Home = icon only. App/About/Diary = text. Logic = text left + Lock icon right. Responsive — same component concept for desktop and mobile via CSS.",
       "children": [
         {
-          "type": "text",
-          "id": "navbar_revised_home_icon",
-          "name": "homeIcon",
-          "content": "⌂",
-          "fill": "#F5F5F5",
-          "fontFamily": "IBM Plex Mono",
-          "fontSize": 20,
-          "fontWeight": "700"
+          "type": "frame",
+          "id": "k002_link_home",
+          "name": "link_home",
+          "alignItems": "center",
+          "fill": "none",
+          "annotation": "Home button — icon only (no text)",
+          "children": [
+            {
+              "type": "frame",
+              "id": "k002_icon_home",
+              "name": "icon_Home_16px",
+              "width": 16,
+              "height": 16,
+              "fill": "none",
+              "layout": "none",
+              "annotation": "Home icon — polygon roof + rectangle door body, stroke #F5F5F5",
+              "children": [
+                {
+                  "type": "rectangle",
+                  "id": "k002_icon_home_roof",
+                  "name": "roof_placeholder",
+                  "x": 1,
+                  "y": 1,
+                  "width": 14,
+                  "height": 7,
+                  "fill": "none",
+                  "stroke": {
+                    "align": "center",
+                    "thickness": 1.5,
+                    "fill": "#F5F5F5"
+                  },
+                  "annotation": "[Home icon — roof placeholder; Lucide HomeIcon in impl]"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "k002_icon_home_body",
+                  "name": "door_body",
+                  "width": 10,
+                  "height": 7,
+                  "x": 3,
+                  "y": 8,
+                  "fill": "none",
+                  "stroke": {
+                    "align": "center",
+                    "thickness": 1.5,
+                    "fill": "#F5F5F5"
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           "type": "frame",
-          "id": "navbar_revised_links",
+          "id": "k002_nav_links",
           "name": "navLinks",
           "gap": 32,
           "alignItems": "center",
           "children": [
             {
               "type": "text",
-              "id": "navbar_revised_link_app",
+              "id": "k002_link_app_text",
               "name": "link_app",
               "fill": "#71717A",
               "content": "App",
@@ -4431,7 +4495,7 @@
             },
             {
               "type": "text",
-              "id": "navbar_revised_link_about",
+              "id": "k002_link_about_text",
               "name": "link_about",
               "fill": "#71717A",
               "content": "About",
@@ -4441,7 +4505,7 @@
             },
             {
               "type": "text",
-              "id": "navbar_revised_link_diary",
+              "id": "k002_link_diary_text",
               "name": "link_diary",
               "fill": "#71717A",
               "content": "Diary",
@@ -4450,14 +4514,68 @@
               "fontWeight": "normal"
             },
             {
-              "type": "text",
-              "id": "navbar_revised_link_bizlogic",
-              "name": "link_business_logic",
-              "fill": "#A855F7",
-              "content": "Logic 🔒",
-              "fontFamily": "Geist Mono",
-              "fontSize": 13,
-              "fontWeight": "normal"
+              "type": "frame",
+              "id": "k002_link_lock",
+              "name": "link_logic",
+              "gap": 6,
+              "alignItems": "center",
+              "annotation": "Logic link: text LEFT + Lock icon RIGHT. Always visible regardless of auth state.",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "k002_link_lock_label",
+                  "name": "link_logic_label",
+                  "fill": "#A855F7",
+                  "content": "Logic",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "k002_icon_lock_group",
+                  "name": "icon_Lock_16px",
+                  "width": 16,
+                  "height": 16,
+                  "fill": "none",
+                  "layout": "none",
+                  "annotation": "Lock icon — path-based: rect body M2 8 L14 8 L14 15 L2 15 Z + shackle M5 8 Q5 2 8 2 Q11 2 11 8. Color #A855F7.",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "id": "k002_icon_lock_body",
+                      "name": "lock_body_placeholder",
+                      "x": 2,
+                      "y": 8,
+                      "width": 12,
+                      "height": 7,
+                      "fill": "none",
+                      "stroke": {
+                        "align": "center",
+                        "thickness": 1.5,
+                        "fill": "#A855F7"
+                      },
+                      "annotation": "[Lock icon — body placeholder; Lucide LockIcon in impl]"
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "k002_icon_lock_shackle",
+                      "name": "lock_shackle_placeholder",
+                      "x": 5,
+                      "y": 1,
+                      "width": 6,
+                      "height": 8,
+                      "fill": "none",
+                      "stroke": {
+                        "align": "center",
+                        "thickness": 1.5,
+                        "fill": "#A855F7"
+                      },
+                      "annotation": "[Lock icon — shackle placeholder; Lucide LockIcon in impl]"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -4465,78 +4583,534 @@
     },
     {
       "type": "frame",
-      "id": "navbar_mobile_375",
-      "x": 7600,
-      "y": 280,
-      "name": "NavBar — Mobile (375px)",
+      "id": "k002_navbar_mobile",
+      "x": 9200,
+      "y": 240,
+      "name": "K-002 NavBar — Mobile 375px (same component concept, responsive CSS)",
       "width": 375,
       "height": 56,
-      "fill": "#111827",
+      "fill": "#0D0D0D",
       "padding": [
         0,
-        16
+        24
       ],
       "justifyContent": "space_between",
       "alignItems": "center",
+      "stroke": {
+        "align": "center",
+        "thickness": {
+          "bottom": 1
+        },
+        "fill": "#1F1F1F"
+      },
+      "annotation": "Mobile breakpoint of the same NavBar component. Home = icon only (no brand text). App/About/Diary = text (abbreviated if needed). Logic = text + Lock icon. padding: px-6 (24px).",
       "children": [
         {
-          "type": "text",
-          "id": "navbar_mobile_home_icon",
-          "name": "homeIcon",
-          "content": "⌂",
-          "fill": "#F5F5F5",
-          "fontFamily": "IBM Plex Mono",
-          "fontSize": 18,
-          "fontWeight": "700"
+          "type": "frame",
+          "id": "k002_mobile_home_btn",
+          "name": "homeIconOnly",
+          "alignItems": "center",
+          "annotation": "Home button — icon only, no text on mobile",
+          "children": [
+            {
+              "type": "frame",
+              "id": "k002_mobile_home_icon",
+              "name": "icon_Home_16px",
+              "width": 16,
+              "height": 16,
+              "fill": "none",
+              "layout": "none",
+              "annotation": "Home icon — polygon roof + rectangle door body, stroke #F5F5F5",
+              "children": [
+                {
+                  "type": "rectangle",
+                  "id": "k002_mobile_home_icon_roof",
+                  "name": "roof_placeholder",
+                  "x": 1,
+                  "y": 1,
+                  "width": 14,
+                  "height": 7,
+                  "fill": "none",
+                  "stroke": {
+                    "align": "center",
+                    "thickness": 1.5,
+                    "fill": "#F5F5F5"
+                  },
+                  "annotation": "[Home icon — roof placeholder; Lucide HomeIcon in impl]"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "k002_mobile_home_icon_body",
+                  "name": "door_body",
+                  "width": 10,
+                  "height": 7,
+                  "x": 3,
+                  "y": 8,
+                  "fill": "none",
+                  "stroke": {
+                    "align": "center",
+                    "thickness": 1.5,
+                    "fill": "#F5F5F5"
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           "type": "frame",
-          "id": "navbar_mobile_links",
-          "name": "navLinks",
+          "id": "k002_mobile_nav_links",
+          "name": "navLinksRow",
           "gap": 20,
           "alignItems": "center",
           "children": [
             {
               "type": "text",
-              "id": "navbar_mobile_link_app",
+              "id": "k002_mobile_link_app",
               "name": "link_app",
               "fill": "#71717A",
               "content": "App",
               "fontFamily": "Geist Mono",
-              "fontSize": 11,
+              "fontSize": 13,
               "fontWeight": "normal"
             },
             {
               "type": "text",
-              "id": "navbar_mobile_link_about",
+              "id": "k002_mobile_link_about",
               "name": "link_about",
               "fill": "#71717A",
               "content": "About",
               "fontFamily": "Geist Mono",
-              "fontSize": 11,
+              "fontSize": 13,
               "fontWeight": "normal"
             },
             {
               "type": "text",
-              "id": "navbar_mobile_link_diary",
+              "id": "k002_mobile_link_diary",
               "name": "link_diary",
               "fill": "#71717A",
               "content": "Diary",
               "fontFamily": "Geist Mono",
-              "fontSize": 11,
+              "fontSize": 13,
               "fontWeight": "normal"
             },
             {
-              "type": "text",
-              "id": "navbar_mobile_link_bizlogic",
-              "name": "link_business_logic",
-              "fill": "#A855F7",
-              "content": "Logic 🔒",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal"
+              "type": "frame",
+              "id": "k002_mobile_link_logic",
+              "name": "link_logic",
+              "gap": 6,
+              "alignItems": "center",
+              "annotation": "Logic link: text LEFT + Lock icon RIGHT. Always visible.",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "k002_mobile_logic_label",
+                  "name": "link_logic_label",
+                  "fill": "#A855F7",
+                  "content": "Logic",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "k002_mobile_icon_lock_group",
+                  "name": "icon_Lock_16px",
+                  "width": 16,
+                  "height": 16,
+                  "fill": "none",
+                  "layout": "none",
+                  "annotation": "Lock icon — path-based: rect body M2 8 L14 8 L14 15 L2 15 Z + shackle M5 8 Q5 2 8 2 Q11 2 11 8. Color #A855F7.",
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "id": "k002_mobile_lock_body",
+                      "name": "lock_body_placeholder",
+                      "x": 2,
+                      "y": 8,
+                      "width": 12,
+                      "height": 7,
+                      "fill": "none",
+                      "stroke": {
+                        "align": "center",
+                        "thickness": 1.5,
+                        "fill": "#A855F7"
+                      },
+                      "annotation": "[Lock icon — body placeholder; Lucide LockIcon in impl]"
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "k002_mobile_lock_shackle",
+                      "name": "lock_shackle_placeholder",
+                      "x": 5,
+                      "y": 1,
+                      "width": 6,
+                      "height": 8,
+                      "fill": "none",
+                      "stroke": {
+                        "align": "center",
+                        "thickness": 1.5,
+                        "fill": "#A855F7"
+                      },
+                      "annotation": "[Lock icon — shackle placeholder; Lucide LockIcon in impl]"
+                    }
+                  ]
+                }
+              ]
             }
           ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "k002_loading_spinner",
+      "x": 9200,
+      "y": 560,
+      "name": "K-002 Loading Spinner — Orbital Dots",
+      "width": 400,
+      "height": 120,
+      "fill": "#0D1117",
+      "cornerRadius": 8,
+      "flexDirection": "column",
+      "gap": 12,
+      "justifyContent": "center",
+      "alignItems": "center",
+      "annotation": "flexDirection column; gap-3 (12px) between dots row and label",
+      "children": [
+        {
+          "type": "frame",
+          "id": "k002_dots_row",
+          "name": "orbitalDotsRow",
+          "gap": 12,
+          "alignItems": "center",
+          "annotation": "gap-3 (12px); each dot w-2.5 h-2.5; delays: 0ms / 120ms / 240ms scale 0→1→0",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "k002_dot1",
+              "name": "dot1_delay0ms",
+              "width": 10,
+              "height": 10,
+              "fill": "#A855F7",
+              "annotation": "scale pulse 0→1→0, delay 0ms"
+            },
+            {
+              "type": "ellipse",
+              "id": "k002_dot2",
+              "name": "dot2_delay120ms",
+              "width": 10,
+              "height": 10,
+              "fill": "#A855F7",
+              "opacity": 0.65,
+              "annotation": "scale pulse 0→1→0, delay 120ms"
+            },
+            {
+              "type": "ellipse",
+              "id": "k002_dot3",
+              "name": "dot3_delay240ms",
+              "width": 10,
+              "height": 10,
+              "fill": "#A855F7",
+              "opacity": 0.3,
+              "annotation": "scale pulse 0→1→0, delay 240ms"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "k002_spinner_label",
+          "name": "spinnerLabel",
+          "fill": "#71717A",
+          "content": "Running prediction...",
+          "fontFamily": "Geist Mono",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "k002_predict_button",
+      "x": 9200,
+      "y": 740,
+      "name": "K-002 PredictButton — with Play icon",
+      "width": 320,
+      "height": 40,
+      "fill": "#7C3AED",
+      "cornerRadius": 4,
+      "gap": 8,
+      "justifyContent": "center",
+      "alignItems": "center",
+      "annotation": "Play icon (16px) + text, removed old ▶ Unicode prefix",
+      "children": [
+        {
+          "type": "rectangle",
+          "id": "k002_play_icon",
+          "name": "icon_Play_placeholder",
+          "x": 0,
+          "y": 0,
+          "width": 16,
+          "height": 16,
+          "fill": "#FFFFFF",
+          "cornerRadius": 2,
+          "annotation": "[Play ▶ — placeholder; Lucide PlayIcon in impl]"
+        },
+        {
+          "type": "text",
+          "id": "k002_predict_btn_text",
+          "fill": "#FFFFFF",
+          "content": "Start Prediction",
+          "fontFamily": "Geist Mono",
+          "fontSize": 13,
+          "fontWeight": "700"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "k002_section_headers",
+      "x": 9200,
+      "y": 860,
+      "name": "K-002 SectionHeaders — [EXCLUDED from K-002]",
+      "annotation": "EXCLUDED from K-002 — 維持現狀，不實作",
+      "width": 800,
+      "fill": "#0D0D0D",
+      "layout": "vertical",
+      "gap": 32,
+      "padding": [
+        32,
+        32
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "k002_sh_history",
+          "name": "SectionHeader_PredictionHistory",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "k002_icon_history",
+              "name": "icon_History_16px",
+              "width": 16,
+              "height": 16,
+              "fill": "#9CA3AF",
+              "cornerRadius": 2,
+              "annotation": "Lucide History icon"
+            },
+            {
+              "type": "text",
+              "id": "k002_sh_history_text",
+              "fill": "#9CA3AF",
+              "content": "PREDICTION HISTORY",
+              "fontFamily": "Geist Mono",
+              "fontSize": 13,
+              "fontWeight": "700",
+              "letterSpacing": 2,
+              "annotation": "text-xl md:text-3xl responsive"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "k002_sh_matchlist",
+          "name": "SectionHeader_MatchList",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "k002_icon_barchart2",
+              "name": "icon_BarChart2_16px",
+              "width": 16,
+              "height": 16,
+              "fill": "#9CA3AF",
+              "cornerRadius": 2,
+              "annotation": "Lucide BarChart2 icon"
+            },
+            {
+              "type": "text",
+              "id": "k002_sh_matchlist_text",
+              "fill": "#9CA3AF",
+              "content": "MATCH LIST",
+              "fontFamily": "Geist Mono",
+              "fontSize": 13,
+              "fontWeight": "700",
+              "letterSpacing": 2,
+              "annotation": "AppPage Match List section"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "k002_sh_statistics",
+          "name": "SectionHeader_Statistics",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "k002_icon_trendingup",
+              "name": "icon_TrendingUp_16px",
+              "width": 16,
+              "height": 16,
+              "fill": "#9CA3AF",
+              "cornerRadius": 2,
+              "annotation": "Lucide TrendingUp icon"
+            },
+            {
+              "type": "text",
+              "id": "k002_sh_statistics_text",
+              "fill": "#9CA3AF",
+              "content": "STATISTICS",
+              "fontFamily": "Geist Mono",
+              "fontSize": 13,
+              "fontWeight": "700",
+              "letterSpacing": 2,
+              "annotation": "AppPage Statistics section"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "k002_sh_upload",
+          "name": "SectionHeader_Upload",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "k002_icon_upload",
+              "name": "icon_Upload_16px",
+              "width": 16,
+              "height": 16,
+              "fill": "#9CA3AF",
+              "cornerRadius": 2,
+              "annotation": "Lucide Upload icon"
+            },
+            {
+              "type": "text",
+              "id": "k002_sh_upload_text",
+              "fill": "#9CA3AF",
+              "content": "UPLOAD / DATA",
+              "fontFamily": "Geist Mono",
+              "fontSize": 13,
+              "fontWeight": "700",
+              "letterSpacing": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "k002_brand_icon",
+      "x": 9200,
+      "y": 1320,
+      "name": "K-002 Brand Icon — 32×32 K-Bar + Trend Line",
+      "width": 160,
+      "height": 160,
+      "fill": "none",
+      "annotation": "Design canvas: 160×160 container (5× zoom for readability). Actual icon bounding box: 32×32 (inner group). Transparent background.",
+      "layout": "none",
+      "children": [
+        {
+          "comment": "--- 32×32 icon group (scaled 5x to 160×160 for design visibility) ---",
+          "type": "frame",
+          "id": "k002_icon_group",
+          "name": "iconGroup_32x32_at5x",
+          "x": 0,
+          "y": 0,
+          "width": 160,
+          "height": 160,
+          "fill": "none",
+          "layout": "none",
+          "annotation": "5× scale preview of 32×32 icon. All coordinates ×5 from actual icon coords.",
+          "children": [
+            {
+              "comment": "Upper shadow wick — thin vertical line above candle body",
+              "type": "rectangle",
+              "id": "k002_icon_upper_wick",
+              "name": "upperWick",
+              "x": 57,
+              "y": 20,
+              "width": 6,
+              "height": 40,
+              "fill": "#A855F7",
+              "cornerRadius": 1,
+              "annotation": "Upper shadow: 1.2×8 → ×5 = 6×40. Centered on candle body (x=57 = body_x + (body_w/2) - (wick_w/2) = 50+12-5=57)."
+            },
+            {
+              "comment": "Candle body — bullish (close > open), taller than wide",
+              "type": "rectangle",
+              "id": "k002_icon_candle_body",
+              "name": "candleBody",
+              "x": 50,
+              "y": 60,
+              "width": 20,
+              "height": 60,
+              "fill": "#A855F7",
+              "cornerRadius": 2,
+              "annotation": "Candle body: 4×12 → ×5 = 20×60. Left-of-center. Bullish (solid fill)."
+            },
+            {
+              "comment": "Lower shadow wick",
+              "type": "rectangle",
+              "id": "k002_icon_lower_wick",
+              "name": "lowerWick",
+              "x": 57,
+              "y": 120,
+              "width": 6,
+              "height": 15,
+              "fill": "#A855F7",
+              "cornerRadius": 1,
+              "annotation": "Lower shadow: 1.2×3 → ×5 = 6×15."
+            },
+            {
+              "comment": "Trend line polyline — descends then rises, suggesting prediction curve",
+              "type": "line",
+              "id": "k002_icon_trend_seg1",
+              "name": "trendLine_seg1",
+              "x1": 30,
+              "y1": 50,
+              "x2": 85,
+              "y2": 95,
+              "stroke": "#FFFFFF",
+              "strokeWidth": 4,
+              "opacity": 0.85,
+              "annotation": "Trend line first segment: from top-left down to mid-right. White stroke ensures visibility against purple K-bar background."
+            },
+            {
+              "comment": "Trend line second segment — rises toward top-right (bullish breakout implication)",
+              "type": "line",
+              "id": "k002_icon_trend_seg2",
+              "name": "trendLine_seg2",
+              "x1": 85,
+              "y1": 95,
+              "x2": 135,
+              "y2": 38,
+              "stroke": "#FFFFFF",
+              "strokeWidth": 4,
+              "opacity": 0.85,
+              "annotation": "Trend line second segment: rises to top-right. V-shape trend implies prediction / recovery pattern. White stroke ensures visibility."
+            }
+          ]
+        },
+        {
+          "comment": "--- Spec label below icon ---",
+          "type": "text",
+          "id": "k002_icon_spec_label",
+          "name": "specLabel",
+          "x": 0,
+          "y": 168,
+          "fill": "#71717A",
+          "content": "32×32 · transparent · #A855F7",
+          "fontFamily": "Geist Mono",
+          "fontSize": 10,
+          "fontWeight": "normal",
+          "annotation": "Design annotation only, not part of final SVG."
         }
       ]
     }

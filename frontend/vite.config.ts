@@ -4,6 +4,37 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: { proxy: { '/api': 'http://localhost:8000' } },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes('react-markdown') ||
+            id.includes('remark') ||
+            id.includes('rehype') ||
+            id.includes('unified') ||
+            id.includes('micromark') ||
+            id.includes('mdast') ||
+            id.includes('hast') ||
+            id.includes('node_modules/bail') ||
+            id.includes('decode-named-character-reference')
+          ) {
+            return 'vendor-markdown'
+          }
+          if (id.includes('lightweight-charts')) {
+            return 'vendor-charts'
+          }
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router')
+          ) {
+            return 'vendor-react'
+          }
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

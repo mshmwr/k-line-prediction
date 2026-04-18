@@ -19,6 +19,8 @@ from models import AuthRequest, AuthResponse
 router = APIRouter()
 _bearer = HTTPBearer()
 
+BUSINESS_LOGIC_PATH = Path(__file__).parent / "business_logic.md"
+
 
 # ---------------------------------------------------------------------------
 # JWT dependency
@@ -81,7 +83,7 @@ def get_business_logic(_payload: dict = Depends(require_jwt)) -> dict:
     Return the contents of business_logic.md.
     Requires a valid JWT Bearer token.
     """
-    md_path = Path(__file__).parent / "business_logic.md"
+    md_path = BUSINESS_LOGIC_PATH
     if not md_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

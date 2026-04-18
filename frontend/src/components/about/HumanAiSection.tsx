@@ -1,3 +1,4 @@
+import { Users } from 'lucide-react'
 import SectionHeader from '../common/SectionHeader'
 import ContributionColumn from './ContributionColumn'
 
@@ -8,6 +9,7 @@ export default function HumanAiSection() {
         label="CONTRIBUTIONS"
         labelColor="pink"
         title="人的貢獻 vs AI 的貢獻"
+        icon={Users}
       />
       <div className="grid md:grid-cols-2 gap-10">
         <ContributionColumn

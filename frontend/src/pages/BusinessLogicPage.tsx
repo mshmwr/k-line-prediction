@@ -3,26 +3,11 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import PasswordForm from '../components/business-logic/PasswordForm'
 import ErrorBanner from '../components/business-logic/ErrorBanner'
 import BusinessLogicContent from '../components/business-logic/BusinessLogicContent'
+import UnifiedNavBar from '../components/UnifiedNavBar'
 import { API_BASE } from '../utils/api'
+import { TOKEN_KEY, isTokenValid } from '../utils/auth'
 
 type AuthState = 'SHOW_PASSWORD_FORM' | 'LOADING_CONTENT' | 'SHOW_CONTENT' | 'SHOW_ERROR'
-
-const TOKEN_KEY = 'bl_token'
-
-function getTokenExp(token: string): number | null {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return typeof payload.exp === 'number' ? payload.exp : null
-  } catch {
-    return null
-  }
-}
-
-function isTokenValid(token: string): boolean {
-  const exp = getTokenExp(token)
-  if (exp === null) return false
-  return exp > Math.floor(Date.now() / 1000)
-}
 
 export default function BusinessLogicPage() {
   const [authState, setAuthState] = useState<AuthState>('SHOW_PASSWORD_FORM')
@@ -100,7 +85,9 @@ export default function BusinessLogicPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col items-center justify-center px-6 py-16">
+    <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col">
+      <UnifiedNavBar />
+      <div className="flex flex-col items-center justify-center flex-1 px-6 py-16">
       <h1 className="text-3xl font-mono font-bold mb-2">Business Logic</h1>
       <p className="text-gray-400 text-sm mb-10 text-center max-w-sm">
         This section is password-protected. It contains proprietary trading logic.
@@ -115,7 +102,7 @@ export default function BusinessLogicPage() {
       )}
 
       {authState === 'LOADING_CONTENT' && (
-        <LoadingSpinner size="lg" />
+        <LoadingSpinner />
       )}
 
       {authState === 'SHOW_ERROR' && (
@@ -125,6 +112,7 @@ export default function BusinessLogicPage() {
       {authState === 'SHOW_CONTENT' && (
         <BusinessLogicContent markdown={content} />
       )}
+      </div>
     </div>
   )
 }

@@ -5,10 +5,12 @@ import TechDecSection from '../components/about/TechDecSection'
 import ScreenshotsSection from '../components/about/ScreenshotsSection'
 import TechStackSection from '../components/about/TechStackSection'
 import FeaturesSection from '../components/about/FeaturesSection'
+import UnifiedNavBar from '../components/UnifiedNavBar'
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white">
+      <UnifiedNavBar />
       <PageHeaderSection />
       <AiCollabSection />
       <HumanAiSection />

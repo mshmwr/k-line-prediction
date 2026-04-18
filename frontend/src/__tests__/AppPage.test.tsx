@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import axios from 'axios'
 import AppPage from '../AppPage'
@@ -67,7 +68,7 @@ async function uploadOfficialCsv() {
 }
 
 test('official input upload fills the editor and enables prediction', async () => {
-  render(<AppPage />)
+  render(<MemoryRouter><AppPage /></MemoryRouter>)
 
   await uploadOfficialCsv()
 
@@ -78,7 +79,7 @@ test('official input upload fills the editor and enables prediction', async () =
 })
 
 test('uploading a new official csv restores loaded values', async () => {
-  render(<AppPage />)
+  render(<MemoryRouter><AppPage /></MemoryRouter>)
 
   await uploadOfficialCsv()
 
@@ -92,7 +93,7 @@ test('uploading a new official csv restores loaded values', async () => {
 })
 
 test('uploaded official csv drives prediction and match list rendering', async () => {
-  render(<AppPage />)
+  render(<MemoryRouter><AppPage /></MemoryRouter>)
 
   await uploadOfficialCsv()
 
@@ -107,7 +108,7 @@ test('uploaded official csv drives prediction and match list rendering', async (
 })
 
 test('screenshot ocr controls are removed from the app shell', async () => {
-  render(<AppPage />)
+  render(<MemoryRouter><AppPage /></MemoryRouter>)
 
   await waitFor(() => expect(screen.getAllByText(/official input/i).length).toBeGreaterThan(0))
 
@@ -163,7 +164,7 @@ test('second prediction with unchanged inputs preserves unchecked matches', asyn
       },
     })
 
-  render(<AppPage />)
+  render(<MemoryRouter><AppPage /></MemoryRouter>)
 
   await uploadOfficialCsv()
 
@@ -185,7 +186,7 @@ test('second prediction with unchanged inputs preserves unchecked matches', asyn
 })
 
 test('official input upload also updates the chart data source', async () => {
-  const { container } = render(<AppPage />)
+  const { container } = render(<MemoryRouter><AppPage /></MemoryRouter>)
 
   await uploadOfficialCsv()
 
@@ -194,37 +195,47 @@ test('official input upload also updates the chart data source', async () => {
 })
 
 test('shared timeframe toggle switches the main chart to 1D view', async () => {
-  render(<AppPage />)
+  render(<MemoryRouter><AppPage /></MemoryRouter>)
 
   await uploadOfficialCsv()
 
-  // index 0 = MainChart's pill button; index 1 = right-panel square button
-  const buttons1D = screen.getAllByRole('button', { name: '1D' })
-  fireEvent.click(buttons1D[1])
+  // MainChart's pill-style timeframe switch (single control, identified by testid)
+  const button1D = screen.getByTestId('chart-timeframe-1D')
+  fireEvent.click(button1D)
 
-  expect(screen.getAllByRole('button', { name: '1D' })[1]).toHaveClass('bg-orange-500/10')
+  expect(screen.getByTestId('chart-timeframe-1D')).toHaveClass('bg-orange-500/15')
 })
 
-test('display mode toggle does not trigger API recompute; predict always uses timeframe 1H', async () => {
-  render(<AppPage />)
+test('timeframe toggle does not trigger /api/predict; predict sends current view timeframe', async () => {
+  render(<MemoryRouter><AppPage /></MemoryRouter>)
 
   await uploadOfficialCsv()
 
   vi.mocked(axios.post).mockClear()
 
-  // Toggle to 1D display — should only update UI state, no API call
-  fireEvent.click(screen.getAllByRole('button', { name: '1D' })[1])
+  // Toggle to 1D view — MA99 recomputes but /api/predict must not be called
+  fireEvent.click(screen.getByTestId('chart-timeframe-1D'))
 
-  await new Promise(r => setTimeout(r, 20))
-  expect(vi.mocked(axios.post)).not.toHaveBeenCalled()
+  await waitFor(() => {
+    expect(vi.mocked(axios.post)).toHaveBeenCalledWith(
+      expect.stringContaining('/api/merge-and-compute-ma99'),
+      expect.objectContaining({ timeframe: '1D' }),
+    )
+  })
+  expect(vi.mocked(axios.post)).not.toHaveBeenCalledWith(
+    expect.stringContaining('/api/predict'),
+    expect.anything(),
+  )
 
-  // Predict API should always use '1H' regardless of displayMode
+  vi.mocked(axios.post).mockClear()
+
+  // Predict API uses the current view timeframe (here: 1D after the toggle above)
   fireEvent.click(screen.getByRole('button', { name: /start prediction/i }))
 
   await waitFor(() => {
     expect(vi.mocked(axios.post)).toHaveBeenCalledWith(
-      '/api/predict',
-      expect.objectContaining({ timeframe: '1H' }),
+      expect.stringContaining('/api/predict'),
+      expect.objectContaining({ timeframe: '1D' }),
     )
   })
 })

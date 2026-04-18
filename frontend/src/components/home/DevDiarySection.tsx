@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { BookOpen } from 'lucide-react'
 import type { DiaryMilestone } from '../../types/diary'
 import SectionHeader from '../common/SectionHeader'
 import LoadingSpinner from '../common/LoadingSpinner'
@@ -19,11 +20,12 @@ export default function DevDiarySection({ milestones, loading, error }: DevDiary
         labelColor="pink"
         title="Development Log"
         description="Session-by-session record of how this project was built."
+        icon={BookOpen}
       />
 
       {loading && (
         <div className="flex justify-center py-8">
-          <LoadingSpinner size="md" />
+          <LoadingSpinner />
         </div>
       )}
 

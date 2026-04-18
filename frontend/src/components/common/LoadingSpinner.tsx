@@ -1,20 +1,12 @@
-interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg'
-  className?: string
-}
-
-const sizeMap = {
-  sm: 'w-4 h-4 border-2',
-  md: 'w-8 h-8 border-2',
-  lg: 'w-12 h-12 border-4',
-}
-
-export default function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerProps) {
+export default function LoadingSpinner() {
   return (
-    <div
-      className={`${sizeMap[size]} rounded-full border-purple-500 border-t-transparent animate-spin ${className}`}
-      role="status"
-      aria-label="Loading"
-    />
+    <div role="status" aria-label="Loading" className="flex flex-col items-center justify-center gap-3 rounded-lg bg-[#0D1117] px-8 py-6">
+      <div className="flex items-center gap-3">
+        <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse" />
+        <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse [animation-delay:120ms]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse [animation-delay:240ms]" />
+      </div>
+      <p className="text-zinc-500 font-mono text-[12px]">Running prediction...</p>
+    </div>
   )
 }

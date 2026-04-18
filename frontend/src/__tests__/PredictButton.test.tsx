@@ -18,7 +18,8 @@ test('enabled when not disabled', () => {
   expect(screen.getByRole('button')).not.toBeDisabled()
 })
 
-test('shows loading state', () => {
+test('shows loading spinner when loading', () => {
   render(<PredictButton disabled={false} disabledReason={null} onClick={() => {}} loading={true} />)
-  expect(screen.getByText('Predicting...')).toBeInTheDocument()
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  expect(screen.getByText('Running prediction...')).toBeInTheDocument()
 })

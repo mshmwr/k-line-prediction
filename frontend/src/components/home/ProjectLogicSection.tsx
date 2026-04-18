@@ -1,3 +1,4 @@
+import { Cpu } from 'lucide-react'
 import SectionHeader from '../common/SectionHeader'
 import StepCard from './StepCard'
 import TechTag from './TechTag'
@@ -30,6 +31,7 @@ export default function ProjectLogicSection() {
         labelColor="cyan"
         title="System Architecture"
         description="A technical overview of how the pattern-matching pipeline works — without revealing the trading logic."
+        icon={Cpu}
       />
       <div className="grid md:grid-cols-3 gap-6 mb-10">
         {STEPS.map(s => (

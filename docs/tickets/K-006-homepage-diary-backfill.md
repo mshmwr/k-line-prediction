@@ -3,7 +3,7 @@ id: K-006
 title: Homepage diary.json 補填 4/1–4/16 缺漏里程碑
 type: content
 priority: medium
-status: open
+status: closed
 created: 2026-04-16
 ---
 

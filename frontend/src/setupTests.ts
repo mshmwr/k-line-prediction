@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
-// Mock ResizeObserver for recharts ResponsiveContainer
+// Mock ResizeObserver for chart libraries (e.g. lightweight-charts)
 globalThis.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}

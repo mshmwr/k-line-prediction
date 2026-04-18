@@ -308,10 +308,18 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ## 技術債
 
-| 項目 | 說明 | 優先級 | 決策時間 |
-|------|------|--------|---------|
-| 前端 bundle 過大 `[K-003]` | Vite build 出現 chunk > 500 kB 警告，需用 dynamic import / manualChunks 拆分 | 低 | 2026-04-16 |
-| 後端測試覆蓋率不足 `[K-001]` | 整體 71%，`main.py` 僅 45%；所有 FastAPI route handler 缺乏直接測試 | 中 | 2026-04-16 |
+完整登記簿：[docs/tech-debt.md](docs/tech-debt.md)
+
+| ID | 項目 | 說明 | 優先級 | 決策時間 |
+|----|------|------|--------|---------|
+| TD-001 | 前端 bundle 過大 `[K-003]` | Vite build chunk > 500 kB，dynamic import / manualChunks 拆分 | 低 | 2026-04-16 |
+| TD-002 | 後端測試覆蓋率不足 `[K-001]` | 整體 71%，`main.py` 僅 45% | 中 | 2026-04-16 |
+| TD-003 | Upload history 併發 race | module globals read-merge-write 無同步 | 中 | 2026-04-18 |
+| TD-004 | PredictorChart effect deps 不全 | 相同長度但不同內容會顯示舊 chart | 中 | 2026-04-18 |
+| TD-005 | `AppPage.tsx` 責任過多 | 需抽 `useOfficialInput` / `useHistoryUpload` / `usePredictionWorkspace` | 中 | 2026-04-18 |
+| TD-006 | `backend/main.py` 責任過多 | 需拆 `history_repository` / `history_service` / `prediction_service` | 中 | 2026-04-18 |
+| TD-007 | `backend/predictor.py` 模組過廣 | 建議拆 `predictor_ma` / `predictor_similarity` / `predictor_stats` | 中 | 2026-04-18 |
+| TD-008 | Cross-layer 重複計算 | consensus/stats 前後端各算一次，漂移風險 | 高 | PM 已裁決 → K-013 實作中（2026-04-18） |
 
 ---
 
@@ -411,8 +419,200 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ## UI 優化 Backlog
 
-| 項目 | 說明 | 狀態 |
-|------|------|------|
-| Icon `[K-002]` | NavBar、按鈕、Section 標題等加入 icon（目前無 icon library） | 待設計 |
-| 網頁排版 `[K-002]` | 整體版面優化（spacing、typography、視覺層次） | 待設計 |
-| Loading 動畫 `[K-002]` | 現有 LoadingSpinner 只是 CSS border-spin；改為較豐富的動畫效果 | 待設計 |
+---
+
+### AC-002-ICON：Icon Library 導入 `[K-002]`
+
+**Given** 前端已安裝 icon library（具體選型由 Designer 決定，例如 Heroicons / Lucide）
+**When** 使用者載入任一頁面
+**Then** UnifiedNavBar 的 home icon 使用 icon library 的 home icon（取代現有 ⌂ Unicode 符號）
+**And** PredictButton 的 icon 使用 icon library 的 play/start icon（取代現有 ▶ Unicode 符號）
+**And** SectionHeader 各 section 標題使用語意相符的 icon library icon
+**And** 所有 icon 在 Retina / 高 DPI 螢幕下清晰，無鋸齒
+
+**Given** icon library 已導入
+**When** 工程師新增 icon
+**Then** 可透過 import 單一套件使用，不需手動管理 SVG 檔案
+
+> **Note：** AC-NAV-1（K-005）描述 NavBar 顯示「⌂ icon」，K-002 完成後該 icon 將替換為 icon library 版本；語意不變，K-005 AC 不需重開。
+
+---
+
+### AC-002-LAYOUT：排版優化 `[K-002]`
+
+**Given** 使用者訪問 `/`（首頁）或 `/app`（預測頁）
+**When** 頁面載入
+**Then** 頁面各區塊間距（section padding / gap）一致，符合設計稿規範
+**And** 主要文字層次清晰：heading / subheading / body / caption 四級 typography 可視覺區分
+**And** 互動元素（按鈕、輸入框）具備足夠的 touch target（最小 44×44px）
+
+**Given** 使用者在行動裝置（viewport ≤ 768px）上訪問
+**When** 頁面載入
+**Then** 內容不溢出螢幕寬度
+**And** 視覺層次與桌面版一致（無元素重疊或文字截斷）
+
+---
+
+### AC-002-LOADING：Loading 動畫改版 `[K-002]`
+
+**Given** 使用者點擊 PredictButton 觸發預測請求
+**When** API 請求進行中（loading 狀態）
+**Then** LoadingSpinner 顯示比 border-spin 更有視覺質感的動畫（具體設計由 Designer 決定，例如 pulse、skeleton、multi-ring 等）
+**And** 動畫流暢，不發生卡頓或閃爍
+
+**Given** 預測請求完成或失敗
+**When** loading 狀態結束
+**Then** LoadingSpinner 立即消失，不殘留
+**And** 頁面平滑過渡到結果或錯誤狀態（無明顯跳動）
+
+---
+
+## Acceptance Criteria — 2026-04-18 Codex Review 衍生
+
+### AC-009-FIX `[K-009]`：predict() 1H 路徑傳遞正確的 ma_history
+
+**Given** backend 同時載入 `_history_1h` 與 `_history_1d`
+**When** `/api/predict` 以 `timeframe="1H"` 被呼叫
+**Then** `find_top_matches()` 收到 `ma_history=_history_1d`（而非 fallback 為 `history`）
+**And** 1H 預測結果的 MA99 filter 與 correlation 基於 daily history 計算
+
+### AC-009-TEST `[K-009]`：1H regression test 鎖住行為
+
+**Given** 後端 test suite
+**When** 執行 `python3 -m pytest backend/tests/`
+**Then** 存在一個 test case 明確驗證 1H 路徑下 `ma_history` 為 `_history_1d`
+**And** 若回退至舊行為（不傳 `ma_history`），該 test 必須失敗
+
+### AC-009-REGRESSION `[K-009]`：1D 與其他 API 行為不變
+
+**Given** 現有 backend test suite（18 + 44 tests）
+**When** 執行全部 backend tests
+**Then** 全部通過，無新增 failure
+
+---
+
+### AC-010-GREEN `[K-010]`：Vitest suite 全綠
+
+**Given** `frontend/` 目錄
+**When** 執行 `npm test`
+**Then** 全部 tests 通過，退出碼 0
+
+### AC-010-ROBUST `[K-010]`：timeframe 斷言不依賴 index
+
+**Given** 修復後的 `AppPage.test.tsx`
+**When** 未來 UI 新增或刪除其他 button
+**Then** timeframe 切換相關斷言仍能正確定位目標控制項
+**And** 不使用 `getAllByRole(...)[N]` 這類 index-based 寫法
+
+### AC-010-REGRESSION `[K-010]`：tsc / E2E 不回歸
+
+**Given** 前端完整檢查
+**When** 依序執行 `npx tsc --noEmit` 與 `/playwright`
+**Then** tsc exit 0，Playwright E2E 全通過
+
+### AC-010-R1 `[K-010]`：`/api/predict` 送出 current view timeframe
+
+**Given** 使用者已將 timeframe toggle 切到 1D（或 1H）
+**When** 使用者點擊 Start Prediction
+**Then** `/api/predict` payload 的 `timeframe` 欄位等於目前 `viewTimeframe`（1D 或 1H）
+**And** 不存在「永遠送 1H」的硬編碼行為
+
+> **脈絡：** 此行為由 2026-04-09 commit fb20f21「switch 1D flow to native timeframe contract」刻意設計，配合 AC-1D-3 / AC-1D-1 的 1D 預測與 match card 1D 顯示流程。K-010 原 test 斷言「永遠送 1H」反映的是 pre-fb20f21 的 dual-toggle（MainChart timeframe + 右側 display mode）舊架構殘骸，該架構已移除。Engineer 改 test 與生產碼一致為正確做法。
+
+### AC-010-R2 `[K-010]`：timeframe toggle 觸發 MA99 recompute（不觸發 predict）
+
+**Given** 已上傳 official CSV 的使用者
+**When** 使用者切換 timeframe toggle（1H ↔ 1D）
+**Then** 前端呼叫 `POST /api/merge-and-compute-ma99` 並帶入目標 timeframe
+**And** 前端**不**呼叫 `POST /api/predict`
+**And** MA99 header 與 MainChart 依新 timeframe 重新渲染
+
+> **脈絡：** Early MA99 loading state（PRD UX Notes line 160）規定上傳後立即 pre-compute MA99 以去除預測按下後的等待；timeframe 切換等同「換 timeframe 下的 MA99 視圖」，沿用同一條 pre-compute 路徑以維持一致體感，預測結果保留不重算。原 test 斷言「toggle 不觸發任何 API」遺漏了此 pre-compute 路徑。
+
+---
+
+### AC-011-PROP `[K-011]`：LoadingSpinner 支援 label prop
+
+**Given** `LoadingSpinner` 組件
+**When** 呼叫方傳入 `<LoadingSpinner label="載入中…" />`
+**Then** 畫面顯示該 label 文字
+**And** 未傳 label 時，不顯示 `Running prediction...` 這組 prediction-specific 文字
+
+### AC-011-CALLSITES `[K-011]`：各呼叫處情境正確
+
+**Given** 4 個使用 LoadingSpinner 的位置（`BusinessLogicPage` / `DiaryPage` / `DevDiarySection` / `PredictButton`）
+**When** 各自觸發 loading 狀態
+**Then** 顯示的 label 與該頁面任務情境一致
+
+### AC-011-REGRESSION `[K-011]`：無既有功能回歸
+
+**Given** 前端完整檢查
+**When** 依序執行 `npx tsc --noEmit` / `npm test` / `/playwright`
+**Then** 全部通過
+
+---
+
+### AC-012-ALIGN `[K-012]`：business-logic.spec.ts 測試名與斷言語意一致
+
+**Given** `frontend/e2e/business-logic.spec.ts` 的 Logic 鎖頭相關 test
+**When** 讀 test name 與 body
+**Then** name 描述的行為與實際斷言完全對應
+**And** 無「name 宣稱 A，實際只測 B」的 mismatch
+
+### AC-012-PASS `[K-012]`：Playwright E2E 全綠
+
+**Given** 前端
+**When** 執行 `/playwright`
+**Then** 全部 tests 通過（含本 ticket 新增或更新的斷言）
+
+---
+
+### AC-013-UTIL `[K-013]`：前端抽出共用純函式 `statsComputation.ts`
+
+**Given** `frontend/src/utils/statsComputation.ts` 已建立
+**When** 外部呼叫 `computeStatsFromMatches(matches, currentClose, timeframe)`
+**Then** 回傳型別等同後端 `PredictStats` 的 camelCase 映射（`consensusForecast1h` / `consensusForecast1d` / `highestOrder` / `secondHighest` / `secondLowest` / `lowestOrder` / `winRate` / `meanCorrelation`）
+**And** 函式為純函式，無 React 依賴、無 side effect
+
+### AC-013-APPPAGE `[K-013]`：AppPage.tsx displayStats 邏輯簡化
+
+**Given** `frontend/src/AppPage.tsx`
+**When** 讀取 `displayStats` useMemo
+**Then** 全集（appliedSelection == all matches）直接使用 `appliedData.stats`
+**And** Subset（appliedSelection ⊂ all matches）呼叫 `computeStatsFromMatches(...)`
+**And** 原 inline `computeDisplayStats` 與獨立 `projectedFutureBars` useMemo 已刪除或合併
+
+### AC-013-FIXTURE `[K-013]`：Contract fixture 建立
+
+**Given** `backend/tests/fixtures/stats_contract_cases.json` 已建立
+**When** 檔案被讀取
+**Then** 內容為 array，每筆含 `name` / `input` / `expected`
+**And** 至少涵蓋 3 種 case：全集、subset、single match 邊界（`future_ohlc` == 2 筆）
+
+### AC-013-BACKEND-CONTRACT `[K-013]`：後端 contract test 通過
+
+**Given** `backend/tests/test_predictor.py` 新增 parametrize test
+**When** 執行 `python3 -m pytest backend/tests/`
+**Then** 每筆 fixture case 的 `compute_stats(**input)` 輸出與 `expected` bit-exact 或誤差 ≤ 1e-6
+**And** 若後端算法改動但 fixture 未同步，該 test 失敗
+
+### AC-013-FRONTEND-CONTRACT `[K-013]`：前端 contract test 通過
+
+**Given** `frontend/src/__tests__/statsComputation.test.ts` 新增
+**When** 執行 `npm test`
+**Then** 讀取 `../../../backend/tests/fixtures/stats_contract_cases.json`
+**And** 對每筆 case 的 `computeStatsFromMatches(...)` 輸出經 camelCase 對映後與 `expected` bit-exact 或誤差 ≤ 1e-6
+
+### AC-013-REGRESSION `[K-013]`：無既有功能回歸
+
+**Given** 前後端完整檢查
+**When** 依序執行 `npx tsc --noEmit` / `python3 -m pytest backend/tests/` / `npm test` / `/playwright`
+**Then** 全部 exit 0、全部 pass
+**And** Playwright mock 的 `future_ohlc` 仍 ≥ 2 筆
+
+### AC-013-API-COMPAT `[K-013]`：API payload 向後相容
+
+**Given** `/api/predict` endpoint
+**When** 本票完成後呼叫
+**Then** response JSON 形狀與本票開始前完全一致（`stats.consensus_forecast_1h` / `_1d` 等欄位不變）
+**And** 現有 E2E mock 不需改動即可通過

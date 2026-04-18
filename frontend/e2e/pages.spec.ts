@@ -37,8 +37,8 @@ test.describe('AboutPage — AC-ABOUT-1', () => {
     await expect(page.getByText('TECH STACK', { exact: true })).toBeVisible()
     await expect(page.getByText('FEATURES', { exact: true })).toBeVisible()
 
-    // PRD: "← Home" button navigates to /
-    await expect(page.getByRole('link', { name: '← Home' })).toBeVisible()
+    // NavBar home icon (aria-label="Home") is visible via UnifiedNavBar
+    await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible()
   })
 })
 

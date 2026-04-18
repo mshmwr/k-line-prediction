@@ -241,6 +241,7 @@ export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap, maLoading,
                 <button
                   key={label}
                   type="button"
+                  data-testid={`chart-timeframe-${label}`}
                   onClick={() => onTimeframeChange?.(label)}
                   className={`rounded-full border px-2 py-0.5 transition-colors ${
                     label === timeframe

@@ -19,11 +19,11 @@
     "@tailwindcss/typography": "^0.5.19",
     "axios": "^1.7.2",
     "lightweight-charts": "^5.1.0",
+    "lucide-react": "^1.8.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.14.1",
-    "recharts": "^2.12.7"
+    "react-router-dom": "^7.14.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.32.3",

@@ -1,3 +1,4 @@
+import { Bot } from 'lucide-react'
 import SectionHeader from '../common/SectionHeader'
 import PhaseGateBanner from './PhaseGateBanner'
 import RoleCard from './RoleCard'
@@ -38,6 +39,7 @@ export default function AiCollabSection() {
         labelColor="purple"
         title="人機協作開發流程"
         description="Each phase is gate-reviewed before the next begins. Claude fills multiple specialist roles; the human provides domain knowledge and final judgment."
+        icon={Bot}
       />
       <PhaseGateBanner />
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

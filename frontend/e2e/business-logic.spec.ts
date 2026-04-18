@@ -77,6 +77,47 @@ test('AC-AUTH-1: correct password shows markdown content', async ({ page }) => {
   await expect(page.getByText('This is the secret content.')).toBeVisible()
 })
 
+// ── AC-NAV-LOGIN: NavBar Logic 🔒 disappears after successful login ──────────
+// Given: user is on /business-logic, not logged in (no token)
+// When:  user fills in correct password and submits
+// Then:  NavBar Logic link no longer shows 🔒
+
+test('AC-NAV-LOGIN: NavBar Logic lock icon disappears after login', async ({ page }) => {
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).replace(/=/g, '')
+  const payload = btoa(JSON.stringify({
+    sub: 'business-logic-access',
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 86400,
+  })).replace(/=/g, '')
+  const fakeToken = `${header}.${payload}.fakesig`
+
+  await page.route('/api/auth', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ token: fakeToken }) })
+  )
+  await page.route('/api/business-logic', route =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ content: '## Secret' }),
+    })
+  )
+
+  await page.goto('/business-logic')
+
+  // Before login: Logic link with LockIcon (SVG) should be visible
+  const nav = page.locator('[data-testid="navbar-desktop"]')
+  await expect(nav.getByRole('link', { name: /Logic/ })).toBeVisible()
+
+  // Submit correct password
+  await page.getByPlaceholder('Enter access password').fill('correctpass')
+  await page.getByRole('button', { name: 'Submit' }).click()
+
+  // After login: Logic link still visible (LockIcon always shown per AC-NAV-6)
+  await expect(nav.getByRole('link', { name: /Logic/ })).toBeVisible()
+  // And: markdown content is rendered
+  await expect(page.getByText('Secret')).toBeVisible({ timeout: 5000 })
+})
+
 // ── AC-AUTH-4 ────────────────────────────────────────────────────────────────
 // Given: an expired token in localStorage
 // When:  user visits /business-logic

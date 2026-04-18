@@ -1,3 +1,4 @@
+import { Image } from 'lucide-react'
 import SectionHeader from '../common/SectionHeader'
 import ScreenshotPlaceholder from './ScreenshotPlaceholder'
 
@@ -8,7 +9,8 @@ export default function ScreenshotsSection() {
         label="SCREENSHOTS"
         labelColor="white"
         title="Interface Preview"
-        description="Screenshots will be captured after Phase 5 deployment."
+        description="Screenshots will be added in a future update."
+        icon={Image}
       />
       <div className="grid md:grid-cols-3 gap-6">
         <ScreenshotPlaceholder label="Upload View" />

@@ -1,7 +1,7 @@
 ---
 id: K-001
 title: 後端測試補強 — main.py route handler coverage 提升
-status: open
+status: closed
 type: test
 priority: medium
 created: 2026-04-16
@@ -57,3 +57,21 @@ created: 2026-04-16
 - [PRD.md — Backlog 後端測試補強](../../PRD.md#backlog--後端測試補強backend-test-coverage)
 - [backend/tests/test_auth.py](../../backend/tests/test_auth.py)
 - [backend/main.py](../../backend/main.py)
+
+## 技術債記錄
+
+以下為 Code Review 發現、PM 裁決延後處理的項目。
+
+| # | 問題 | 嚴重度 | 裁決日期 | 處理時機 |
+|---|------|--------|----------|----------|
+| TD-K001-1 | `test_history_info_returns_1h_and_1d` 無 monkeypatch 隔離，依賴 MOCK_HISTORY fallback 或真實檔案，屬環境依賴脆弱測試 | Suggestion | 2026-04-17 | 下一個測試強化週期，與 tmp_path fixture 重構一起處理 |
+| TD-K001-2 | 浮點數比較使用 `==`（如 `2000.0`），目前測試資料恰為整數值故安全，但未來加入小數測試資料有比較失準風險 | Suggestion | 2026-04-17 | 待測試資料出現小數點時，改用 `pytest.approx` 同步替換 |
+
+**決策理由：**
+- TD-K001-1：MOCK_HISTORY fallback 行為目前穩定；改用 tmp_path 需評估 fixture 結構重構，風險高於當前收益。
+- TD-K001-2：現有整數資料路徑安全；過早引入 pytest.approx 增加複雜度但無實質防護效益，等需求出現再補。
+
+## 驗收結果（2026-04-17）
+
+- QA: GO — 12/12 AC PASS，62 tests passed，main.py 86% coverage
+- 關閉：2026-04-17

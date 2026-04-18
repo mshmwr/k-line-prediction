@@ -4,6 +4,7 @@ import { useAsyncState } from '../hooks/useAsyncState'
 import HeroSection from '../components/home/HeroSection'
 import ProjectLogicSection from '../components/home/ProjectLogicSection'
 import DevDiarySection from '../components/home/DevDiarySection'
+import UnifiedNavBar from '../components/UnifiedNavBar'
 
 export default function HomePage() {
   const [state, actions] = useAsyncState<DiaryMilestone[]>()
@@ -21,6 +22,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white">
+      <UnifiedNavBar />
       <HeroSection />
       <ProjectLogicSection />
       <DevDiarySection

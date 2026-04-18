@@ -1,3 +1,6 @@
+import { PlayIcon } from 'lucide-react'
+import LoadingSpinner from './common/LoadingSpinner'
+
 type DisabledReason = 'ohlcIncomplete' | 'noSelection' | 'maLoading' | null
 
 interface Props {
@@ -15,18 +18,24 @@ const TOOLTIP: Record<NonNullable<DisabledReason>, string> = {
 
 export function PredictButton({ disabled, disabledReason, onClick, loading }: Props) {
   const tooltip = disabledReason ? TOOLTIP[disabledReason] : undefined
+
+  if (loading) {
+    return <LoadingSpinner />
+  }
+
   return (
     <button
       onClick={onClick}
-      disabled={disabled || loading}
+      disabled={disabled}
       title={tooltip}
-      className={`w-full py-2 rounded font-bold tracking-wide transition-colors ${
-        disabled || loading
-          ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-          : 'bg-orange-500 hover:bg-orange-400 text-white cursor-pointer'
+      className={`flex items-center justify-center gap-2 w-[320px] h-[40px] rounded font-mono text-[13px] font-bold text-white transition-colors ${
+        disabled
+          ? 'bg-violet-700 opacity-50 cursor-not-allowed'
+          : 'bg-violet-700 hover:bg-violet-600 cursor-pointer'
       }`}
     >
-      {loading ? 'Predicting...' : '▶ Start Prediction'}
+      <PlayIcon size={16} />
+      Start Prediction
     </button>
   )
 }
