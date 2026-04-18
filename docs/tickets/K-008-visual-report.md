@@ -1,10 +1,11 @@
 ---
 id: K-008
 title: 自動化視覺報告 script（Playwright 截圖 → HTML）
-status: open (cycle #6)
+status: open (cycle #4)
 type: feat
-priority: medium
+priority: high
 created: 2026-04-18
+updated: 2026-04-18
 ---
 
 ## 背景
@@ -43,11 +44,12 @@ created: 2026-04-18
 
 ## 裁決（PM triage 2026-04-18）
 
-- **priority：low → medium** — Per-Role Retrospective Log 機制於 2026-04-18 啟用，但 QA 收尾動作依賴的 script 不存在，工具缺口必須補；非 high 因當前 cycle #1~#5 無 UI 新功能，懸空不立即傷害
+- **priority：low → medium → high**（2026-04-18 K-011 PM 彙整後再上調）
 - **獨立 ticket，不併入 K-011** — script 跨頁執行，不綁任何單一 UI ticket；不降級為 K-011 的子任務
 - **MVP 範圍縮減** — 全頁截圖 + 所有已知路由，不做 ticket→頁面 mapping（跑幾輪後再視需要補）
-- **cycle 位置：cycle #6（K-013 之後）** — cycle #1~#5 已排 high priority bug/refactor，不插隊；K-008 為 medium tooling 類，不阻塞 bug 修復
-- **狀態：backlog → open (cycle #6)**
+- **cycle 位置（2026-04-18 更新）：cycle #6 → cycle #4** — K-009/010/011 連續三張 ticket 無視覺驗證層（Engineer/Reviewer/QA/PM 皆無法確認 UI），為系統性缺口，不得再拖
+- **連動：** K-012 → cycle #6、K-013 → cycle #7（各順延一個 cycle）
+- **狀態：open (cycle #6) → open (cycle #4)**
 
 ## Blocking Questions（已釐清 2026-04-18）
 
