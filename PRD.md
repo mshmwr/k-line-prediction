@@ -616,3 +616,171 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 **When** 本票完成後呼叫
 **Then** response JSON 形狀與本票開始前完全一致（`stats.consensus_forecast_1h` / `_1d` 等欄位不變）
 **And** 現有 E2E mock 不需改動即可通過
+
+---
+
+## K-017 /about Portfolio Enhancement
+
+**Ticket：** [K-017](docs/tickets/K-017-about-portfolio-enhancement.md)
+
+**背景：** `/about` 改寫為 portfolio-oriented recruiter page，主軸「一個人透過 6 個 AI agent 端到端交付功能，每個 feature 都有 doc trail」；homepage 加 thin banner 導入 `/about`；補 2 個支援 artifact（`scripts/audit-ticket.sh` + `docs/ai-collab-protocols.md`）讓陳述可被 recruiter 自行驗證。
+
+**範圍：** 8 sections（Header / Metrics / Roles / Pillars / Tickets / Architecture / Banner / Footer）+ 2 scope +1 artifacts（audit script + protocols doc）。
+
+---
+
+### AC-017-HEADER `[K-017]`：PageHeaderSection 呈現 One operator 聲明
+
+**Given** 使用者訪問 `/about`
+**When** 頁面載入完成
+**Then** 頁面最上方顯示 PageHeaderSection，文字內容為 "One operator, orchestrating AI agents end-to-end — PM, architect, engineer, reviewer, QA, designer. Every feature ships with a doc trail."
+**And** 文字呈現為視覺上的 hero heading（`h1` 或同級視覺層次），字級大於 body 文字
+**And** 六個角色名（PM / architect / engineer / reviewer / QA / designer）以逗號分隔正確列出，拼寫與大小寫與上述一致
+**And** 結尾句 "Every feature ships with a doc trail." 獨立視覺段落（換行或獨立 `<p>` / `<span>`），不被擠進同一行
+**And** Header 區塊 Playwright 斷言使用 `{ exact: true }` 比對文字，避免 description 誤命中
+
+---
+
+### AC-017-METRICS `[K-017]`：Metrics strip 四條 narrative metric + subtext
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至 Metrics 區塊
+**Then** 顯示 4 個 metric card，依序為：Features Shipped / First-pass Review Rate / Post-mortems Written / Guardrails in Place
+**And** Features Shipped 的 subtext 為 "17 tickets, K-001 → K-017"
+**And** First-pass Review Rate 的 subtext 為 "Reviewer catches issues before QA on most tickets"
+**And** Post-mortems Written 的 subtext 為 "Every ticket has cross-role retrospective"
+**And** Guardrails in Place 的 subtext 為 "Bug Found Protocol, per-role retro logs, audit script"
+**And** 所有 metric 以 narrative 敘述呈現，**不得出現 "exactly N%"** 這類精確數值宣告（未提供 CI 驗證資料）
+**And** Playwright 斷言逐條驗證 4 個 metric title 與其對應 subtext，不依 index 定位
+
+---
+
+### AC-017-ROLES `[K-017]`：6 Role Cards 呈現 Owns X + Artefact
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至 "Role Cards" 區塊
+**Then** 顯示 6 張 role card，依序為 PM / Architect / Engineer / Reviewer / QA / Designer
+**And** 每張卡片含兩個欄位：`Owns`（責任） 與 `Artefact`（交付物路徑）
+**And** PM 卡片 Owns = "Requirements, AC, Phase Gates"、Artefact = "PRD.md, docs/tickets/K-XXX.md"
+**And** Architect 卡片 Owns = "System design, cross-layer contracts"、Artefact = "docs/designs/K-XXX-*.md"
+**And** Engineer 卡片 Owns = "Implementation, stable checkpoints"、Artefact = "commits + ticket retrospective"
+**And** Reviewer 卡片 Owns = "Code review, Bug Found Protocol"、Artefact = "Review report + Reviewer 反省"
+**And** QA 卡片 Owns = "Regression, E2E, visual report"、Artefact = "Playwright results + docs/reports/*.html"
+**And** Designer 卡片 Owns = "Pencil MCP, flow diagrams"、Artefact = ".pen file + get_screenshot output"
+**And** Playwright 斷言逐卡片驗證 Role name + Owns + Artefact 三欄位，共 18 條斷言（6 × 3）
+
+---
+
+### AC-017-PILLARS `[K-017]`：How AI Stays Reliable 三支柱 + mechanism + anchor
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至 "How AI Stays Reliable" 區塊
+**Then** 顯示 3 個 pillar，依序為 Persistent Memory / Structured Reflection / Role Agents
+**And** Persistent Memory pillar 描述含 "`MEMORY.md`" 與 "cross-conversation" 關鍵詞
+**And** Persistent Memory 底部 anchor 引用為 italic blockquote：`> *Every "stop doing X" becomes a memory entry — corrections outlive the session.*`
+**And** Structured Reflection pillar 描述含 "`docs/retrospectives/<role>.md`" 與 "Bug Found Protocol" 關鍵詞
+**And** Structured Reflection 底部 anchor 引用為：`> *No memory write = the bug is not closed.*`
+**And** Role Agents pillar 描述含 "PM / Architect / Engineer / Reviewer / QA / Designer" 與 "`./scripts/audit-ticket.sh K-XXX`" 關鍵詞
+**And** Role Agents 底部 anchor 引用為：`> *No artifact = no handoff.*`
+**And** 每個 pillar 底部有 inline link 導向 `/docs/ai-collab-protocols.md`（同網站內相對 path）
+**And** Playwright 斷言驗證 3 個 pillar title + 3 個 anchor blockquote + 3 個 inline link 目標 URL
+
+---
+
+### AC-017-TICKETS `[K-017]`：Anatomy of a Ticket 呈現 K-002 / K-008 / K-009 trio
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至 "Anatomy of a Ticket" 區塊
+**Then** 顯示 3 張 ticket 卡片，依序為 K-002 / K-008 / K-009
+**And** 每張卡片含：Ticket ID / 標題 / 一句 outcome / 一句 learning / 外部連結
+**And** K-002 卡片標題為 "UI optimization"（或中英對照版）；outcome 描述大重構並展示 And-clause 系統性遺漏被三角色反省攔截；learning 指向「per-role retro log 機制因此建立」
+**And** K-008 卡片標題為 "Visual report script"；outcome 描述自動化視覺報告 script 完整流程；learning 指向「Bug Found Protocol 四步示範」
+**And** K-009 卡片標題為 "1H MA history fix"；outcome 描述 1H 預測 MA history 來源錯誤的 TDD bug fix；learning 指向「test-driven discipline 示範」
+**And** 每張卡片的外部連結導向該 ticket 的 GitHub 檔案（e.g. `https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-002-ui-optimization.md`）
+**And** Playwright 斷言驗證 3 張卡片的 ID / 標題 / 連結 href
+
+---
+
+### AC-017-ARCH `[K-017]`：Project Architecture snapshot 三個點
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至 "Project Architecture" 區塊
+**Then** 顯示 intro 句 "How the codebase stays legible for a solo operator + AI agents."
+**And** 顯示三個子區塊：`Monorepo, contract-first` / `Docs-driven tickets` / `Three-layer testing pyramid`
+**And** Monorepo 區塊描述含 "React/TypeScript" / "FastAPI/Python" / "`snake_case` (backend) ↔ `camelCase` (frontend)" 關鍵詞
+**And** Docs-driven tickets 區塊描述含 "Given/When/Then/And" / "Playwright test mirrors the spec 1:1" / "PRD → `docs/tickets/K-XXX.md` → role retrospectives" 關鍵詞
+**And** Three-layer testing pyramid 區塊列三層：`Unit — Vitest (frontend), pytest (backend)` / `Integration — FastAPI test client` / `E2E — Playwright, including a visual-report pipeline that renders every page to HTML for human review`
+**And** Playwright 斷言驗證 3 個子區塊 title + 各自關鍵詞存在
+
+---
+
+### AC-017-BANNER `[K-017]`：Homepage BuiltByAIBanner
+
+**Given** 使用者訪問 `/`（homepage）
+**When** 頁面載入完成
+**Then** homepage 最上方（NavBar 下方、Hero 上方）顯示 thin banner
+**And** banner 文字為 "One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*"
+**And** "See how →" 為視覺強調（italic 或 link underline），整條 banner clickable
+**And** click banner 導向 `/about`（SPA 路由，不發生全頁 reload）
+**And** banner 樣式為「thin」（視覺上不得搶走 Hero 的主視覺位置，高度明顯小於 Hero）
+**And** banner 存在不破壞 AC-HOME-1 既有斷言（Hero / 專案邏輯 / 技術棧 / 開發日記四個 Section 仍顯示）
+**And** Playwright 斷言：banner 文字存在（`{ exact: true }`）+ click 後 URL 為 `/about`
+
+---
+
+### AC-017-FOOTER `[K-017]`：Footer CTA email + GitHub + LinkedIn
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至底部
+**Then** 顯示 Footer CTA 區塊
+**And** 顯示 "Let's talk →" 文字開頭
+**And** 顯示 email：`yichen.lee.20@gmail.com`（`mailto:` 連結）
+**And** 顯示 "Or see the source:" 引導句後接 GitHub 與 LinkedIn 兩個連結
+**And** GitHub 連結 href = `https://github.com/mshmwr/k-line-prediction`，顯示文字為 "GitHub"
+**And** LinkedIn 連結 href = `https://linkedin.com/in/yichenlee-career`，顯示文字為 "LinkedIn"
+**And** 三個連結在新分頁開啟（`target="_blank"` + `rel="noopener noreferrer"`）
+**And** Playwright 斷言驗證三個 href 完整匹配 + `mailto:` prefix 正確
+
+---
+
+### AC-017-AUDIT `[K-017]`：audit-ticket.sh 可執行並輸出 A–G checklist
+
+**Given** 專案根目錄已有 `scripts/audit-ticket.sh`
+**When** 執行 `./scripts/audit-ticket.sh K-002`（closed ticket，created=2026-04-16 < 2026-04-18 → skip F/G）
+**Then** script exit code 為 0（全 pass）
+**And** stdout 含 A / B / C / D / E 五組 check 結果（彩色 checklist 格式）
+**And** F / G 兩組標記為 SKIP（reason: `created < 2026-04-18`）
+
+**Given** 同上 script
+**When** 執行 `./scripts/audit-ticket.sh K-008`（closed ticket，created=2026-04-18 → 含 F/G）
+**Then** exit code 為 0
+**And** stdout 含 A–G 全部 7 組 check 結果
+**And** F 組確認 ticket `## Retrospective` 有 5 個角色反省段 + per-role log 有對應 `## YYYY-MM-DD — K-008` entry
+**And** G 組確認 Playwright spec 有 grep 到 K-008 + `docs/reports/K-008-*.html` 存在
+
+**Given** 同上 script
+**When** 執行 `./scripts/audit-ticket.sh K-999`（不存在的 ticket）
+**Then** exit code 為 2（critical missing）
+**And** stdout 明確報告 A 組 fail（ticket file 不存在）
+
+**Given** 同上 script
+**When** 執行一個 closed ticket 的 commit trail 僅為 vague msg（e.g. 所有 commit msg 均為 "wip" / "fix"）
+**Then** D 組標記為 warning（exit code ≥ 1），明確提示 vague msg 被排除
+
+**And** script 不提供 `--json` flag（YAGNI）
+**And** script 用 bash，不依賴 node / python runtime
+**And** 輸出為人類可讀 coloured checklist，不為 machine-readable JSON
+
+---
+
+### AC-017-PROTOCOLS `[K-017]`：docs/ai-collab-protocols.md 公開版文件
+
+**Given** 專案根目錄已有 `docs/ai-collab-protocols.md`
+**When** 任何人（含 recruiter）開啟該檔
+**Then** 文件含三個主要 section：`Role Flow` / `Bug Found Protocol` / `Per-role Retrospective Log`
+**And** Role Flow section 定義 6 角色名稱與職責（對應 `/about` Section 3 的 Owns X）
+**And** Bug Found Protocol section 列出四步（反省 → PM 確認反省品質 → 寫 memory → 放行修復），並引用 K-008 / K-009 為示範
+**And** Per-role Retrospective Log section 說明 `docs/retrospectives/<role>.md` 機制 + K-008 起啟用 + 條目格式（YYYY-MM-DD / 做得好 / 沒做好 / 下次改善）
+**And** 文件含 2–3 條 **curated 英文 retrospective 節選**（非全翻譯所有 retro），每條明確標註 ticket ID + role + 原文出處連結
+**And** `/about` Section 4 的三個 pillar 底部 inline link 均導向此檔的對應 anchor（Persistent Memory → Per-role Retrospective Log / Structured Reflection → Bug Found Protocol / Role Agents → Role Flow）
+**And** 文件以英文撰寫（對齊 `/about` 的英文文案基調），不為全翻譯的中文版

@@ -20,6 +20,16 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-19 — K-017 PRD 定稿
+
+**做得好：** 8 個 sections + 2 個 scope +1 artifacts 的文案在 PRD 翻譯階段全部被逐條展開為 AC（共 10 條 AC，每條 Given/When/Then + 完整 And 子句），特別把 AC-017-AUDIT 分成「closed ticket skip F/G」「closed ticket 含 F/G」「不存在 ticket → exit 2」「vague commit msg → warning」四種 Given/When 場景，避免 K-002「And 子句系統性遺漏」教訓復發；AC-017-ROLES 明確寫出「6 × 3 = 18 條斷言」讓 Engineer/QA 有可量化驗收目標。ticket 設計決策紀錄表逐欄註記 2026-04-19 來源，避免之後回頭看不出哪條是 session 定稿、哪條是 PM 推演。PRD 的 AC section 加上 `[K-017]` tag 與 ticket 雙向連結，符合「PM 開 AC 同時建 ticket 檔 + 加標註」規範。放行 Architect 前確認無 blocking question（文案已全部定稿，不重啟討論）。
+
+**沒做好：** ticket 「不含」段裡有 7 條排除項，但其中「NavBar / Footer 以外的 homepage 結構改動」與 AC-017-BANNER 的「banner 不破壞 AC-HOME-1 既有斷言」是同一件事的兩種表述，寫作當下沒察覺並列，可能讓 Architect / Engineer 讀到兩段重複時困惑哪條為準；根因是 PM 寫「不含」時採 checklist 思維、寫 AC 時採行為驗收思維，兩套 framing 沒在 ticket 內同步 cross-check。另外 AC-017-TICKETS 的三張 ticket 卡片「標題」與「outcome / learning 句」委託給 Architect / Engineer 決定具體措辭（只鎖語意不鎖字），這屬於 intentional underspec，但本該在 AC 裡明寫「措辭由 Architect 在 design doc 確認後回 PM 一次」再放行，否則下游可能自行決定就上線。
+
+**下次改善：** (1) PRD/ticket 的「不含」段寫完後，逐條 grep 對照 AC 的 And 子句，若有同義重複一律合併到 AC 內的 And，刪掉「不含」段的重複項；下次 PM 寫票時將此步驟加入個人 gate-check。(2) 任何「語意鎖定但字句委託下游」的 AC，明寫「measurement：Architect design doc 確定措辭後回 PM 確認一次，PM 通過才進 Engineer」，不讓 underspec 成為 bypass 點；該條補丁下次 Architect agent spec Edit 窗口時同步落到 architect.md 對應段。(3) K-017 AC 共 10 條，是本專案至今最長單票 AC 清單；QA 驗收階段先把 10 條 AC 與 Playwright spec 做 N:1 mapping 表再跑 E2E，避免漏斷。
+
+---
+
 ## 2026-04-18 — K-008 收尾反省（彙整 + close）
 
 **做得好：** 跨角色反省彙整時識別出「Architect 設計未列『配置/狀態 × 執行時機』truth table」是 W1/W2/W3/S3 四條 Warning 的共同上游根因 — 三角色（Architect / Engineer / Reviewer）各自獨立在 retrospective 點出同一上游，彙整段沒逐條複述而是歸納為「單一根因 + 4 個症狀」，對應流程改善決議表第 1 條；其他 3 族（外部輸入安全 / doc sync 觸發 / QA checklist）也用相同歸納法避免症狀重複編號。流程改善決議表每條都標「負責角色 + 具體行動 + 更新位置」三欄，不只列問題；對「需修 agent spec 但本次未授權」的 4 條改動明確在彙整末尾寫「本票暫不擴大 scope，待使用者觸發相關機制時一併授權」— 依循「方案不明確時先討論再修改」memory，不盲動 agent 檔。正式執行「掃最近 3 張票的 QA retrospective 找趨勢」動作（K-011 收尾預告、K-008 首次落實），抓到 K-010「截圖 script 缺」系統缺口已由本票 K-008 實作 + QA 自補結構抽樣驗證封閉，確認趨勢已收斂。Close 流程六步（彙整寫入 + status frontmatter + closed 日期 + PM-dashboard 移表 + 下個 ID 檢查 + pm.md retrospective）全程用 tool call 落地，無口頭聲稱。
