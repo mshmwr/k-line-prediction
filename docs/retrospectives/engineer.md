@@ -18,6 +18,14 @@
 
 ---
 
+## 2026-04-18 — K-011 LoadingSpinner 文案中性化
+
+**做得好：** 動手前先 `Grep "Running prediction"` 全專案盤出所有相依處（unit test / E2E / PRD / .pen / architecture.md），確認只有 PredictButton.test.tsx 一處有斷言，且 PredictButton callsite 保留原文案 → test 零改動，避開 Test Escalation Rule。
+**沒做好：** Ticket 標示 callsite 為 `frontend/src/components/DevDiarySection.tsx`，實際在 `home/` 子目錄；首次 Read 報 404 才 Grep 修正。根因：我信任 ticket 路徑直接 Read 而非先 Grep 驗證，違反「聲稱檔案不存在前先查根目錄」memory 的延伸精神（信任外部提供的路徑也該先驗）。
+**下次改善：** 接到票第一步固定 `Grep "<主組件名>"` 列出實際 import 路徑，再比對 ticket 預期異動檔案清單；不一致立即回報 PM，不自行默修。
+
+---
+
 ## 2026-04-18 — K-009 1H MA history fix
 
 **做得好：** 先寫 failing test（monkeypatch `main.find_top_matches` 攔截 `ma_history` 做 identity 斷言），確認 None 真的出現再動生產碼；不涉及 PRD 業務規則，避開 Test Escalation Rule。fix 保留原 1D 分支不動，1H 分支顯式多傳 `ma_history=_history_1d`，盡量縮小 diff。

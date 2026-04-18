@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-04-18 — K-011 LoadingSpinner label
+
+**做得好：** 除了對 4 個 callsite 紙上比對，還 Grep 全工作目錄 `LoadingSpinner` + `Running prediction` 兩個關鍵字，cross-check 沒遺漏任何 src / test / E2E 斷言；並實跑 `npx tsc --noEmit` + `npm test`（非信任 Engineer 回報），確認 `PredictButton.test.tsx:24` 的英文斷言仍命中 `PredictButton` 傳入的 `"Running prediction..."` label，AC-011-REGRESSION 自動保。
+
+**沒做好：** Engineer 指出 3 條 drift（architecture.md / k002-component-spec.md / homepage.pen），但 ticket AC 從頭到尾只鎖「4 個 callsite 傳 label」，沒把文件同步寫進 AC。Architect 裁決「無需 Architecture」時其實已經知道 architecture.md:139 有「目前固定 Running prediction...」這行，卻未在裁決中指示 Engineer 順手修；結果全交給 Reviewer 裁 in-scope/tech-debt。這類「單行文件同步」本該在 Architect 放行時就標為 in-scope。
+
+**下次改善：** Review 發現「架構文件 drift 根因是本次改動」時，若改動極小（一行），直接建議 PM 本票內修（不拆 tech debt）；同時回饋 Architect 未來裁決「無需 Architecture」時，加一句 checklist：「grep 過期描述，有則列入 Engineer scope」。對 spec 歷史文件（已歸檔的 K-00X-design）不強求同步，建議 PM 改為加「superseded by K-XXX」頭註，不動原內容。
+
+---
+
 ## 2026-04-18 — K-009 1H MA history fix
 
 **做得好：** 除了紙上比對 diff，實際執行 stash push → pytest 單 test → stash pop 驗證 Engineer 聲稱「移除 fix 後 test 會失敗」屬實（`captured['ma_history']` = None，斷言 `is main._history_1d` 失敗）；同時跑全量 63 tests 確認 1D 分支與其他 endpoint 未受影響。Test 斷言只鎖參數身分（`is` / `is not`），Test Escalation Rule 自動合規。

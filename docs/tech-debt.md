@@ -20,6 +20,7 @@
 | TD-008 | Cross-layer：consensus/stats 前後端各算一次，有漂移風險 | 2026-04-18 Codex review | 高 | 2026-04-18 → K-013 |
 | TD-009 | Vitest index-based selector 殘留（AppPage + OHLCEditor）| 2026-04-18 K-010 review W1/W2 | 低 | 2026-04-18 → K-014 |
 | TD-010 | `predictor.find_top_matches()` `ma_history` 靜默 fallback（K-009 根因） | 2026-04-18 K-009 review S1 | 中 | 2026-04-18 → K-015 |
+| TD-011 | `frontend/design/homepage.pen` 仍含 `Running prediction...` 文字節點（K-011 drift） | 2026-04-18 K-011 review Drift C | 低 | 2026-04-18 |
 
 ---
 
@@ -184,6 +185,26 @@ projected future bar aggregation / stats derivation / time aggregation 前後端
 **排期觸發條件：** K-013 驗收後 / TD-007 RFC 啟動時一併處理。若中途有新 `find_top_matches()` caller，升級為 P1。
 
 **對應 ticket：** [K-015](tickets/K-015-find-top-matches-ma-history-required.md)
+
+---
+
+## TD-011 — homepage.pen 設計稿 spinner 文字節點未同步 K-011
+
+**來源：** K-011 code review 2026-04-18 Drift C
+
+`frontend/design/homepage.pen` 內仍含 `Running prediction...` 文字節點，與 K-011 改動後的 `LoadingSpinner` + `label?: string` prop 行為不一致。
+
+**風險：** 低 — `.pen` 檔為設計快照，不參與 build / runtime；但下次 Designer agent 進場做 UI 調整時，若以此為基準會複製過期文案到新稿。
+
+**PM 裁決（2026-04-18）：** Designer agent 專屬範圍，需 Pencil MCP 操作 + `get_screenshot` 視覺驗證，與 Engineer 工具鏈不同；不升級為 ticket，記為技術債等下次 Designer 進場（例如 K-008 Visual Report 或未來 UI 重新設計 ticket）時順帶同步。
+
+**建議解法：**
+- Designer agent 以 `batch_design` 更新對應文字節點：
+  - Option A：若設計稿表達的情境為「Predict 流程」，保留英文文案，但改為通用佔位（如 `[loading label]`）
+  - Option B：直接反映新實作，各 callsite 對應畫面改為情境文案（中文「載入日記中…」/「載入內容中…」/ 保留英文「Running prediction...」於 PredictButton 畫面）
+- 更新後用 `get_screenshot` 截圖 review 送回 PM 驗收
+
+**排期觸發條件：** 下次 Designer agent 任何進場時一併處理；若 3 個月內無 Designer 進場，升級為獨立小票。
 
 ---
 

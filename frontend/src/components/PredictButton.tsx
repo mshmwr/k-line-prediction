@@ -20,7 +20,7 @@ export function PredictButton({ disabled, disabledReason, onClick, loading }: Pr
   const tooltip = disabledReason ? TOOLTIP[disabledReason] : undefined
 
   if (loading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner label="Running prediction..." />
   }
 
   return (

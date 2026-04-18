@@ -33,7 +33,7 @@ export default function DiaryPage() {
 
       {state.status === 'loading' && (
         <div className="flex justify-center py-16">
-          <LoadingSpinner />
+          <LoadingSpinner label="載入日記中…" />
         </div>
       )}
 

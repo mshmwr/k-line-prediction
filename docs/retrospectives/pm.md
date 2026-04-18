@@ -20,6 +20,18 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-18 — K-011 收尾彙整（Retrospective 彙整）
+
+**做得好：** 跨角色反省交叉分析時抓到三起「信任上游文字未實地驗證」的同族事件（Engineer 信 ticket path / Engineer 補 drift A 時信 Reviewer 段落引用 / QA 信 Reviewer grep 結論），用「同一族根因」方式歸納而非單點修正 3 個症狀。另在流程改善決議表內同時記錄「本次 PM 可落地」與「需使用者授權」兩類行動，明確不誤宣告「已落地」agent spec 類變更。發現「K-009/K-010/K-011 連續 3 票 QA 視覺驗收層留空（K-008 未實作）」已構成系統性缺口，主動建議 K-008 優先級上調至 cycle #4。
+**沒做好：** K-011 彙整時才意識到「連續 3 票 QA 視覺層留空」，理應 K-009 收尾時就抓到，但當時 PM 彙整只聚焦單票裁決未做跨票趨勢分析。根因：PM retrospective 彙整沒有「跨票趨勢偵測」例行動作，只做單票反省的彙整。
+**下次改善：** PM 收到 QA PASS 後的 retrospective 彙整，除了本票的跨角色重複問題，另加一步「掃描最近 3 張完成票的 QA retrospective，檢查是否有同一類驗證留空的連續事件」；若有，列入流程改善決議表作為系統性問題。
+
+## 2026-04-18 — K-011 Review Suggestions 裁決
+
+**做得好：** 3 條 drift 按「影響面 × 工具鏈」分流三種裁決（A in-scope / B 拆 K-016 / C 拆 TD-011），不一律拆票也不一律塞本票；裁決時對每條寫出「為何不選另一路徑」（B 不 in-scope 是因為歸檔 spec 改內容會扭曲歷史；C 不給 Engineer 做是因為 Pencil MCP 工具鏈不屬 Engineer scope）。Drift A in-scope 時明確列「Engineer 執行步驟 1/2/3 + 無需再跑 tsc/npm test」避免 Engineer 誤以為要全套驗證。PM-dashboard、tech-debt.md、K-016 ticket、K-011 ticket 裁決段、PM retrospective log 五個檔案同一 prompt 內用五個 Edit 一起落地，沒有口頭聲稱「等下會加」。
+**沒做好：** Reviewer 反省段已明確指出「Drift A 本該在 Architect 放行時就攔截 — 『grep 組件名於 architecture.md，有過期描述列入 Engineer scope』」，但本次 PM 裁決只把 Engineer scope 補上去處理 drift 本身，**沒把這條 checklist 真正寫進 architect agent spec 或 K-Line CLAUDE.md 的 Architect section**。這是第二次碰到「per-role log 有紀錄但 agent spec 沒落地」的 drift（上一次是 K-009 收尾彙整留下的 Architect conditional suggestion 回收缺口）。根因：PM 裁決範圍鎖在「本票 3 條 drift」，沒把 Reviewer 提出的「Architect checklist 建議」當作獨立裁決項處理。
+**下次改善：** Reviewer 反省段若出現「下次改善 + 對某 agent spec 的具體建議」，PM 裁決時必須獨立列一欄「流程改善裁決」：(a) 立刻補 agent spec / (b) 開追蹤 ticket / (c) 明確拒絕。不得只收到本票的技術 drift 裁決就結束，等到下次再發現同樣缺口。套用於本次：Architect agent spec 的「結構/介面變更必同步 architecture.md」守則應補一條輔助 checklist「grep 組件名於 architecture.md，有過期描述列入 Engineer scope」——此項目留待下次 Architect 進場或使用者授權修 agent spec 時處理，本次不 scope。
+
 ## 2026-04-18 — K-009 收尾彙整
 
 **做得好：** Engineer / Reviewer / QA 三段各自獨立提到 `ma_history` silent fallback 同一根因，彙整時沒逐條複述，而是合併為「三角色對同一 predictor 層 API 設計缺陷的獨立佐證」並在「流程改善決議」表格分流三類行動 — (a) 技術解法去 K-015 / TD-010、(b) 流程缺口（Architect 的 conditional suggestion 無回收節點）回 pm.md 自動觸發時機表、(c) K-015 AC 預寫「新 caller 忘傳 ma_history regression 測試點」避免重蹈 K-009 caller-only 覆蓋。閉票同步跑六件事（彙整 / status=closed / dashboard 移表 / memory 更新 / per-role log / 回報）沒漏項，彙整段與六步驟動作都有對應 Edit tool call，不是口頭聲稱。

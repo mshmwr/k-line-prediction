@@ -1,5 +1,13 @@
 [
   {
+    "milestone": "Codex Review Follow-up — K-009 / K-010 / K-011",
+    "items": [
+      { "date": "2026-04-18", "text": "K-011 closed：LoadingSpinner 新增 label prop，4 個 callsite 改為情境文案（載入日記中…/載入內容中…/Running prediction...）；tsc exit 0、Vitest 36 pass、Playwright 45/45 全綠；同步更新 architecture.md 對 LoadingSpinner 的描述" },
+      { "date": "2026-04-18", "text": "K-010 closed：修復 Vitest AppPage 回歸測試，補齊 chart-timeframe-* testid 相關斷言" },
+      { "date": "2026-04-18", "text": "K-009 closed：修復 1H predict 路徑遺漏 ma_history=_history_1d 的後端 bug，pytest 63 passed" }
+    ]
+  },
+  {
     "milestone": "K-005 — UnifiedNavBar 統一五頁導覽列",
     "items": [
       { "date": "2026-04-17", "text": "新增 UnifiedNavBar 共用組件（auth.ts utility），統一 5 個頁面的 NavBar；修復 CRITICAL-1（useState re-render）、CRITICAL-2（desktop ⌂ active class）、mobile ⌂ active state 不一致；46 Playwright tests passing" },

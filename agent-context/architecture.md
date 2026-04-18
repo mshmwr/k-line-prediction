@@ -136,7 +136,7 @@ ClaudeCodeProject/
 │   │           │   ├── BusinessLogicContent.tsx
 │   │           │   └── ErrorBanner.tsx
 │   │           └── common/
-│   │               ├── LoadingSpinner.tsx   ← K-011 將加 label prop（目前固定「Running prediction...」）
+│   │               ├── LoadingSpinner.tsx   ← 接受 `label?: string` prop，各呼叫處傳入情境文案；無 label 時只顯示 spinner 不顯示文字（K-011 完成 2026-04-18）
 │   │               ├── ErrorMessage.tsx
 │   │               ├── SectionHeader.tsx
 │   │               ├── SectionLabel.tsx

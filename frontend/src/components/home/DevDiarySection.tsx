@@ -25,7 +25,7 @@ export default function DevDiarySection({ milestones, loading, error }: DevDiary
 
       {loading && (
         <div className="flex justify-center py-8">
-          <LoadingSpinner />
+          <LoadingSpinner label="載入日記中…" />
         </div>
       )}
 
