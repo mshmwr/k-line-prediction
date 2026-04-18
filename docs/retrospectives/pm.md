@@ -20,6 +20,22 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-18 — K-008 收尾反省（彙整 + close）
+
+**做得好：** 跨角色反省彙整時識別出「Architect 設計未列『配置/狀態 × 執行時機』truth table」是 W1/W2/W3/S3 四條 Warning 的共同上游根因 — 三角色（Architect / Engineer / Reviewer）各自獨立在 retrospective 點出同一上游，彙整段沒逐條複述而是歸納為「單一根因 + 4 個症狀」，對應流程改善決議表第 1 條；其他 3 族（外部輸入安全 / doc sync 觸發 / QA checklist）也用相同歸納法避免症狀重複編號。流程改善決議表每條都標「負責角色 + 具體行動 + 更新位置」三欄，不只列問題；對「需修 agent spec 但本次未授權」的 4 條改動明確在彙整末尾寫「本票暫不擴大 scope，待使用者觸發相關機制時一併授權」— 依循「方案不明確時先討論再修改」memory，不盲動 agent 檔。正式執行「掃最近 3 張票的 QA retrospective 找趨勢」動作（K-011 收尾預告、K-008 首次落實），抓到 K-010「截圖 script 缺」系統缺口已由本票 K-008 實作 + QA 自補結構抽樣驗證封閉，確認趨勢已收斂。Close 流程六步（彙整寫入 + status frontmatter + closed 日期 + PM-dashboard 移表 + 下個 ID 檢查 + pm.md retrospective）全程用 tool call 落地，無口頭聲稱。
+
+**沒做好：** 流程改善決議表第 2 條（外部輸入安全檢查 PM + Architect + Engineer 三層皆漏）本該在 K-008 ticket 建立階段 PM 寫 AC 時就攔到 —「AC-008-SCRIPT: Script 可執行 / AC-008-CONTENT: 報告包含所有已知頁面全頁截圖」兩條 AC 寫了輸出結構但沒寫「TICKET_ID 格式約束」；當時 PM 裁決 blocking question #3「ticket ID 傳入 → env var」時只定了介面形式，沒補格式 whitelist。等到 Reviewer W4 才被動撈回，這是 PM AC 模板對「外部輸入 → filesystem sink」場景沒有固定 checklist 的直接反映。K-009 PM 彙整已記類似缺口（Architect conditional suggestion 無回收節點），這次是同結構的第二次復發（PM AC 模板缺項 → 下游 Engineer / Reviewer 補位）— PM 的「制度補丁只寫 retrospective、沒落到 AC 模板或 pm.md agent spec」是重複違反，我在本次彙整只能再次記錄延後，因為使用者本票沒授權修 agent spec。
+
+**下次改善：** (1) PM 寫 AC 前先跑固定 checklist：「有 env var / URL param / CLI arg 嗎？→ 有 → AC 預先寫『該輸入需 whitelist / 需 normalize / 需長度上限』」；這條 checklist 我會在下次 PM 任務進場時主動提議使用者授權寫進 `pm.md` agent spec，不再只記 retrospective。(2) 本次彙整表內的 6 條流程改善中，4 條需修 agent spec 的項目由我主動在下次使用者觸發「修 agent / 新 cycle 開票」時集中提議同時處理，不要等每張票收尾都重提一次 backlog。(3) K-008 close 後 pm.md 已累積 6 筆 2026-04-18 條目（含本筆），已接近單日過密；若下次 session 仍在 2026-04-18 需 append，先判斷是否應在彙整段內合併而非新開條目。
+
+---
+
+## 2026-04-18 — K-008 Reviewer 回饋裁決（W1–W4 / S1–S3）
+
+**做得好：** 7 條發現用「同檔案 / 同工具鏈 / 同 Edit 視窗」角度切分負責角色（W1/W3/W4 全在 `visual-report.ts` → Engineer 一次改；W2/S3 在 architecture.md 同區塊 → Architect 一次改），而非每條獨立分派導致同檔案被二次開檔；裁決理由都有「為何不選另一路徑」（例如 W3「目前 retries=0 但併入 W1 同次改動成本 0，拆到下票重開 context 不划算」）。S2 採納 Reviewer 推薦 (b) 而非盲從，裁決段寫明「若未來有 milestone 歸檔需求再議 (c)」給未來留下升級路徑。Engineer 先 / Architect 後的排序用「Architect 需引用 Engineer 最終實作」而非「Engineer 通常優先」去論證，避免流水線順序信念式排定。TD-012 三面同步（tech-debt.md 索引表 + 完整條目 + ticket PM 裁決表引用）一次 Edit 落地。
+**沒做好：** 排序推理是在撰寫裁決段落時才意識到「Architect 若先寫可能要 drift 修二次」，沒在最初擬裁決時就顯性輸出「排序選項（Engineer 先 / Architect 先 / 並行）」給使用者選；等於使用者只看到結論沒看到替代路徑。根因：裁決流程目前只要求「每條理由」，未要求「Engineer/Architect 兩角色同票內並存時明確排序裁決」。
+**下次改善：** Reviewer 回饋裁決時若同票同時涉 Engineer + Architect 兩角色待辦，PM 裁決表下的「本票剩餘工作」必須獨立列「排序裁決」小段，明確寫出三選項（A 先 / B 先 / 並行）與選擇理由；K-008 這次補後設敘述可接受，下次必須事前顯性化。
+
 ## 2026-04-18 — K-011 收尾彙整（Retrospective 彙整）
 
 **做得好：** 跨角色反省交叉分析時抓到三起「信任上游文字未實地驗證」的同族事件（Engineer 信 ticket path / Engineer 補 drift A 時信 Reviewer 段落引用 / QA 信 Reviewer grep 結論），用「同一族根因」方式歸納而非單點修正 3 個症狀。另在流程改善決議表內同時記錄「本次 PM 可落地」與「需使用者授權」兩類行動，明確不誤宣告「已落地」agent spec 類變更。發現「K-009/K-010/K-011 連續 3 票 QA 視覺驗收層留空（K-008 未實作）」已構成系統性缺口，主動建議 K-008 優先級上調至 cycle #4。

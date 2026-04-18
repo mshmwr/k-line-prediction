@@ -21,6 +21,7 @@
 | TD-009 | Vitest index-based selector 殘留（AppPage + OHLCEditor）| 2026-04-18 K-010 review W1/W2 | 低 | 2026-04-18 → K-014 |
 | TD-010 | `predictor.find_top_matches()` `ma_history` 靜默 fallback（K-009 根因） | 2026-04-18 K-009 review S1 | 中 | 2026-04-18 → K-015 |
 | TD-011 | `frontend/design/homepage.pen` 仍含 `Running prediction...` 文字節點（K-011 drift） | 2026-04-18 K-011 review Drift C | 低 | 2026-04-18 |
+| TD-012 | visual-report `/app` 空狀態截圖價值低 — 後端不可用時 placeholder 降級 | 2026-04-18 K-008 review S1 | 低 | 2026-04-18 |
 
 ---
 
@@ -205,6 +206,29 @@ projected future bar aggregation / stats derivation / time aggregation 前後端
 - 更新後用 `get_screenshot` 截圖 review 送回 PM 驗收
 
 **排期觸發條件：** 下次 Designer agent 任何進場時一併處理；若 3 個月內無 Designer 進場，升級為獨立小票。
+
+---
+
+## TD-012 — visual-report `/app` 空狀態截圖價值低
+
+**來源：** K-008 senior-engineer review 2026-04-18 Suggestion S1
+
+`frontend/e2e/visual-report.ts` 執行時 `/app` 路由因後端 ECONNREFUSED（E2E 環境無 backend）停在 loading / 空狀態，截圖高度 720。AC-008-CONTENT 技術要求（full-page 截圖 + route 標記）達成，但此張截圖之於「視覺驗收」的價值近乎零。
+
+**風險：** 低 — 不影響 script 運作、不影響其他 3 張 route 截圖。純資訊密度問題：使用者拿到 HTML 報告翻到 `/app` section 只看到空狀態 loading，無法判斷實際頁面功能是否回歸。
+
+**PM 裁決（2026-04-18）：** 登記為低優先技術債。理由：
+- 非 active bug，AC-008-CONTENT 仍通過
+- 解法範疇超出 K-008 scope（涉及 backend probe 策略 / E2E fixture / mock 選型）
+- 當前 3 張其他 route 截圖（`/`、`/diary`、`/about`）已能承擔大部分視覺驗收
+- 修成本中等但立即收益有限，等有相關 ticket（例如 visual-report v2 / `/app` E2E 擴充）時一併處理
+
+**建議解法方向（Architect RFC 前草案）：**
+- Option A：script 啟動時 probe backend 可用性（`fetch /api/health` timeout 2s），不可用就把 `/app` route 標為 `auth-required` / `backend-unavailable` 類 placeholder，不進 captured count
+- Option B：引入 backend fixture 或 mock server（MSW / local FastAPI 固定 payload），讓 `/app` 可跑到實際畫面
+- Option C：降級為「跑 `/app` 前先登入 + 上傳 mock CSV」的完整 E2E 前置流程（重，不推薦）
+
+**排期觸發條件：** 下次 visual-report 相關 ticket、或 `/app` E2E 覆蓋擴充時併入處理。
 
 ---
 

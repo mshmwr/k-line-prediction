@@ -18,6 +18,19 @@
 
 ---
 
+## 2026-04-18 — K-008 visual-report script
+
+**做得好：** 沒只看檔案 diff，實跑 `npx playwright test --list`（無 project 篩選）重現「default E2E 流程會被 visual-report.ts 模組頂層 `resolveTicketId()` 印 warning 污染 stdout」的 side-effect（W1），抓到 Engineer / Architect 紙上審查漏掉的跨 project noise；並以 `path.join` 實測 `TICKET_ID=../../...` 算出預期外的 output path（W4），把「純理論威脅」轉成可觀察的行為。
+
+**沒做好：** W1 的根因在 Architect §2.1 的設計「啟動時 stdout 印黃色警告」裡其實就埋了 — 「啟動」何時發生（module load / test body）沒被追問；如果設計階段要求把 side-effect 發生點寫明，Engineer 實作就會自然避開 module-level 執行。W4 的 path traversal 屬於「env var → filename 生成」類通用安全檢查，AC 階段沒寫 TICKET_ID 格式約束、Architect §2.1 也沒加 validation 條款，落到 Reviewer 才捕到；這是跨 role 的 checklist 缺口。
+
+**下次改善：**
+1. Review AC / Architect 設計文件時，遇「模組載入時 warning / console / fs / 啟動檢查」類語句，主動問「執行時機？誰會 import？」把 side-effect 發生點寫進設計或 AC。
+2. 凡 AC 有「外部輸入（env var / URL param）→ 生成檔名 / 路徑」的場景，Reviewer checklist 加固定一條「驗證 whitelist / allow-list / path normalize 是否存在」；未來可把此條回推到 PM AC 模板，讓 K-Line 下一張類似 ticket 起就不漏。
+3. 對 per-project testMatch / testIgnore 類 Playwright config 決策，Reviewer 除了驗證目前 spec 集合，還要主動指出「以後新增 spec 如何歸 project」的操作守則是否寫進 architecture.md（W2 的根源是 Architect 文件沒把 final 決策的副作用寫清楚）。
+
+---
+
 ## 2026-04-18 — K-011 LoadingSpinner label
 
 **做得好：** 除了對 4 個 callsite 紙上比對，還 Grep 全工作目錄 `LoadingSpinner` + `Running prediction` 兩個關鍵字，cross-check 沒遺漏任何 src / test / E2E 斷言；並實跑 `npx tsc --noEmit` + `npm test`（非信任 Engineer 回報），確認 `PredictButton.test.tsx:24` 的英文斷言仍命中 `PredictButton` 傳入的 `"Running prediction..."` label，AC-011-REGRESSION 自動保。

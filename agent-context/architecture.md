@@ -67,6 +67,9 @@ ClaudeCodeProject/
 │   │   ├── e2e/
 │   │   │   ├── business-logic.spec.ts
 │   │   │   ├── pages.spec.ts
+│   │   │   ├── ma99-chart.spec.ts
+│   │   │   ├── navbar.spec.ts
+│   │   │   ├── visual-report.ts          ← K-008 視覺報告 script（env var TICKET_ID → docs/reports/K-XXX-visual-report.html）
 │   │   │   └── fixtures/
 │   │   │       └── expired-token.ts
 │   │   └── src/
@@ -399,6 +402,47 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 ---
 
+## QA Artifacts
+
+**目的：** QA 完成回歸測試後，需產出視覺化報告給 PM / 使用者檢視 UI 現況。
+
+**位置：** `docs/reports/K-XXX-visual-report.html`（每張 ticket 一份，檔名由 env var `TICKET_ID` 決定）
+
+**產生方式：**
+
+```bash
+cd frontend
+TICKET_ID=K-008 npx playwright test visual-report.ts
+```
+
+- Runner：Playwright test runner（沿用 `playwright.config.ts` 的 `webServer` 與 `baseURL`）
+- 涵蓋路由（MVP）：`/` / `/app` / `/about` / `/diary` 4 條公開頁全頁截圖；`/business-logic` 標「需登入，下期補」placeholder，不截圖
+- 輸出格式：單一 HTML 檔，截圖以 PNG base64 inline 嵌入（離線可開、可 commit、方便分享）
+- HTML header Pages 摘要行模板：`Pages: {successes} captured, {failures} failed, {authRequired} auth-required (not captured)`。三欄分別對應 `SectionResult` 三種 status（`success` / `failure` / `auth-required`），auth-required 獨立列出讓 PM 一眼看出「哪些頁被 placeholder 帶過、哪些真的截到」
+- 失敗策略：單頁失敗不中斷，繼續截其他頁，在 section 標紅色邊框 + 錯誤訊息；script 最終 `exit 1`
+- 未設 `TICKET_ID` → 預設檔名 `K-UNKNOWN-visual-report.html` + stdout warning
+
+**Script 位置：** `frontend/e2e/visual-report.ts`
+
+**Spec 區隔（per-project testMatch，final）：** `playwright.config.ts` 將 E2E suite 拆成 2 個 project：
+- `chromium` — `testMatch: /.*\.spec\.ts$/`，只吃 `*.spec.ts`，不含 `visual-report.ts`
+- `visual-report` — `testMatch: /visual-report\.ts$/`，只吃 `visual-report.ts`
+
+**Rationale：** 原設計假設分支只有「default glob 吃 / 不吃」兩種，實測後發現第三分支——「default discover 不吃 `visual-report.ts`（因非 `.spec.ts`），但 CLI 指檔 `npx playwright test visual-report.ts` 也會被 default `testMatch` 擋掉，導致無法顯式執行」。此情境下 `testIgnore` 解決不了 CLI 指檔問題，只有「把 visual-report 放進專屬 project」才能同時達成「default run 不跑它」+「指檔或 `--project=visual-report` 能跑」。
+
+**副作用（Engineer / Reviewer 須留意）：**
+- 新增 E2E spec：檔名維持 `*.spec.ts` → 自動歸入 `chromium` project，無需額外設定
+- 新增其他 visual-report 類腳本：若檔名非 `visual-report.ts`，需新建 project 或擴充 `visual-report` project 的 `testMatch` regex（例如 `/(visual-report|a11y-report)\.ts$/`）
+- 未指定 `--project` 直接 `npx playwright test` 時，Playwright 會跑所有 project（含 `visual-report`）。若要避開，需 `--project=chromium`；K-008 QA pipeline 預期使用者指 file 或 `--project`，不靠 default
+
+**K-008 後的擴充方向（不在 K-008 scope）：**
+- Ticket → 頁面 mapping（依需求加）
+- 分 section 截圖（取代全頁）
+- Auth fixture 登入後截 `/business-logic`
+- 單檔過大時切換為分檔目錄模式
+
+---
+
 ## Auth Flow（Business Logic）
 
 `BusinessLogicPage` 掛載時的 token 狀態機：
@@ -432,6 +476,8 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-18**（Architect, K-008 W2/S3 修復）— W2/S3 drift 修復 — per-project testMatch 決策 + Pages 行同步。§QA Artifacts 改寫 stale 的 testIgnore 建議為 `chromium` / `visual-report` 兩 project 的 `testMatch` 拆分（含 rationale + 副作用），並補 HTML header Pages 摘要行模板 `{successes} / {failures} / {authRequired}` 與實作對齊
+- **2026-04-18**（Architect, K-008 設計）— 新增 `## QA Artifacts` 段（visual-report.ts / docs/reports/ 職責、env var `TICKET_ID` 約定、單檔 inline base64 決策）；Directory Structure 的 `e2e/` 區塊補 `visual-report.ts` + 原漏列的 `ma99-chart.spec.ts` / `navbar.spec.ts`
 - **2026-04-18**（Architect）— Reflect Phase 3 state（5 pages / 35 components / Unified NavBar / usePrediction hook / utils/ 四檔）、TD-008 Option C 決策（新增 `## Consensus Stats Source of Truth` 段 + `consensus_forecast_1h/1d` 欄位對應）、modularity debt（新增 `## Known Architecture Debt` 段，條列 TD-003~007 與拆分方向）、修正實際 file layout（hooks 增 `usePrediction.ts`，components 增 `UnifiedNavBar.tsx`，about/home 子目錄組件重列，common/ 新增 `SectionHeader` / `SectionLabel` / `CtaButton`）
 - **2026-04-15**（初版）— Phase 1/2 完成：JWT auth + BrowserRouter + 4 pages + business-logic 密碼保護
 

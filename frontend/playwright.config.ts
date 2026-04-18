@@ -10,7 +10,18 @@ export default defineConfig({
   },
   projects: [
     {
+      // Default E2E suite. Excludes visual-report.ts so regular test runs
+      // do not produce visual reports.
       name: 'chromium',
+      testMatch: /.*\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      // K-008 visual report runner — only runs when explicitly targeted:
+      //   TICKET_ID=K-008 npx playwright test --project=visual-report
+      // or by file path: `npx playwright test visual-report.ts`.
+      name: 'visual-report',
+      testMatch: /visual-report\.ts$/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],

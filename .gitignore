@@ -27,3 +27,6 @@ dist/
 
 # pytest coverage data
 backend/.coverage
+
+# K-008 visual report HTML outputs (can be regenerated locally; keep .gitkeep)
+docs/reports/*.html
