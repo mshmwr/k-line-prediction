@@ -18,6 +18,14 @@
 
 ---
 
+## 2026-04-18 — K-009 1H MA history fix
+
+**做得好：** 先寫 failing test（monkeypatch `main.find_top_matches` 攔截 `ma_history` 做 identity 斷言），確認 None 真的出現再動生產碼；不涉及 PRD 業務規則，避開 Test Escalation Rule。fix 保留原 1D 分支不動，1H 分支顯式多傳 `ma_history=_history_1d`，盡量縮小 diff。
+**沒做好：** `find_top_matches()` 的 `ma_history is None → ma_history = history` 靜默 fallback 是此 bug 根因，但修復僅補 caller，不動 signature（PM/Architect 已裁決維持選填）。未來類似 caller 忘記傳還是會中招，單靠此 regression test 鎖不住所有 call site。
+**下次改善：** 之後若新增 `find_top_matches()` caller（或改簽章讓 ma_history 必填），同步在 predictor 層補 assert/log；目前已在 ticket Retrospective 記錄此技術債由 Architect 日後決策。
+
+---
+
 ## 2026-04-18 — K-010 Vitest AppPage 修復
 
 **做得好：** 先跑 `npm test -- --run` 確認失敗點，再讀 MainChart 原始 DOM 才下手改 test + 加 `data-testid`，不靠猜。

@@ -255,3 +255,56 @@ def test_merge_and_compute_ma99_1d_branch(make_client):
     assert response.status_code == 200
     body = response.json()
     assert "query_ma99_1d" in body
+
+
+# ---------------------------------------------------------------------------
+# AC-009-TEST: 1H predict path must pass ma_history=_history_1d to
+# find_top_matches. Test is pure parameter-identity — does not assert on
+# PRD business rules (MA99 thresholds, correlation scores).
+# ---------------------------------------------------------------------------
+
+def test_predict_1h_passes_history_1d_as_ma_history(make_client, monkeypatch):
+    client = make_client()
+    import main
+    from models import MatchCase, OHLCBar, PredictStats, OrderSuggestion
+
+    captured = {}
+
+    def _fake_find_top_matches(input_bars, future_n=72, history=None,
+                               timeframe='1H', ma_history=None, history_1d=None):
+        captured['ma_history'] = ma_history
+        captured['history'] = history
+        captured['timeframe'] = timeframe
+        captured['history_1d'] = history_1d
+        # Return one minimal match so endpoint can proceed to compute_stats.
+        future_bars = [
+            OHLCBar(open=2000, high=2010, low=1990, close=2005, time='2024-02-01 01:00'),
+            OHLCBar(open=2005, high=2015, low=1995, close=2010, time='2024-02-01 02:00'),
+        ]
+        return [MatchCase(
+            id='match_0',
+            correlation=0.9,
+            historical_ohlc=[OHLCBar(open=2000, high=2010, low=1990, close=2000, time='')],
+            future_ohlc=future_bars,
+            start_date='2022-01-01',
+            end_date='2022-01-02',
+        )]
+
+    monkeypatch.setattr(main, 'find_top_matches', _fake_find_top_matches)
+
+    payload = {
+        "ohlc_data": [
+            {"open": 2000 + i, "high": 2010 + i, "low": 1990 + i,
+             "close": 2005 + i, "time": f"2024-01-01 {i:02d}:00"}
+            for i in range(4)
+        ],
+        "selected_ids": [],
+        "timeframe": "1H",
+    }
+    res = client.post("/api/predict", json=payload)
+    assert res.status_code == 200, res.text
+    # Identity check: ma_history must be the module's _history_1d object itself,
+    # NOT the 1H history that was passed as `history`.
+    assert captured['timeframe'] == '1H'
+    assert captured['ma_history'] is main._history_1d
+    assert captured['ma_history'] is not captured['history']

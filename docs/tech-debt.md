@@ -19,6 +19,7 @@
 | TD-007 | `backend/predictor.py` 模組過廣，建議拆 `predictor_ma` / `predictor_similarity` / `predictor_stats` | 2026-04-18 Codex review Modularity | 中 | 2026-04-18 |
 | TD-008 | Cross-layer：consensus/stats 前後端各算一次，有漂移風險 | 2026-04-18 Codex review | 高 | 2026-04-18 → K-013 |
 | TD-009 | Vitest index-based selector 殘留（AppPage + OHLCEditor）| 2026-04-18 K-010 review W1/W2 | 低 | 2026-04-18 → K-014 |
+| TD-010 | `predictor.find_top_matches()` `ma_history` 靜默 fallback（K-009 根因） | 2026-04-18 K-009 review S1 | 中 | 2026-04-18 → K-015 |
 
 ---
 
@@ -159,6 +160,30 @@ projected future bar aggregation / stats derivation / time aggregation 前後端
 **觸發排期條件：** OHLCEditor 或 AppPage 上傳區下一次 UI 結構改動開啟 ticket 時，在同一 ticket 捎帶清理；或獨立由 K-014 背景批次處理。
 
 **對應 ticket：** [K-014](tickets/K-014-vitest-index-selector-cleanup.md)
+
+---
+
+## TD-010 — predictor `find_top_matches()` ma_history 靜默 fallback
+
+**來源：** K-009 senior-engineer review 2026-04-18 Suggestion S1
+
+`backend/predictor.py` `find_top_matches()` 含 `if ma_history is None: ma_history = history` 靜默回退。K-009 bug 能溜到 production 的根因即此：`backend/main.py` 1H 路徑未傳 `ma_history`，`find_top_matches()` 默默用 1H history 當 30-day MA 資料，結果 filter / correlation 錯誤但無任何 log / error。
+
+**風險：** 未來任何新增 `find_top_matches()` caller 只要忘記傳 `ma_history`，都會重蹈 K-009 覆轍。K-009 regression test 只鎖當下 1H call site 行為，不保護未來新 caller。編譯期 / linter / test suite 皆無法自動攔截漏傳。
+
+**PM 裁決（2026-04-18）：** 列技術債，不併入 K-009 scope。理由：
+- K-009 regression test 已鎖當下行為，非 active bug
+- 改 signature 等於動 public API，屬 predictor 層重構範疇，應與 TD-007（`predictor.py` 拆分）同梯次處理
+- K-013（TD-008 Option C）落地後 contract test 基礎完備，此時實作 Option A 成本最低
+- 立刻併 cycle #2 會拖 K-011/012/013/008/014 整條 pipeline
+
+**建議解法（Architect RFC 前草案，見 K-015）：**
+- Option A：`ma_history` 改 required keyword-only 參數（推薦 — 編譯期攔截，零 silent fallback）
+- Option B：保留選填但入口 assert（test raise）+ warning（prod log）
+
+**排期觸發條件：** K-013 驗收後 / TD-007 RFC 啟動時一併處理。若中途有新 `find_top_matches()` caller，升級為 P1。
+
+**對應 ticket：** [K-015](tickets/K-015-find-top-matches-ma-history-required.md)
 
 ---
 

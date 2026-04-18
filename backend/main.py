@@ -278,12 +278,25 @@ def predict(req: PredictRequest) -> PredictResponse:
         history = _merge_bars(history, input_bars_with_time)
 
     try:
-        all_matches = find_top_matches(
-            req.ohlc_data,
-            history=history,
-            timeframe=req.timeframe,
-            history_1d=_history_1d,
-        )
+        if is_1d:
+            all_matches = find_top_matches(
+                req.ohlc_data,
+                history=history,
+                timeframe=req.timeframe,
+                history_1d=_history_1d,
+            )
+        else:
+            # K-009: 1H path must pass ma_history=_history_1d so that the
+            # 30-day MA99 filter and MA correlation inside find_top_matches
+            # are computed from daily history, not from 1H data (the old
+            # None-fallback silently used _history_1h and skewed ranking).
+            all_matches = find_top_matches(
+                req.ohlc_data,
+                history=history,
+                timeframe=req.timeframe,
+                ma_history=_history_1d,
+                history_1d=_history_1d,
+            )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     if not all_matches:

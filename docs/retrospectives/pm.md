@@ -20,7 +20,18 @@
 
 <!-- 新條目從此處往上 append -->
 
-## 2026-04-18 — K-010 Close + Retrospective 彙整
+## 2026-04-18 — K-009 收尾彙整
+
+**做得好：** Engineer / Reviewer / QA 三段各自獨立提到 `ma_history` silent fallback 同一根因，彙整時沒逐條複述，而是合併為「三角色對同一 predictor 層 API 設計缺陷的獨立佐證」並在「流程改善決議」表格分流三類行動 — (a) 技術解法去 K-015 / TD-010、(b) 流程缺口（Architect 的 conditional suggestion 無回收節點）回 pm.md 自動觸發時機表、(c) K-015 AC 預寫「新 caller 忘傳 ma_history regression 測試點」避免重蹈 K-009 caller-only 覆蓋。閉票同步跑六件事（彙整 / status=closed / dashboard 移表 / memory 更新 / per-role log / 回報）沒漏項，彙整段與六步驟動作都有對應 Edit tool call，不是口頭聲稱。
+**沒做好：** 「Architect conditional suggestion 無回收節點」這條流程缺口在 K-009 S1 裁決彙整時（上一筆 retrospective）就已識別出來，但 pm.md agent 檔本身的「自動觸發時機」表還沒實際 Edit 進去 — 等於制度補丁只寫在 per-role log、沒落地到 agent spec，下次新 ticket 進來仍可能踩同坑。K-009 閉票階段應趁此次 Edit 窗口一併補 pm.md，但本次任務範圍沒有授權修 agent 檔，只能再次記錄延後。
+**下次改善：** 下次 PM 任務若識別「規則需寫進 pm.md」，在主流程回報時明確列「待修 agent spec 清單 + 建議時機」，不是只塞進 retrospective 等下次再看；或要求在同一 session 完成 per-role log + agent spec 雙邊 sync，避免 spec drift。
+
+## 2026-04-18 — K-009 Suggestion S1 裁決（開 K-015 技術債）
+
+**做得好：** S1 三選項（立刻修 / 技術債 / won't fix）逐個壓測現況再裁決：K-009 regression test 已鎖當下 call site、signature 改動屬 predictor 層 public API 動作（與 TD-007 拆分同範疇）、cycle #2~#6 已排定五張票；沒圖省事塞進 K-009 擴大 scope（那會違反 ticket 宣告「不含 signature 重構」），也沒走「won't fix」把風險留給未來新 caller。選技術債後同步三面（tech-debt.md 新增 TD-010 含建議解法 Option A/B、開 K-015 ticket 含完整 AC 與排期觸發條件、PM-dashboard backlog + next ID bump K-016），避免只開 ticket 忘記登記 / 只登記忘記 ticket。K-015 的排期觸發條件寫成「K-013 驗收後 / TD-007 RFC 啟動時 / 若有新 caller 升 P1」— 比純文字「之後再看」可觸發、不會變 stale backlog。
+**沒做好：** 這個靜默 fallback 根因其實在 K-009 Architect 段就已經被點出過（「此折衷不屬於 K-009 AC 範圍，列入 Engineer 實作時的建議 defense-in-depth，由 Engineer 自行裁量」），Architect 當時選擇授權 Engineer 裁量、Engineer 選擇不做，PM 在那階段沒把它抓為 pending 裁決項 — 要等 Reviewer 在 S1 再度提才進入 PM 視線。這等於 Architect 的「defense-in-depth 建議」落到 Engineer 裁量後就消失在流程裡，沒有明確回收節點。
+**下次改善：** Architect 段若出現「建議 X 但授權 Engineer 自裁」這類 conditional suggestion，PM 在放行 Engineer 前就應該在 ticket 補一行「Engineer 裁決結果無論選擇什麼，Reviewer 都必須在 review 時回收為 S/W/Critical 之一，不得省略」。pm.md 自動觸發時機表加一條「Architect 段含 conditional suggestion → PM 追蹤至 Reviewer 段明確回收」。
+
 
 **做得好：** 收到各角色反省段後，識別出 Engineer / Reviewer / PM 三端各自寫了同一根因的改善（test 改動涉業務規則時無 escalation 節點），沒一條條獨立處理就了事，而是彙整為單一流程結構性缺口，對應更新三個 agent 文件的對稱位置（Engineer 加 escalation rule、Reviewer 加偵測規則、PM 加 Phase Gate 欄位），讓三端互相補位而非各寫各的。QA 截圖報告缺口（K-008 未完成）明確列為 tech-debt 追蹤、不當作正常通過，也不阻擋 K-010 close — 避免把流程缺口塞進「通過」欄位。
 **沒做好：** 本次彙整時才第一次把三份反省並排讀，發現跨角色重複點；若 Phase Gate 結束時就要求 PM 先把三份反省並排比對再寫彙整，這個觀察本該早一輪出現。另外 K-010 closing 階段才補上「test 改動涉業務規則」Phase Gate 欄位，等於是事後補制度，K-009 / K-013 若在 K-010 close 前進入實作仍會踩同坑。
