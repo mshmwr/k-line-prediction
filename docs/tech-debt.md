@@ -22,6 +22,7 @@
 | TD-010 | `predictor.find_top_matches()` `ma_history` 靜默 fallback（K-009 根因） | 2026-04-18 K-009 review S1 | 中 | 2026-04-18 → K-015 |
 | TD-011 | `frontend/design/homepage.pen` 仍含 `Running prediction...` 文字節點（K-011 drift） | 2026-04-18 K-011 review Drift C | 低 | 2026-04-18 |
 | TD-012 | visual-report `/app` 空狀態截圖價值低 — 後端不可用時 placeholder 降級 | 2026-04-18 K-008 review S1 | 低 | 2026-04-18 |
+| TD-013 | GA4 initGA() 無冪等保護 + dataLayer 型別 + 未知路由無 warn（S2/S3/S4） | 2026-04-19 K-018 review S2–S4 | 低 | 2026-04-19 |
 
 ---
 
@@ -229,6 +230,30 @@ projected future bar aggregation / stats derivation / time aggregation 前後端
 - Option C：降級為「跑 `/app` 前先登入 + 上傳 mock CSV」的完整 E2E 前置流程（重，不推薦）
 
 **排期觸發條件：** 下次 visual-report 相關 ticket、或 `/app` E2E 覆蓋擴充時併入處理。
+
+---
+
+## TD-013 — GA4 initGA() 無冪等保護 + dataLayer 型別不精確 + 未知路由無 warn
+
+**來源：** K-018 senior-engineer review 2026-04-19 S2/S3/S4（三條合入同一 TD）
+
+**S2 — initGA() HMR 重載可能雙重注入：** `initGA()` 未檢查 `window.gtag` 是否已存在；HMR 重載時可能二次插入 `<script src="gtag.js">`，造成開發環境 dataLayer 事件重複推送。生產環境 GA4 gtag.js 本身有去重機制，不影響線上資料準確性。
+
+**S3 — dataLayer 型別不精確：** `window.dataLayer` 宣告為 `unknown[]`，實際每個元素是 `unknown[]`（Array）；改為 `unknown[][]` 可提升 IDE 型別提示精度。純 DX 改善，無 runtime 影響。
+
+**S4 — 未知路由無 console.warn：** pageview 追蹤的 switch 包含 fallback，未知路由靜默 fallback 到 `document.title` 而不發 warn，debug 時難察覺 title 未正確對應路由。
+
+**PM 裁決（2026-04-19）：** 三條均為低優先技術債。理由：
+- S2 不影響生產正確性，僅開發體驗；加冪等保護成本低但無立即驗收場景
+- S3 純型別精化，linter 不報警，不阻礙測試
+- S4 無需求 AC 對應，當前所有支援路由均有 case；未知路由目前不存在 SPA 正常操作路徑
+
+**建議解法：**
+- S2：`initGA()` 開頭加 `if (window.gtag) return;` 冪等 guard
+- S3：`window.dataLayer: unknown[][]`
+- S4：`default` case 加 `console.warn(\`[GA] Unknown route: ${path}\`)`
+
+**排期觸發條件：** 下次 GA 相關 ticket（例如 SPA pageview E2E、GA 設定重構）時一併清理；或獨立由後續 DX 清理 ticket 處理。
 
 ---
 

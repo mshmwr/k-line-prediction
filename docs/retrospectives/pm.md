@@ -2,6 +2,52 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-19 — K-018 GA4 Tracking 收尾彙整
+
+**做得好：** 四條 Warning（W1–W4）全數裁決「立刻修（本票）」，理由充分且有「為何不選另一路徑」論證（W3/W4 修法已知、成本低、Engineer 自述暫行方案 → 塞技術債不合理）；S1/S2/S3/S4 四條裁決均有明確後續載體（K-020 follow-up ticket 或 TD-013 技術債），無一遺漏落空；S2/S3/S4 合入單一 TD-013 而非分三個 TD，索引維護成本低且觸發排期條件相同。彙整時識別出「AC And 子句覆蓋粒度」為 Engineer + Reviewer 兩角色的共同根因，並歸納為單一問題而非各自記兩條症狀。
+
+**沒做好：** AC-018-PAGEVIEW 列出 4 條路由 Given 時，PM 放行 Engineer 前未明確量化「對應 Playwright spec 需有 4 個獨立 test case」，導致 Engineer 將 `/app` 路由斷言漏失，直到 Reviewer 逐條比對才攔截。AC-018-CLICK 的 `page_location` And 子句同理，PM 未補「每個 click test 都要單獨斷言 page_location，不可只在第一個 test 驗一次」。根因：PM 的 AC 放行 SOP 目前沒有「並排 Given 數量 = 對應 spec test case 數量明文量化」這一步。
+
+**下次改善：** AC 若列 N 個並排 Given（每個路由、每個按鈕、每個狀態）或 And 副條件含「每個 event 都要有」，PM 在放行 Engineer 時補一句「此 AC 對應 Playwright spec 需要 N 個獨立 test case，逐一斷言」——數字明確不留詮釋空間。下次 PM agent spec 修訂窗口將此量化步驟寫入「放行 Engineer 前 checklist」。
+
+---
+
+## 2026-04-19 — K-017 Homepage v2 AC 漏項
+
+**沒做好：** K-017 PRD 開票時未將 Homepage v2 完整版面改版（hpHero / hpLogic / hpDiary v2）列入 AC，導致設計文件將 hpHero / hpLogic 標注為「既有，不動」，未建立 v2 改版設計規格。Engineer 只做了 banner / footer 加入與 hpDiary 時間軸組件更新，未做完整 hpHero / hpLogic v2 版面改版。根因：開票前未對照 Pencil 設計稿所有 frame（特別是 `Homepage v2 Dossier` frame `4CsvQ`），只從文案內容定 AC，忽略了設計稿中 v2 版面改版的整體範圍。
+
+**下次改善：** 開票前必須對照 Pencil 設計稿所有 frame，確認每個 frame 的改動都有對應 AC。有 UI 設計稿的 ticket 在定 AC 前強制執行「Pencil frame 對照清單」，逐 frame 確認：此 frame 的改動是否有對應 AC。
+
+---
+
+## 2026-04-19 — K-018 GA4 Tracking Review 裁決
+
+**做得好：** W1/W2/W3/W4 四條 Warning 全數裁決「立刻修（本票）」，未因修法成本低就降為技術債留坑；裁決理由做到「為何不選另一路徑」（例如 W3/W4 Engineer retro 自己已識別暫行方案 + 修法已知，塞技術債不合理）。S1 SPA pageview 場景區分「goto() 初始載入」與「SPA Link click → navigate」兩條不同程式碼路徑，裁決為 follow-up ticket（K-020）而非忽略；K-019 已被 Release Versioning 佔用，確認下一個 ID 再開 K-020，沒有 ID 衝突。S2/S3/S4 合入單一 TD-013 而非各開三個 TD，索引表維護成本低且三條觸發排期條件相同。
+
+**沒做好：** AC-018-PAGEVIEW 已明列 4 條路由（`/`、`/about`、`/app`、`/diary`），但 Engineer 實作 spec 時 `/app` 路由斷言缺失直到 Reviewer 才抓到。根因：PM 在放行 Engineer 前的 AC 清單雖然逐條列出路由，但 AC 寫作粒度停在「逐路由一個 Given/When/Then」，未額外標注「此 4 條 Given 對應 Playwright spec 應有 4 個 describe block / test block」，Engineer 可能視為一條 AC 覆蓋所有路由而非 4 條獨立斷言；PM 沒有在放行時明確量化「spec 需要 N 個 test case」。
+
+**下次改善：** AC 若列出多個並排 Given（每個路由、每個按鈕、每個狀態），PM 在放行 Engineer 前補一句「此 AC 對應 Playwright spec 需要 N 個獨立 test case，逐一斷言」，數字明確、Engineer 不需自行詮釋「幾個 Given = 幾個 test」。CLICK 的 `page_location` And 子句同理：And 條款應補「每個 click test 都要單獨斷言 page_location 存在，不可只在第一個 test 驗一次」。
+
+---
+
+## 2026-04-19 — K-018 GA4 Tracking PRD 定稿
+
+**做得好：** 4 條 AC（INSTALL / PAGEVIEW / CLICK / PRIVACY）覆蓋了測量 ID 來源、SPA 路由切換後 pageview 重觸、CTA label 命名標準化、PII 禁止三大保護層；PAGEVIEW 展開成 4 個 Given/When/Then 場景（每個路由獨立列）避免 Engineer / QA 以「有跑 pageview 就算過」含糊通過；CLICK 逐一列出 label 字串讓 Engineer 實作時不需猜測；所有 AC 均含「Playwright 斷言」子句，明確描述不依賴 GA4 server 的 client-side stub 驗證策略，避免 E2E 對外部服務產生依賴。
+
+**沒做好：** AC-018-PRIVACY 的 `anonymize_ip` 段落寫法有 alternation 嫌疑（「GA4 預設匿名化 IP，無需額外設定；若使用 UA 相容模式則需明確設定」），這種「看情況」描述讓 QA 驗收時需自行判斷，違反先前學到「AC 寫『A 或 B』時 PM 必須停下問或選一」的改善規則。根因：GA4 vs UA 相容模式的實際行為沒在定票當下驗證，直接把不確定性留給下游。
+
+**下次改善：** AC 含「依環境/版本而異」的段落時，PM 先查官方文件確認預期行為再下筆；若查不到或需實測，明寫「Engineer 實作時請確認並回報 PM 後再定 AC，本條暫留 OPEN」，不以「若 A 則 X；若 B 則 Y」把裁決丟給 Engineer。
+
+---
+
+## 2026-04-19 — K-017 Architect Q&A 流程制定
+
+**做得好：** Engineer Q&A 機制有效攔截 Phase C4 文件殘留錯誤（P4/P7 刪除後 C4 仍引用）和 Footer 全站/專屬歧義
+**沒做好：** 此機制是本票才臨時加入，應在流程設計時就明訂為標準步驟
+**下次改善：** Engineer 章節加入 Pre-implementation Q&A 步驟，由 PM 在角色交接時明確告知 Engineer 執行
+
+---
+
 ## 寫入格式
 
 ```

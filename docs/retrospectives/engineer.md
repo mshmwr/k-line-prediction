@@ -16,6 +16,22 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-19 — K-017 Phase B–E (/about portfolio enhancement)
+
+**沒做好：** Playwright spec 首跑即 TypeError（`locator().or()` 不存在）與 `not.toBeAttached()` 不存在，顯示寫 E2E 斷言時未確認 API 與版本相容性，依記憶套用較新 API。另外，對「整頁多處出現的文字」（Bug Found Protocol、docs/tickets/K-XXX.md、E2E）未先評估 strict mode 衝突，造成 3 條 regex 斷言失敗。根因：寫斷言前未做「這個 getByText 在整頁是否唯一」的 mental check。
+
+**下次改善：** 寫 Playwright spec 前先 `npx playwright --version` 確認版本，再查 API changelog。對頁面全域可能重複的文字改用 scoped locator（data-* attribute 或 CSS scope）或精確 href selector，不寫全頁 regex 斷言。
+
+---
+
+## 2026-04-19 — K-018 GA4 Tracking
+
+**做得好：** 實作前發現 `BuiltByAIBanner.tsx` 已存在（K-017 已完成），節省了不必要的重建工作；所有 11 個 K-018 ga-tracking.spec.ts 測試一次全綠。設計文件 Option A 判斷正確，FooterCtaSection 改用原生 `<a>` 取代 ExternalLink 避免修改 primitive。
+
+**沒做好：** SPA Link 的 GA click event 測試中，初版沒預料到「SPA navigate 後 dataLayer 會被新頁面覆寫」，靠 `waitForTimeout(100)` 時序依賴解決，不是最健壯的方案。根因：未事先追蹤「click → SPA navigate → 新頁面 JS 執行 → dataLayer 重置」的完整時序對 spy 的影響。
+
+**下次改善：** SPA 導航 CTA 的 GA click event 測試，改用 `page.on('request', ...)` 或 `Promise.race([clickPromise, page.waitForNavigation()])` 的方式捕捉 click 後、navigate 前狀態，不依賴 `waitForTimeout`。
+
 ---
 
 ## 2026-04-18 — K-008 W1/W3/W4 修復後反省

@@ -16,6 +16,24 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Reviewer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-19 — K-017 /about portfolio enhancement
+
+**做得好：** 實際執行 `bash scripts/audit-ticket.sh K-002`、`K-008`、`K-999` 三個 AC-017-AUDIT case 驗證 exit code 與輸出格式，而非只讀 code；逐條對照 PRD 全部 10 條 AC 的 Then/And 子句與 spec 覆蓋，發現 AC-017-NAVBAR 的 DOM 順序斷言和 AC-017-BUILD 的 dev/build 環境矛盾兩個 spec 漏洞，而非只比對 describe 標題與 AC 標題。
+
+**沒做好：** AC-017-NAVBAR 「NavBar 在 PageHeaderSection 之上（DOM 順序）」這條 And 子句在 spec 中缺漏；AC-017-BUILD test 在 dev server 下必然失敗的問題沒被 Architect 在 §7 風險清單中點出（只提了 Firebase Hosting 問題，沒有說 Playwright dev vs build 矛盾），而 Engineer 也未加 test.skip 或環境說明。這兩個缺漏本應在 AC 撰寫（PM）與 E2E 策略設計（Architect §7.11）時就明確——AC-017-NAVBAR 的 DOM 順序 And 子句是 PM 寫 AC 時明確列出的，Architect E2E 風險清單應把「DOM 結構順序斷言」的 Playwright selector 策略列為風險項目。
+
+**下次改善：** Review E2E spec 時固定執行：展開每條 AC 所有 Then/And 子句，逐行 grep spec；對「DOM 順序」「URL 跳轉」「空間關係」類斷言優先盤點，這類斷言比內容斷言更容易漏寫。遇到 test 依賴 build artifact 時直接標為需要 build mode，不等 CI 失敗才發現。
+
+---
+
+## 2026-04-19 — K-018 GA4 Tracking
+
+**做得好：** 逐條比對 PRD AC 的所有 Then/And 子句與 spec 覆蓋率，抓出 `/app` 路由 pageview 測試缺失和 click event `page_location` 斷言漏掉，而非只看測試標題與 AC 標題是否對應；同時確認 `initGA()` 的 spy 覆蓋分析（addInitScript 的 spy 與 initGA 的 gtag 都 push 到同一個 `window.dataLayer`，測試讀 dataLayer 不受 gtag 被覆寫影響），而非只從表面「函式被覆寫」就誤判為 bug。
+
+**沒做好：** AC-018-PAGEVIEW 的「SPA 內部路由切換也會各自觸發 pageview」這條 And 子句（不只是 page.goto，而是透過 Link click 導航），spec 內沒有一個測試實際驗證 SPA 導航觸發的 pageview；banner_about 測試的 SPA 導航副作用雖間接覆蓋了部分場景，但並不是明確的 SPA pageview 路由切換斷言。這應在設計階段就由 Architect 把「SPA 路由切換測試 pattern」列進 Playwright 驗證策略（§6.3），而非只列靜態 page.goto 斷言。
+
+**下次改善：** Review 時加固定步驟：展開 PRD 每條 AC 的所有 Then/And 子句逐行 grep spec，不只比對 describe block 名稱；有「每個 X 都要有 Y」這類全稱量詞的 And 子句時，確認 spec 對每個 X 各自斷言 Y，而非只第一個。
+
 ---
 
 ## 2026-04-18 — K-008 visual-report script

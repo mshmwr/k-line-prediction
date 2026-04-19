@@ -784,3 +784,107 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 **And** 文件含 2–3 條 **curated 英文 retrospective 節選**（非全翻譯所有 retro），每條明確標註 ticket ID + role + 原文出處連結
 **And** `/about` Section 4 的三個 pillar 底部 inline link 均導向此檔的對應 anchor（Persistent Memory → Per-role Retrospective Log / Structured Reflection → Bug Found Protocol / Role Agents → Role Flow）
 **And** 文件以英文撰寫（對齊 `/about` 的英文文案基調），不為全翻譯的中文版
+
+---
+
+### AC-017-HOME-V2 `[K-017]`：Homepage v2 完整版面改版
+
+**Given** 使用者造訪 `/`
+**When** 頁面載入完成
+**Then** 頁面呈現 Pencil 設計稿 `Homepage v2 Dossier`（frame `4CsvQ`）的完整版面：
+  - hpHero section 符合 v2 設計（更新後的 hero 版面與視覺規格）
+  - hpLogic section 符合 v2 設計（更新後的 Logic/Flow 版面與視覺規格）
+  - hpDiary section 使用 `<DiaryTimelineEntry>` 組件（`layout:none` 絕對定位，已於 Pass 3 設計完成）並符合 v2 版面
+**And** `<BuiltByAIBanner />` 存在（NavBar 下方、Hero 上方，已由 AC-017-BANNER 定義）
+**And** `<FooterCtaSection />` 存在（頁面底部，已由 AC-017-FOOTER 定義）
+**And** Playwright E2E 斷言涵蓋 hpHero / hpLogic / hpDiary 三個 section 的 key visual 元素（heading text、section label 或 data-testid）
+**And** 新版面不破壞 AC-HOME-1 現有斷言中「頁面包含 Hero / 專案邏輯 / 開發日記 section」的基本渲染要求
+
+**注意：** hpHero / hpLogic v2 版面細節由 Architect 補充設計規格後由 Engineer 實作，Architect 須在設計文件 §2.3 補上 v2 版面的 key visual 元素清單與 props interface。
+
+---
+
+## K-018 GA4 Tracking — 訪客追蹤 + 點擊事件
+
+**Ticket：** [K-018](docs/tickets/K-018-ga-tracking.md)
+
+**背景：** K-017 強化 `/about` portfolio 後，需要可觀測 recruiter 造訪行為。GA4 提供 pageview 與 click event 追蹤，測量 ID 從環境變數注入，不 hardcode。
+
+---
+
+### AC-018-INSTALL `[K-018]`：GA4 snippet 正確安裝且測量 ID 從 env var 讀取
+
+**Given** 前端已設定環境變數 `VITE_GA_MEASUREMENT_ID`（值為有效 GA4 測量 ID，格式 `G-XXXXXXXXXX`）
+**When** 使用者訪問任一頁面
+**Then** `<head>` 內存在 Google Tag Manager / gtag.js 的 script 標籤，src 包含 `googletagmanager.com/gtag/js`
+**And** gtag 初始化時使用的測量 ID 等於 `VITE_GA_MEASUREMENT_ID` 的值，**不得** hardcode 任何 `G-` 開頭字串於原始碼中
+**And** 若 `VITE_GA_MEASUREMENT_ID` 未設定，snippet **不被注入**（build 時靜默跳過，不 crash）
+**And** Playwright 斷言：document head 含 `googletagmanager.com` 的 script src（E2E 環境可用 mock 或 stub，不驗 network call）
+
+---
+
+### AC-018-PAGEVIEW `[K-018]`：每個頁面進入時觸發 pageview event
+
+**Given** GA4 已正確安裝，使用者在 SPA 內透過 React Router 導航
+**When** 使用者進入 `/`（首頁）
+**Then** GA4 記錄一次 `page_view` event，`page_location` 為 `/`
+**And** `page_title` 為對應頁面標題
+
+**Given** 相同條件
+**When** 使用者進入 `/about`
+**Then** GA4 記錄一次 `page_view` event，`page_location` 為 `/about`
+
+**Given** 相同條件
+**When** 使用者進入 `/app`
+**Then** GA4 記錄一次 `page_view` event，`page_location` 為 `/app`
+
+**Given** 相同條件
+**When** 使用者進入 `/diary`
+**Then** GA4 記錄一次 `page_view` event，`page_location` 為 `/diary`
+
+**And** SPA 內部路由切換（React Router `<Link>` 導航）也會各自觸發 pageview，**不** 只在首次載入時觸發一次
+**And** Playwright 斷言：透過 route intercept 或 window.dataLayer spy 確認 pageview event payload 含 `page_location`
+
+---
+
+### AC-018-CLICK `[K-018]`：關鍵 CTA 點擊觸發 custom event 含 label
+
+**Given** 使用者訪問 `/about` 且 GA4 已載入
+**When** 使用者點擊 Footer CTA 的 email 連結（`mailto:yichen.lee.20@gmail.com`）
+**Then** GA4 記錄 custom event，event name 為 `cta_click`，參數 `label` = `"contact_email"`
+
+**Given** 相同條件
+**When** 使用者點擊 Footer CTA 的 GitHub 連結（`https://github.com/mshmwr/k-line-prediction`）
+**Then** GA4 記錄 custom event，event name 為 `cta_click`，參數 `label` = `"github_link"`
+
+**Given** 相同條件
+**When** 使用者點擊 Footer CTA 的 LinkedIn 連結（`https://linkedin.com/in/yichenlee-career`）
+**Then** GA4 記錄 custom event，event name 為 `cta_click`，參數 `label` = `"linkedin_link"`
+
+**Given** 使用者訪問 `/`（首頁）且 GA4 已載入
+**When** 使用者點擊 BuiltByAIBanner（"One operator. Six AI agents…" banner）
+**Then** GA4 記錄 custom event，event name 為 `cta_click`，參數 `label` = `"banner_about"`
+
+**And** 每個 custom event 額外含參數 `page_location`（當前路由）
+**And** Playwright 斷言：透過 `window.gtag` spy 或 `window.dataLayer` 驗證 event name + label 參數，不驗 GA4 server 回應
+
+---
+
+### AC-018-PRIVACY `[K-018]`：不蒐集個人識別資訊（PII）
+
+**Given** GA4 snippet 已安裝
+**When** 任何 GA4 event 被觸發
+**Then** event payload 不含使用者 email、IP 地址、姓名、手機號等 PII 欄位
+**And** `gtag('config', ...)` 呼叫**不** 設定 `user_id` 或 `client_id` 為任何使用者識別值
+**And** GA4 設定中 `anonymize_ip` 視 GA4 預設行為（GA4 預設匿名化 IP，無需額外設定；若使用 Universal Analytics 相容模式則需明確設定）
+**And** Playwright 斷言：gtag config call 不含 `user_id` 參數
+
+---
+
+### AC-018-PRIVACY-POLICY `[K-018]`：Footer 揭露 GA4 使用聲明
+
+**Given** 使用者訪問任一頁面
+**When** 頁面底部 Footer 可見
+**Then** Footer 含一行文字說明網站使用 GA4 收集匿名流量數據（例：「This site uses Google Analytics to collect anonymous usage data.」）
+**And** 不需實作 Cookie Consent Banner 或攔截式 modal
+**And** Playwright 斷言：Footer 區塊內含 "Google Analytics" 字串

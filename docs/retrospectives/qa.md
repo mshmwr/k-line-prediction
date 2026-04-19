@@ -20,6 +20,23 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-19 — K-018
+
+**做得好：** ga-tracking.spec.ts 12/12 全綠逐一目視確認（AC-018-INSTALL × 1、AC-018-PAGEVIEW × 4、AC-018-CLICK × 4、AC-018-PRIVACY × 1、AC-018-PRIVACY-POLICY × 2），與 ticket AC 清單逐條對齊；`TICKET_ID=K-018` 環境變數本次記得帶，產出正確命名的 `K-018-visual-report.html`（K-017 反省的改善行動已落地）；全套 99 passed / 1 skipped，skipped 條目屬已知問題，正確標注不 block。
+
+**沒做好：** `waitForFunction` 取代 `waitForTimeout` 的修復屬 E2E 穩定性改善，QA 未獨立驗證「舊版確實存在 flaky 風險」——只依賴 Engineer retro 自述，未執行 `--repeat-each` 確認新版不 flaky；「`/business-logic` 不在追蹤範圍」的設計理由沒有在 QA retro 中明記，後續若有 coverage 疑問需翻 ticket 才能找到依據。
+
+**下次改善：** (1) E2E timeout 改善類修復，QA 須執行 `npx playwright test <spec> --repeat-each=5` 驗證穩定性，不全然依賴 Engineer 自述；(2) 「刻意不追蹤/跳過」的路由或功能，QA retro 明記排除理由，作為後續 coverage 問題的第一線文件依據。
+
+---
+
+## 2026-04-19 — K-017
+
+**沒做好：** 執行 visual report script 時未帶 `TICKET_ID=K-017` 環境變數，導致產出為 `K-UNKNOWN-visual-report.html`；AC-017-BUILD（prebuild hook）因 dev mode skip 而未補 build-mode 手動驗證；AC-017-AUDIT（audit-ticket.sh）屬 shell script 不被 Playwright 覆蓋，但 QA 未主動手動執行 K-002/K-008/K-999 三個情境逐條確認 AC。
+**下次改善：** (1) 截圖 script 執行前固定確認 `TICKET_ID` 已設；(2) 含 build artifact 依賴的 AC，QA 額外執行 `npm run build` 確認 artifact 存在；(3) Shell script / CLI tool 類 AC，QA 主動手動執行所有情境，不以 Playwright skip 代替驗證。
+
+---
+
 ## 2026-04-18 — K-008 QA 驗收反省
 
 **做得好：** 6 步回歸不只機械執行，在 Step 3 HTML 產出後主動補跑「結構抽樣」驗證（`grep -c 'class="page-section'` = 5、`grep -o 'data:image/png;base64' \| wc -l` = 4、`grep -A1 'class="route"'` 列 5 條 `<code>` 路由標記），把 AC-008-CONTENT 條文「每張截圖有對應的 route path 標記」從「Engineer 自述」升級為「QA 獨立驗證」。Step 6 也額外執行 `git check-ignore -v` 確認 `.gitignore:32` rule 精確命中、無 overreach，不只看 `status` 輸出有無目標檔。

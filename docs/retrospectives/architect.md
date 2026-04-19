@@ -20,6 +20,34 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-19 — K-017 Homepage v2 漏項
+
+**沒做好：** Pass 3 Pencil 核對時只關注 /about 依賴項，未告警 Homepage v2 Dossier（frame `4CsvQ`）包含完整新版面（hpHero、hpLogic 均有全新文案與視覺結構），未納入 K-017 設計範圍。導致 §2.3 只寫「HeroSection 既有，不動 / ProjectLogicSection 既有，不動」，Engineer 若照舊文件實作會遺漏 v2 設計更新。
+
+**下次改善：** Pencil 核對時對每個 frame 逐一聲明「此 frame 的所有改動是否都在當前 ticket scope 內」，有不在 scope 的改動立即告警 PM；特別是 `v2 Dossier` 命名的 frame 必須視為「有新設計規格」而非「參考用」，逐子節點確認是否有對應的實作規格。
+
+## 2026-04-19 — K-018 GA4 Tracking 設計
+
+**做得好：** 設計開始前同時驗證了 `BuiltByAIBanner.tsx` 的實際存在性（`ls` 確認），發現 architecture.md 記載與磁碟現況不符，在設計文件中明確標注「Engineer 需新建此組件」，避免 Engineer 按舊文件假設檔案已存在而跳過建立步驟。`ExternalLink` primitive 的修改決策（Option A vs B）也做了明確取捨論述，不讓 Engineer 自行猜測。
+
+**沒做好：** `BuiltByAIBanner.tsx` 不存在這件事，如果更早（設計伊始）就 `ls` 驗證，就不需要中途回頭確認；目前仍是「讀 architecture.md → 覺得怪 → 才去 ls」的被動流程，等同 K-017 反省的「real-path walkthrough 做太晚」同類問題在 K-018 再現。
+
+**下次改善：** 每次設計開始，§5「檔案異動清單」的「新建」項目若在 architecture.md 已有記載，必須先 `ls` 或 `Glob` 驗證該檔案是否真的存在，不等「覺得哪裡怪」才查。把這條加入 senior-architect 的前置 checklist。
+
+## 2026-04-19 — K-017 Pass 3 Engineer Q&A
+
+**沒做好：** Phase C4 文字殘留 Pass 2 舊版本（「刪除 MilestoneSection.tsx / DiaryEntry.tsx，被 P4/P7 取代」），而 Pass 3 已廢棄 P4/P7 並明確保留這兩個組件；Engineer 若照 C4 執行會誤刪。根因：每次 Pass 更新後未系統性掃描「Phase 步驟說明」段落，確認步驟不再引用已刪除的組件。
+
+**下次改善：** 每次 Pass 更新（刪除 primitive、廢棄組件、改架構決策）後，強制掃描 `## 6. 實作順序` 全段，把所有 Phase A–E 的步驟說明與當前 §2.0、§5 清單交叉比對——任何 Phase 步驟引用的組件名若已在清單標 DELETED/保留，必須同步修正步驟說明。此掃描寫入本 retrospective log 作為下次可直接執行的 checklist。
+
+## 2026-04-19 — K-017 Pass 3
+
+**做得好：**（無——Pass 3 是修正 Pass 2 盲抽錯誤，無主動設計亮點可聲稱）
+
+**沒做好：** P5/P6 盲抽決策在 Pencil 核對前無法確認是否共用，導致 Pass 2 產出需要 Pass 3 修正；根本原因是「commit message 暗示共用」被當作抽 primitive 的充分條件，但實際兩頁的 timeline 連設計思路都不同（Homepage 用 absolute rectangle rail + absolute marker；Diary 用 flexbox left-border stroke，無獨立 rail 也無 marker），commit message 相似不等於 DOM pattern 相似
+
+**下次改善：** 有條件性 primitive 時，直接問 Designer「所有使用這個 pattern 的頁面的 DOM sketch」，不靠 commit message 推論；structural similarity 才是抽 primitive 的必要條件，語義/視覺相似不夠
+
 ## 2026-04-19 — K-017 /about portfolio enhancement 設計（Pass 2 — cross-page component audit）
 
 **做得好：**

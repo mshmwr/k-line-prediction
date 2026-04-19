@@ -28,6 +28,9 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:5173',
+    env: {
+      VITE_GA_MEASUREMENT_ID: 'G-TESTID0000',
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
   },
