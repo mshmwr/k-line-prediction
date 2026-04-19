@@ -14,16 +14,16 @@ export default function UnifiedNavBar() {
     const isActive = pathname === path
     const sizeClass = mobile ? 'text-[11px]' : 'text-[13px]'
     if (isActive) {
-      return `${sizeClass} font-mono text-white transition-colors`
+      return `${sizeClass} font-mono text-[#9C4A3B] transition-colors`
     }
-    return `${sizeClass} font-mono text-zinc-500 hover:text-zinc-300 transition-colors`
+    return `${sizeClass} font-mono text-[#1A1814]/60 hover:text-[#1A1814] transition-colors`
   }
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between bg-[#0D0D0D] border-b border-[#1F1F1F] h-[56px] md:h-[72px] px-6 md:px-[120px]">
+    <nav className="sticky top-0 z-50 flex items-center justify-between bg-transparent border-b border-[#1A1814] h-[56px] md:h-[72px] px-6 md:px-[120px]">
       {/* Left: Home icon */}
       <Link to="/" aria-label="Home">
-        <HomeIcon size={16} className="text-neutral-100 hover:text-white transition-colors" />
+        <HomeIcon size={16} className="text-[#1A1814] hover:text-[#9C4A3B] transition-colors" />
       </Link>
 
       {/* Right: Nav links */}

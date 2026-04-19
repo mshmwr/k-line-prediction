@@ -9,11 +9,12 @@ test.describe('HomePage — AC-HOME-1', () => {
   test('Hero, HOW IT WORKS, and Dev Diary headings visible', async ({ page }) => {
     await page.goto('/')
 
-    // Hero heading
-    await expect(page.getByRole('heading', { name: /Predict the Next Move/i })).toBeVisible()
+    // Hero heading (v2: two separate h1 elements)
+    await expect(page.getByRole('heading', { name: 'Predict the next move', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'before it happens —', exact: true })).toBeVisible()
 
-    // HOW IT WORKS section label (inside the ProjectLogicSection SectionHeader)
-    await expect(page.getByText('HOW IT WORKS')).toBeVisible()
+    // HOW IT WORKS section label (inside the ProjectLogicSection logicHead)
+    await expect(page.getByText('HOW IT WORKS', { exact: true })).toBeVisible()
 
     // Dev Diary section label
     await expect(page.getByText('DEV DIARY')).toBeVisible()
@@ -22,23 +23,55 @@ test.describe('HomePage — AC-HOME-1', () => {
 
 // ── AC-ABOUT-1 ───────────────────────────────────────────────────────────────
 // Given: user visits /about
-// When:  page loads
-// Then:  all 7 section labels are visible
+// When:  page loads (K-017 redesign)
+// Then:  key K-017 section content is visible
 
-test.describe('AboutPage — AC-ABOUT-1', () => {
-  test('all 7 section labels visible', async ({ page }) => {
+test.describe('AboutPage — AC-ABOUT-1 (K-017)', () => {
+  test('PageHeader one-operator declaration visible', async ({ page }) => {
     await page.goto('/about')
 
-    await expect(page.getByText('PROJECT OVERVIEW', { exact: true })).toBeVisible()
-    await expect(page.getByText('AI COLLABORATION', { exact: true })).toBeVisible()
-    await expect(page.getByText('CONTRIBUTIONS', { exact: true })).toBeVisible()
-    await expect(page.getByText('TECH DECISIONS', { exact: true })).toBeVisible()
-    await expect(page.getByText('SCREENSHOTS', { exact: true })).toBeVisible()
-    await expect(page.getByText('TECH STACK', { exact: true })).toBeVisible()
-    await expect(page.getByText('FEATURES', { exact: true })).toBeVisible()
+    // S1 — PageHeaderSection: hero heading text
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await expect(page.getByText('One operator, orchestrating AI agents end-to-end —')).toBeVisible()
+    await expect(page.getByText('Every feature ships with a doc trail.')).toBeVisible()
 
-    // NavBar home icon (aria-label="Home") is visible via UnifiedNavBar
+    // NavBar home icon still present
     await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible()
+  })
+
+  test('Metrics strip four cards visible', async ({ page }) => {
+    await page.goto('/about')
+
+    await expect(page.getByText('Features Shipped', { exact: true })).toBeVisible()
+    await expect(page.getByText('First-pass Review Rate', { exact: true })).toBeVisible()
+    await expect(page.getByText('Post-mortems Written', { exact: true })).toBeVisible()
+    await expect(page.getByText('Guardrails in Place', { exact: true })).toBeVisible()
+  })
+
+  test('Role Cards section visible with 6 roles', async ({ page }) => {
+    await page.goto('/about')
+
+    await expect(page.getByText('PM', { exact: true })).toBeVisible()
+    await expect(page.getByText('Architect', { exact: true })).toBeVisible()
+    await expect(page.getByText('Engineer', { exact: true })).toBeVisible()
+    await expect(page.getByText('Reviewer', { exact: true })).toBeVisible()
+    await expect(page.getByText('QA', { exact: true })).toBeVisible()
+    await expect(page.getByText('Designer', { exact: true })).toBeVisible()
+  })
+
+  test('How AI Stays Reliable three pillars visible', async ({ page }) => {
+    await page.goto('/about')
+
+    await expect(page.getByText('How AI Stays Reliable', { exact: true })).toBeVisible()
+    await expect(page.getByText('Persistent Memory', { exact: true })).toBeVisible()
+    await expect(page.getByText('Structured Reflection', { exact: true })).toBeVisible()
+    await expect(page.getByText('Role Agents', { exact: true })).toBeVisible()
+  })
+
+  test('Footer CTA visible on /about', async ({ page }) => {
+    await page.goto('/about')
+
+    await expect(page.getByText("Let's talk →", { exact: true })).toBeVisible()
   })
 })
 
@@ -84,5 +117,35 @@ test.describe('DiaryPage — AC-DIARY-1', () => {
 
     await firstBtn.click()
     await expect(firstBtn).toHaveAttribute('aria-expanded', 'false')
+  })
+})
+
+// ── AC-017-HOME-V2 ───────────────────────────────────────────────────────────
+// Given: user visits /
+// When:  page loads (K-017 Homepage v2)
+// Then:  HeroSection v2 and ProjectLogicSection v2 content is visible
+
+test.describe('HomePage — AC-017-HOME-V2', () => {
+  test('HeroSection v2: headings and CTA visible', async ({ page }) => {
+    await page.goto('/')
+
+    await expect(page.getByText('Predict the next move', { exact: true })).toBeVisible()
+    await expect(page.getByText('before it happens —', { exact: true })).toBeVisible()
+    await expect(page.getByText('Try the App →', { exact: true })).toBeVisible()
+  })
+
+  test('ProjectLogicSection v2: HOW IT WORKS label and three steps visible', async ({ page }) => {
+    await page.goto('/')
+
+    await expect(page.getByText('HOW IT WORKS', { exact: true })).toBeVisible()
+    await expect(page.getByText('STEP 01 · INGEST', { exact: true })).toBeVisible()
+    await expect(page.getByText('STEP 02 · MATCH', { exact: true })).toBeVisible()
+    await expect(page.getByText('STEP 03 · PROJECT', { exact: true })).toBeVisible()
+  })
+
+  test('ProjectLogicSection v2: techRow STACK label visible', async ({ page }) => {
+    await page.goto('/')
+
+    await expect(page.getByText('STACK —', { exact: true })).toBeVisible()
   })
 })

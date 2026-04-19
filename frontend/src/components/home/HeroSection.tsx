@@ -1,21 +1,42 @@
-import CtaButton from '../common/CtaButton'
+import { Link } from 'react-router-dom'
 
 export default function HeroSection() {
   return (
-    <section className="py-24 text-center px-6">
-      <span className="inline-block text-xs font-mono tracking-widest uppercase border border-purple-400 text-purple-400 px-2 py-0.5 mb-6">
-        K-LINE PATTERN MATCHING ENGINE
-      </span>
-      <h1 className="text-4xl md:text-5xl font-mono font-bold text-white mb-4 leading-tight">
-        Predict the Next Move<br />Before It Happens
-      </h1>
-      <p className="text-gray-400 max-w-xl mx-auto mb-8 text-sm leading-relaxed">
-        K-Line pattern matching with MA99 trend filtering — find historical analogs
-        for your current chart structure.
-      </p>
-      <div className="flex gap-4 justify-center flex-wrap">
-        <CtaButton label="Open App →" href="/app" variant="primary" />
-        <CtaButton label="Business Logic" href="/business-logic" variant="secondary" />
+    <section className="py-24 px-6 max-w-5xl mx-auto">
+      <div className="flex flex-col gap-[18px]">
+        {/* Heading line 1 */}
+        <h1
+          className="text-[64px] italic font-bold leading-[1.05] text-[#1A1814]"
+          style={{ fontFamily: '"Bodoni Moda", serif' }}
+        >
+          Predict the next move
+        </h1>
+        {/* Heading line 2 — accent colour */}
+        <h1
+          className="text-[64px] italic font-bold leading-[1.05] text-[#9C4A3B]"
+          style={{ fontFamily: '"Bodoni Moda", serif' }}
+        >
+          before it happens —
+        </h1>
+        {/* Divider */}
+        <div className="h-px w-full bg-[#2A2520]" />
+        {/* Subtitle */}
+        <p
+          className="text-[18px] italic leading-[1.5] text-[#1A1814]"
+          style={{ fontFamily: '"Newsreader", serif' }}
+        >
+          Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next.
+        </p>
+        {/* CTA */}
+        <div className="flex gap-[14px]">
+          <Link
+            to="/app"
+            className="inline-block bg-[#2A2520] text-[#F4EFE5] rounded-[6px] px-[26px] py-[12px] text-[13px] font-bold tracking-[1px]"
+            style={{ fontFamily: '"Geist Mono", monospace' }}
+          >
+            Try the App →
+          </Link>
+        </div>
       </div>
     </section>
   )

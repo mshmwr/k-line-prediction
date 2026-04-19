@@ -1,35 +1,26 @@
-import { useEffect } from 'react'
-import type { DiaryMilestone } from '../types/diary'
-import { useAsyncState } from '../hooks/useAsyncState'
+import { useDiary } from '../hooks/useDiary'
 import HeroSection from '../components/home/HeroSection'
 import ProjectLogicSection from '../components/home/ProjectLogicSection'
 import DevDiarySection from '../components/home/DevDiarySection'
+import BuiltByAIBanner from '../components/home/BuiltByAIBanner'
+import HomeFooterBar from '../components/home/HomeFooterBar'
 import UnifiedNavBar from '../components/UnifiedNavBar'
 
 export default function HomePage() {
-  const [state, actions] = useAsyncState<DiaryMilestone[]>()
-
-  useEffect(() => {
-    actions.setLoading()
-    fetch('/diary.json')
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to load diary: ${res.status}`)
-        return res.json() as Promise<DiaryMilestone[]>
-      })
-      .then(data => actions.setSuccess(data.slice(0, 3)))
-      .catch((err: Error) => actions.setError(err.message))
-  }, [])
+  const { entries, loading, error } = useDiary(3)
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white">
+    <div className="min-h-screen bg-[#F4EFE5] text-[#1A1814]">
       <UnifiedNavBar />
+      <BuiltByAIBanner />
       <HeroSection />
       <ProjectLogicSection />
       <DevDiarySection
-        milestones={state.data ?? []}
-        loading={state.status === 'loading'}
-        error={state.error}
+        milestones={entries}
+        loading={loading}
+        error={error}
       />
+      <HomeFooterBar />
     </div>
   )
 }

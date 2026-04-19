@@ -1,47 +1,92 @@
-import { Cpu } from 'lucide-react'
-import SectionHeader from '../common/SectionHeader'
-import StepCard from './StepCard'
-import TechTag from './TechTag'
-
 const STEPS = [
   {
-    step: 1 as const,
-    title: 'Upload Your K-Line Data',
-    description: 'Import CSV files of historical OHLC data. The system merges and aligns your bars automatically.',
+    label: 'STEP 01 · INGEST',
+    title: 'Upload',
+    description: 'Drop in a CSV of 24 × 1H OHLC bars. The reference sample.',
   },
   {
-    step: 2 as const,
-    title: 'Pattern Matching with MA99 Filter',
-    description: 'Finds historical windows whose shape most closely resembles the tail of your query — filtered by MA99 trend direction.',
+    label: 'STEP 02 · MATCH',
+    title: 'Scan',
+    description: 'Cosine similarity walks the history database to rank windows.',
   },
   {
-    step: 3 as const,
-    title: 'Visualise Analog Forecasts',
-    description: 'Each match projects forward, giving you a consensus view of where the market has historically moved next.',
+    label: 'STEP 03 · PROJECT',
+    title: 'Project',
+    description: 'Show the price action that followed each matched window.',
   },
 ]
 
-const TECH_TAGS = ['React', 'TypeScript', 'FastAPI', 'Python', 'Railway', 'Docker']
-
 export default function ProjectLogicSection() {
   return (
-    <section className="py-16 px-6 max-w-5xl mx-auto">
-      <SectionHeader
-        label="HOW IT WORKS"
-        labelColor="cyan"
-        title="System Architecture"
-        description="A technical overview of how the pattern-matching pipeline works — without revealing the trading logic."
-        icon={Cpu}
-      />
-      <div className="grid md:grid-cols-3 gap-6 mb-10">
+    <section className="py-16 px-6 max-w-5xl mx-auto flex flex-col gap-7">
+      {/* logicHead */}
+      <div className="flex items-center gap-4">
+        <span
+          className="inline-block bg-[#9C4A3B] text-[#F4EFE5] text-[16px] font-bold px-[14px] py-[8px] rotate-[-3deg]"
+          style={{ fontFamily: '"Geist Mono", monospace' }}
+        >
+          § PROJECT LOGIC
+        </span>
+        <div className="flex-1 h-px bg-[#8B7A6B]" />
+        <span
+          className="text-[11px] font-normal tracking-widest text-[#1A1814] uppercase"
+          style={{ fontFamily: '"Geist Mono", monospace' }}
+        >
+          HOW IT WORKS
+        </span>
+      </div>
+
+      {/* Subtitle */}
+      <p
+        className="text-[15px] italic leading-relaxed text-[#1A1814]"
+        style={{ fontFamily: '"Newsreader", serif' }}
+      >
+        — The engine scans historical K-line data to find windows that resemble the current formation, then shows you the price action that followed.
+      </p>
+
+      {/* Step cards */}
+      <div className="grid grid-cols-3 gap-3.5">
         {STEPS.map(s => (
-          <StepCard key={s.step} step={s.step} title={s.title} description={s.description} />
+          <div
+            key={s.label}
+            className="border border-[#1A1814] rounded-[6px] overflow-hidden bg-[#F4EFE5]"
+          >
+            {/* Card header */}
+            <div className="bg-[#2A2520] px-[10px] py-[6px]">
+              <span
+                className="text-[10px] tracking-widest text-[#F4EFE5]"
+                style={{ fontFamily: '"Geist Mono", monospace' }}
+              >
+                {s.label}
+              </span>
+            </div>
+            {/* Card body */}
+            <div className="p-5 flex flex-col gap-3">
+              <h3
+                className="text-[24px] italic font-bold text-[#1A1814]"
+                style={{ fontFamily: '"Bodoni Moda", serif' }}
+              >
+                {s.title}
+              </h3>
+              <div className="w-10 h-px bg-[#2A2520]" />
+              <p
+                className="text-[13px] italic leading-[1.55] text-[#1A1814]"
+                style={{ fontFamily: '"Newsreader", serif' }}
+              >
+                {s.description}
+              </p>
+            </div>
+          </div>
         ))}
       </div>
-      <div className="flex flex-wrap gap-3 justify-center">
-        {TECH_TAGS.map(tag => (
-          <TechTag key={tag} label={tag} />
-        ))}
+
+      {/* techRow */}
+      <div
+        className="flex items-center gap-[10px] text-[11px] tracking-widest"
+        style={{ fontFamily: '"Geist Mono", monospace' }}
+      >
+        <span className="text-[#6B5F4E]">STACK —</span>
+        <span className="text-[#1A1814]">React · TypeScript · Vite · FastAPI · Python · Playwright</span>
       </div>
     </section>
   )

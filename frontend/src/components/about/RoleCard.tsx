@@ -1,22 +1,28 @@
+import CardShell from '../primitives/CardShell'
+
 interface RoleCardProps {
-  role: 'PM' | 'Senior Architect' | 'Designer' | 'Engineer' | 'QA'
-  responsibilities: string[]
-  borderColorClass: string
+  role: 'PM' | 'Architect' | 'Engineer' | 'Reviewer' | 'QA' | 'Designer'
+  owns: string
+  artefact: string
+  borderColorClass?: string
 }
 
-export default function RoleCard({ role, responsibilities, borderColorClass }: RoleCardProps) {
+export default function RoleCard({ role, owns, artefact, borderColorClass }: RoleCardProps) {
   return (
-    <div className={`border ${borderColorClass} p-5 flex flex-col gap-2`}>
-      <span className="font-mono text-xs tracking-widest text-gray-400 uppercase">Claude as</span>
-      <h3 className="font-mono font-bold text-white text-base">{role}</h3>
-      <ul className="mt-2 space-y-1">
-        {responsibilities.map((r, i) => (
-          <li key={i} className="text-gray-400 text-xs leading-relaxed flex gap-2">
-            <span className="text-purple-400 shrink-0">—</span>
-            {r}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <CardShell borderColorClass={borderColorClass ?? 'border-white/10'} padding="md">
+      <article data-role={role}>
+        <h3 className="font-mono font-bold text-white text-base mb-3">{role}</h3>
+        <div className="space-y-2 text-sm">
+          <div>
+            <span className="text-gray-500 text-xs uppercase tracking-wide font-mono">Owns</span>
+            <p className="text-gray-300 mt-0.5">{owns}</p>
+          </div>
+          <div>
+            <span className="text-gray-500 text-xs uppercase tracking-wide font-mono">Artefact</span>
+            <p className="text-gray-400 mt-0.5 font-mono text-xs">{artefact}</p>
+          </div>
+        </div>
+      </article>
+    </CardShell>
   )
 }

@@ -11,12 +11,12 @@ export default function BuiltByAIBanner() {
     <Link
       to="/about"
       aria-label="About the AI collaboration behind this project"
-      className="block w-full bg-[#1A1A1A] border-b border-white/10 px-6 py-2 text-center hover:bg-[#222222] transition-colors"
+      className="block w-full bg-[#F4EFE5] border-b border-[#1A1814] px-6 py-2 text-center hover:bg-[#EDE8DC] transition-colors"
       onClick={() => trackCtaClick('banner_about')}
     >
-      <span className="font-mono text-sm text-gray-200">
+      <span className="font-mono text-sm text-[#1A1814]">
         One operator. Six AI agents. Every ticket leaves a doc trail.{' '}
-        <em className="text-purple-400 not-italic underline">See how →</em>
+        <span className="text-[#9C4A3B] underline">See how →</span>
       </span>
     </Link>
   )
