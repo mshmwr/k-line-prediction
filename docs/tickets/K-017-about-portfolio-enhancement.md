@@ -359,3 +359,13 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 ## Retrospective
 
 （Architect / Engineer / Reviewer / QA / Designer 各自於完成階段補上反省；PM 於 QA PASS 後彙整）
+
+### PM 反省（設計階段 2026-04-19）
+
+**沒做好：**
+1. **沒有主動識別 Hero「Read the Diary」按鈕冗餘**：Homepage 加了 Diary section + "View full log →" CTA 後，Hero 的「Read the Diary」按鈕功能重複，PM 應主動提出。使用者明確說「PM 你應該要自己想到啊」，代表 PM 的 UX flow 審查不夠主動——沒有在 homepage 內容確定後重新審視所有 CTA 的互斥性。
+2. **Footer AC 推薦依據 PRD 舊文字，未核對設計稿實際狀態**：設計師已將 footer 演進為全站共用元件，但 PM 推薦「維持 /about 專屬」時只看 PRD Section 8，沒有先讀設計文件確認設計意圖是否已改變。
+
+**下次改善：**
+- Homepage 有任何新增 CTA 或 section 後，PM 強制重審所有現有 CTA 是否功能冗餘，列清單確認再放行 Designer（已加入 pm.md 自動觸發時機）
+- 給設計 AC 選項前必須先讀 `docs/designs/` + designer 反省，不依 PRD 舊文字直接推薦（已加入 pm.md 自動觸發時機）
