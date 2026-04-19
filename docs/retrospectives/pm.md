@@ -18,6 +18,19 @@
 
 ---
 
+## 2026-04-19 — K-017 Designer 交付 UI AC 視覺驗收（Phase Gate 前置）
+
+**做得好：** 視覺驗收嚴格依 memory `feedback_pm_visual_verification` 跑 get_screenshot 逐 section 放大，未以 batch_get JSON 取代；footer 連結字串差異靠 zoom 才抓到（遠景模糊），證明全 section zoom 不可省。
+
+**沒做好：** Designer 交付後 PM 才抓到 HEADER 分隔字元 / 大小寫、PILLARS inline link 未顯示目標 URL、FOOTER 三連結與標題全錯 — 根因是 PM 放行 Designer 前未把 PRD And 子句的「exact 字串」當作 designer brief 明文清點給設計師，Designer 自由發揮導致多處文字走樣；Phase Gate 沒在「Designer 開工前的 brief 階段」就展開 And 子句逐字清單。
+
+**下次改善：**
+1. PM 召喚 Designer 前，把 PRD 所有 And 子句裡帶引號字串（文案、連結、email）抽出成「Designer brief 精準字串清單」，明文交給 Designer，不留「請參考 PRD」含糊指令。
+2. Footer/Banner/Header 這類「每字 literal」的區塊，brief 需用 code block 包裝原文，並註記「視覺可變，字串不可變」。
+3. Designer 驗收 checklist 增「每個帶引號字串對 get_screenshot 或 batch_get 比對」步驟，不靠全局觀感判斷 PASS。
+
+---
+
 <!-- 新條目從此處往上 append -->
 
 ## 2026-04-19 — K-017 Architect 交付後裁決（curated retrospective + build copy 方案）
