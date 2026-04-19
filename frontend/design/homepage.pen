@@ -3568,8 +3568,8 @@
       "children": [
         {
           "type": "frame",
-          "id": "a3LcW",
-          "name": "abMetaBar",
+          "id": "voSTK",
+          "name": "abNav",
           "width": "fill_container",
           "stroke": {
             "align": "inside",
@@ -3579,7 +3579,7 @@
             "fill": "#1A1814"
           },
           "padding": [
-            20,
+            18,
             72
           ],
           "justifyContent": "space_between",
@@ -3587,37 +3587,78 @@
           "children": [
             {
               "type": "text",
-              "id": "vvWo8",
-              "name": "metaLeft",
+              "id": "7LJwN",
+              "name": "abNavLogo3",
               "fill": "#1A1814",
-              "content": "— PAGE 001 · /ABOUT —",
+              "content": "K-LINE PREDICTION",
               "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 2
-            },
-            {
-              "type": "text",
-              "id": "AVK6E",
-              "name": "metaCenter",
-              "fill": "#1A1814",
-              "content": "K-LINE PREDICTION · DECLASSIFIED",
-              "fontFamily": "Bodoni Moda",
               "fontSize": 13,
               "fontWeight": "700",
-              "letterSpacing": 1,
-              "fontStyle": "italic"
+              "letterSpacing": 2
             },
             {
-              "type": "text",
-              "id": "RWbrQ",
-              "name": "metaRight",
-              "fill": "#1A1814",
-              "content": "FILE Nº 017",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 2
+              "type": "frame",
+              "id": "HWbeK",
+              "name": "abNavLinks",
+              "gap": 28,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "0i48c",
+                  "name": "abNLnk1",
+                  "fill": "#1A1814",
+                  "content": "Home",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "vhGok",
+                  "name": "abNLnk2",
+                  "fill": "#1A1814",
+                  "content": "App",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "ZiDX9",
+                  "name": "abNLnk3",
+                  "fill": "#1A1814",
+                  "content": "Diary",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "qhtkl",
+                  "name": "abNLnk4",
+                  "fill": "#1A1814",
+                  "content": "Prediction",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "CtrFz",
+                  "name": "abNLnk5",
+                  "fill": "#9C4A3B",
+                  "content": "About",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "700",
+                  "letterSpacing": 1
+                }
+              ]
             }
           ]
         },
@@ -3644,79 +3685,6 @@
               "gap": 32,
               "children": [
                 {
-                  "type": "text",
-                  "id": "XqCAU",
-                  "name": "s1FileLbl",
-                  "fill": "#6B5F4E",
-                  "content": "— PAGE 001 · FILE Nº 017 · /ABOUT —",
-                  "fontFamily": "Geist Mono",
-                  "fontSize": 11,
-                  "fontWeight": "normal",
-                  "letterSpacing": 3
-                },
-                {
-                  "type": "frame",
-                  "id": "XkAJJ",
-                  "name": "s1RedactRow",
-                  "width": "fill_container",
-                  "gap": 12,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "rectangle",
-                      "cornerRadius": 2,
-                      "id": "PKxRe",
-                      "name": "rb1",
-                      "opacity": 0.88,
-                      "fill": "#2A2520",
-                      "width": 120,
-                      "height": 16
-                    },
-                    {
-                      "type": "text",
-                      "id": "oaHEB",
-                      "name": "rbW1",
-                      "fill": "#1A1814",
-                      "content": "THE",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 14,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
-                    },
-                    {
-                      "type": "rectangle",
-                      "cornerRadius": 2,
-                      "id": "My0Cn",
-                      "name": "rb2",
-                      "opacity": 0.88,
-                      "fill": "#2A2520",
-                      "width": 80,
-                      "height": 16
-                    },
-                    {
-                      "type": "text",
-                      "id": "HICvP",
-                      "name": "rbW2",
-                      "fill": "#1A1814",
-                      "content": "OPERATOR",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 14,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
-                    },
-                    {
-                      "type": "rectangle",
-                      "cornerRadius": 2,
-                      "id": "eHwAH",
-                      "name": "rb3",
-                      "opacity": 0.88,
-                      "fill": "#2A2520",
-                      "width": 180,
-                      "height": 16
-                    }
-                  ]
-                },
-                {
                   "type": "frame",
                   "id": "ocUD7",
                   "name": "s1HeaderRow",
@@ -3725,124 +3693,12 @@
                   "children": [
                     {
                       "type": "frame",
-                      "id": "JFzgG",
-                      "name": "stampColumn",
-                      "width": 130,
-                      "height": 230,
-                      "layout": "none",
-                      "children": [
-                        {
-                          "type": "ellipse",
-                          "id": "veSjr",
-                          "layoutPosition": "absolute",
-                          "x": 0,
-                          "y": 20,
-                          "name": "stampCircle",
-                          "rotation": -6.000000000000001,
-                          "width": 120,
-                          "height": 120,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 2,
-                            "fill": "#B43A2C"
-                          }
-                        },
-                        {
-                          "type": "ellipse",
-                          "id": "uN6G3",
-                          "layoutPosition": "absolute",
-                          "x": 10,
-                          "y": 30,
-                          "name": "stampInner",
-                          "rotation": -6.000000000000001,
-                          "width": 100,
-                          "height": 100,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1,
-                            "fill": "#B43A2C"
-                          }
-                        },
-                        {
-                          "type": "text",
-                          "id": "VBcXl",
-                          "layoutPosition": "absolute",
-                          "x": 12,
-                          "y": 56,
-                          "name": "stampText1",
-                          "rotation": -6.000000000000001,
-                          "fill": "#B43A2C",
-                          "content": "CLASSIFIED",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 16,
-                          "fontWeight": "700",
-                          "letterSpacing": 2
-                        },
-                        {
-                          "type": "text",
-                          "id": "ZF52f",
-                          "layoutPosition": "absolute",
-                          "x": 40,
-                          "y": 82,
-                          "name": "stampText2",
-                          "rotation": -6.000000000000001,
-                          "fill": "#B43A2C",
-                          "content": "K-017",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 15,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "OYaqu",
-                          "layoutPosition": "absolute",
-                          "x": 20,
-                          "y": 105,
-                          "name": "stampText3",
-                          "rotation": -6.000000000000001,
-                          "fill": "#B43A2C",
-                          "content": "— 2026 —",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 10,
-                          "fontWeight": "normal",
-                          "letterSpacing": 2
-                        },
-                        {
-                          "type": "text",
-                          "id": "1jwQq",
-                          "layoutPosition": "absolute",
-                          "x": 30,
-                          "y": 170,
-                          "name": "pageNum",
-                          "fill": "#1A1814",
-                          "content": "Nº 01",
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 28,
-                          "fontWeight": "normal"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
                       "id": "b6TgM",
                       "name": "titleColumn",
                       "width": "fill_container",
                       "layout": "vertical",
                       "gap": 18,
                       "children": [
-                        {
-                          "type": "text",
-                          "id": "c1Taw",
-                          "name": "eyebrow",
-                          "fill": "#6B5F4E",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "— A declassified record of operator protocol —",
-                          "fontFamily": "Newsreader",
-                          "fontSize": 14,
-                          "fontWeight": "normal",
-                          "fontStyle": "italic"
-                        },
                         {
                           "type": "text",
                           "id": "nolk3",
@@ -3930,28 +3786,15 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "jFNIg",
-                      "name": "s2StampBox",
-                      "rotation": -3.0000000000000004,
-                      "fill": "#9C4A3B",
-                      "padding": [
-                        8,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "okIut",
-                          "name": "s2StampBoxText",
-                          "fill": "#F4EFE5",
-                          "content": "§ FIELD DATA",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 16,
-                          "fontWeight": "700",
-                          "letterSpacing": 3
-                        }
-                      ]
+                      "type": "text",
+                      "id": "kvHMP",
+                      "name": "s2label",
+                      "fill": "#1A1814",
+                      "content": "Nº 01 — DELIVERY METRICS",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
                     },
                     {
                       "type": "rectangle",
@@ -3960,17 +3803,6 @@
                       "fill": "#8B7A6B",
                       "width": "fill_container",
                       "height": 1
-                    },
-                    {
-                      "type": "text",
-                      "id": "M3jYy",
-                      "name": "s2Count",
-                      "fill": "#1A1814",
-                      "content": "ITEMS · 04",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 11,
-                      "fontWeight": "normal",
-                      "letterSpacing": 2
                     }
                   ]
                 },
@@ -4436,28 +4268,15 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "1svz6",
-                      "name": "s3StampBox",
-                      "rotation": -3.0000000000000004,
-                      "fill": "#9C4A3B",
-                      "padding": [
-                        8,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "XaydC",
-                          "name": "s3StampText",
-                          "fill": "#F4EFE5",
-                          "content": "§ PERSONNEL",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 16,
-                          "fontWeight": "700",
-                          "letterSpacing": 3
-                        }
-                      ]
+                      "type": "text",
+                      "id": "e5BzC",
+                      "name": "s3label",
+                      "fill": "#1A1814",
+                      "content": "Nº 02 — THE ROLES",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
                     },
                     {
                       "type": "rectangle",
@@ -4466,17 +4285,6 @@
                       "fill": "#8B7A6B",
                       "width": "fill_container",
                       "height": 1
-                    },
-                    {
-                      "type": "text",
-                      "id": "aDjjD",
-                      "name": "s3Count",
-                      "fill": "#1A1814",
-                      "content": "OPERATIVES · 06",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 11,
-                      "fontWeight": "normal",
-                      "letterSpacing": 2
                     }
                   ]
                 },
@@ -5263,28 +5071,15 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "Vx2Bg",
-                      "name": "s4StampBox",
-                      "rotation": -3.0000000000000004,
-                      "fill": "#9C4A3B",
-                      "padding": [
-                        8,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "lOx10",
-                          "name": "s4StampText",
-                          "fill": "#F4EFE5",
-                          "content": "§ PROTOCOL",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 16,
-                          "fontWeight": "700",
-                          "letterSpacing": 3
-                        }
-                      ]
+                      "type": "text",
+                      "id": "tDZ9f",
+                      "name": "s4label",
+                      "fill": "#1A1814",
+                      "content": "Nº 03 — RELIABILITY",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
                     },
                     {
                       "type": "rectangle",
@@ -5293,17 +5088,6 @@
                       "fill": "#8B7A6B",
                       "width": "fill_container",
                       "height": 1
-                    },
-                    {
-                      "type": "text",
-                      "id": "T1FSW",
-                      "name": "s4Count",
-                      "fill": "#1A1814",
-                      "content": "PILLARS · 03",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 11,
-                      "fontWeight": "normal",
-                      "letterSpacing": 2
                     }
                   ]
                 },
@@ -5314,7 +5098,7 @@
                   "fill": "#1A1814",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "How AI Stays Reliable — three pillars, annotated.",
+                  "content": "How AI Stays Reliable",
                   "lineHeight": 1.2,
                   "fontFamily": "Bodoni Moda",
                   "fontSize": 30,
@@ -5757,28 +5541,15 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "CHy86",
-                      "name": "s5StampBox",
-                      "rotation": -3.0000000000000004,
-                      "fill": "#9C4A3B",
-                      "padding": [
-                        8,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "qnI4y",
-                          "name": "s5StampText",
-                          "fill": "#F4EFE5",
-                          "content": "§ CASE FILES",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 16,
-                          "fontWeight": "700",
-                          "letterSpacing": 3
-                        }
-                      ]
+                      "type": "text",
+                      "id": "CQyS0",
+                      "name": "s5label",
+                      "fill": "#1A1814",
+                      "content": "Nº 04 — ANATOMY OF A TICKET",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
                     },
                     {
                       "type": "rectangle",
@@ -5787,36 +5558,6 @@
                       "fill": "#8B7A6B",
                       "width": "fill_container",
                       "height": 1
-                    },
-                    {
-                      "type": "frame",
-                      "id": "v5c1t",
-                      "name": "s5CountWrap",
-                      "gap": 6,
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "KdrWq",
-                          "name": "s5CountLbl",
-                          "fill": "#1A1814",
-                          "content": "CASES",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 11,
-                          "fontWeight": "normal",
-                          "letterSpacing": 2
-                        },
-                        {
-                          "type": "text",
-                          "id": "ZFjp3",
-                          "name": "s5CountNum",
-                          "fill": "#1A1814",
-                          "content": "03",
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 18,
-                          "fontWeight": "700"
-                        }
-                      ]
                     }
                   ]
                 },
@@ -6342,28 +6083,15 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "xBLOR",
-                      "name": "s6StampBox",
-                      "rotation": -3.0000000000000004,
-                      "fill": "#9C4A3B",
-                      "padding": [
-                        8,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "3IZDw",
-                          "name": "s6StampText",
-                          "fill": "#F4EFE5",
-                          "content": "§ ARCHITECTURE",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 16,
-                          "fontWeight": "700",
-                          "letterSpacing": 3
-                        }
-                      ]
+                      "type": "text",
+                      "id": "NqwhK",
+                      "name": "s6label",
+                      "fill": "#1A1814",
+                      "content": "Nº 05 — PROJECT ARCHITECTURE",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
                     },
                     {
                       "type": "rectangle",
@@ -6372,17 +6100,6 @@
                       "fill": "#8B7A6B",
                       "width": "fill_container",
                       "height": 1
-                    },
-                    {
-                      "type": "text",
-                      "id": "LYhTX",
-                      "name": "s6Count",
-                      "fill": "#1A1814",
-                      "content": "LAYERS · 03",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 11,
-                      "fontWeight": "normal",
-                      "letterSpacing": 2
                     }
                   ]
                 },
@@ -6888,60 +6605,14 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "TpJLf",
-                      "name": "s7StampBox",
-                      "rotation": -3.0000000000000004,
-                      "fill": "#9C4A3B",
-                      "padding": [
-                        8,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "xS9t6",
-                          "fill": "#F4EFE5",
-                          "content": "§ APPENDIX A",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 16,
-                          "fontWeight": "700",
-                          "letterSpacing": 3
-                        }
-                      ]
-                    },
-                    {
                       "type": "rectangle",
                       "id": "Ld6R8",
                       "name": "s7Line",
                       "fill": "#8B7A6B",
                       "width": "fill_container",
                       "height": 1
-                    },
-                    {
-                      "type": "text",
-                      "id": "mFiWU",
-                      "fill": "#1A1814",
-                      "content": "HOMEPAGE · BANNER",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 11,
-                      "fontWeight": "normal",
-                      "letterSpacing": 2
                     }
                   ]
-                },
-                {
-                  "type": "text",
-                  "id": "OxWRU",
-                  "fill": "#1A1814",
-                  "textGrowth": "fixed-width",
-                  "width": "fill_container",
-                  "content": "— Appendix A. Homepage banner, thin strip, routes to /about.",
-                  "lineHeight": 1.6,
-                  "fontFamily": "Newsreader",
-                  "fontSize": 15,
-                  "fontWeight": "normal",
-                  "fontStyle": "italic"
                 },
                 {
                   "type": "frame",
@@ -6957,41 +6628,6 @@
                   },
                   "layout": "vertical",
                   "children": [
-                    {
-                      "type": "frame",
-                      "id": "qYlkD",
-                      "name": "s7CardTop",
-                      "width": "fill_container",
-                      "fill": "#2A2520",
-                      "padding": [
-                        6,
-                        10
-                      ],
-                      "justifyContent": "space_between",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "5xF6R",
-                          "fill": "#F4EFE5",
-                          "content": "FILE Nº 01 · APPENDIX A · BANNER PREVIEW",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 10,
-                          "fontWeight": "normal",
-                          "letterSpacing": 2
-                        },
-                        {
-                          "type": "text",
-                          "id": "4oX3z",
-                          "fill": "#F4EFE5",
-                          "content": "→ /about",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 12,
-                          "fontWeight": "700",
-                          "letterSpacing": 2
-                        }
-                      ]
-                    },
                     {
                       "type": "frame",
                       "id": "VTKSi",
@@ -7145,212 +6781,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "type": "frame",
-              "id": "tiG5X",
-              "name": "S8_FooterCTASection",
-              "width": "fill_container",
-              "layout": "vertical",
-              "gap": 28,
-              "children": [
-                {
-                  "type": "frame",
-                  "id": "d8SoM",
-                  "name": "s8Head",
-                  "width": "fill_container",
-                  "gap": 16,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "HcjDD",
-                      "name": "s8StampBox",
-                      "rotation": -3.0000000000000004,
-                      "fill": "#9C4A3B",
-                      "padding": [
-                        8,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "TtabG",
-                          "fill": "#F4EFE5",
-                          "content": "§ CONTACT",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 16,
-                          "fontWeight": "700",
-                          "letterSpacing": 3
-                        }
-                      ]
-                    },
-                    {
-                      "type": "rectangle",
-                      "id": "hJXxY",
-                      "name": "s8Line",
-                      "fill": "#8B7A6B",
-                      "width": "fill_container",
-                      "height": 1
-                    },
-                    {
-                      "type": "text",
-                      "id": "4IRls",
-                      "fill": "#1A1814",
-                      "content": "SIGN-OFF",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 11,
-                      "fontWeight": "normal",
-                      "letterSpacing": 2
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "QPTYt",
-                  "name": "s8Card",
-                  "width": "fill_container",
-                  "fill": "#F4EFE5",
-                  "cornerRadius": 6,
-                  "stroke": {
-                    "align": "inside",
-                    "thickness": 1,
-                    "fill": "#1A1814"
-                  },
-                  "layout": "vertical",
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "H7Fqi",
-                      "name": "s8CardTop",
-                      "width": "fill_container",
-                      "fill": "#2A2520",
-                      "padding": [
-                        6,
-                        10
-                      ],
-                      "justifyContent": "space_between",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "nMUff",
-                          "fill": "#F4EFE5",
-                          "content": "FILE Nº 01 · SIGN-OFF",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 10,
-                          "fontWeight": "normal",
-                          "letterSpacing": 2
-                        },
-                        {
-                          "type": "text",
-                          "id": "Azvrl",
-                          "fill": "#F4EFE5",
-                          "content": "OPERATOR · LEE YI-CHEN",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 12,
-                          "fontWeight": "700",
-                          "letterSpacing": 2
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "BUVTc",
-                      "name": "s8CardBody",
-                      "width": "fill_container",
-                      "layout": "vertical",
-                      "gap": 18,
-                      "padding": 32,
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "g9nsu",
-                          "name": "line1",
-                          "width": "fill_container",
-                          "gap": 10,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "4GDyP",
-                              "fill": "#9C4A3B",
-                              "content": "Let's talk →",
-                              "lineHeight": 1.3,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 22,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
-                            },
-                            {
-                              "type": "text",
-                              "id": "hO7H5",
-                              "fill": "#1A1814",
-                              "content": "yichen.lee.20@gmail.com",
-                              "fontFamily": "Geist Mono",
-                              "fontSize": 15,
-                              "fontWeight": "500",
-                              "letterSpacing": 0.5
-                            }
-                          ]
-                        },
-                        {
-                          "type": "text",
-                          "id": "lhYVa",
-                          "fill": "#5B4F45",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "Or see the source:",
-                          "lineHeight": 1.55,
-                          "fontFamily": "Newsreader",
-                          "fontSize": 14,
-                          "fontWeight": "normal",
-                          "fontStyle": "italic"
-                        },
-                        {
-                          "type": "frame",
-                          "id": "VowfZ",
-                          "name": "line3",
-                          "width": "fill_container",
-                          "gap": 14,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "58w8y",
-                              "fill": "#1A1814",
-                              "content": "GitHub",
-                              "fontFamily": "Geist Mono",
-                              "fontSize": 13,
-                              "fontWeight": "700",
-                              "letterSpacing": 1
-                            },
-                            {
-                              "type": "text",
-                              "id": "YbcEt",
-                              "fill": "#8B7A6B",
-                              "content": "·",
-                              "fontFamily": "Geist Mono",
-                              "fontSize": 13,
-                              "fontWeight": "normal"
-                            },
-                            {
-                              "type": "text",
-                              "id": "uhi76",
-                              "fill": "#1A1814",
-                              "content": "LinkedIn",
-                              "fontFamily": "Geist Mono",
-                              "fontSize": 13,
-                              "fontWeight": "700",
-                              "letterSpacing": 1
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
             }
           ]
         },
@@ -7375,36 +6805,14 @@
           "children": [
             {
               "type": "text",
-              "id": "V9rXs",
-              "name": "ftL",
-              "fill": "#1A1814",
-              "content": "— end of dossier —",
-              "fontFamily": "Newsreader",
-              "fontSize": 12,
-              "fontWeight": "normal",
-              "fontStyle": "italic"
-            },
-            {
-              "type": "text",
-              "id": "cGaog",
-              "name": "ftC",
-              "fill": "#6B5F4E",
-              "content": "Filed 2026-04 · Archive access: recruiter clearance",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 1.5
-            },
-            {
-              "type": "text",
               "id": "hpwtD",
               "name": "ftR",
-              "fill": "#1A1814",
-              "content": "Built with FastAPI + React",
+              "fill": "#6B5F4E",
+              "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
               "fontFamily": "Geist Mono",
               "fontSize": 11,
               "fontWeight": "normal",
-              "letterSpacing": 1.5
+              "letterSpacing": 1
             }
           ]
         }
@@ -7420,58 +6828,6 @@
       "fill": "#F4EFE5",
       "layout": "vertical",
       "children": [
-        {
-          "type": "frame",
-          "id": "JHedc",
-          "name": "hpMetaBar",
-          "width": "fill_container",
-          "stroke": {
-            "align": "inside",
-            "thickness": {
-              "bottom": 1
-            },
-            "fill": "#1A1814"
-          },
-          "padding": [
-            20,
-            72
-          ],
-          "justifyContent": "space_between",
-          "alignItems": "center",
-          "children": [
-            {
-              "type": "text",
-              "id": "CaTc5",
-              "fill": "#1A1814",
-              "content": "— PAGE 000 · / —",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 2
-            },
-            {
-              "type": "text",
-              "id": "BhCBA",
-              "fill": "#1A1814",
-              "content": "K-LINE PREDICTION · DECLASSIFIED",
-              "fontFamily": "Bodoni Moda",
-              "fontSize": 13,
-              "fontWeight": "700",
-              "letterSpacing": 1,
-              "fontStyle": "italic"
-            },
-            {
-              "type": "text",
-              "id": "LFxag",
-              "fill": "#1A1814",
-              "content": "FILE Nº 000",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 2
-            }
-          ]
-        },
         {
           "type": "frame",
           "id": "OSgI0",
@@ -7542,7 +6898,7 @@
                   "type": "text",
                   "id": "SdCSj",
                   "fill": "#1A1814",
-                  "content": "Business Logic",
+                  "content": "Prediction",
                   "fontFamily": "Geist Mono",
                   "fontSize": 12,
                   "fontWeight": "normal",
@@ -7567,7 +6923,15 @@
           "id": "96Spc",
           "name": "BuiltByAIBanner",
           "width": "fill_container",
-          "fill": "#2A2520",
+          "fill": "#F4EFE5",
+          "stroke": {
+            "align": "inside",
+            "thickness": {
+              "top": 1,
+              "bottom": 1
+            },
+            "fill": "#1A1814"
+          },
           "gap": 14,
           "padding": [
             12,
@@ -7579,7 +6943,7 @@
             {
               "type": "text",
               "id": "zJHys",
-              "fill": "#F4EFE5",
+              "fill": "#1A1814",
               "content": "One operator. Six AI agents. Every ticket leaves a doc trail.",
               "fontFamily": "Geist Mono",
               "fontSize": 12,
@@ -7589,7 +6953,7 @@
             {
               "type": "text",
               "id": "RmIfG",
-              "fill": "#E5A896",
+              "fill": "#9C4A3B",
               "content": "See how →",
               "fontFamily": "Bodoni Moda",
               "fontSize": 14,
@@ -7622,118 +6986,12 @@
               "children": [
                 {
                   "type": "frame",
-                  "id": "kHjU8",
-                  "name": "heroStampCol",
-                  "width": 130,
-                  "height": 230,
-                  "layout": "none",
-                  "children": [
-                    {
-                      "type": "ellipse",
-                      "id": "K2myv",
-                      "x": 0,
-                      "y": 20,
-                      "name": "stCircle",
-                      "rotation": -6.000000000000001,
-                      "width": 120,
-                      "height": 120,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 2,
-                        "fill": "#9C4A3B"
-                      }
-                    },
-                    {
-                      "type": "ellipse",
-                      "id": "qIF7b",
-                      "x": 10,
-                      "y": 30,
-                      "name": "stInner",
-                      "rotation": -6.000000000000001,
-                      "width": 100,
-                      "height": 100,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1,
-                        "fill": "#9C4A3B"
-                      }
-                    },
-                    {
-                      "type": "text",
-                      "id": "JoqpU",
-                      "layoutPosition": "absolute",
-                      "x": 25,
-                      "y": 55,
-                      "rotation": -6.000000000000001,
-                      "fill": "#9C4A3B",
-                      "content": "PATTERN",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 13,
-                      "fontWeight": "700",
-                      "letterSpacing": 2
-                    },
-                    {
-                      "type": "text",
-                      "id": "O7Ja8",
-                      "layoutPosition": "absolute",
-                      "x": 30,
-                      "y": 75,
-                      "rotation": -6.000000000000001,
-                      "fill": "#9C4A3B",
-                      "content": "ENGINE",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 13,
-                      "fontWeight": "700",
-                      "letterSpacing": 2
-                    },
-                    {
-                      "type": "text",
-                      "id": "CQVwL",
-                      "layoutPosition": "absolute",
-                      "x": 25,
-                      "y": 100,
-                      "rotation": -6.000000000000001,
-                      "fill": "#9C4A3B",
-                      "content": "— 2026 —",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 10,
-                      "fontWeight": "normal",
-                      "letterSpacing": 2
-                    },
-                    {
-                      "type": "text",
-                      "id": "awtmx",
-                      "layoutPosition": "absolute",
-                      "x": 30,
-                      "y": 170,
-                      "fill": "#1A1814",
-                      "content": "Nº 00",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 28,
-                      "fontWeight": "normal"
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
                   "id": "dC3Du",
                   "name": "heroCol",
                   "width": "fill_container",
                   "layout": "vertical",
                   "gap": 18,
                   "children": [
-                    {
-                      "type": "text",
-                      "id": "gqCoz",
-                      "fill": "#6B5F4E",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "— A research engine for K-line pattern matching —",
-                      "fontFamily": "Newsreader",
-                      "fontSize": 14,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
-                    },
                     {
                       "type": "text",
                       "id": "rXURl",
@@ -7805,36 +7063,6 @@
                               "id": "iIZ8M",
                               "fill": "#F4EFE5",
                               "content": "Try the App →",
-                              "fontFamily": "Geist Mono",
-                              "fontSize": 13,
-                              "fontWeight": "700",
-                              "letterSpacing": 1
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "6qsx7",
-                          "name": "btnSecondary",
-                          "fill": "#F4EFE5",
-                          "cornerRadius": 6,
-                          "stroke": {
-                            "align": "inside",
-                            "thickness": 1,
-                            "fill": "#1A1814"
-                          },
-                          "padding": [
-                            12,
-                            26
-                          ],
-                          "justifyContent": "center",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "5GK4P",
-                              "fill": "#1A1814",
-                              "content": "Read the Diary",
                               "fontFamily": "Geist Mono",
                               "fontSize": 13,
                               "fontWeight": "700",
@@ -8273,7 +7501,7 @@
                   "id": "N0WWY",
                   "name": "diaryEntries",
                   "width": 1248,
-                  "height": 600,
+                  "height": 480,
                   "layout": "none",
                   "children": [
                     {
@@ -8285,7 +7513,7 @@
                       "name": "rail",
                       "fill": "#2A2520",
                       "width": 1,
-                      "height": 560
+                      "height": 304
                     },
                     {
                       "type": "frame",
@@ -8295,7 +7523,7 @@
                       "y": 0,
                       "name": "hE1",
                       "width": 1248,
-                      "height": 180,
+                      "height": 140,
                       "layout": "none",
                       "children": [
                         {
@@ -8309,57 +7537,28 @@
                           "height": 14,
                           "fill": "#9C4A3B",
                           "cornerRadius": 6,
-                          "layout": "none",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "GtlRV",
-                              "layoutPosition": "absolute",
-                              "x": 6,
-                              "y": 0,
-                              "name": "hE1mt",
-                              "fill": "#F4EFE5",
-                              "content": "§",
-                              "fontFamily": "Geist Mono",
-                              "fontSize": 11,
-                              "fontWeight": "700"
-                            }
-                          ]
+                          "layout": "none"
                         },
                         {
                           "type": "text",
                           "id": "OfacV",
                           "layoutPosition": "absolute",
                           "x": 92,
-                          "y": 0,
+                          "y": 28,
                           "name": "hE1d",
-                          "fill": "#9C4A3B",
-                          "content": "2026-04-19",
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 32,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
-                        },
-                        {
-                          "type": "text",
-                          "id": "w03q1",
-                          "layoutPosition": "absolute",
-                          "x": 92,
-                          "y": 44,
-                          "name": "hE1stamp",
                           "fill": "#6B5F4E",
-                          "content": "FILE Nº A · K-017",
+                          "content": "2026-04-19",
                           "fontFamily": "Geist Mono",
-                          "fontSize": 10,
+                          "fontSize": 12,
                           "fontWeight": "normal",
-                          "letterSpacing": 2
+                          "letterSpacing": 1
                         },
                         {
                           "type": "text",
                           "id": "QN271",
                           "layoutPosition": "absolute",
                           "x": 92,
-                          "y": 68,
+                          "y": 52,
                           "name": "hE1body",
                           "fill": "#2A2520",
                           "textGrowth": "fixed-width",
@@ -8370,6 +7569,21 @@
                           "fontSize": 18,
                           "fontWeight": "normal",
                           "fontStyle": "italic"
+                        },
+                        {
+                          "type": "text",
+                          "id": "UFzkG",
+                          "layoutPosition": "absolute",
+                          "x": 92,
+                          "y": 0,
+                          "fill": "#1A1814",
+                          "textGrowth": "fixed-width",
+                          "width": 900,
+                          "content": "K-017 — Portfolio /about Rewrite",
+                          "fontFamily": "Bodoni Moda",
+                          "fontSize": 18,
+                          "fontWeight": "700",
+                          "fontStyle": "italic"
                         }
                       ]
                     },
@@ -8378,10 +7592,10 @@
                       "id": "LJhaL",
                       "layoutPosition": "absolute",
                       "x": 0,
-                      "y": 200,
+                      "y": 160,
                       "name": "hE2",
                       "width": 1248,
-                      "height": 180,
+                      "height": 140,
                       "layout": "none",
                       "children": [
                         {
@@ -8395,57 +7609,28 @@
                           "height": 14,
                           "fill": "#9C4A3B",
                           "cornerRadius": 6,
-                          "layout": "none",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "iF33T",
-                              "layoutPosition": "absolute",
-                              "x": 6,
-                              "y": 0,
-                              "name": "hE2mt",
-                              "fill": "#F4EFE5",
-                              "content": "§",
-                              "fontFamily": "Geist Mono",
-                              "fontSize": 11,
-                              "fontWeight": "700"
-                            }
-                          ]
+                          "layout": "none"
                         },
                         {
                           "type": "text",
                           "id": "44ek7",
                           "layoutPosition": "absolute",
                           "x": 92,
-                          "y": 0,
+                          "y": 28,
                           "name": "hE2d",
-                          "fill": "#9C4A3B",
-                          "content": "2026-04-18",
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 32,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
-                        },
-                        {
-                          "type": "text",
-                          "id": "DrcqJ",
-                          "layoutPosition": "absolute",
-                          "x": 92,
-                          "y": 44,
-                          "name": "hE2stamp",
                           "fill": "#6B5F4E",
-                          "content": "FILE Nº B · K-008",
+                          "content": "2026-04-18",
                           "fontFamily": "Geist Mono",
-                          "fontSize": 10,
+                          "fontSize": 12,
                           "fontWeight": "normal",
-                          "letterSpacing": 2
+                          "letterSpacing": 1
                         },
                         {
                           "type": "text",
                           "id": "MCI81",
                           "layoutPosition": "absolute",
                           "x": 92,
-                          "y": 68,
+                          "y": 52,
                           "name": "hE2body",
                           "fill": "#2A2520",
                           "textGrowth": "fixed-width",
@@ -8456,6 +7641,21 @@
                           "fontSize": 18,
                           "fontWeight": "normal",
                           "fontStyle": "italic"
+                        },
+                        {
+                          "type": "text",
+                          "id": "jAD5v",
+                          "layoutPosition": "absolute",
+                          "x": 92,
+                          "y": 0,
+                          "fill": "#1A1814",
+                          "textGrowth": "fixed-width",
+                          "width": 900,
+                          "content": "K-008 — Automated Visual Reports",
+                          "fontFamily": "Bodoni Moda",
+                          "fontSize": 18,
+                          "fontWeight": "700",
+                          "fontStyle": "italic"
                         }
                       ]
                     },
@@ -8464,10 +7664,10 @@
                       "id": "xw1cf",
                       "layoutPosition": "absolute",
                       "x": 0,
-                      "y": 400,
+                      "y": 320,
                       "name": "hE3",
                       "width": 1248,
-                      "height": 180,
+                      "height": 140,
                       "layout": "none",
                       "children": [
                         {
@@ -8481,57 +7681,28 @@
                           "height": 14,
                           "fill": "#9C4A3B",
                           "cornerRadius": 6,
-                          "layout": "none",
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "oKMdM",
-                              "layoutPosition": "absolute",
-                              "x": 6,
-                              "y": 0,
-                              "name": "hE3mt",
-                              "fill": "#F4EFE5",
-                              "content": "§",
-                              "fontFamily": "Geist Mono",
-                              "fontSize": 11,
-                              "fontWeight": "700"
-                            }
-                          ]
+                          "layout": "none"
                         },
                         {
                           "type": "text",
                           "id": "GBTUt",
                           "layoutPosition": "absolute",
                           "x": 92,
-                          "y": 0,
+                          "y": 28,
                           "name": "hE3d",
-                          "fill": "#9C4A3B",
-                          "content": "2026-04-16",
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 32,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
-                        },
-                        {
-                          "type": "text",
-                          "id": "c5azm",
-                          "layoutPosition": "absolute",
-                          "x": 92,
-                          "y": 44,
-                          "name": "hE3stamp",
                           "fill": "#6B5F4E",
-                          "content": "FILE Nº C · K-009",
+                          "content": "2026-04-16",
                           "fontFamily": "Geist Mono",
-                          "fontSize": 10,
+                          "fontSize": 12,
                           "fontWeight": "normal",
-                          "letterSpacing": 2
+                          "letterSpacing": 1
                         },
                         {
                           "type": "text",
                           "id": "ZAsNk",
                           "layoutPosition": "absolute",
                           "x": 92,
-                          "y": 68,
+                          "y": 52,
                           "name": "hE3body",
                           "fill": "#2A2520",
                           "textGrowth": "fixed-width",
@@ -8542,8 +7713,43 @@
                           "fontSize": 18,
                           "fontWeight": "normal",
                           "fontStyle": "italic"
+                        },
+                        {
+                          "type": "text",
+                          "id": "hU9zy",
+                          "layoutPosition": "absolute",
+                          "x": 92,
+                          "y": 0,
+                          "fill": "#1A1814",
+                          "textGrowth": "fixed-width",
+                          "width": 900,
+                          "content": "K-009 — TDD Bug Fix: MA History",
+                          "fontFamily": "Bodoni Moda",
+                          "fontSize": 18,
+                          "fontWeight": "700",
+                          "fontStyle": "italic"
                         }
                       ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yg0qF",
+                  "name": "diaryViewAllRow",
+                  "width": "fill_container",
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zh5OA",
+                      "name": "diaryViewAllLink",
+                      "fill": "#9C4A3B",
+                      "content": "— View full log →",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 12,
+                      "fontWeight": "700",
+                      "letterSpacing": 1
                     }
                   ]
                 }
@@ -8572,33 +7778,13 @@
           "children": [
             {
               "type": "text",
-              "id": "XNyxc",
-              "fill": "#1A1814",
-              "content": "— end of cover page —",
-              "fontFamily": "Newsreader",
-              "fontSize": 12,
-              "fontWeight": "normal",
-              "fontStyle": "italic"
-            },
-            {
-              "type": "text",
-              "id": "RxGcP",
-              "fill": "#6B5F4E",
-              "content": "K-Line Prediction · Personal Research Tool",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 1.5
-            },
-            {
-              "type": "text",
               "id": "W3zUd",
-              "fill": "#1A1814",
-              "content": "Built with FastAPI + React",
+              "fill": "#6B5F4E",
+              "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
               "fontFamily": "Geist Mono",
               "fontSize": 11,
               "fontWeight": "normal",
-              "letterSpacing": 1.5
+              "letterSpacing": 1
             }
           ]
         }
@@ -8614,58 +7800,6 @@
       "fill": "#F4EFE5",
       "layout": "vertical",
       "children": [
-        {
-          "type": "frame",
-          "id": "YYLhp",
-          "name": "dpMetaBar",
-          "width": "fill_container",
-          "stroke": {
-            "align": "inside",
-            "thickness": {
-              "bottom": 1
-            },
-            "fill": "#1A1814"
-          },
-          "padding": [
-            20,
-            72
-          ],
-          "justifyContent": "space_between",
-          "alignItems": "center",
-          "children": [
-            {
-              "type": "text",
-              "id": "AZwGe",
-              "fill": "#1A1814",
-              "content": "— PAGE 003 · /DIARY —",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 2
-            },
-            {
-              "type": "text",
-              "id": "JP5Fa",
-              "fill": "#1A1814",
-              "content": "K-LINE PREDICTION · DEVELOPMENT LOG",
-              "fontFamily": "Bodoni Moda",
-              "fontSize": 13,
-              "fontWeight": "700",
-              "letterSpacing": 1,
-              "fontStyle": "italic"
-            },
-            {
-              "type": "text",
-              "id": "N8NRP",
-              "fill": "#1A1814",
-              "content": "FILE Nº 003",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 2
-            }
-          ]
-        },
         {
           "type": "frame",
           "id": "vdJVv",
@@ -8696,14 +7830,63 @@
               "letterSpacing": 2
             },
             {
-              "type": "text",
-              "id": "LWzn7",
-              "fill": "#1A1814",
-              "content": "← Home",
-              "fontFamily": "Geist Mono",
-              "fontSize": 12,
-              "fontWeight": "normal",
-              "letterSpacing": 1
+              "type": "frame",
+              "id": "LVbFV",
+              "name": "dpNavLinks",
+              "gap": 28,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "J2BDv",
+                  "fill": "#1A1814",
+                  "content": "Home",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "tjHYB",
+                  "fill": "#1A1814",
+                  "content": "App",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "J7wyY",
+                  "fill": "#9C4A3B",
+                  "content": "Diary",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "700",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "aG8TZ",
+                  "fill": "#1A1814",
+                  "content": "Prediction",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "AlwhG",
+                  "fill": "#1A1814",
+                  "content": "About",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                }
+              ]
             }
           ]
         },
@@ -8730,71 +7913,12 @@
               "children": [
                 {
                   "type": "frame",
-                  "id": "mjams",
-                  "name": "dpStampCol",
-                  "width": 150,
-                  "height": 200,
-                  "layout": "none",
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "y2Pu3",
-                      "layoutPosition": "absolute",
-                      "x": 0,
-                      "y": 20,
-                      "rotation": -4,
-                      "fill": "#9C4A3B",
-                      "padding": [
-                        8,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "vUpHu",
-                          "fill": "#F4EFE5",
-                          "content": "§ LOGBOOK",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 14,
-                          "fontWeight": "700",
-                          "letterSpacing": 3
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "LNVdp",
-                      "layoutPosition": "absolute",
-                      "x": 6,
-                      "y": 120,
-                      "fill": "#1A1814",
-                      "content": "Nº 03",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 30,
-                      "fontWeight": "normal"
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
                   "id": "2iyC8",
                   "name": "dpHeroCol",
                   "width": "fill_container",
                   "layout": "vertical",
                   "gap": 16,
                   "children": [
-                    {
-                      "type": "text",
-                      "id": "j0RjV",
-                      "fill": "#6B5F4E",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "— A running log of decisions, fixes, and lessons —",
-                      "fontFamily": "Newsreader",
-                      "fontSize": 14,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
-                    },
                     {
                       "type": "text",
                       "id": "g2RUM",
@@ -8835,7 +7959,7 @@
               "id": "CGijt",
               "name": "dpList",
               "width": 1248,
-              "height": 600,
+              "height": 800,
               "layout": "none",
               "children": [
                 {
@@ -8847,7 +7971,7 @@
                   "name": "rail",
                   "fill": "#2A2520",
                   "width": 1,
-                  "height": 560
+                  "height": 624
                 },
                 {
                   "type": "frame",
@@ -8857,7 +7981,7 @@
                   "y": 0,
                   "name": "e1",
                   "width": 1248,
-                  "height": 180,
+                  "height": 140,
                   "layout": "none",
                   "children": [
                     {
@@ -8871,57 +7995,28 @@
                       "height": 14,
                       "fill": "#9C4A3B",
                       "cornerRadius": 6,
-                      "layout": "none",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "qYl4p",
-                          "layoutPosition": "absolute",
-                          "x": 6,
-                          "y": 0,
-                          "name": "e1mt",
-                          "fill": "#F4EFE5",
-                          "content": "§",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 11,
-                          "fontWeight": "700"
-                        }
-                      ]
+                      "layout": "none"
                     },
                     {
                       "type": "text",
                       "id": "uUrWx",
                       "layoutPosition": "absolute",
                       "x": 92,
-                      "y": 0,
+                      "y": 28,
                       "name": "e1d",
-                      "fill": "#9C4A3B",
-                      "content": "2026-04-19",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 32,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
-                    },
-                    {
-                      "type": "text",
-                      "id": "UVww7",
-                      "layoutPosition": "absolute",
-                      "x": 92,
-                      "y": 44,
-                      "name": "e1stamp",
                       "fill": "#6B5F4E",
-                      "content": "FILE Nº A · K-017",
+                      "content": "2026-04-19",
                       "fontFamily": "Geist Mono",
-                      "fontSize": 10,
+                      "fontSize": 12,
                       "fontWeight": "normal",
-                      "letterSpacing": 2
+                      "letterSpacing": 1
                     },
                     {
                       "type": "text",
                       "id": "chCIG",
                       "layoutPosition": "absolute",
                       "x": 92,
-                      "y": 68,
+                      "y": 52,
                       "name": "e1body",
                       "fill": "#2A2520",
                       "textGrowth": "fixed-width",
@@ -8932,6 +8027,22 @@
                       "fontSize": 18,
                       "fontWeight": "normal",
                       "fontStyle": "italic"
+                    },
+                    {
+                      "type": "text",
+                      "id": "5iZAT",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 0,
+                      "name": "e1title",
+                      "fill": "#1A1814",
+                      "textGrowth": "fixed-width",
+                      "width": 900,
+                      "content": "K-017 — Portfolio /about Rewrite",
+                      "fontFamily": "Bodoni Moda",
+                      "fontSize": 18,
+                      "fontWeight": "700",
+                      "fontStyle": "italic"
                     }
                   ]
                 },
@@ -8940,10 +8051,10 @@
                   "id": "EaYJ4",
                   "layoutPosition": "absolute",
                   "x": 0,
-                  "y": 200,
+                  "y": 160,
                   "name": "e2",
                   "width": 1248,
-                  "height": 180,
+                  "height": 140,
                   "layout": "none",
                   "children": [
                     {
@@ -8957,57 +8068,28 @@
                       "height": 14,
                       "fill": "#9C4A3B",
                       "cornerRadius": 6,
-                      "layout": "none",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "7RMml",
-                          "layoutPosition": "absolute",
-                          "x": 6,
-                          "y": 0,
-                          "name": "e2mt",
-                          "fill": "#F4EFE5",
-                          "content": "§",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 11,
-                          "fontWeight": "700"
-                        }
-                      ]
+                      "layout": "none"
                     },
                     {
                       "type": "text",
                       "id": "UuKCz",
                       "layoutPosition": "absolute",
                       "x": 92,
-                      "y": 0,
+                      "y": 28,
                       "name": "e2d",
-                      "fill": "#9C4A3B",
-                      "content": "2026-04-18",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 32,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
-                    },
-                    {
-                      "type": "text",
-                      "id": "6SrxU",
-                      "layoutPosition": "absolute",
-                      "x": 92,
-                      "y": 44,
-                      "name": "e2stamp",
                       "fill": "#6B5F4E",
-                      "content": "FILE Nº B · K-008",
+                      "content": "2026-04-18",
                       "fontFamily": "Geist Mono",
-                      "fontSize": 10,
+                      "fontSize": 12,
                       "fontWeight": "normal",
-                      "letterSpacing": 2
+                      "letterSpacing": 1
                     },
                     {
                       "type": "text",
                       "id": "9VJJb",
                       "layoutPosition": "absolute",
                       "x": 92,
-                      "y": 68,
+                      "y": 52,
                       "name": "e2body",
                       "fill": "#2A2520",
                       "textGrowth": "fixed-width",
@@ -9018,6 +8100,22 @@
                       "fontSize": 18,
                       "fontWeight": "normal",
                       "fontStyle": "italic"
+                    },
+                    {
+                      "type": "text",
+                      "id": "rPCgh",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 0,
+                      "name": "e2title",
+                      "fill": "#1A1814",
+                      "textGrowth": "fixed-width",
+                      "width": 900,
+                      "content": "K-008 — Automated Visual Reports",
+                      "fontFamily": "Bodoni Moda",
+                      "fontSize": 18,
+                      "fontWeight": "700",
+                      "fontStyle": "italic"
                     }
                   ]
                 },
@@ -9026,10 +8124,10 @@
                   "id": "SmtNt",
                   "layoutPosition": "absolute",
                   "x": 0,
-                  "y": 400,
+                  "y": 320,
                   "name": "e3",
                   "width": 1248,
-                  "height": 180,
+                  "height": 140,
                   "layout": "none",
                   "children": [
                     {
@@ -9043,62 +8141,195 @@
                       "height": 14,
                       "fill": "#9C4A3B",
                       "cornerRadius": 6,
-                      "layout": "none",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "C6PbS",
-                          "layoutPosition": "absolute",
-                          "x": 6,
-                          "y": 0,
-                          "name": "e3mt",
-                          "fill": "#F4EFE5",
-                          "content": "§",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 11,
-                          "fontWeight": "700"
-                        }
-                      ]
+                      "layout": "none"
                     },
                     {
                       "type": "text",
                       "id": "7mIk2",
                       "layoutPosition": "absolute",
                       "x": 92,
-                      "y": 0,
+                      "y": 28,
                       "name": "e3d",
-                      "fill": "#9C4A3B",
-                      "content": "2026-04-16",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 32,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
-                    },
-                    {
-                      "type": "text",
-                      "id": "xeBw3",
-                      "layoutPosition": "absolute",
-                      "x": 92,
-                      "y": 44,
-                      "name": "e3stamp",
                       "fill": "#6B5F4E",
-                      "content": "FILE Nº C · K-009",
+                      "content": "2026-04-16",
                       "fontFamily": "Geist Mono",
-                      "fontSize": 10,
+                      "fontSize": 12,
                       "fontWeight": "normal",
-                      "letterSpacing": 2
+                      "letterSpacing": 1
                     },
                     {
                       "type": "text",
                       "id": "bCyqt",
                       "layoutPosition": "absolute",
                       "x": 92,
-                      "y": 68,
+                      "y": 52,
                       "name": "e3body",
                       "fill": "#2A2520",
                       "textGrowth": "fixed-width",
                       "width": 900,
                       "content": "TDD bug fix on MA source — RED test first reproducing 1H MA history gap, then GREEN.",
+                      "lineHeight": 1.55,
+                      "fontFamily": "Newsreader",
+                      "fontSize": 18,
+                      "fontWeight": "normal",
+                      "fontStyle": "italic"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LMjes",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 0,
+                      "name": "e3title",
+                      "fill": "#1A1814",
+                      "textGrowth": "fixed-width",
+                      "width": 900,
+                      "content": "K-009 — TDD Bug Fix: MA History",
+                      "fontFamily": "Bodoni Moda",
+                      "fontSize": 18,
+                      "fontWeight": "700",
+                      "fontStyle": "italic"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "vqdCB",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 480,
+                  "name": "e4",
+                  "width": 1248,
+                  "height": 140,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "HKCm0",
+                      "layoutPosition": "absolute",
+                      "x": 20,
+                      "y": 10,
+                      "name": "e4m",
+                      "width": 20,
+                      "height": 14,
+                      "fill": "#9C4A3B",
+                      "cornerRadius": 6,
+                      "layout": "none"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HctQH",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 0,
+                      "name": "e4title",
+                      "fill": "#1A1814",
+                      "textGrowth": "fixed-width",
+                      "width": 900,
+                      "content": "K-005 — Pattern Matching Engine",
+                      "fontFamily": "Bodoni Moda",
+                      "fontSize": 18,
+                      "fontWeight": "700",
+                      "fontStyle": "italic"
+                    },
+                    {
+                      "type": "text",
+                      "id": "nYpxm",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 28,
+                      "name": "e4d",
+                      "fill": "#6B5F4E",
+                      "content": "2026-04-13",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal",
+                      "letterSpacing": 1
+                    },
+                    {
+                      "type": "text",
+                      "id": "HVSSq",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 52,
+                      "name": "e4body",
+                      "fill": "#2A2520",
+                      "textGrowth": "fixed-width",
+                      "width": 900,
+                      "content": "K-line pattern similarity engine — finds historical formations matching current chart, returns top N matches with probability.",
+                      "lineHeight": 1.55,
+                      "fontFamily": "Newsreader",
+                      "fontSize": 18,
+                      "fontWeight": "normal",
+                      "fontStyle": "italic"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "N5Utj",
+                  "layoutPosition": "absolute",
+                  "x": 0,
+                  "y": 640,
+                  "name": "e5",
+                  "width": 1248,
+                  "height": 140,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mDa6F",
+                      "layoutPosition": "absolute",
+                      "x": 20,
+                      "y": 10,
+                      "name": "e5m",
+                      "width": 20,
+                      "height": 14,
+                      "fill": "#9C4A3B",
+                      "cornerRadius": 6,
+                      "layout": "none"
+                    },
+                    {
+                      "type": "text",
+                      "id": "kxg59",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 0,
+                      "name": "e5title",
+                      "fill": "#1A1814",
+                      "textGrowth": "fixed-width",
+                      "width": 900,
+                      "content": "K-002 — UI Optimization Refactor",
+                      "fontFamily": "Bodoni Moda",
+                      "fontSize": 18,
+                      "fontWeight": "700",
+                      "fontStyle": "italic"
+                    },
+                    {
+                      "type": "text",
+                      "id": "eUcm2",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 28,
+                      "name": "e5d",
+                      "fill": "#6B5F4E",
+                      "content": "2026-04-10",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal",
+                      "letterSpacing": 1
+                    },
+                    {
+                      "type": "text",
+                      "id": "FxsUA",
+                      "layoutPosition": "absolute",
+                      "x": 92,
+                      "y": 52,
+                      "name": "e5body",
+                      "fill": "#2A2520",
+                      "textGrowth": "fixed-width",
+                      "width": 900,
+                      "content": "Full UI overhaul — three-role retrospective after And-clause omission directly spawned the per-role retro log mechanism.",
                       "lineHeight": 1.55,
                       "fontFamily": "Newsreader",
                       "fontSize": 18,
@@ -9132,23 +8363,14 @@
           "children": [
             {
               "type": "text",
-              "id": "tXGAY",
-              "fill": "#1A1814",
-              "content": "— end of logbook —",
-              "fontFamily": "Newsreader",
-              "fontSize": 12,
-              "fontWeight": "normal",
-              "fontStyle": "italic"
-            },
-            {
-              "type": "text",
-              "id": "3QB0R",
+              "id": "tZIFA",
+              "name": "ctR1",
               "fill": "#6B5F4E",
-              "content": "Filed 2026-04 · Latest first",
+              "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
               "fontFamily": "Geist Mono",
               "fontSize": 11,
               "fontWeight": "normal",
-              "letterSpacing": 1.5
+              "letterSpacing": 1
             }
           ]
         }
@@ -9164,58 +8386,6 @@
       "fill": "#F4EFE5",
       "layout": "vertical",
       "children": [
-        {
-          "type": "frame",
-          "id": "7mQ8q",
-          "name": "bpMetaBar",
-          "width": "fill_container",
-          "stroke": {
-            "align": "inside",
-            "thickness": {
-              "bottom": 1
-            },
-            "fill": "#1A1814"
-          },
-          "padding": [
-            20,
-            72
-          ],
-          "justifyContent": "space_between",
-          "alignItems": "center",
-          "children": [
-            {
-              "type": "text",
-              "id": "GxXRA",
-              "fill": "#1A1814",
-              "content": "— PAGE 004 · /BUSINESS-LOGIC —",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 2
-            },
-            {
-              "type": "text",
-              "id": "XTOH6",
-              "fill": "#1A1814",
-              "content": "K-LINE PREDICTION · RESTRICTED",
-              "fontFamily": "Bodoni Moda",
-              "fontSize": 13,
-              "fontWeight": "700",
-              "letterSpacing": 1,
-              "fontStyle": "italic"
-            },
-            {
-              "type": "text",
-              "id": "0EkbR",
-              "fill": "#1A1814",
-              "content": "FILE Nº 004",
-              "fontFamily": "Geist Mono",
-              "fontSize": 11,
-              "fontWeight": "normal",
-              "letterSpacing": 2
-            }
-          ]
-        },
         {
           "type": "frame",
           "id": "B5PEH",
@@ -9246,14 +8416,63 @@
               "letterSpacing": 2
             },
             {
-              "type": "text",
-              "id": "9JZwW",
-              "fill": "#1A1814",
-              "content": "← Back to App",
-              "fontFamily": "Geist Mono",
-              "fontSize": 12,
-              "fontWeight": "normal",
-              "letterSpacing": 1
+              "type": "frame",
+              "id": "FwOrY",
+              "name": "bpNavLinks",
+              "gap": 28,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "nHW1v",
+                  "fill": "#1A1814",
+                  "content": "Home",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "Oztg6",
+                  "fill": "#1A1814",
+                  "content": "App",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "FTCm7",
+                  "fill": "#1A1814",
+                  "content": "Diary",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "EyMMr",
+                  "fill": "#9C4A3B",
+                  "content": "Prediction",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "700",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "flObE",
+                  "fill": "#1A1814",
+                  "content": "About",
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "letterSpacing": 1
+                }
+              ]
             }
           ]
         },
@@ -9280,29 +8499,6 @@
               "gap": 16,
               "alignItems": "center",
               "children": [
-                {
-                  "type": "frame",
-                  "id": "4NDlK",
-                  "name": "bpStamp",
-                  "rotation": -3.0000000000000004,
-                  "fill": "#9C4A3B",
-                  "padding": [
-                    8,
-                    14
-                  ],
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "un5YB",
-                      "fill": "#F4EFE5",
-                      "content": "§ RESTRICTED",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 14,
-                      "fontWeight": "700",
-                      "letterSpacing": 3
-                    }
-                  ]
-                },
                 {
                   "type": "rectangle",
                   "id": "Zp89e",
@@ -9337,20 +8533,6 @@
               "fontStyle": "italic"
             },
             {
-              "type": "text",
-              "id": "JRSKw",
-              "fill": "#6B5F4E",
-              "textGrowth": "fixed-width",
-              "width": 560,
-              "content": "— Credentialed area. Prediction rules, thresholds, and source filters live behind this gate.",
-              "lineHeight": 1.55,
-              "textAlign": "center",
-              "fontFamily": "Newsreader",
-              "fontSize": 15,
-              "fontWeight": "normal",
-              "fontStyle": "italic"
-            },
-            {
               "type": "frame",
               "id": "Ci9Dx",
               "name": "bpCard",
@@ -9364,28 +8546,6 @@
               },
               "layout": "vertical",
               "children": [
-                {
-                  "type": "frame",
-                  "id": "mXlco",
-                  "width": "fill_container",
-                  "fill": "#2A2520",
-                  "padding": [
-                    6,
-                    10
-                  ],
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "C50cQ",
-                      "fill": "#F4EFE5",
-                      "content": "FILE Nº 01 · CREDENTIAL",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 10,
-                      "fontWeight": "normal",
-                      "letterSpacing": 2
-                    }
-                  ]
-                },
                 {
                   "type": "frame",
                   "id": "CRzG7",
@@ -9555,23 +8715,14 @@
           "children": [
             {
               "type": "text",
-              "id": "cNloI",
-              "fill": "#1A1814",
-              "content": "— access gate —",
-              "fontFamily": "Newsreader",
-              "fontSize": 12,
-              "fontWeight": "normal",
-              "fontStyle": "italic"
-            },
-            {
-              "type": "text",
-              "id": "WELSb",
+              "id": "AHkXM",
+              "name": "ctR2",
               "fill": "#6B5F4E",
-              "content": "Credentialed operators only",
+              "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
               "fontFamily": "Geist Mono",
               "fontSize": 11,
               "fontWeight": "normal",
-              "letterSpacing": 1.5
+              "letterSpacing": 1
             }
           ]
         }
