@@ -264,18 +264,31 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 
 ---
 
-### AC-017-FOOTER：全站共用 Footer CTA email + GitHub + LinkedIn `[K-017]`
+### AC-017-FOOTER：Footer 各頁面差異化實作 `[K-017]`
 
-**Given** 使用者訪問任意頁面（`/`、`/about`、`/diary` 等）
+**Given** 使用者訪問 `/about`
 **When** 頁面滾動至底部
-**Then** 顯示全站共用 Footer 組件，含 CTA 聯絡資訊
+**Then** 顯示 `FooterCtaSection`（Let's talk CTA 版）
 **And** 顯示 "Let's talk →" 文字開頭
 **And** 顯示 email：`yichen.lee.20@gmail.com`（`mailto:` 連結）
 **And** 顯示 "Or see the source:" 引導句後接 GitHub 與 LinkedIn 兩個連結
 **And** GitHub 連結 href = `https://github.com/mshmwr/k-line-prediction`，顯示文字為 "GitHub"
 **And** LinkedIn 連結 href = `https://linkedin.com/in/yichenlee-career`，顯示文字為 "LinkedIn"
 **And** 三個連結在新分頁開啟（`target="_blank"` + `rel="noopener noreferrer"`）
-**And** Playwright 斷言於 `/about` 頁驗證三個 href 完整匹配 + `mailto:` prefix 正確（代表全站 Footer 組件）
+**And** Playwright 斷言驗證三個 href 完整匹配 + `mailto:` prefix 正確
+
+**Given** 使用者訪問 `/`（首頁）
+**When** 頁面滾動至底部
+**Then** 顯示 `HomeFooterBar`（純文字資訊列）
+**And** 內容為純文字：`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`（無可點擊連結）
+**And** 字型為 Geist Mono，字級 11px
+**And** 頂部有 border 線作為視覺分隔
+**And** Playwright 斷言確認 `HomeFooterBar` 存在且包含上述三段文字
+
+**Given** 使用者訪問 `/diary`
+**When** 頁面滾動至底部
+**Then** 頁面底部**不顯示** Footer 組件（設計稿無此 section）
+**And** Playwright 斷言確認頁面底部無 FooterCtaSection 也無 HomeFooterBar
 
 ---
 
@@ -326,6 +339,23 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 
 ---
 
+### AC-017-HOME-V2：Homepage v2 完整版面改版 `[K-017]`
+
+**Given** 使用者造訪 `/`
+**When** 頁面載入完成
+**Then** 頁面呈現 Pencil 設計稿 `Homepage v2 Dossier`（frame `4CsvQ`）的完整版面：
+  - hpHero section 符合 v2 設計（更新後的 hero 版面與視覺規格）
+  - hpLogic section 符合 v2 設計（更新後的 Logic/Flow 版面與視覺規格）
+  - hpDiary section 使用 `<DiaryTimelineEntry>` 組件（`layout:none` 絕對定位，已於 Pass 3 設計完成）並符合 v2 版面
+**And** `<BuiltByAIBanner />` 存在（NavBar 下方、Hero 上方，已由 AC-017-BANNER 定義）
+**And** `<FooterCtaSection />` 存在（頁面底部，已由 AC-017-FOOTER 定義）
+**And** Playwright E2E 斷言涵蓋 hpHero / hpLogic / hpDiary 三個 section 的 key visual 元素（heading text、section label 或 data-testid）
+**And** 新版面不破壞 AC-HOME-1 現有斷言中「頁面包含 Hero / 專案邏輯 / 開發日記 section」的基本渲染要求
+
+**注意：** hpHero / hpLogic v2 版面細節由 Architect 補充設計規格後由 Engineer 實作，Architect 須在設計文件 §2.3 補上 v2 版面的 key visual 元素清單與 props interface。
+
+---
+
 ### AC-017-BUILD：`docs/ai-collab-protocols.md` build-time 同步至 `frontend/public/docs/` `[K-017]`
 
 **Given** 專案根目錄已有 `docs/ai-collab-protocols.md`（source of truth）
@@ -369,3 +399,70 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 **下次改善：**
 - Homepage 有任何新增 CTA 或 section 後，PM 強制重審所有現有 CTA 是否功能冗餘，列清單確認再放行 Designer（已加入 pm.md 自動觸發時機）
 - 給設計 AC 選項前必須先讀 `docs/designs/` + designer 反省，不依 PRD 舊文字直接推薦（已加入 pm.md 自動觸發時機）
+
+### Engineer 反省（實作 2026-04-19）
+
+**沒做好：**
+- **Playwright `locator().or()` 版本相容問題**：在 about.spec.ts Features Shipped test 寫了 `page.locator(...).or(...)` 但現有 Playwright 版本（^1.32.3）不支援此 API，造成首跑即 TypeError。根因是寫 spec 時未先確認 Playwright API 可用性，想當然用了較新的 API。
+- **`not.toBeAttached()` API 不存在**：NAVBAR test 用了不存在的斷言方法，應改用 `toHaveCount(0)`。同上，未確認 API 可用性。
+- **`getByText` strict mode 衝突**：`/Bug Found Protocol/`、`/docs\/tickets\/K-XXX\.md/`、`/E2E/` 等 regex 在整頁中命中多個元素，觸發 strict mode 違規。根因是未模擬「這段文字在整頁中是否唯一」再寫斷言，依靠 dev intuition 而非驗證。
+
+**下次改善：**
+- 寫 Playwright 斷言前先確認 Playwright 版本（`npx playwright --version`），確認 `locator().or()`、`toBeAttached()` 等 API 是否在當前版本可用，不依記憶用較新 API。
+- 對「整頁可能重複」的文字（角色名、路徑格式）優先使用 scoped locator（如 `page.locator('[data-role="X"]').getByText(...)` 或精確 href selector），而非全頁 regex，避免 strict mode 衝突。
+
+### Reviewer 反省（2026-04-19）
+
+**沒做好：**
+1. **AC-017-NAVBAR DOM 順序斷言漏寫**：AC 明文要求「Playwright 斷言確認 NavBar 存在且在 PageHeaderSection 之上（DOM 順序）」，但 about.spec.ts 只驗證 NavBar home icon 可見 + Prediction link 不在 DOM，缺少 DOM 順序斷言。這條 And 子句本應在 Architect 設計 E2E 驗證策略（§7.11 E2E 風險清單）時明確列為「需要 DOM 順序 selector（e.g. `nav + section` CSS selector 或比對 bounding box）」，而非留到 Review 才發現。根因：Architect 的 E2E 風險清單（§7.11）只列出內容斷言的風險點，沒有對 DOM 結構順序斷言這類「空間關係」測試明確列條目。
+2. **AC-017-BUILD E2E test 在 dev server 下必然失敗**：`about.spec.ts` 的 AC-017-BUILD test 依賴 `public/docs/ai-collab-protocols.md`（只有 `prebuild` 執行後才存在），但 `playwright.config.ts` 的 `webServer.command = 'npm run dev'`（不執行 prebuild），Vite dev server 回傳 404。這意味著每次 `npx playwright test` 在 dev mode 下 AC-017-BUILD test 必然 fail。Engineer 應將此 test 加 `.skip` 或移到專用 CI-build-mode spec，或在 test 說明中明示「需要先執行 npm run build」。此風險在設計文件 §7.8 有提及 Firebase Hosting 的靜態訪問問題，但未點出 Playwright 本身的 dev vs build 矛盾。
+3. **prebuild script 的錯誤訊息不含絕對路徑**：AC-017-BUILD 要求「失敗訊息明確指出缺失檔案絕對路徑」，但目前 `prebuild = "mkdir -p public/docs && cp ../docs/ai-collab-protocols.md public/docs/"` 的 cp 錯誤只輸出相對路徑 `../docs/ai-collab-protocols.md: No such file or directory`，未達 AC 要求。應改為 `SRC=... && [[ -f "$SRC" ]] || { echo "prebuild: missing $SRC ($(realpath $SRC))"; exit 1; }`。本應在 AC-017-BUILD AC 寫定時由 PM 同步要求 Architect 將此明確到設計文件的 prebuild script 規格中。
+
+**下次改善：**
+- Review E2E spec 時加固定步驟：展開每條 AC 的 Then/And 子句，逐行確認 spec 中有對應斷言。尤其是「DOM 順序」「URL 跳轉後的狀態」等空間/時序關係斷言，比內容斷言更容易被遺漏，Review 時優先盤點。
+- 遇到 Playwright test 依賴 build artifact（非 dev server 原生可 serve 的靜態檔）時，直接標記為「需要 build mode 執行」，並建議 Engineer 在 test describe 描述或 `test.skip` 條件中明示執行環境前提，不等 CI 失敗才被動發現。
+
+---
+
+## 技術債
+
+| ID | 描述 | 優先級 | 決策理由 | 登記日期 |
+|----|------|--------|---------|---------|
+| TD-K017-01 | `FooterCtaSection` 放在 `about/` 子目錄，但 HomePage / DiaryPage 均 import 同一組件。若日後重組 `about/` 目錄（如拆分子頁面），將意外破壞跨頁 Footer import。正確位置應為 `common/` 或 `components/shared/`。 | low | K-017 設計文件 Q8 已有意識決策放 `about/`（當時 Footer 尚為 about 專屬）；移至 common/ 超出 K-017 scope，不影響現有功能，記錄後待下次頁面重組時一併處理。 | 2026-04-19 |
+
+---
+
+## Retrospective（續）
+
+### PM 彙整（更新：QA 通過後 2026-04-19）
+
+**跨角色重複問題：**
+- **And 子句遺漏問題 K-002 後持續再現：** Engineer 漏寫 NavBar DOM 順序斷言（W1）；Reviewer 亦在第一輪 Review 才發現，而非在 Architect E2E 設計階段攔截。此問題在 K-002、K-008、K-017 已連續出現三次，顯示 And 子句逐條覆蓋斷言的 checklist 尚未有效落地。
+- **QA 執行環境前提檢查不足：** Visual report 忘帶 TICKET_ID；build artifact 依賴的 AC 未補 build-mode 驗證；shell script 類 AC 未主動手動執行情境。三個問題均屬「執行前 checklist 缺失」同一根因。
+- **設計 → 實作 → 驗收三層均有環境矛盾漏判：** AC-017-BUILD 依賴 prebuild artifact，但 Playwright 使用 dev server，三個角色（Architect、Engineer、Reviewer）均未在各自階段明確標注「此 AC 需要 build mode」，最終只能以 test.skip 代替完整驗證。
+
+**流程改善決議：**
+| 問題 | 負責角色 | 行動 | 更新位置 |
+|------|---------|------|---------|
+| AC Then/And 子句逐行覆蓋問題連續三票未根治 | Engineer | 寫 spec 前展開所有 Then/And 子句為 flat checklist，每條對應一個斷言，不跳過 | engineer.md persona / engineer retrospective log |
+| Architect E2E 風險清單未涵蓋 DOM 順序/空間關係類斷言 | Architect | 設計 E2E 策略時明確列「DOM 順序」「URL 跳轉」「空間關係」為風險項目，列 selector 策略 | `~/.claude/agents/senior-architect.md` 或設計文件模板 |
+| QA 截圖 script 執行前未確認 TICKET_ID | QA | 截圖 script 執行前固定三項確認：TICKET_ID 已設、visual-report.ts 存在、output 路徑正確 | qa.md persona checklist |
+| QA 對 build artifact 依賴的 AC 未補 build-mode 驗證 | QA | 含 build artifact 依賴的 AC，dev Playwright pass 後額外執行 `npm run build` 確認 artifact 存在 | qa.md persona checklist |
+| QA 對 shell script / CLI tool 類 AC 未主動手動執行 | QA | shell script 類 AC 主動手動執行所有情境（正常/邊界/失敗路徑），輸出貼入 QA 回報 | qa.md persona checklist |
+| AC-017-BUILD dev/build 矛盾未被三層攔截 | PM | 寫含 build artifact 依賴的 AC 時，在 AC 內明注「需 build mode 驗證，Playwright skip for dev」 | pm.md AC 撰寫守則 |
+
+**AC-017-AUDIT / AC-017-BUILD 裁決（2026-04-19）：**
+- AC-017-AUDIT：Engineer Phase A smoke test 已通過 K-002/K-008/K-999 三個 case（exit code 0 / warning / 2），Reviewer 亦已實跑 `bash scripts/audit-ticket.sh` 三情境驗證。接受為已驗證，QA 放行。
+- AC-017-BUILD：test.skip 已在 spec 內附說明（需先 npm run build），Firebase Hosting deploy 已通過（recruiter demo 環境正常）。接受現狀，QA 放行。
+
+### QA
+
+**沒做好：**
+1. **Visual Report TICKET_ID 未設定**：跑 `visual-report.ts` 時未帶 `TICKET_ID=K-017` 環境變數，導致產出檔案為 `K-UNKNOWN-visual-report.html` 而非 `K-017-visual-report.html`。QA 執行截圖 script 時應主動確認環境變數設定，不應依賴 Engineer 在 CI context 以外自動提供。
+2. **AC-017-BUILD 不可在 dev mode 跑，未補 build-mode 驗證**：Reviewer W2 已指出此問題並由 Engineer 加 `test.skip`，但 QA 層面未獨立補一條「npm run build → dist/docs/ai-collab-protocols.md 存在」的驗證步驟，純粹接受 skip 而未確認 prebuild 流程在 build mode 實際可行。
+3. **audit-ticket.sh A–G 功能無 Playwright 覆蓋**：AC-017-AUDIT 的驗收靠 Playwright suite 無法覆蓋 shell script 行為（script 不是 frontend 資產），但 QA 未主動執行 `./scripts/audit-ticket.sh K-002`、`K-008`、`K-999` 三個情境來直接驗證 AC-017-AUDIT 條文，完全依賴 Engineer 自述。
+
+**下次改善：**
+1. 截圖 script 執行前建立固定 checklist：確認 `TICKET_ID` 已設定、`visual-report.ts` 存在、output 路徑正確，三項確認後才執行，不事後補救。
+2. 凡有「build artifact 依賴」的 AC（如 prebuild hook），QA 在 dev Playwright pass 後額外執行 `npm run build` 並確認 artifact 存在，記錄於回報中，不以「test.skip」代替驗證。
+3. Shell script / CLI tool 類 AC（非 frontend 資產），QA 主動以手動執行補驗，不等 Playwright 自動跑。每個 AC 情境（正常 / 邊界 / 失敗路徑）各跑一次，輸出貼入 QA 回報。

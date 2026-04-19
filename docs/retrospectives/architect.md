@@ -20,6 +20,11 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-19 — K-017 Q8 FooterCtaSection 錯誤裁決
+
+**沒做好：** Q8 回覆「HomePage 全站加 FooterCtaSection」時未核對 Pencil 設計稿，設計稿實際上是純文字 hpFooterBar（一個 text node，文案 `"yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn"`，Geist Mono 11px #6B5F4E，無獨立連結），與 FooterCtaSection（三個獨立外連：email/GitHub/LinkedIn + ExternalLink + P3 primitive）完全不同設計理念。錯誤裁決會讓 Engineer 在 HomePage 底部實作錯誤組件。
+**下次改善：** Q&A 回覆涉及「新增組件到哪些頁面」時，必須先 batch_get 對應 Pencil frame 確認實際設計規格，不憑 AC 文字推論；特別是「全站共用」決策需要確認設計稿中每個頁面的底部是否都是同一個組件設計，而非只看 AC 描述文字
+
 ## 2026-04-19 — K-017 Homepage v2 漏項
 
 **沒做好：** Pass 3 Pencil 核對時只關注 /about 依賴項，未告警 Homepage v2 Dossier（frame `4CsvQ`）包含完整新版面（hpHero、hpLogic 均有全新文案與視覺結構），未納入 K-017 設計範圍。導致 §2.3 只寫「HeroSection 既有，不動 / ProjectLogicSection 既有，不動」，Engineer 若照舊文件實作會遺漏 v2 設計更新。

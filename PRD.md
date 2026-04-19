@@ -728,11 +728,11 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### AC-017-FOOTER `[K-017]`：Footer CTA email + GitHub + LinkedIn
+### AC-017-FOOTER `[K-017]`：Footer 各頁面差異化實作
 
 **Given** 使用者訪問 `/about`
 **When** 頁面滾動至底部
-**Then** 顯示 Footer CTA 區塊
+**Then** 顯示 `FooterCtaSection`（Let's talk CTA 版）
 **And** 顯示 "Let's talk →" 文字開頭
 **And** 顯示 email：`yichen.lee.20@gmail.com`（`mailto:` 連結）
 **And** 顯示 "Or see the source:" 引導句後接 GitHub 與 LinkedIn 兩個連結
@@ -740,6 +740,19 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 **And** LinkedIn 連結 href = `https://linkedin.com/in/yichenlee-career`，顯示文字為 "LinkedIn"
 **And** 三個連結在新分頁開啟（`target="_blank"` + `rel="noopener noreferrer"`）
 **And** Playwright 斷言驗證三個 href 完整匹配 + `mailto:` prefix 正確
+
+**Given** 使用者訪問 `/`（首頁）
+**When** 頁面滾動至底部
+**Then** 顯示 `HomeFooterBar`（純文字資訊列）
+**And** 內容為純文字：`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`（無可點擊連結）
+**And** 字型為 Geist Mono，字級 11px
+**And** 頂部有 border 線作為視覺分隔
+**And** Playwright 斷言確認 `HomeFooterBar` 存在且包含上述三段文字
+
+**Given** 使用者訪問 `/diary`
+**When** 頁面滾動至底部
+**Then** 頁面底部**不顯示** Footer 組件（設計稿無此 section）
+**And** Playwright 斷言確認頁面底部無 FooterCtaSection 也無 HomeFooterBar
 
 ---
 
