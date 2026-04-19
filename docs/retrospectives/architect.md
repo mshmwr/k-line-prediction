@@ -20,6 +20,24 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-19 — K-017 /about portfolio enhancement 設計
+
+**做得好：**
+- Drift 檢查真做到：讀 `AboutPage.tsx` / `HomePage.tsx` / `about/*` 全部 14 個組件檔 + `architecture.md` Directory Structure 子樹 + `main.tsx` 路由，再開始寫設計；因此 §5 檔案異動清單直接標出「舊 12 組件刪、RoleCard interface 需改、新增 11 組件」，Engineer 實作時不用再逆向推
+- 明確 defer 決策：§4.4 curated retrospective「挑哪 2–3 條」不替 PM 決定，只給挑選原則 + 引用格式，符合 senior-architect.md「不做需求決策」
+- 主動補陷阱：§7.8 Firebase SPA fallback 會吞 `.md`，設計時發現後在 §4.3 + §5 + §7 三處同步標註 + 建議 `frontend/public/docs/` copy 方案
+
+**沒做好：**
+- Firebase `.md` SPA fallback 的陷阱是寫到 §4.3 才回想起的，不是設計伊始就 mapping。根因：AC-017-PROTOCOLS 只要求「文件存在 + inline link 導向該檔」，AC 未強制「recruiter 點 link 實際能打開」，我對 recruiter 端到端使用路徑的 mental walkthrough 做得太晚；**senior-architect 職責應在「AC 覆蓋完畢」之後多一步「real-world path walkthrough」**，否則 Engineer 實作到 deploy 階段才撞牆
+- 未先 grep `frontend/e2e/pages.spec.ts` 對舊 AboutPage 文字（"What Is This Project?" / "AI COLLABORATION" / "HUMAN-AI"）的斷言依賴。§5 只寫「Engineer 需 grep 掃一次」，而不是自己先掃給清單——等於把該由設計階段攔截的脆弱點推給 Engineer，違反「設計要具體到工程師可直接照著做」
+
+**下次改善：**
+1. 設計文件送出前必做「end-to-end real-path walkthrough」：對每條 `/about` 上的 link（內部 SPA link / 內部 `.md` link / external GitHub / external LinkedIn / `mailto:`）逐一問「production deploy 後 click 能到對的地方嗎」。此 walkthrough 輸出列進本 retrospective log 下次可直接抄 checklist
+2. 大幅重組既有頁面的 ticket（刪 12 / 改 4 / 新增 19 規模）在 §5 檔案異動清單之前，Architect 自己先 grep 一次既有 E2E spec / Vitest 對舊文字 / 舊組件名的依賴，把結果寫進清單作為 Engineer 必要前置動作。不能只列「Engineer 須 grep」就放掉
+3. Firebase Hosting 特性（SPA fallback / rewrite / public dir 位置）列入本專案 Architect 必讀 reference 清單。下次涉及新增公開可訪問非 HTML 資源時（`.md` / `.txt` / `.json`）第一步先 check Hosting 行為
+
+---
+
 ## 2026-04-18 — K-008 W2/S3 修復後反省
 
 **做得好：**

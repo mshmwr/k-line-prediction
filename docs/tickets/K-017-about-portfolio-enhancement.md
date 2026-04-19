@@ -141,6 +141,8 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 | audit-ticket.sh 定位 | portfolio demo script，not CI gate；no --json flag (YAGNI) | 使用者確認 | 2026-04-19 |
 | audit F/G skip 規則 | `created < 2026-04-18` 的 ticket 直接 skip F/G（per-role retro 機制啟用前） | 使用者確認 | 2026-04-19 |
 | protocols doc curation | mechanism-focused + 2–3 條 curated 英文 retrospective 節選，不全譯 | 使用者確認 | 2026-04-19 |
+| Curated retrospective 3 條選擇（**revised 2026-04-19**） | (1) **Engineer K-008 W4** — env var as tainted source（**Persistent Memory** pillar；呼應「corrections outlive the session」—「sanitize by sink not source」已提煉成 memory rule，最能示範「memory rule 跨 session 保存」的作用）；(2) **Engineer K-002** — And-clause 系統性遺漏（**Structured Reflection** pillar；Engineer 實作時習慣性略過 And 子句導致 SectionHeader icon 漏實作，此事件直接催生 per-role retro log 機制，最能示範「reflection 機制如何誕生」）；(3) **Architect K-008 W2/S3** — truth table 設計紀律（**Role Agents** pillar；獨立 Architect agent 因 Bug Found Protocol 四步被逼出「配置/狀態 × 執行時機」truth table 紀律，示範獨立 role agent 的價值）。三條跨 3 個 ticket（K-008 / K-002 / K-008）、跨 2 個 role（Engineer / Architect），符合設計檔 §4.4 原則 1（有根因+改善）/ 2（跨 role）/ 3（跨 ticket，避免全 K-008 同族）；K-002 條目原文為中文，需英譯對齊 `/about` 英文基調；K-008 二條原文為英文，不需翻譯。**Revision 原因：** 使用者 2026-04-19 回饋要求 3 條跨 3 ticket 而非全 K-008，把原 Reviewer K-008 條目替換為 Engineer K-002 And-clause 遺漏，並把 Architect K-008 pillar 從 Structured Reflection 調整到 Role Agents。§4.4 原則 4（避免 memory 已收）本次仍對 Engineer K-008 W4 刻意 deviate（「sanitize by sink not source」已在 memory index），理由為「受眾不同：memory 給 agent 讀 / protocols doc 給 recruiter 讀；memory 已收代表此條最重要，值得對外展示」 | PM 裁決 | 2026-04-19 |
+| `frontend/public/docs/` copy 方案 | Option 1 — build step 加 `prebuild` hook，用 bash `cp docs/ai-collab-protocols.md frontend/public/docs/` 於 `frontend/package.json` scripts 加 `"prebuild": "mkdir -p public/docs && cp ../docs/ai-collab-protocols.md public/docs/"`。不選 Option 2（手動 copy 必 drift）/ Option 3（symlink 跨平台不安全）/ Option 4（Vite plugin 引額外依賴 `vite-plugin-static-copy`，對單檔 overkill）。需補 AC-017-BUILD 明示 build-time artifact 同步機制 | PM 裁決 | 2026-04-19 |
 
 ## 放行狀態
 
@@ -300,9 +302,32 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 **And** Role Flow section 定義 6 角色名稱與職責（對應 `/about` Section 3 的 Owns X）
 **And** Bug Found Protocol section 列出四步（反省 → PM 確認反省品質 → 寫 memory → 放行修復），並引用 K-008 / K-009 為示範
 **And** Per-role Retrospective Log section 說明 `docs/retrospectives/<role>.md` 機制 + K-008 起啟用 + 條目格式（YYYY-MM-DD / 做得好 / 沒做好 / 下次改善）
-**And** 文件含 2–3 條 **curated 英文 retrospective 節選**（非全翻譯所有 retro），每條明確標註 ticket ID + role + 原文出處連結
+**And** 文件含 **3 條 curated 英文 retrospective 節選**（非全翻譯所有 retro），每條明確標註 ticket ID + role + 原文出處連結；3 條為：
+  - **Engineer K-008 W4** — env var as tainted source（掛在 **Persistent Memory** pillar 底下；原文英文，不需翻譯）
+  - **Engineer K-002** — And-clause systematic omission（掛在 **Structured Reflection** pillar 底下；原文中文，需英譯並對齊英文基調。建議英譯：*"The And-clause for SectionHeader icons (AC-002-ICON And 3) was silently skipped during implementation because I habitually parse AC as Given/When/Then and treat And-clauses as secondary. The bug passed Engineer, Architect-review, and QA gates before Code Review caught it. From this ticket onward, every implementation starts by enumerating all Then/And clauses as a flat checklist, and every And gets a Playwright assertion."*）
+  - **Architect K-008 W2/S3** — truth table discipline for config × execution timing（掛在 **Role Agents** pillar 底下；原文英文，不需翻譯）
 **And** `/about` Section 4 的三個 pillar 底部 inline link 均導向此檔的對應 anchor（Persistent Memory → Per-role Retrospective Log / Structured Reflection → Bug Found Protocol / Role Agents → Role Flow）
 **And** 文件以英文撰寫（對齊 `/about` 的英文文案基調），不為全翻譯的中文版
+
+---
+
+### AC-017-BUILD：`docs/ai-collab-protocols.md` build-time 同步至 `frontend/public/docs/` `[K-017]`
+
+**Given** 專案根目錄已有 `docs/ai-collab-protocols.md`（source of truth）
+**When** 執行 `npm run build`（`frontend/` 目錄下）
+**Then** `frontend/package.json` 的 `prebuild` hook 自動執行，將 `docs/ai-collab-protocols.md` 複製到 `frontend/public/docs/ai-collab-protocols.md`
+**And** build 產出的 `frontend/dist/docs/ai-collab-protocols.md` 存在且內容與 source of truth 完全相同（byte-for-byte）
+**And** Firebase Hosting deploy 後，訪問 `https://<prod-domain>/docs/ai-collab-protocols.md` 回傳 markdown 原始文字（HTTP 200 + `Content-Type: text/markdown` 或 `text/plain`），不被 SPA fallback 導回 HomePage
+**And** `/about` Section 4 的三個 pillar inline link（`/docs/ai-collab-protocols.md#...`）於 production 環境 click 後可正確跳轉至該 markdown 檔的對應 anchor
+
+**Given** 開發者更新 `docs/ai-collab-protocols.md` 內容
+**When** 重新執行 `npm run build`
+**Then** `frontend/public/docs/ai-collab-protocols.md` 被覆寫為最新版本（無需手動同步）
+**And** 若 `frontend/public/docs/` 目錄不存在，prebuild hook 自動建立（`mkdir -p`）
+
+**And** `frontend/public/docs/ai-collab-protocols.md` 不得 commit 進 git（在 `.gitignore` 加 `frontend/public/docs/`），避免雙份 source of truth 造成 drift
+**And** Playwright E2E 新增一條斷言：navigate 至 `/docs/ai-collab-protocols.md` 得到 markdown 文字（或 raw content，body 含 `# AI Collaboration Protocols` 標題），而非 HomePage `<html>` 回應
+**And** `prebuild` script 若找不到 `../docs/ai-collab-protocols.md`（例如 source file 被誤刪 / 路徑重構未同步）必須以 **non-zero exit code 失敗**，不得 silent skip；失敗訊息明確指出缺失檔案絕對路徑，避免 source file 遺失卻仍 build 成功、production 訪問 `/docs/ai-collab-protocols.md` 得到 stale 或 404
 
 ---
 

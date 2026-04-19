@@ -2,18 +2,19 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-18
+updated: 2026-04-19
 ---
 
 ## Summary
 
 ETH/USDT K 線型態相似度預測系統。使用者上傳近期 OHLC，後端在歷史資料庫中找出最相似的歷史片段，計算 MA99 並提供後續走勢統計。
 
-**現況（2026-04-18，Phase 3 完成後）：**
-- 前端：5 條 SPA 路由（`/` / `/app` / `/about` / `/diary` / `/business-logic`）+ Unified NavBar + 35 個組件
+**現況（2026-04-19，K-017 Architect 設計完成後）：**
+- 前端：5 條 SPA 路由（`/` / `/app` / `/about` / `/diary` / `/business-logic`）+ Unified NavBar；`/about` K-017 重寫為 portfolio-oriented recruiter page（8 sections），homepage 加 `BuiltByAIBanner`
 - 後端：FastAPI 單檔 `main.py` 內含所有 route + 併存 2 份 in-memory history（`_history_1h` / `_history_1d`）
 - Cross-layer 重複計算（stats）已於 TD-008 RFC 決議採 Option C — 前端算 subset、後端算全集、contract fixture 鎖漂移（K-013 實作中）
 - 多個大模組（`AppPage.tsx` / `main.py` / `predictor.py`）已登記為 TD-005/006/007，待 K-013 驗收後啟動拆分 RFC
+- Portfolio artifact：`scripts/audit-ticket.sh`（A–G check group）+ `docs/ai-collab-protocols.md`（公開版協議文件）K-017 交付
 
 ---
 
@@ -43,11 +44,15 @@ ClaudeCodeProject/
 │   │   ├── architecture.md      ← 本檔
 │   │   └── conventions.md       ← K-Line 專屬規範（命名、pre-commit、history DB）
 │   ├── docs/
-│   │   ├── tickets/             ← K-001 ~ K-013 ticket
+│   │   ├── tickets/             ← K-001 ~ K-017 ticket
 │   │   ├── tech-debt.md         ← TD-001 ~ TD-008 登記簿
-│   │   ├── designs/             ← RFC（TD-008 Option C 等）
+│   │   ├── designs/             ← RFC + ticket design（TD-008 / K-017 等）
 │   │   ├── reviews/             ← Codex / senior-engineer review 紀錄
-│   │   └── reports/             ← Playwright visual-report 產出
+│   │   ├── retrospectives/      ← per-role 跨 ticket 累積反省（K-008 起）
+│   │   ├── reports/             ← Playwright visual-report 產出
+│   │   └── ai-collab-protocols.md ← K-017 公開版協議文件（英文，對外 recruiter 可見）
+│   ├── scripts/                 ← K-017 起；portfolio demo scripts
+│   │   └── audit-ticket.sh      ← A–G check group audit（portfolio demo, not CI gate）
 │   ├── backend/
 │   │   ├── main.py              ← FastAPI app + 所有 /api route + SPA fallback（最後一個 route）
 │   │   ├── models.py            ← Pydantic request/response models
@@ -63,7 +68,9 @@ ClaudeCodeProject/
 │   │       └── test_predictor.py ← predictor 純函式測試（44 tests）
 │   ├── frontend/
 │   │   ├── public/
-│   │   │   └── diary.json       ← DiaryMilestone[] 靜態資料
+│   │   │   ├── diary.json       ← DiaryMilestone[] 靜態資料
+│   │   │   └── docs/
+│   │   │       └── ai-collab-protocols.md  ← K-017 起；copy from docs/，讓 SPA Hosting 可直接訪問 `/docs/ai-collab-protocols.md`（避免 SPA fallback 吞 .md）
 │   │   ├── e2e/
 │   │   │   ├── business-logic.spec.ts
 │   │   │   ├── pages.spec.ts
@@ -114,22 +121,22 @@ ClaudeCodeProject/
 │   │           │   ├── DevDiarySection.tsx      ← Home 頁 Diary 預覽（LoadingSpinner 使用者之一）
 │   │           │   ├── DiaryPreviewEntry.tsx
 │   │           │   ├── StepCard.tsx
-│   │           │   └── TechTag.tsx
-│   │           ├── about/
-│   │           │   ├── PageHeaderSection.tsx
-│   │           │   ├── AiCollabSection.tsx
-│   │           │   ├── HumanAiSection.tsx
-│   │           │   ├── TechDecSection.tsx
-│   │           │   ├── TechDecCard.tsx
-│   │           │   ├── TechStackSection.tsx
-│   │           │   ├── TechStackRow.tsx
-│   │           │   ├── ScreenshotsSection.tsx
-│   │           │   ├── ScreenshotPlaceholder.tsx
-│   │           │   ├── FeaturesSection.tsx
-│   │           │   ├── FeatureBlock.tsx
-│   │           │   ├── ContributionColumn.tsx
-│   │           │   ├── RoleCard.tsx
-│   │           │   └── PhaseGateBanner.tsx
+│   │           │   ├── TechTag.tsx
+│   │           │   └── BuiltByAIBanner.tsx      ← K-017 新增；Homepage 最上方 thin banner → /about
+│   │           ├── about/                        ← K-017 大幅重構（2026-04-19）
+│   │           │   ├── PageHeaderSection.tsx             ← S1 One operator 聲明（既有檔改寫）
+│   │           │   ├── MetricsStripSection.tsx           ← S2 4 narrative metrics 容器
+│   │           │   ├── MetricCard.tsx                    ← title + subtext
+│   │           │   ├── RoleCardsSection.tsx              ← S3 6 roles 容器
+│   │           │   ├── RoleCard.tsx                      ← 既有檔，interface 改為 { role, owns, artefact }
+│   │           │   ├── ReliabilityPillarsSection.tsx     ← S4 3 pillars + anchor quotes
+│   │           │   ├── PillarCard.tsx                    ← title + body + italic blockquote + docs link
+│   │           │   ├── TicketAnatomySection.tsx          ← S5 K-002/K-008/K-009 trio 容器
+│   │           │   ├── TicketAnatomyCard.tsx             ← ID + title + outcome + learning + GitHub href
+│   │           │   ├── ProjectArchitectureSection.tsx    ← S6 Monorepo / Docs-driven / Testing pyramid
+│   │           │   ├── ArchPillarBlock.tsx               ← 單 arch pillar（含可選 testingPyramid list）
+│   │           │   ├── FooterCtaSection.tsx              ← S8 email + GitHub + LinkedIn 容器
+│   │           │   └── FooterCtaLink.tsx                 ← 單 link（external 時 rel="noopener noreferrer"）
 │   │           ├── diary/
 │   │           │   ├── DiaryTimeline.tsx
 │   │           │   ├── MilestoneSection.tsx
@@ -393,7 +400,7 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 |------|-----------|------|
 | `/` | `HomePage` | Hero + ProjectLogic + DevDiary 預覽 |
 | `/app` | `AppPage` | K-Line 預測功能（原 App.tsx；TD-005 待拆分） |
-| `/about` | `AboutPage` | PageHeader + AiCollab + HumanAi + TechDec + TechStack + Screenshots + Features |
+| `/about` | `AboutPage` | Portfolio-oriented recruiter page — 8 sections: PageHeader（One operator 聲明）+ MetricsStrip + RoleCards (6 roles × Owns/Artefact) + ReliabilityPillars (3 pillars + anchor quotes) + TicketAnatomy (K-002/K-008/K-009) + ProjectArchitecture + FooterCta（email/GitHub/LinkedIn）。S7 (BuiltByAIBanner) 放 `/` homepage 而非此頁。K-017 重寫（2026-04-19）|
 | `/diary` | `DiaryPage` | 工作日誌 Timeline（讀 `public/diary.json`） |
 | `/business-logic` | `BusinessLogicPage` | 交易邏輯（密碼保護，JWT 驗證後顯示） |
 | `*` | `Navigate to /` | 未匹配路徑一律導回首頁 |
@@ -443,6 +450,32 @@ TICKET_ID=K-008 npx playwright test visual-report.ts
 
 ---
 
+## Scripts & Public Protocols Doc（K-017 起）
+
+### `scripts/audit-ticket.sh`
+
+**定位：** Portfolio demo script，展示 6-role + doc trail 機制的可驗證性；**不是 CI gate**（不接 pre-commit / GitHub Actions）。
+
+**Usage：** `./scripts/audit-ticket.sh K-XXX`（從專案根目錄執行；script 內含 `cd` 保險）
+
+**Check groups：** A. Ticket file frontmatter / B. AC + PRD mapping / C. Architecture design / D. Commit trail / E. Code Review 反省 / F. 5 角色反省 + per-role log（K-008+ 才含）/ G. Playwright spec + visual report HTML（K-008+ 才含）
+
+**Date-based skip：** `created < 2026-04-18` 的 ticket F/G 直接 SKIP（per-role retro 機制啟用前）
+
+**Exit codes：** 0 = all pass / 1 = warning / 2 = critical missing
+
+**實作約束：** bash only（不依賴 node / python / jq），ANSI escape 上色（TTY detect），shebang `#!/usr/bin/env bash`
+
+### `docs/ai-collab-protocols.md`
+
+**定位：** 公開版協議文件，對外 recruiter 可讀；從 `/about` Section 4「How AI Stays Reliable」三個 pillar inline link 進入。
+
+**結構：** 三個主 section — `Role Flow` / `Bug Found Protocol` / `Per-role Retrospective Log` —  每個含 stable anchor（`{#role-flow}` / `{#bug-found-protocol}` / `{#per-role-retrospective-log}`）讓 `/about` pillar 深度連結。附 curated retrospective 節選 2–3 條。
+
+**部署：** Copy / symlink 到 `frontend/public/docs/ai-collab-protocols.md`，避免 Firebase SPA fallback 吞 `.md` 路徑。
+
+---
+
 ## Auth Flow（Business Logic）
 
 `BusinessLogicPage` 掛載時的 token 狀態機：
@@ -476,6 +509,7 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-19**（Architect, K-017 設計）— `/about` 重寫為 portfolio-oriented recruiter page：Directory Structure 下 about/ 子目錄刷新（刪 12 舊組件 / 新增 11 組件 / 改寫 PageHeader + RoleCard interface），home/ 加 `BuiltByAIBanner.tsx`；頂層 docs/ 加 `ai-collab-protocols.md` + retrospectives/ 子目錄註解；新增頂層 `scripts/` 目錄 + `audit-ticket.sh`；新增 `frontend/public/docs/` 供 SPA Hosting 直接訪問 `.md`；Frontend Routing 表 `/about` 說明全改；新增 `## Scripts & Public Protocols Doc` 段記錄 audit-ticket.sh + ai-collab-protocols.md 定位 / usage / skip 規則 / exit code / 部署約束。
 - **2026-04-18**（Architect, K-008 W2/S3 修復）— W2/S3 drift 修復 — per-project testMatch 決策 + Pages 行同步。§QA Artifacts 改寫 stale 的 testIgnore 建議為 `chromium` / `visual-report` 兩 project 的 `testMatch` 拆分（含 rationale + 副作用），並補 HTML header Pages 摘要行模板 `{successes} / {failures} / {authRequired}` 與實作對齊
 - **2026-04-18**（Architect, K-008 設計）— 新增 `## QA Artifacts` 段（visual-report.ts / docs/reports/ 職責、env var `TICKET_ID` 約定、單檔 inline base64 決策）；Directory Structure 的 `e2e/` 區塊補 `visual-report.ts` + 原漏列的 `ma99-chart.spec.ts` / `navbar.spec.ts`
 - **2026-04-18**（Architect）— Reflect Phase 3 state（5 pages / 35 components / Unified NavBar / usePrediction hook / utils/ 四檔）、TD-008 Option C 決策（新增 `## Consensus Stats Source of Truth` 段 + `consensus_forecast_1h/1d` 欄位對應）、modularity debt（新增 `## Known Architecture Debt` 段，條列 TD-003~007 與拆分方向）、修正實際 file layout（hooks 增 `usePrediction.ts`，components 增 `UnifiedNavBar.tsx`，about/home 子目錄組件重列，common/ 新增 `SectionHeader` / `SectionLabel` / `CtaButton`）
