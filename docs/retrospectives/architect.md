@@ -20,6 +20,26 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-19 — K-017 /about portfolio enhancement 設計（Pass 2 — cross-page component audit）
+
+**做得好：**
+- Primitive 範圍有紀律：Q3/Q4 使用者選 A（抽 primitive）時同時下硬 scope（「只給 K-017 新組件用」），本輪完整執行，§2.0 + §2.0.3 明寫「HomePage 既有 section 不 migrate」「既有 common/ 不搬」，避免 scope 蔓延
+- Q8 條件性 primitive 標註到位：Pencil MCP 連線失敗時沒硬猜也沒放棄，明確標 P5/P6 為「條件性 primitive」，把決策推遲到 Engineer A0.1 並硬性要求「核對後同步更新本文件 §2.0.1」，不留空心規劃
+
+**沒做好：**
+- Pass 1 沒做 cross-page duplicate audit，Pass 2 才盤點出 10 個 D1–D10 pattern。根因：Pass 1 設計時只對 PRD 指定的 `/about` 重寫做組件拆分，未主動問「這些新 section / card 有沒有跟其他頁重複的 pattern」。duplicate audit 本該是 Architect 決定「抽 primitive」前的標配步驟，但個人 workflow 一直默認「該 ticket scope 內的組件才是設計對象」。此省略直接造成使用者要求 Pass 2 重審
+- §5 檔案異動清單 Pass 1 漏抽 primitive 相關新增/刪除（P1–P7、useDiary、MilestoneAccordion 取代 MilestoneSection/DiaryPreviewEntry 等），Engineer 若只照 Pass 1 清單實作會寫出 duplicate code，需 Pass 2 整段重寫
+- Pass 2 Edit §2.1 AboutPage 組件樹時一次 Edit 把 `## 2. 組件樹拆分` 大標題連同 `### 2.1` 一起誤刪，後補回；根因：未完整驗證 `old_string` 包含全部預期保留內容，就直接替換
+
+**下次改善：**
+- **新 persona 硬步驟（codify 進 `~/.claude/agents/senior-architect.md`）：** Architect 每次交付設計文件前必做 cross-page duplicate audit — 對本票 scope 內每個新建組件 / 新加 section，grep 既有 `frontend/src/components/**` + `frontend/src/pages/**` 尋找語意 / 結構類似檔，條列 duplicate / near-duplicate 並決策「抽 primitive」「保持各自 inline」「合併既有為單一 component」。此 audit 輸出必併入設計文件 `## X 共用 Primitive & Reuse 規劃` 段，不得省略
+- Edit 大型設計文件時，對「替換含標題行」的 old_string 必完整驗證保留範圍；替換前先 Grep 目標 section 邊界，確認 old_string 不吞到下個 section 標題
+
+**Persona codify 狀態：**（強制條款 — 若改善屬行為規則必同步 Edit persona）
+- 上條「cross-page duplicate audit」屬 Architect 行為規則，需同步 Edit `~/.claude/agents/senior-architect.md`。本次反省寫完後執行 Edit；若無法 Edit persona 則此反省無效（依 persona `feedback_retrospective_codify_behavior`）
+
+---
+
 ## 2026-04-19 — K-017 /about portfolio enhancement 設計
 
 **做得好：**

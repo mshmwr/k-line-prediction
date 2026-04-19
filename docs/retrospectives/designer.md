@@ -17,6 +17,128 @@
 
 ---
 
+## 2026-04-19 — K-017 Diary timeline 跨頁同步漏做
+
+**沒做好：**
+- Diary timeline（entry title + 日期樣式）改完 wiDSi 後，沒有 cross-frame 確認 Homepage (4CsvQ) hpDiary section 也用相同元件，造成使用者第二次指出漏同步
+- 根因：cross-frame 掃描規則目前只明確要求 navbar；diary timeline 這類「跨頁重複元件」沒被列進強制掃描清單
+
+**下次改善：**
+- 改動任何 UI 元件時，先用 `batch_get({ patterns:[{name:"<關鍵字>"}] })` 搜尋文件全域，找出所有出現此元件的 frame，列對照表再動手
+- Homepage 的 `hpDiary` section 與 `/diary` 的 `dpList` 是同源元件，任一修改必須同步另一處
+
+---
+
+## 2026-04-19 — K-017 v2 四頁 Dossier 裝飾雜訊大規模清理
+
+**做得好：**
+- 開工前一次 `batch_get` 四個目標 frame（`35VCj`/`4CsvQ`/`wiDSi`/`VSwW9`）的直接子節點 + 深讀六個 section container（readDepth:3），一輪拿齊所有 parent 關係，確認印章群組 parent ID 再分批下手，無盲目刪節點
+- 正確判斷「刪 parent 還是刪個別子節點」：印章群組（`JFzgG`/`kHjU8`/`mjams`）整 parent 刪，stampBox 容器（`jFNIg`/`1svz6` 等）在文字被刪後空殼也一併清除；`mXlco`（bpCard header bar）在第一輪截圖後補查發現並刪除，完整 coverage
+- `PyUKW` content 更新（移除 " — three pillars, annotated." 後綴）在同一批次完成，不需額外 round-trip
+- 三批 `batch_design`（24 + 20 + 15 ops）全部在 25 ops 上限內，無回滾
+- 截圖四頁全部驗收：cream 背景、Bodoni/Geist Mono/Newsreader 三字型、`—` 前綴保留；印章/副標/計數文字全部清除；navbar 四頁一致存在
+
+**沒做好：**
+- 第一批執行後有空殼容器（`jFNIg`, `1svz6`, `Vx2Bg`, `CHy86`, `xBLOR`, `TpJLf`）出現 fit_content/zero-size 警告，需要第二批再清；若第一批就先刪文字子節點再刪 parent，可一次性無殘留
+- `/business-logic` card 的 `mXlco`（FILE Nº 01 · CREDENTIAL）是第一輪截圖後才補查發現，而非 pre-execution `batch_get` 時就識別；原因是清單的 `C50cQ` 節點 ID 已知，但未先追 parent 確認應刪 `mXlco`（整 card header），而是先刪 `C50cQ` 再看截圖
+
+**下次改善：**
+- 刪除含子節點的 container 前，執行順序改為：先刪整個 parent container（如果整個 parent 都是雜訊），而非先刪子節點再清空殼；這樣可避免 zero-size 警告的第二輪清理
+- `batch_get` 確認刪除清單節點時，同時追查每個節點的 parent（readDepth:2），若 parent 只剩該節點或整個 parent 都是雜訊，直接標記 parent 為刪除目標，不只看節點本身
+
+---
+
+## 2026-04-19 — K-017 全站 footer 聯絡資訊 + /about S8_FooterCTASection 移除
+
+**做得好：**
+- 四個 footer 一次 `batch_get` 讀清子節點結構，精確判斷哪些有右欄需 Update、哪些無右欄需 Insert，不盲目批量覆寫
+- hpFooterBar / abFooterBar 右欄 `W3zUd` / `hpwtD` 直接 U() 更新；dpFooterBar / bpFooterBar 無右欄則 I() 插入新 text 節點，策略因節點現況而異，精準不多餘
+- S8_FooterCTASection（`tiG5X`）與四個 footer 更新同一次 `batch_design` 完成（4 U/I + 1 D），單 round-trip 無分批
+- 截圖四個 footer 全部驗收，並截圖 `Y80Iv` 確認 About 底部無殘留 FooterCTA，主動覆蓋全部四頁而非只看改動頁
+
+**沒做好：**
+- 無（節點 ID 已知、任務範圍明確、執行乾淨無回滾；磁碟 flush 已透過 `git status` 確認 homepage.pen M 狀態）
+
+**下次改善：**
+- 跨頁同類節點批量修改時，先判斷每頁目標節點的「現況類型」（有/無右欄、幾個子節點），再依現況選 U() 或 I()，不預設所有頁面結構一致
+
+---
+
+## 2026-04-19 — K-017 Diary + BizLogic navbar 統一（單一回首連結 → 完整 navLinks）
+
+**做得好：**
+- 先 `batch_get` 四個目標節點（`vdJVv`、`B5PEH`、`OSgI0`、`voSTK`）同一 round-trip 拿齊所有屬性，確認 hpNav 五個連結的精確規格（Geist Mono 12px、letterSpacing 1、gap 28、active: #9C4A3B bold）再動手
+- 兩頁各用單次 batch_design（D() + I() × 6 ops）完成，不分批試探
+- 截圖雙驗：Diary active = "Diary"（#9C4A3B bold）、BizLogic active = "Prediction"（#9C4A3B bold），視覺與 Homepage / About 一致
+
+**沒做好：**
+- 未在 cross-frame navbar 通過時主動掃描所有頁面：上一輪 About navbar 通過驗收後，應立即 `batch_get` 搜尋所有 v2 frame 的 navbar 子節點，主動比對哪些頁面 navbar 不一致，而非等 PM 發 bug report 才發現 Diary 與 BizLogic 仍是單一回首連結
+
+**下次改善：**
+- navbar 修改任務完成後，加一道強制步驟：`batch_get` 所有頂層 frame 的第一個子節點，確認所有頁面 navbar 子樹結構（links 數量 + font spec）一致；若不一致立即修正，不等 PM 提報
+
+---
+
+## 2026-04-19 — K-017 BuiltByAIBanner cream 改色（Option A）
+
+**做得好：**
+- 先 `batch_get` 一次讀取 `96Spc`、`zJHys`、`RmIfG` 三個節點，拿到當前所有屬性（fill、stroke、font spec）後才下 batch_design，不盲目寫入
+- 三個 U() 合成單一 batch_design 呼叫，fill + stroke + 子節點文字色一次到位，無分批試探
+- 截圖確認 cream 底 `#F4EFE5` / 深棕主文字 `#1A1814` / 紅棕 CTA `#9C4A3B` 全部正確，banner 不再突兀於整體 Dossier 頁面
+
+**沒做好：**
+- 無（任務規格完整、節點 ID 已知、執行乾淨無回滾）
+
+**下次改善：**
+- 維持本次「先 batch_get 再 batch_design 再截圖」的單純三步流程；對於「已知 ID + 已知目標屬性」的點狀修改任務，這是最省 round-trip 的標準流程，後續同類任務直接套用
+
+---
+
+## 2026-04-19 — K-017 v2 navbar「Business Logic」→「Prediction」全域替換
+
+**做得好：**
+- 先 `batch_get` 搜尋含 `Business Logic` / `business-logic` name pattern 的 frame，一輪拿到所有候選節點
+- 接著搜尋所有 v2 frame（name 含 v2），確認共 4 個 v2 frame 及其 navbar id
+- 讀取 4 個 navbar 子樹，精確找到只有 Homepage v2（`OSgI0` → `SdCSj`）和 About v2（`voSTK` → `qhtkl`）有導覽連結 text，Diary v2 和 Business Logic v2 的 navbar 無導覽連結列
+- 兩個節點用單一 `batch_design` 完成（2 個 U()），截圖雙驗確認正確
+
+**沒做好：**
+- 無（任務範圍明確、搜尋策略三層遞進、無多餘操作）
+
+**下次改善：**
+- 全站批量 text content 修改的標準流程確立：(1) 搜含關鍵字的 frame pattern → (2) 確認 v2/版本 frame 清單 → (3) 讀各 navbar 子樹 → (4) 單一 batch 寫入 → (5) 截圖雙驗；後續同類任務直接套用
+
+---
+
+## 2026-04-19 — K-017 MetaBar 全站刪除（四頁清除）
+
+**做得好：**
+- 四個節點（hpMetaBar / dpMetaBar / bpMetaBar / abMetaBar）一次 `batch_design` 四個 `D()` 完成，不分批試探
+- 截圖四頁確認 Nav 均為最上層元素，無殘留 MetaBar 高度或空白間距
+
+**沒做好：**
+- 無（任務範圍單純、執行乾淨）
+
+**下次改善：**
+- 全站批量刪除同類型節點前，先確認節點 ID 清單與 frame 對應關係（本次由 PM 提供清單，直接使用）
+
+---
+
+## 2026-04-19 — K-017 /about v2 Nav 統一（黑底 → cream dossier-style）
+
+**做得好：**
+- 先讀 hpNav（`OSgI0`）完整子樹後才動手，確認所有屬性（padding、stroke、font spec、link color）無遺漏再複製
+- 截圖雙邊對比（`voSTK` vs `OSgI0`）確認視覺一致，"About" active link（#9C4A3B）正確標示
+
+**沒做好：**
+- `I()` 第三個參數 index 的語法踩了兩次坑：先傳物件 `{"index":0}` 失敗，再誤用 `M()` 第三參數傳物件也失敗，才確認正確語法是 `M(node, parent, 0)`（純數字）；兩次失敗都 rollback 才收尾，可事先查 tool schema 確認
+
+**下次改善：**
+- 需要在特定 index 插入節點時，優先用「先 `I()` 到尾，再 `M(binding, parent, index)` 移位」流程，且 `M()` 第三參數直接傳整數，不包裝成物件
+- 複製另一頁面的 nav 前，確認 active state 邏輯（哪個 link 用紅色）對應目標頁面，不沿用來源頁的 active
+
+---
+
 ## 2026-04-19 — Homepage dev-diary 與 /diary timeline 視覺不一致修復
 
 **沒做好：**

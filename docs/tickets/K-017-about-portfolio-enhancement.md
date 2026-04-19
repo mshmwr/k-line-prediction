@@ -143,12 +143,27 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 | protocols doc curation | mechanism-focused + 2–3 條 curated 英文 retrospective 節選，不全譯 | 使用者確認 | 2026-04-19 |
 | Curated retrospective 3 條選擇（**revised 2026-04-19**） | (1) **Engineer K-008 W4** — env var as tainted source（**Persistent Memory** pillar；呼應「corrections outlive the session」—「sanitize by sink not source」已提煉成 memory rule，最能示範「memory rule 跨 session 保存」的作用）；(2) **Engineer K-002** — And-clause 系統性遺漏（**Structured Reflection** pillar；Engineer 實作時習慣性略過 And 子句導致 SectionHeader icon 漏實作，此事件直接催生 per-role retro log 機制，最能示範「reflection 機制如何誕生」）；(3) **Architect K-008 W2/S3** — truth table 設計紀律（**Role Agents** pillar；獨立 Architect agent 因 Bug Found Protocol 四步被逼出「配置/狀態 × 執行時機」truth table 紀律，示範獨立 role agent 的價值）。三條跨 3 個 ticket（K-008 / K-002 / K-008）、跨 2 個 role（Engineer / Architect），符合設計檔 §4.4 原則 1（有根因+改善）/ 2（跨 role）/ 3（跨 ticket，避免全 K-008 同族）；K-002 條目原文為中文，需英譯對齊 `/about` 英文基調；K-008 二條原文為英文，不需翻譯。**Revision 原因：** 使用者 2026-04-19 回饋要求 3 條跨 3 ticket 而非全 K-008，把原 Reviewer K-008 條目替換為 Engineer K-002 And-clause 遺漏，並把 Architect K-008 pillar 從 Structured Reflection 調整到 Role Agents。§4.4 原則 4（避免 memory 已收）本次仍對 Engineer K-008 W4 刻意 deviate（「sanitize by sink not source」已在 memory index），理由為「受眾不同：memory 給 agent 讀 / protocols doc 給 recruiter 讀；memory 已收代表此條最重要，值得對外展示」 | PM 裁決 | 2026-04-19 |
 | `frontend/public/docs/` copy 方案 | Option 1 — build step 加 `prebuild` hook，用 bash `cp docs/ai-collab-protocols.md frontend/public/docs/` 於 `frontend/package.json` scripts 加 `"prebuild": "mkdir -p public/docs && cp ../docs/ai-collab-protocols.md public/docs/"`。不選 Option 2（手動 copy 必 drift）/ Option 3（symlink 跨平台不安全）/ Option 4（Vite plugin 引額外依賴 `vite-plugin-static-copy`，對單檔 overkill）。需補 AC-017-BUILD 明示 build-time artifact 同步機制 | PM 裁決 | 2026-04-19 |
+| /business-logic 頁面不實作 | 設計稿（VSwW9 frame）保留作為未來參考；K-017 工程範疇不含 `/business-logic` 頁面實作。待未來另開 ticket（建議命名 K-018-prediction-page）時再執行 | PM 裁決 | 2026-04-19 |
+| Navbar「Prediction」link 先隱藏 | 工程師在 navbar 實作時將「Prediction」link 以 `hidden` 或 conditional render 隱藏，不渲染至 DOM；待 `/business-logic`（Prediction）頁面實作完成後再開放。可減少 K-017 改動範圍，降低回歸風險。移入未來 enhancement（同上 K-018）| PM 裁決 | 2026-04-19 |
+| Footer CTA 為全站共用組件 | Footer contact（Let's talk / email / GitHub / LinkedIn）改為全站共用 Footer 組件，不限於 /about 頁；設計稿如需同步請另召喚 Designer 更新 Pencil .pen 各頁面 frame 的 footer section | PM 裁決 | 2026-04-19 |
 
 ## 放行狀態
 
 **PRD locked。放行 Architect。** 8 sections + 2 scope +1 artifacts 文案 + 設計決策全部定稿，AC 完整覆蓋，no blocking question。Architect 下一步負責 `/about` 組件樹拆分 + props interface + `scripts/audit-ticket.sh` 架構設計 + `docs/ai-collab-protocols.md` 文件結構設計。
 
 ## 驗收條件
+
+### AC-017-NAVBAR：/about 頁面頂部顯示 NavBar `[K-017]`
+
+**Given** 使用者訪問 `/about`
+**When** 頁面載入完成
+**Then** 頁面頂部顯示 NavBar（使用現有 `<UnifiedNavBar />` 組件，與其他頁面版本一致）
+**And** NavBar 位於所有內容區塊之上（`AboutPage.tsx` 組件樹第一層第一個子節點）
+**And** Playwright 斷言確認 NavBar 存在且在 PageHeaderSection 之上（DOM 順序）
+**And** Navbar 中「Prediction」link 在此 ticket 實作時**隱藏**（`hidden` attribute 或 conditional render `false`），不渲染至 DOM — 待 K-018 Prediction 頁面完成後再開放
+**And** Playwright 斷言確認「Prediction」link **不存在**於 DOM（`not.toBeVisible()` 或 `not.toBeAttached()`）
+
+---
 
 ### AC-017-HEADER：PageHeaderSection 呈現 One operator 聲明 `[K-017]`
 
@@ -249,18 +264,18 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 
 ---
 
-### AC-017-FOOTER：Footer CTA email + GitHub + LinkedIn `[K-017]`
+### AC-017-FOOTER：全站共用 Footer CTA email + GitHub + LinkedIn `[K-017]`
 
-**Given** 使用者訪問 `/about`
+**Given** 使用者訪問任意頁面（`/`、`/about`、`/diary` 等）
 **When** 頁面滾動至底部
-**Then** 顯示 Footer CTA 區塊
+**Then** 顯示全站共用 Footer 組件，含 CTA 聯絡資訊
 **And** 顯示 "Let's talk →" 文字開頭
 **And** 顯示 email：`yichen.lee.20@gmail.com`（`mailto:` 連結）
 **And** 顯示 "Or see the source:" 引導句後接 GitHub 與 LinkedIn 兩個連結
 **And** GitHub 連結 href = `https://github.com/mshmwr/k-line-prediction`，顯示文字為 "GitHub"
 **And** LinkedIn 連結 href = `https://linkedin.com/in/yichenlee-career`，顯示文字為 "LinkedIn"
 **And** 三個連結在新分頁開啟（`target="_blank"` + `rel="noopener noreferrer"`）
-**And** Playwright 斷言驗證三個 href 完整匹配 + `mailto:` prefix 正確
+**And** Playwright 斷言於 `/about` 頁驗證三個 href 完整匹配 + `mailto:` prefix 正確（代表全站 Footer 組件）
 
 ---
 
