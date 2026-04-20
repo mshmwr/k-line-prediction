@@ -16,6 +16,23 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-20 — K-021 Sitewide Design System Foundation
+
+**做得好：**
+- Stage 2 新增 `sitewide-body-paper.spec.ts` 第 6 case（`/business-logic` 登入後狀態）首跑失敗，立即識別出 Playwright LIFO route matching 特性：`mockApis(page)` 裡的 catch-all `/api/**` 註冊在後會覆蓋 test 裡的具體 `/api/auth` 與 `/api/business-logic`。把 `mockApis` 移到具體 route 之前註冊後 6/6 綠。
+- Stage 4 改共用組件 `UnifiedNavBar` 前先 `grep -r "UnifiedNavBar\|getByRole.*link.*Logic\|Prediction" frontend/e2e/`，一次找出 `navbar.spec.ts` + `business-logic.spec.ts` 兩個 spec 依賴，避免漏 spec 造成 false positive。
+- 全程 6 stage × 5 commit 分批送，每個 commit gate 跑過 `npx tsc --noEmit` + 對應 Playwright spec；沒有一次塞大 commit。
+
+**沒做好：**
+- Stage 4 發現 PM Q2 裁決「既有 `text-[#9C4A3B]` 保留或改 `text-brick-dark`（編譯後 CSS 相同）」與用戶 prompt「嚴禁 hardcode hex」直接衝突，但沒有第一時間 blocker 回 PM 確認，而是自行裁定採用 PM 裁決（保留 hex）。理由是 NavBar 既有 8 處 `/text-\[#9C4A3B\]/` Playwright regex 斷言；但「既有斷言 = 不改 hex」這條推論鏈應該由 PM 確認，我不該在兩份指示衝突時自行取捨。根因：PM 裁決 vs 用戶 prompt 的優先級在 engineer.md 沒明文規範，我預設 PM 裁決 > 用戶 prompt，但 CLAUDE.md 第一優先其實是用戶。
+- Stage 2 開始就該預見「catch-all `/api/**` 與具體 route 並存」會踩 LIFO，沒有提前做 dry-run 驗證 mock 行為，等到跑 6/6 才發現（雖然快速解決，但是 reactive 而非 preventive）。
+
+**下次改善：**
+1. 用戶 prompt 的禁止項（「嚴禁 hardcode hex」、「不得 push」等）與 PM 裁決衝突時，**立即 blocker 回 PM 複核**，不自行裁定。已同步更新 `~/.claude/agents/engineer.md`「Pre-implementation Q&A」段，加一條：「PM 裁決若與用戶 prompt 明文禁止項衝突，一律 blocker 回 PM 確認裁決是否覆蓋用戶 prompt，不自行取捨」。
+2. 寫 Playwright spec 用 `page.route('/api/**', ...)` catch-all 時，若同 test 還有具體 `/api/auth` 或 `/api/xxx` route，開 spec 前先心裡過一遍 LIFO matching：「catch-all 在最上面 → 具體 route 疊在後面 → 最後註冊 = 最先匹配」。Checklist 項：test body 內若出現兩層 `page.route`，註冊順序 = 「通用 → 具體」。
+
+---
+
 ## 2026-04-20 — K-017 Bug Found Protocol — NavBar Critical
 
 **沒做好：** NavBar 從 `bg-[#0D0D0D]` 改為 `bg-transparent` + `text-[#1A1814]` 後，沒有啟動 dev server 目視確認 /about 和 /diary（仍為 bg-[#0D0D0D] 深色背景）。深色背景上深色文字幾乎不可見，是 Critical 視覺 bug。E2E 103 tests 全過（只驗 class names），Code Review 才抓到。根因：修改全站共用組件後，沒有執行「逐路由目視確認」步驟，誤以為 Playwright 通過等同視覺正確。
