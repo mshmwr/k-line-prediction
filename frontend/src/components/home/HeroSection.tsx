@@ -5,17 +5,11 @@ export default function HeroSection() {
     <section className="py-24 px-6 max-w-5xl mx-auto">
       <div className="flex flex-col gap-[18px]">
         {/* Heading line 1 */}
-        <h1
-          className="text-[64px] italic font-bold leading-[1.05] text-[#1A1814]"
-          style={{ fontFamily: '"Bodoni Moda", serif' }}
-        >
+        <h1 className="font-display text-[64px] italic font-bold leading-[1.05] text-[#1A1814]">
           Predict the next move
         </h1>
         {/* Heading line 2 — accent colour */}
-        <h1
-          className="text-[64px] italic font-bold leading-[1.05] text-[#9C4A3B]"
-          style={{ fontFamily: '"Bodoni Moda", serif' }}
-        >
+        <h1 className="font-display text-[64px] italic font-bold leading-[1.05] text-[#9C4A3B]">
           before it happens —
         </h1>
         {/* Divider */}
