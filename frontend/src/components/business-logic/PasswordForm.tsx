@@ -21,12 +21,12 @@ export default function PasswordForm({ onSubmit, isLoading, expiredMessage }: Pa
           {expiredMessage}
         </p>
       )}
-      <label className="text-gray-400 text-sm font-mono">Password</label>
+      <label className="text-muted text-sm font-mono">Password</label>
       <input
         type="password"
         value={password}
         onChange={e => setPassword(e.target.value)}
-        className="bg-white/5 border border-white/20 text-white px-4 py-2 font-mono text-sm focus:outline-none focus:border-purple-500"
+        className="bg-paper border border-ink/20 text-ink px-4 py-2 font-mono text-sm focus:outline-none focus:border-purple-500"
         placeholder="Enter access password"
         disabled={isLoading}
         required
