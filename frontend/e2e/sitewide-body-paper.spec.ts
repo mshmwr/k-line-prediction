@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { mockApis } from './_fixtures/mock-apis.ts'
 
 // ── AC-021-BODY-PAPER ────────────────────────────────────────────────────────
 // Given: user visits any of the 5 routes (/, /about, /diary, /app, /business-logic)
@@ -7,24 +8,10 @@ import { test, expect } from '@playwright/test'
 // And:   <body> computed color = rgb(26, 24, 20) (#1A1814)
 // And:   each route is a standalone test case (PM 量化規則：5 個獨立 case 不合併；
 //        /business-logic 另加登入後狀態 = 6 cases 總計)
-
-/** Mock all /api/* routes so tests don't depend on backend.
- *  Register catch-all first (Playwright LIFO), then the specific /api/history-info
- *  mock AppPage依賴的 payload。
- */
-async function mockApis(page: import('@playwright/test').Page) {
-  await page.route('/api/**', route => route.fulfill({ status: 200, body: '{}' }))
-  await page.route('/api/history-info', route =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        '1H': { filename: 'test.csv', latest: '2024-01-01 00:00', bar_count: 1000 },
-        '1D': { filename: 'test.csv', latest: '2024-01-01', bar_count: 500 },
-      }),
-    })
-  )
-}
+//
+// LIFO ordering invariant 由 _fixtures/mock-apis.ts 內建：catch-all 先註冊、常用
+// 具體 mock 後註冊。Test 若需加額外具體 route（e.g. /api/auth）必須於 mockApis()
+// **之後**註冊；詳見 _fixtures/mock-apis.ts JSDoc。
 
 async function expectPaperBody(page: import('@playwright/test').Page) {
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 239, 229)')
@@ -71,8 +58,8 @@ test.describe('AC-021-BODY-PAPER — body paper bg across 5 routes', () => {
   })
 
   test('BusinessLogicPage (/business-logic, logged-in state) — body bg=#F4EFE5 + text=#1A1814', async ({ page }) => {
-    // Playwright page.route LIFO：後註冊的先 match。catch-all 先註冊，
-    // 之後再註冊 /api/auth + /api/business-logic 的具體 mock 才會優先生效。
+    // mockApis 內建 LIFO ordering：catch-all 先註冊（_fixtures/mock-apis.ts）。
+    // 具體 /api/auth + /api/business-logic 在此之後註冊 → 優先匹配。
     await mockApis(page)
 
     const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).replace(/=/g, '')

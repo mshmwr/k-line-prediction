@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { mockApis } from './_fixtures/mock-apis.ts'
 
 // ── AC-021-FOOTER ────────────────────────────────────────────────────────────
 // Given: user visits /, /app, /business-logic
@@ -10,20 +11,8 @@ import { test, expect } from '@playwright/test'
 //
 // 3 個獨立 test case（PM 量化規則）+ /business-logic 登入後狀態 = 4；
 // 另加 /about FooterCtaSection 存在 + HomeFooterBar 不存在 = 5。
-
-async function mockApis(page: import('@playwright/test').Page) {
-  await page.route('/api/**', route => route.fulfill({ status: 200, body: '{}' }))
-  await page.route('/api/history-info', route =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        '1H': { filename: 'test.csv', latest: '2024-01-01 00:00', bar_count: 1000 },
-        '1D': { filename: 'test.csv', latest: '2024-01-01', bar_count: 500 },
-      }),
-    })
-  )
-}
+//
+// LIFO ordering invariant 由 _fixtures/mock-apis.ts 內建。
 
 const FOOTER_TEXT = 'yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn'
 
@@ -68,7 +57,7 @@ test.describe('AC-021-FOOTER — HomeFooterBar per route', () => {
   })
 
   test('/business-logic (logged-in state) — HomeFooterBar still shows', async ({ page }) => {
-    // catch-all 先註冊，再疊 /api/auth + /api/business-logic 具體 mock
+    // mockApis 內建 LIFO ordering（_fixtures/mock-apis.ts）；具體 route 於此後註冊。
     await mockApis(page)
 
     const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).replace(/=/g, '')

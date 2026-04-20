@@ -1,23 +1,11 @@
 import { test, expect } from '@playwright/test'
+import { mockApis } from './_fixtures/mock-apis.ts'
 
 // ── Shared setup helpers ─────────────────────────────────────────────────────
-
-/** Mock all /api/* routes so tests don't depend on the backend */
-async function mockApis(page: import('@playwright/test').Page) {
-  // Register catch-all FIRST (Playwright routes are LIFO — later-registered routes match first)
-  await page.route('/api/**', route => route.fulfill({ status: 200, body: '{}' }))
-  // Specific mock for history-info (registered last = matches first) to prevent AppPage rendering crash
-  await page.route('/api/history-info', route =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        '1H': { filename: 'test.csv', latest: '2024-01-01 00:00', bar_count: 1000 },
-        '1D': { filename: 'test.csv', latest: '2024-01-01', bar_count: 500 },
-      }),
-    })
-  )
-}
+//
+// `mockApis` 從 `_fixtures/mock-apis.ts` 匯入。LIFO ordering invariant 內建。
+// Test 若需加具體 route（e.g. /api/auth）必須於 mockApis() **之後**註冊，
+// 否則 catch-all 會攔截具體 route。詳見 _fixtures/mock-apis.ts JSDoc。
 
 /**
  * NavBar has desktop + mobile right-side link containers both in the DOM.
