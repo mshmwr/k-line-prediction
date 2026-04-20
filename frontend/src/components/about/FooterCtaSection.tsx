@@ -11,37 +11,37 @@ import { trackCtaClick } from '../../utils/analytics'
  */
 export default function FooterCtaSection() {
   return (
-    <div className="text-center py-8 border-t border-white/10">
-      <p className="font-mono text-white text-lg font-bold mb-3">Let's talk →</p>
+    <div className="text-center py-8 border-t border-ink/10">
+      <p className="font-mono text-ink text-lg font-bold mb-3">Let's talk →</p>
       <a
         href="mailto:yichen.lee.20@gmail.com"
-        className="text-purple-400 hover:text-purple-300 text-sm font-mono underline"
+        className="text-brick-dark hover:text-brick text-sm font-mono underline"
         data-testid="cta-email"
         onClick={() => trackCtaClick('contact_email')}
       >
         yichen.lee.20@gmail.com
       </a>
 
-      <p className="text-gray-500 text-sm mt-4 mb-2">Or see the source:</p>
+      <p className="text-muted text-sm mt-4 mb-2">Or see the source:</p>
       <div className="flex justify-center gap-4">
         <a
           href="https://github.com/mshmwr/k-line-prediction"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub repository"
-          className="text-gray-300 hover:text-white text-sm font-mono underline"
+          className="text-ink hover:text-brick-dark text-sm font-mono underline"
           data-testid="cta-github"
           onClick={() => trackCtaClick('github_link')}
         >
           GitHub
         </a>
-        <span className="text-gray-600">·</span>
+        <span className="text-muted">·</span>
         <a
           href="https://linkedin.com/in/yichenlee-career"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="LinkedIn profile"
-          className="text-gray-300 hover:text-white text-sm font-mono underline"
+          className="text-ink hover:text-brick-dark text-sm font-mono underline"
           data-testid="cta-linkedin"
           onClick={() => trackCtaClick('linkedin_link')}
         >
@@ -49,7 +49,7 @@ export default function FooterCtaSection() {
         </a>
       </div>
 
-      <p className="text-gray-500 text-xs font-mono text-center mt-4">
+      <p className="text-muted text-xs font-mono text-center mt-4">
         This site uses Google Analytics to collect anonymous usage data.
       </p>
     </div>
