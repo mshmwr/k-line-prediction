@@ -7,7 +7,7 @@ import ArchPillarBlock from './ArchPillarBlock'
 export default function ProjectArchitectureSection() {
   return (
     <div>
-      <h2 className="font-mono font-bold text-white text-2xl mb-2">Project Architecture</h2>
+      <h2 className="font-mono font-bold text-ink text-2xl mb-2">Project Architecture</h2>
       <p className="text-gray-400 text-sm mb-6">
         How the codebase stays legible for a solo operator + AI agents.
       </p>

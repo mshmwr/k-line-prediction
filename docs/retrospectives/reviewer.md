@@ -16,6 +16,30 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Reviewer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-20 — K-021 Round 3 re-review（Step 2 專案深度）
+
+**做得好：** Round 3 fix 後實跑 `npm run build`（max chunk vendor-react 179.29 kB gzip 58.57，無 >500 kB warning）+ 全量 Playwright chromium（115 passed + 1 skipped，skip 為 AC-017-BUILD 既有），直接驗 AC-021-REGRESSION 末段；逐檔讀 C-1（PasswordForm/BusinessLogicPage）/ C-2（Diary 三個子元件）/ C-3（HomePage wrapper 刪除 diff 486f06e）/ C-4（sitewide-fonts.spec.ts 73 行 3 case）commit diff 對照 Round 2 問題清單，確認 fix 真正消除而非症狀遮蓋；AC-021-FONTS 判定從 Round 2 PARTIAL → Round 3 PASS（3 case 覆蓋 font-display Bodoni + font-mono Geist + /app cross-route）；Round 2 新增 persona 硬步驟全部落地驗證（engineer.md L14 絕對不做第 4 條 / L69-73 前端實作順序第 5 步 / L84-88 驗證清單設計文件 checklist gate / senior-architect.md L71-85 Architecture Doc Self-Diff 段 / 4 memory 檔 + MEMORY.md 索引）。
+
+**沒做好：** W-5 architecture.md Footer 表 Round 2 修 L463-469（`/app = HomeFooterBar`, `/diary = 無`）正確落地，但**同檔 L476 `Shared Components 邊界` 表的 `HomeFooterBar` 用於欄位仍誤寫** `/ /diary /business-logic`（應為 `/ /app /business-logic`）—— 屬 Architect self-diff 硬步驟覆蓋範圍內（結構化表格）卻漏掃第二張表。Reviewer Round 2 只對照 L463-469 未延伸檢 L476，屬 cross-check 範圍不足；已在本輪列為新發現 Warning（W-R3-01）。Round 3 另一遺漏：AC-021-FONTS 第三字型 Newsreader 的 fontFamily 斷言未被 spec 覆蓋（`font-italic` class 在 codebase 零使用，現況以 `font-['Newsreader']` arbitrary value + inline style 落地），屬 TD-K021-01 漸進處理範圍但應在 Round 2 點出，未點出。
+
+**下次改善：**
+1. Architecture doc cross-check 擴為「全檔 grep 同義欄位」：每次 architecture.md drift 檢查不只對照設計文件當下 section，同檔所有含同名組件（`HomeFooterBar` / `UnifiedNavBar` / `FooterCtaSection`）的表格均需 grep 逐列比對；不限於本次新增段落。
+2. AC 列舉 N 字型 / N 路由 / N 狀態時，spec 覆蓋率 cross-check 延伸到每一項，不以「主要項已覆蓋」降級為 PASS；未覆蓋項如屬既有漸進遷移（TD 範圍），Reviewer 仍應於 Round 報告標 Suggestion，不沉默通過。
+
+---
+
+## 2026-04-20 — K-021 Sitewide Design System（Step 2 專案深度 review Round 2）
+
+**做得好：** 沒停留於 Step 1 findings 的彙整，實際跑 `npm run build` 取得最新 chunk size（vendor-react 179.29 kB gzip 58.57 最大；無 >500 kB warning 新增）確認 AC-021-REGRESSION 末段；讀 `docs/designs/K-021-sitewide-design-system.md` §9.1 列出的 3 支 spec（`sitewide-body-paper` / `sitewide-footer` / `sitewide-fonts`）vs `frontend/e2e/` 實際檔案 cross-check，確認缺 `sitewide-fonts.spec.ts` 屬設計文件明列但 Engineer 未建（不是 Reviewer 自創新要求）；逐頁 grep HomeFooterBar + FooterCtaSection 實作，對照 `agent-context/architecture.md` § Footer 放置策略表，抓出 `/app` 與 `/diary` 兩列 drift（實作 `/app` 有 footer、`/diary` 無，architecture.md 寫顛倒）。
+
+**沒做好：** AC-021-FONTS 的 Playwright 斷言「font-display / font-mono computed fontFamily」Architect 已在設計文件 §9.1 明列為獨立 spec 檔，卻未在放行 Engineer 時交付清單明寫「3 支 spec 必建」，讓 Engineer 實作只建 2 支（Engineer 在自己的 Retrospective 也沒列為 edge case）。Reviewer 在 Step 1 後若更早讀設計文件 §9 就能在 Engineer Pre-implementation Q&A 階段即點出缺口，而非等實作完檢查。同樣的「設計文件指定的 spec 清單 vs 實作 spec 檔名 cross-check」在 K-018 Reviewer retrospective（2026-04-19）已列「每條 AC 的 Then/And 逐行 grep spec」改善動作，但當時僅針對 AC 文字，未擴及設計文件明列的 spec 清單；本次仍漏。
+
+**下次改善：**
+1. Review 開始時固定跑：`grep -n "spec.ts" docs/designs/<ticket>*.md` 抽設計文件列出的 spec 檔名 → `ls frontend/e2e/` cross-check 實際檔名；有 drift 先列 Critical/Warning，不等跑 build 才發現。此條已 Edit 進 `~/.claude/agents/reviewer.md` 「Review Checklist」新增「設計文件 spec 清單 vs 實作 spec 檔名 cross-check」硬步驟（詳下）。
+2. 架構文件 drift 檢查擴及「放置表」類規格表：每次 review 涉及 shared component placement 改動，固定對照 `agent-context/architecture.md` 的表格（Footer 放置 / NavBar 項目 / 路由表）逐列 grep 實作確認一致，drift 當場列 Warning 回 PM；不因「只是文件」降級為 Suggestion。
+
+---
+
 ## 2026-04-19 — K-017 /about portfolio enhancement
 
 **做得好：** 實際執行 `bash scripts/audit-ticket.sh K-002`、`K-008`、`K-999` 三個 AC-017-AUDIT case 驗證 exit code 與輸出格式，而非只讀 code；逐條對照 PRD 全部 10 條 AC 的 Then/And 子句與 spec 覆蓋，發現 AC-017-NAVBAR 的 DOM 順序斷言和 AC-017-BUILD 的 dev/build 環境矛盾兩個 spec 漏洞，而非只比對 describe 標題與 AC 標題。

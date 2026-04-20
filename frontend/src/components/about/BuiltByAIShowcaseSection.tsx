@@ -7,7 +7,7 @@
 export default function BuiltByAIShowcaseSection() {
   return (
     <div>
-      <h2 className="font-mono font-bold text-white text-2xl mb-2">Built by AI</h2>
+      <h2 className="font-mono font-bold text-ink text-2xl mb-2">Built by AI</h2>
       <p className="text-gray-400 text-sm mb-6">
         The homepage banner — a thin strip above the hero — leads recruiters into this page.
       </p>

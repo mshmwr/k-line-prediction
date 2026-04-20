@@ -23,6 +23,14 @@
 | TD-011 | `frontend/design/homepage.pen` 仍含 `Running prediction...` 文字節點（K-011 drift） | 2026-04-18 K-011 review Drift C | 低 | 2026-04-18 |
 | TD-012 | visual-report `/app` 空狀態截圖價值低 — 後端不可用時 placeholder 降級 | 2026-04-18 K-008 review S1 | 低 | 2026-04-18 |
 | TD-013 | GA4 initGA() 無冪等保護 + dataLayer 型別 + 未知路由無 warn（S2/S3/S4） | 2026-04-19 K-018 review S2–S4 | 低 | 2026-04-19 |
+| TD-K021-01 | 部分頁面 `font-mono` 仍用 Tailwind 預設，未全面遷 K-021 `mono` (Geist Mono) token | K-021 Engineer retro | 低 | 2026-04-20 |
+| TD-K021-02 | UnifiedNavBar 保留 6 處 hardcode hex（PM Q2 既有斷言 vs 使用者 prompt「嚴禁 hardcode」衝突） | K-021 Reviewer W-3 | 中 | 2026-04-20 → K-025 |
+| TD-K021-07 | AppPage `h-screen overflow-hidden` + HomeFooterBar 在 <900px viewport 可能擠壓 predictor | K-021 Reviewer W-1 | 低 | 2026-04-20 |
+| TD-K021-08 | HomeFooterBar `email / github / LinkedIn` 未包 `<a>` 錨點 | K-021 Reviewer S-1 | 低 | 2026-04-20 |
+| TD-K021-09 | `/` route NavBar inactive color 未於 navbar.spec.ts 斷言 | K-021 Reviewer S-2 | 低 | 2026-04-20 |
+| TD-K021-10 | DiaryPage `font-mono` 既有 Tailwind default，K-024 時再評估是否改 `font-mono` (Geist Mono) token | K-021 Reviewer S-5 | 低 | 2026-04-20 |
+| TD-K021-11 | PasswordForm button 保留 `bg-purple-600 text-white`（Q1 使用者裁決保留），未遷 `bg-brick` token | K-021 Reviewer Round 3 S-R3-02 | 低 | 2026-04-20 |
+| TD-K021-13 | PasswordForm `expiredMessage` 用 `text-yellow-400`，在米白底（`#F4EFE5`）對比 ~2.4:1，不達 WCAG AA | K-021 Reviewer Round 3 S-NEW-1 | 中 | 2026-04-20 |
 
 ---
 
@@ -254,6 +262,115 @@ projected future bar aggregation / stats derivation / time aggregation 前後端
 - S4：`default` case 加 `console.warn(\`[GA] Unknown route: ${path}\`)`
 
 **排期觸發條件：** 下次 GA 相關 ticket（例如 SPA pageview E2E、GA 設定重構）時一併清理；或獨立由後續 DX 清理 ticket 處理。
+
+---
+
+## TD-K021-01 — 部分頁面字型未遷 mono token
+
+**來源：** K-021 Engineer retrospective 2026-04-20
+
+部分元件仍使用 Tailwind 預設 `font-mono`（不綁定 Geist Mono CDN 字型），未全面遷至 K-021 theme `mono` token。Architect 設計文件已列為漸進遷移。
+
+**PM 裁決（2026-04-20）：** 低優先。理由：既有 `font-mono` 在 Tailwind 預設會 fallback 至 monospace 系統字，視覺差異小；本票 AC-021-FONTS 只要求 `font-mono` computed fontFamily 含 "Geist Mono"，token 已註冊，實際 class 遷移屬漸進式 cleanup。
+
+**排期觸發條件：** K-022 / K-023 / K-024 頁面改版時順手遷移。
+
+---
+
+## TD-K021-02 — UnifiedNavBar hardcode hex（→ K-025）
+
+**來源：** K-021 Reviewer 合併報告 W-3（2026-04-20）
+
+`UnifiedNavBar.tsx` 保留 6 處 hex（`text-[#9C4A3B]` 等）、`navbar.spec.ts` 8 處 regex 斷言——PM Q2 裁決允許保留以避免 K-005 既有斷言回歸，但與使用者 prompt「嚴禁 hardcode hex」衝突。
+
+**PM 裁決（2026-04-20）：** 開 follow-up ticket K-025 獨立處理。理由：(a) K-021 AC-021-NAVBAR 明文允許 `text-[#9C4A3B]` 或 `text-brick-dark`（編譯後 CSS 相同）；(b) 一次改 NavBar + spec 8 處屬獨立工作單元，塞本票污染 fix-now 批次；(c) 使用者 prompt「嚴禁 hardcode」為未來規範，需正式開票裁決適用範圍。
+
+**對應 ticket：** [K-025](tickets/K-025-navbar-hex-to-token.md)
+
+---
+
+## TD-K021-07 — AppPage <900px viewport 擠壓
+
+**來源：** K-021 Reviewer 合併報告 W-1（2026-04-20）
+
+AppPage `h-screen overflow-hidden` + 新加 HomeFooterBar，<900px viewport 下 predictor panel 可能被擠壓。Engineer 驗證僅 1280×800。
+
+**PM 裁決（2026-04-20）：** 低優先 tech-debt。理由：AppPage design §8.1 明載「不做 mobile 截圖，AppPage 本即非 mobile 友好」；TD-K021-04 `/app` redesign 同族，併入未來 K-025 後續 AppPage redesign ticket（暫以「TD-K021-04 觸發時一併處理」記）。
+
+**建議解法：** HomeFooterBar 改 `flex-shrink-0` + AppPage 增 `min-h-0` scroll container；或加 900×600 viewport Playwright case 作為 smoke。
+
+**排期觸發條件：** TD-K021-04 AppPage redesign ticket 啟動時併入。
+
+---
+
+## TD-K021-08 — HomeFooterBar 文字無 `<a>` 錨點
+
+**來源：** K-021 Reviewer 合併報告 S-1（2026-04-20）
+
+`HomeFooterBar` 的 `email / github / LinkedIn` 三項為純文字，未包 `<a href>` 錨點，無法點擊跳轉。
+
+**PM 裁決（2026-04-20）：** 低優先。K-021 AC-021-FOOTER 僅規範「單行資訊列」文字斷言，未要求 clickable link。Visitor 可手動複製，非阻塞 UX。
+
+**排期觸發條件：** K-025 或任一 UI polish ticket 順手處理。
+
+---
+
+## TD-K021-09 — /` route navbar inactive color 未斷言
+
+**來源：** K-021 Reviewer 合併報告 S-2（2026-04-20）
+
+`navbar.spec.ts` 對 `/` 路由未斷言 inactive 項（App / Diary / About）color 為 `#1A1814/60` 或對應 muted token。AC-021-NAVBAR 只要求 active 項，未覆蓋 inactive。
+
+**PM 裁決（2026-04-20）：** 低優先。當前 AC 未明文要求 inactive 色，本票不擴 scope；併 K-025 navbar 改寫時補斷言。
+
+**排期觸發條件：** K-025 或後續 navbar 改動 ticket。
+
+---
+
+## TD-K021-10 — DiaryPage font-mono 未改 mono token
+
+**來源：** K-021 Reviewer 合併報告 S-5（2026-04-20）
+
+DiaryPage 內 `font-mono` 用 Tailwind 預設，未綁 Geist Mono CDN。K-024 處理 diary 結構重做時一併評估。
+
+**PM 裁決（2026-04-20）：** 低優先。K-024 票負責。
+
+**排期觸發條件：** K-024 啟動。
+
+---
+
+## TD-K021-11 — PasswordForm button 保留 purple 未遷 brick token
+
+**來源：** K-021 Reviewer Round 3 S-R3-02（2026-04-20）
+
+`frontend/src/components/business-logic/PasswordForm.tsx:37` 保留 `bg-purple-600 text-white`。K-021 Q1 使用者裁決暫不動（避免影響登入現況），但 `design doc §6` 的 paper palette 僅含 `brick` / `brick-dark` 作為主色 accent，purple 屬 non-token 非系列色。
+
+**風險：** 低 — 登入入口視覺與 design system 脫鉤，但功能運作正常；未來若 PasswordForm 整體重構時屬「設計決策的一次性遷移」範疇。
+
+**PM 裁決（2026-04-20）：** 登低優先 tech debt。Q1 裁決保留為「本票不動」，TD 紀錄「未來一次性遷 `bg-brick`」的預期動作，避免三個月後新開發者再誤以為 purple 是有意保留。
+
+**建議解法：** 整批 PasswordForm 重構或 `/business-logic` 頁面結構改版票啟動時，把 button 改為 `bg-brick hover:bg-brick-dark text-paper` + 同步 AC 斷言。
+
+**排期觸發條件：** `/business-logic` 頁面結構改版 ticket 啟動時併入；或 3 個月內無 scope 觸發時獨立開小票。
+
+---
+
+## TD-K021-13 — PasswordForm expiredMessage 對比不足
+
+**來源：** K-021 Reviewer Round 3 S-NEW-1（2026-04-20）
+
+`frontend/src/components/business-logic/PasswordForm.tsx:20` 的 `expiredMessage` 文字使用 `text-yellow-400`（約 `#FACC15`），在 K-021 全站米白底（`#F4EFE5`）上對比度約 2.4:1，未達 WCAG AA 標準（normal text 4.5:1）。K-017 時 PasswordForm 在深色底，此顏色合理；K-021 body 米白化後遺留。
+
+**風險：** 中 — 影響「session expired」提示文字可讀性，登入流程的錯誤訊息若使用者未看見將誤判「無法登入」。accessibility 問題，非純視覺議題。
+
+**PM 裁決（2026-04-20）：** 中優先 tech debt。理由：
+- 非 active bug（訊息仍渲染，只是對比低）
+- 本票 fix-now 已超載，Round 3 不再擴 scope
+- 修法明確（改 `text-amber-700` 或 `text-brick-dark`，WCAG AA ≥4.5:1）
+
+**建議解法：** `text-yellow-400` → `text-amber-700`（對比 ~5.8:1）或 `text-brick-dark`（對比 ~6.2:1，與 design system 一致）。測試建議：加 `@axe-core/playwright` 掃整站 accessibility。
+
+**排期觸發條件：** TD-K021-11 同族（`/business-logic` 頁面結構改版）一併處理；或 K-022 /about 改版時順手掃相關 shared primitive。
 
 ---
 

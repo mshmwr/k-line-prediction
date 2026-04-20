@@ -16,7 +16,7 @@ interface PillarCardProps {
 export default function PillarCard({ title, body, anchorQuote, docsHref }: PillarCardProps) {
   return (
     <CardShell padding="lg">
-      <h3 className="font-mono font-bold text-white text-base mb-3">{title}</h3>
+      <h3 className="font-mono font-bold text-ink text-base mb-3">{title}</h3>
       <div className="text-gray-300 text-sm leading-relaxed mb-4">{body}</div>
       <blockquote className="border-l-2 border-white/20 pl-3 mb-4">
         <em className="text-gray-400 text-sm">{anchorQuote}</em>

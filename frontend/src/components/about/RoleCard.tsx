@@ -11,7 +11,7 @@ export default function RoleCard({ role, owns, artefact, borderColorClass }: Rol
   return (
     <CardShell borderColorClass={borderColorClass ?? 'border-white/10'} padding="md">
       <article data-role={role}>
-        <h3 className="font-mono font-bold text-white text-base mb-3">{role}</h3>
+        <h3 className="font-mono font-bold text-ink text-base mb-3">{role}</h3>
         <div className="space-y-2 text-sm">
           <div>
             <span className="text-gray-500 text-xs uppercase tracking-wide font-mono">Owns</span>

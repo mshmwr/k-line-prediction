@@ -1,10 +1,11 @@
 ---
 id: K-021
 title: 全站設計系統基建 — 配色 + 字型 + NavBar + Footer 共用組件
-status: backlog
+status: closed
 type: feat
 priority: high
 created: 2026-04-20
+closed: 2026-04-20
 ---
 
 ## 背景
@@ -316,3 +317,116 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 - **TD-K021-04** 已處理：保留 Round 1 狀態。
 - **TD-K021-05** 已處理：保留 Round 1 狀態。
 - **TD-K021-06** 已處理：保留 Round 1 狀態。
+
+### PM — 2026-04-20 Round 4 裁決（QA `/about` readability FAIL → fix-now，選項 B）
+
+**裁決：** 選 B（K-021 內補修 /about 關鍵 hot-spot），非 A（接受 K-022 regression）亦非 C（並行加速）。
+
+**Why：** QA 視覺探針客觀證據顯示 `/about` Hero h1 `rgb(255,255,255)` on paper `#F4EFE5` + 4 metric cards / 6 role cards 白字標題在米白底上近隱形——此為 AC-021-BODY-PAPER 明列「不得以 class-name 斷言代替視覺驗證」所要攔截的正是此類場景。放行 K-021 = 讓 AC 未達的 `/about` 進 main（portfolio-facing demo 風險）+ 把「補 K-021 遺留 text-white」混入 K-022 結構改版 scope（scope pollution）。B 的補修是純 text-color surgical change（10 檔 / 10 處 `text-white` → `text-ink`），不動 layout / 不動結構，與 K-022 「頁面結構改版」本質正交，不違反 scope discipline。
+
+**How to apply：** 召 Engineer 只改 `frontend/src/components/about/*.tsx` 的 10 處 `text-white` → `text-ink`（對應 PageHeaderSection Hero h1 / MetricCard / RoleCard / PillarCard / TicketAnatomyCard / ArchPillarBlock + 5 個 Section h2）。QA 只需 re-run `/about` readability 探針 + 全量 Playwright regression，其他 4 頁不重測。
+
+**scope 解讀：** K-021 ticket §79「頁面結構改版（About v2）— 由 K-022 負責」指「結構改版」（組件增減、layout 重組），**不**涵蓋本票 AC-021-BODY-PAPER 已規範的「全站 5 頁 body 配色米白化」所需的子元件 text-white 清除——此屬 K-021 本票 body 配色遷移的必要補完，和 Engineer Round 2 被抓到的 PasswordForm / Diary 子元件 dark-class（C-1/C-2）屬同類漏網，非 K-022 新 scope。
+
+### Engineer — 2026-04-20 Round 4（接手指引）
+
+**Scope：** `/about` text-white 殘留清除（10 檔 / 10 處），fix-now 屬 K-021 body 配色遷移補完。
+**改法：** 逐檔改 `text-white` → `text-ink`（Tailwind token，K-021 已註冊）。不改動 layout / structure / font-size / spacing。
+**檔案：**
+- `frontend/src/components/about/PageHeaderSection.tsx` L8 Hero h1
+- `frontend/src/components/about/MetricCard.tsx` L11（4 張 card 共用）
+- `frontend/src/components/about/RoleCard.tsx` L14（6 張 card 共用）
+- `frontend/src/components/about/PillarCard.tsx` L19
+- `frontend/src/components/about/TicketAnatomyCard.tsx` L31
+- `frontend/src/components/about/ArchPillarBlock.tsx` L18
+- `frontend/src/components/about/BuiltByAIShowcaseSection.tsx` L10 h2
+- `frontend/src/components/about/ProjectArchitectureSection.tsx` L10 h2
+- `frontend/src/components/about/ReliabilityPillarsSection.tsx` L10 h2
+- `frontend/src/components/about/TicketAnatomySection.tsx` L42 h2
+
+**Gate：** tsc exit 0 / Playwright 115 passed / 並由 QA 重跑 `/about` readability 探針確認 computed color 變 `rgb(26, 24, 20)`（`#1A1814`）。
+
+### Engineer — 2026-04-20 (Round 4 fix)
+
+**Round 4 scope：** PM 裁決選 B，`/about` 子元件 `text-white` → `text-ink` 純 text-color 遷移（10 檔 / 10 處），補完 K-021 AC-021-BODY-PAPER「全站 5 頁 body 配色米白化」對 `/about` 子元件字色的必要補完——與 Round 2 抓到的 PasswordForm / Diary 子元件 dark-class（C-1/C-2）同類漏網，非 K-022 頁面結構改版 scope。
+
+**做得好：**
+
+1. **初始 grep 驗證 10 檔清單零差異：** `grep -rn 'text-white' frontend/src/components/about/` 10 match 與 PM 交接指引 10 檔 10 行逐一吻合（PageHeaderSection L8 / MetricCard L11 / RoleCard L14 / PillarCard L19 / TicketAnatomyCard L31 / ArchPillarBlock L18 / BuiltByAIShowcaseSection L10 / ProjectArchitectureSection L10 / ReliabilityPillarsSection L10 / TicketAnatomySection L42）——無 gap、無 scope 擴張需回報。按 engineer.md absolute-don't #4 不降級 scope，10 檔全做。
+2. **純 text-color surgical change：** Edit 僅改 `text-white` → `text-ink` 一個 class token，未動 layout / structure / font-size / spacing / bg / border / 其他 class，與 PM Round 4 裁決「fix-now 不違反 scope discipline」完全吻合。
+3. **交付前硬查 grep 歸零：** Edit 後再跑 `grep 'text-white' frontend/src/components/about/` 回報 `No matches found`，符合 engineer.md 交付前硬查規範（per `feedback_engineer_design_doc_checklist_gate.md`）。
+
+**哪些 AC 判斷錯：**
+無。AC-021-BODY-PAPER body 配色遷移的子元件字色補完完全按 PM 裁決 scope 執行。
+
+**哪些 edge case 沒料到：**
+1. **Edit tool 要求 Read 優先：** 首次 parallel 10 檔 Edit 全部回 `File has not been read yet`，補 Read 10 檔後才能 Edit。下次對 agent session 新接手的檔案，先 Read 批次再 Edit 批次。
+
+**下次改善：**
+1. 接手純 text-color surgical change 類任務，直接批次 Read → 批次 Edit，不先試沒 Read 就 Edit（agent session context 無前任 Read 記錄）。
+
+**本輪 Final Gate 結果：**
+
+- `npx tsc --noEmit`：exit 0 ✅
+- `npm run build`：OK，最大 chunk 179.29 kB（vendor-react），無 500kB warning ✅
+- Playwright chromium full：115 passed + 1 skipped（AC-017-BUILD 既有 skip，與 Round 3 基準一致） ✅
+- Grep 最終 `text-white` @ `frontend/src/components/about/`：0 處 ✅
+
+**本票未處理的 Tech Debt：** 維持 Round 3 狀態，無新增。
+
+---
+
+## PM 彙整（2026-04-20）
+
+### 本票歷程
+
+- **4 rounds** across ~12 hours：
+  - **R1（設計 → 實作）：** Architect 完成 `docs/designs/K-021-sitewide-design-system.md`（889 行，4 Pencil frames cover），PM 裁決 2 個 blocker（Q1 `/login` → `/business-logic`、Q2 brick vs brick-dark 兩色並存）後放行 Engineer；Engineer 首跑 112 passed 自評交付。
+  - **R2（Reviewer Step 2 抓 C-1/C-2/C-3/C-4）：** PasswordForm / Diary 子元件 dark-class 殘留 + HomePage hex wrapper 未清 + `sitewide-fonts.spec.ts` 缺檔——PM 啟動 Bug Found Protocol，Engineer + Architect 反省 G1~G4 通過後放行 fix；Engineer 補 Round 2 實作 + Architect 修 `architecture.md` Footer 放置表 drift。
+  - **R3（Reviewer 再審抓 W-R3-01 cross-table drift）：** Round 2 修 L463-469 Footer 放置表正確，但同檔 L476 Shared Components 邊界表漏修——Architect 補修 + Self-Diff + Cross-Table Sweep 11 處全綠。
+  - **R4（QA `/about` readability 探針 FAIL → fix-now）：** 10 檔 `text-white` on paper bg 隱形，PM 裁決選 B（K-021 內補修，非 A 讓爛 about 進 main 或 C 並行加速），Engineer 10 檔 text-color surgical change，QA re-verify 29 點 0 fail。
+- **最終交付：** 5 路由 paper palette 一致（`/` `/about` `/diary` `/app` `/business-logic` 含 PasswordForm 雙狀態），三字型系統落地（Bodoni Moda / Newsreader / Geist Mono），NavBar 米白化 + 項目順序重整 + Prediction hidden，HomeFooterBar 擴至 `/app` + `/business-logic`，FooterCtaSection 保留於 `/about`。
+- **Regression 狀態：** tsc exit 0 / build 最大 chunk 179.29 kB vendor-react（無 >500 kB warning）/ Playwright chromium 115 passed + 1 skipped（AC-017-BUILD 既有 skip）/ `/about` readability 探針 29/29 綠。
+
+### 各 role 核心學習（一句話）
+
+- **PM**：`/login` 未 grep codebase 即發版讓 Architect phase 消化需求歧義；Round 3 放行 QA 時未明文要求「未遷移但受波及路由優先 readability 探針」，讓 `/about` 問題在 Round 4 才浮現；Round 4 裁決能堅守「K-021 自己漏的自己補」邊界論述不被 QA 自帶結論綁架，是本票 PM 角色正向事件。（見 pm.md log 三則 + `feedback_pm_design_ac_check_design_doc.md` / `feedback_pm_scope_multipage_v2.md`）
+- **Architect**：設計文件 Edit 後缺 Self-Diff（Footer 放置表 drift W-5）+ Cross-Table Sweep（Shared Components 表 W-R3-01）兩層硬步驟，結構化表格修一半 = 沒修；Scope Question 階段遇 `/login` 矛盾仍「假設 A 繼續」屬 borderline 代 PM 裁決。（見 architect.md log 三則 + `feedback_architect_arch_doc_self_diff.md` / `feedback_architect_must_update_arch_doc.md`）
+- **Engineer**：Stage 交付前缺「回讀 design doc §8.1 視覺 checklist + §9.1 spec 清單 + 附錄 A 檔案清單逐列勾」硬 gate——AC 綠 + test pass ≠ design doc 項目交付完成；body-layer CSS 全站切換時目視 scope 自行收斂到本 Stage 改動頁面（不是全路由）；「可選」自行讀成「可不做」屬 scope 降級。（見 engineer.md log 三則 + `feedback_engineer_design_doc_checklist_gate.md` / `feedback_engineer_subcomponent_dark_class_scan.md` / `feedback_engineer_no_scope_downgrade.md`）
+- **Reviewer**：Review 開始時固定 `grep -n "spec.ts" docs/designs/<ticket>*.md` + `ls frontend/e2e/` cross-check 設計文件明列 spec vs 實作 spec 清單；架構文件 drift 擴及「放置表」類規格表，每次涉 shared component placement 改動逐列 grep 實作確認一致。（見 reviewer.md log 二則）
+- **QA**：全站 CSS 遷移類 ticket 視覺 audit 先讀 ticket §Scope + §Tech Debt 列「本票遷移 vs 未遷移」範圍，未遷移但受波及（body 切換影響所有子元件文字色）路由**優先** readability 探針，不倚賴均勻抽樣；臨時 Playwright spec 統一 `e2e/_tmp-*.spec.ts` 且結束前 rm 清除；QA retro 明確分段「客觀數據」vs「PM 裁決題」。（見 qa.md log 二則）
+- **Designer**：本票無 Designer 直接召喚（配色/字型/NavBar/Footer 規格已由 K-017 比對裁決定案，memory `project_k017_design_vs_visual_comparison.md`），屬基建落實票非新設計票。
+
+### 已落地 memory / persona 規則（本票催生）
+
+**Memory feedback 檔：**
+- `feedback_engineer_subcomponent_dark_class_scan.md` — body-layer CSS 切換時全站子元件 dark-class 必掃
+- `feedback_engineer_no_scope_downgrade.md` — design doc scope 指示不得自行降級
+- `feedback_engineer_design_doc_checklist_gate.md` — Stage 交付前 design doc checklist 硬 gate
+- `feedback_engineer_grep_e2e_before_edit.md` — 修改組件前 grep E2E spec 確認所有依賴
+- `feedback_architect_arch_doc_self_diff.md` — Architect Edit architecture.md 結構化內容後須 self-diff
+- `feedback_architect_must_update_arch_doc.md` — Architect 每次任務結束前必同步 architecture.md
+- `feedback_pm_design_ac_check_design_doc.md` — PM 設計 AC 裁決前查設計文件
+- `feedback_pm_scope_multipage_v2.md` — v2/redesign/設計系統改動時 PRD Scope 必列全部受影響頁面
+- `feedback_pm_visual_verification.md` — PM 不得以 JSON 驗代替視覺驗證
+
+**Persona 硬規則：**
+- `~/.claude/agents/engineer.md`：絕對不做 #4「不降級設計文件 scope」、前端實作順序第 5 步「body-layer CSS 全子元件 dark-class scan」、驗證清單「設計文件 checklist 逐列勾 gate」
+- `~/.claude/agents/senior-architect.md`：Architecture Doc Self-Diff Verification block + Same-File Cross-Table Consistency Sweep 硬步驟
+- `~/.claude/agents/pm.md`：放行 Engineer 前提條件第 7 條「ticket scope 列出的路由/組件/檔案路徑必須 grep 或 ls 驗證存在」、Phase 結束後 checklist「design doc 所有 `### §X` 逐條開箱」硬 gate
+
+### 遺留 Tech Debt（交還 K-Line docs/tech-debt.md 管理）
+
+- **TD-K021-01** — HeroSection Newsreader / Geist Mono 2 處 inline style 漸進遷 `font-italic` / `font-mono` token（Round 3 只遷 2 行 Bodoni）
+- **TD-K021-02** — UnifiedNavBar 保留 `text-[#9C4A3B]` 等 6 處 hex（PM Q2 裁決），follow-up K-025 處理
+- **TD-K021-07** — AppPage 900×600 以下 viewport footer 可能跑出畫面（PM 裁決不 fix-now）
+- **TD-K021-08/09/10/11/13** — Round 2/3 Reviewer 登記的 Suggestion / 漸進項
+
+**Follow-up tickets：**
+- **K-025** — UnifiedNavBar hex 改 token + navbar.spec regex 遷移（W-3 follow-up）
+- **K-026** — AppPage 子元件 paper palette 遷移（W-R3-02 follow-up，含 MainChart/TopBar/OHLCEditor/StatsPanel/MatchList/PredictButton/ErrorBoundary 7 檔）
+
+### 下次同類 ticket 的改善
+
+**設計 / design token migration 類 ticket**（全站 CSS 遷移、字型系統導入、設計系統 rebuild）PM 放行 QA 前必補一句硬指示：「讀 ticket §Scope 與 §Tech Debt 列出『本票遷移 vs 未遷移』範圍，未遷移但受波及（如 body 切換影響所有子元件文字色）路由**優先** readability 探針」——此條待下次 PM persona Edit 窗口或相關 ticket 觸發時正式落地至 pm.md「放行 QA 前提條件」章節（本次 K-021 Round 4 不擴大 scope）。避免 K-022/K-023/K-024 結構改版票又重演「K-021 本該攔到的 regression 留到下一票才被 QA 抓」。
+

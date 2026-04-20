@@ -7,7 +7,7 @@ import PillarCard from './PillarCard'
 export default function ReliabilityPillarsSection() {
   return (
     <div className="space-y-6">
-      <h2 className="font-mono font-bold text-white text-2xl mb-6">How AI Stays Reliable</h2>
+      <h2 className="font-mono font-bold text-ink text-2xl mb-6">How AI Stays Reliable</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <PillarCard

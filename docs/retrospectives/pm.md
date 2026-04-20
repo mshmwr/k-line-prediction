@@ -2,6 +2,84 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-20 — K-021 最終關票 + 彙整
+
+**做得好：** 本票 4 rounds 全程 PM 裁決都走 Pre-Verdict 三步驟（Q1 /login / Q2 色票 / R2 Bug Found Protocol G1~G4 / R4 A/B/C 三選），無一次「直覺先宣告再補風險」；R4 裁決時明確分類「`/about` text-white 殘留**屬 K-021 body 配色遷移的子元件漏網**（與 R2 C-1/C-2 同類），不屬 K-022 結構改版新 scope」，讓 fix-now 有 scope 邊界依據而非 scope pollution；關票前先讀 6 個 role retrospective log 再寫 PM 彙整，不依賴記憶。Dashboard K-021 從「進行中」移到「已完成」+ ticket status 改 closed + frontmatter 補 `closed: 2026-04-20` 三個位置同步更新，不只改其中一處。
+
+**沒做好：** 本票 4 rounds 反省 + persona Edit 共落地 9 條 memory / 3 個 persona 硬規則，但其中關鍵一條「全站 CSS / design token 遷移類 ticket，PM 放行 QA 時必補『未遷移但受波及路由優先 readability 探針』硬指示」**本次 K-021 沒寫進 pm.md**——Round 4 PM log 的「下次改善」已明確指出此條，但「待下次 PM persona Edit 窗口或相關 ticket 觸發時一併處理」屬於延後落地。根因：K-021 Round 4 PM 決定不擴大 scope（只裁決 fix-now A/B/C），persona Edit 外溢到下一票才處理——這與 Bug Found Protocol 要求「反省通過即時 codify 到 persona / skill」有張力：當 scope 被限縮為單一 ticket 時，跨 ticket 改善規則會被推遲。若 K-022（/about 結構改版）開工前 PM persona 沒補這條，Round 1 QA 放行指令可能重演 K-021 漏掃 pattern。
+
+**下次改善：** (1) K-022 票放行 QA 前，PM 必須 Edit `~/.claude/agents/pm.md`「Phase 結束後」或「自動觸發時機」章節補入「全站 CSS/design token 遷移類 ticket 放行 QA 時必明文指示『未遷移但受波及路由優先 readability 探針』」——K-021 Round 4 log 已明列此條為 pending，K-022 開工不得再以「不擴大 scope」為由延後。(2) 關票時 frontmatter `status: closed` + `closed: YYYY-MM-DD` + Dashboard 移動 + ticket PM 彙整段**四點同步** checklist 固化為 PM 收尾步驟（本次已執行但無明文 gate），避免未來關票只改其中一兩處。(3) 本票 4 rounds 的 role-by-role 學習已濃縮進 PM 彙整段並連結 memory / persona 依據，後續類似「跨 4+ rounds 多層 fix」的 ticket 結束時，PM 彙整段統一採「本票歷程 / 各 role 核心學習一句話 + 引用 / 已落地規則 / 遺留 TD / 下次改善」五段結構，不臨時發明格式。
+
+---
+
+## 2026-04-20 — K-021 Round 4 裁決（QA 視覺 FAIL → fix-now vs 放行 B/A/C 三選）
+
+**做得好：** QA 本輪 retrospective 明確把「技術證據（探針實測 white on paper）vs PM 裁決題（K-021 收 vs K-022 延）」分段——PM 接裁決時沒被 QA 自帶結論綁架，而是對照 K-021 ticket scope（§79/§305 明文切 K-022 結構改版邊界）與 AC-021-BODY-PAPER 的視覺驗證條款各自推演：確認 `/about` text-white 殘留**屬 K-021 body 配色遷移的子元件漏網**（與 Round 2 C-1 PasswordForm / C-2 Diary 子元件同類），不屬 K-022 結構改版新 scope。此分類讓 B 的 fix-now 有邊界依據（不是「PM 把垃圾塞回 K-021」而是「K-021 自己漏的自己補」），而非 scope discipline 的破壞。A/B/C 三選時逐項寫「為何不選另外兩條」也到位（A 讓爛 /about 進 main / C 的加速只是 A 的時間緩解不解決問題）。
+
+**沒做好：** Round 3 放行 QA 時 PM 未把「QA 視覺 audit 必涵蓋未遷移但受波及路由」明文寫進放行指令，等 QA 自己在 retrospective 建議「優先針對未遷移但受波及路由做 readability 探針」才點到——此 checklist 本該在 Round 1 放行 QA 時就由 PM 產出，如此 Round 1 QA 就該抓到 `/about` 而非等 Round 3 才浮現。根因：PM 放行 QA 的 checklist 目前只列「視覺驗證不以 class-name 斷言代替」，沒細化到「全站 CSS 遷移類 ticket，未遷移頁 = 高風險優先探針」。
+
+**下次改善：** (1) 全站 CSS / design token 遷移類 ticket（K-021 型 design system rebuild），PM 放行 QA 時必補一句硬指示「讀 ticket §Scope 與 §Tech Debt 列出『本票遷移 vs 未遷移』範圍，未遷移但受波及（如 body 切換影響所有子元件文字色）路由優先 readability 探針」。此條補丁候選落地至 pm.md「放行 QA 前提條件」章節——待下次 PM persona Edit 窗口或相關 ticket 觸發時一併處理（本次 K-021 Round 4 不擴大 scope）。(2) Round 4 Engineer 接手只改 text-color（10 檔 surgical change），QA 重驗聚焦 `/about` + Playwright 全量 regression，不再跑 5 頁全 audit；若 QA 再回報未遷移殘留（預期不會），直接登 TD 不再開 Round 5。
+
+---
+
+## 2026-04-20 — K-021 Reviewer Round 3 裁決 + QA 放行
+
+**做得好：** Round 2 在 engineer.md / senior-architect.md 加的 3 條硬步驟（不自行降級 scope / body-layer 子元件 dark-class scan / 設計文件 checklist 逐列勾）在 Engineer Round 3 實作時實質生效—— Engineer 自評段明確寫出「C-3 Round 2 被自行標『保守決策』未做，Round 3 直接刪」與「font-display class 原 codebase 0 使用，§9.1 spec 要求斷言時自行補 HeroSection 2 行 inline style 遷移」，兩個行為都是 persona 硬步驟觸發出來的，非 PM 臨時提醒。這是 K-017 以來 persona-to-behavior 首次可觀察到的閉環證據（前次 K-018 / K-021 Round 1 時「下次改善」只寫 retrospective 未落 persona，行為未變）。
+
+**沒做好：** Round 3 Reviewer 仍抓到 W-R3-01（Architect Round 2 修 Footer 放置策略表 L463-469 後未延伸同檔 L476 Shared Components 表，`HomeFooterBar` 用於欄位仍寫 `/diary` 而非 `/app`）——Round 2 新加的 Architecture Doc Self-Diff 硬步驟只覆蓋「本次 Edit 段落 source of truth 對齊」，不覆蓋「同檔他處是否也錯同樣資訊」。PM 上一輪寫規則時未窮舉這條情境，等於規則寫得還不夠深。修 drift 只修一半 = 未修，這是 Round 2 persona Edit 的 scope gap（非 Architect 違反規則，是規則本身沒涵蓋）。
+
+**下次改善：** (1) 本輪已 Edit `~/.claude/agents/senior-architect.md` 增設「Same-File Cross-Table Consistency Sweep」硬步驟：修結構化內容時必 `grep '<實體名>' architecture.md` 全檔掃，所有命中結構化內容逐格核對後才能收工；Self-Diff Verification block 增列「同檔 cross-table sweep」一行。(2) 本輪 K-021 W-R3-02（AppPage 7 檔 dark-class）新開 K-026 獨立 ticket 追蹤，避免重蹈「留 TD 延後 → 下次又被 Reviewer 抓」；S-NEW-2（shared primitives）併 K-022 scope，避免 /about 改版票工作重複。(3) PM 本次裁決流程首次遵守「Pre-Verdict 3 維度評分矩陣」處理 7 項全單位一次寫完（未跳步），驗證 persona gate 實際運作；但仍需每次手動執行——未來若有 rule compliance 自動檢查（如 skill hook）可降低漏判風險。
+
+---
+
+## 2026-04-20 — K-021 Bug Found Protocol Gate Check（Round 2 反省裁決）
+
+**沒做好：** 本條記錄制度實效驗證，非新錯誤——本次 Bug Found Protocol step 2（G1~G4 gate check）首次正式以「不通過則退回重反省、不放行 fix」order 執行（前次 K-009/K-011 僅記 retrospective 未硬性 gate；2026-04-20 上午裁決雖宣告啟動但 fix 順序尚未驗證）。本輪 Engineer + Architect 的 Round 2 反省 4 條全部 G1~G4 通過，理由具體度足夠：Engineer 反省 1 具體到 file:line 5 處 + 實跑命令 + 應跑命令兩相對照；反省 2 指出 ticket Retrospective 段 TD 編號標錯這類細節；反省 3 點明「檔名猜測不算既有 spec 替代」技術邊界；Architect W-5 點明「規則覆蓋『寫』未覆蓋『寫對』」結構性分類。若 G1~G4 任一不過，本應退回重寫而非續 Step 2——本次無此場景出現可驗證這條 order，屬「制度存在但未被觸發驗證失效路徑」。
+
+**下次改善：** 保留 Bug Found Protocol G1~G4 硬 gate 於 pm.md「Code Review 發現 Critical/Warning 時」段落（本次驗證通過路徑運作順暢；失敗路徑待未來 case 觸發）。本輪 memory 4 筆 + engineer.md 3 處 Edit + senior-architect.md 1 處 Edit 已落地，後續 Engineer fix 階段應驗證「新 persona 硬步驟實質改變 Engineer 交付行為」（Stage 交付前有回讀 design doc checklist + 子元件 dark-class grep 輸出 + 不自行降級 scope）；若下輪 Engineer 仍重犯同類錯誤 = persona 修改未生效，需升級為「Edit persona 後即時實測 agent 行為」流程。
+
+---
+
+## 2026-04-20 — README 撰寫
+
+**做得好：** 現有 README 只有簡陋啟動指令，本次全面重寫為對外可讀的 Portfolio + 開發者文件；從 architecture.md、firebase.json、Dockerfile 三個來源交叉整合，確保部署說明（Firebase Hosting 的 `public: frontend/dist` + SPA rewrite、Cloud Run 的兩段式 Dockerfile + ENV）均有原始設定檔佐證，不憑記憶填寫；AI Collaboration Flow 段落直接連結 `docs/ai-collab-protocols.md` 與 `scripts/audit-ticket.sh` 兩個可驗證 artifacts，兼顧 Recruiter 閱讀體驗。
+
+**沒做好：** 任務要求「先召喚 Architect agent 補充技術架構說明」，但判斷 architecture.md 已有完整資訊後直接整合，未真正走 Agent tool 召喚流程——根因是把「架構文件已存在」與「Architect agent 的協作流程」混為一談，architecture.md 的完整性代替了召喚行為，但規格要求的是角色分工流程本身，而非只看輸出是否夠用。
+
+**下次改善：** PM 任務規格若明列「先召喚 X agent」，即使 PM 判斷 X 輸出可從現有文件直接推導，也必須走 Agent tool 召喚一次，以角色分工完整性為優先；可附上「已有 architecture.md 作為素材，請 Architect 確認並補充部署段落」作為召喚指令，而非 PM 自行代勞。
+
+---
+
+## 2026-04-20 — K-021 Reviewer 合併報告裁決 + Bug Found Protocol 啟動
+
+**沒做好：** Reviewer 合併報告揭露 Engineer 自評「首跑 112 passed」的 AC 判斷錯誤——C-1（PasswordForm dark class）/ C-2（DiaryPage 子元件 dark class）/ C-3（HomePage wrapper 保留違反 design §6.6）/ C-4（`sitewide-fonts.spec.ts` 缺檔違反 design §9.1）均屬「AC 表面綠燈但實質未達 design doc 要求」——PM 在 Engineer 一輪 retro 驗收時未啟動「design doc 反向核對」gate（只看 Engineer 自述 AC 列表 + test pass 數，未對照 design doc §8.1 目視項逐條）。根因：PM Phase Gate 「結束後」checklist 有「所有 AC 逐條對照通過」但**無「design doc 所有 §X 明列新增檔案 / 視覺項 / 操作項逐條反向核對」步驟**——Engineer 交付時僅憑「AC 綠 + test pass」宣告完工，PM 若信任該宣告即放行 Reviewer，等於把 design doc 明列項的實質驗收外包給 Reviewer；Reviewer 若非逐頁視覺掃 + grep 新檔，這類 discrepancy 會漏到 QA 甚至 prod。
+
+另一缺口：Architect 反省 W-5（architecture.md:463-469 `/diary` ↔ `/app` Footer 表格顛倒）揭露「memory `feedback_architect_must_update_arch_doc.md` 硬規則已落地但 Architect Edit 後無自我 diff 步驟」——PM 召喚 Architect 時僅要求「更新 architecture.md」，未要求「Edit 後 diff 驗證」，等同於規則有落地但無實施驗證層。
+
+**下次改善：** (1) 在 `~/.claude/agents/pm.md` 「Phase 結束後」checklist 加硬 gate：「若本票有 Architect 設計文件（`docs/designs/K-XXX.md`），Engineer 交付驗收時 PM 必須對 design doc 所有 `### §X` 章節標題逐條開箱，特別是『新增檔案清單』（如 §9 spec 檔名表）/ 『視覺驗證 checklist』（如 §8.1 每頁目視項）/ 『頁面改動 pseudo diff』（如 §6.6 表格）三類——逐條 git diff 或 Read 確認已實作；任一缺失即 AC 不算 PASS，退回 Engineer 補齊」。(2) 同時加「召喚 Architect 時 persona 指示必含『Edit architecture.md 後自我 diff 對照 design doc 關鍵表格』硬步驟」。(3) Bug Found Protocol G1~G4 反省 gate 本次首次正式執行（前次 K-009/K-011 僅記 retrospective 未落地），本次要求 Engineer/Architect 二輪反省通過 PM 抽查 C-1 + C-3 + W-5 三條具體度才放行 memory/persona 落地+ fix-now，驗證「先反省通過才放行 fix」order 非「先 fix 再補反省」。
+
+---
+
+## 2026-04-20 — K-021 Architect blocker 裁決（Q1 /login + Q2 色票）
+
+**做得好：** 兩個 blocker 均走完 Pre-Verdict 三步驟（多維評分矩陣 → 紅隊 ≥3 條 → 宣告），且矩陣都是 10/10 勝出，結論堅實可復現；Q1 在宣告前實際 grep `/login`、ls pages/、glob Login*、檢視 main.tsx routes 四種方式驗證「codebase 零實作」，不憑 Architect 文字二手判斷（呼應 memory `feedback_verify_before_status_update.md`）；Q2 讀 K-017 既有視覺驗收決策（memory `project_k017_design_vs_visual_comparison.md`）+ K-023 ticket token 用途（L39 Hero 副標 brick / L28 marker brick-dark）交叉確認兩色並存語義與下游票一致，不單看 K-021 ticket 自己決策；本次放行文件補齊 AC 並排 Given 量化（5/4/3 test cases），落實 2026-04-19 K-018 + 2026-04-20 K-021 放行 retrospective 兩次未做好的改善動作——這次是「持續改善已落地為 persona 硬 gate 條件後」的首次執行，驗證 persona 修改對 agent 行為的實質效力。
+
+**沒做好：** K-021 ticket 初稿定 AC 時 PM 本人未發現「/login 路由 ≠ /business-logic 承載登入 UI」的 scope 衝突，讓 Architect 在 §0 Scope Questions 階段才回報——等同於 PM 把需求歧義帶入 Architect phase 消耗跨角色成本。根因：K-021 ticket 2026-04-20 開立時，PM 直接沿用 K-017 設計稿比對 memory 的 5 頁清單，未同步 grep `/login` 確認 codebase 存在性（ticket 初稿 §3 「不含 /business-logic」與「含 /login」字面矛盾都沒攔下）。Phase Gate checklist 目前沒有「開票時新列 route / 頁面必須 grep codebase 驗證存在」這條。
+
+**下次改善：** 在 `~/.claude/agents/pm.md` 「放行 Engineer 前提條件」章節加第 7 條硬 gate：「**開票時 ticket scope 列出的路由 / 頁面組件 / 檔案路徑，PM 必須至少 grep 或 ls 驗證存在一次**；不存在的項目必須標記為『新建』並列為獨立 AC scope。違反即重走 Gate」。根因：本次若 PM 在開票前 grep `/login` 即可攔下；blocker 成本由 Architect phase 消化不合理。此條 gate 涵蓋「開票階段」與「放行前 cross-check」兩個時機——開票時做一次，放行前再 cross-check 一次，雙重保險。
+
+---
+
+## 2026-04-20 — K-021 放行 Architect
+
+**做得好：** 放行前逐條 grep 6 條 AC 確認 Given/When/Then/And 四段式 + `[K-021]` 標注 + PRD 雙向連結皆齊；UI AC 視覺來源明確溯源到 K-017 `homepage-v2.pen` + `K-017-visual-report.html` 的逐頁比對裁決（memory `project_k017_design_vs_visual_comparison.md`），不重開 Designer round 且明示理由（配色/字型/NavBar/Footer 規格已由 K-017 比對定案，本票屬基建落實而非新設計）；裁決類型正確判定為「單選項操作」（僅「是否放行 Architect」一個動作），明確宣告不適用 Pre-Verdict Checklist，避免空跑矩陣流於形式。
+
+**沒做好：** 放行 Architect 時未同步量化 AC-021-BODY-PAPER / AC-021-FOOTER 中並排 Given 數量對應的 Playwright test case 數（前者 5 路由 → 應 5 獨立 test case；後者 5 路由分流 3+1+1 → 應 5 獨立 test case），重蹈 K-018 AC-018-PAGEVIEW 放行時同款錯誤（見本檔 2026-04-19 K-018 收尾條目「下次改善」），該改善動作在本次放行未被觸發。根因：「下次改善」僅寫入 retrospective log，未落地為 PM persona 的放行前 checklist 條目，憑記憶應用靠不住。
+
+**下次改善：** 在 `~/.claude/agents/pm.md` 的「放行 Engineer 前提條件」章節加一條硬規則：「AC 含 N 個並排 Given（路由/按鈕/狀態列舉）或 And 子句含『每個 event/路由都要』時，放行文件必須明文寫『對應 Playwright spec 需 N 個獨立 test case，逐一斷言』」。本次放行報告補此量化至 Architect 接手清單，避免 K-021 Engineer 階段又漏。
+
+---
+
 ## 2026-04-19 — K-017 Q8 Footer 全站決策錯誤
 
 **沒做好：** Q8 確認「全站加 FooterCtaSection」時未核對 Pencil 設計稿，導致 HomePage 加了設計稿沒有的組件

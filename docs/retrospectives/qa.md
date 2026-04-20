@@ -20,6 +20,22 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-20 — K-021 Round 4（`/about` readability re-verify）
+
+**做得好：** Round 3 挑出的 10 處 white-on-paper 疑慮在 Round 4 寫了直接針對 CSS token 的 computed-color 探針（11 處 selector 對 `rgb(26, 24, 20)` 斷言 + 9 處 pillar/arch/ticket-anatomy 延伸），11 主 + 9 延伸 = 20/20 全 pass，證據與 K-017 baseline 無關、直接綁 `ink` token 語意；另外加一道 paper-bg 感知的 white-leaf 全頁掃描（對 `/about` 回 0 筆、對 `/`, `/diary`, `/app`, `/business-logic` 各回 0 筆），回歸證據不止針對 Round 3 舉證的 10 處，而是「整頁再無白字殘留」；regression 三件套自跑（tsc exit 0 / build 所有 chunk < 500kB，最大 vendor-react 179kB gzip 58kB / Playwright 115 passed + 1 skipped），不以 Engineer 自述為憑；visual-report 以 `TICKET_ID=K-021 npx playwright test --project=visual-report` 覆寫 Round 3 報告，檔案 timestamp 與 size 驗證確認寫入成功。
+
+**沒做好：** Round 4 是 narrow re-verify，但 probe script 起手時 import 寫成 `from 'playwright'`（套件只有 `@playwright/test`），第一次執行 ERR_MODULE_NOT_FOUND，多跑一次；為了不污染 E2E suite，把探針放在 `e2e/_k021-round4-*.mjs` 並依賴 playwright config 的 `testMatch: /.*\.spec\.ts$/` 篩掉，但「命名以 `_` 開頭 + `.mjs` 副檔名 + 非 spec」三重保險這層規則沒先寫在探針檔頭註解，之後同事看到可能誤會是遺漏的 spec。
+
+**下次改善：** (1) `/frontend` 下 ad-hoc Playwright 探針統一 `import { chromium } from '@playwright/test'`，新增 `_k*.mjs` template 註解首行標註「非 spec，不被 testMatch 收斂，執行完 rm」；(2) Round N re-verify 類任務，QA retro 標題明確加 `Round N (<focus>)`，與原始 ticket retro 區隔閱讀路徑，避免後續翻閱者混淆範圍。
+
+## 2026-04-20 — K-021
+
+**做得好：** 自動化三件套（tsc exit 0 / build 無 chunk warning / Playwright 115 passed + 1 skipped）一次通過並逐項記錄具體數字（最大 chunk vendor-react 179kB，gzip 58kB），非只標 PASS；5 路由視覺檢查不依賴肉眼，以臨時 Playwright spec 逐頁 evaluate 出 body bg / color / heading fontFamily / footer fontFamily 等數值，再與 AC 原始 rgb 斷言並對；`/about` readability 疑慮不以肉眼判斷，撰寫 readability 探針（讀 hero h1 / metric cards / h2/h3 headings 的 computed color）取得 `rgb(255, 255, 255)` 白字出現於 paper bg 的客觀證據，再對照 K-017 baseline（extract K-017-visual-report.html 的 base64 還原 /tmp/k017-about.png）逐幅肉眼比對；NavBar 疑似 hex leak 先以 `outerHTML` regex 偵測，再寫第二版探針區分「inline style vs className literal」，避免錯判 TD-K021-02 允許的 `text-[#9C4A3B]` 為 regression；結束前以 `rm e2e/_tmp-*.spec.ts` 清除所有臨時 spec，避免污染 repo。
+
+**沒做好：** readability 探針一開始沒把 `/about` 排為優先核心——先跑「6 routes 通用截圖 + 色值抽樣」才發現異常，多跑一輪探針；臨時 spec 建立時沒先看 `playwright.config.ts` 的 `testDir: './e2e'`，第一次放 `/tmp/` 啟動失敗才改放 `e2e/_tmp-*.spec.ts`，浪費一次 run；Reviewer 2 條件之一「`/about` 與 K-017 baseline 對比 → 判斷是 K-022 regression 還是立即修」QA 視為「回報事實給 PM 裁決」而非自己下判斷，但沒在 retrospective 明確標示「技術證據已收集完整，裁決在 PM」的邊界角色。
+
+**下次改善：** (1) 視覺全面改版類 ticket（K-021 此類 design system rebuild）QA 視覺 audit step 先讀 ticket §Scope 與 §Tech Debt 列出「本票遷移 vs 未遷移」範圍，**優先針對「未遷移但受波及」路由做 readability 探針**，不倚賴均勻抽樣；(2) 臨時 Playwright spec 一律直接建在 `e2e/_tmp-<task>.spec.ts`，並在結束前 `rm` + `ls` 驗證清除，不走 `/tmp/` 導致 testDir 不覆蓋；(3) QA retro 明確分段「客觀數據」vs「PM 裁決題」，前者 QA 負責，後者只陳述證據不下結論，避免角色越權。
+
 ## 2026-04-19 — K-018
 
 **做得好：** ga-tracking.spec.ts 12/12 全綠逐一目視確認（AC-018-INSTALL × 1、AC-018-PAGEVIEW × 4、AC-018-CLICK × 4、AC-018-PRIVACY × 1、AC-018-PRIVACY-POLICY × 2），與 ticket AC 清單逐條對齊；`TICKET_ID=K-018` 環境變數本次記得帶，產出正確命名的 `K-018-visual-report.html`（K-017 反省的改善行動已落地）；全套 99 passed / 1 skipped，skipped 條目屬已知問題，正確標注不 block。

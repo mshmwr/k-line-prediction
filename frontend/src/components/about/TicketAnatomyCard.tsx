@@ -28,7 +28,7 @@ export default function TicketAnatomyCard({
           GitHub →
         </ExternalLink>
       </div>
-      <h3 className="font-mono font-semibold text-white text-sm mb-3">{title}</h3>
+      <h3 className="font-mono font-semibold text-ink text-sm mb-3">{title}</h3>
       <div className="space-y-2 text-xs text-gray-400 leading-relaxed">
         <p>
           <span className="text-gray-500 uppercase tracking-wide font-mono">Outcome</span>{' '}

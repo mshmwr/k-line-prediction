@@ -16,6 +16,21 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-20 — K-021 Round 4 fix（/about text-white readability）
+
+**做得好：**
+
+1. **Scope discipline 嚴守：** PM 交接指引 10 檔 10 行清單與初始 grep 結果零差異，逐檔做純 text-color 替換（`text-white` → `text-ink` 一個 class token），未順便動 layout / font-size / spacing 等相鄰 class。engineer.md absolute-don't #4 不降級 scope 與 #1 不擴張 scope 兩條一起守住。
+2. **交付前硬查歸零：** Edit 完 10 檔後再跑 `grep 'text-white' frontend/src/components/about/` 回報 `No matches found`，gate 通過前就驗證 fix 完整性，未依賴 QA 再探針一次才知道。
+
+**沒做好：**
+
+1. **首輪 parallel Edit 全部因為沒 Read 失敗：** agent session 新接手無前任 Read context，直接對 10 檔下 Edit batch → 10 個 `File has not been read yet` 錯誤，補 Read 10 檔後才能重 Edit。應該接手 session 第一步就批次 Read 再 Edit，不省這一步。
+
+**下次改善：**
+
+1. 新 session agent 接手純文字替換任務，預設流程「批次 Read → 批次 Edit → 硬查 grep」，不先試沒 Read 就 Edit。特別是批次操作時 10 檔一起 fail 浪費 parallel tool call 額度。
+
 ## 2026-04-20 — K-021 Round 3 fix（Reviewer Round 1+2 合併修復）
 
 **做得好：**

@@ -19,6 +19,7 @@ K-017 AC-017-HOME-V2 完成 Homepage v2（`<DiaryTimelineEntry>` + hpHero / hpLo
 
 - **依賴 K-021**（全站設計系統基建）：本票所有 UI 斷言引用 K-021 交付的 Tailwind token / 三字型系統 / NavBar / Footer
 - 本票不可在 K-021 放行前開始 Engineer 實作
+- **token 用途對齊（PM 2026-04-20 Q2 裁決）：** K-021 定義 `brick = #B43A2C`（hero/title magenta）與 `brick-dark = #9C4A3B`（hover/active variant）兩色並存。本票 A-2 Diary marker 採 `brick-dark`、A-4 Hero 副標第二行磚紅採 `brick`——用途分工與 K-021 決策表一致。Engineer 實作時若選 class 有疑義，以 K-021 ticket「設計決策紀錄」表為準
 
 ## 範圍（5 項結構對齊）
 

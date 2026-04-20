@@ -39,7 +39,7 @@ const TICKETS = [
 export default function TicketAnatomySection() {
   return (
     <div>
-      <h2 className="font-mono font-bold text-white text-2xl mb-2">Anatomy of a Ticket</h2>
+      <h2 className="font-mono font-bold text-ink text-2xl mb-2">Anatomy of a Ticket</h2>
       <p className="text-gray-400 text-sm mb-6">
         Three tickets that shaped how this project works.
       </p>

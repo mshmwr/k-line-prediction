@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-19
+updated: 2026-04-20
 ---
 
 ## Summary
@@ -412,7 +412,73 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 | `/business-logic` | `BusinessLogicPage` | 交易邏輯（密碼保護，JWT 驗證後顯示） |
 | `*` | `Navigate to /` | 未匹配路徑一律導回首頁 |
 
-**NavBar：** `UnifiedNavBar` 掛在所有頁面頂端（K-005 統一方案）。左側 home icon，右側連結 App / About / Diary / Logic 🔒；active 頁面連結白色，其他灰色。
+**NavBar：** `UnifiedNavBar` 掛在所有頁面頂端（K-005 統一方案 → K-021 設計系統對齊）。左側 home icon 連 `/`，右側 TEXT_LINKS：App / Diary / About（Prediction 暫隱藏，以常數註解保留）；active 狀態用 `aria-current="page"` + class `text-[#9C4A3B]`（brick-dark），非 active `text-[#6B5F4E]`（muted）。背景 `bg-paper`（#F4EFE5）。
+
+---
+
+## Design System (K-021)
+
+**設計稿來源：** `frontend/design/homepage-v2.pen`（4 個 top-level frames：Homepage 4CsvQ / About 35VCj / Diary wiDSi / Business Logic VSwW9）
+**設計文件：** [K-021-sitewide-design-system.md](../docs/designs/K-021-sitewide-design-system.md)
+
+### Tokens
+
+**Tailwind `theme.extend.colors`（K-021 註冊，替代目前 inline `[#XXXXXX]`）：**
+
+| Token | Value | 用途 |
+|-------|-------|------|
+| `paper` | `#F4EFE5` | 全站底色 body bg |
+| `ink` | `#1A1814` | 主文字 |
+| `brick` | `#B43A2C` | Logo / brand 主色 |
+| `brick-dark` | `#9C4A3B` | NavBar active link + CTA 按鈕 |
+| `charcoal` | `#2A2520` | 次文字 / 輔助元素 |
+| `muted` | `#6B5F4E` | Footer / meta / NavBar non-active |
+
+**Tailwind `theme.extend.fontFamily`：**
+
+| Token | Stack | 用途 |
+|-------|-------|------|
+| `display` | `['"Bodoni Moda"', 'serif']` | H1 / hero / section title |
+| `italic` | `['Newsreader', 'serif']` | italic emphasis / blockquote |
+| `mono` | `['"Geist Mono"', 'monospace']` | 程式碼 / 數據 / Footer meta |
+
+**字型載入：** Google Fonts CDN via `index.html` preconnect + stylesheet link（既有，無需改）。
+
+### 全站 Body CSS 入口
+
+`frontend/src/index.css` 採 `@layer base` 註冊 body 預設：
+
+```
+@layer base {
+  body { @apply bg-paper text-ink font-display; }
+}
+```
+
+所有頁面的外層 `<div className="min-h-screen bg-[#0D0D0D] text-white">` 包 wrap（AboutPage / DiaryPage / AppPage / BusinessLogicPage）於 K-021 移除，改由 body 底色承接。HomePage 已是 `bg-[#F4EFE5]` 直接轉為繼承 body。
+
+### Footer 放置策略
+
+**決策：per-page import（非 Layout slot）**，原因：AppPage `h-screen overflow-hidden` 與 Layout slot 模型衝突，per-page 才能讓各頁獨立決定是否渲染 Footer 與放置位置（/diary 本票不決定、由 K-024 處理）。
+
+| 頁面 | Footer |
+|------|--------|
+| `/` | `<HomeFooterBar />` |
+| `/about` | `<FooterCtaSection />`（註：K-021 同步把 text-white / border-white/10 等 dark-theme 遺留色改為 paper-theme，否則 paper bg 上不可見） |
+| `/diary` | 無 footer（K-021 本票不決定；由 K-024 處理） |
+| `/app` | `<HomeFooterBar />`（AppPage `h-screen overflow-hidden` 不滾動，放最外層 `flex flex-col` 最後子節點作 viewport-bottom） |
+| `/business-logic` | `<HomeFooterBar />` |
+
+### Shared Components 邊界
+
+| 組件 | 位置 | 用於 |
+|------|------|------|
+| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | 全 5 路由 |
+| `HomeFooterBar` | `components/home/HomeFooterBar.tsx` | `/` `/app` `/business-logic` |
+| `FooterCtaSection` | `components/about/FooterCtaSection.tsx` | `/about`（獨有 3 external links 結構） |
+
+### Legacy NavBar
+
+`components/NavBar.tsx`（legacy）於 K-021 驗收後若無 consumer 則刪除（Engineer grep 確認）。
 
 ---
 
@@ -516,6 +582,8 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-20**（Architect, W-5 文件 drift 修復）— `### Footer 放置策略` 表 `/diary` 與 `/app` 兩列顛倒修正：`/diary` 改為「無 footer（K-024 處理）」、`/app` 改為 `<HomeFooterBar />`（對齊 K-021 設計文件 §7.5 與 AC-021-FOOTER）；同段 rationale 文字調整，不再沿用「AppPage 無 footer」錯述。無 code 變更。
+- **2026-04-20**（Architect, K-021 設計）— 全站設計系統基建：新增 `## Design System (K-021)` 段（paper/ink/brick/brick-dark/charcoal/muted 6 color tokens + display/italic/mono 3 font tokens + body `@layer base` 入口 + Footer per-page 策略 + shared components 邊界表）；Frontend Routing 段 NavBar 敘述更新為 `aria-current="page"` + TEXT_LINKS 順序 App/Diary/About（Prediction 隱藏）+ active class `text-[#9C4A3B]` + bg-paper。設計文件：[K-021-sitewide-design-system.md](../docs/designs/K-021-sitewide-design-system.md)。未改 code（Architect 僅設計），Engineer 交付後補檔案異動項。
 - **2026-04-19**（Architect, K-018 設計）— GA4 Tracking 設計完成；預計新增：`frontend/src/utils/analytics.ts`（initGA/trackPageview/trackCtaClick）、`frontend/src/hooks/useGAPageview.ts`、`frontend/src/components/home/BuiltByAIBanner.tsx`（homepage thin banner，K-017 預計交付但尚未建立）、`frontend/e2e/ga-tracking.spec.ts`；修改：`main.tsx`（GATracker + initGA）、`FooterCtaSection.tsx`（click handlers + GA 聲明文字）、`HomePage.tsx`（BuiltByAIBanner 渲染）、`playwright.config.ts`（webServer.env VITE_GA_MEASUREMENT_ID=G-TESTID0000）；技術選型：手刻 `gtag.js`（不引入 react-ga4）；pageview spy：`window.dataLayer` + `addInitScript` spy 策略（不打真實網路）
 - **2026-04-19**（Architect, K-017 Pass 2 — cross-page component audit）— 新增 `frontend/src/components/primitives/` 目錄（P1–P7：SectionContainer / CardShell / ExternalLink / MilestoneAccordion / DiaryEntryRow / VerticalRail / TimelineMarker，後兩者為 Q8 Pencil 盲抽條件性 primitive）；新增 `hooks/useDiary.ts`；diary/ 刪除 `MilestoneSection.tsx` + `DiaryEntry.tsx`（由 P4 / P7 取代）；home/ 刪除 `DiaryPreviewEntry.tsx`（由 P4 取代）；`DevDiarySection.tsx` 改用 P4；RoleCard interface 重設（Pass 1 已列，Pass 2 明定 6 role 含 Reviewer）；Summary 段補 Pass 2 note。
 - **2026-04-19**（Architect, K-017 設計）— `/about` 重寫為 portfolio-oriented recruiter page：Directory Structure 下 about/ 子目錄刷新（刪 12 舊組件 / 新增 11 組件 / 改寫 PageHeader + RoleCard interface），home/ 加 `BuiltByAIBanner.tsx`；頂層 docs/ 加 `ai-collab-protocols.md` + retrospectives/ 子目錄註解；新增頂層 `scripts/` 目錄 + `audit-ticket.sh`；新增 `frontend/public/docs/` 供 SPA Hosting 直接訪問 `.md`；Frontend Routing 表 `/about` 說明全改；新增 `## Scripts & Public Protocols Doc` 段記錄 audit-ticket.sh + ai-collab-protocols.md 定位 / usage / skip 規則 / exit code / 部署約束。

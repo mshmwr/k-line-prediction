@@ -60,6 +60,18 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 ### C-4 Role grid 高度
 6 Role Cards 的 grid 高度對齊設計稿（3×2 排列，每 card 固定高度）
 
+### A-12 Shared primitives paper palette 遷移（K-021 Round 3 S-NEW-2 併入）
+`/about` 主 consumer 的 shared primitives 元件殘留 K-017 dark class，於本票一併遷到 paper palette：
+- `components/shared/CardShell.tsx`
+- `components/shared/SectionContainer.tsx`
+- `components/shared/SectionHeader.tsx`
+- `components/shared/SectionLabel.tsx`
+- `components/shared/CtaButton.tsx`
+
+**盤點：** Engineer 實作前 grep 上列檔案 `text-white` / `bg-gray-` / `border-white` / `#0[0-9A-F]{5}` 等 dark pattern，列完整對照表。
+**遷移原則：** K-021 token 為主（`bg-paper` / `text-ink` / `border-ink`），若 /about 設計稿 v2 有 dossier header `bg-charcoal` 類暗色塊，維持該語義色。
+**回歸考量：** shared primitives 亦被 AppPage 使用（見 K-026），但 K-026 會重新驗證 AppPage 子元件；本票只負責 /about 主 consumer 視覺斷言，K-026 覆蓋 AppPage consumer 回歸。
+
 **不含（明確排除）：**
 - B-1 Pillar `<code>` 標籤（設計稿有但實作不做）
 - B-2 Ticket 副說明（設計稿有但實作不做）

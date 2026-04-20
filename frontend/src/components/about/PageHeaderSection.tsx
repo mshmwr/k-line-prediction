@@ -5,7 +5,7 @@
 export default function PageHeaderSection() {
   return (
     <div className="py-20 text-center">
-      <h1 className="text-4xl font-mono font-bold text-white mb-6 leading-tight">
+      <h1 className="text-4xl font-mono font-bold text-ink mb-6 leading-tight">
         One operator, orchestrating AI agents end-to-end —
         <br />
         PM, architect, engineer, reviewer, QA, designer.

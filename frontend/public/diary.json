@@ -1,5 +1,11 @@
 [
   {
+    "milestone": "K-021 — 全站設計系統基建（paper palette + 三字型 + NavBar + HomeFooterBar）",
+    "items": [
+      { "date": "2026-04-20", "text": "K-021 closed：5 路由 body 配色米白化（paper/ink token）、Bodoni Moda + Newsreader + Geist Mono 三字型系統上線、NavBar 米白化 + 項目順序重整、HomeFooterBar 擴至 /app 與 /business-logic；歷經 4 rounds（R1 設計→實作 / R2 子元件 dark-class 補修 / R3 architecture.md cross-table drift / R4 /about text-white readability fix-now），Playwright 115 passed + 1 skipped，K-022/K-023/K-024 前置基建完成" }
+    ]
+  },
+  {
     "milestone": "K-008 — 自動化視覺報告 script（Playwright 截圖 → HTML）",
     "items": [
       { "date": "2026-04-18", "text": "K-008 closed：新增 visual-report.ts 自動截圖 4 條路由產出 HTML 報告，playwright.config 拆 per-project testMatch 隔離 E2E 與 report；Reviewer 抓 4 Warnings 全本票內修（W1 module-level side effect、W3 scoped state、W4 TICKET_ID whitelist、S2 HTML gitignore）；tsc + Vitest 36 + Playwright 45 全綠" }

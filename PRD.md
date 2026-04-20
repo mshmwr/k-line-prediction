@@ -937,10 +937,10 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ### AC-021-BODY-PAPER `[K-021]`：全站 5 頁 body 配色米白化
 
-**Given** 使用者訪問 `/` / `/about` / `/diary` / `/app` / `/login` 任一頁
+**Given** 使用者訪問 `/` / `/about` / `/diary` / `/app` / `/business-logic` 任一頁（PM 2026-04-20 裁決：原 `/login` 正名為 `/business-logic`，承載登入 UI 狀態的是 `BusinessLogicPage` 於無 token 時渲染 `<PasswordForm />`）
 **When** 頁面載入完成
 **Then** `<body>` computed `backgroundColor` 為 `rgb(244, 239, 229)` + `color` 為 `rgb(26, 24, 20)`
-**And** Playwright 斷言：5 個路由各自驗證 body 配色
+**And** Playwright 斷言：**5 個路由需 5 個獨立 test case，逐一斷言，不得合併**（PM 量化規則）；`/business-logic` 額外涵蓋 PasswordForm 未登入 + 登入後兩 UI 狀態（共 6 tests）
 **And** Code Reviewer / QA 執行全站共用組件改動後的目視所有路由確認（見 memory `feedback_shared_component_all_routes_visual_check.md`）
 
 ---
@@ -951,17 +951,18 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 **When** 頁面載入完成
 **Then** NavBar 背景 `#F4EFE5` + 文字 `#1A1814`
 **And** 項目順序：⌂ (Home) / App / Diary / Prediction（hidden）/ About
-**And** 當前頁面項呈現 active 樣式（`text-brick` = `#B43A2C`）
-**And** Playwright 斷言：4 路由各自驗證對應項 active；Prediction 項 `toHaveCount(0)`
+**And** 當前頁面項呈現 active 樣式（`text-brick-dark` = `#9C4A3B`；PM 2026-04-20 裁決 Q2：`brick` 保留給 K-023 Hero magenta，`brick-dark` 為 hover/active variant）
+**And** Playwright 斷言：**4 路由需 4 個獨立 test case 逐一斷言**（PM 量化規則）；Prediction 項 `toHaveCount(0)`；既有 `navbar.spec.ts` 8 處 `text-\[#9C4A3B\]` 斷言不需動（編譯後 CSS 與 `text-brick-dark` 相同）
 
 ---
 
 ### AC-021-FOOTER `[K-021]`：全站 Footer 單行資訊列
 
-**Given** 使用者訪問 `/` / `/app` / `/login` 任一頁
+**Given** 使用者訪問 `/` / `/app` / `/business-logic` 任一頁（PM 2026-04-20 裁決：`/login` 正名為 `/business-logic`）
 **When** 頁面滾動至底部
 **Then** 顯示 `<HomeFooterBar />` 單行：`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`
 **And** 字型 Geist Mono 11px，顏色 `#6B5F4E`，頂部 border
+**And** Playwright 斷言：**3 路由需 3 個獨立 test case 逐一斷言**（PM 量化規則）；`/business-logic` 額外涵蓋 PasswordForm 未登入 + 登入後兩 UI 狀態（共 4 tests）
 **And** `/about` 維持 `<FooterCtaSection />`（K-017 AC-017-FOOTER 規格，本票不動）
 **And** `/diary` Footer 由 K-024 決定，本票不插入
 

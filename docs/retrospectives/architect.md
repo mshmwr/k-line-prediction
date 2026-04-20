@@ -20,7 +20,44 @@
 
 <!-- 新條目從此處往上 append -->
 
-## 2026-04-19 — K-017 Q8 FooterCtaSection 錯誤裁決
+## 2026-04-20 — K-021 W-R3-01 architecture.md Shared Components 表跨表 drift（Round 3 第二層反省）
+
+**沒做好：**
+1. **具體事件：** Round 2 已把 `### Footer 放置策略` 表（L463-469）從 `/diary = HomeFooterBar`、`/app = 無 footer` 修成正確的 `/diary = 無 footer`、`/app = HomeFooterBar`，但同檔下方 `### Shared Components 邊界` 表（L476）獨立記錄了同一組件的「用於」欄位，當時寫成 `/` `/diary` `/business-logic`（同一個錯誤的三路由組合），**Round 2 修 Footer 放置表時完全沒掃過這一列**。Reviewer Round 3 重審才抓到此跨表不一致，開 W-R3-01 blocker。源頭錯誤與 Round 2 撞同一根因（AppPage footer 放置短期記憶覆蓋 source of truth），但此票的教訓在於「修復的範圍」。
+2. **防呆為何失效：** Round 2 反省加的 Self-Diff Verification hard step 明定 Edit 後逐格比對 source of truth，**但只覆蓋「我這次 Edit 的段落」**。同一組件在同一檔案被多表記錄時，Self-Diff 只看當次異動 diff，讀不到其他表是否一致，規則無法跨表傳遞。本質上 Self-Diff 是縱向驗證（Edit 前 vs Edit 後），缺少橫向驗證（同檔其他段落是否一致）。
+3. **結構性根因：** architecture.md 採「多面向表格表達同一組件」結構（Footer 放置策略表 + Shared Components 邊界表 + directory structure tree，三處各自列 HomeFooterBar），任一表更新必須掃另外兩表。persona 硬步驟缺「Same-File Cross-Table Consistency Sweep」——Edit 涉及某組件/某路由/某 endpoint 時，grep 全檔該識別符，凡出現之處逐一驗證一致。
+
+**下次改善：**
+1. **persona 補第三道硬步驟 `Same-File Cross-Table Consistency Sweep`**（已於 W-R3-01 任務內容裡模擬執行一次，需把步驟正式寫進 `~/.claude/agents/senior-architect.md`）：凡 Edit architecture.md（或任何 source-of-truth 文件）涉及具名識別符（組件名 / route path / endpoint / field），Edit 完必須 grep 全檔該識別符，列出所有出現位置，逐一對照實際實作與其他 source of truth，全綠才算收工。本次已示範輸出 ✓ block 格式。
+2. **結構層面：** 後續新寫 architecture.md 段落時，避免同一組件在多表重複記錄。若無法避免（資訊維度不同，如放置策略 vs 共用邊界），必須在文件頂部或該段落 header 明示「此組件亦記錄於 L476」，降低跨表 drift 發生率。此為 TD，登 PM dashboard 由 PM 裁決。
+3. **規則傳遞方向：** Self-Diff（縱向）+ Cross-Table Sweep（橫向）= 二維覆蓋。只有縱向時，跨表 drift 的唯一防線是 Reviewer——不可接受，Architect 必須自閉環。
+
+---
+
+## 2026-04-20 — K-021 W-5 architecture.md Footer 表 drift
+
+**沒做好：**
+1. **具體事件：** K-021 設計任務結束前 Edit `agent-context/architecture.md` 新增 `## Design System (K-021)` 段時，`### Footer 放置策略` 表格的 `/diary` 與 `/app` 兩列值整組顛倒（寫成 `/diary = HomeFooterBar`、`/app = 無 footer`），且段落 rationale 句寫「per-page 才能保留 AppPage 無 footer 的工作區 UX」沿用錯誤假設。實際 source of truth：design doc §7.5 裁決表與 ticket AC-021-FOOTER 明寫 `/app = <HomeFooterBar />` + `/diary` 由 K-024 決定；我手上 Edit 時**沒有逐格對照**設計文件 §7.5，而是憑短期記憶（紅隊自檢討論過 AppPage footer 放置複雜度）直接下筆，把「AppPage 特殊處理」誤寫成「AppPage 無 footer」。
+2. **防呆為何失效：** persona 已有 `## Architecture Doc 同步規則` 硬步驟要求「結構/API/跨層決策/新增 shared components 必 Edit architecture.md + Changelog + updated」，memory `feedback_architect_must_update_arch_doc.md` 也強化此規則。**但該規則只規範「要不要 Edit」，不規範「Edit 完要自我 diff」。** 我的 Edit 執行本身符合規則（有改、有 Changelog、有 updated），卻沒一個步驟強制我把新寫的表格對照 source of truth 逐格檢查。規則覆蓋「寫」未覆蓋「寫對」。
+3. **結構性根因：** persona 落地缺 post-Edit cross-check 節拍——Edit architecture.md 表格 / 清單 / endpoint schema 等「結構化內容」時，只要 source of truth（design doc / ticket AC / codebase grep）存在，Edit 後必須逐行比對，任一格不一致回頭改，無差異才算完成。此前三張票（K-017 Pass 3 step 清單殘留、K-018 BuiltByAIBanner 不存在、K-009/K-011 drift）都與「寫 / 寫對」同一類缺口，反省也都被記錄，但沒轉成硬步驟。
+
+**下次改善：**
+1. **新增 persona 硬步驟（`~/.claude/agents/senior-architect.md` `## Architecture Doc 同步規則` 段末追加）：** Edit architecture.md 任一「結構化內容」（表格、清單、endpoint schema、組件 props 表）後，必須讀對應 source of truth（design doc 裁決段 / ticket AC / `ls` 或 `grep` codebase），**逐行/逐格 diff**，記錄「X 列 vs Y 列 — 逐格匹配 ✓」於任務交付 log；任一格不一致，回頭改，無差異才算完成任務。未完成此 diff 不得宣告任務結束。
+2. 新 memory 檔 `feedback_architect_arch_doc_self_diff.md` 紀錄此規則與觸發事件，Ingest 下次 session 能自動提醒。
+
+---
+
+## 2026-04-20 — K-021 全站設計系統基建
+
+**做得好：** 字型載入方式採 5-dim Pre-Verdict matrix + red-team 3 輪後選 Option A（Google Fonts CDN），把既有 index.html 已載入 fonts 的事實納入 decision 避免 over-engineering；Footer 放置以 Option A vs B score 9.33 vs 5.33 拉開落差裁決，AppPage `h-screen overflow-hidden` 與 Layout slot 衝突 red-team 有抓到；FooterCtaSection 的 dark-theme 殘留（text-white / border-white/10）被識別為 TD-K021-05 blocker，避免 Engineer 視覺驗收失敗。
+**沒做好：**
+1. Scope 發現 `/login` 在 codebase + .pen 均不存在，卻仍在設計文件 §0 Q1 下「假設 A 繼續」而非暫停回報 PM，違反 persona「不做需求決策」；實質上是 borderline 裁定 AC 範圍。
+2. Body CSS 入口 Option A (index.css @layer) 7.5 vs Option C (per-page) 8.0，score 較低卻以「token 精神」tiebreaker 後選 A，tiebreaker 維度未事先列入 scoring matrix，屬於事後補維度自圓其說。
+3. Ticket AC 寫 `text-brick` (#B43A2C) 但實作 + K-017 visual-report 驗證用的是 #9C4A3B (brick-dark)，Q2 本應在 PM 未裁決前不做推薦，仍寫「推薦 B 保留實作」，同屬 borderline 代 PM 裁決。
+**下次改善：**
+1. **Scope Question Pause Rule**（加入 persona 硬步驟）：Architect 發現 ticket AC vs codebase/設計稿有不一致時，必須立即停止設計、在 Q&A 段列出矛盾、回報 PM，不得以「假設 X 繼續」自走；PM 未覆前設計文件不得宣告完成。
+2. **Pre-Verdict Tiebreaker Pre-listing Rule**（加入 persona 硬步驟）：Pre-Verdict scoring matrix 必須在**列出選項同步列出所有評分維度**（含 tiebreaker），選項分出後不得新增維度；分差 < 1 時 tiebreaker 只能用既有維度加權，否則視為「未決」回報 PM。
+3. Ticket vs 實作色票落差須在設計文件 §0 以「PM 待裁決」標記列示，不附推薦意見，避免 Architect 代 PM 定色。
 
 **沒做好：** Q8 回覆「HomePage 全站加 FooterCtaSection」時未核對 Pencil 設計稿，設計稿實際上是純文字 hpFooterBar（一個 text node，文案 `"yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn"`，Geist Mono 11px #6B5F4E，無獨立連結），與 FooterCtaSection（三個獨立外連：email/GitHub/LinkedIn + ExternalLink + P3 primitive）完全不同設計理念。錯誤裁決會讓 Engineer 在 HomePage 底部實作錯誤組件。
 **下次改善：** Q&A 回覆涉及「新增組件到哪些頁面」時，必須先 batch_get 對應 Pencil frame 確認實際設計規格，不憑 AC 文字推論；特別是「全站共用」決策需要確認設計稿中每個頁面的底部是否都是同一個組件設計，而非只看 AC 描述文字
