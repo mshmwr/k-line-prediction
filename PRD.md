@@ -901,3 +901,403 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 **Then** Footer 含一行文字說明網站使用 GA4 收集匿名流量數據（例：「This site uses Google Analytics to collect anonymous usage data.」）
 **And** 不需實作 Cookie Consent Banner 或攔截式 modal
 **And** Playwright 斷言：Footer 區塊內含 "Google Analytics" 字串
+
+---
+
+## K-021 全站設計系統基建（配色 + 字型 + NavBar + Footer）
+
+**Ticket：** [K-021](docs/tickets/K-021-sitewide-design-system.md)
+
+**背景：** K-017 完成 `/about` portfolio 改版後，PM 於 2026-04-20 比對設計稿 v2 與視覺報告，發現全站三頁面（Homepage / About / Diary）存在 **配色顛倒**（米白紙本 vs dark-mode）與 **字型系統缺失**（三字型 vs system default）核心差異。本票交付全站共用的 Tailwind token / 三字型系統 / NavBar / Footer，為 K-022 / K-023 / K-024 前置依賴。
+
+**依賴：** 本票為 K-022 / K-023 / K-024 前置依賴，必須先完成。
+
+---
+
+### AC-021-TOKEN `[K-021]`：Tailwind theme token 完整註冊
+
+**Given** 開發者檢視 `frontend/tailwind.config.js`
+**When** 讀取 `theme.extend.colors`
+**Then** 下列 6 個 token 全部存在且 hex 值精確匹配：paper `#F4EFE5` / ink `#1A1814` / brick `#B43A2C` / brick-dark `#9C4A3B` / charcoal `#2A2520` / muted `#6B5F4E`
+**And** `npx tsc --noEmit` exit 0
+**And** `npm run build` 成功（token 可被 Tailwind JIT 編譯）
+
+---
+
+### AC-021-FONTS `[K-021]`：三字型系統載入並註冊 Tailwind fontFamily
+
+**Given** 使用者訪問任一頁面
+**When** 頁面載入完成
+**Then** document 含載入 Bodoni Moda / Newsreader / Geist Mono 三字型的資源
+**And** `frontend/tailwind.config.js` 的 `theme.extend.fontFamily` 註冊 `display` / `italic` / `mono` 三個 family
+**And** Playwright 斷言：套用 `font-display` / `font-mono` 的元素 computed `fontFamily` 正確
+**And** 載入失敗時 fallback 至系統字型，不 crash
+
+---
+
+### AC-021-BODY-PAPER `[K-021]`：全站 5 頁 body 配色米白化
+
+**Given** 使用者訪問 `/` / `/about` / `/diary` / `/app` / `/login` 任一頁
+**When** 頁面載入完成
+**Then** `<body>` computed `backgroundColor` 為 `rgb(244, 239, 229)` + `color` 為 `rgb(26, 24, 20)`
+**And** Playwright 斷言：5 個路由各自驗證 body 配色
+**And** Code Reviewer / QA 執行全站共用組件改動後的目視所有路由確認（見 memory `feedback_shared_component_all_routes_visual_check.md`）
+
+---
+
+### AC-021-NAVBAR `[K-021]`：NavBar 米白化 + 項目順序對齊設計稿
+
+**Given** 使用者訪問任一頁面
+**When** 頁面載入完成
+**Then** NavBar 背景 `#F4EFE5` + 文字 `#1A1814`
+**And** 項目順序：⌂ (Home) / App / Diary / Prediction（hidden）/ About
+**And** 當前頁面項呈現 active 樣式（`text-brick` = `#B43A2C`）
+**And** Playwright 斷言：4 路由各自驗證對應項 active；Prediction 項 `toHaveCount(0)`
+
+---
+
+### AC-021-FOOTER `[K-021]`：全站 Footer 單行資訊列
+
+**Given** 使用者訪問 `/` / `/app` / `/login` 任一頁
+**When** 頁面滾動至底部
+**Then** 顯示 `<HomeFooterBar />` 單行：`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`
+**And** 字型 Geist Mono 11px，顏色 `#6B5F4E`，頂部 border
+**And** `/about` 維持 `<FooterCtaSection />`（K-017 AC-017-FOOTER 規格，本票不動）
+**And** `/diary` Footer 由 K-024 決定，本票不插入
+
+---
+
+### AC-021-REGRESSION `[K-021]`：既有功能無回歸
+
+**Given** K-017 所有 AC + K-005 NavBar AC 於關閉時為 PASS
+**When** 本票實作完成
+**Then** 所有既有 Playwright 斷言仍 PASS
+**And** `npx tsc --noEmit` exit 0
+
+---
+
+## K-022 /about 結構細節對齊設計稿 v2（12 項）
+
+**Ticket：** [K-022](docs/tickets/K-022-about-structure-v2.md)
+
+**背景：** K-017 文案定稿後，`/about` 結構細節（section label、dossier header、redaction bar、annotation 等）12 項尚未對齊設計稿 v2 frame `35VCj`。本票為結構視覺還原，文案不動。
+
+**依賴：** 依賴 K-021 交付的 Tailwind token + 三字型系統。
+
+---
+
+### AC-022-SECTION-LABEL `[K-022]`：每個 section 上方有 small-caps label + hairline
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至任一 section
+**Then** section 上方有 Geist Mono small-caps label（如 `SECTION · ROLES`）+ 1px hairline
+**And** Playwright 斷言：6 個 section 各自含對應 label（`{ exact: true }`）
+
+---
+
+### AC-022-DOSSIER-HEADER `[K-022]`：頁面頂部 dossier header bar + FILE Nº
+
+**Given** 使用者訪問 `/about`
+**When** 頁面載入完成
+**Then** 頁面最上方（NavBar 下方）顯示深色橫條（`bg-charcoal` + 白字），含 `FILE Nº` 編號
+**And** Playwright 斷言：dossier header bar 存在含 `FILE Nº` 字串
+
+---
+
+### AC-022-HERO-TWO-LINE `[K-022]`：Hero 分兩行視覺
+
+**Given** 使用者訪問 `/about`
+**When** 頁面載入完成
+**Then** 主句 Bodoni Moda display；結尾句 `Every feature ships with a doc trail.` Newsreader italic 獨立行
+**And** Playwright 斷言：主句 fontFamily "Bodoni Moda"、結尾句 "Newsreader" + italic
+
+---
+
+### AC-022-SUBTITLE `[K-022]`：每個 section 有 italic 副標
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至 Metrics / Roles / Pillars / Tickets / Architecture
+**Then** 5 個 section 各自含一行 Newsreader italic 副標
+**And** Playwright 斷言：5 個 section 各一個 italic 字型副標
+
+---
+
+### AC-022-REDACTION-BAR `[K-022]`：部分資訊以 redaction bar 呈現
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至 Metrics 或 Roles
+**Then** 至少一個欄位以黑色矩形 redaction bar 呈現視覺遮蔽
+**And** Playwright 斷言：至少一個 `.redaction-bar` 或 `[data-redaction]` 元素存在
+
+---
+
+### AC-022-OWNS-ARTEFACT-LABEL `[K-022]`：Role Cards 欄位 label Geist Mono small-caps
+
+**Given** 使用者訪問 `/about`
+**When** 頁面滾動至 Role Cards
+**Then** 6 張卡片的 `OWNS` + `ARTEFACT` label 採 Geist Mono small-caps，字級 10-11px，`text-muted`
+**And** Playwright 斷言：6 張卡片各含兩個 label（12 條斷言）
+
+---
+
+### AC-022-LINK-STYLE `[K-022]`：頁內 link 採 Newsreader italic + underline
+
+**Given** 使用者訪問 `/about`
+**When** 任一 link（Ticket cards / Pillar / Footer CTA）
+**Then** link 字型 Newsreader italic + underline
+**And** Playwright 斷言：至少一個 `<a>` 符合
+
+---
+
+### AC-022-CASE-FILE-HEADER `[K-022]`：Anatomy of a Ticket 區塊以 CASE FILE 呈現
+
+**Given** 使用者訪問 `/about`
+**When** 滾動至 Anatomy of a Ticket
+**Then** section label 為 `CASE FILE`（Geist Mono small-caps）
+**And** Playwright 斷言：`CASE FILE` 字串存在
+
+---
+
+### AC-022-LAYER-LABEL `[K-022]`：How AI Stays Reliable 三 pillar 含 LAYER 前綴 label
+
+**Given** 使用者訪問 `/about`
+**When** 滾動至 How AI Stays Reliable
+**Then** 三 pillar 各自有 `LAYER 1` / `LAYER 2` / `LAYER 3` 前綴
+**And** Playwright 斷言：三 pillar 各含對應字串
+
+---
+
+### AC-022-FOOTER-REGRESSION `[K-022]`：Footer CTA 在 K-021 改動後視覺不破
+
+**Given** K-017 AC-017-FOOTER 為 PASS
+**When** K-021 + K-022 實作完成
+**Then** `/about` 底部 `<FooterCtaSection />` 仍存在且視覺與米白 body 銜接自然
+**And** K-017 AC-017-FOOTER `/about` 斷言仍 PASS
+
+---
+
+### AC-022-ANNOTATION `[K-022]`：Role Cards 下方 marginalia annotation
+
+**Given** 使用者訪問 `/about`
+**When** 滾動至 Role Cards
+**Then** 至少一張卡片含 `BEHAVIOUR` / `POSITION` Geist Mono annotation（9-10px `text-muted`）
+**And** Playwright 斷言：該字串存在於 Role Cards 區塊
+
+---
+
+### AC-022-ROLE-GRID-HEIGHT `[K-022]`：Role Cards grid 高度對齊設計稿
+
+**Given** 使用者訪問 `/about`
+**When** 滾動至 Role Cards
+**Then** 6 張 card 3×2 grid，高度一致（誤差 ≤ 2px）
+**And** Playwright 斷言：6 張 card `getBoundingClientRect().height` 最大最小差 ≤ 2px
+
+---
+
+### AC-022-REGRESSION `[K-022]`：K-017 既有斷言不回歸
+
+**Given** K-017 所有 AC 為 PASS
+**When** 本票實作完成
+**Then** K-017 所有 Playwright 斷言仍 PASS
+**And** `npx tsc --noEmit` exit 0
+
+---
+
+## K-023 Homepage 結構細節對齊設計稿 v2（5 項）
+
+**Ticket：** [K-023](docs/tickets/K-023-homepage-structure-v2.md)
+
+**背景：** Homepage v2（`4CsvQ`）與實作 5 項結構差異：Diary bullet marker / Step header bar / Hero 副標 / Hero 分隔線 / Body padding。B-2 左箭頭撤回（實作已正確）。
+
+**依賴：** 依賴 K-021 交付的 Tailwind token + 三字型系統。
+
+---
+
+### AC-023-DIARY-BULLET `[K-023]`：Homepage Diary section 每條 entry 左側矩形磚紅 marker
+
+**Given** 使用者訪問 `/`
+**When** 滾動至 Diary section
+**Then** 每條 `<DiaryTimelineEntry>` 左側 marker 為矩形（非圓形），20×14px，`#9C4A3B` 磚紅
+**And** Playwright 斷言：至少 3 個 marker 符合尺寸+顏色
+
+---
+
+### AC-023-STEP-HEADER-BAR `[K-023]`：hpLogic Step 卡片頂部 header bar
+
+**Given** 使用者訪問 `/`
+**When** 滾動至 hpLogic
+**Then** 每張 Step 卡片頂部 header bar：`#2A2520` 背景 + 白字 + `STEP 0X · <LABEL>`（Geist Mono 10px）
+**And** Playwright 斷言：至少 3 張 Step 卡片含符合 `STEP 0X · <WORD>` pattern 的 header bar
+
+---
+
+### AC-023-HERO-SUBTITLE-TWO-LINE `[K-023]`：Hero 副標第二行磚紅 Bodoni italic
+
+**Given** 使用者訪問 `/`
+**When** 頁面載入完成
+**Then** hpHero 副標兩行；第二行 Bodoni Moda italic + `text-brick` (`#B43A2C`)
+**And** Playwright 斷言：Hero 第二行 color `rgb(180, 58, 44)` + italic
+
+---
+
+### AC-023-HERO-HAIRLINE `[K-023]`：Hero 副標下水平分隔線
+
+**Given** 使用者訪問 `/`
+**When** 頁面載入完成
+**Then** Hero 副標下方全寬 1px `#2A2520` 水平分隔線
+**And** Playwright 斷言：分隔線元素符合尺寸色彩
+
+---
+
+### AC-023-BODY-PADDING `[K-023]`：Homepage body 內邊距 72px 96px
+
+**Given** 使用者訪問 `/` 且 viewport ≥ 768px
+**When** 頁面載入完成
+**Then** main content container 的 computed `padding` 為 `72px 96px`
+**And** mobile viewport 改為 responsive 變體（Architect 定義數值）
+**And** Playwright 斷言：desktop `paddingTop` = `72px`、`paddingLeft` = `96px`
+
+---
+
+### AC-023-REGRESSION `[K-023]`：K-017 既有斷言不回歸
+
+**Given** K-017 所有 AC（特別是 AC-017-HOME-V2 / AC-017-BANNER / AC-HOME-1）為 PASS
+**When** 本票實作完成
+**Then** 所有既有 Playwright 斷言仍 PASS
+**And** `<DiaryTimelineEntry>` 組件的 `layout:none` 絕對定位機制不被破壞
+**And** `npx tsc --noEmit` exit 0
+
+---
+
+## K-024 /diary 結構重做 + diary.json schema 扁平化
+
+**Ticket：** [K-024](docs/tickets/K-024-diary-structure-and-schema.md)
+
+**背景：** `/diary` 與設計稿 v2（`wiDSi`）存在 24 項差異（22 項實質）。核心：**資訊結構完全不同**（設計稿扁平 timeline vs 實作 milestone accordion）+ `diary.json` schema 雙層結構過於複雜 + 含中文。本票同時定義 PM 每日維護流程（persona 已於 2026-04-20 寫入）。
+
+**依賴：** 依賴 K-021 交付的 Tailwind token + 三字型系統。
+
+---
+
+### AC-024-SCHEMA `[K-024]`：diary.json 採扁平 flat array schema
+
+**Given** 開發者讀取 `frontend/public/diary.json`
+**When** 解析內容
+**Then** 為 JSON array，每個 element `{ ticketId?: string, title: string, date: "YYYY-MM-DD", text: string }`
+**And** 舊 `{ milestone, items[] }` 全部已轉換，無 `milestone` key
+**And** Vitest 單元測試驗證 schema，全部 entry pass
+
+---
+
+### AC-024-ENGLISH `[K-024]`：diary.json 所有條目統一英文
+
+**Given** 開發者讀取 `frontend/public/diary.json`
+**When** 掃描所有 entry 的 title + text
+**Then** 無 CJK 字元（regex `[\u4e00-\u9fff]` 零匹配）
+**And** 既有中文條目已英譯保留原意
+**And** Vitest 斷言：無 CJK 字元
+
+---
+
+### AC-024-LEGACY-MERGE `[K-024]`：舊無 K-XXX 條目統整為一筆
+
+**Given** 開發者讀取 `frontend/public/diary.json`
+**When** 掃描所有 entry
+**Then** 無 `ticketId` 的 entry 最多 1 筆
+**And** 該筆 title 涵蓋 Phase 1/2/3 + Deployment + Codex Review Follow-up 等主題（英文摘要 50-100 字）
+**And** Vitest 斷言：`filter(e => !e.ticketId).length <= 1`
+
+---
+
+### AC-024-HOMEPAGE-CURATION `[K-024]`：Homepage 顯示最新 3 條
+
+**Given** 使用者訪問 `/`
+**When** 滾動至 Diary section
+**Then** 顯示 3 條 entry（by `date` desc），均為 diary.json 最新 3 筆
+**And** Playwright 斷言：Homepage diary section 含 3 個 `<DiaryTimelineEntry>` 元素
+
+---
+
+### AC-024-DIARY-PAGE-CURATION `[K-024]`：Diary 頁預設 5 條 + 滾動載入更多
+
+**Given** 使用者訪問 `/diary`
+**When** 頁面載入完成（尚未滾動）
+**Then** 顯示 5 條（假設 diary.json ≥ 5 筆）
+
+**Given** 使用者在 `/diary`
+**When** 滾動至底部或點擊 Load more（Architect 決定 pattern）
+**Then** 再渲染 5 條（總 10 條）；超過 diary.json 總數則停止
+**And** Playwright 斷言：初始 5 條；滾動/點擊後 10 條
+**And** diary.json 只有 3 筆時全部顯示 3 條，無 Load more 觸發
+
+---
+
+### AC-024-TIMELINE-STRUCTURE `[K-024]`：Diary 頁採扁平 timeline 結構
+
+**Given** 使用者訪問 `/diary`
+**When** 頁面載入完成
+**Then** 無 milestone accordion（無 `<details>` / `<summary>`）；所有 entry 同層垂直排列
+**And** 左側 1px `#2A2520` 垂直 rail；每條 entry 對應磚紅矩形 marker (`#9C4A3B`)
+**And** Playwright 斷言：無 `<details>`；rail 元素存在；至少 5 個 marker
+
+---
+
+### AC-024-ENTRY-LAYOUT `[K-024]`：每條 entry 三層排版
+
+**Given** 使用者訪問 `/diary`
+**When** 滾動至任一 entry
+**Then** Ticket title Bodoni Moda italic 18px bold；Date Geist Mono 12px；Text Newsreader italic 18px
+**And** `ticketId` 存在時 title 前綴 `K-XXX · `
+**And** Playwright 斷言：三層字型 + 字級 computed 值符合
+
+---
+
+### AC-024-PAGE-HERO `[K-024]`：/diary 頁面 Hero 區大標 + 分隔線 + italic 副標
+
+**Given** 使用者訪問 `/diary`
+**When** 頁面載入完成
+**Then** Hero 大標 `Dev Diary`（或設計稿指定）Bodoni Moda italic 64px + 1px `#2A2520` 分隔線 + Newsreader italic 副標
+**And** Playwright 斷言：Hero `<h1>` fontSize `64px` + fontFamily "Bodoni Moda"
+
+---
+
+### AC-024-CONTENT-WIDTH `[K-024]`：Diary 頁內容寬度 1248px
+
+**Given** 使用者訪問 `/diary` 且 viewport ≥ 1248px
+**When** 頁面載入完成
+**Then** content container computed `maxWidth` 為 `1248px` 且水平置中
+**And** Playwright 斷言（desktop viewport）：maxWidth = `1248px`
+
+---
+
+### AC-024-LOADING-ERROR-PRESERVED `[K-024]`：Loading / Error 狀態機制保留
+
+**Given** diary.json 載入中
+**When** 訪問 `/diary`
+**Then** 顯示 Loading UX（沿用既有機制）
+
+**Given** diary.json 載入失敗
+**When** 訪問 `/diary`
+**Then** 顯示 Error UX，提示載入失敗訊息
+**And** Playwright 斷言：載入失敗時 Error 元素存在
+
+---
+
+### AC-024-PM-PERSONA-SYNC `[K-024]`：PM persona 每日維護流程文字對齊 K-024
+
+**Given** `~/.claude/agents/pm.md` 已於 2026-04-20 寫入維護流程段落（用「K-023 上線後生效」文字）
+**When** 本票關閉
+**Then** PM Edit persona 將「K-023 上線後生效」修正為「K-024 上線後生效」
+**And** auto trigger table 對應條目同步修正
+**And** 實際有 Edit tool call（不得只聲稱完成）
+
+---
+
+### AC-024-REGRESSION `[K-024]`：既有功能無回歸
+
+**Given** K-017 AC（AC-017-HOME-V2 / AC-017-FOOTER 含 `/diary` 無 Footer 負斷言）為 PASS；AC-DIARY-1 為 PASS
+**When** 本票實作完成
+**Then** 所有既有 Playwright 斷言仍 PASS（AC-DIARY-1 可能需更新斷言對齊扁平 schema，但核心行為不變）
+**And** Homepage `<DevDiarySection>` 仍渲染 3 條 entry（AC-024-HOMEPAGE-CURATION）
+**And** `npx tsc --noEmit` exit 0
+**And** `frontend/public/diary.json` 變更觸發 `DiaryPage.spec.ts` Playwright 子集通過（依 file-class 表）
