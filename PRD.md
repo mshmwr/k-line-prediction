@@ -288,7 +288,7 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 **Given** 使用者在某頁面
 **When** 頁面載入
-**Then** 對應該頁的 NavBar 連結顯示為白色（active），其他連結為灰色
+**Then** 對應該頁的 NavBar 連結顯示為磚紅色 `#9C4A3B`（active），其他連結為深棕黑 60%（v2 色彩系統）
 
 ### AC-NAV-5: Business Logic 連結 auth 狀態 `[K-005]`
 

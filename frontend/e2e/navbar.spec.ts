@@ -176,53 +176,53 @@ test.describe('AC-NAV-4 — Nav links navigate correctly (SPA)', () => {
   })
 })
 
-// ── AC-NAV-5: Active link is white, inactive links are zinc-500 ───────────────
+// ── AC-NAV-4: Active link highlighted — v2 color system ──────────────────────
 // Given: user is on /about
 // When:  page loads
-// Then:  "About" link has text-white class, other links have text-zinc-500 class
+// Then:  "About" link has text-[#9C4A3B] class (active), others text-[#1A1814]/60
 
-test.describe('AC-NAV-5 — Active link highlighted white, others zinc-500', () => {
+test.describe('AC-NAV-4 — Active link highlighted #9C4A3B, others #1A1814/60', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('About link is active (white) on /about page', async ({ page }) => {
+  test('About link is active (#9C4A3B) on /about page', async ({ page }) => {
     await mockApis(page)
     await page.goto('/about')
 
     const nav = navLinksScope(page, false)
-    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-white/)
-    await expect(nav.getByRole('link', { name: 'App', exact: true })).toHaveClass(/text-zinc-500/)
+    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-\[#9C4A3B\]/)
+    await expect(nav.getByRole('link', { name: 'App', exact: true })).toHaveClass(/text-\[#1A1814\]/)
   })
 
-  test('Diary link is active (white) on /diary page', async ({ page }) => {
+  test('Diary link is active (#9C4A3B) on /diary page', async ({ page }) => {
     await mockApis(page)
     await page.goto('/diary')
 
     const nav = navLinksScope(page, false)
-    await expect(nav.getByRole('link', { name: 'Diary', exact: true })).toHaveClass(/text-white/)
-    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-zinc-500/)
+    await expect(nav.getByRole('link', { name: 'Diary', exact: true })).toHaveClass(/text-\[#9C4A3B\]/)
+    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-\[#1A1814\]/)
   })
 })
 
-// ── AC-NAV-5 (mobile): Active link highlighted — mobile viewport ─────────────
+// ── AC-NAV-4 (mobile): Active link highlighted — mobile viewport ─────────────
 
-test.describe('AC-NAV-5 — Active link highlighted (mobile)', () => {
+test.describe('AC-NAV-4 — Active link highlighted (mobile)', () => {
   test.use({ viewport: { width: 375, height: 667 } })
 
-  test('App link is active (white) on /app page (mobile)', async ({ page }) => {
+  test('App link is active (#9C4A3B) on /app page (mobile)', async ({ page }) => {
     await mockApis(page)
     await page.goto('/app')
 
     const nav = navLinksScope(page, true)
-    await expect(nav.getByRole('link', { name: 'App', exact: true })).toHaveClass(/text-white/)
-    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-zinc-500/)
+    await expect(nav.getByRole('link', { name: 'App', exact: true })).toHaveClass(/text-\[#9C4A3B\]/)
+    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-\[#1A1814\]/)
   })
 
-  test('About link is inactive (zinc-500) on / page (mobile)', async ({ page }) => {
+  test('About link is inactive (#1A1814/60) on / page (mobile)', async ({ page }) => {
     await mockApis(page)
     await page.goto('/')
 
     const nav = navLinksScope(page, true)
-    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-zinc-500/)
+    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-\[#1A1814\]/)
   })
 })
 
