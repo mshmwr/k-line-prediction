@@ -1,10 +1,11 @@
 ---
 id: K-017
 title: /about portfolio-oriented recruiter enhancement
-status: open
+status: closed
 type: feat
 priority: medium
 created: 2026-04-19
+closed: 2026-04-20
 ---
 
 ## 背景
@@ -466,3 +467,35 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 1. 截圖 script 執行前建立固定 checklist：確認 `TICKET_ID` 已設定、`visual-report.ts` 存在、output 路徑正確，三項確認後才執行，不事後補救。
 2. 凡有「build artifact 依賴」的 AC（如 prebuild hook），QA 在 dev Playwright pass 後額外執行 `npm run build` 並確認 artifact 存在，記錄於回報中，不以「test.skip」代替驗證。
 3. Shell script / CLI tool 類 AC（非 frontend 資產），QA 主動以手動執行補驗，不等 Playwright 自動跑。每個 AC 情境（正常 / 邊界 / 失敗路徑）各跑一次，輸出貼入 QA 回報。
+
+### Code Review + Bug Found Protocol（2026-04-20）
+
+**做得好：** Code Reviewer（superpowers）正確識別 NavBar `bg-transparent` + `text-[#1A1814]` 在深色頁面不可見為 Critical issue；同時識別 AC-017-FOOTER /diary 負斷言缺失、dead files、primitive dark-theme 文件缺失。
+
+**Engineer Bug Found Protocol 結論（NavBar Critical）：**
+- 根因：修改全站共用組件後未啟動 dev server 目視所有路由，誤以為 Playwright class-name 斷言通過即視覺正確
+- PM 確認反省合格：根因具體，改善行動已 codify 進 engineer.md 第 4 步
+- memory 寫入：`feedback_shared_component_all_routes_visual_check.md`
+
+### PM 驗收（2026-04-20）
+
+| AC | 狀態 | 備註 |
+|----|------|------|
+| AC-017-NAVBAR | PASS | about.spec.ts 覆蓋 |
+| AC-017-HEADER | PASS | about.spec.ts 覆蓋 |
+| AC-017-METRICS | PASS | about.spec.ts 覆蓋 |
+| AC-017-ROLES | PASS | about.spec.ts 覆蓋 |
+| AC-017-PILLARS | PASS | about.spec.ts 覆蓋 |
+| AC-017-TICKETS | PASS | about.spec.ts 覆蓋 |
+| AC-017-ARCH | PASS | about.spec.ts 覆蓋 |
+| AC-017-BANNER | PASS | pages.spec.ts 覆蓋 |
+| AC-017-FOOTER | PASS | about.spec.ts + pages.spec.ts（/diary 負斷言補齊） |
+| AC-017-AUDIT | PASS | audit-ticket.sh 三情境驗證通過 |
+| AC-017-PROTOCOLS | PASS | docs/ai-collab-protocols.md 存在 |
+| AC-017-HOME-V2 | PASS | pages.spec.ts HomepageV2 tests |
+| AC-017-BUILD | PASS | prebuild hook + test.skip（dev mode 限制已記錄） |
+| AC-NAV-4 | PASS | 色彩系統更新 #9C4A3B/#1A1814 |
+
+tsc: exit 0 ✅ · Playwright chromium: 98 passed, 1 skipped ✅ · Visual report: `docs/reports/K-017-visual-report.html` ✅
+
+**結論：Go. K-017 → status: closed.**
