@@ -149,3 +149,17 @@ test.describe('HomePage — AC-017-HOME-V2', () => {
     await expect(page.getByText('STACK —', { exact: true })).toBeVisible()
   })
 })
+
+// ── AC-017-FOOTER (diary no-footer) ─────────────────────────────────────────
+// Given: user visits /diary
+// When:  page loads
+// Then:  NO FooterCtaSection and NO HomeFooterBar rendered
+
+test.describe('DiaryPage — AC-017-FOOTER no footer', () => {
+  test('diary page has no FooterCtaSection and no HomeFooterBar', async ({ page }) => {
+    await page.goto('/diary')
+
+    await expect(page.getByText("Let's talk →", { exact: true })).toHaveCount(0)
+    await expect(page.getByText('yichen.lee.20@gmail.com', { exact: true })).toHaveCount(0)
+  })
+})

@@ -9,6 +9,7 @@ interface SectionContainerProps {
   children: ReactNode
 }
 
+// divider uses border-white/10, designed for dark-background pages (e.g. bg-[#0D0D0D])
 export default function SectionContainer({
   id,
   width = 'wide',

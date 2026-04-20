@@ -7,6 +7,7 @@ interface CardShellProps {
   children: ReactNode
 }
 
+// Dark-theme card; bg-slate-800/60 assumes a dark page background (e.g. bg-[#0D0D0D])
 export default function CardShell({
   padding = 'md',
   borderColorClass = 'border-white/10',

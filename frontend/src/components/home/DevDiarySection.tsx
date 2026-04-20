@@ -63,7 +63,7 @@ export default function DevDiarySection({ milestones, loading, error }: DevDiary
             {milestones.map((m, i) => {
               const top = i * (ENTRY_HEIGHT + ENTRY_GAP)
               return (
-                <div key={i} className="absolute w-full" style={{ top }}>
+                <div key={m.milestone} className="absolute w-full" style={{ top }}>
                   {/* Marker */}
                   <div
                     className="absolute w-5 h-3.5 bg-[#9C4A3B] rounded-[6px]"

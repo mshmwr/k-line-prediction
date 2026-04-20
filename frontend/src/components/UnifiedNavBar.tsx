@@ -20,7 +20,7 @@ export default function UnifiedNavBar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between bg-transparent border-b border-[#1A1814] h-[56px] md:h-[72px] px-6 md:px-[120px]">
+    <nav className="sticky top-0 z-50 flex items-center justify-between bg-[#F4EFE5] border-b border-[#1A1814] h-[56px] md:h-[72px] px-6 md:px-[120px]">
       {/* Left: Home icon */}
       <Link to="/" aria-label="Home">
         <HomeIcon size={16} className="text-[#1A1814] hover:text-[#9C4A3B] transition-colors" />
