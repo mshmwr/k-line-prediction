@@ -10,7 +10,7 @@ export default function HomePage() {
   const { entries, loading, error } = useDiary(3)
 
   return (
-    <div className="min-h-screen bg-[#F4EFE5] text-[#1A1814]">
+    <div className="min-h-screen">
       <UnifiedNavBar />
       <BuiltByAIBanner />
       <HeroSection />
