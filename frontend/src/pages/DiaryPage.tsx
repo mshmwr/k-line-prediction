@@ -12,7 +12,7 @@ export default function DiaryPage() {
       <UnifiedNavBar />
       <div className="px-6 py-16 max-w-3xl mx-auto">
         <h1 className="text-3xl font-mono font-bold mb-2">Development Diary</h1>
-        <p className="text-gray-400 mb-10 text-sm">Session-by-session log of this project's build.</p>
+        <p className="text-muted mb-10 text-sm">Session-by-session log of this project's build.</p>
 
         {loading && (
           <div className="flex justify-center py-16">
