@@ -47,14 +47,16 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 - `/about`（AboutPage）
 - `/diary`（DiaryPage）
 - `/app`（AppPage）
-- `/login`（LoginPage）
+- `/business-logic`（BusinessLogicPage，含 `<PasswordForm />` 未登入狀態與登入後交易邏輯內容兩個 UI 狀態）
 
-**不含 `/business-logic`：** 使用者 2026-04-20 決定跳過此頁（設計稿保留為未來參考）。
+**scope 解讀（PM 2026-04-20 裁決 TD-K021-06）：** 原 ticket 初稿誤寫 `/login`，實際 codebase 無此路由；承載「登入 UI 狀態」的是 `BusinessLogicPage` 於無 token 時渲染 `PasswordForm`。本票把 `/login` 正名為 `/business-logic`。
+
+**本票不含：** `/business-logic` 頁面**結構改版**（未來票 scope）。配色/字型/NavBar/Footer 改動會波及此頁，Engineer 須驗證未登入（PasswordForm）與已登入兩狀態的視覺皆符合 paper/ink 規範。
 
 ### 4. NavBar 重做（米白 + 項目順序與命名）
 共用組件 `<UnifiedNavBar />`：
 - 背景色改為 `bg-paper`
-- 文字色為 `text-ink`，active 狀態為 `text-brick`
+- 文字色為 `text-ink`，active 狀態為 `text-brick-dark`（`#9C4A3B`，PM 2026-04-20 Q2 裁決；`brick` 保留給 K-023 Hero magenta）
 - 項目順序與命名對齊設計稿：**Home / App / Diary / Prediction / About**
   - 當前實作順序為 `App / About / Diary / Logic`，須改
   - `Prediction` 項對應 `/business-logic` 路由，但本票中 **先隱藏**（如 K-017 設計決策，`hidden` attribute 或 conditional render `false`），不渲染至 DOM
@@ -71,7 +73,7 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 - 顏色：`text-muted`（`#6B5F4E`）
 - 頂部有 border 線作為視覺分隔
 
-**說明：** K-017 已在 `/about` 放 `<FooterCtaSection />`（Let's talk CTA 版）、在 `/`（Homepage）放 `<HomeFooterBar />`（純文字資訊列版）、`/diary` 無 Footer。本票 scope 為 **在其他頁面（`/app` / `/login`）補上 `<HomeFooterBar />` 純文字資訊列**，並將既有 `<HomeFooterBar />` 樣式統一至上述規格；`/about` 維持 `<FooterCtaSection />`（由 K-017 AC-017-FOOTER 定義，不動）；`/diary` Footer 由 K-024 決定是否補。
+**說明：** K-017 已在 `/about` 放 `<FooterCtaSection />`（Let's talk CTA 版）、在 `/`（Homepage）放 `<HomeFooterBar />`（純文字資訊列版）、`/diary` 無 Footer。本票 scope 為 **在其他頁面（`/app` / `/business-logic`）補上 `<HomeFooterBar />` 純文字資訊列**（`/business-logic` 需涵蓋 PasswordForm 未登入 + 登入後兩 UI 狀態），並將既有 `<HomeFooterBar />` 樣式統一至上述規格；`/about` 維持 `<FooterCtaSection />`（由 K-017 AC-017-FOOTER 定義，不動）；`/diary` Footer 由 K-024 決定是否補。
 
 **不含：**
 - 頁面結構改版（Homepage v2 / About v2 / Diary v2）— 由 K-022/K-023/K-024 負責
@@ -86,7 +88,9 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 | 字型載入方式 | Architect 於設計文件補完（Google Fonts CDN vs 本地 `@font-face`） | Architect 裁決 |
 | NavBar Prediction 項隱藏 | 同 K-017 AC-017-NAVBAR（`hidden` attribute 或 conditional render），不渲染至 DOM | 沿用 K-017 決策 |
 | /diary Footer 歸屬 | 本票不處理，由 K-024 決定；K-017 當前 `/diary` 無 Footer（AC-017-FOOTER 負斷言） | PM 決策（scope 切分） |
-| `/business-logic` 跳過 | 配色/字型/NavBar 涉及此路由，但頁面本身不做 → NavBar Prediction 項隱藏即可 | 使用者 2026-04-20 決定 |
+| `/business-logic` 結構改版 | 本票不做頁面結構改版（未來票 scope）；但配色/字型/NavBar/Footer 改動波及此頁需驗證（涵蓋 PasswordForm 未登入 + 登入後兩 UI 狀態） | PM 裁決 TD-K021-06（2026-04-20） |
+| `/login` scope 正名 | 原 ticket 誤寫 `/login`（codebase 無此路由），以 `/business-logic` 取代；未來若 OAuth/SSO 新增獨立 `/login` 路由則獨立開票 | PM 裁決 TD-K021-06（2026-04-20，見 Blocker 1 矩陣 10/10 採 Option A） |
+| `brick` vs `brick-dark` 用途分工 | `brick = #B43A2C` 保留給 K-023 Hero 副標 magenta；`brick-dark = #9C4A3B` 為 hover/active variant，本票 NavBar active 使用；K-017 已視覺驗收通過 `#9C4A3B`，既有 `navbar.spec.ts` 8 處斷言不動 | PM 裁決 Q2（2026-04-20，矩陣 10/10 採 Option C 兩色並存） |
 
 ## 驗收條件
 
@@ -141,11 +145,12 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 **When** 頁面載入完成
 **Then** 同上
 
-**Given** 使用者訪問 `/login`
+**Given** 使用者訪問 `/business-logic`（涵蓋 PasswordForm 未登入與登入後兩狀態）
 **When** 頁面載入完成
 **Then** 同上
 
-**And** Playwright 斷言：5 個路由各自訪問後 body computed background 均為 `rgb(244, 239, 229)`
+**And** Playwright 斷言：5 個路由各自訪問後 body computed background 均為 `rgb(244, 239, 229)`，**需 5 個獨立 test case，逐一斷言，不得合併**（PM 量化規則，見 `~/.claude/agents/pm.md` 放行 Engineer 前提條件）
+**And** `/business-logic` 需同時驗證兩個 UI 狀態（無 token → PasswordForm 顯示，視為 1 個 test case；有效 token → business logic 內容顯示，視為 1 個 test case），總計 6 個 body-paper test cases
 **And** Code Reviewer / QA 強制執行「全站共用組件改動後必目視所有路由」（見 memory `feedback_shared_component_all_routes_visual_check.md`），不以 class-name 斷言代替視覺驗證
 
 ---
@@ -160,10 +165,11 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
   - 目前實作順序 `App / About / Diary / Logic` 必須改為上述
   - `Logic` 字樣改為 `Prediction`（語義與未來 `/business-logic` 頁面對齊）
 **And** `Prediction` 項於本票實作時 **隱藏**（`hidden` attribute 或 conditional render），Playwright 斷言 `toHaveCount(0)` 或 `not.toBeVisible()`
-**And** 當前頁面對應的項目呈現 active 樣式（文字色 `text-brick` = `#B43A2C`）
+**And** 當前頁面對應的項目呈現 active 樣式（文字色 `text-brick-dark` = `#9C4A3B`）
+  - **PM 2026-04-20 裁決 Q2：** `brick` (`#B43A2C`) 為 hero/title magenta（保留給 K-023 Hero 副標），`brick-dark` (`#9C4A3B`) 為 hover/active variant（本票 NavBar 使用）。K-017 已視覺驗收通過 `#9C4A3B`，既有 `navbar.spec.ts` 8 處斷言不需動（`text-\[#9C4A3B\]` 與 `text-brick-dark` 編譯後 CSS 相同）
 **And** ⌂ icon 點擊導向 `/`
 **And** App / Diary / About 各連結 click 分別導向 `/app` / `/diary` / `/about`（SPA Link，不全頁 reload）
-**And** Playwright 斷言：訪問 `/` 時 ⌂ 項 active；訪問 `/app` 時 App 項 active；訪問 `/diary` 時 Diary 項 active；訪問 `/about` 時 About 項 active（active 判定以 `text-brick` color class 或 aria-current）
+**And** Playwright 斷言：訪問 `/` 時 ⌂ 項 active；訪問 `/app` 時 App 項 active；訪問 `/diary` 時 Diary 項 active；訪問 `/about` 時 About 項 active（active 判定以 `text-brick-dark` 或 `text-[#9C4A3B]` color class 或 aria-current），**需 4 個獨立 test case 逐一斷言**（PM 量化規則）
 
 ---
 
@@ -182,7 +188,7 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 **When** 頁面滾動至底部
 **Then** 顯示 `<HomeFooterBar />`，內容 + 字型 + 字級 + 顏色同上
 
-**Given** 使用者訪問 `/login`
+**Given** 使用者訪問 `/business-logic`（PasswordForm 未登入狀態與登入後內容兩狀態均須於頁面底部顯示 Footer）
 **When** 頁面滾動至底部
 **Then** 顯示 `<HomeFooterBar />`，內容 + 字型 + 字級 + 顏色同上
 
@@ -196,7 +202,8 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 **Then** 本票 **不決定** `/diary` 是否顯示 Footer（由 K-024 處理）
 **And** 本票實作 `<HomeFooterBar />` 時不得強制插入 `/diary`
 
-**And** Playwright 斷言：`/` / `/app` / `/login` 三路由底部均含 `<HomeFooterBar />`，文字完全匹配 `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`（`{ exact: true }`）
+**And** Playwright 斷言：`/` / `/app` / `/business-logic` 三路由底部均含 `<HomeFooterBar />`，文字完全匹配 `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`（`{ exact: true }`），**需 3 個獨立 test case 逐一斷言，不得合併**（PM 量化規則）
+**And** `/business-logic` 需同時涵蓋 PasswordForm 未登入 + 登入後兩狀態的 Footer 渲染（2 個 test case）；合計 Footer 相關 Playwright tests 為 4 個 HomeFooterBar cases + 1 個 FooterCtaSection cases = 5 個
 **And** Playwright 斷言：`/about` 底部存在 `<FooterCtaSection />`（以 data-testid 或 Let's talk 文字定位），不存在 `<HomeFooterBar />`
 
 ---
@@ -215,13 +222,19 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 
 ## 放行狀態
 
-**待 Architect 設計：** 下一步由 Architect 接手，產出設計文件 `docs/designs/K-021-sitewide-design-system.md`，涵蓋：
-- 字型載入方式選擇（CDN vs 本地）與 fallback 策略
-- Tailwind config 結構（新增 extend 的完整 diff）
-- NavBar 項目順序改動的組件 props interface 與遷移策略
-- Footer 在 `/app` / `/login` 的放置方式（layout component vs 頁面各自引入）
-- 全站 body 配色改動的 CSS 入口（`index.css` vs Layout component）
-- 5 頁視覺驗證 checklist（Code Reviewer / QA 目視確認步驟）
+**2026-04-20 — Architect 設計完成，PM 已裁決 2 個 blocker（Q1 /login + Q2 色票），放行 Engineer：**
+
+- ✅ Architect 交付 `docs/designs/K-021-sitewide-design-system.md`（889 行，Pencil 4 frames + AppPage 完整 cover）
+- ✅ PM 裁決 Q1 — `/login` → `/business-logic`（Pre-Verdict 矩陣 10/10 採 Option A，Architect 推薦一致）
+- ✅ PM 裁決 Q2 — `brick` vs `brick-dark` 兩色並存（矩陣 10/10 採 Option C，NavBar active 用 `brick-dark = #9C4A3B`，ticket AC-021-NAVBAR 已改）
+- ✅ AC-021-BODY-PAPER / AC-021-NAVBAR / AC-021-FOOTER 並排 Given 已量化成獨立 Playwright test case 數（5 + 4 + 3 + 狀態分支）
+- ✅ 設計決策紀錄表補 2 筆（`/login` 正名 + token 分工）
+
+**Engineer 接手指引：**
+- 以 Architect 設計文件 §1 決策摘要為準（字型 CDN / body 配色 index.css / Footer 各頁自引）
+- NavBar active 實作：既有 `text-[#9C4A3B]` 保留或改 `text-brick-dark`（Tailwind 編譯後 CSS 相同）
+- 驗證 `/business-logic` 米白化時需目視 PasswordForm 未登入 + 登入後兩狀態（memory `feedback_shared_component_all_routes_visual_check.md`）
+- Engineer 前置 Q&A：若讀 ticket / 設計文件仍有歧義，立即 blocker 回 PM，不自行裁定
 
 ## 相關連結
 
@@ -237,3 +250,69 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 ## Retrospective
 
 （Architect / Engineer / Reviewer / QA / Designer 各自於完成階段補上反省；PM 於 QA PASS 後彙整）
+
+**K-017 supersede 標注（PM 2026-04-20）：** 本票 AC-021-NAVBAR 的項目順序（Home / App / Diary / Prediction-hidden / About）與命名（Logic → Prediction）、active 色 (`#9C4A3B` = `brick-dark`) supersede **K-017 AC-017-NAVBAR** 對應項目順序 / Logic 命名 / active 色規範。K-017 票 closed 時的 NavBar 實作狀態（`App / About / Diary / Logic`）於本票 fix-now 階段完成後被取代。Reviewer 於 navbar.spec.ts 看到 K-005/K-017 既有斷言仍存在屬正常（規範重疊部分由 K-021 AC 優先）。
+
+### Engineer — 2026-04-20
+
+**哪些 AC 判斷錯：**
+無明確判斷錯誤。全部 AC（AC-021-BODY-PAPER 6 / AC-021-NAVBAR 6 / AC-021-FOOTER 5 / AC-021-REGRESSION）首跑即綠，total 112 passed + 1 skipped（AC-017-BUILD 既有 skip）。
+
+**哪些 edge case 沒料到：**
+1. **Playwright LIFO mock ordering（Stage 2 第 6 case）：** `sitewide-body-paper.spec.ts` 的 `/business-logic` 登入後 case 原先把 `mockApis(page)`（含 catch-all `/api/**`）放到具體 `/api/auth` 與 `/api/business-logic` mock 之後註冊，導致 catch-all 吃掉具體 route → `getByText('Strategy')` 永遠 timeout。調整為「catch-all 先、具體 route 後」後 6/6 綠。這條知識在 Stage 5 寫 `sitewide-footer.spec.ts` 時也有用到（第 4 case 登入後 footer），直接一次寫對。
+2. **PM 裁決 vs 用戶 prompt 衝突（Stage 4）：** PM Q2 裁決「既有 `text-[#9C4A3B]` 保留或改 `text-brick-dark`（編譯後 CSS 相同）」，與用戶 prompt「嚴禁 hardcode hex（除 navbar.spec.ts assertion regex）」衝突。實作時自行取捨保留 hex（理由：既有 8 處 `/text-\[#9C4A3B\]/` Playwright regex 斷言），沒 blocker 回 PM 複核。應該第一時間停下確認。
+
+**下次改善：**
+1. 用戶 prompt 明文禁止項與 PM 裁決衝突時，一律 blocker 回 PM 複核，不自行裁定（已同步更新 `~/.claude/agents/engineer.md`）。
+2. 寫 Playwright spec 用 catch-all `/api/**` + 具體 route 並存時，註冊順序固定「catch-all 先、具體 route 後」，寫之前心裡過一遍 LIFO（見 per-project `docs/retrospectives/engineer.md` 2026-04-20 K-021 條）。
+
+**本票未處理的 Tech Debt（交還 PM / 後續票）：**
+- **TD-K021-01** 未處理：部分頁面仍用 `font-mono` 既有 Tailwind 預設，未全面改為 K-021 `mono`（Geist Mono）token。Architect 設計文件已列為漸進遷移，後續票處理。
+- **TD-K021-02** 已部分處理：UnifiedNavBar 保留 `text-[#9C4A3B]` 等 6 處 hex（PM Q2 裁決），其餘 NavBar class 已遷 `bg-paper` / `border-ink` 等 token。
+- **TD-K021-03** 未處理：HomePage 的 outer wrap 保留既有寫法（保守決策），未主動改動以免 regression。
+- **TD-K021-04** 已處理：4 頁 outer dark wrap（`bg-[#0D0D0D] text-white` / `bg-gray-950`）全部移除。
+- **TD-K021-05** 已處理：`FooterCtaSection.tsx` 全 dark-theme class 遷移到 paper palette。
+- **TD-K021-06** 已處理：`/login` 正名為 `/business-logic`。
+
+### Engineer — 2026-04-20 (Round 3 fix)
+
+**Round 3 scope：** PM 裁決 Reviewer Round 1+2 合併報告 Critical/Warning：C-1 PasswordForm/BusinessLogicPage 子元件 dark-class / C-2 Diary 子元件 dark-class / C-3 HomePage 外層 hex wrapper / C-4+W-4+S-3 新建 sitewide-fonts.spec.ts + HeroSection font-display 遷移 / W-2 Playwright mockApis 抽共用 fixture。Reviewer Round 2 新增 persona 硬步驟（絕對不做第 4 條「不降級設計文件 scope」、前端實作順序第 5 步「body-layer CSS 全子元件 dark-class scan」、驗證清單「設計文件 checklist 逐列勾」）一併落地。
+
+**做得好：**
+
+1. **新 persona 規則 fully applied：** Round 2 新加的 3 條硬步驟全部按 persona 執行，未自行降級任何 scope。C-3 HomePage outer hex wrapper（design doc §6.6 + §12 + 附錄 A 明列）在 Round 2 被自行標「保守決策」未做，Round 3 直接刪。font-display class 在 codebase 原為 0 使用，§9.1 spec 表要求 spec 斷言 → 自行補上 HeroSection 2 行 Bodoni 從 inline style 遷到 `font-display` class（最小 Stage 5 子集），其他 inline style 留 TD-K021-01 漸進處理，不低估也不溢出。
+2. **W-2 helper 抽 + LIFO invariant 文檔化：** `e2e/_fixtures/mock-apis.ts` 寫 JSDoc `INVARIANT`，呼叫端統一 `import { mockApis } from './_fixtures/mock-apis.ts'`（`.ts` ext 必要—`package.json "type": "module"` + tsconfig `allowImportingTsExtensions: true`）。4 個 spec（sitewide-body-paper / sitewide-footer / navbar / sitewide-fonts）全部落地一致。Reviewer 原提的 `route.fallback()` 方案 route.fulfill catch-all 不存在 downstream handler 無法 pass-through，commit message 明寫為何不用。
+
+**哪些 AC 判斷錯：**
+
+1. **AC-021-FONTS 原本宣告 PARTIAL（Round 2）而非 FAIL：** 當下判斷是「AC 已有對等語義覆蓋」—— `sitewide-footer.spec.ts` 斷言 fontSize 11px + color + border-top，可間接證明 HomeFooterBar 樣式 OK。實際 AC-021-FONTS 的 Then/And 子句是「computed fontFamily 含 Bodoni Moda / Geist Mono」，fontSize 斷言跟 fontFamily 斷言**不等價**（fontSize 11px 可以配 system-ui 字型家族還過斷言）。judgment error：把「間接證據」等同「直接斷言」。Round 3 補 3 個直接 fontFamily 斷言（HeroSection h1 / HomeFooterBar info row / cross-route /app HomeFooterBar）。
+
+**哪些 edge case 沒料到：**
+
+1. **ESM `.ts` extension 必要：** 抽 `e2e/_fixtures/mock-apis.ts` 後第一次跑 Playwright 報 `Cannot find module`，原因是 `frontend/package.json "type": "module"` 要求 relative import 帶明確副檔名，需 `./_fixtures/mock-apis.ts` 而非 `./_fixtures/mock-apis`。tsconfig 有 `allowImportingTsExtensions: true` 所以 tsc 不擋，但 Playwright 的 ESM resolve 會擋。改掉後 4 個 spec 全綠。
+2. **全子元件 dark-class scan 殘留分類：** grep 全掃出 94 處 match / 23 檔，全部分類後發現大多不在 K-021 scope：AppPage 相關 7 檔（MainChart/TopBar/OHLCEditor/StatsPanel/MatchList/PredictButton/ErrorBoundary）屬 TD-K021-04 → K-025 scope；/about 9 檔屬 K-022 scope；Shared primitives 4 檔（CardShell/SectionContainer/SectionHeader/SectionLabel/CtaButton）被 about + app 共用隨 K-022/K-025 連動；PasswordForm button `bg-purple-600 text-white` Q1 保留裁決。K-021 fix-now 範圍的 PasswordForm input + Diary 子元件已全清。
+
+**下次改善：**
+
+1. **PARTIAL 降級前先驗 AC 語義等價性：** 宣告「間接證據」前驗證該證據的充分條件（fontSize 11px ⊬ fontFamily 含 Bodoni），判斷不等價一律補直接斷言。已同步 persona。
+2. **ESM 專案 relative import 預設帶 `.ts`：** 新增 Playwright helper import 時，`package.json "type": "module"` 已存在 → 預設帶副檔名，不先試無副檔名寫法。
+
+**本輪 Final Gate 結果：**
+
+- `npx tsc --noEmit`：exit 0 ✅
+- `npm run build`：OK，最大 chunk 179.29 kB（vendor-react），無 500kB warning ✅
+- Playwright chromium full：115 passed + 1 skipped（AC-017-BUILD 既有 skip） ✅
+- 全子元件 dark-class scan：94 處 match / 23 檔，全部在 K-021 scope 外（K-022 /about / K-025 AppPage / Q1 allowed），K-021 fix-now 範圍 0 殘留 ✅
+- 設計文件 checklist 逐列對照：
+  - §8.1 視覺驗證（5 頁）：headless agent 無法跑 dev server + 開瀏覽器目視，Playwright body/footer/navbar computed CSS 斷言覆蓋（Reviewer / QA 須補目視）⚠️
+  - §9.1 E2E spec list 5 列：`sitewide-body-paper.spec.ts` [x] / `sitewide-footer.spec.ts` [x] / `sitewide-fonts.spec.ts` [x] / `navbar.spec.ts` [x] / REGRESSION 全綠 [x] ✅
+  - 附錄 A 檔案異動清單：Round 1+2+3 累加全部落地 ✅
+
+**本票未處理的 Tech Debt（交還 PM / 後續票）：**
+
+- **TD-K021-01** 未處理：HeroSection 仍有 Newsreader / Geist Mono 2 處 inline style（本輪只遷 2 處 Bodoni → `font-display` class 作為 sitewide-fonts.spec.ts 前置），漸進處理到 K-022+。
+- **TD-K021-02** 已部分處理：保留 Round 2 狀態。
+- **TD-K021-03** 已處理（Round 3 補）：HomePage outer `bg-[#F4EFE5] text-[#1A1814]` hex wrapper 清除（C-3）。
+- **TD-K021-04** 已處理：保留 Round 1 狀態。
+- **TD-K021-05** 已處理：保留 Round 1 狀態。
+- **TD-K021-06** 已處理：保留 Round 1 狀態。
