@@ -4,6 +4,7 @@ import PasswordForm from '../components/business-logic/PasswordForm'
 import ErrorBanner from '../components/business-logic/ErrorBanner'
 import BusinessLogicContent from '../components/business-logic/BusinessLogicContent'
 import UnifiedNavBar from '../components/UnifiedNavBar'
+import HomeFooterBar from '../components/home/HomeFooterBar'
 import { API_BASE } from '../utils/api'
 import { TOKEN_KEY, isTokenValid } from '../utils/auth'
 
@@ -113,6 +114,7 @@ export default function BusinessLogicPage() {
         <BusinessLogicContent markdown={content} />
       )}
       </div>
+      <HomeFooterBar />
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { MatchList } from './components/MatchList'
 import { StatsPanel } from './components/StatsPanel'
 import { MainChart } from './components/MainChart'
 import UnifiedNavBar from './components/UnifiedNavBar'
+import HomeFooterBar from './components/home/HomeFooterBar'
 import { usePrediction } from './hooks/usePrediction'
 import {
   aggregateProjectedBarsTo1D,
@@ -492,6 +493,7 @@ export default function AppPage() {
           </div>
         </div>
       </div>
+      <HomeFooterBar />
     </div>
   )
 }
