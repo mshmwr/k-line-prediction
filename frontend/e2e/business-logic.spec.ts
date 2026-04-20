@@ -77,12 +77,14 @@ test('AC-AUTH-1: correct password shows markdown content', async ({ page }) => {
   await expect(page.getByText('This is the secret content.')).toBeVisible()
 })
 
-// ── AC-NAV-LOGIN: NavBar Logic 🔒 disappears after successful login ──────────
-// Given: user is on /business-logic, not logged in (no token)
-// When:  user fills in correct password and submits
-// Then:  NavBar Logic link no longer shows 🔒
+// ── AC-021-NAVBAR (原 AC-NAV-LOGIN)：Prediction 隱藏不受 auth state 影響 ──────
+// Given: user is on /business-logic
+// When:  user toggles between unauthenticated and authenticated state
+// Then:  NavBar never renders a "Prediction" link (K-021 hidden scope)
+// 註：K-017 以前用 Logic 🔒 link 作為 auth indicator；K-021 已隱藏該項，
+// 登入狀態不再影響 NavBar DOM（改由頁面內容呈現）。
 
-test('AC-NAV-LOGIN: NavBar Logic lock icon disappears after login', async ({ page }) => {
+test('AC-021-NAVBAR: Prediction link never renders regardless of auth state', async ({ page }) => {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).replace(/=/g, '')
   const payload = btoa(JSON.stringify({
     sub: 'business-logic-access',
@@ -104,18 +106,18 @@ test('AC-NAV-LOGIN: NavBar Logic lock icon disappears after login', async ({ pag
 
   await page.goto('/business-logic')
 
-  // Before login: Logic link with LockIcon (SVG) should be visible
-  const nav = page.locator('[data-testid="navbar-desktop"]')
-  await expect(nav.getByRole('link', { name: /Logic/ })).toBeVisible()
+  // Before login: Prediction link must NOT be in DOM
+  await expect(page.getByRole('link', { name: 'Prediction', exact: true })).toHaveCount(0)
 
   // Submit correct password
   await page.getByPlaceholder('Enter access password').fill('correctpass')
   await page.getByRole('button', { name: 'Submit' }).click()
 
-  // After login: Logic link still visible (LockIcon always shown per AC-NAV-6)
-  await expect(nav.getByRole('link', { name: /Logic/ })).toBeVisible()
-  // And: markdown content is rendered
+  // Markdown content renders
   await expect(page.getByText('Secret')).toBeVisible({ timeout: 5000 })
+
+  // After login: Prediction link still MUST NOT be in DOM
+  await expect(page.getByRole('link', { name: 'Prediction', exact: true })).toHaveCount(0)
 })
 
 // ── AC-AUTH-4 ────────────────────────────────────────────────────────────────

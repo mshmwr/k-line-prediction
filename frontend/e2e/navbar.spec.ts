@@ -34,7 +34,8 @@ function navLinksScope(page: import('@playwright/test').Page, isMobile: boolean)
 // ── AC-NAV-1: Desktop — home icon + nav links visible on all 5 pages ─────────
 // Given: desktop viewport (1280×800)
 // When:  user visits each of the 5 pages
-// Then:  Home icon link (aria-label="Home") and right-side links (App, About, Diary, Logic) are visible
+// Then:  Home icon link (aria-label="Home") and right-side links (App, Diary, About) are visible
+// And:   Prediction link is NOT in DOM (hidden per K-021 AC-021-NAVBAR)
 
 test.describe('AC-NAV-1 — Desktop NavBar present on all 5 pages', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
@@ -57,12 +58,13 @@ test.describe('AC-NAV-1 — Desktop NavBar present on all 5 pages', () => {
 
       const nav = navLinksScope(page, false)
 
-      // Nav links
+      // Nav links (K-021 order: App / Diary / About — Prediction hidden)
       await expect(nav.getByRole('link', { name: 'App', exact: true })).toBeVisible()
-      await expect(nav.getByRole('link', { name: 'About', exact: true })).toBeVisible()
       await expect(nav.getByRole('link', { name: 'Diary', exact: true })).toBeVisible()
-      // Logic link always visible with LockIcon
-      await expect(nav.getByRole('link', { name: /Logic/ })).toBeVisible()
+      await expect(nav.getByRole('link', { name: 'About', exact: true })).toBeVisible()
+
+      // Prediction link MUST NOT render (AC-021-NAVBAR hidden)
+      await expect(page.getByRole('link', { name: 'Prediction', exact: true })).toHaveCount(0)
     })
   }
 })
@@ -70,7 +72,8 @@ test.describe('AC-NAV-1 — Desktop NavBar present on all 5 pages', () => {
 // ── AC-NAV-2: Mobile — home icon left, nav links right, no hamburger ─────────
 // Given: mobile viewport (375×667)
 // When:  user visits each of the 5 pages
-// Then:  Home icon visible, App/About/Diary/Logic links visible, no hamburger
+// Then:  Home icon visible, App/Diary/About links visible, no hamburger
+// And:   Prediction link NOT in DOM
 
 test.describe('AC-NAV-2 — Mobile NavBar on all 5 pages', () => {
   test.use({ viewport: { width: 375, height: 667 } })
@@ -93,11 +96,13 @@ test.describe('AC-NAV-2 — Mobile NavBar on all 5 pages', () => {
 
       const nav = navLinksScope(page, true)
 
-      // Nav links
+      // Nav links (K-021 order: App / Diary / About)
       await expect(nav.getByRole('link', { name: 'App', exact: true })).toBeVisible()
-      await expect(nav.getByRole('link', { name: 'About', exact: true })).toBeVisible()
       await expect(nav.getByRole('link', { name: 'Diary', exact: true })).toBeVisible()
-      await expect(nav.getByRole('link', { name: /Logic/ })).toBeVisible()
+      await expect(nav.getByRole('link', { name: 'About', exact: true })).toBeVisible()
+
+      // Prediction link MUST NOT render
+      await expect(page.getByRole('link', { name: 'Prediction', exact: true })).toHaveCount(0)
 
       // No hamburger button inside nav
       const hamburger = page.locator('nav').getByRole('button', { name: /menu|hamburger/i })
@@ -139,6 +144,8 @@ test.describe('AC-NAV-3 — Home icon navigates to / (SPA) — mobile', () => {
 // Given: user is on /
 // When:  user clicks each nav link
 // Then:  URL changes to the correct route without full page reload
+//
+// 註：K-021 移除 Logic link（Prediction hidden），故刪除原 Logic navigate 子 case。
 
 test.describe('AC-NAV-4 — Nav links navigate correctly (SPA)', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
@@ -166,20 +173,15 @@ test.describe('AC-NAV-4 — Nav links navigate correctly (SPA)', () => {
     await nav.getByRole('link', { name: 'Diary', exact: true }).click()
     await expect(page).toHaveURL('/diary')
   })
-
-  test('Logic link navigates to /business-logic', async ({ page }) => {
-    await mockApis(page)
-    await page.goto('/')
-    const nav = navLinksScope(page, false)
-    await nav.getByRole('link', { name: /Logic/ }).click()
-    await expect(page).toHaveURL('/business-logic')
-  })
 })
 
 // ── AC-NAV-4: Active link highlighted — v2 color system ──────────────────────
 // Given: user is on /about
 // When:  page loads
 // Then:  "About" link has text-[#9C4A3B] class (active), others text-[#1A1814]/60
+//
+// 註：既有 8 處 text-\[#9C4A3B\] 斷言維持（編譯後 CSS 與 text-brick-dark 等價，
+// PM 2026-04-20 Q2 裁決）。
 
 test.describe('AC-NAV-4 — Active link highlighted #9C4A3B, others #1A1814/60', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
@@ -226,45 +228,65 @@ test.describe('AC-NAV-4 — Active link highlighted (mobile)', () => {
   })
 })
 
-// ── AC-NAV-6: Logic link always shows LockIcon, purple styling ───────────────
-// Given: any page regardless of login state
-// When:  user visits any page
-// Then:  Logic link always shows with purple styling (LockIcon always visible)
-// And:   no 🔒 emoji-based auth gate behavior
+// ── AC-021-NAVBAR: active state per route via aria-current ───────────────────
+// Given: user visits each of 4 routes with aria-current support
+// When:  page loads
+// Then:  the corresponding NavBar link has aria-current="page"
+// 4 個獨立 test case（PM 量化規則）
 
-test.describe('AC-NAV-6 — Logic link always visible with LockIcon', () => {
+test.describe('AC-021-NAVBAR — active state per route', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('Logic link shows with purple style regardless of login state', async ({ page }) => {
+  test('on / — Home link has aria-current=page', async ({ page }) => {
     await mockApis(page)
     await page.goto('/')
-
-    // Ensure no valid token
-    await page.evaluate(() => localStorage.removeItem('bl_token'))
-    await page.reload()
-
-    const nav = navLinksScope(page, false)
-    const logicLink = nav.getByRole('link', { name: /Logic/ })
-    await expect(logicLink).toBeVisible()
-    await expect(logicLink).toHaveClass(/text-purple/)
+    const homeLink = page.getByRole('link', { name: 'Home', exact: true })
+    await expect(homeLink).toHaveAttribute('aria-current', 'page')
   })
 
-  test('Logic link still shows with purple style when logged in', async ({ page }) => {
+  test('on /app — App link has aria-current=page', async ({ page }) => {
     await mockApis(page)
-
-    // Create a fake JWT with exp far in the future (year 2099)
-    const futureExp = Math.floor(new Date('2099-01-01').getTime() / 1000)
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
-    const payload = btoa(JSON.stringify({ exp: futureExp }))
-    const fakeToken = `${header}.${payload}.signature`
-
-    await page.goto('/')
-    await page.evaluate((token) => localStorage.setItem('bl_token', token), fakeToken)
-    await page.reload()
-
+    await page.goto('/app')
     const nav = navLinksScope(page, false)
-    const logicLink = nav.getByRole('link', { name: /Logic/ })
-    await expect(logicLink).toBeVisible()
-    await expect(logicLink).toHaveClass(/text-purple/)
+    const appLink = nav.getByRole('link', { name: 'App', exact: true })
+    await expect(appLink).toHaveAttribute('aria-current', 'page')
+    await expect(appLink).toHaveClass(/text-\[#9C4A3B\]/)
+  })
+
+  test('on /diary — Diary link has aria-current=page', async ({ page }) => {
+    await mockApis(page)
+    await page.goto('/diary')
+    const nav = navLinksScope(page, false)
+    const diaryLink = nav.getByRole('link', { name: 'Diary', exact: true })
+    await expect(diaryLink).toHaveAttribute('aria-current', 'page')
+  })
+
+  test('on /about — About link has aria-current=page', async ({ page }) => {
+    await mockApis(page)
+    await page.goto('/about')
+    const nav = navLinksScope(page, false)
+    const aboutLink = nav.getByRole('link', { name: 'About', exact: true })
+    await expect(aboutLink).toHaveAttribute('aria-current', 'page')
+  })
+})
+
+// ── AC-021-NAVBAR: Prediction hidden ─────────────────────────────────────────
+// Given: user visits any route
+// When:  page loads
+// Then:  Prediction link is NOT rendered at all (not just CSS-hidden)
+
+test.describe('AC-021-NAVBAR — Prediction hidden from DOM', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('Prediction link not rendered on / (desktop)', async ({ page }) => {
+    await mockApis(page)
+    await page.goto('/')
+    await expect(page.getByRole('link', { name: 'Prediction', exact: true })).toHaveCount(0)
+  })
+
+  test('Prediction link not rendered on /business-logic (desktop)', async ({ page }) => {
+    await mockApis(page)
+    await page.goto('/business-logic')
+    await expect(page.getByRole('link', { name: 'Prediction', exact: true })).toHaveCount(0)
   })
 })
