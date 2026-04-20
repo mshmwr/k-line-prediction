@@ -364,7 +364,7 @@ export default function AppPage() {
   }
 
   return (
-    <div className="h-screen bg-gray-950 text-gray-100 flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden">
       <UnifiedNavBar />
       <TopBar rowCount={ohlcData.filter(isRowComplete).length} />
       {errorMessage && (

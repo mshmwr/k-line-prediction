@@ -11,7 +11,7 @@ import FooterCtaSection from '../components/about/FooterCtaSection'
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white">
+    <div className="min-h-screen">
       <UnifiedNavBar />
 
       {/* S1 — PageHeaderSection */}

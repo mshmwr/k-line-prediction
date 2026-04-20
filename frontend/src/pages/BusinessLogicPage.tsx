@@ -85,7 +85,7 @@ export default function BusinessLogicPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <UnifiedNavBar />
       <div className="flex flex-col items-center justify-center flex-1 px-6 py-16">
       <h1 className="text-3xl font-mono font-bold mb-2">Business Logic</h1>

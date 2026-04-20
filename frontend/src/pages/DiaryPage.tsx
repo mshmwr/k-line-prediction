@@ -8,7 +8,7 @@ export default function DiaryPage() {
   const { entries, loading, error, refetch } = useDiary()
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white">
+    <div className="min-h-screen">
       <UnifiedNavBar />
       <div className="px-6 py-16 max-w-3xl mx-auto">
         <h1 className="text-3xl font-mono font-bold mb-2">Development Diary</h1>
