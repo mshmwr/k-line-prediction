@@ -16,6 +16,12 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-20 — K-017 Bug Found Protocol — NavBar Critical
+
+**沒做好：** NavBar 從 `bg-[#0D0D0D]` 改為 `bg-transparent` + `text-[#1A1814]` 後，沒有啟動 dev server 目視確認 /about 和 /diary（仍為 bg-[#0D0D0D] 深色背景）。深色背景上深色文字幾乎不可見，是 Critical 視覺 bug。E2E 103 tests 全過（只驗 class names），Code Review 才抓到。根因：修改全站共用組件後，沒有執行「逐路由目視確認」步驟，誤以為 Playwright 通過等同視覺正確。
+
+**下次改善：** 全站共用組件改動（NavBar / Footer / shared primitives）後，必須啟動 dev server 逐一訪問所有路由（/, /about, /diary, /app）目視確認視覺效果。已加入 engineer.md 前端實作順序第 4 步（2026-04-20）。
+
 ## 2026-04-19 — K-017 Phase B–E (/about portfolio enhancement)
 
 **沒做好：** Playwright spec 首跑即 TypeError（`locator().or()` 不存在）與 `not.toBeAttached()` 不存在，顯示寫 E2E 斷言時未確認 API 與版本相容性，依記憶套用較新 API。另外，對「整頁多處出現的文字」（Bug Found Protocol、docs/tickets/K-XXX.md、E2E）未先評估 strict mode 衝突，造成 3 條 regex 斷言失敗。根因：寫斷言前未做「這個 getByText 在整頁是否唯一」的 mental check。
