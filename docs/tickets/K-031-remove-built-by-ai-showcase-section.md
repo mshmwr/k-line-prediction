@@ -126,4 +126,15 @@ AC-031-K022-REGRESSION references 3 parallel Given clauses in about-v2.spec.ts (
 - **What went well:** Pure-removal ticket executed cleanly across all 6 roles with zero Critical / Warning findings. Design doc §7 pre-verified `SectionContainer` emits `<section>` before Engineer wrote `nextElementSibling` adjacency selector — no AC↔implementation drift. PM Route/Component Existence Verification (ticket header table) eliminated Architect §0 Scope Questions; Architect's cross-file grep surfaced 3 pre-existing architecture.md drift points (L13/L140/L410) carried over from K-017 Pass 3 and fixed in the same commit. Reviewer depth pass found 0 Critical / 0 Warning / 4 Info; all 4 adjudicated fix-now (1) / no-action (3) via Arbitration matrix.
 - **What went wrong:** Pencil MCP `Failed to connect` during Designer execution — visual `get_screenshot` impossible. Designer fell back to JSON grep + schema validation + structural diff; no persona rule existed for this fallback so each subsequent step (Engineer / Reviewer / QA / PM) had to independently re-rule on acceptability. Worktree `.worktrees/K-031/` lacked `frontend/node_modules/` on checkout — Engineer wasted one round on npx tsc "This is not the tsc command" false error before running `npm install` (logged to engineer.md improvement).
 - **Next time improvement:** (1) If Pencil MCP offline recurs on a 2nd ticket, codify a "pure-removal + JSON valid + grep zero-residual → screenshot waived" exception rule into `~/.claude/agents/designer.md`. Single-event K-031 does not meet the evidence bar yet (per `feedback_new_rule_needs_session_evidence`). (2) Engineer persona will add worktree-init `npm install` check to Pre-Implementation Checklist (engineer already committed to this in engineer.md retro). (3) PM gate "Route / component / file path existence verification" proved its value again — keep it mandatory for every ticket open.
-- **Accepted 2026-04-21** by PM per ACCEPT matrix (3/3 AC PASS, 95 passed / 1 skipped / 0 failed, tsc exit 0, 6 role retros written, architecture.md drift fixed). Deploy + branch merge follow.
+- **Accepted 2026-04-21** by PM per ACCEPT matrix (3/3 AC PASS, 95 passed / 1 skipped / 0 failed, tsc exit 0, 6 role retros written, architecture.md drift fixed).
+
+---
+
+### Deploy Record
+
+**Deploy date:** 2026-04-21 19:51:48 (Asia/Taipei)
+**Git SHA at deploy:** `f49344d4da455c8c0e5494cdc393cbe93a656e05`
+**Hosting URL:** https://k-line-prediction-app.web.app
+**Bundle hash:** `assets/index-CJbdmOv-.js` (live etag `2cbafa93…` matches `.worktrees/K-031/.firebase/hosting.ZnJvbnRlbmQvZGlzdA.cache`)
+**Verification:** `curl https://k-line-prediction-app.web.app/assets/index-CJbdmOv-.js | grep BuiltByAI` → 0 matches (S7 code fully stripped from production bundle)
+**Status:** Live
