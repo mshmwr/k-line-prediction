@@ -1,5 +1,11 @@
 [
   {
+    "milestone": "K-022 — /about 結構細節對齊 v2（12 項 AC）",
+    "items": [
+      { "date": "2026-04-21", "text": "K-022 closed：/about 頁面 12 項結構細節對齊設計稿 v2，含 DossierHeader bar、SectionLabelRow hairline、Hero 雙行（主句 Bodoni Moda + tagline italic）、5 section italic 副標、RedactionBar、Role Card OWNS/ARTEFACT Geist Mono label、Newsreader italic link、CASE FILE header、LAYER 1/2/3 prefix、role annotation（BEHAVIOUR/POSITION）、Role Card 3×2 grid 固定高度、shared primitives paper palette 遷移；Playwright 164 passed / 1 skipped / 0 failed，全流程一輪通過" }
+    ]
+  },
+  {
     "milestone": "K-021 — 全站設計系統基建（paper palette + 三字型 + NavBar + HomeFooterBar）",
     "items": [
       { "date": "2026-04-20", "text": "K-021 closed：5 路由 body 配色米白化（paper/ink token）、Bodoni Moda + Newsreader + Geist Mono 三字型系統上線、NavBar 米白化 + 項目順序重整、HomeFooterBar 擴至 /app 與 /business-logic；歷經 4 rounds（R1 設計→實作 / R2 子元件 dark-class 補修 / R3 architecture.md cross-table drift / R4 /about text-white readability fix-now），Playwright 115 passed + 1 skipped，K-022/K-023/K-024 前置基建完成" }
