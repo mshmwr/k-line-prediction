@@ -1,10 +1,11 @@
 ---
 id: K-028
 title: Homepage 視覺修復 — section spacing 補充 + DevDiarySection entry 高度自適應
-status: await-deploy
+status: closed
 type: fix
 priority: high
 created: 2026-04-21
+closed: 2026-04-21
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-21 K-028 entry (6 challenges: 4 must-add supplemented to AC, 2 declared Known Gap)
 ---
 
@@ -216,6 +217,15 @@ const top = i * (ENTRY_HEIGHT + ENTRY_GAP)  // 每個 entry 從固定 top 位置
 **Gap:** Known Gap KG-028-02 寫「HomeFooterBar 可見性已由既有 pages.spec.ts 其他斷言間接覆蓋」；實際 grep `pages.spec.ts` 無 footer visibility-in-viewport 斷言。宣稱過強，違反 memory `feedback_retrospective_honesty`（不過這是 PM 自己的 ticket 措辭，非 retrospective）。
 
 **Follow-up:** 二選一 — (a) 修改 ticket KG-028-02 措辭為「未獨立驗；依賴 flex-col refactor 不會產生極端 scrollHeight 的工程判斷」，或 (b) 補一條 footer visibility 斷言降級 KG → closed。PM 裁決 P2 = 下一 iteration 處理，本票 close 前至少改措辭。
+
+## Deploy Record
+
+- **Deploy date:** 2026-04-21 20:28 UTC+8
+- **Commit range:** `2d30672` (src) + `e162bb5` (docs) on `fix/K-028-homepage-spacing-diary-entry`
+- **Build output:** `dist/index.html` 1.01 kB / CSS 44.82 kB gzip 7.89 kB / JS 115.05 kB gzip 38.55 kB (+ vendor chunks react/charts/markdown unchanged)
+- **Firebase release:** Hosting URL `https://k-line-prediction-app.web.app` (project `k-line-prediction-app`)
+- **Deploy Checklist PASS:** (1) `grep "/api/"` scan → test-only matches, no bare prefix in src production code; (2) `npm run build` exit 0; (3) `firebase deploy --only hosting` release complete.
+- **Pre-deploy gate:** tsc exit 0 + Vitest 36/36 + Playwright 186/186 (QA sign-off 2026-04-21)
 
 ## 相關連結
 
