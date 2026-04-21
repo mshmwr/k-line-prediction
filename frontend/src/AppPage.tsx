@@ -207,15 +207,17 @@ export default function AppPage() {
       const projectedFutureBars1D =
         viewTimeframe === '1H' ? aggregateProjectedBarsTo1D(projectedFutureBars) : []
 
-      // Full set -> always defer to backend baseline (AC-013-APPPAGE line 1).
-      // Subset -> merge util stats with consensus bars for chart render.
-      const displayStats: PredictStats = isFullSet
-        ? appliedData.stats
-        : {
-            ...subsetStats,
-            consensusForecast1h: projectedFutureBars,
-            consensusForecast1d: projectedFutureBars1D,
-          }
+      // Full set -> defer to backend baseline stats (AC-013-APPPAGE line 1),
+      //             BUT still inject consensus bars so the ConsensusForecastChart
+      //             renders (matching OLD behavior at base `b0212bb` — OLD
+      //             unconditionally injected consensusForecast1h/1d regardless of
+      //             full-set vs subset; Round 1 regression ate the chart).
+      // Subset   -> merge util stats with consensus bars for chart render.
+      const displayStats: PredictStats = {
+        ...(isFullSet ? appliedData.stats : subsetStats),
+        consensusForecast1h: projectedFutureBars,
+        consensusForecast1d: projectedFutureBars1D,
+      }
 
       return { projectedFutureBars, projectedFutureBars1D, displayStats }
     } catch {
