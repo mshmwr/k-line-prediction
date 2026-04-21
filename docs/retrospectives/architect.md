@@ -20,6 +20,14 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-022 /about 結構細節設計
+
+**做得好：** 硬步驟 grep dark pattern 執行後，發現 `SectionLabel.tsx` 和 `SectionHeader.tsx` 目前 /about 根本未直接使用，避免 Engineer 改了一個 /about 不使用的組件；Pencil batch_get 取到 Redaction bar 高度（10px）/ Role Card 高度（320px）/ grid gap（14px）/ OWNS label 字級（10px）等精確數值，設計文件規格可直接照抄而非估算；發現 AC vs 設計稿兩處不一致（BQ-022-01 CASE FILE vs Nº 04、BQ-022-02 LAYER vs FILE Nº），列 Blocking Questions 交 PM 裁決，不自行選邊。Self-Diff 執行：13 列 vs 13 列 ✓。
+
+**沒做好：** Ticket §A-12 明列 `components/shared/` 路徑，實際 codebase 無此目錄（primitives 在 `primitives/`，SectionHeader/SectionLabel/CtaButton 在 `common/`）。設計文件修正了實際路徑，但未在 §0 顯著標注「ticket 路徑筆誤，以設計文件為準」，Engineer 先看 ticket 後看文件可能仍困惑。根因：Architect 遇到 ticket 與 codebase 路徑不符時，只補正設計文件，未在入口處明確告警 ticket 筆誤。
+
+**下次改善：** ticket 的具體路徑或組件名與 codebase 實際不符時，設計文件 **§0 設計前提** 段必須加一條「Ticket 路徑勘誤」列表，對比 ticket 路徑 vs 實際路徑，防止 Engineer 混淆。此規則補充進 senior-architect.md 硬步驟「Pre-Design Path Audit」段。
+
 ## 2026-04-21 — K-027 手機版 /diary milestone 重疊修復
 
 **做得好：** 設計開始前先 `ls` 驗證 `primitives/` 目錄，發現 architecture.md 聲稱 K-017 Pass 2 已將 `MilestoneSection.tsx` / `DiaryEntry.tsx` 刪除並替換為 `MilestoneAccordion.tsx`，但磁碟完全不存在 `MilestoneAccordion.tsx`。主動確認後以實際 codebase 為設計基準，並在設計文件 §1.1 明確標記此 drift，避免 Engineer 找不存在的組件。同時觸發 architecture.md 多處 drift 修正（diary/ 子樹 + DevDiarySection + Summary 段），一次清理。

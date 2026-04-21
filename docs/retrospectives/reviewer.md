@@ -16,6 +16,22 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Reviewer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-022 /about 結構細節對齊 v2（Step 2 專案深度）
+
+**做得好：**
+- 設計文件 §10 文件同步清單逐列對照 commit diff，抓出 `agent-context/architecture.md` 在 K-022 commit range 未更新（Critical: architecture.md 不同步）。
+- A-12 shared primitives 逐檔確認 dark pattern 殘留，理解 SectionLabel 保留舊色屬「向後相容、/about 不使用 SectionLabel」，不誤判為 Warning。
+- AC-022-HERO-TWO-LINE 字型不一致（AC 說 Newsreader / Pencil TQmUG 是 Bodoni Moda / E2E 驗 Bodoni Moda）三方比對後確認 Architect 設計文件已調整，但 ticket AC 未同步，正確列為 Warning 而非 Critical。
+
+**沒做好：**
+- AC-022-SECTION-LABEL ticket AC「6 個 section」vs 設計文件「5 個 label」數字差異，等到審查尾段才發現，應在 Review 開始時就做 ticket AC 數字 × 設計文件列表 × E2E count 三方比對。
+
+**下次改善：**
+1. Review 開始時固定 grep ticket AC 中所有數字（「N 個 X」），對照設計文件列表與 E2E spec count 斷言三方比對；不一致立即列 Warning。
+2. Architect 因 Pencil 實測覆蓋 AC 文字時，Reviewer 驗設計文件 §2.x 是否有「AC 勘誤說明」，若無則列 Warning 要求 Architect 反寫 ticket AC（雙向一致性）。
+
+---
+
 ## 2026-04-20 — K-021 Round 3 re-review（Step 2 專案深度）
 
 **做得好：** Round 3 fix 後實跑 `npm run build`（max chunk vendor-react 179.29 kB gzip 58.57，無 >500 kB warning）+ 全量 Playwright chromium（115 passed + 1 skipped，skip 為 AC-017-BUILD 既有），直接驗 AC-021-REGRESSION 末段；逐檔讀 C-1（PasswordForm/BusinessLogicPage）/ C-2（Diary 三個子元件）/ C-3（HomePage wrapper 刪除 diff 486f06e）/ C-4（sitewide-fonts.spec.ts 73 行 3 case）commit diff 對照 Round 2 問題清單，確認 fix 真正消除而非症狀遮蓋；AC-021-FONTS 判定從 Round 2 PARTIAL → Round 3 PASS（3 case 覆蓋 font-display Bodoni + font-mono Geist + /app cross-route）；Round 2 新增 persona 硬步驟全部落地驗證（engineer.md L14 絕對不做第 4 條 / L69-73 前端實作順序第 5 步 / L84-88 驗證清單設計文件 checklist gate / senior-architect.md L71-85 Architecture Doc Self-Diff 段 / 4 memory 檔 + MEMORY.md 索引）。

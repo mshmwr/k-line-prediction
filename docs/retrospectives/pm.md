@@ -2,6 +2,26 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-022 Code Review 裁決
+
+**做得好：** W-1（AC 文字與設計稿不一致）裁決前未直接採信 Reviewer 的描述，先重讀 ticket AC 第 117-120 行與設計文件 §2.7 第 131-134 行逐句比對，發現 Reviewer 的描述部分有出入（ticket 主句 AC 已正確寫 Bodoni Moda），精確定位出實際差異僅在「結尾句 tagline」（ticket 寫 Newsreader，設計文件 §2.7 + E2E 實作為 Bodoni Moda），避免誤改正確的 AC 部分。C-1（architecture.md 未更新）PM 直接自行修復而非退 Engineer，判斷正確（docs-only，PM 有足夠資訊且改動明確）。
+
+**沒做好：** S-2（fileNo prop 舊票號）裁決過程中先寫「Fix now」後讀 ticket AC 才改為「Ignore」，裁決順序倒置（應先查再裁決）。根因：對 AC 文字的記憶判斷先於工具查核。
+
+**下次改善：** Suggestion 類 finding 裁決前，固定先 grep ticket AC 確認實際措辭（「如」、「例如」等語意詞是否存在），再給出 fix/ignore 結論，不依記憶或摘要判斷。
+
+---
+
+## 2026-04-21 — K-022 Phase Gate
+
+**做得好：** 12 項 AC 逐條審查時，識別出 AC-022-REDACTION-BAR、AC-022-OWNS-ARTEFACT-LABEL、AC-022-ROLE-GRID-HEIGHT 三條「留 Architect 補數值」的標注，正確判定此為設計階段任務而非 PM AC 缺口，沒有要求 ticket 先補完才放行。K-021 依賴確認不只看 dashboard 狀態欄，額外確認 ticket frontmatter `status: closed`、最終 Playwright 結果（115 passed + 1 skipped）、readability 探針（29/29 綠）三個具體證據，不以「dashboard 寫 closed 就算」。PRD.md 補入狀態以 Read 工具實際查閱第 980-1105 行確認 13 條 AC 已存在，不憑記憶判定。
+
+**沒做好：** K-027 per-role log（2026-04-21）已明列「K-022/K-023/K-024 開工前 PM 必須補 mobile viewport 硬斷言 AC」規則，本次開 K-022 Phase Gate 時未主動對照此規則逐條審查 12 項 AC 是否含 mobile viewport 斷言——讀 pm.md log 後才意識到應執行此 cross-check，但 ticket K-022 本次未修訂 AC 補上 mobile viewport 條款。根因：K-027 retrospective 「下次改善」寫進 pm.md log 但尚未落地至 pm.md persona 硬步驟，導致 Phase Gate 時未自動觸發。
+
+**下次改善：** (1) 本次補一條 Architect blocker：K-022 設計文件必須含「mobile viewport（375px / 390px / 414px）視覺驗收策略」說明，Architect 接手前 PM 明文指示此需求，讓 Architect 在設計文件 §Playwright 策略段補上 mobile viewport 斷言計畫（對應 K-027 AC-027-NO-OVERLAP 範式）。(2) K-027 retrospective 「portfolio-facing 頁面 AC 必含 mobile viewport 斷言」規則，在本次 Architect 放行指令中作為前置條件傳達，確保 Engineer 實作前有具體 mobile 斷言規格可遵循。
+
+---
+
 ## 2026-04-21 — K-027 Phase Gate Close（QA 通過 → 關票）
 
 **做得好：** Phase Gate 決策嚴格依 AC mapping 逐條核對：AC-027-NO-OVERLAP 對 TC-001~003、AC-027-TEXT-READABLE 對 TC-004~006、AC-027-DESKTOP-NO-REGRESSION 對 TC-007，三組 AC 都有對應 PASS TC 才宣告 close，沒有因為「127 passed 數字大就信任」而跳過逐 AC 覆蓋確認。本票 4 輪 Code Review 裁決過程（C-001 技術辯護 → AC 修訂路徑 / I-001 補最後 card 斷言 / N-002 全展開狀態斷言 / Round 2 死代碼清除 / Round 3 button scope 限定）各輪 PM 裁決理由均有技術依據，Engineer 修法路徑與 AC 一致，沒有「裁決結論 → 實作走偏」斷層。

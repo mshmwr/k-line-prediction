@@ -35,6 +35,8 @@
 | TD-K027-02 | diary-mobile.spec.ts `.px-4.pb-4` 定位器脆弱，K-024 結構重寫後將靜默失效 | K-027 Reviewer N-001 | 低 | 2026-04-21 |
 | TD-K027-03 | milestone title overflow 屬性未驗（AC-027-TEXT-READABLE 含此要求但 spec 缺斷言）；flex-col 下實際截斷場景極低 | K-027 Reviewer N-003 | 低 | 2026-04-21 |
 | TD-K027-04 | `assertLastCardVisible` 的 `waitForTimeout(200)` hardcoded sleep；CI 慢機器潛在不穩定；改 `toBeInViewport()` 須重構邏輯，目前 7 tests 全過 | K-027 Reviewer R2 I-R2-01b | 低 | 2026-04-21 |
+| TD-K022-01 | `font-italic` fontFamily class 與 `italic` font-style class 命名易混淆；應 rename `fontFamily.italic` → `fontFamily.newsreader` | K-022 Breadth Review I-2 | 低 | 2026-04-21 |
+| TD-K022-02 | `SectionLabel` 殭屍 colorMap（purple/cyan/pink/white）保留向後相容，K-026 確認 AppPage 也不用後一次清除 | K-022 Breadth Review I-3 | 低 | 2026-04-21 → K-026 後清理 |
 
 ---
 
@@ -435,6 +437,38 @@ AC-027-TEXT-READABLE 要求「無 text-overflow: ellipsis 截斷、無 overflow:
 - Option B：改用 `lastCard.scrollIntoViewIfNeeded()` 取代 `window.scrollTo(0, scrollHeight)` + 200ms sleep，讓 Playwright 管理 scroll 到位
 
 **排期觸發條件：** K-024 diary spec 重寫時一併清理；或 CI 回報此 test 有 flaky 記錄時立即升級。
+
+---
+
+## TD-K022-01 — `font-italic` fontFamily 命名語意混淆
+
+**來源：** K-022 Breadth Review I-2（2026-04-21）
+
+`tailwind.config.ts` 中 `theme.extend.fontFamily.italic` 指向 Newsreader 字型，與 Tailwind 原生 `italic`（font-style）命名衝突，極易誤讀。當前使用者需同時寫 `font-italic italic` — 前者是字型 class，後者是斜體 class。
+
+**風險：** 低 — 功能正常，純命名混淆問題；新開發者或 Engineer 初次接觸時易誤解。
+
+**PM 裁決（2026-04-21）：** 低優先技術債。改名需同步更新所有使用 `font-italic` 的組件 class（grep + 批次替換），屬一次性清理作業，無立即安全/功能風險。
+
+**建議解法：** `tailwind.config.ts` 中 `fontFamily.italic` → `fontFamily.newsreader`，並 grep 全專案 `font-italic` 一次批次替換為 `font-newsreader`；同步更新 E2E spec 的 `computed fontFamily` 斷言無需修改（CSS 編譯後相同）。
+
+**排期觸發條件：** 下次 tailwind.config.ts 有結構性修改時一併 rename；或獨立開小票（DX cleanup batch）時批次處理。
+
+---
+
+## TD-K022-02 — `SectionLabel` 舊 dark colorMap 殭屍代碼
+
+**來源：** K-022 Breadth Review I-3（2026-04-21）
+
+`components/common/SectionLabel.tsx` 保留 `purple/cyan/pink/white` 顏色選項以維持向後相容，但 K-022 完成後目前僅 `/about` 使用 SectionLabel 相關組件（以 `SectionLabelRow` 形式），且不使用上述顏色。
+
+**風險：** 低 — 殭屍代碼，無功能影響；K-026 確認 AppPage 也不引用後，這些 colorMap branch 可安全移除。
+
+**PM 裁決（2026-04-21）：** K-026 closed 後由 Reviewer 確認 AppPage consumer 情況，若確認無使用，列入 K-026 cleanup 或獨立小票一次清除。
+
+**建議解法：** K-026 closed 後 grep `SectionLabel` 全專案使用點，確認僅 `/about` 相關組件使用（且皆用新 prop 格式）；移除 `purple/cyan/pink/white` colorMap branch；同步簡化型別定義。
+
+**排期觸發條件：** K-026 closed 後一個 review cycle 以內處理。
 
 ---
 

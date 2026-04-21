@@ -16,6 +16,18 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-022 Code Review fix（I-1 + S-3）
+
+**做得好：**
+- 兩個修正範圍精確：`overflow-hidden` 加在 CardShell className，comment 加在對應行末，無多餘變動。
+- Pre-read 確認 `CardShell padding="lg"` 位置後再 Edit，無猜測。
+
+**沒做好：**
+- I-1（overflow-hidden）和 S-3（容差 comment）是 Code Review 提出的，表示這兩點應在原始實作時就處理。`overflow-hidden` 配合 negative margin 的 pair 是標準 pattern，應是 Engineer 自查項。
+
+**下次改善：**
+- 凡使用 `-mx-*` / `-mt-*` negative margin 的組件，實作時主動確認外層容器是否有 `overflow-hidden`；加 comment 說明容差數字的行，視為 self-review 必查項，不等 Code Review 提出。
+
 ## 2026-04-21 — K-022 /about 結構細節對齊 v2
 
 **做得好：**

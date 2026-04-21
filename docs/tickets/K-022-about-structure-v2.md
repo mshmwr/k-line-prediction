@@ -95,7 +95,7 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 **When** 頁面滾動至任一 section（Header / Metrics / Roles / Pillars / Tickets / Architecture / Footer）
 **Then** section 上方顯示 small-caps 英文 label（如 `SECTION · ROLES`），字型為 Geist Mono small-caps（computed `fontFamily` 含 "Geist Mono"、`textTransform` 為 `uppercase` 或原始大寫字串）
 **And** label 下方有 1px hairline 分隔線（`borderBottom: 1px solid` 或 `<hr>` 元素），顏色為 `text-muted` / `border-muted`
-**And** Playwright 斷言：6 個 section（依 K-017 定義）各自上方含對應 label 字串（以 `{ exact: true }`）
+**And** Playwright 斷言：5 個 section label（Nº 01~05；Hero section 依設計稿無 label，共 5 個）各自含對應 label 字串（以 `{ exact: true }`）
 
 ---
 
@@ -115,9 +115,9 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 **Given** 使用者訪問 `/about`
 **When** 頁面載入完成
 **Then** PageHeaderSection 的 "One operator, orchestrating AI agents end-to-end — PM, architect, engineer, reviewer, QA, designer." 以 display 字型（Bodoni Moda / serif display）呈現為主視覺大字
-**And** "Every feature ships with a doc trail." 為獨立行，字型為 Newsreader italic，字級明顯小於主句
+**And** "Every feature ships with a doc trail." 為獨立行，字型為 Bodoni Moda italic，字級明顯小於主句
 **And** 主句與結尾句之間有視覺間距（`margin-top` 或 `gap`），不擠在同一行
-**And** Playwright 斷言：主句 computed `fontFamily` 含 "Bodoni Moda"、結尾句 computed `fontFamily` 含 "Newsreader" 且 `fontStyle` 為 `italic`
+**And** Playwright 斷言：主句 computed `fontFamily` 含 "Bodoni Moda"、結尾句 computed `fontFamily` 含 "Bodoni Moda" 且 `fontStyle` 為 `italic`（Pencil 節點 TQmUG：Bodoni Moda 22px italic，§2.7）
 
 ---
 
@@ -259,3 +259,18 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 
 **下次改善：**
 - 實作前，對照設計文件每個結構重構（h1 / p 層級改變、組件拆分等），先 grep 對應的舊 E2E spec 斷言，列出哪些會因結構改動而 break，預先確認更新策略再開始 Stage 1。這樣 Stage 6 全跑時不會出現「意料外」的舊斷言 fail。
+
+### 2026-04-21 — Reviewer — K-022 Project Depth Review
+
+**做得好：**
+- 設計文件 §10 文件同步清單逐列對照 diff，發現 `agent-context/architecture.md` 在 K-022 commit range 內未更新（設計文件明列 Changelog + shared primitives 表更新為交付項）。
+- A-12 shared primitives dark pattern grep 逐檔執行，確認 `SectionLabel.tsx` 保留舊色（purple/cyan/pink/white）符合設計文件向後相容原則，且 /about 未使用 SectionLabel（用 SectionLabelRow），不影響本票 AC。
+- AC-022-HERO-TWO-LINE 發現 AC 文字描述（Newsreader italic）與 Pencil 實測（Bodoni Moda TQmUG）不一致，Architect 已在設計文件 §2.7 標注並在 E2E 依設計稿驗，但 ticket AC 本身未同步更新。
+
+**沒做好：**
+- AC-022-SECTION-LABEL Ticket AC 寫「6 個 section」，設計文件 §3.1 列 5 個 label（Nº 01~05），實作也是 5 個；數字差異本應在 review 開始時就標出，讓 PM 確認 AC 數字正確性，而非到審查尾段才發現。
+- AC-022-HERO-TWO-LINE ticket AC 與設計稿不一致（tagline 字型 Newsreader vs Bodoni Moda），Architect 設計文件已調整但未回寫 ticket AC；Reviewer 本輪將此列為 Warning，應明確要求 Architect 補回寫流程為硬步驟。
+
+**下次改善：**
+- Review 開始時固定 grep ticket AC 內的數字（「N 個 section」「N 張卡片」），對照設計文件列表與 E2E spec count 斷言，三方數字不一致立即列 Warning，不留到尾段。
+- Architect 在設計文件 §2.x 因 Pencil 實測覆蓋 AC 描述時，必須同步 Edit ticket AC 對應段落（列為硬步驟）；Reviewer 應在 Step 2 驗設計文件 vs ticket AC 是否雙向一致。
