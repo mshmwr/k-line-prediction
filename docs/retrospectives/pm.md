@@ -2,6 +2,14 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-027 開票（DiaryPage mobile layout production bug）
+
+**沒做好：** K-021 AC-021-BODY-PAPER 當初只驗 5 路由 body computed CSS（paper/ink hex + 字型套用）**未加 mobile viewport 斷言**，Playwright 視覺報告（`docs/reports/K-021-visual-report.html`）全部為桌面截圖；K-017 portfolio-oriented 改版時 PM 定 AC 也未明列 mobile viewport 驗收條件——兩票均屬 portfolio-facing 頁面卻沒有 mobile 視覺 gate。根因：PM 寫 AC 時假設「桌面視覺 OK + Tailwind responsive default class 即可覆蓋手機」，但 `DiaryEntry` 用固定 `w-24`（96px date 欄）+ flex gap-4，在 375px viewport 下 text flex-1 只剩 ~240px 空間與中英文混排 line-height 互動產生視覺重疊，這種 layout 壓擠 regression 完全在桌面視覺 gate 盲區。portfolio-facing 定位意味著 recruiter 隨時可能用手機開啟，卻沒 mobile viewport 強制斷言 = portfolio 品質承諾與驗收 gate 脫節。
+
+**下次改善：** (1) PM 於 **portfolio-facing 頁面（K-017 scope 所有頁面：Homepage / About / Diary，以及未來 K-022/K-023/K-024 改版票）** 開 AC 時，必補一條「mobile viewport 視覺與可讀性硬斷言」——至少含 375px / 390px / 414px 三種寬度下：相鄰區塊 bounding box 不重疊 + 文字不被 clip + font-size ≥ 12px。本條為 K-027 AC-027-NO-OVERLAP / AC-027-TEXT-READABLE 的範式，未來 portfolio-facing 票 PM 必須對齊此模式，不得只驗桌面。(2) 此規則候選落地至 `~/.claude/agents/pm.md` 「AC 撰寫」章節，待下次 PM persona Edit 窗口或 K-022/K-023/K-024 開工前補上硬步驟「portfolio-facing 頁面票 AC 必含 mobile viewport 斷言」；本次 K-027 不擴大 scope 至 persona Edit。(3) K-021 closed 時 visual-report script（K-008 交付）已跑過桌面截圖，未跑 mobile；未來 visual-report 擴充需納入 mobile viewport shot 作為 PM 關票 gate 證據——此為獨立 TD 候選（不在本票 scope），視 K-027 實作完後是否一併評估。
+
+---
+
 ## 2026-04-20 — K-021 最終關票 + 彙整
 
 **做得好：** 本票 4 rounds 全程 PM 裁決都走 Pre-Verdict 三步驟（Q1 /login / Q2 色票 / R2 Bug Found Protocol G1~G4 / R4 A/B/C 三選），無一次「直覺先宣告再補風險」；R4 裁決時明確分類「`/about` text-white 殘留**屬 K-021 body 配色遷移的子元件漏網**（與 R2 C-1/C-2 同類），不屬 K-022 結構改版新 scope」，讓 fix-now 有 scope 邊界依據而非 scope pollution；關票前先讀 6 個 role retrospective log 再寫 PM 彙整，不依賴記憶。Dashboard K-021 從「進行中」移到「已完成」+ ticket status 改 closed + frontmatter 補 `closed: 2026-04-20` 三個位置同步更新，不只改其中一處。
