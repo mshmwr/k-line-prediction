@@ -364,11 +364,12 @@ Engineer + Architect fix-now 完成後：
 
 **2026-04-21 — Production deploy executed.**
 
-- **Branch merged:** `fix/K-030-app-isolation` → `main`（fast-forward / merge commit recorded in outer repo log）
-- **Build:** `cd frontend && npm run build` — exit 0（待填 bundle hash / size delta）
+- **Branch merged:** `fix/K-030-app-isolation` → `main`（merge commit `95f6ea5`，含 PRD + architecture.md + 3 retros interleave conflict resolution with K-031 close）
+- **Build:** `cd frontend && npm run build` — exit 0；bundle：`index-DzbMkytg.js` 114.08 kB / gzip 38.30 kB, `vendor-react-DBzpJYIJ.js` 179.29 kB / gzip 58.57 kB, CSS 44.21 kB / gzip 7.77 kB
 - **Deploy command:** `firebase deploy --only hosting` — exit 0
-- **Hosting URL:** https://k-line-prediction.web.app (primary) / https://k-line-prediction.firebaseapp.com (alt)
-- **Smoke test:** `/` NavBar App link + Hero CTA 均開新分頁；`/app` wrapper bg gray-950、無 NavBar / Footer、TopBar 正常顯示；prediction tool 功能未破壞
-- **API path scan:** `grep -r "'/api/" frontend/src/` + `grep -r '"/api/' frontend/src/` — 無 bare relative path
+- **Hosting URL:** https://k-line-prediction-app.web.app
+- **Smoke test:** `curl -I /` → HTTP 200 + `curl -I /app` → HTTP 200（etag `8769e6917b6b...` last-modified 2026-04-21 14:23:13 GMT）
+- **API path scan:** `grep -rn "['\"]/api/" src/` — 僅 3 筆出現於 `src/__tests__/AppPage.test.tsx`（mock 驗證，非 runtime），無 bare relative path
+- **Push:** `git push origin main` → `8b0214f..95f6ea5`
 
 **Ticket closed 2026-04-21.** AC migrated to PRD §4 Closed Tickets; PM-dashboard.md K-030 row moved to Closed section.
