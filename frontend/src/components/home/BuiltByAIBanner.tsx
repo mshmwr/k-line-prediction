@@ -11,6 +11,7 @@ export default function BuiltByAIBanner() {
     <Link
       to="/about"
       aria-label="About the AI collaboration behind this project"
+      data-testid="built-by-ai-banner"
       className="block w-full bg-[#F4EFE5] border-b border-[#1A1814] px-6 py-2 text-center hover:bg-[#EDE8DC] transition-colors"
       onClick={() => trackCtaClick('banner_about')}
     >

@@ -52,7 +52,7 @@ export default function ProjectLogicSection() {
             className="border border-[#1A1814] rounded-[6px] overflow-hidden bg-paper"
           >
             {/* Card header */}
-            <div className="bg-charcoal px-[10px] py-[6px]">
+            <div className="bg-charcoal px-[10px] py-[6px]" data-testid="step-header-bar">
               <span
                 className="text-[10px] tracking-widest text-paper"
                 style={{ fontFamily: '"Geist Mono", monospace' }}

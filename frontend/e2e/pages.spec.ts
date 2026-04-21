@@ -222,10 +222,10 @@ test.describe('HomePage — AC-023-DIARY-BULLET', () => {
 // Note:  3 independent test cases per AC (PM quantification rule — not merged)
 
 test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 01 · INGEST)', () => {
-  test('STEP 01 header bar: bg charcoal, white text, Geist Mono 10px', async ({ page }) => {
+  test('STEP 01 header bar: bg charcoal, paper text, Geist Mono 10px', async ({ page }) => {
     await page.goto('/')
 
-    const headerBar = page.locator('div.bg-charcoal', { hasText: 'STEP 01 · INGEST' })
+    const headerBar = page.locator('[data-testid="step-header-bar"]', { hasText: 'STEP 01 · INGEST' })
     await expect(headerBar).toBeVisible()
 
     const bg = await headerBar.evaluate(el => getComputedStyle(el).backgroundColor)
@@ -233,20 +233,22 @@ test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 01 · INGEST)', () => {
 
     const span = headerBar.locator('span')
     const color = await span.evaluate(el => getComputedStyle(el).color)
-    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC says "white" but design token is off-white paper
-    // QA Interception filed: AC-023-STEP-HEADER-BAR text color discrepancy (pure white vs paper off-white)
+    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC corrected from pure white to paper token (PM ruling 2026-04-21)
     expect(color).toBe('rgb(244, 239, 229)')
 
     const fontSize = await span.evaluate(el => getComputedStyle(el).fontSize)
     expect(fontSize).toBe('10px')
+
+    const fontFamily = await span.evaluate(el => getComputedStyle(el).fontFamily)
+    expect(fontFamily).toContain('Geist Mono')
   })
 })
 
 test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 02 · MATCH)', () => {
-  test('STEP 02 header bar: bg charcoal, white text, Geist Mono 10px', async ({ page }) => {
+  test('STEP 02 header bar: bg charcoal, paper text, Geist Mono 10px', async ({ page }) => {
     await page.goto('/')
 
-    const headerBar = page.locator('div.bg-charcoal', { hasText: 'STEP 02 · MATCH' })
+    const headerBar = page.locator('[data-testid="step-header-bar"]', { hasText: 'STEP 02 · MATCH' })
     await expect(headerBar).toBeVisible()
 
     const bg = await headerBar.evaluate(el => getComputedStyle(el).backgroundColor)
@@ -254,20 +256,22 @@ test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 02 · MATCH)', () => {
 
     const span = headerBar.locator('span')
     const color = await span.evaluate(el => getComputedStyle(el).color)
-    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC says "white" but design token is off-white paper
-    // QA Interception filed: AC-023-STEP-HEADER-BAR text color discrepancy (pure white vs paper off-white)
+    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC corrected from pure white to paper token (PM ruling 2026-04-21)
     expect(color).toBe('rgb(244, 239, 229)')
 
     const fontSize = await span.evaluate(el => getComputedStyle(el).fontSize)
     expect(fontSize).toBe('10px')
+
+    const fontFamily = await span.evaluate(el => getComputedStyle(el).fontFamily)
+    expect(fontFamily).toContain('Geist Mono')
   })
 })
 
 test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 03 · PROJECT)', () => {
-  test('STEP 03 header bar: bg charcoal, white text, Geist Mono 10px', async ({ page }) => {
+  test('STEP 03 header bar: bg charcoal, paper text, Geist Mono 10px', async ({ page }) => {
     await page.goto('/')
 
-    const headerBar = page.locator('div.bg-charcoal', { hasText: 'STEP 03 · PROJECT' })
+    const headerBar = page.locator('[data-testid="step-header-bar"]', { hasText: 'STEP 03 · PROJECT' })
     await expect(headerBar).toBeVisible()
 
     const bg = await headerBar.evaluate(el => getComputedStyle(el).backgroundColor)
@@ -275,12 +279,14 @@ test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 03 · PROJECT)', () => 
 
     const span = headerBar.locator('span')
     const color = await span.evaluate(el => getComputedStyle(el).color)
-    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC says "white" but design token is off-white paper
-    // QA Interception filed: AC-023-STEP-HEADER-BAR text color discrepancy (pure white vs paper off-white)
+    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC corrected from pure white to paper token (PM ruling 2026-04-21)
     expect(color).toBe('rgb(244, 239, 229)')
 
     const fontSize = await span.evaluate(el => getComputedStyle(el).fontSize)
     expect(fontSize).toBe('10px')
+
+    const fontFamily = await span.evaluate(el => getComputedStyle(el).fontFamily)
+    expect(fontFamily).toContain('Geist Mono')
   })
 })
 
@@ -342,10 +348,9 @@ test.describe('HomePage — AC-023-BODY-PADDING', () => {
 })
 
 // ── AC-023-REGRESSION ───────────────────────────────────────────────────────
-// Confirm K-017 existing assertions still pass after K-023 changes.
-// These tests are aliases into existing test blocks — running the full suite
-// (npx playwright test) covers AC-017-HOME-V2 and AC-HOME-1 directly.
-// This block adds an explicit K-023 guard for BuiltByAIBanner position.
+// Regression guards: confirm K-017 existing structure still holds after K-023 changes.
+// Running the full suite (npx playwright test) covers AC-017-HOME-V2 and AC-HOME-1 directly.
+// This block adds explicit K-023 structural guards: Banner DOM-order + layout integrity.
 
 test.describe('HomePage — AC-023-REGRESSION', () => {
   test('BuiltByAIBanner still renders between NavBar and Hero (K-017 regression)', async ({ page }) => {
@@ -359,6 +364,20 @@ test.describe('HomePage — AC-023-REGRESSION', () => {
 
     // DEV DIARY section still renders
     await expect(page.getByText('DEV DIARY')).toBeVisible()
+
+    // DOM-order guard: Banner must appear before HeroSection in document order
+    // (AC-023-REGRESSION: "BuiltByAIBanner position NavBar下方、Hero上方 not changed")
+    const bannerBeforeHero = await page.evaluate(() => {
+      const banner = document.querySelector('[data-testid="built-by-ai-banner"]')
+      // Locate hero heading as a proxy for HeroSection root
+      const heroHeading = Array.from(document.querySelectorAll('h1')).find(
+        el => el.textContent?.includes('Predict the next move')
+      )
+      if (!banner || !heroHeading) return false
+      // DOCUMENT_POSITION_FOLLOWING = 4: heroHeading follows banner => banner is before hero
+      return !!(banner.compareDocumentPosition(heroHeading) & Node.DOCUMENT_POSITION_FOLLOWING)
+    })
+    expect(bannerBeforeHero).toBe(true)
   })
 
   test('DiaryTimelineEntry layout not broken — markers exist and diary link visible', async ({ page }) => {
