@@ -17,7 +17,7 @@ interface PillarCardProps {
  */
 export default function PillarCard({ layerLabel, title, body, anchorQuote, docsHref }: PillarCardProps) {
   return (
-    <CardShell padding="lg" className="flex flex-col">
+    <CardShell padding="lg" className="flex flex-col overflow-hidden">
       {/* A-9: LAYER label bar — Geist Mono 10px text-paper on bg-charcoal */}
       <div className="-mx-6 -mt-6 mb-4 px-4 py-[6px] bg-charcoal">
         <span className="font-mono text-[10px] text-paper tracking-[2px] uppercase">

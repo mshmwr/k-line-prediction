@@ -116,7 +116,7 @@ test.describe('AC-022-HERO-TWO-LINE — Hero two-line structure', () => {
     const tagline = page.getByText('Every feature ships with a doc trail.', { exact: true })
     const h1Rect = await h1.evaluate(el => el.getBoundingClientRect())
     const tagRect = await tagline.evaluate(el => el.getBoundingClientRect())
-    expect(tagRect.top).toBeGreaterThanOrEqual(h1Rect.bottom - 1)
+    expect(tagRect.top).toBeGreaterThanOrEqual(h1Rect.bottom - 1) // -1 for subpixel rounding tolerance
     await ctx.close()
   })
 })
