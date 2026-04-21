@@ -1,7 +1,7 @@
 ---
 id: K-022
 title: /about 頁面結構細節對齊設計稿 v2（12 項）
-status: backlog
+status: open (waiting Architect)
 type: feat
 priority: medium
 created: 2026-04-20
@@ -246,3 +246,16 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 ## Retrospective
 
 （Architect / Engineer / Reviewer / QA / Designer 各自於完成階段補上反省；PM 於 QA PASS 後彙整）
+
+### 2026-04-21 — Engineer — K-022 /about 結構細節對齊 v2
+
+**做得好：**
+- 讀完設計文件 §2.7 後發現 `AC-017-HEADER` 舊斷言假設 "PM, architect..." 在 `<h1>` 裡，但 A-3 設計明確要求把角色列移到 Newsreader italic `<p>`。在執行 Stage 6 全跑時只有 1 個 fail，定位快（斷言邏輯問題，非程式錯誤），並在更新舊斷言前確認設計意圖正確後才動手。
+- Stage 1 → Stage 6 嚴格按照設計文件順序執行，每個 Stage 後跑 `npx tsc --noEmit`，全程 tsc exit 0，無堆疊未驗證的變更。
+- RedactionBar 和 DossierHeader 是本票唯二新增組件，`data-redaction` / `data-testid="dossier-header"` / `data-section-hairline` / `data-section-subtitle` / `data-annotation` 等 test attribute 在實作時同步加入，E2E 斷言不需另外 grep 就能直接對應。
+
+**沒做好：**
+- AC-017-HEADER 回歸測試 fail 是可預期的：設計文件 §2.7 明確把角色列 "PM, architect..." 從 `<h1>` 拆到 `<p>` Newsreader italic，這意味著 K-017 舊 `about.spec.ts` 斷言 `await expect(h1).toContainText('PM, architect...')` 必然需要更新。但我在實作前沒有預讀舊 E2E spec 確認這一點，等 Stage 6 全跑才發現。根因：Pre-implementation checklist 沒有「讀舊 E2E spec 與設計文件對比，列出因 A-3 結構重構而必然 break 的舊斷言」。
+
+**下次改善：**
+- 實作前，對照設計文件每個結構重構（h1 / p 層級改變、組件拆分等），先 grep 對應的舊 E2E spec 斷言，列出哪些會因結構改動而 break，預先確認更新策略再開始 Stage 1。這樣 Stage 6 全跑時不會出現「意料外」的舊斷言 fail。

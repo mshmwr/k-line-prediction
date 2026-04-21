@@ -16,6 +16,19 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-022 /about 結構細節對齊 v2
+
+**做得好：**
+- Stage 1 → Stage 6 嚴格按設計文件順序執行，每 Stage 後 tsc exit 0，全程無堆疊未驗證的變更。
+- `data-redaction` / `data-testid` / `data-section-hairline` / `data-section-subtitle` / `data-annotation` 等 test attribute 在實作時同步加入，E2E 斷言直接對應，不需事後加 selector。
+- 1 個 E2E fail（AC-017-HEADER）定位快：設計文件 §2.7 已明確 "PM, architect..." 移到 `<p>` Newsreader italic，舊斷言找 `<h1>` 必然 break，更新策略明確後立即修正。
+
+**沒做好：**
+- A-3 結構重構（角色列從 h1 拆到 p）必然導致 K-017 舊 `about.spec.ts` 的 `h1.toContainText('PM, architect...')` 斷言 break。這是可預期的，但沒有在 Stage 1 前 grep 舊 spec 預先列出「必然 break 的舊斷言」，等 Stage 6 全跑才發現。根因：Pre-implementation checklist 缺「對照設計文件的結構重構，grep 舊 E2E spec，預列會 break 的斷言」步驟。
+
+**下次改善：**
+- 實作前，對照設計文件每個結構層級改變（h1/p 拆分、組件重組），grep 對應舊 E2E spec，預列「因結構重構必然 break 的舊斷言」及更新策略，再開始 Stage 1。避免 Stage 6 全跑時出現「意料外」的回歸 fail。
+
 ## 2026-04-21 — K-027 Round 3（純 spec 修正：刪死代碼 + Fix 2/Fix 3）
 
 **做得好：**
