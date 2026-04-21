@@ -1,11 +1,12 @@
 ---
 id: K-018
 title: GA4 Tracking — 訪客追蹤 + 點擊事件
-status: open
+status: closed
 type: feat
 priority: medium
 size: S
 created: 2026-04-19
+closed: 2026-04-21
 ---
 
 ## 背景
@@ -118,3 +119,41 @@ K-Line Prediction 已部署於 Firebase Hosting，目前沒有任何訪客分析
 | AC And 子句含「每個 event 都要有」的副條件，只在第一個 test 斷言、其餘省略 | Reviewer | Review E2E spec 時先展開所有 Then/And 再比對 spec，加入 Review checklist 固定一條 | senior-engineer.md（待授權） |
 | E2E timeout 類修復 QA 僅信 Engineer 自述，未跑 `--repeat-each` 獨立驗證穩定性 | QA | E2E 測試穩定性改善類修復，QA 須執行 `--repeat-each=5` 驗證 | qa.md（待授權） |
 | 「刻意排除範圍」的路由/事件未在 QA retro 明記排除理由 | QA | QA retro 加固定段「範圍外項目：依 ticket 定義排除，理由：xxx」 | qa.md（待授權） |
+
+---
+
+## 最終關閉記錄 — 2026-04-21
+
+**部署生效：** 建立 GA4 property `K-Line-Prediction`，Measurement ID `G-9JC9YBZTPF`；寫入 `frontend/.env.production`；`npm run build` + `firebase deploy --only hosting` 完成部署到 `k-line-prediction-app.web.app`；GA4 即時頁成功接收 `page_view` 事件，使用者數歸零→1 已驗證。
+
+**部署中發現 runtime bug（closed 前修復）：**
+
+`frontend/src/utils/analytics.ts` 的 `window.gtag` helper 原實作：
+
+```ts
+window.gtag = function (...args: unknown[]) {
+  window.dataLayer.push(args)  // ← 錯：Array
+}
+```
+
+gtag.js 會區分 `dataLayer` 內兩種 entry：
+- `arguments` 物件 → 當 gtag 指令（js/config/event）處理
+- 有 `event` key 的 object → 當 GTM 事件處理
+
+推 Array 不符兩者，gtag.js 全部忽略；導致 `gtag.js` 雖成功載入，但 `event page_view` 從未送出 `/g/collect` beacon。`dataLayer` 檢查可見：
+
+```
+[
+  ["js", Date],            ← Array，被忽略
+  ["config", "G-...", ...],← Array，被忽略
+  ["event", "page_view",...],← Array，被忽略
+  { event: "gtm.dom" },    ← GTM event，有處理
+]
+```
+
+修復：改回 Google 官方 snippet 寫法 `dataLayer.push(arguments)`（commit 待補）。
+
+**為何 E2E 沒抓到：**
+`ga-tracking.spec.ts` 使用 `page.addInitScript()` 攔截 `window.gtag` 並驗證「呼叫參數」，但並未驗證 gtag.js 內部是否把 dataLayer entry 當 gtag 指令處理、亦未驗證實際送出的 `/g/collect` HTTP request。E2E 通過 = 我方程式有呼叫 `gtag('event', ...)`；E2E 通過 ≠ GA4 真的會收到事件。
+
+**下次改善：** GA4 / 任何第三方 SDK 整合的 E2E，除了驗證 client-side call pattern，必須補一條斷言：`page.waitForRequest(url => url.includes('/g/collect'))` 或等效機制，驗證實際 HTTP beacon 成功離開 client。Ticket 已關閉，改善行動轉為後續 E2E hardening 項目（待開 follow-up ticket 或併入 K-020 SPA pageview E2E 範圍）。

@@ -214,11 +214,9 @@ cd frontend && TICKET_ID=K-021 npx playwright test visual-report.ts
 
 ## Future Enhancements
 
-Three areas of active development, ordered by priority:
+Two areas of active development, ordered by priority:
 
 **Design System Completion** — The v2 global design system rollout surfaced gaps across routes: missing section spacing, incomplete dark-theme palette migration on `/about` components, and `/app` needing isolation as a focused tool viewport (no NavBar/Footer, dedicated background). Closing these ensures visual consistency matches the design spec across all five routes.
-
-**Analytics Integration** — GA4 pageview and CTA click tracking will measure actual user engagement with the prediction tool without collecting PII. The Measurement ID is environment-variable-driven; a Playwright assertion verifies the snippet loads on every deploy.
 
 **Architecture Refinement** — Two structural improvements in the backlog: (1) decouple frontend and backend stats implementations — backend owns full-set computation, frontend handles subset-on-deselect locally, both locked by a contract test (`stats_contract_cases.json`) to prevent silent divergence; (2) align Playwright spec names to their assertions, so a test named "lock disappears after login" asserts exactly that behavior.
 

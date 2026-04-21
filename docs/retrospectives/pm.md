@@ -2,6 +2,42 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-018 GA4 Tracking end-to-end 關閉
+
+**What went well:** K-018 從 frontmatter `open` 狀態拉到真 closed 的完整鏈路全數跑通——GA4 property 建立（`K-Line-Prediction`）、Measurement ID `G-9JC9YBZTPF` 取得、`.env.production` 寫入、`npm run build` 產出含 ID 的 bundle（curl 驗 deployed bundle 確認）、`firebase deploy --only hosting` 成功、GA4 即時頁使用者數從 0 翻到 1，整條鏈路在一個 session 內完整驗證。Debug 流程依序排除擴充套件（無痕分頁重測）、網路過濾、程式 wiring，最後用 `window.dataLayer` console 倒出 entry shape 鎖定 Array vs Arguments bug，避免盲 commit 無效修復。
+
+**What went wrong:** K-018 最初被判為 closed 時（E2E 99/100 綠、3 role retro 齊）實際上線後**事件完全沒送出**——gtag.js 載入成功 ≠ 事件有送，`ga-tracking.spec.ts` 只驗 client-side `window.gtag` 呼叫參數，未驗 `/g/collect` HTTP beacon 是否真的離開 client，integration E2E 假陽性導致整個 ticket 在不知情下帶著 runtime bug「完工」了兩天。根因是 `analytics.ts` 用 `...args` 展開後 `dataLayer.push(args)` 推了 Array，gtag.js 只把 Arguments 物件當 gtag 指令處理，Array 全被忽略；此 bug 在本 session 部署後才因 GA4 即時頁 0 user 曝光。
+
+**Next time improvement:**
+1. **第三方 SDK 整合 E2E 硬規則：** 任何整合第三方 SDK（GA4/Sentry/Stripe/Segment...）的 feature，E2E 除了驗 client-side call pattern，必須再補一條 `page.waitForRequest(url => url.includes('<sdk-endpoint>'))` 或 `page.waitForResponse` 驗 HTTP beacon 實際離開 client。此規則需 codify 進 qa.md + engineer.md，並回溯檢視 K-018 的 `ga-tracking.spec.ts` 是否補 `/g/collect` 斷言。
+2. **「SDK 載入成功」≠「事件有送」認知落地：** Engineer / QA / PM 三角色需共識——script tag 200 OK 只證明 CDN 可達，不證明任何 API 真的 fire；Integration verification 必須驗到 outbound HTTP 層或 remote console 層。
+3. **K-018 後續 follow-up：** E2E hardening 動作要嘛併入 K-020（SPA pageview E2E）範圍，要嘛另開新票。本次 K-018 closure 已在 ticket 內記「下次改善」，待 K-020 Architect 進場時評估是否擴大範圍一起處理。
+
+## 2026-04-21 — PM-dashboard.md 全量 sync（31 tickets）
+
+**What went well:** 使用者授權後，嚴格按 frontmatter 實證法執行——逐檔 head -15 讀取 31 個 ticket 的 `id / title / status / priority / type / superseded-by`，不依賴原 dashboard 與 memory。分類清楚落定 14 active + 15 closed + 2 superseded（K-004/K-026 同被 K-030 supersede），正好對應 user 提示的 31 票總數。Closed 區 5 票（K-001/005/006/007/022）保留 `[Closed 2026-04, date TBD]` 占位符與 PRD §4 翻修對齊；K-028~K-031 四張 2026-04-21 新票全數進 Active 區並在依賴備註段解釋其來源（K-022/K-023/K-017/K-021 deploy 後 regression）。新增 Superseded 獨立表格列出 supersede-by + supersede-date，避免把 superseded 與真正 closed 混淆。
+
+**What went wrong:** 稽核中發現兩處原 dashboard 的結構性不一致：(1) K-018 frontmatter 仍是 `status: open` 但原 dashboard 放在「已完成」區——代表 K-018 關票時 PM 沒同步更新 ticket frontmatter（或反之 dashboard 誤移）；(2) K-026 frontmatter 已是 `status: superseded`，原 dashboard 卻仍列在「已完成」沒標示 superseded。根因：dashboard 與 ticket frontmatter 無雙向強制同步機制，PM 開 / 關票時只改一邊。K-018 狀態真實值需使用者裁決——若實際已完成則要補 `closed:` 欄位與 status=closed；若仍開發中則 dashboard 原本放錯位置。
+
+**Next time improvement:**
+1. **Dashboard sync 規則：** 每次 PM 開票 / 關票 / supersede 時，強制同步 (a) ticket frontmatter `status` + `closed` / `superseded-by` 欄位；(b) `PM-dashboard.md` 對應區塊；缺一不 PASS。
+2. **K-018 狀態裁決待辦：** 使用者需確認 K-018 是真 open 還是已 closed——若已 closed，補 ticket frontmatter `closed: YYYY-MM-DD` 並挪至 Closed 區。本次 sync 已先以 frontmatter 為準（保留在 Active）。
+3. **Next：** 等使用者確認 dashboard 內容無誤後決定是否 commit（PM 不自行 commit）。
+
+## 2026-04-21 — PRD.md 4-layer structural overhaul
+
+**What went well:** User surfaced 6 concrete pain points (sitewide AC 與 ticket AC 混編、closed ticket AC 散落、§5 tech debt 與 docs/tech-debt.md 重複、K-008 AC 缺失、K-005/6/7 closed 日期缺、TOC 缺失) with 4 explicit rulings up-front (Q1-a/b/c + R4)，避免半路翻修。Rebuild 策略：逐 ticket frontmatter grep `^status:` 實證當前狀態，不靠記憶；closed AC 從 `docs/tickets/K-XXX-*.md` 原文引用，不自行改寫；§5 用索引表指向 `docs/tech-debt.md` single source，避免重複 30+ 條 detail。最終 PRD 從 1304 行重整為 907 行（§1 Product Spec 182 / §2 Sitewide AC 22 / §3 Active 360 / §4 Closed 293 / §5 TD 35 + header 15），K-008 AC-008-SCRIPT / AC-008-CONTENT 成功 backfill，K-005/006/007 使用 `[Closed 2026-04, date TBD]` 占位符；K-001/022 frontmatter 同樣缺 closed 日期，一致套用占位符。
+
+**What went wrong:** 原 PRD 1304 行是長時間累積的混編結果——PM 過去每票都 inline 寫回 AC，沒有定期 re-structure，讓 sitewide AC 與 ticket AC 混在同一列、closed AC 與 active AC 交錯、tech debt 散在各票與 `docs/tech-debt.md` 雙寫。根因：缺乏「ticket 關閉時 AC 自動歸檔到 §4」的 Phase Gate 步驟，也缺乏 PRD 定期 audit 節奏。K-008 AC 從未寫入 PRD（只留在 ticket md），屬於長期缺漏；K-005/006/007 closed 無日期是 ticket frontmatter 制度（`closed: YYYY-MM-DD`）建立前就關票的歷史債。
+
+**Next time improvement:**
+1. **Ticket 關閉時 PM 必執行兩步（新規則）：** (a) 將該票 Given/When/Then AC 從 §3 移至 §4 保留原文；(b) ticket frontmatter 補 `closed: YYYY-MM-DD`。缺任一步 = PM Phase Gate 不 PASS。
+2. **PRD audit cadence：** 每月第一次 retrospective 時 Glob `docs/tickets/*.md` frontmatter，cross-check PRD §3/§4 分類，發現錯置即修正。
+3. **§5 Tech Debt 保持 index-only：** 僅匯總 ID + 來源 ticket + 狀態，detail 一律只在 `docs/tech-debt.md`，禁止雙寫。
+4. **將第 1 點 codify 到 `~/.claude/agents/pm.md` Phase end checklist** ——「ticket closed 時 AC 遷移 + frontmatter closed 日期補寫」需作為硬性步驟，不得省略。
+
+---
+
 ## 2026-04-21 — K-026 / K-004 supersede (K-030 takes precedence)
 
 **What went well:** User feedback on 2026-04-21 production screenshot review led to a fast scope re-evaluation. PM identified cross-ticket conflict (K-030 vs K-026 vs K-004) during audit and surfaced it for user decision before any Architect/Engineer time was wasted.
