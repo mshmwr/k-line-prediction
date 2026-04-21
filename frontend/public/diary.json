@@ -1,5 +1,11 @@
 [
   {
+    "milestone": "K-023 — Homepage structure alignment v2 (3 items: A-2 / A-3 / C-4)",
+    "items": [
+      { "date": "2026-04-21", "text": "K-023 closed: Homepage visual detail alignment — rectangular brick-dark marker (20x14px, #9C4A3B) for diary timeline entries, STEP header bar (charcoal bg + paper text + Geist Mono 10px) for flow cards, and body padding (72px top / 96px right/bottom/left desktop; 32px/24px mobile) with per-section padding removal to prevent double-stacking; A-4/A-5 removed from scope after Pencil design confirmation; Code Review F1-F7 ruled (5 fix-now + 2 tech debt); 174 Playwright passed / 0 failed" }
+    ]
+  },
+  {
     "milestone": "K-022 — /about 結構細節對齊 v2（12 項 AC）",
     "items": [
       { "date": "2026-04-21", "text": "K-022 closed：/about 頁面 12 項結構細節對齊設計稿 v2，含 DossierHeader bar、SectionLabelRow hairline、Hero 雙行（主句 Bodoni Moda + tagline italic）、5 section italic 副標、RedactionBar、Role Card OWNS/ARTEFACT Geist Mono label、Newsreader italic link、CASE FILE header、LAYER 1/2/3 prefix、role annotation（BEHAVIOUR/POSITION）、Role Card 3×2 grid 固定高度、shared primitives paper palette 遷移；Playwright 164 passed / 1 skipped / 0 failed，全流程一輪通過" }
