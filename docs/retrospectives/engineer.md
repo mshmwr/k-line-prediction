@@ -52,6 +52,22 @@
 
 **Next time improvement:** When invoked inside a `.worktrees/*` path for the first time, before running any `tsc` / `vitest` / `playwright`, check `ls frontend/node_modules` and run `npm install` if missing. Will codify as a worktree-init step in `engineer.md` Pre-Implementation Checklist.
 
+## 2026-04-21 — K-028 follow-up (AC-028-DIARY-RAIL-VISIBLE test adjusted per PM ruling)
+
+**What went well:** PM ruling received (Option C): original AC's marker-center ±4px clause removed per `feedback_pm_ac_visual_intent` (AC states visual intent, not property value). Adjusted only the single failing test — kept width=1 + height>0 assertions, replaced marker-center span with `rail top/bottom inside diary-entries container bbox` per new AC. No production code touched. Full Playwright suite 186 passed / 1 skipped / 0 failed. `npx tsc --noEmit` exit 0. All K-023 regression tests still PASS.
+
+**What went wrong:** N/A — this round was a targeted test adjustment after PM BQ ruling; execution matched ruling scope exactly.
+
+**Next time improvement:** When BQ-to-PM surfaces an AC over-prescription, and PM rewrites the AC to visual intent, the test rewrite must mirror the AC clause-by-clause (Then → expect). This round grep'd the new AC text directly in the ticket before editing the test, which prevented scope creep — keep this pattern: re-read the rewritten AC in the ticket as the first step when adjusting tests after a PM ruling, not rely on the prompt summary alone.
+
+## 2026-04-21 — K-028 Homepage visual fix (partial — blocking question to PM)
+
+**What went well:** Implementation sequence followed Architect design file §7 verbatim: TDD wrote 12 new AC-028-* tests first (10 FAIL + 2 PASS regression guard as expected), then HomePage.tsx wrapper + DevDiarySection.tsx flex-col refactor. After implementation 11 of 12 AC-028 tests PASS, all 8 K-023 regression tests PASS (AC-023-DIARY-BULLET × 3, AC-023-STEP-HEADER-BAR × 3, AC-023-BODY-PADDING × 2, AC-023-REGRESSION × 2), full suite 185 passed / 1 skipped / 1 failed. tsc exit 0. Pre-implementation grep on `diary-marker` confirmed K-023 spec selectors unaffected by DOM restructure (marker still a direct child of entry wrapper with same testid).
+
+**What went wrong:** AC-028-DIARY-RAIL-VISIBLE Then/And clause asserts "rail 的 y-span 覆蓋從第一個 marker 中心到最後一個 marker 中心（±4px 誤差）" but Architect design §2.3 Option B fixes rail at `top: 40 / bottom: 40` relative to flex wrapper. Runtime probe: rail.top is 25px below first marker center (marker center y=15 relative to entry wrapper, rail.top y=40) and rail.bottom is 103px below last marker center (last entry has long content, rail extends past the marker center). Both deltas exceed the AC's ±4px tolerance. Design file itself admits this ("rounded to 40px to match first entry's title baseline"), meaning AC was written to a specification (marker center alignment) that the design never implemented. Architect §3.3 Playwright pattern only asserts `width===1 && height>0`, never the marker-center span — gap was introduced when PM upgraded "rail 仍貫穿所有 entry" into a measurable AC during QA Early Consultation, without cross-checking Architect's rail geometry.
+
+**Next time improvement:** When AC upgrades a QA Early Consultation "must-add" boundary into a measurable assertion with numeric tolerance, Engineer must first trace the numeric value back to Architect's design file before writing the test. If the AC's numeric contract is not derivable from a design section, that is a pre-implementation blocking question to PM, not an implementation failure mode. Add a step to engineer persona pre-implementation Q&A: "for each AC numeric tolerance (±Npx, exact pixel values), grep the Architect design doc for the matching constant — no match found = BQ back to PM before TDD." Codified in this log; pending PM ruling before ticket continues.
+
 ## 2026-04-21 — K-018 regression fix (ga-tracking.spec.ts)
 
 **What went well:** tsc exit 0 on first pass after casts added; all 12 ga-tracking tests + full 175-test suite pass with no regression outside the 8 previously-failing cases.

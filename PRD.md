@@ -471,30 +471,22 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ### K-028 — Homepage 視覺修復（section spacing + DevDiarySection entry 高度自適應）
 
-- **Status:** open / type: fix
+- **Status:** await-deploy / type: fix
 - **Ticket:** [docs/tickets/K-028-homepage-visual-fix.md](docs/tickets/K-028-homepage-visual-fix.md)
-- **摘要：** Homepage section 間距補足；DevDiarySection 改 flow-based 避免 absolute 定位導致的 entry 重疊。
+- **摘要：** Homepage section 間距補足（desktop gap 72 / mobile gap 24）；DevDiarySection 從 absolute `ENTRY_HEIGHT=140` 改 flex-col flow layout，entry 高度自適應。QA 186/186 通過，PM 視覺驗收 PASS，待 deploy 後關票。
 
 **AC：**
 
 #### AC-028-SECTION-SPACING：Homepage section 之間有適當 vertical spacing
 
 - **Given** 使用者訪問 `/`
-- **When** 頁面載入完成
-- **Then** HeroSection / ProjectLogicSection / DevDiarySection 三者相鄰 gap desktop > 32px、mobile > 16px
-- **And** Playwright bounding box gap 斷言（精確數值由 Architect 從 frame `4CsvQ` 提取補入）
+- **When** 頁面載入完成（desktop 1280 / mobile 375 / tablet 640 / tablet 639）
+- **Then** HeroSection / ProjectLogicSection / DevDiarySection 三者相鄰 gap ≥ 設計值（desktop 72px、mobile 24px）
+- **And** Playwright bounding box gap 斷言對齊 frame `4CsvQ` 提取值
 
-#### AC-028-DIARY-ENTRY-NO-OVERLAP：DevDiarySection 各 entry 渲染不重疊
+#### AC-028-DIARY-ENTRY-NO-OVERLAP / AC-028-DIARY-EMPTY-BOUNDARY / AC-028-DIARY-RAIL-VISIBLE / AC-028-REGRESSION
 
-- **Given** diary.json ≥ 3 milestone 且含長文字 entry
-- **When** 頁面滾動至 Diary section
-- **Then** 相鄰 entry bounding box 不重疊 (`bottom[N] <= top[N+1]` ±2px)
-- **And** vertical rail 視覺貫穿
-- **And** 375px mobile viewport 同樣不重疊
-
-#### AC-028-REGRESSION：K-023 斷言不回歸
-
-見 [K-028](docs/tickets/K-028-homepage-visual-fix.md)：marker / STEP header / body padding / tsc 全通過。
+見 [K-028](docs/tickets/K-028-homepage-visual-fix.md)：entry 不重疊、0/1-entry 邊界、rail 在 entries 容器內 width=1 h>0、marker coord/count integrity + K-023 斷言不回歸。
 
 ---
 

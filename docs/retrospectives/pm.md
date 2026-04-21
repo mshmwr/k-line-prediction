@@ -102,6 +102,34 @@
 1. **Release Order 並行判斷準則：** ticket 若屬「純移除 / 無新視覺決策」且 Designer 與 Engineer 輸出檔案零重疊（`.pen` vs code），PM 放行時主動決策並行，不死守 ticket §Release Order 的 Designer-first 順序。Codify 進 `~/.claude/agents/pm.md` Release Order Parallelism Rule 段（下次類似 ticket 觸發時再寫進 persona，避免過早 codify）。
 2. **Architect 設計文件審查 rubric：** 本次 16/16 矩陣（8 dimensions × 0/1/2）可作為後續 Architect 設計文件審查模板——尤其 §8 architecture.md self-diff 的 git diff 對照步驟，是防止「claim 有改但沒改」的關鍵硬驗證。未來每次審 Architect 文件都執行同一 rubric。
 
+## 2026-04-21 — K-028 Close（Homepage section spacing + DevDiary entry 高度自適應）
+
+**What went well:** QA Early Consultation 補召後抓出 6 AC 缺口（4 supplemented / 2 Known Gap），Engineer flex-col refactor 以 `gap-6 sm:gap-[72px]` + `relative pl-[92px]` + rail `top:40/bottom:40` 一輪落地，Code Review 兩層（breadth + depth）僅 3 P2/P3 TD 無 Critical，QA 186/186 + 回歸 K-023 全綠。PM 視覺驗收時 Pencil MCP 不可用，改走 Playwright bbox：desktop 1280 section padding x=96 w=1088 對齊 frame `4CsvQ` padding [72,96,96,96]、rail y=1103 h=406 對齊 entries y=1063 h=486 top+40/bot+40、mobile 375 x=24 w=327 對齊 mobile p-6；視覺比對 PASS。Engineer BQ 回報 RAIL-VISIBLE 矛盾時 PM 依 memory `feedback_pm_ac_visual_intent` 自行裁決 Option C（AC 改寫視覺意圖），未轉呈使用者——對應本 session User 訓示「PM 自己決定」的行為校正。M-028-QA-01 stale `K-UNKNOWN-visual-report.html` 經判定為 QA 第一次 run 缺 ticket env var 的 orphan（與 K-028 版同時戳且 size 相仿），untracked 安全刪除。
+
+**What went wrong:** PM Handoff 期的 QA Early Consultation 遺漏（frontmatter 寫 `N/A — reason: happy-path`）已在 session 內完成 codify 三層；但 meta-cost 為 Architect 空跑一輪 + PM 反覆 self-edit。Engineer BQ 原封轉呈使用者為此 session 第二次違規，已同步更新 memory `feedback_pm_self_decide_bq.md`（scope 擴至所有下游角色 + 違規訊號列表）。Pencil MCP 在此 worktree 不可用，依 `feedback_pm_visual_verification`「不得以 JSON 驗代替視覺驗證」，PM 本輪採 Playwright 截圖 + QA 已做的 JSON 規格對照作 fallback，明文記錄此妥協。
+
+**Next time improvement:**
+1. **Handoff Verification 實測：** 本票 session 開場已首次輸出 `Handoff check: qa-early-consultation = ...` 格式；下張票 PM 接手須以此 1-line 驗證回報，連續 2 次違規升級為 UserPromptSubmit hook 機械擋。
+2. **Pencil MCP fallback protocol：** Pencil MCP 不可用時，PM 視覺驗收改「Playwright full-page screenshot + bbox vs frame JSON 表格」方式，並在 Retrospective 明文記錄改用 fallback 的原因；不得省略視覺環節。此規則補入 pm.md Phase end visual acceptance 節。
+3. **Test artifact hygiene：** `docs/reports/` 下 `K-UNKNOWN-*` 命名代表 runner 未拿到 ticket id，應在 visual report script 加 fail-fast（無 ticket id 即 exit 1），避免 orphan artifact。開 TD 登記。
+
+---
+
+## 2026-04-21 — K-028 PM Handoff Verification 失效 + 規則強化
+
+**What went well:** User 質疑「為什麼忘記找 QA」後立即承認違規（未推託）、立即補召 QA、QA 實際抓出 6 個 AC 缺口（empty/1-entry boundary, rail visibility, tablet breakpoint, long-word overflow, marker coord regression, scrollHeight），驗證 QA Early Consultation 在 happy-path fix 中仍有實質產出。裁決 4 補 AC / 2 Known Gap 並在 ticket 明文宣告 Mitigation，避免 PM 躲 Gap 責任。meta-fix 同一 session 內 codify 進 memory + pm.md + global CLAUDE.md 三層。
+
+**What went wrong:** PM 接手 session 時 User 第一句「PM 已放行 K-028 請召喚 Architect」→ 主 session 信任該句 + ticket frontmatter `qa-early-consultation: N/A — reason: all ACs are happy-path layout fix` 直接召 Architect。根因：規則已存（memory `feedback_qa_early_mandatory.md` + pm.md Phase Gate Checklist line 69 + Auto-trigger 表格 line 165 三處皆有明文「必填（非 N/A）」），但 (a) PM 扮演發生在主 session，pm.md 未必載入 context；(b) 主 session 未在接手時 Read ticket frontmatter 驗證 `qa-early-consultation` 欄位值；(c) N/A reason 寫「happy-path」恰是規則明文禁止的理由，主 session 仍未觸發對照。三層規則皆被繞過，非規則缺失，是 handoff 驗證缺失。Architect 已完成一輪，QA 補召後發現 AC 缺口並未造成 Architect rework（設計文件 §2.6 / §3.3 已預先涵蓋 #1 #2 #5 的 engineering 面），AC 層補入即可放行 Engineer，meta-cost 僅 Architect 一輪等待時間。
+
+**Next time improvement:**
+1. **已 codify 三層規則（完成 2026-04-21）：**
+   - Memory：`feedback_qa_early_mandatory.md` 加 recurring 2026-04-21 K-028 標記 + handoff 驗證 how-to-apply
+   - `~/.claude/agents/pm.md` 新增 `## Session Handoff Verification` 節（Phase Gate Checklist 之前），列 5 項查核步驟 + 1-line verification 輸出要求
+   - `~/.claude/agents/pm.md` 修訂 Phase Gate QA Early Consultation 項，加 frontmatter `N/A` / "happy-path" / "no edge case" 自動視為違規 marker 的明文
+   - `~/.claude/CLAUDE.md` 新增 `### PM Handoff Verification` 節（Role Flow Automation 後），確保主 session 常駐此規則（pm.md 未必載入）
+2. **規則有效性驗證：** 下次 K-XXX 開票，PM 接手第一輪必須輸出 `Handoff check: qa-early-consultation = <value> → OK/BLOCK`；連續 2 次違規立即升級為 UserPromptSubmit hook 機械擋。
+3. **Frontmatter schema 自律：** 未來 PM 開票時 `qa-early-consultation` 欄位只得填 `docs/retrospectives/qa.md <date> <ticket-id>` 或 `pending`（開票當下尚未 consult），不得填 N/A + reason。
+
 ## 2026-04-21 — K-018 GA4 Tracking end-to-end 關閉
 
 **What went well:** K-018 從 frontmatter `open` 狀態拉到真 closed 的完整鏈路全數跑通——GA4 property 建立（`K-Line-Prediction`）、Measurement ID `G-9JC9YBZTPF` 取得、`.env.production` 寫入、`npm run build` 產出含 ID 的 bundle（curl 驗 deployed bundle 確認）、`firebase deploy --only hosting` 成功、GA4 即時頁使用者數從 0 翻到 1，整條鏈路在一個 session 內完整驗證。Debug 流程依序排除擴充套件（無痕分頁重測）、網路過濾、程式 wiring，最後用 `window.dataLayer` console 倒出 entry shape 鎖定 Array vs Arguments bug，避免盲 commit 無效修復。
