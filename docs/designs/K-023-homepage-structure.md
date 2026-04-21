@@ -160,7 +160,7 @@ No implementation. No Playwright spec. `HeroSection.tsx` hairline position is un
 
 `HomePage.tsx` container:
 ```
-className="min-h-screen pt-[72px] pr-[96px] pb-[96px] pl-[96px] sm:pt-8 sm:pb-8 sm:px-6"
+className="min-h-screen pt-8 pb-8 px-6 sm:pt-[72px] sm:pr-[96px] sm:pb-[96px] sm:pl-[96px]"
 data-testid="homepage-root"
 ```
 

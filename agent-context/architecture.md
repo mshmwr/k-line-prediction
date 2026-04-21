@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-21 (K-022 post-review PM update)
+updated: 2026-04-21 (K-023 Architect design)
 ---
 
 ## Summary
@@ -122,8 +122,6 @@ ClaudeCodeProject/
 │   │           │   ├── HeroSection.tsx
 │   │           │   ├── ProjectLogicSection.tsx
 │   │           │   ├── DevDiarySection.tsx      ← Home 頁 Diary 預覽；absolute positioning layout（rail + marker + 三層 entry）；消費 useDiary(3) 回傳的 DiaryMilestone[]（K-017 Pass 2 MilestoneAccordion 方案未落地，DevDiarySection 自行 inline 實作）
-│   │           │   ├── StepCard.tsx
-│   │           │   ├── TechTag.tsx
 │   │           │   └── BuiltByAIBanner.tsx      ← K-017 新增；Homepage 最上方 thin banner → /about（DiaryPreviewEntry.tsx 刪除，被 P4 取代）
 │   │           ├── about/                        ← K-017 大幅重構（2026-04-19）；K-022 結構細節 v2（2026-04-21）
 │   │           │   ├── DossierHeader.tsx                 ← K-022 新增；頁面頂部 dossier header bar（bg-charcoal，FILE Nº 字樣）
@@ -584,6 +582,7 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-21**（Architect, K-023 設計）— Directory Structure drift fix: 移除 `home/StepCard.tsx` + `home/TechTag.tsx` ghost entries（兩檔從未建立，step cards inline 於 `ProjectLogicSection.tsx`；ls 確認磁碟不存在）。K-023 設計文件產出 `docs/designs/K-023-homepage-structure.md`（含 4 個 Scope Questions 交 PM 裁決）。no structural code change — docs-only.
 - **2026-04-21**（PM, K-022 Code Review 裁決）— K-022 /about 結構細節 v2 交付後補入：about/ 新組件 DossierHeader.tsx / RedactionBar.tsx；CardShell.tsx dark→paper palette 遷移；SectionLabel.tsx 新增 SectionLabelRow（hairline + label）；PillarCard consumer 加 overflow-hidden（圓角修正）；PageHeaderSection 三層結構（主句 Bodoni Moda / 角色列 Newsreader / tagline Bodoni Moda）；5 section label（Nº 01~05）；6 Role Cards OWNS/ARTEFACT Geist Mono small-caps label
 - **2026-04-21**（Architect, K-027 設計）— `diary/` 組件 Directory Structure drift 修正：K-017 Pass 2 P4/P7 primitive 重構未落地（`MilestoneAccordion.tsx` / `DiaryEntryRow.tsx` / `VerticalRail.tsx` / `TimelineMarker.tsx` 磁碟不存在），`MilestoneSection.tsx` / `DiaryEntry.tsx` 保留；K-027 hotfix：`DiaryEntry.tsx` 加 `flex-col sm:flex-row` + `break-words`；`MilestoneSection.tsx` 展開區加 `overflow-hidden` + `mb-4 sm:mb-3`；新增 `frontend/e2e/diary-mobile.spec.ts`（7 test cases：AC-027-NO-OVERLAP × 3 viewport + AC-027-TEXT-READABLE × 3 viewport + AC-027-DESKTOP-NO-REGRESSION × 1）
 - **2026-04-20**（Architect, W-5 文件 drift 修復）— `### Footer 放置策略` 表 `/diary` 與 `/app` 兩列顛倒修正：`/diary` 改為「無 footer（K-024 處理）」、`/app` 改為 `<HomeFooterBar />`（對齊 K-021 設計文件 §7.5 與 AC-021-FOOTER）；同段 rationale 文字調整，不再沿用「AppPage 無 footer」錯述。無 code 變更。

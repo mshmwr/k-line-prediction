@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-023 Code Review Ruling (F1–F7)
+
+**What went well:** Applied the Pre-Verdict Checklist (scoring matrix + red team self-check) before ruling each finding. F3 required an extra design step — noticed the DOM-order assertion referenced `homepage-root` (the container) instead of something after the banner, caught the logic error before committing. Added `data-testid="built-by-ai-banner"` to the component to enable the structural assertion, keeping the implementation clean. All 5 fix-now changes were directly executed with tool calls in the same session before updating ticket/dashboard.
+
+**What went wrong:** F4 (`data-testid` for step header bar) was already recommended by Architect in design doc §5 as a testability improvement — it was not implemented by Engineer. This represents a recurring pattern where Architect "recommendations" in design docs are treated as optional by Engineer. The ruling process had to include a component edit that should have been done at Engineer stage.
+
+**Next time improvement:** The observation that "Architect §5 testability recommendations were not implemented" is a structural gap. Added to ticket Retrospective as process improvement decision. Must codify as hard step in Engineer persona: any `data-testid` additions listed in Architect design doc §5 (Playwright Spec Contracts) are required deliverables, not optional. Edit Engineer persona at session close.
+
+---
+
 ## 2026-04-21 — K-023 SQ Ruling (Architect Scope Questions → Engineer release)
 
 **What went well:** All four scope questions ruled without escalating to user. Each ruling was backed by direct code evidence (ProjectLogicSection.tsx:55–62 confirmed A-3 complete) and Pencil design file evidence (Architect's hpHero heroCol child-order analysis confirmed A-4/A-5 contradictions). Decisions applied the correct priority order: design file > ticket text (SQ-023-02/03/04). Both ticket ACs and design doc updated with explicit ruling citations and datestamps before declaring done.

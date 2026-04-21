@@ -157,6 +157,17 @@ Current hairline position already matches Pencil design. This AC was predicated 
 - KG-023-02/03：AC-023-BODY-PADDING mobile responsive exact pixel value — RESOLVED per SQ-023-04: mobile = `32px top/bottom, 24px left/right` at `sm:` breakpoint (640px). No further PM action needed.
 - KG-023-04：640px breakpoint boundary test (639px vs 640px) — QA adds at sign-off.
 
+## Tech Debt
+
+Items deferred from Code Review (2026-04-21 Code Review ruling):
+
+| ID | Finding | Description | Priority | Reason for Deferral |
+|----|---------|-------------|----------|---------------------|
+| TD-K023-01 | F5 — DIARY-BULLET bounding-box on first() only | `pages.spec.ts` AC-023-DIARY-BULLET bounding-box test asserts width/height only on `markers.first()`, while backgroundColor and borderRadius tests loop all 3. Inconsistent coverage. | Low | borderRadius loop already covers all 3 markers for the primary AC concern (rounded vs rect). Width/height is set by same CSS class on all markers — variance is effectively zero. Cost of fix does not justify mid-ticket interruption. |
+| TD-K023-02 | F6 — Incomplete K-021 token migration in ProjectLogicSection + DevDiarySection headers | `ProjectLogicSection.tsx` logicHead and DiarySection header badge still use inline hex (`bg-[#9C4A3B]`, `text-[#F4EFE5]`, `text-[#1A1814]`). Same computed color as tokens, no visual impact. | Medium | Follows pattern of K-025 (NavBar hex→token) and K-026 (AppPage paper palette). Scope expansion into logicHead is outside K-023 AC. Should be bundled into K-025/K-026 or a new follow-up ticket to avoid scope creep. |
+
+---
+
 ## 相關連結
 
 - [PRD.md — K-023 section](../../PRD.md)（待同步補入）
@@ -194,3 +205,31 @@ QA Early Consultation completed before releasing to Architect.
 ## Retrospective
 
 （Architect / Engineer / Reviewer / QA / Designer 各自於完成階段補上反省；PM 於 QA PASS 後彙整）
+
+### PM Summary — Code Review Ruling (2026-04-21)
+
+**Findings ruled: 7 total (F1–F7). Fix-now: 5. Tech Debt: 2.**
+
+| Finding | Ruling | Rationale |
+|---------|--------|-----------|
+| F1 — Design doc §2 C-4 class order inverted | **Fix Now** | Tailwind mobile-first: `pt-[72px] sm:pt-8` in doc would cause mobile=72px/desktop=32px (wrong). Any future engineer copying from doc would ship a bug. 1-line edit. |
+| F2 — fontFamily (Geist Mono) not asserted in STEP header bar tests | **Fix Now** | AC-023-STEP-HEADER-BAR explicitly requires Geist Mono. Font load failures are silent with monospace fallback. Added `toContain('Geist Mono')` to all 3 test cases. |
+| F3 — BuiltByAIBanner DOM-order not asserted | **Fix Now** | AC-023-REGRESSION requires Banner position "NavBar下方、Hero上方 not changed." No structural guard existed. Added `compareDocumentPosition` check using `data-testid="built-by-ai-banner"` + h1 heading as proxy for HeroSection. |
+| F4 — Step header bar locator couples to CSS class `div.bg-charcoal` | **Fix Now** | Token renames break locator silently. `data-testid="step-header-bar"` added to `ProjectLogicSection.tsx`; locators in all 3 spec blocks updated to `[data-testid="step-header-bar"]`. Consistent with established `data-testid` pattern (diary-marker, homepage-root). |
+| F5 — DIARY-BULLET bounding-box on first() only | **Tech Debt** (TD-K023-01, Low) | borderRadius test already loops all 3. Width/height same CSS class on all markers. Variance probability near zero. |
+| F6 — Incomplete K-021 token migration | **Tech Debt** (TD-K023-02, Medium) | Same computed color, no correctness issue. Bundle into K-025/K-026 scope. |
+| F7 — "aliases" comment misleading | **Fix Now** | 1-line edit. "Aliases" implies tests duplicate existing tests (they don't — they add structural guards). Changed to "Regression guards." |
+
+**Actions taken by PM (all executed in this session):**
+- `docs/designs/K-023-homepage-structure.md` line 163: corrected Tailwind class order
+- `frontend/src/components/home/ProjectLogicSection.tsx` line 55: added `data-testid="step-header-bar"`
+- `frontend/src/components/home/BuiltByAIBanner.tsx`: added `data-testid="built-by-ai-banner"`
+- `frontend/e2e/pages.spec.ts`: updated 3 STEP header bar locators + added fontFamily assertions; added Banner DOM-order check; fixed regression comment
+- `docs/tickets/K-023-homepage-structure-v2.md`: added `## Tech Debt` section with TD-K023-01 and TD-K023-02
+
+**Cross-role recurring issues:** None new — data-testid gap was an Architect recommendation already in §5 of design doc that Engineer did not implement. Root cause: design doc recommendation marked as "optional" was treated as skippable.
+
+**Process improvement decisions:**
+| Issue | Responsible Role | Action | Update Location |
+|-------|-----------------|--------|----------------|
+| Architect `data-testid` recommendations in design doc §5 treated as optional by Engineer | Engineer | Add to Engineer persona: "Architect §5 testability recommendations are required deliverables, not optional" | `~/.claude/agents/engineer.md` |
