@@ -1,7 +1,7 @@
 ---
 id: K-022
 title: /about 頁面結構細節對齊設計稿 v2（12 項）
-status: open (waiting Architect)
+status: closed
 type: feat
 priority: medium
 created: 2026-04-20
@@ -274,3 +274,21 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 **下次改善：**
 - Review 開始時固定 grep ticket AC 內的數字（「N 個 section」「N 張卡片」），對照設計文件列表與 E2E spec count 斷言，三方數字不一致立即列 Warning，不留到尾段。
 - Architect 在設計文件 §2.x 因 Pencil 實測覆蓋 AC 描述時，必須同步 Edit ticket AC 對應段落（列為硬步驟）；Reviewer 應在 Step 2 驗設計文件 vs ticket AC 是否雙向一致。
+
+### QA
+
+**Regression tests that were insufficient:** AC-017-BUILD（依賴 production build）屬已知設計 skip，非回歸失漏；全套其他斷言均 PASS，本票無回歸覆蓋缺口。
+
+**Edge cases not covered:** I-1 fix（PillarCard overflow-hidden 移除）只透過 Playwright 結構斷言確認無破壞，未額外補「長文字溢出邊界」的視覺 edge case spec — 若日後 PillarCard 出現超長文字場景，現有 test 無法攔截。
+
+**Next time improvement:** 當 Engineer fix 涉及移除 overflow-hidden 等 layout guard 屬性時，QA 須額外加一條 boundary spec（long-text or overflowing-content scenario），確認移除後 layout 不崩。
+
+---
+
+### PM 彙整（2026-04-21）
+
+**流程觀察：** 本票角色協作整體順暢，無跨角色退回輪次。Architect 提出兩個 Blocking Questions（BQ-022-01 / BQ-022-02）均於 Phase Gate 前清楚裁決，未阻塞 Engineer 開工。Engineer 嚴格執行 Stage 1→6 驗證鏈，Code Review 只需一輪，QA 164 passed / 1 skipped / 0 failed 一次通過，全流程沒有退回修復週期。
+
+**主要問題根因：** 問題集中在「AC 文字 vs 設計文件 vs 實作」三端資訊不同步——AC-022-HERO-TWO-LINE 的 tagline 字型（Newsreader vs Bodoni Moda）在 Architect 設計文件中已修正但未回寫 ticket AC；AC-022-SECTION-LABEL 的 section 數量（ticket 寫 6，設計文件 / 實作均為 5）也屬同類問題。根本結構：Architect 在 Pencil 實測覆蓋 AC 描述後，「同步回 ticket AC」未被列為硬步驟，導致 ticket AC 成為過期資訊。
+
+**下個 ticket 改善點：** （1）Architect 設計文件任何 §2.x 因 Pencil 實測而覆蓋 ticket AC 描述時，必須在同次 design doc Edit 中一併 Edit ticket AC 對應段落（列為 senior-architect.md 硬步驟，已由 Reviewer 本輪提議）；（2）Reviewer Step 2 固定 grep ticket AC 中的數字（「N 個 section」「N 張卡片」），與設計文件 + E2E spec 三方比對，數字不一致立即列 Warning——此兩點若在下票（K-023/K-024）前落地 persona，可預防同類型 AC vs 實作數字 drift。

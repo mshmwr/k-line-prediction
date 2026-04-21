@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-022 QA PASS + 關票彙整
+
+**做得好：** 讀各角色 retrospective 後正確識別出「AC 文字 vs 設計文件 vs 實作三端資訊不同步」為本票主要問題根因，而非個別角色失誤，歸因至 Architect 缺少「Pencil 實測後回寫 ticket AC」的硬步驟；本次無退回修復周期，四個收尾步驟（ticket frontmatter / PM 彙整 / dashboard / diary.json）全部用 tool call 落地，無口頭聲稱。
+
+**沒做好：** Reviewer 提出「AC 數字三方不一致（ticket 寫 6 sections / 設計文件 + 實作均為 5）應在 review 開始時就列 Warning」這條改善已有明確落地對象（senior-architect.md + reviewer.md 硬步驟），但本次 PM 彙整段只記載「已由 Reviewer 本輪提議」，未在同一 session 確認對應 persona 是否實際 Edit 到位；若未 Edit，規則僅在 retrospective 存在，K-023/K-024 同類 drift 仍會重演。
+
+**下次改善：** K-023/K-024 開工前，PM 必須確認（1）senior-architect.md 是否已有「Pencil 實測覆蓋 AC 時同步回 Edit ticket AC」硬步驟、（2）reviewer.md 是否已有「Step 2 固定比對 ticket AC 數字 vs 設計文件 vs E2E spec count」硬步驟；若缺則先補 persona 再放行 Architect，不以「retrospective 有記」代替 persona Edit。
+
+---
+
 ## 2026-04-21 — K-022 Code Review 裁決
 
 **做得好：** W-1（AC 文字與設計稿不一致）裁決前未直接採信 Reviewer 的描述，先重讀 ticket AC 第 117-120 行與設計文件 §2.7 第 131-134 行逐句比對，發現 Reviewer 的描述部分有出入（ticket 主句 AC 已正確寫 Bodoni Moda），精確定位出實際差異僅在「結尾句 tagline」（ticket 寫 Newsreader，設計文件 §2.7 + E2E 實作為 Bodoni Moda），避免誤改正確的 AC 部分。C-1（architecture.md 未更新）PM 直接自行修復而非退 Engineer，判斷正確（docs-only，PM 有足夠資訊且改動明確）。
