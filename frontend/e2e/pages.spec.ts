@@ -163,3 +163,212 @@ test.describe('DiaryPage — AC-017-FOOTER no footer', () => {
     await expect(page.getByText('yichen.lee.20@gmail.com', { exact: true })).toHaveCount(0)
   })
 })
+
+// ── AC-023-DIARY-BULLET ──────────────────────────────────────────────────────
+// Given: user visits /
+// When:  page scrolled to Diary section (hpDiary)
+// Then:  each DiaryTimelineEntry marker is rectangular (no border-radius),
+//        20×14px, backgroundColor rgb(156, 74, 59)
+
+test.describe('HomePage — AC-023-DIARY-BULLET', () => {
+  test('diary markers have correct width (20px) and height (14px)', async ({ page }) => {
+    await page.goto('/')
+
+    const markers = page.locator('[data-testid="diary-marker"]')
+    // At least 3 markers must exist (AC requirement)
+    const count = await markers.count()
+    expect(count).toBeGreaterThanOrEqual(3)
+
+    const firstMarker = markers.first()
+    const box = await firstMarker.boundingBox()
+    expect(box).not.toBeNull()
+    expect(box!.width).toBe(20)
+    expect(box!.height).toBe(14)
+  })
+
+  test('diary markers have backgroundColor rgb(156, 74, 59) = brick-dark', async ({ page }) => {
+    await page.goto('/')
+
+    const markers = page.locator('[data-testid="diary-marker"]')
+    const count = await markers.count()
+    expect(count).toBeGreaterThanOrEqual(3)
+
+    for (let i = 0; i < Math.min(count, 3); i++) {
+      const marker = markers.nth(i)
+      const bg = await marker.evaluate(el => getComputedStyle(el).backgroundColor)
+      expect(bg).toBe('rgb(156, 74, 59)')
+    }
+  })
+
+  test('diary markers have borderRadius 0px (rectangular, not rounded)', async ({ page }) => {
+    await page.goto('/')
+
+    const markers = page.locator('[data-testid="diary-marker"]')
+    const count = await markers.count()
+    expect(count).toBeGreaterThanOrEqual(3)
+
+    for (let i = 0; i < Math.min(count, 3); i++) {
+      const marker = markers.nth(i)
+      const radius = await marker.evaluate(el => getComputedStyle(el).borderRadius)
+      expect(radius).toBe('0px')
+    }
+  })
+})
+
+// ── AC-023-STEP-HEADER-BAR ──────────────────────────────────────────────────
+// Given: user visits /
+// When:  page loaded to hpLogic section
+// Then:  each STEP card has a header bar with correct bg, white text, Geist Mono 10px
+// Note:  3 independent test cases per AC (PM quantification rule — not merged)
+
+test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 01 · INGEST)', () => {
+  test('STEP 01 header bar: bg charcoal, white text, Geist Mono 10px', async ({ page }) => {
+    await page.goto('/')
+
+    const headerBar = page.locator('div.bg-charcoal', { hasText: 'STEP 01 · INGEST' })
+    await expect(headerBar).toBeVisible()
+
+    const bg = await headerBar.evaluate(el => getComputedStyle(el).backgroundColor)
+    expect(bg).toBe('rgb(42, 37, 32)')
+
+    const span = headerBar.locator('span')
+    const color = await span.evaluate(el => getComputedStyle(el).color)
+    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC says "white" but design token is off-white paper
+    // QA Interception filed: AC-023-STEP-HEADER-BAR text color discrepancy (pure white vs paper off-white)
+    expect(color).toBe('rgb(244, 239, 229)')
+
+    const fontSize = await span.evaluate(el => getComputedStyle(el).fontSize)
+    expect(fontSize).toBe('10px')
+  })
+})
+
+test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 02 · MATCH)', () => {
+  test('STEP 02 header bar: bg charcoal, white text, Geist Mono 10px', async ({ page }) => {
+    await page.goto('/')
+
+    const headerBar = page.locator('div.bg-charcoal', { hasText: 'STEP 02 · MATCH' })
+    await expect(headerBar).toBeVisible()
+
+    const bg = await headerBar.evaluate(el => getComputedStyle(el).backgroundColor)
+    expect(bg).toBe('rgb(42, 37, 32)')
+
+    const span = headerBar.locator('span')
+    const color = await span.evaluate(el => getComputedStyle(el).color)
+    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC says "white" but design token is off-white paper
+    // QA Interception filed: AC-023-STEP-HEADER-BAR text color discrepancy (pure white vs paper off-white)
+    expect(color).toBe('rgb(244, 239, 229)')
+
+    const fontSize = await span.evaluate(el => getComputedStyle(el).fontSize)
+    expect(fontSize).toBe('10px')
+  })
+})
+
+test.describe('HomePage — AC-023-STEP-HEADER-BAR (STEP 03 · PROJECT)', () => {
+  test('STEP 03 header bar: bg charcoal, white text, Geist Mono 10px', async ({ page }) => {
+    await page.goto('/')
+
+    const headerBar = page.locator('div.bg-charcoal', { hasText: 'STEP 03 · PROJECT' })
+    await expect(headerBar).toBeVisible()
+
+    const bg = await headerBar.evaluate(el => getComputedStyle(el).backgroundColor)
+    expect(bg).toBe('rgb(42, 37, 32)')
+
+    const span = headerBar.locator('span')
+    const color = await span.evaluate(el => getComputedStyle(el).color)
+    // text-paper = #F4EFE5 = rgb(244, 239, 229); AC says "white" but design token is off-white paper
+    // QA Interception filed: AC-023-STEP-HEADER-BAR text color discrepancy (pure white vs paper off-white)
+    expect(color).toBe('rgb(244, 239, 229)')
+
+    const fontSize = await span.evaluate(el => getComputedStyle(el).fontSize)
+    expect(fontSize).toBe('10px')
+  })
+})
+
+// ── AC-023-BODY-PADDING ──────────────────────────────────────────────────────
+// Given: user visits /
+// When:  page loads on desktop (>= 640px)
+// Then:  homepage-root container padding = 72px top, 96px right, 96px bottom, 96px left
+//
+// Given: viewport width < 640px (mobile)
+// When:  page loads
+// Then:  padding = 32px top/bottom, 24px left/right
+
+test.describe('HomePage — AC-023-BODY-PADDING', () => {
+  test('desktop padding: paddingTop=72px, paddingRight=96px, paddingBottom=96px, paddingLeft=96px', async ({ page }) => {
+    // Default Playwright viewport is 1280×720 (desktop)
+    await page.goto('/')
+
+    const root = page.locator('[data-testid="homepage-root"]')
+    await expect(root).toBeVisible()
+
+    const padding = await root.evaluate(el => {
+      const s = getComputedStyle(el)
+      return {
+        top: s.paddingTop,
+        right: s.paddingRight,
+        bottom: s.paddingBottom,
+        left: s.paddingLeft,
+      }
+    })
+
+    expect(padding.top).toBe('72px')
+    expect(padding.right).toBe('96px')
+    expect(padding.bottom).toBe('96px')
+    expect(padding.left).toBe('96px')
+  })
+
+  test('mobile padding (375px viewport): paddingTop=32px, paddingBottom=32px, paddingLeft=24px, paddingRight=24px', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+
+    const root = page.locator('[data-testid="homepage-root"]')
+    await expect(root).toBeVisible()
+
+    const padding = await root.evaluate(el => {
+      const s = getComputedStyle(el)
+      return {
+        top: s.paddingTop,
+        right: s.paddingRight,
+        bottom: s.paddingBottom,
+        left: s.paddingLeft,
+      }
+    })
+
+    expect(padding.top).toBe('32px')
+    expect(padding.bottom).toBe('32px')
+    expect(padding.left).toBe('24px')
+    expect(padding.right).toBe('24px')
+  })
+})
+
+// ── AC-023-REGRESSION ───────────────────────────────────────────────────────
+// Confirm K-017 existing assertions still pass after K-023 changes.
+// These tests are aliases into existing test blocks — running the full suite
+// (npx playwright test) covers AC-017-HOME-V2 and AC-HOME-1 directly.
+// This block adds an explicit K-023 guard for BuiltByAIBanner position.
+
+test.describe('HomePage — AC-023-REGRESSION', () => {
+  test('BuiltByAIBanner still renders between NavBar and Hero (K-017 regression)', async ({ page }) => {
+    await page.goto('/')
+
+    // Banner renders (actual text: "One operator. Six AI agents. Every ticket leaves a doc trail.")
+    await expect(page.getByText('One operator. Six AI agents.', { exact: false })).toBeVisible()
+
+    // Hero heading still exists
+    await expect(page.getByText('Predict the next move', { exact: true })).toBeVisible()
+
+    // DEV DIARY section still renders
+    await expect(page.getByText('DEV DIARY')).toBeVisible()
+  })
+
+  test('DiaryTimelineEntry layout not broken — markers exist and diary link visible', async ({ page }) => {
+    await page.goto('/')
+
+    // At least one marker rendered (diary data loaded)
+    const markers = page.locator('[data-testid="diary-marker"]')
+    await expect(markers.first()).toBeVisible()
+
+    // View full log link still present
+    await expect(page.getByText('— View full log →', { exact: true })).toBeVisible()
+  })
+})

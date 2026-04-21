@@ -18,7 +18,7 @@ export default function DevDiarySection({ milestones, loading, error }: DevDiary
     : 0
 
   return (
-    <section className="py-16 px-6 max-w-5xl mx-auto">
+    <section>
       {/* diaryHead */}
       <div className="flex items-center gap-4 w-full mb-4">
         <span
@@ -66,9 +66,10 @@ export default function DevDiarySection({ milestones, loading, error }: DevDiary
                 <div key={m.milestone} className="absolute w-full" style={{ top }}>
                   {/* Marker */}
                   <div
-                    className="absolute w-5 h-3.5 bg-[#9C4A3B] rounded-[6px]"
+                    className="absolute w-5 h-3.5 bg-brick-dark"
                     style={{ left: 20, top: 8 }}
                     aria-hidden="true"
+                    data-testid="diary-marker"
                   />
 
                   {/* Content */}

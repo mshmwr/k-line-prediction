@@ -18,7 +18,7 @@ const STEPS = [
 
 export default function ProjectLogicSection() {
   return (
-    <section className="py-16 px-6 max-w-5xl mx-auto flex flex-col gap-7">
+    <section className="flex flex-col gap-7">
       {/* logicHead */}
       <div className="flex items-center gap-4">
         <span
@@ -49,12 +49,12 @@ export default function ProjectLogicSection() {
         {STEPS.map(s => (
           <div
             key={s.label}
-            className="border border-[#1A1814] rounded-[6px] overflow-hidden bg-[#F4EFE5]"
+            className="border border-[#1A1814] rounded-[6px] overflow-hidden bg-paper"
           >
             {/* Card header */}
-            <div className="bg-[#2A2520] px-[10px] py-[6px]">
+            <div className="bg-charcoal px-[10px] py-[6px]">
               <span
-                className="text-[10px] tracking-widest text-[#F4EFE5]"
+                className="text-[10px] tracking-widest text-paper"
                 style={{ fontFamily: '"Geist Mono", monospace' }}
               >
                 {s.label}
@@ -68,7 +68,7 @@ export default function ProjectLogicSection() {
               >
                 {s.title}
               </h3>
-              <div className="w-10 h-px bg-[#2A2520]" />
+              <div className="w-10 h-px bg-charcoal" />
               <p
                 className="text-[13px] italic leading-[1.55] text-[#1A1814]"
                 style={{ fontFamily: '"Newsreader", serif' }}

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function HeroSection() {
   return (
-    <section className="py-24 px-6 max-w-5xl mx-auto">
+    <section>
       <div className="flex flex-col gap-[18px]">
         {/* Heading line 1 */}
         <h1 className="font-display text-[64px] italic font-bold leading-[1.05] text-[#1A1814]">
