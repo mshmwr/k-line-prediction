@@ -601,3 +601,121 @@ def test_fetch_30d_ma_series_anchor_not_in_history_returns_empty():
 def test_fetch_30d_ma_series_empty_inputs_return_empty():
     assert _fetch_30d_ma_series("", []) == []
     assert _fetch_30d_ma_series("2024-01-01", []) == []
+
+
+# -----------------------------------------------------------------------------
+# K-013 Contract tests — shared fixture between backend compute_stats and
+# frontend computeStatsFromMatches. See:
+#   - docs/designs/K-013-consensus-stats-ssot.md §3 and §7
+#   - frontend/src/__tests__/statsComputation.test.ts (mirror)
+#   - backend/tests/fixtures/generate_stats_contract_cases.py (generator)
+#
+# When compute_stats or _projected_future_bars changes, rerun the generator:
+#   cd backend && python3 tests/fixtures/generate_stats_contract_cases.py
+# Then verify both this file and the frontend test pass.
+# -----------------------------------------------------------------------------
+
+import json
+import math
+from pathlib import Path
+
+import pytest
+
+_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "stats_contract_cases.json"
+
+
+def _load_contract_cases():
+    with _FIXTURE_PATH.open() as fh:
+        return json.load(fh)
+
+
+def _build_match_from_snake(raw: dict) -> MatchCase:
+    return MatchCase(
+        id=raw["id"],
+        correlation=raw["correlation"],
+        historical_ohlc=[OHLCBar(**bar) for bar in raw["historical_ohlc"]],
+        future_ohlc=[OHLCBar(**bar) for bar in raw["future_ohlc"]],
+        historical_ohlc_1d=[OHLCBar(**bar) for bar in raw.get("historical_ohlc_1d", [])],
+        future_ohlc_1d=[OHLCBar(**bar) for bar in raw.get("future_ohlc_1d", [])],
+        start_date=raw["start_date"],
+        end_date=raw["end_date"],
+        historical_ma99=raw.get("historical_ma99", []),
+        future_ma99=raw.get("future_ma99", []),
+        historical_ma99_1d=raw.get("historical_ma99_1d", []),
+        future_ma99_1d=raw.get("future_ma99_1d", []),
+    )
+
+
+_CONTRACT_CASES = _load_contract_cases()
+
+
+@pytest.mark.parametrize(
+    "case",
+    _CONTRACT_CASES,
+    ids=[c["name"] for c in _CONTRACT_CASES],
+)
+def test_contract_compute_stats_matches_fixture(case):
+    matches = [_build_match_from_snake(m) for m in case["input"]["matches"]]
+    current_close = case["input"]["current_close"]
+    timeframe = case["input"]["timeframe"]
+
+    actual = compute_stats(matches, current_close, timeframe)
+    expected = case["expected"]
+
+    # Each OrderSuggestion compared field-by-field so failure output points
+    # at the exact bucket that drifted.
+    for bucket in ("highest", "second_highest", "second_lowest", "lowest"):
+        exp = expected[bucket]
+        act = getattr(actual, bucket)
+        assert act.label == exp["label"], f"[{case['name']}] {bucket}.label"
+        assert math.isclose(act.price, exp["price"], rel_tol=1e-6, abs_tol=1e-6), (
+            f"[{case['name']}] {bucket}.price: actual={act.price} expected={exp['price']}"
+        )
+        assert math.isclose(act.pct, exp["pct"], rel_tol=1e-6, abs_tol=1e-6), (
+            f"[{case['name']}] {bucket}.pct: actual={act.pct} expected={exp['pct']}"
+        )
+        assert act.occurrence_bar == exp["occurrence_bar"], (
+            f"[{case['name']}] {bucket}.occurrence_bar"
+        )
+        assert act.occurrence_window == exp["occurrence_window"], (
+            f"[{case['name']}] {bucket}.occurrence_window"
+        )
+        assert act.historical_time == exp["historical_time"], (
+            f"[{case['name']}] {bucket}.historical_time"
+        )
+
+    assert math.isclose(actual.win_rate, expected["win_rate"], rel_tol=1e-6, abs_tol=1e-6), (
+        f"[{case['name']}] win_rate"
+    )
+    assert math.isclose(
+        actual.mean_correlation, expected["mean_correlation"], rel_tol=1e-6, abs_tol=1e-6
+    ), f"[{case['name']}] mean_correlation"
+
+    # consensus_forecast_1h/1d are pre-existing always-[] output; the fixture
+    # locks this invariant alongside the main stats. See SQ-013-01 / KG-013-01.
+    assert actual.consensus_forecast_1h == expected["consensus_forecast_1h"], (
+        f"[{case['name']}] consensus_forecast_1h: expected {expected['consensus_forecast_1h']}"
+    )
+    assert actual.consensus_forecast_1d == expected["consensus_forecast_1d"], (
+        f"[{case['name']}] consensus_forecast_1d: expected {expected['consensus_forecast_1d']}"
+    )
+
+
+def test_contract_fixture_has_minimum_case_coverage():
+    """Lock AC-013-FIXTURE: fixture must cover 3 scenarios by design."""
+    names = {c["name"] for c in _CONTRACT_CASES}
+    assert {
+        "all_matches_full_set",
+        "subset_deselect_one",
+        "single_match_two_bars",
+    } <= names, f"missing required contract cases; got {names}"
+
+
+def test_contract_fixture_future_ohlc_respects_realism_rule():
+    """Each case's matches must have future_ohlc with >= 2 bars (CLAUDE.md
+    Test Data Realism); mirrors the Playwright mock realism rule."""
+    for case in _CONTRACT_CASES:
+        for match in case["input"]["matches"]:
+            assert len(match["future_ohlc"]) >= 2, (
+                f"[{case['name']}] match {match['id']} has fewer than 2 future bars"
+            )

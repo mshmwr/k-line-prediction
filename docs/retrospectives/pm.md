@@ -130,6 +130,119 @@
 2. **規則有效性驗證：** 下次 K-XXX 開票，PM 接手第一輪必須輸出 `Handoff check: qa-early-consultation = <value> → OK/BLOCK`；連續 2 次違規立即升級為 UserPromptSubmit hook 機械擋。
 3. **Frontmatter schema 自律：** 未來 PM 開票時 `qa-early-consultation` 欄位只得填 `docs/retrospectives/qa.md <date> <ticket-id>` 或 `pending`（開票當下尚未 consult），不得填 N/A + reason。
 
+## 2026-04-21 — K-013 R2 Code Review Ruling（breadth + depth 合併裁決）
+
+**Breadth (superpowers:code-reviewer)：** Ready to merge Yes with I-1 flagged (plan-text vs 實作 drift) + M-1~M-4 minor。
+**Depth (reviewer agent)：** Ready to merge **No** — 1 Critical F-1（design doc + architecture.md 殘留 SQ-013-01/KG-013-01 錯誤前提）+ W-2（無正式 AC-013-APPPAGE-E2E block）+ W-3（Vitest warn noise）+ Suggestion 4/5。
+
+**Pre-Verdict Multi-dim Scoring Matrix（面向：影響度／成本／可逆／下游誤導風險）：**
+
+| Finding | fix-now(docs) | TD | accept | Choice |
+|---------|-------------|----|----|-------|
+| F-1 (Critical, premise 殘留) | 5 | 4 | 4 | **fix-now** |
+| W-2 (AC-E2E missing block) | 5 | 2 | 1 | **fix-now** |
+| I-1 + S-4 (AC 文字 drift) | 同 W-2 合併 edit | — | — | **fix-now** |
+| W-3 (Vitest warn noise) | 0 | 6 | 1 | **TD-K013-R2-01** |
+| S-5 (Case D comment dup) | 1 | 2 | 2 | **accept** |
+| Reviewer persona edit | 0 (非 PM 權限) | 3 | 4 (R1 已 80%) | **accept + TD-K013-R2-02** |
+
+**Red Team Self-Check：**
+1. Engineer challenge「為何不強制 Reviewer 立即 persona edit？」→ R1 已加 Pure-Refactor Behavior Diff hard gate；Bug Found Protocol 濫用會稀釋 trigger；TD 登記追蹤即可。
+2. Reviewer challenge「W-3 warn 污染 output 為何不 fix？」→ warn 信號對 regression 有價值，silencing 需 spy 成本 + cycle；`[K-013]` prefix 可自行 filter；TD 登記未來 harden。
+3. Devil's advocate「3 個月後失敗最可能路徑？」→ 下一位讀 design doc 再次沿用錯誤 premise → 再 C-1 cycle；這正是 F-1 fix-now 的直接理由。
+
+**Verdict（最大未解風險）：** KG-013-01 wire-level vs observable 的分層責任（是否應把 `consensus_forecast_*` 從 frontend injection 改為 backend computation）仍未決定 — 本票不擴 scope，另開 ticket 評估。
+
+**落地 4 Edits（docs-only）：**
+1. `docs/designs/K-013-consensus-stats-ssot.md` §0.3（RETRACTED 段）/ §2.3（fixture 映射備註）/ §8.1（PredictStats After 說明）/ §9.3（KG-013-01 ~~撤回~~ 標記）/ §Retrospective Post-R2 addendum — 5 處更正
+2. `agent-context/architecture.md` L354 `Known Gap` 段改為 `Wire-level vs Observable contract` + Changelog prepend R2 PM 裁決 entry
+3. `docs/tickets/K-013-consensus-stats-contract.md` AC-013-APPPAGE 文字重寫（無條件注入 + Behavior Diff binding） + 正式新增 `### AC-013-APPPAGE-E2E` block（4 cases G/W/T/A） + 尾部 Tech Debt section（TD-K013-R2-01 / TD-K013-R2-02 + Suggestion 5 accept-as-is）
+4. 本檔 prepend 本 entry
+
+**下一棒：** R2 merge-ready 解鎖 → 放行 QA regression + close ticket（per PM Phase Gate §Phase end 含 Deploy Checklist + Ticket closure bookkeeping）。
+
+**本次 PM 行為反省 / 下次改善：**
+- **做得好：** Pre-Verdict Scoring Matrix + Red Team 3 challenges 完整執行，避開「直接選 fix-now」的捷徑；F-1 裁決前先做 devil's advocate 確認下游誤導風險是主因而非 superstition。
+- **做得不夠：** Round 1 releasing 時未要求 Architect 在寫入 SQ-013-01 前做「frontend observable useMemo body 逐行 dry-run」，只檢查 backend producer grep 結果就放行 → 為 C-1 埋下 premise bug。下次有 `pre-existing` / `既存行為` trigger 字樣的 SQ entry，PM Phase Gate 要求 Architect 同步附「frontend observable `git show <base>:<file>` 逐行證據」，缺則不放行 Engineer。
+- **Codify action：** 此改善已於 senior-architect persona §Pre-Design Dry-Run Proof Gate 3 落地（Round 2 Bug Found Protocol Quality Check 已確認）。PM 本 persona 不新增 hard gate（避免重複；架構層 gate 一處即足）；僅在本 retrospective 留 cross-reference。
+
+---
+
+## 2026-04-21 — K-013 Round 2 BQ Ruling + Release Code Review
+
+**BQ-K013-R2-01 裁決：** Option X（Accept substitution）— Case D 1-bar future_ohlc path 與字面 deselect-all path 共用同一 `emptyResult` branch（`displayStats = appliedData.stats` + chart testid absent + fallback text visible），observable DOM 完全等價；AC-013-APPPAGE-E2E 意圖是鎖定 fallback render 路徑，非驗證特定 user gesture；spec 頂部 comment L23-34 + Case D 內 L263-270 明示 substitution 理由，未來 reader 可追溯。
+
+**AC-013-APPPAGE-E2E 4 cases 覆蓋評估：** 四分支全覆蓋（full-set chart / subset chart / empty-matches fallback / util-throw fallback），每 case positive + negative 雙斷言（chart testid vs fallback text 互斥），Behavior Diff Dry-Run 五列與 spec 行為逐列對齊，title-share 風險由 testid 消除。
+
+**Engineer 未 blocker-escalate 處理：** Light（不觸發 Bug Found Protocol）— `feedback_engineer_no_scope_downgrade.md` 的 rationale 是防「默默省略 AC」，本次 Engineer (a) 已完整執行 4 cases 非 3 cases，(b) ticket L308 + spec L23-34 + L263-270 三處明文記錄 substitution + 原因 + observable equivalence 推導，(c) 未修飾測試結果誤導 PM；僅需 Round 3 起加「替代方案實作前 1 次 BQ 往返」pre-escalation 訓練，寫入 engineer retro「下次改善」即可，不升級為 persona 新 hard gate。
+
+**Release decision：** 放行 Code Review Round 2（Step 1 superpowers breadth + Step 2 Agent(reviewer.md) depth，兩步缺一不可）
+
+**Review scope：** fix 三 commits `853a8aa` + `27120e9` + `4711b2f` + docs commit `942c305`；不含 Round 1 已 reviewed 的 `8442966` / `c9ae72c` / `d8b597c` / `3482d39`。Reviewer 重點檢查項：(a) `AppPage.tsx` L210-220 四行 patch 是否等於 OLD `b0212bb` L224-236 observable 行為（執行 §Pure-Refactor Behavior Diff Gate 1 四列 truth table 回查），(b) K-013-consensus-stats-ssot.spec.ts 4 cases positive + negative 斷言是否正確鎖定分支（尤其 Case D substitution 的 1-bar path 是否真的走到 `catch` block 而非其他 branch），(c) Fix 2 dev-mode warn 訊息的 guard `import.meta.env.DEV` 是否正確。
+
+**下次改善：**
+1. 替代實作 pre-escalation 訓練：Engineer 發現 AC 字面路徑不可達時，Round 3 起統一「1 次 BQ 回 PM」確認替代方向再動手，而非 commit 後事後說明；此條寫入 `docs/retrospectives/engineer.md` Round 2 entry 「下次改善」。
+2. PM 自己在 AC 落筆時加「路徑可達性 dry-run」：AC 涉及 UI gesture 時先 grep 相關 button `disabled` 條件，避免產生不可達 AC。此條 codify 到 `pm.md` §Phase Gate Checklist > Phase start，但強度僅列入「PM AC 寫作前自查清單」（非 hard gate，避免過度膨脹）。
+
+---
+
+## 2026-04-21 — K-013 Bug Found Protocol Quality Check Round 2
+
+**Architect 三件套品質：** PASS
+  - Retrospective root cause：具體引用 `AppPage.tsx` L202-210 / L218-231 / L224-226 / L363；說明 Pre-Design Audit 只 Read HEAD pattern-match 單行 `if`，未對 `appliedSelection=allIds` × `projectedFutureBars.length` × `viewTimeframe` 做 truth table dry-run；同時剖析為何 §8 API 不變性證明 6 列全 backend schema 沒擋下（定義域只覆蓋 wire-level 不覆蓋 frontend observable）；4 條改善 A/B/C/D 具體可執行，未捏造「做得好」。
+  - Memory Why/How：Why 綁 K-013 premise 錯誤 + Critical C-1 因果鏈；How 4 條機械步驟（truth table、`git show <base>:<path>` 引用、§API 不變性雙軸 wire + observable、缺任一即設計未完成），可 grep、可機械判斷。
+  - Persona hard-gate：`senior-architect.md` §Pre-Design Dry-Run Proof L129-143 有三項 checkbox（Gate 1/2/3），每 gate 附 mandatory + 硬句「違反任一 gate 設計文件視為未完成，Engineer 不得開工」；trigger keyword（`pre-existing` / `既存行為` / `legacy` / `K-XXX 之前如此`）可 grep；Gate 3 要求 4 列 full-set/subset/empty/boundary observable diff，判準具體。
+
+**Engineer 三件套品質：** PASS
+  - Retrospective root cause：明指 `AppPage.tsx:210-218` NEW 對上 base `b0212bb` L224-236 OLD 實際語意（無條件注入 `consensusForecast1h/1d`），NEW 只 subset 注入 → StatsPanel fallback 命中；同時剖析 `ma99-chart.spec.ts:335-340` 斷言層級淺（只驗共用標題文字）+ Step 8 只用 curl HTTP 200 未真跑 browser smoke；3 條改善含具體指令（`git show`、`nohup npm run dev`、positive + negative 斷言片段）。
+  - Memory Why/How：Why 綁具體 commit `b0212bb` + L224-236 + 174/174 tests green 假象；How 3 條含可 copy 的 Playwright 斷言樣本、`tsc + pytest + vitest + playwright 全綠不等於 behavior-equivalent` 明文否定既有誤判。
+  - Persona hard-gate：`engineer.md` §Pure-Refactor Behavior Diff Gate L166-181 三項 checkbox + 粗體「違反任一 gate 視 Engineer 階段未完成，不得交 Code Review」；trigger 明寫「ticket frontmatter `type: refactor` AND 任一 `useMemo / useCallback / custom hook` 被 Edited」可機械判斷；每 gate 含具體動作（base commit + 輸入笛卡兒積、瀏覽器 smoke 非 curl、positive + negative 雙斷言）。
+
+**Reviewer 三件套品質：** PASS
+  - Retrospective root cause：具體描述 Reviewer 在 Pass/Fail table 回讀時對「SQ-013-01 pre-existing premise vs NEW AC 字面組合」邏輯斷言矛盾 → 主動跑 `git show b0212bb:frontend/src/AppPage.tsx` 逐行 dry-run useMemo 資料流 → 推翻 premise → 升級 Critical C-1；清楚指出 Step 2 若一開始就強制 Behavior Diff 可提前 30 分抓到；3 條 codify 改善對應 `reviewer.md` 硬 gate；「做得好」欄有具體事件（re-read 發現邏輯矛盾）不捏造。
+  - Memory Why/How：Why 引 K-013 C-1 + Architect 敘述不可替代 code-level 驗；How 列 trigger 字串表（`refactor` / `SSOT` / `move to util` / `extract hook` / `consolidate` / `unify` / `pre-existing behavior` / `API contract unchanged`）+ 4 步 review 流程 + 通過唯一判準（behavior equivalence）。
+  - Persona hard-gate：`reviewer.md` §Pure-Refactor Behavior Diff L45-50 三項 checkbox + 末句「Violation of any gate above → review is INCOMPLETE and PM Phase Gate MUST NOT pass」；trigger 可 grep（`ticket.type === 'refactor'`）；要求輸出「Behavior Diff: NOT VERIFIED」而非 PASS 的 labeling 機械 enforceable。
+
+**Release decision：** 放行 Engineer Round 2
+
+**放行 scope：**
+1. **C-1 Option A**：`frontend/src/AppPage.tsx` L210-218 `displayStats` useMemo，full-set 分支恢復 OLD 注入語意（無論 full-set / subset 均注入 `consensusForecast1h` / `consensusForecast1d` from `projectedFutureBars` / `projectedFutureBars1D`）；4 行 patch，不動 backend、不動 util、不動 test 資料。
+2. **I-3 dev-mode console.warn**：3 行 patch，於 K-013 新建 util（或 `displayStats` useMemo）中，`import.meta.env.DEV` 為 true 時 warn「Consensus fallback path triggered: projectedFutureBars.length < 2」或等義訊息（目的是未來 regression 早期信號）。
+3. **AC-013-APPPAGE-E2E 新 spec**（Engineer 新增檔案，置於 `frontend/e2e/`），至少 4 個獨立 Playwright cases，不得 merge：
+   - Case A（full-set chart visible）：predict 完成後 full-set 狀態下，`getByText('Consensus Forecast (1H)').toBeVisible()` + `page.getByText('Forecast unavailable').not.toBeVisible()` 雙斷言
+   - Case B（subset chart visible）：deselect 任一 match 後，同樣 positive + negative 雙斷言
+   - Case C（empty matches fallback）：mock `/api/predict` 回空 matches（或 `projectedFutureBars.length < 2`），`getByText('Forecast unavailable').toBeVisible()` + `getByText('Consensus Forecast (1H)').not.toBeVisible()`
+   - Case D（deselect-all fallback）：UI 上 deselect 全部，同樣雙斷言（fallback 可見、chart 不可見）
+
+**放行前先要 Engineer 自簽（回覆格式）：**
+```
+已讀最新 `~/.claude/agents/engineer.md` §Pure-Refactor Behavior Diff Gate L166-181 三項 checkbox
+已讀 §Verification Checklist L146-164 全項
+Gate (1) Behavior Diff dry-run：已備就緒，Step 8 smoke 前執行並附表
+Gate (2) Browser smoke：已備就緒，tsc + test 綠後跑 nohup dev + 真 browser 打開 /app，不用 curl 代替
+Gate (3) Shared-title dual-side assertion：Case A/B/C/D 4 spec 均 positive + negative 雙斷言
+```
+
+Engineer 在 Round 2 commit 前把 Behavior Diff dry-run 表（full-set × bars≥2 / full-set × bars<2 / subset × bars≥2 / subset × bars<2 / empty 五列最少；每列 OLD 每 output key return vs NEW 每 output key return）貼進 ticket `## Retrospective` 或 PR description。未附表視為 Gate (1) 未完成，Code Review 直接退。
+
+**What went well:** Arbitration 採 Pre-Verdict Checklist 三步走（多維度矩陣 + Red Team + 結論）：矩陣用 5 維度（retrospective 具體度 / memory Why-How 可執行度 / persona hard-gate 機械判斷度 / trigger keyword 覆蓋度 / 三件套互相 reference 一致度）各 role 打分總結 PASS，Red Team 自問「Engineer 會不會鑽 `type: refactor` 未宣告的漏洞？」「Reviewer 沒讀到 SQ 段會不會跳 gate？」「3 個月後 useMemo 變 Jotai atom 怎麼辦？」—— 前兩問已由 trigger keyword grep + persona hard-gate 防呆，第三問列最大未解風險（state management 換 library 時 hook 識別詞需更新，但屬 pre-existing gap，不擋當前 release）。三角色 persona 編輯皆有 trigger + checkbox + hard 語義，Round 3 再錯同類 bug 可直接升級為 "responsible role gross violation" 不用再寫新規則。
+
+**What went wrong:** 無新增（PM 自身反省已於上一輪 "K-013 Architect 交付物審查 + 放行 Engineer" 與「Round 1 Quality Check Round 1」條目完成；本條僅為 Round 2 三件套品質裁決，未觸發新 PM 盲點）。
+
+**Next time improvement:** 本輪驗證確認 Bug Found Protocol 步驟 2（PM 確認品質）以「責任角色三件套交叉互相 reference」為可機械化標準——retrospective 引 memory 檔名、memory 引 persona 段落、persona 引 memory 路徑 + K-XXX 事件日期，三者形成閉環。下次 Bug Found Protocol 觸發時 PM 採同一 5 維度矩陣打分即可，不再開新標準。
+
+---
+
+## 2026-04-21 — K-013 Architect 交付物審查 + 放行 Engineer
+
+**What went well:** 嚴格執行 Arbitration Rules 三步——多維度矩陣（Go/回退/BQ 5 維度打分）+ 三條 Red Team challenges（Engineer / Reviewer / 3-month devil's advocate）+ 最終結論附最大未解風險。Pencil 檢查未盲目套用 `feedback_all_roles_check_pencil.md`，而是先讀 K-021 設計文件 §2 Pencil 完整性稽核段 + K-030 ticket scope，確認 **/app 無對應 Pencil frame 是既有設計決策**（K-021 明文記錄）而非 Architect 遺漏；K-030 進一步把 /app 從 marketing site palette 剝離，視覺驗證改採 design doc §6 Route Impact Table 的 dev server 目視 + StatsPanel code review，屬合規替代方案。兩條 SQ 經查 codebase 證據（SQ-013-01：grep `consensus_forecast_1h` producer 確認後端從未填；SQ-013-02：generator script 入版是 fixture drift 防線的合理選擇）皆同意 Architect 預判，不覆核。
+
+**What went wrong:** 初讀 persona checklist 時差點機械套用「ticket 有 design doc → 必有 Pencil frame cross-check」規則，若未先讀 K-021 §2 與 K-030 ticket，可能誤判 K-013 design doc 缺「Route Impact Table 的 Pencil cross-check 欄位」而回退 Architect——這會變成純粹的形式主義回退（Architect 無 frame 可比對，只能空轉）。根因：persona Pencil 檢查規則未區分「ticket scope 有無視覺變更」；K-013 為 zero-visual-change refactor，強行要求 Pencil frame cross-check 是 over-rule。
+
+**Next time improvement:**
+1. **PM Pencil cross-check 規則補條件分支（codify 進 pm.md Phase Gate）：** 「Ticket AC 含視覺變更 → Pencil frame 必驗；Ticket 為 pure refactor 且 design doc §API/§Route Impact 明示 zero visual change → Pencil cross-check 降級為『dev server 目視 + render path code review』，不得以缺 frame 為由回退 Architect」。
+2. **交叉票關係必入 PM context：** K-013 接手審查前未主動讀 K-021（/app frame 缺失記錄所在）與 K-030（/app scope 變更所在），靠 Pencil 檢查規則撞才補讀。應建立「審查 ticket 前先 grep 同路由相關 ticket」的 PM 硬步驟，尤其 /app / /about 這類跨多票作動的路由。
+
 ## 2026-04-21 — K-018 GA4 Tracking end-to-end 關閉
 
 **What went well:** K-018 從 frontmatter `open` 狀態拉到真 closed 的完整鏈路全數跑通——GA4 property 建立（`K-Line-Prediction`）、Measurement ID `G-9JC9YBZTPF` 取得、`.env.production` 寫入、`npm run build` 產出含 ID 的 bundle（curl 驗 deployed bundle 確認）、`firebase deploy --only hosting` 成功、GA4 即時頁使用者數從 0 翻到 1，整條鏈路在一個 session 內完整驗證。Debug 流程依序排除擴充套件（無痕分頁重測）、網路過濾、程式 wiring，最後用 `window.dataLayer` console 倒出 entry shape 鎖定 Array vs Arguments bug，避免盲 commit 無效修復。

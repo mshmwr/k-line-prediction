@@ -246,53 +246,6 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### K-013 — Consensus / Stats Single Source of Truth（TD-008 Option C 實作）
-
-- **Status:** open / type: refactor
-- **Ticket:** [docs/tickets/K-013-consensus-stats-contract.md](docs/tickets/K-013-consensus-stats-contract.md)
-- **摘要：** 前端抽出 `statsComputation.ts` 純函式 + 後端 contract fixture 鎖 compute_stats 行為；TD-008 Option C 實作。
-
-**AC：**
-
-#### AC-013-UTIL：前端抽出共用純函式
-
-- **Given** `frontend/src/utils/statsComputation.ts` 已建立
-- **When** 外部呼叫 `computeStatsFromMatches(matches, currentClose, timeframe)`
-- **Then** 回傳型別等同後端 `PredictStats` 的 camelCase 映射
-- **And** 函式為純函式，無 React 依賴、無 side effect、無隱式 `Date.now()`
-
-#### AC-013-APPPAGE：AppPage.tsx displayStats 邏輯簡化
-
-- **Given** `frontend/src/AppPage.tsx`
-- **When** 讀取 `displayStats` useMemo
-- **Then** `appliedSelection == all matches` → 直接使用 `appliedData.stats`；subset → 呼叫 `computeStatsFromMatches(...)`
-- **And** 原 inline `computeDisplayStats` 與獨立 `projectedFutureBars` useMemo 已刪除或合併
-
-#### AC-013-FIXTURE：Contract fixture 建立
-
-- **Given** `backend/tests/fixtures/stats_contract_cases.json` 已建立
-- **When** 檔案被讀取
-- **Then** 內容為 array，每筆含 `name` / `input` / `expected`
-- **And** 至少涵蓋 3 種 case：全集、subset、single match 邊界（`future_ohlc` == 2 筆）
-
-#### AC-013-BACKEND-CONTRACT：後端 contract test 通過
-
-- **Given** `backend/tests/test_predictor.py` 新增 parametrize test
-- **When** 執行 `python3 -m pytest backend/tests/`
-- **Then** 每筆 fixture case 的 `compute_stats(**input)` 輸出與 `expected` bit-exact 或誤差 ≤ 1e-6
-
-#### AC-013-FRONTEND-CONTRACT：前端 contract test 通過
-
-- **Given** `frontend/src/__tests__/statsComputation.test.ts` 新增
-- **When** 執行 `npm test`
-- **Then** 對每筆 fixture case 的 `computeStatsFromMatches(...)` 輸出經 camelCase 對映後與 `expected` bit-exact 或誤差 ≤ 1e-6
-
-#### AC-013-REGRESSION / AC-013-API-COMPAT / AC-013-COMMENT
-
-見 [K-013](docs/tickets/K-013-consensus-stats-contract.md) 完整 ticket。
-
----
-
 ### K-014 — Vitest index-based selector 殘留清理（AppPage + OHLCEditor）
 
 - **Status:** backlog / type: test
@@ -681,6 +634,62 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - **AC-011-PROP** — `LoadingSpinner` 支援 `label` prop，未傳時不顯示 `Running prediction...` 這組 prediction-specific 文字
 - **AC-011-CALLSITES** — 4 個 callsite 各自 label 與頁面情境一致
 - **AC-011-REGRESSION** — tsc / Vitest / Playwright 全綠
+
+---
+
+### K-013 — Consensus / Stats Single Source of Truth（TD-008 Option C 實作）
+
+- **Status:** closed / type: refactor / **Closed: 2026-04-21**
+- **Ticket:** [docs/tickets/K-013-consensus-stats-contract.md](docs/tickets/K-013-consensus-stats-contract.md)
+- **摘要：** 前端抽出 `statsComputation.ts` 純函式 + 後端 contract fixture 鎖 compute_stats 行為；TD-008 Option C 實作。R2 remediation 新增 AC-013-APPPAGE-E2E 4 chart-visibility state spec 作為 bug-found protocol 的回歸保護。
+
+**AC（原文保留）：**
+
+#### AC-013-UTIL：前端抽出共用純函式
+
+- **Given** `frontend/src/utils/statsComputation.ts` 已建立
+- **When** 外部呼叫 `computeStatsFromMatches(matches, currentClose, timeframe)`
+- **Then** 回傳型別等同後端 `PredictStats` 的 camelCase 映射
+- **And** 函式為純函式，無 React 依賴、無 side effect、無隱式 `Date.now()`
+
+#### AC-013-APPPAGE：AppPage.tsx displayStats 邏輯簡化
+
+- **Given** `frontend/src/AppPage.tsx`
+- **When** 讀取 `displayStats` useMemo
+- **Then** `appliedSelection == all matches` → 直接使用 `appliedData.stats`；subset → 呼叫 `computeStatsFromMatches(...)`
+- **And** 原 inline `computeDisplayStats` 與獨立 `projectedFutureBars` useMemo 已刪除或合併
+
+#### AC-013-FIXTURE：Contract fixture 建立
+
+- **Given** `backend/tests/fixtures/stats_contract_cases.json` 已建立
+- **When** 檔案被讀取
+- **Then** 內容為 array，每筆含 `name` / `input` / `expected`
+- **And** 至少涵蓋 3 種 case：全集、subset、single match 邊界（`future_ohlc` == 2 筆）
+
+#### AC-013-BACKEND-CONTRACT：後端 contract test 通過
+
+- **Given** `backend/tests/test_predictor.py` 新增 parametrize test
+- **When** 執行 `python3 -m pytest backend/tests/`
+- **Then** 每筆 fixture case 的 `compute_stats(**input)` 輸出與 `expected` bit-exact 或誤差 ≤ 1e-6
+
+#### AC-013-FRONTEND-CONTRACT：前端 contract test 通過
+
+- **Given** `frontend/src/__tests__/statsComputation.test.ts` 新增
+- **When** 執行 `npm test`
+- **Then** 對每筆 fixture case 的 `computeStatsFromMatches(...)` 輸出經 camelCase 對映後與 `expected` bit-exact 或誤差 ≤ 1e-6
+
+#### AC-013-APPPAGE-E2E：AppPage chart 4 state 可見性 Playwright 覆蓋（R2 remediation）
+
+- **Given** AppPage 三路徑分支（full-set / subset / empty）
+- **When** 執行 `playwright test k-013-consensus.spec.ts`
+- **Then** 4 cases 全綠：(1) full-set chart 顯示；(2) subset chart 顯示；(3) empty matches chart fallback；(4) `<2 bars` fallback 不壞
+- **And** consensusForecast 在 full-set 路徑維持 unconditional injection（R2 fix `853a8aa` 鎖定）
+
+#### AC-013-REGRESSION / AC-013-API-COMPAT / AC-013-COMMENT
+
+見 [K-013](docs/tickets/K-013-consensus-stats-contract.md) 完整 ticket。
+
+**Deploy:** 2026-04-21 — details in ticket Deploy Record block（`frontend/public/docs/` 無異動；本票為純 refactor + contract test 新增）
 
 ---
 

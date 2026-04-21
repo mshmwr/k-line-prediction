@@ -20,6 +20,14 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-013 Round 2 Regression Pass
+
+**做得好：** Round 2 gate 全綠一次過（tsc 0 / vitest 45 / pytest 68 / playwright full 173+1 skipped / K-013 spec 4/4），未停在第一個 fail 就中止；K-013 spec 4 cases（full-set / subset / empty matches / <2 bars fallback）直接對應 AC-013-APPPAGE-E2E 的四態斷言，regression 範圍完整。Visual report 5 route 全部截圖成功，輸出至 `docs/reports/K-013-visual-report.html`。Ticket §Pencil 設計稿檢查明確將本票標為 zero-visual-change exemption，sign-off 未錯誤要求 Pencil frame cross-check。
+
+**沒做好：** 嘗試跑「browser smoke beyond Playwright」以人手操作 /app live stack（實上傳 CSV + Start Prediction）時，發現 file input 並非本 app 的 OHLC 資料入口（按鈕維持 disabled，需透過 official CSV source / 手動 rows 才能觸發），smoke spec 跑 30 秒 timeout。無預先閱讀 AppPage 上傳流程，直接照任務單的步驟 pseudo 化 E2E 操作；雖最後移除了 ad-hoc spec 沒汙染 repo，但浪費了一次時間。
+
+**下次改善：** 未來任何 QA 要寫 "live smoke beyond mocks" 的 one-off spec 前，先 `grep -r "setInputFiles\|file input" frontend/e2e/` 找到現有 happy-path spec 的上傳實作照抄，不自己推理 DOM 入口。若 E2E spec 已完整覆蓋（K-013 spec 就是此例），不應再疊加人手 smoke — 以 spec + visual-report 兩線交付就足夠，並在 QA report 註記「live smoke = K-013 spec + visual-report 替代，pure refactor 不另行人手走查」。
+
 ## 2026-04-21 — K-030 /app page isolation (final regression)
 
 **做得好：** Pencil v1 `ap001` frame 於本 session 透過直接讀 `frontend/design/homepage-v1.pen` JSON 確認 `fill: #030712`，對照 dev screenshot `/app` wrapper bg 視覺判讀吻合（同時 Playwright T4 已 assert `rgb(3, 7, 18)`）；mcp__pencil 工具不可用時以 .pen JSON 直讀替代，完成 AC-030-PENCIL-ALIGN 視覺比對。主動為 mobile (375px) + tablet (768px) viewport 補 `/app` isolation 驗證（寫入臨時 spec，執行後刪除），補 persona Boundary Sweep viewport 維度；mobile NavBar App link `target=_blank` 亦確認。

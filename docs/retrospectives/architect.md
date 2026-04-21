@@ -53,6 +53,57 @@
 
 ---
 
+## 2026-04-21 — K-013 Bug Found Protocol（Architect W-1）Pre-Design Audit 未做 code-level dry-run
+
+**做得好：**（無——本條目是反省過失，不列）
+
+**沒做好（具體事件 + file:line + 根因）：**
+
+1. **具體事件：** K-013 設計文件 `docs/designs/K-013-consensus-stats-ssot.md` §0.3 SQ-013-01 斷言「全集（`appliedSelection == all matches`）分支走 `appliedData.stats`，StatsPanel 的 ConsensusForecastChart 收到空陣列，**全集下不顯示 consensus 圖**」。此前提**錯誤**。Code Review depth 由 Reviewer 驗出 Critical C-1：K-013 Engineer 照 AC-013-APPPAGE 實作後，full-set 分支 consensus forecast chart 消失，因為 OLD code 原本會畫、K-013 把它拿掉了。
+
+2. **OLD 實作真實行為（base commit `b0212bb`，`frontend/src/AppPage.tsx`）：**
+   - L202–210 `projectedFutureBars` useMemo：`const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))` — 初次 predict 後 `setAppliedSelection(allIds)`（L363），所以 **full-set 下 `activeMatches` = 全部 matches，`projectedFutureBars` 會算出 ≥2 筆**。
+   - L218–231 `displayStats` useMemo：
+     ```
+     if (!appliedData.stats) return null
+     if (projectedFutureBars.length < 2) return appliedData.stats     // ← fallback (L220)
+     const computed = computeDisplayStats(...)
+     if (!computed) return appliedData.stats
+     return {
+       ...computed,
+       consensusForecast1h: projectedFutureBars,                      // ← 無條件注入 (L224)
+       consensusForecast1d: projectedFutureBars1D,                    // ← 無條件注入 (L225)
+     }
+     ```
+   - 第三分支（L222–226）**沒有任何 full-set vs subset 判斷**，無論 `appliedSelection` 是否等於全集，都會用前端 `projectedFutureBars` 覆蓋 `consensusForecast1h/1d`。Consensus chart 在 OLD code 下 **full-set 與 subset 皆顯示**。
+   - K-013 AC-013-APPPAGE 要 Engineer 在「全集分支直接回傳 `appliedData.stats`」，等於砍掉 L222–226 的注入路徑 → full-set 下 consensusForecast 退回後端的 `[]`（SQ-013-01 下半段我有正確描述後端 PredictStats 永遠 `[]`）→ 圖消失。此為 K-013 **引入的 regression**，不是 pre-existing。
+
+3. **根本原因（為何 Pre-Design Audit 沒抓到）：**
+   - Pre-Design Audit 在 §0.1 列 `frontend/src/AppPage.tsx L110-236 已讀`。我確實 Read 了那個 range，但**只讀結構**（看到 `if (projectedFutureBars.length < 2) return appliedData.stats` 這行，直覺「full-set 進這條 fallback」），**沒有做 code-level dry-run**：沒追 `projectedFutureBars` 的計算路徑 →沒發現 `appliedSelection` 在 predict 後會 `setAppliedSelection(allIds)`（L363）→ 沒推導 full-set 下 `projectedFutureBars.length >= 2` 實際成立 → 沒進第三分支 (L222–226) → 錯誤結論「全集走 fallback」。
+   - 換言之：我把「讀到這個 file:line range」當成「驗證了這個 range 的行為」。實際上我只 pattern-match 了一條 if 陳述，沒對所有輸入組合（full-set 有 matches / full-set 無 matches / subset / empty）跑一次資料流。
+
+4. **為何 §8 API 不變性證明通過但沒擋下：**
+   - §8.1 Before/After diff 六列全是 **backend schema** 維度（`PredictRequest` / `PredictResponse` / `PredictStats` 欄位 / `compute_stats()` signature / 後端回傳值範圍 / `usePrediction.ts` camelCase 映射）。全部標 Diff：空。
+   - §8.2 驗證方法只要求 `git diff main -- backend/models.py` = 0 lines — 只證明 **後端 wire-level schema 不變**，沒證明 **frontend `displayStats` 的 observable behavior 等價**。
+   - 換言之：我寫「API Schema 不變性」時想的是 wire contract，但 K-013 AC-013-APPPAGE 改的是 **frontend 的 `displayStats` 計算分支**，這個 observable output（`consensusForecast1h/1d` 從「有前端 projected 值」變成「後端 `[]`」）完全沒在 §8 被驗。§8 的定義域狹隘，不涵蓋「前端 behavior equivalence」。
+
+**下次改善（具體可執行，寫進 persona 硬步驟）：**
+
+- **下次改善 A（Pre-Design Audit 檔案掃描後強制 dry-run）：** Pre-Design Audit 的 `§0.1 Files inspected` 表不得以「range 已讀」作為完結；每個列出的 range，凡涉及 **「pre-existing 行為」/「既存 bug」/「既存分支走哪條」** 等行為斷言，必須額外 attach 一張 **dry-run truth table**，列出所有相關狀態組合（e.g. full-set vs subset × matches empty vs ≥2 × viewTimeframe 1H vs 1D）× 每條分支輸出，並引用對應的 file:line。無 dry-run table 者，不得在設計文件寫「既存行為如 X」這種斷言。
+- **下次改善 B（pre-existing 斷言強制 `git show <base>:<file>` + dry-run）：** 凡設計文件出現 `pre-existing` / `既存行為` / `K-013 之前如此` 字樣，**強制 `git show <base-commit>:<file>` 讀 OLD 實作 + 逐 branch dry-run**（不是逐檔 Read HEAD，那只證明「現在 HEAD 這樣」，不證明「base 也這樣」；本次 K-013 Reviewer 要求看 `b0212bb` 才能驗）。寫斷言時必須引用 `git show <commit>:<path> L<start>-<end>` 作為 source，不得憑 HEAD Read 替代。
+- **下次改善 C（§API 不變性證明擴充為「Wire + Frontend Behavior 雙軸」）：** §API 不變性證明的定義域必須明示雙軸：(1) wire-level schema（`git diff main -- backend/models.py` = 0），(2) frontend observable behavior（對每個 `useMemo` / `useState` / event handler 等輸出通道，列 Before → After output diff table，全集 / subset / empty 三個情境各一列）。只做 (1) 不做 (2) 的設計文件 = 不變性證明不成立。AC 涉及 frontend 計算邏輯改寫時，此 §必須延伸到 frontend 分支 observable behavior，不得僅以 backend schema diff 作結。
+- **下次改善 D（三項均 codify 進 `senior-architect.md` 硬規則區）：** A/B/C 三條同步 Edit 進 persona「Pre-Design Dry-Run Proof」段落（硬 gate，非 narrative），並在 `feedback_architect_pre_design_audit_dry_run.md` memory 條目留下觸發條件與 K-013 W-1 事件作為 Why。
+
+---
+
+## 2026-04-21 — K-013 Consensus / Stats SSOT 設計文件
+
+**做得好：** §0 Pre-Design Audit 逐檔讀 `compute_stats` / `_projected_future_bars` / `computeDisplayStats` / `computeProjectedFutureBars` / `PredictStats` 五處實作，發現 pre-existing gap（`PredictStats.consensus_forecast_1h/1d` 後端永遠回 `[]`，全集下 StatsPanel 的 consensus 圖本來就沒畫），並列為 SQ-013-01 釘在 §0 讓 Engineer + Reviewer + PM 三方對齊，避免 Engineer 自行「順手修」擴大 scope 或 Reviewer 誤判為 K-013 引入的 regression。子決策 D1/D2/D3（util vs hook / generator script 入版 / import JSON）皆用 pre-verdict 打分表 ≥1 差距直接採，未事後補維度。architecture.md Edit 後對 `statsComputation` / `stats_contract_cases` / `computeStatsFromMatches` 三個關鍵字 grep 全檔 11 hits 逐一驗，並修正 §Consensus Stats Source of Truth 原本寫 `PredictStats` 回傳型別的過期簽名為 `StatsComputationResult`。
+
+**沒做好：** 初稿把 Directory Structure 新增的 `statsComputation.ts` / `fixtures/` / `statsComputation.test.ts` 寫成「K-013；…」而非「pending K-013 Engineer Step N」標記——磁碟上這三個檔案此刻**都不存在**（Architect 尚未啟動 Engineer），違反 persona 規則「must ls or Glob to confirm disk state; if deletion/creation hasn't happened, use pending marker」。Self-Diff 補救時發現才改回 pending。根因：寫 Directory Structure 時直覺用「目標狀態」措辭，漏掉磁碟現況驗證這一步。
+
+**下次改善：** 編輯 architecture.md Directory Structure block 前，**強制先跑 `ls` / `Glob`** 對照現在磁碟狀態，再決定每個條目用 "current state" 還是 "pending K-XXX Step N" 標記；把此步驟加進 Pre-Design Path Audit 的硬動作清單（K-023 已建立，本次擴充「磁碟-vs-目標 標記區分」這一小項）。
+
 ## 2026-04-21 — K-023 Homepage Structure Detail Alignment v2
 
 **What went well:** Pencil design file analysis surfaced four critical contradictions (A-3 already implemented, A-4 has no corresponding element in design, A-5 hairline is already in correct position per design, C-4 bottom padding mismatch) before any code was written. All four were escalated as Scope Questions to PM rather than self-resolved, preventing Engineer from implementing changes that contradict the design. Pre-Design Path Audit caught `StepCard.tsx` and `TechTag.tsx` as ghost entries in architecture.md.

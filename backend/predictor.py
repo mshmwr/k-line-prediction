@@ -269,6 +269,19 @@ def _aggregate_bars_to_1d(bars: list) -> list:
 
 
 def _projected_future_bars(matches: List[MatchCase], current_close: float):
+    """Build the per-bar consensus projection for the given match set.
+
+    Returns up to FUTURE_LOOKAHEAD_BARS dicts with integer-valued
+    `time_index` (1-based) and rounded open/high/low/close (2 decimals).
+    Each bar's OHLC is the median-across-matches of scaled values, where
+    scaling normalises each match's historical last close to `current_close`.
+
+    K-013 contract note: this is the backend "all top-N matches" baseline.
+    The frontend computes subset projections via
+    `frontend/src/utils/statsComputation.ts::computeStatsFromMatches`; both
+    sides are locked to the same algorithm by
+    `backend/tests/fixtures/stats_contract_cases.json` (1e-6 tolerance).
+    """
     projected_bars = []
     for index in range(FUTURE_LOOKAHEAD_BARS):
         projected = []
@@ -397,6 +410,26 @@ def find_top_matches(
     return matches
 
 def compute_stats(matches: List[MatchCase], current_close: float, timeframe: str = '1H') -> PredictStats:
+    """Compute the 4-bucket OrderSuggestion + win_rate + mean_correlation stats.
+
+    K-013 (TD-008 Option C) contract:
+
+    - The return of this function is the full-set baseline — the server only
+      computes stats for all top-N matches returned by `find_top_matches`.
+      When the user deselects some matches in the UI, the frontend recomputes
+      subset stats locally via
+      `frontend/src/utils/statsComputation.ts::computeStatsFromMatches`.
+    - Both implementations are locked bit-exact (<= 1e-6 tolerance) by
+      `backend/tests/fixtures/stats_contract_cases.json`. When this function
+      changes, regenerate the fixture via
+      `backend/tests/fixtures/generate_stats_contract_cases.py` and verify
+      both `test_predictor.py::test_contract_*` and the frontend
+      `statsComputation.test.ts` still pass.
+    - The `consensus_forecast_1h/1d` fields on the returned `PredictStats`
+      remain at their default `[]` (pre-existing behaviour, K-013 KG-013-01).
+      The frontend injects projected bars into these fields on the subset
+      branch; the full-set branch keeps them empty (no consensus chart).
+    """
     if not matches:
         raise ValueError("At least one match is required to compute statistics.")
     projected_bars = _projected_future_bars(matches, current_close)
