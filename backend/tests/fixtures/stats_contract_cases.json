@@ -1,0 +1,445 @@
+[
+  {
+    "name": "all_matches_full_set",
+    "description": "Full set \u2014 3 matches x 3 future bars, correlations [0.9523, 0.8712, 0.7245]; locks the \"deselect none\" path against backend full-set baseline.",
+    "input": {
+      "matches": [
+        {
+          "id": "match_0",
+          "correlation": 0.9523,
+          "historical_ohlc": [
+            {
+              "open": 1990.0,
+              "high": 1990.0,
+              "low": 1990.0,
+              "close": 1990.0,
+              "time": "hist_0"
+            },
+            {
+              "open": 2000.0,
+              "high": 2000.0,
+              "low": 2000.0,
+              "close": 2000.0,
+              "time": "hist_1"
+            }
+          ],
+          "future_ohlc": [
+            {
+              "open": 2010.0,
+              "high": 2040.0,
+              "low": 2000.0,
+              "close": 2030.0,
+              "time": "2024-01-01 02:00"
+            },
+            {
+              "open": 2030.0,
+              "high": 2060.0,
+              "low": 2020.0,
+              "close": 2050.0,
+              "time": "2024-01-01 03:00"
+            },
+            {
+              "open": 2050.0,
+              "high": 2060.0,
+              "low": 2020.0,
+              "close": 2030.0,
+              "time": "2024-01-01 04:00"
+            }
+          ],
+          "historical_ohlc_1d": [],
+          "future_ohlc_1d": [],
+          "start_date": "2024-01-01 00:00",
+          "end_date": "2024-01-01 04:00",
+          "historical_ma99": [],
+          "future_ma99": [],
+          "historical_ma99_1d": [],
+          "future_ma99_1d": []
+        },
+        {
+          "id": "match_1",
+          "correlation": 0.8712,
+          "historical_ohlc": [
+            {
+              "open": 1990.0,
+              "high": 1990.0,
+              "low": 1990.0,
+              "close": 1990.0,
+              "time": "hist_0"
+            },
+            {
+              "open": 2000.0,
+              "high": 2000.0,
+              "low": 2000.0,
+              "close": 2000.0,
+              "time": "hist_1"
+            }
+          ],
+          "future_ohlc": [
+            {
+              "open": 2000.0,
+              "high": 2030.0,
+              "low": 1990.0,
+              "close": 2020.0,
+              "time": "2024-02-01 02:00"
+            },
+            {
+              "open": 2020.0,
+              "high": 2050.0,
+              "low": 2010.0,
+              "close": 2040.0,
+              "time": "2024-02-01 03:00"
+            },
+            {
+              "open": 2040.0,
+              "high": 2050.0,
+              "low": 2010.0,
+              "close": 2020.0,
+              "time": "2024-02-01 04:00"
+            }
+          ],
+          "historical_ohlc_1d": [],
+          "future_ohlc_1d": [],
+          "start_date": "2024-02-01 00:00",
+          "end_date": "2024-02-01 04:00",
+          "historical_ma99": [],
+          "future_ma99": [],
+          "historical_ma99_1d": [],
+          "future_ma99_1d": []
+        },
+        {
+          "id": "match_2",
+          "correlation": 0.7245,
+          "historical_ohlc": [
+            {
+              "open": 1990.0,
+              "high": 1990.0,
+              "low": 1990.0,
+              "close": 1990.0,
+              "time": "hist_0"
+            },
+            {
+              "open": 2000.0,
+              "high": 2000.0,
+              "low": 2000.0,
+              "close": 2000.0,
+              "time": "hist_1"
+            }
+          ],
+          "future_ohlc": [
+            {
+              "open": 2000.0,
+              "high": 2020.0,
+              "low": 1990.0,
+              "close": 2010.0,
+              "time": "2024-03-01 02:00"
+            },
+            {
+              "open": 2010.0,
+              "high": 2040.0,
+              "low": 2000.0,
+              "close": 2030.0,
+              "time": "2024-03-01 03:00"
+            },
+            {
+              "open": 2030.0,
+              "high": 2040.0,
+              "low": 2000.0,
+              "close": 2010.0,
+              "time": "2024-03-01 04:00"
+            }
+          ],
+          "historical_ohlc_1d": [],
+          "future_ohlc_1d": [],
+          "start_date": "2024-03-01 00:00",
+          "end_date": "2024-03-01 04:00",
+          "historical_ma99": [],
+          "future_ma99": [],
+          "historical_ma99_1d": [],
+          "future_ma99_1d": []
+        }
+      ],
+      "current_close": 2000.0,
+      "timeframe": "1H"
+    },
+    "expected": {
+      "highest": {
+        "label": "Highest",
+        "price": 2050.0,
+        "pct": 2.5,
+        "occurrence_bar": 2,
+        "occurrence_window": "Hour +2",
+        "historical_time": "Consensus"
+      },
+      "second_highest": {
+        "label": "Second Highest",
+        "price": 2050.0,
+        "pct": 2.5,
+        "occurrence_bar": 3,
+        "occurrence_window": "Hour +3",
+        "historical_time": "Consensus"
+      },
+      "second_lowest": {
+        "label": "Second Lowest",
+        "price": 2010.0,
+        "pct": 0.5,
+        "occurrence_bar": 2,
+        "occurrence_window": "Hour +2",
+        "historical_time": "Consensus"
+      },
+      "lowest": {
+        "label": "Lowest",
+        "price": 1990.0,
+        "pct": -0.5,
+        "occurrence_bar": 1,
+        "occurrence_window": "Hour +1",
+        "historical_time": "Consensus"
+      },
+      "win_rate": 1.0,
+      "mean_correlation": 0.8493,
+      "consensus_forecast_1h": [],
+      "consensus_forecast_1d": []
+    }
+  },
+  {
+    "name": "subset_deselect_one",
+    "description": "Subset \u2014 first 2 of the 3 matches (user deselects match_2); reflects the real K-013 runtime path where frontend computes stats locally.",
+    "input": {
+      "matches": [
+        {
+          "id": "match_0",
+          "correlation": 0.9523,
+          "historical_ohlc": [
+            {
+              "open": 1990.0,
+              "high": 1990.0,
+              "low": 1990.0,
+              "close": 1990.0,
+              "time": "hist_0"
+            },
+            {
+              "open": 2000.0,
+              "high": 2000.0,
+              "low": 2000.0,
+              "close": 2000.0,
+              "time": "hist_1"
+            }
+          ],
+          "future_ohlc": [
+            {
+              "open": 2010.0,
+              "high": 2040.0,
+              "low": 2000.0,
+              "close": 2030.0,
+              "time": "2024-01-01 02:00"
+            },
+            {
+              "open": 2030.0,
+              "high": 2060.0,
+              "low": 2020.0,
+              "close": 2050.0,
+              "time": "2024-01-01 03:00"
+            },
+            {
+              "open": 2050.0,
+              "high": 2060.0,
+              "low": 2020.0,
+              "close": 2030.0,
+              "time": "2024-01-01 04:00"
+            }
+          ],
+          "historical_ohlc_1d": [],
+          "future_ohlc_1d": [],
+          "start_date": "2024-01-01 00:00",
+          "end_date": "2024-01-01 04:00",
+          "historical_ma99": [],
+          "future_ma99": [],
+          "historical_ma99_1d": [],
+          "future_ma99_1d": []
+        },
+        {
+          "id": "match_1",
+          "correlation": 0.8712,
+          "historical_ohlc": [
+            {
+              "open": 1990.0,
+              "high": 1990.0,
+              "low": 1990.0,
+              "close": 1990.0,
+              "time": "hist_0"
+            },
+            {
+              "open": 2000.0,
+              "high": 2000.0,
+              "low": 2000.0,
+              "close": 2000.0,
+              "time": "hist_1"
+            }
+          ],
+          "future_ohlc": [
+            {
+              "open": 2000.0,
+              "high": 2030.0,
+              "low": 1990.0,
+              "close": 2020.0,
+              "time": "2024-02-01 02:00"
+            },
+            {
+              "open": 2020.0,
+              "high": 2050.0,
+              "low": 2010.0,
+              "close": 2040.0,
+              "time": "2024-02-01 03:00"
+            },
+            {
+              "open": 2040.0,
+              "high": 2050.0,
+              "low": 2010.0,
+              "close": 2020.0,
+              "time": "2024-02-01 04:00"
+            }
+          ],
+          "historical_ohlc_1d": [],
+          "future_ohlc_1d": [],
+          "start_date": "2024-02-01 00:00",
+          "end_date": "2024-02-01 04:00",
+          "historical_ma99": [],
+          "future_ma99": [],
+          "historical_ma99_1d": [],
+          "future_ma99_1d": []
+        }
+      ],
+      "current_close": 2000.0,
+      "timeframe": "1H"
+    },
+    "expected": {
+      "highest": {
+        "label": "Highest",
+        "price": 2055.0,
+        "pct": 2.75,
+        "occurrence_bar": 2,
+        "occurrence_window": "Hour +2",
+        "historical_time": "Consensus"
+      },
+      "second_highest": {
+        "label": "Second Highest",
+        "price": 2055.0,
+        "pct": 2.75,
+        "occurrence_bar": 3,
+        "occurrence_window": "Hour +3",
+        "historical_time": "Consensus"
+      },
+      "second_lowest": {
+        "label": "Second Lowest",
+        "price": 2015.0,
+        "pct": 0.75,
+        "occurrence_bar": 2,
+        "occurrence_window": "Hour +2",
+        "historical_time": "Consensus"
+      },
+      "lowest": {
+        "label": "Lowest",
+        "price": 1995.0,
+        "pct": -0.25,
+        "occurrence_bar": 1,
+        "occurrence_window": "Hour +1",
+        "historical_time": "Consensus"
+      },
+      "win_rate": 1.0,
+      "mean_correlation": 0.9118,
+      "consensus_forecast_1h": [],
+      "consensus_forecast_1d": []
+    }
+  },
+  {
+    "name": "single_match_two_bars",
+    "description": "Single match with exactly 2 future bars \u2014 the minimum valid input (projected_bars.length >= 2 boundary); ensures sorted_highs[1] / sorted_lows[1] pick the other bar deterministically.",
+    "input": {
+      "matches": [
+        {
+          "id": "match_only",
+          "correlation": 0.91,
+          "historical_ohlc": [
+            {
+              "open": 1990.0,
+              "high": 1990.0,
+              "low": 1990.0,
+              "close": 1990.0,
+              "time": "hist_0"
+            },
+            {
+              "open": 2000.0,
+              "high": 2000.0,
+              "low": 2000.0,
+              "close": 2000.0,
+              "time": "hist_1"
+            }
+          ],
+          "future_ohlc": [
+            {
+              "open": 2010.0,
+              "high": 2030.0,
+              "low": 2000.0,
+              "close": 2020.0,
+              "time": "2024-04-01 02:00"
+            },
+            {
+              "open": 2020.0,
+              "high": 2040.0,
+              "low": 2010.0,
+              "close": 2030.0,
+              "time": "2024-04-01 03:00"
+            }
+          ],
+          "historical_ohlc_1d": [],
+          "future_ohlc_1d": [],
+          "start_date": "2024-04-01 00:00",
+          "end_date": "2024-04-01 03:00",
+          "historical_ma99": [],
+          "future_ma99": [],
+          "historical_ma99_1d": [],
+          "future_ma99_1d": []
+        }
+      ],
+      "current_close": 2000.0,
+      "timeframe": "1H"
+    },
+    "expected": {
+      "highest": {
+        "label": "Highest",
+        "price": 2040.0,
+        "pct": 2.0,
+        "occurrence_bar": 2,
+        "occurrence_window": "Hour +2",
+        "historical_time": "Consensus"
+      },
+      "second_highest": {
+        "label": "Second Highest",
+        "price": 2030.0,
+        "pct": 1.5,
+        "occurrence_bar": 1,
+        "occurrence_window": "Hour +1",
+        "historical_time": "Consensus"
+      },
+      "second_lowest": {
+        "label": "Second Lowest",
+        "price": 2010.0,
+        "pct": 0.5,
+        "occurrence_bar": 2,
+        "occurrence_window": "Hour +2",
+        "historical_time": "Consensus"
+      },
+      "lowest": {
+        "label": "Lowest",
+        "price": 2000.0,
+        "pct": 0.0,
+        "occurrence_bar": 1,
+        "occurrence_window": "Hour +1",
+        "historical_time": "Consensus"
+      },
+      "win_rate": 1.0,
+      "mean_correlation": 0.91,
+      "consensus_forecast_1h": [],
+      "consensus_forecast_1d": []
+    }
+  }
+]
