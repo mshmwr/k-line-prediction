@@ -20,6 +20,14 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-023（Homepage 結構細節對齊 v2）
+
+**做得好：** 175 tests 全套跑完 174 pass / 1 skip / 0 fail；skip（AC-017-BUILD）為已知設計排除（需 production build），非回歸失漏；TICKET_ID=K-023 帶入正確執行，產出 `K-023-visual-report.html`；AC-023-DIARY-BULLET（width/height/backgroundColor/borderRadius，3 markers）、AC-023-STEP-HEADER-BAR（STEP 01/02/03 各自獨立 3 test，含 fontFamily Geist Mono 斷言）、AC-023-BODY-PADDING（desktop 72px/96px + mobile 375px 32px/24px）、AC-023-REGRESSION（Banner DOM-order compareDocumentPosition + diary markers 存在 + diary link）全部 PASS；K-017 / K-021 / K-022 / AC-HOME-1 / NavBar / DiaryPage 完整回歸無任何破壞。
+
+**沒做好：** KG-023-04（640px breakpoint boundary test，639px vs 640px）Ticket 明定「QA adds at sign-off」，但 QA 角色定義僅能回報，不能寫 spec；此邊界場景實際上未被任何 test case 覆蓋，sign-off 時未主動將此 Known Gap 升級為 PM interception，而只留在 ticket 記錄中。
+
+**下次改善：** Ticket 記載「QA adds at sign-off」的 Known Gap，QA sign-off 時必須明確向 PM 聲明「此邊界未覆蓋，需 Engineer 補 spec 或 PM 正式裁決降為 Known Gap」，不得以「已在 ticket 記載」為由跳過正式 Interception 流程。
+
 ## 2026-04-21 — K-022（/about 結構細節對齊 v2）
 
 **做得好：** 165 tests 全套跑完 164 pass / 1 skip / 0 fail，skip（AC-017-BUILD）為已知設計排除（需 production build），非回歸失漏；visual report 正確帶 `TICKET_ID=K-022` 執行，產出 `K-022-visual-report.html`，K-027 反省改善已落地；AC-017-HEADER / METRICS / ROLES / PILLARS / TICKETS / ARCH / FOOTER 全部仍 PASS，I-1 fix（PillarCard overflow-hidden 移除）無破壞。

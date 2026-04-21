@@ -233,3 +233,11 @@ QA Early Consultation completed before releasing to Architect.
 | Issue | Responsible Role | Action | Update Location |
 |-------|-----------------|--------|----------------|
 | Architect `data-testid` recommendations in design doc §5 treated as optional by Engineer | Engineer | Add to Engineer persona: "Architect §5 testability recommendations are required deliverables, not optional" | `~/.claude/agents/engineer.md` |
+
+### QA
+
+**Regression tests that were insufficient:** KG-023-04 (640px breakpoint boundary — 639px vs 640px) was listed in ticket as "QA adds at sign-off" but was not actioned at sign-off; boundary is uncovered.
+
+**Edge cases not covered:** AC-023-BODY-PADDING does not test the exact sm: breakpoint boundary (639px mobile vs 640px desktop). Existing tests only cover 375px and 1280px.
+
+**Next time improvement:** Any Known Gap labeled "QA adds at sign-off" must be escalated as a formal QA Interception to PM at sign-off — either Engineer adds the spec, or PM explicitly rules it as Known Gap with reason. Cannot leave it only in ticket metadata.
