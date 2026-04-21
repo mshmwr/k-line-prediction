@@ -1,11 +1,12 @@
 ---
 id: K-013
 title: Consensus / Stats Single Source of Truth（TD-008 Option C 實作）
-status: open
+status: closed
 type: refactor
 priority: high
 size: M
 created: 2026-04-18
+closed: 2026-04-21
 source: docs/designs/TD-008-rfc-consensus-source-of-truth.md
 implements:
   - TD-008
@@ -14,6 +15,7 @@ related:
   - docs/reviews/2026-04-18-code-review.md
 coordinates_with:
   - TD-005  # AppPage.tsx 拆分時，usePredictionWorkspace() 邊界以本票 statsComputation.ts 為基礎
+qa-early-consultation: N/A — pure refactor (TD-008 Option C), Known Gap at ticket open (enabled before per-PRD QA Early Consultation rule; R2 remediation added AC-013-APPPAGE-E2E covering 4 chart-visibility states as retroactive edge-case coverage)
 ---
 
 ## 背景
@@ -215,6 +217,28 @@ Codex 2026-04-18 review 指出 projected future bar aggregation / stats derivati
 **放行 Engineer。**
 
 — senior-architect（via PM 轉述 RFC 既有裁決）, 2026-04-18
+
+---
+
+## Deploy Record — 2026-04-21
+
+- **Deploy date:** 2026-04-21 (UTC+8, post-merge)
+- **Commit range:** merge commit `<TBD>` on `main` (K-013 branch `refactor/K-013-consensus-ssot` tip `a5a46c6` → QA retro `153c694`)
+- **Build output:** `<TBD — frontend/dist/index.html hash + bundle size>`
+- **Firebase release:** Hosting URL `https://k-line-prediction-app.web.app` (project `k-line-prediction-app`)
+- **Deploy Checklist PASS:** (1) `grep "/api/"` scan → only test assertion stringContaining matches, no bare prefix in production src; (2) `npm run build` exit `<TBD>`; (3) `firebase deploy --only hosting` release `<TBD>`.
+- **Live verification:** `<TBD — /app route loads; Consensus chart renders full-set + subset smoke>`
+- **Pre-deploy gate:** tsc exit 0 + Vitest 45/45 + pytest 68/68 + Playwright full 173/174 (1 pre-existing skip) + K-013 spec 4/4 (QA Round 2 sign-off 2026-04-21 HEAD `a5a46c6`, visual report at `docs/reports/K-013-visual-report.html`)
+- **Rollback plan:** `git revert <merge-commit>` on `main` and re-deploy
+
+## Retrospective
+
+Per-role retrospective entries live in `docs/retrospectives/{pm,architect,engineer,reviewer,qa}.md`. This ticket is a multi-round refactor (TD-008 Option C implementation + R2 bug-found remediation); key cross-role learnings:
+
+- **Engineer (R1):** missed that unconditional `consensusForecast` injection was required for all-set path — restored in R2 `853a8aa`. Codified into `feedback_engineer_behavior_diff_pure_refactor.md`.
+- **Architect:** SQ-013-01 (subset empty-matches) premise was retracted in R2 (`a5a46c6`) after Engineer verified actual AppPage behavior — documented as lesson in `feedback_architect_pre_design_audit_dry_run.md`.
+- **Reviewer:** R1 finding of 3-branch useMemo complexity led to AC-013-APPPAGE-E2E spec addition, covering 4 chart-visibility states (`full-set / subset / empty matches / <2 bars fallback`); codified into `feedback_reviewer_pure_refactor_behavior_diff.md`.
+- **QA (R2):** all gates green first run (tsc 0 / vitest 45 / pytest 68 / Playwright full 173+1 skipped / K-013 spec 4/4); visual report 5 routes ok. One time loss on attempting `/app` live-stack hand-smoke — see QA log for improvement (`grep setInputFiles` before writing one-off live smoke specs).
 
 ---
 
