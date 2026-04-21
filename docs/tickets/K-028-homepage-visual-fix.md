@@ -1,11 +1,12 @@
 ---
 id: K-028
 title: Homepage 視覺修復 — section spacing 補充 + DevDiarySection entry 高度自適應
-status: open
+status: closed
 type: fix
 priority: high
 created: 2026-04-21
-qa-early-consultation: N/A — reason: all ACs are happy-path layout fix, no error state / boundary / network / auth edge cases
+closed: 2026-04-21
+qa-early-consultation: docs/retrospectives/qa.md 2026-04-21 K-028 entry (6 challenges: 4 must-add supplemented to AC, 2 declared Known Gap)
 ---
 
 ## 背景
@@ -88,7 +89,17 @@ const top = i * (ENTRY_HEIGHT + ENTRY_GAP)  // 每個 entry 從固定 top 位置
 **And** ProjectLogicSection 與 DevDiarySection 之間的視覺間距在 mobile viewport 下仍清晰可見，兩 section 不緊貼
 **And** Playwright mobile 斷言：兩處 section gap 均 > 16px（375px viewport）
 
-**PM Note：** 精確 gap 數值由 Architect 從設計稿 frame `4CsvQ` 提取後補入 Playwright 斷言。上述 `> 32px` / `> 16px` 為最低門檻，Architect 若提取到更大值則以設計稿為準。
+**Given** viewport 寬度 640px（Tailwind `sm` 斷點起點）
+**When** 頁面載入完成
+**Then** section gap 套用 desktop 值（72px），不套用 mobile 值（24px）
+**And** Playwright 斷言：HeroSection ↔ ProjectLogicSection gap 為 72px（±2px 誤差）於 640px viewport
+
+**Given** viewport 寬度 639px（Tailwind `sm` 斷點正下方）
+**When** 頁面載入完成
+**Then** section gap 套用 mobile 值（24px），不套用 desktop 值（72px）
+**And** Playwright 斷言：HeroSection ↔ ProjectLogicSection gap 為 24px（±2px 誤差）於 639px viewport
+
+**PM Note：** 精確 gap 數值由 Architect 從設計稿 frame `4CsvQ` 提取 = 72px desktop / 24px mobile（`gap-6 sm:gap-[72px]`）。tablet 斷點斷言（640px / 639px）由 QA Early Consultation #3 補入，防 Tailwind `sm` 斷點 regression。
 
 ---
 
@@ -108,6 +119,36 @@ const top = i * (ENTRY_HEIGHT + ENTRY_GAP)  // 每個 entry 從固定 top 位置
 
 ---
 
+### AC-028-DIARY-EMPTY-BOUNDARY：diary.json 異常數量下不崩潰 `[K-028]`
+
+**Given** `diary.json` 回傳 0 個 milestone（或 `useDiary(3).entries.length === 0`）
+**When** 頁面載入完成
+**Then** `DevDiarySection` 不 render 任何 entry，不顯示 rail，不出現 layout crash
+**And** 「— View full log →」連結行為不變
+**And** Playwright 斷言：`data-testid="diary-entry-wrapper"` 元素數量為 0，rail element（`aria-hidden` rail div）不存在或 `height === 0`
+
+**Given** `diary.json` 回傳恰好 1 個 milestone
+**When** 頁面載入完成
+**Then** 1 條 entry render，marker 可見，rail 可退化為 height=0 無 layout artifact
+**And** Playwright 斷言：`data-testid="diary-entry-wrapper"` 元素數量為 1，marker `boundingBox().width === 20 && height === 14`
+
+**PM Note：** diary.json 為 runtime JSON，理論上可被手動改為空或 1 entry；補此 AC 防 empty state 未 tested regression。Architect §2.6 已涵蓋 engineering 實作。
+
+---
+
+### AC-028-DIARY-RAIL-VISIBLE：vertical rail 具獨立可驗證存在性 `[K-028]`
+
+**Given** `diary.json` ≥ 3 個 milestone
+**When** 頁面載入至 Diary section
+**Then** rail element（vertical line）存在於 DOM 並可見
+**And** rail 寬度為 1px，高度大於 0
+**And** rail 位於 `diary-entries` 容器內（子關係），視覺上貫穿 entries 垂直範圍
+**And** Playwright 斷言：`data-testid="diary-rail"` 元素存在 + `boundingBox().width === 1` + `height > 0` + rail 的 top / bottom 落在 `data-testid="diary-entries"` 容器 bbox 範圍內
+
+**PM Note（2026-04-21 裁決）：** 原 AC 初稿寫「rail 覆蓋 first marker center → last marker center（±4px）」屬過度 prescriptive — 將 Architect rail 定位設計（top:40 / bottom:40 對齊 title baseline）機械化死，違反 `feedback_pm_ac_visual_intent`（AC 寫視覺意圖，不寫 property value）。改以「rail 存在 + 有高度 + 落在 entries 容器內」作為「Engineer 不得刪除 rail」的防禦斷言，設計意圖交 Architect 決定。Engineer BQ 觸發 PM 裁決 Option C。
+
+---
+
 ### AC-028-REGRESSION：K-023 已通過的斷言不回歸 `[K-028]`
 
 **Given** K-023 所有 AC（AC-023-*）於 K-023 關閉時為 PASS
@@ -118,18 +159,73 @@ const top = i * (ENTRY_HEIGHT + ENTRY_GAP)  // 每個 entry 從固定 top 位置
 **And** AC-023-BODY-PADDING：desktop padding `72px / 96px / 96px / 96px` + mobile padding `32px / 24px` 不變動
 **And** `npx tsc --noEmit` exit 0
 
+**And** AC-028-MARKER-COORD-INTEGRITY：marker parent 從 absolute wrapper 改為 flex-col entry 後，`firstMarker.boundingBox()` 仍回傳 `width === 20 && height === 14`（非 0/null）；`backgroundColor === 'rgb(156, 74, 59)'`；`borderRadius === '0px'`；前 3 個 entry 皆滿足
+**And** AC-028-MARKER-COUNT-INTEGRITY：`[data-testid="diary-marker"]` 元素數量恰等於 `useDiary(3).entries.length`（3），無雙渲染或漏渲染
+
+---
+
+## Known Gap（PM 自 QA Early Consultation 裁決宣告）
+
+### KG-028-01：長字串（40-char 無空白連續字串）mobile 375px overflow 不測
+
+**QA Challenge #4 原文：** `break-words` 對 40-char 無空白字串的處理未測試。
+**PM 裁決：** 宣告 Known Gap。
+**理由：** 生產 data（`frontend/public/diary.json`）text 欄位皆為中英文混合句，無純 40-char 無空白連續字串；diary 內容均為人類語意，URL 若出現也會因格式切分；ROI 低於補測試成本。
+**風險：** 若未來 diary.json 引入純 URL / hash 字串，mobile 可能水平 overflow。
+**Mitigation：** Engineer 使用 `break-words`（Architect §2.6 已指定），覆蓋 95% 情境；若日後有實例可補測試。
+
+### KG-028-02：`document.documentElement.scrollHeight` / footer 可見性不獨立測
+
+**QA Challenge #6 原文：** flex-col refactor 後 page scrollHeight 改變，無 AC 驗 footer 仍可見。
+**PM 裁決：** 宣告 Known Gap。
+**理由（2026-04-21 Code Review 後修訂）：** 現有 `pages.spec.ts` **未** 獨立斷言 HomeFooterBar visibility-in-viewport（原措辭「既有斷言間接覆蓋」過強，已修正）。改為工程判斷 — flex-col refactor 僅改 diary entries 內部定位（absolute → flow），HomePage 根 padding 未動（K-023 AC-023-BODY-PADDING 仍測），footer render 位置由 HomePage.tsx 結構決定，flex-col 不會產生極端 scrollHeight；此判斷 + QA regression 階段手測（dev server 滾到底目視）為 acceptable Mitigation。
+**風險：** 若未來 diary 出現極端長度內容（例如 100+ milestone），page 變長但不影響 footer 存在性；無 runtime crash 風險。
+**Mitigation：** QA regression 手測 footer at `/` 頁底可見；若 P2 TD-028-C 升級為補 AC 則此 KG close。
+
 ---
 
 ## 放行狀態
 
-**待 Architect 設計文件：** Architect 接手後需產出 `docs/designs/K-025-homepage-visual-fix.md`，涵蓋：
-1. 設計稿 frame `4CsvQ` section 間距精確數值（px 或 Tailwind class）
-2. DevDiarySection layout 改版方案（absolute → flow-based）的組件結構 pseudo-diff
-3. Playwright 斷言策略（bounding box gap 取哪個 testid 或 selector）
+**已放行 Engineer：** 2026-04-21 PM 裁決
+- ✓ QA Early Consultation 完成（6 challenges: 4 must-add → AC supplemented, 2 Known Gap）
+- ✓ Architect 設計文件齊（`docs/designs/K-028-homepage-visual-fix.md`，Pencil frame `4CsvQ` 值已提取）
+- ✓ AC 總計：AC-028-SECTION-SPACING（desktop + mobile + tablet 640/639）、AC-028-DIARY-ENTRY-NO-OVERLAP、AC-028-DIARY-EMPTY-BOUNDARY、AC-028-DIARY-RAIL-VISIBLE、AC-028-REGRESSION（含 MARKER-COORD-INTEGRITY + MARKER-COUNT-INTEGRITY）
+- ✓ Known Gap 明文：KG-028-01 / KG-028-02
 
 ## Tech Debt
 
-（留空，依 Code Review 結果補入）
+依 2026-04-21 Code Review（breadth + depth）兩層結果補入。無 Critical / Warning，3 TD 為測試覆蓋精細化與文件措辭精確化，不阻塞 merge。
+
+### TD-028-A：marker x-center 與 rail x-center alignment 無斷言 `priority: P3`
+
+**Gap:** AC-028-MARKER-COORD-INTEGRITY 斷言 marker width/height/bg/radius，未斷言 marker x-center 與 rail x-center 對齊。現況 rail `left: 29`、marker `left: 20 + w/2 = 30` 僅 1px 偏差（refactor 前後皆同，非回歸），但 parent 從 absolute wrapper 改 `relative pl-[92px]` 後，未來 refactor 可能無聲 drift。
+
+**Follow-up:** 加一條 `marker.x + marker.width/2 ≈ rail.x + rail.width/2 ± 2` 斷言。
+
+---
+
+### TD-028-B：1-entry rail collapse height 無斷言 `priority: P3`
+
+**Gap:** AC-028-DIARY-EMPTY-BOUNDARY 的 0-entry 分支斷言 rail 不存在或 height 0；1-entry 分支只斷言 entry count 與 marker dims，未斷言 rail collapse 高度（design §2.6 row 2 預測 ~0）。
+
+**Follow-up:** 加 `expect((await rail.boundingBox())?.height ?? 0).toBeLessThanOrEqual(8)` 到 1-entry test。
+
+---
+
+### TD-028-C：KG-028-02 Mitigation 措辭過強 `priority: P2`
+
+**Gap:** Known Gap KG-028-02 寫「HomeFooterBar 可見性已由既有 pages.spec.ts 其他斷言間接覆蓋」；實際 grep `pages.spec.ts` 無 footer visibility-in-viewport 斷言。宣稱過強，違反 memory `feedback_retrospective_honesty`（不過這是 PM 自己的 ticket 措辭，非 retrospective）。
+
+**Follow-up:** 二選一 — (a) 修改 ticket KG-028-02 措辭為「未獨立驗；依賴 flex-col refactor 不會產生極端 scrollHeight 的工程判斷」，或 (b) 補一條 footer visibility 斷言降級 KG → closed。PM 裁決 P2 = 下一 iteration 處理，本票 close 前至少改措辭。
+
+## Deploy Record
+
+- **Deploy date:** 2026-04-21 20:28 UTC+8
+- **Commit range:** `2d30672` (src) + `e162bb5` (docs) on `fix/K-028-homepage-spacing-diary-entry`
+- **Build output:** `dist/index.html` 1.01 kB / CSS 44.82 kB gzip 7.89 kB / JS 115.05 kB gzip 38.55 kB (+ vendor chunks react/charts/markdown unchanged)
+- **Firebase release:** Hosting URL `https://k-line-prediction-app.web.app` (project `k-line-prediction-app`)
+- **Deploy Checklist PASS:** (1) `grep "/api/"` scan → test-only matches, no bare prefix in src production code; (2) `npm run build` exit 0; (3) `firebase deploy --only hosting` release complete.
+- **Pre-deploy gate:** tsc exit 0 + Vitest 36/36 + Playwright 186/186 (QA sign-off 2026-04-21)
 
 ## 相關連結
 

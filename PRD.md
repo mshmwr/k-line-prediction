@@ -469,35 +469,6 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### K-028 — Homepage 視覺修復（section spacing + DevDiarySection entry 高度自適應）
-
-- **Status:** open / type: fix
-- **Ticket:** [docs/tickets/K-028-homepage-visual-fix.md](docs/tickets/K-028-homepage-visual-fix.md)
-- **摘要：** Homepage section 間距補足；DevDiarySection 改 flow-based 避免 absolute 定位導致的 entry 重疊。
-
-**AC：**
-
-#### AC-028-SECTION-SPACING：Homepage section 之間有適當 vertical spacing
-
-- **Given** 使用者訪問 `/`
-- **When** 頁面載入完成
-- **Then** HeroSection / ProjectLogicSection / DevDiarySection 三者相鄰 gap desktop > 32px、mobile > 16px
-- **And** Playwright bounding box gap 斷言（精確數值由 Architect 從 frame `4CsvQ` 提取補入）
-
-#### AC-028-DIARY-ENTRY-NO-OVERLAP：DevDiarySection 各 entry 渲染不重疊
-
-- **Given** diary.json ≥ 3 milestone 且含長文字 entry
-- **When** 頁面滾動至 Diary section
-- **Then** 相鄰 entry bounding box 不重疊 (`bottom[N] <= top[N+1]` ±2px)
-- **And** vertical rail 視覺貫穿
-- **And** 375px mobile viewport 同樣不重疊
-
-#### AC-028-REGRESSION：K-023 斷言不回歸
-
-見 [K-028](docs/tickets/K-028-homepage-visual-fix.md)：marker / STEP header / body padding / tsc 全通過。
-
----
-
 ### K-029 — /about Architecture + Ticket Anatomy cards 文字配色遷移
 
 - **Status:** open / type: fix
@@ -821,6 +792,55 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - **AC-027-DESKTOP-NO-REGRESSION** — 桌面 1024 / 1280 / 1440 viewport 與 K-021 closed 時 visual-report 視覺一致；既有 diary spec 全量 regression 通過（桌面 baseline 1 case + 既有 diary-related 全量 regression）
 
 **Test case 總計下限：7 個新增 + 既有 regression。**
+
+---
+
+### K-028 — Homepage 視覺修復（section spacing + DevDiarySection entry 高度自適應）
+
+- **Status:** closed / type: fix / **Closed: 2026-04-21**
+- **Ticket:** [docs/tickets/K-028-homepage-visual-fix.md](docs/tickets/K-028-homepage-visual-fix.md)
+- **摘要：** Homepage section 間距補足（desktop gap 72 / mobile gap 24）；DevDiarySection 從 absolute `ENTRY_HEIGHT=140` 改 flex-col flow layout，entry 高度自適應。
+
+**AC（原文保留）：**
+
+#### AC-028-SECTION-SPACING：Homepage section 之間有適當 vertical spacing
+
+- **Given** 使用者訪問 `/`
+- **When** 頁面載入完成（desktop 1280 / mobile 375 / tablet 640 / tablet 639）
+- **Then** HeroSection / ProjectLogicSection / DevDiarySection 三者相鄰 gap ≥ 設計值（desktop 72px、mobile 24px）
+- **And** Playwright bounding box gap 斷言對齊 frame `4CsvQ` 提取值
+
+#### AC-028-DIARY-ENTRY-NO-OVERLAP：DevDiarySection 各 entry 渲染不重疊
+
+- **Given** diary.json ≥ 3 milestone 且含長文字 entry
+- **When** 頁面滾動至 Diary section
+- **Then** 相鄰 entry bounding box 不重疊（`bottom[N] <= top[N+1]` ±2px）
+- **And** vertical rail 視覺貫穿（rail 位於 diary-entries 容器內 + width=1 + height>0）
+- **And** 375px mobile viewport 同樣不重疊
+
+#### AC-028-DIARY-EMPTY-BOUNDARY：0-entry / 1-entry 邊界不破
+
+- **Given** diary.json milestone 為 0 或 1 條 entry
+- **When** 頁面載入
+- **Then** 0-entry：rail 不存在或 height=0；1-entry：entry 渲染且 marker 存在
+
+#### AC-028-DIARY-RAIL-VISIBLE：rail 可見且對齊容器
+
+- **Given** ≥ 2 entries
+- **When** 頁面載入
+- **Then** `data-testid="diary-rail"` 位於 `data-testid="diary-entries"` bbox 內 + width=1 + height>0
+
+#### AC-028-REGRESSION：K-023 斷言不回歸 + marker coord / count integrity
+
+- marker / STEP header / body padding / tsc 全通過
+- MARKER-COORD-INTEGRITY：marker width=20 height=14 bg=#9C4A3B
+- MARKER-COUNT-INTEGRITY：marker 數量 = diary.json 攤平後 milestone 數
+
+**Known Gap：** KG-028-01（40+ 字 long-word 溢出，已 `break-words` 緩解）/ KG-028-02（HomeFooterBar scrollHeight 未獨立斷言，工程判斷 + QA 手測覆蓋）。
+
+**Tech Debt：** TD-028-A（marker x-center 對齊斷言，P3）/ TD-028-B（1-entry rail collapse height 斷言，P3）/ TD-028-C（KG-028-02 措辭精確化，P2 — 本票 close 前已修正）。
+
+**Deploy:** 2026-04-21 20:28 UTC+8 — commits `2d30672` (src) + `e162bb5` (docs) → `https://k-line-prediction-app.web.app`
 
 ---
 

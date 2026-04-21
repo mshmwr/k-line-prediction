@@ -390,4 +390,291 @@ test.describe('HomePage — AC-023-REGRESSION', () => {
     // View full log link still present
     await expect(page.getByText('— View full log →', { exact: true })).toBeVisible()
   })
+
+  test('AC-028-MARKER-COORD-INTEGRITY: marker boundingBox width=20 height=14 after flex-col refactor', async ({ page }) => {
+    await page.goto('/')
+
+    const markers = page.locator('[data-testid="diary-marker"]')
+    const count = await markers.count()
+    expect(count).toBeGreaterThanOrEqual(3)
+
+    for (let i = 0; i < Math.min(count, 3); i++) {
+      const box = await markers.nth(i).boundingBox()
+      expect(box).not.toBeNull()
+      expect(box!.width).toBe(20)
+      expect(box!.height).toBe(14)
+
+      const bg = await markers.nth(i).evaluate(el => getComputedStyle(el).backgroundColor)
+      expect(bg).toBe('rgb(156, 74, 59)')
+
+      const radius = await markers.nth(i).evaluate(el => getComputedStyle(el).borderRadius)
+      expect(radius).toBe('0px')
+    }
+  })
+
+  test('AC-028-MARKER-COUNT-INTEGRITY: marker count equals diary entry count (no double render / drop)', async ({ page }) => {
+    await page.goto('/')
+
+    // Wait for diary entries to hydrate (useDiary fetch)
+    await expect(page.locator('[data-testid="diary-entry-wrapper"]').first()).toBeVisible()
+
+    const entries = page.locator('[data-testid="diary-entry-wrapper"]')
+    const markers = page.locator('[data-testid="diary-marker"]')
+
+    const entryCount = await entries.count()
+    const markerCount = await markers.count()
+
+    // useDiary(3) slices to 3 — entry count === marker count (1:1)
+    expect(entryCount).toBe(markerCount)
+    expect(entryCount).toBeGreaterThanOrEqual(3)
+  })
+})
+
+// ── AC-028-SECTION-SPACING ──────────────────────────────────────────────────
+// Given: user visits /
+// When:  page loads
+// Then:  vertical gap between HeroSection ↔ ProjectLogicSection and
+//        ProjectLogicSection ↔ DevDiarySection matches Pencil frame 4CsvQ hpBody gap:72
+//        (desktop) / gap-6=24px (mobile < sm breakpoint).
+//
+// Tolerance: ±2px for sub-pixel rendering.
+
+test.describe('HomePage — AC-028-SECTION-SPACING', () => {
+  test('desktop 1280px: HeroSection ↔ ProjectLogicSection gap = 72px (±2px)', async ({ page }) => {
+    // Default Playwright viewport = 1280x720 (≥ sm breakpoint 640px → sm:gap-[72px] applies)
+    await page.goto('/')
+
+    const hero = page.locator('section').filter({ hasText: 'Predict the next move' })
+    const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
+
+    const heroBox = await hero.boundingBox()
+    const logicBox = await logic.boundingBox()
+    expect(heroBox).not.toBeNull()
+    expect(logicBox).not.toBeNull()
+
+    const gap = logicBox!.y - (heroBox!.y + heroBox!.height)
+    expect(gap).toBeGreaterThanOrEqual(70)
+    expect(gap).toBeLessThanOrEqual(74)
+  })
+
+  test('desktop 1280px: ProjectLogicSection ↔ DevDiarySection gap = 72px (±2px)', async ({ page }) => {
+    await page.goto('/')
+
+    const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
+    const diary = page.locator('section').filter({ hasText: '§ DEV DIARY' })
+
+    const logicBox = await logic.boundingBox()
+    const diaryBox = await diary.boundingBox()
+    expect(logicBox).not.toBeNull()
+    expect(diaryBox).not.toBeNull()
+
+    const gap = diaryBox!.y - (logicBox!.y + logicBox!.height)
+    expect(gap).toBeGreaterThanOrEqual(70)
+    expect(gap).toBeLessThanOrEqual(74)
+  })
+
+  test('mobile 375px: both section gaps = 24px (gap-6, ±2px)', async ({ page }) => {
+    // 375px < 640px (sm breakpoint) → gap-6 = 24px applies
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+
+    const hero = page.locator('section').filter({ hasText: 'Predict the next move' })
+    const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
+    const diary = page.locator('section').filter({ hasText: '§ DEV DIARY' })
+
+    const heroBox = await hero.boundingBox()
+    const logicBox = await logic.boundingBox()
+    const diaryBox = await diary.boundingBox()
+
+    const heroLogicGap = logicBox!.y - (heroBox!.y + heroBox!.height)
+    const logicDiaryGap = diaryBox!.y - (logicBox!.y + logicBox!.height)
+
+    expect(heroLogicGap).toBeGreaterThanOrEqual(22)
+    expect(heroLogicGap).toBeLessThanOrEqual(26)
+    expect(logicDiaryGap).toBeGreaterThanOrEqual(22)
+    expect(logicDiaryGap).toBeLessThanOrEqual(26)
+  })
+
+  test('tablet 640px (Tailwind sm breakpoint start): gap = 72px (desktop value applies)', async ({ page }) => {
+    // 640px is exactly where sm: prefix activates → sm:gap-[72px]
+    await page.setViewportSize({ width: 640, height: 812 })
+    await page.goto('/')
+
+    const hero = page.locator('section').filter({ hasText: 'Predict the next move' })
+    const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
+
+    const heroBox = await hero.boundingBox()
+    const logicBox = await logic.boundingBox()
+
+    const gap = logicBox!.y - (heroBox!.y + heroBox!.height)
+    expect(gap).toBeGreaterThanOrEqual(70)
+    expect(gap).toBeLessThanOrEqual(74)
+  })
+
+  test('tablet 639px (just below sm breakpoint): gap = 24px (mobile value applies)', async ({ page }) => {
+    // 639px is 1px below sm → base gap-6 = 24px applies
+    await page.setViewportSize({ width: 639, height: 812 })
+    await page.goto('/')
+
+    const hero = page.locator('section').filter({ hasText: 'Predict the next move' })
+    const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
+
+    const heroBox = await hero.boundingBox()
+    const logicBox = await logic.boundingBox()
+
+    const gap = logicBox!.y - (heroBox!.y + heroBox!.height)
+    expect(gap).toBeGreaterThanOrEqual(22)
+    expect(gap).toBeLessThanOrEqual(26)
+  })
+})
+
+// ── AC-028-DIARY-ENTRY-NO-OVERLAP ───────────────────────────────────────────
+// Given: user visits /, diary.json returns ≥ 3 milestones with varying text lengths
+// When:  page scrolled to Diary section
+// Then:  first 3 diary-entry-wrapper bounding boxes do not overlap:
+//        entry[N].y + height ≤ entry[N+1].y (±2px tolerance)
+
+test.describe('HomePage — AC-028-DIARY-ENTRY-NO-OVERLAP', () => {
+  test('desktop 1280px: first 3 entries do not overlap (adjacent bbox ordering)', async ({ page }) => {
+    await page.goto('/')
+
+    const entries = page.locator('[data-testid="diary-entry-wrapper"]')
+    await expect(entries.first()).toBeVisible()
+
+    const count = await entries.count()
+    expect(count).toBeGreaterThanOrEqual(3)
+
+    const upper = Math.min(count, 3) - 1
+    for (let i = 0; i < upper; i++) {
+      const a = await entries.nth(i).boundingBox()
+      const b = await entries.nth(i + 1).boundingBox()
+      expect(a).not.toBeNull()
+      expect(b).not.toBeNull()
+      // bottom of entry N ≤ top of entry N+1 (with +2px tolerance for sub-pixel)
+      expect(a!.y + a!.height).toBeLessThanOrEqual(b!.y + 2)
+    }
+  })
+
+  test('mobile 375px: first 3 entries do not overlap', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+
+    const entries = page.locator('[data-testid="diary-entry-wrapper"]')
+    await expect(entries.first()).toBeVisible()
+
+    const count = await entries.count()
+    expect(count).toBeGreaterThanOrEqual(3)
+
+    const upper = Math.min(count, 3) - 1
+    for (let i = 0; i < upper; i++) {
+      const a = await entries.nth(i).boundingBox()
+      const b = await entries.nth(i + 1).boundingBox()
+      expect(a).not.toBeNull()
+      expect(b).not.toBeNull()
+      expect(a!.y + a!.height).toBeLessThanOrEqual(b!.y + 2)
+    }
+  })
+})
+
+// ── AC-028-DIARY-RAIL-VISIBLE ───────────────────────────────────────────────
+// Given: diary.json ≥ 3 milestones
+// When:  page loaded to Diary section
+// Then:  rail element exists with width=1, height>0, and rail top/bottom
+//        fall within diary-entries container bbox range.
+// PM ruling 2026-04-21 (see ticket AC-028-DIARY-RAIL-VISIBLE PM Note):
+// marker-center ±4px clause removed — AC states visual intent (rail exists
+// inside container), not property value (Architect decides rail geometry).
+
+test.describe('HomePage — AC-028-DIARY-RAIL-VISIBLE', () => {
+  test('rail exists with width=1 height>0 inside diary-entries container', async ({ page }) => {
+    await page.goto('/')
+
+    const rail = page.locator('[data-testid="diary-rail"]')
+    await expect(rail).toBeVisible()
+
+    const railBox = await rail.boundingBox()
+    expect(railBox).not.toBeNull()
+    expect(railBox!.width).toBeCloseTo(1, 0)
+    expect(railBox!.height).toBeGreaterThan(0)
+
+    const entriesContainer = page.locator('[data-testid="diary-entries"]')
+    await expect(entriesContainer).toBeVisible()
+    const containerBox = await entriesContainer.boundingBox()
+    expect(containerBox).not.toBeNull()
+
+    const railTop = railBox!.y
+    const railBottom = railBox!.y + railBox!.height
+    const containerTop = containerBox!.y
+    const containerBottom = containerBox!.y + containerBox!.height
+
+    // Rail's top/bottom must fall within the diary-entries container bbox
+    expect(railTop).toBeGreaterThanOrEqual(containerTop)
+    expect(railBottom).toBeLessThanOrEqual(containerBottom)
+  })
+})
+
+// ── AC-028-DIARY-EMPTY-BOUNDARY ─────────────────────────────────────────────
+// Given: diary.json returns 0 milestones → no entries, no rail
+// Given: diary.json returns exactly 1 milestone → 1 entry, marker visible,
+//        rail may collapse to height 0 but layout must not crash.
+
+test.describe('HomePage — AC-028-DIARY-EMPTY-BOUNDARY', () => {
+  test('diary.json returns 0 entries: entry count = 0, rail absent or height 0', async ({ page }) => {
+    // Intercept /diary.json before navigation
+    await page.route('**/diary.json', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      })
+    })
+
+    await page.goto('/')
+
+    // Dev Diary section still renders (header + subtitle) but no entries
+    await expect(page.getByText('DEV DIARY')).toBeVisible()
+
+    const entries = page.locator('[data-testid="diary-entry-wrapper"]')
+    await expect(entries).toHaveCount(0)
+
+    // Rail is inside diary-entries wrapper which is gated by milestones.length > 0,
+    // so both rail and entries wrapper should be absent.
+    const rail = page.locator('[data-testid="diary-rail"]')
+    const railCount = await rail.count()
+    if (railCount > 0) {
+      const box = await rail.boundingBox()
+      // If rail still renders, its height must collapse to 0
+      expect(box?.height ?? 0).toBeLessThanOrEqual(0)
+    } else {
+      expect(railCount).toBe(0)
+    }
+  })
+
+  test('diary.json returns 1 entry: entry count = 1, marker 20x14 visible', async ({ page }) => {
+    await page.route('**/diary.json', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            milestone: 'Solo milestone for empty-boundary test',
+            items: [
+              { date: '2026-04-21', text: 'Single entry test text.' },
+            ],
+          },
+        ]),
+      })
+    })
+
+    await page.goto('/')
+
+    const entries = page.locator('[data-testid="diary-entry-wrapper"]')
+    await expect(entries).toHaveCount(1)
+
+    const marker = page.locator('[data-testid="diary-marker"]').first()
+    const box = await marker.boundingBox()
+    expect(box).not.toBeNull()
+    expect(box!.width).toBe(20)
+    expect(box!.height).toBe(14)
+  })
 })

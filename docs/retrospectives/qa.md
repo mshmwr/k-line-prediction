@@ -36,6 +36,25 @@
 
 **下次改善：** 當 Pencil MCP `get_screenshot` 不可用時，QA Pencil parity 檢查應改為：(1) JSON grep 移除項零命中，(2) JSON top-level frame children count 對照設計文件預期 section 數，(3) 明確在 retrospective 宣告「視覺層未驗（MCP offline）」。已將第三點 codify 到 `~/.claude/agents/qa.md` 的 Mandatory Task Completion Steps 0 之下（若 MCP offline 則明文宣告 + grep fallback 最低門檻）— 下次做此類 ticket 時必照此步驟。
 
+
+## 2026-04-21 — K-028 Regression Sign-off
+
+**What went well:** Full Playwright suite 186 passed / 1 skipped / 0 failed (1 pre-existing skip is AC-017-BUILD, requires production build, not a regression hole). K-023 regression confirmed: AC-023-DIARY-BULLET (3 markers 20×14 / rgb(156,74,59) / borderRadius 0), AC-023-STEP-HEADER-BAR (STEP 01/02/03 all PASS, Geist Mono 10px + bg charcoal + paper text), AC-023-BODY-PADDING (desktop 72/96/96/96 + mobile 375px 32/24) all PASS post flex-col refactor. K-028 ACs: AC-028-MARKER-COORD-INTEGRITY + AC-028-MARKER-COUNT-INTEGRITY + AC-028-SECTION-SPACING (desktop 1280 + tablet 640/639 breakpoint boundary + mobile 375) + AC-028-DIARY-ENTRY-NO-OVERLAP (desktop + mobile first 3 entries) + AC-028-DIARY-RAIL-VISIBLE + AC-028-DIARY-EMPTY-BOUNDARY (0 entries + 1 entry) all PASS. Footer visibility manual probe at `/` scroll-to-bottom: desktop 1280 footer bbox y=617 visible, mobile 375 footer bbox y=313 visible — KG-028-02 mitigation holds. Visual report generated at `docs/reports/K-028-visual-report.html` with correct TICKET_ID. Pencil frame `4CsvQ` hpBody.gap=72 confirmed matches AC-028-SECTION-SPACING desktop 72px assertion (Architect extraction validated).
+
+**What went wrong:** Stale `K-UNKNOWN-visual-report.html` remains in `docs/reports/` from an earlier run that forgot TICKET_ID env var. Did not auto-clean; noise for PM reviewing report dir. Separately, KG-028-01 (long-word overflow in Summary text on 375px) remains untested as registered Known Gap — no new test case added; boundary behavior is assumption-only.
+
+**Next time improvement:** Before running visual-report, `rm -f docs/reports/K-UNKNOWN-visual-report.html` to prevent stale artifacts from prior TICKET_ID-less runs polluting the dir. Codify in `qa.md` persona: screenshot step explicitly deletes any `K-UNKNOWN-*.html` before running the new report.
+
+## 2026-04-21 — K-028 Early Consultation (AC testability review)
+
+**What went well:** Caught PM frontmatter mis-ruling (`qa-early-consultation: N/A`) that violated the "QA Early Consultation every PRD, not only edge-case AC" rule. Surfaced 5 boundary/regression gaps before Engineer started: tablet breakpoint missing, rail-visible guard buried in Architect doc without an AC, empty / 1-entry / 2-entry diary not explicit in AC, K-023 marker assertions re-run is implicit only, and `data-testid="diary-marker"` DOM-nesting change (marker moves from absolute-child-of-outer-wrapper to child of new entry wrapper) — existing K-023 spec still selects by testid so pass is expected, but bounding-box coordinate space changes need explicit regression confirmation.
+
+**What went wrong:** PM shipped `qa-early-consultation: N/A — reason: all ACs are happy-path layout fix` on the ticket frontmatter. The rule `feedback_qa_early_mandatory.md` explicitly says not limited to edge-case AC; layout ticket still needs QA review because (a) diary.json content mutation is an implicit input domain and (b) any CSS refactor that removes DOM structure (absolute-positioned content wrapper deleted, replaced with `pl-[92px]` padding) risks silent breakage of coordinate-based assertions in existing specs. PM skipped QA; consultation only happened after user flagged the protocol breach.
+
+**Next time improvement:** PM Phase Gate must treat `qa-early-consultation` as mandatory-yes — any "N/A — reason: happy path" value is an automatic violation and the ticket is bounced back. Codify in `pm.md`: the frontmatter field accepts only (a) a reference to a QA Early Consultation report/section, or (b) "skipped by user explicit override — ___". Layout/visual tickets specifically must not claim N/A — layout changes can break existing specs through DOM coordinate shifts even when AC is happy-path.
+
+---
+
 ## 2026-04-21 — K-018 GA4 runtime fix regression run
 
 **做得好：** 完整跑滿 175 test (166 passed / 1 skipped / 8 failed)，未在 ga-tracking.spec.ts 第一支 fail 就中止；failure log 直接對應到 spec mock 與 production helper 實作不一致的根因，交付訊息可供 PM 直接裁決。

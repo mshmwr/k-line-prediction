@@ -43,6 +43,14 @@
 
 **Next time improvement:** After any `/about` (or other page with a sub-component directory) ticket, execute `ls frontend/src/components/about/*.tsx | wc -l` and count the entries in architecture.md's about/ tree block — if mismatched, flag as "pre-existing drift" in design doc §Self-Diff and decide whether this ticket fixes it (cheap) or logs it as Known Gap. Codify this count-match check as an explicit bullet under `## Architecture Doc Structural Content Self-Diff` → `### Same-File Cross-Table Consistency Sweep` in senior-architect.md. Will propose persona edit if this pattern recurs in K-032+; for K-031 the fix is soft (noted in design doc §8.1), no persona edit this round.
 
+## 2026-04-21 — K-028 Homepage Visual Fix (Section Spacing + DevDiarySection Flow Layout)
+
+**What went well:** Pencil MCP was failing (`✗ Failed to connect`) but I immediately pivoted to direct JSON parse of `frontend/design/homepage-v2.pen` via a short Python traversal. Got the full layout tree for `4CsvQ > hpBody` including `gap: 72` (exact section spacing source of truth) and rail node `x=29, y=40, h=304` inside `diaryEntries` in one pass. No stall on the MCP failure. All three pre-verdict matrices (spacing wrapper / rail implementation / mobile gap value) declared dimensions before scoring and converged without post-hoc weight adjustments. Boundary pre-emption table enumerated 9 scenarios (including single-milestone edge case that could collapse the rail) before design handoff — no blank spots left for Engineer to decide.
+
+**What went wrong:** Initial tool call batch did not include the Pencil MCP connectivity check, so I only noticed the MCP failure mid-read after trying to recall frame data. Lost ~30 seconds of reasoning on "should I retry MCP" before confirming the `.pen` file is plain JSON. The K-021 architecture.md gave enough hints that `.pen` is JSON-based but I did not internalize that as a fallback pattern.
+
+**Next time improvement:** Add to `senior-architect.md` persona — "Pencil MCP Fallback: `.pen` files are plain JSON; if `claude mcp list` reports the pencil server failed or `batch_get` errors, read the file directly with Read / Python traversal. Do not block the session on MCP recovery." This is a behavioral rule (tool fallback strategy), so per the codify-retrospective rule it must also be Edited into the persona file as a hard step — will request PM to acknowledge this retrospective before I make the persona edit.
+
 ---
 
 ## 2026-04-21 — K-023 Homepage Structure Detail Alignment v2
