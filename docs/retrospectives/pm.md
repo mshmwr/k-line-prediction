@@ -2,6 +2,20 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-21 — K-013 close + merge + deploy（Bug Found Protocol Round 1+2 full lifecycle）
+
+**What went well:** K-013 整票跨 Architect 設計 → Engineer Round 1 → Reviewer Round 1 Critical C-1 → **full Bug Found Protocol（3 roles × 3 pieces: retro + memory + persona）** → PM Quality Check → Engineer Round 2 fix pack → Reviewer Round 2 Critical F-1（design doc stale premise）→ PM docs-only remediation → QA Round 2 regression PASS → close + merge + deploy，全在單日內收斂。Bug Found Protocol 執行度最嚴格的一次：C-1（Engineer behavior drift）+ W-1（Architect pre-design audit no dry-run）+ R1（Reviewer single-face assertion accept）三個 role 皆獨立反省、各寫 memory feedback file + 編輯對應 persona 硬 gate，無一偷懶。Pre-deploy gate 跑在 merge 後 tree（commit `722df0c`）全綠：tsc 0 / Vitest 45 / pytest 68 / Playwright **190/191**（1 pre-existing skip，含 K-013 spec 4/4 positive+negative 雙斷言）。Live verify 用 `curl -sI` 拿 HTTP/2 200 + etag，不是僅目測。Deploy Record 欄位全部寫實際值（build size、release complete 時間、live HTTP status），無 `<TBD>` 殘留。
+
+**What went wrong:** Round 1 close 階段 main worktree 已有 pre-staged 的 PM-dashboard 改動（K-013 移入 Closed 19 tickets），是前次 session 預寫但未 commit，實際 deploy 還沒跑。流程上沒有硬 gate 擋住「dashboard 標 deployed 但 deploy 未跑」—— 仰賴 PM 手動記帳。雖本次最終 deploy 有跑且 dashboard 值對上，但 **若中途中斷就會留 dashboard 和實際狀態不一致**。Merge 階段 4 檔 conflict（architecture.md / retrospectives × 3），其中 architecture.md 與 qa.md 兩檔無 conflict marker 但 git 仍 UU 標記（可能是之前 session 用工具寫過已解決版本但沒 `git add` 標記），需 Read 確認 content sense 後 `git add` resolve；architect.md 與 engineer.md 兩檔 manual resolve（兩側同日多 entry，保留全部並依時間順序重排）。Conflict resolution 耗 ~15 分鐘，若 worktree 在 branch 上持續跑而 main 同步 K-028/K-030/K-031 retro append，此類 conflict 是結構性問題。
+
+**Next time improvement:**
+1. **PM-dashboard 更新時序硬化（新硬規則）：** Dashboard 更新 = deploy 完成 + Deploy Record 寫入後的最終步驟，**不得提前預寫**。Close 流程改為 (a) Deploy Checklist 跑完 → (b) Deploy Record 回寫實際值 → (c) 當步才 Edit dashboard 搬運 ticket 到 Closed section 並 commit。若中途中斷，dashboard 保持原狀（ticket 仍在 Active section），重新進入時狀態可見可追溯。補入 `~/.claude/agents/pm.md` 「Close Phase ordering」硬步驟。
+2. **Retrospective log append timing（新軟規則）：** `docs/retrospectives/<role>.md` 由各 role agent 在 worktree branch 上 append，與 main 同時進行多票 append 易 conflict。考慮改為：role agent 在 worktree 內產生 retro entry 的「片段 stash」存放 `docs/retrospectives/pending/<ticket-id>-<role>.md`（單檔獨立，無 conflict 面），**merge-to-main 後才由 PM 彙整 prepend 進主 retro log**。短期先用「merge conflict auto-resolve by preserving both sides and sorting by date DESC」作為 PM close playbook 的標準動作。
+3. **Bug Found Protocol 完整度 gate：** 本 K-013 執行的「3 roles × 3 pieces」是最嚴格版本，應明文列為 Critical bug 的唯一可接受標準——**缺任一角色反省或 memory/persona edit 不得 release Round 2**。補入 `~/.claude/CLAUDE.md` §Code Reviewer.Bug Found Protocol 的 step 2-4 描述，從「PM confirms quality」升級為「PM verifies 3×3 matrix complete」並列舉檢查項目。
+4. **Next：** K-013 closed；follow-up 候選（優先級 high→low）：K-029（/about card body text palette，open 狀態，優先處理，僅視覺修）、TD-K013-R2-01（Case D substitution 若 PM 改認不 accept 需加 1 round 補 event injection test）、TD-K013-R2-02（behavior-diff dry-run 工具化 checklist，Engineer persona 硬 gate 已落但無自動化驗證工具）、K-014/K-015/K-016 基礎測試重構票，可排 K-029 後。
+
+---
+
 ## 2026-04-21 — K-030 close + merge + deploy + TD 登記（auto mode 單 session）
 
 **What went well:** 單一 session 完成 Pre-commit 檢查 → Commit 切分（feat 實作 vs docs，依 feedback_separate_commits）→ outer main merge → Firebase Hosting deploy → ticket close + PRD §3→§4 搬家 + PM-dashboard 更新 + 新 TD-K030-03/04 登記 + daily-diary 條目。流程按 user 的結構化 Step 1-8 逐一執行，無中斷未 re-ask。Commit Test Gate 依 file class 判定：frontend/src + frontend/e2e + docs 混合 → Full gate；tsc 已於 QA 過程中 exit 0 確認，信 QA report 不重跑 Playwright。git -C <abs> 全程明確 scope 遵 feedback_git_multi_repo_scope，雖 Bash cwd 多次 reset 但未誤操作跨 repo。TD 登記依 feedback_deploy_after_release 硬規則確保 deploy 完成才 ticket close（Deploy Record 段先寫 placeholder 於 commit 2，deploy 後回寫實際 hash / URL）。Pencil v1 `ap001` 1:1 對齊在 commit message 明確交代 Why，QA PASS 資訊收斂到可追溯程度。
