@@ -220,12 +220,13 @@ const top = i * (ENTRY_HEIGHT + ENTRY_GAP)  // 每個 entry 從固定 top 位置
 
 ## Deploy Record
 
-- **Deploy date:** 2026-04-21 20:28 UTC+8
-- **Commit range:** `2d30672` (src) + `e162bb5` (docs) on `fix/K-028-homepage-spacing-diary-entry`
-- **Build output:** `dist/index.html` 1.01 kB / CSS 44.82 kB gzip 7.89 kB / JS 115.05 kB gzip 38.55 kB (+ vendor chunks react/charts/markdown unchanged)
+- **Deploy date:** 2026-04-21 22:47 UTC+8 (real deploy — earlier 20:28 entry was from worktree build that never reached live CDN; 2026-04-21 audit confirmed live bundle lacked K-028 testids)
+- **Commit range:** merge commit `76b83c1` on `main` (rebased from original `2d30672`/`e162bb5`/`c5adacb` → `b26bb38`/`9ef9c2f`/`161d5bc`)
+- **Build output:** `dist/index.html` 1.01 kB / CSS 44.34 kB gzip 7.81 kB / JS 114.13 kB gzip 38.28 kB / vendor chunks (react/charts/markdown) unchanged — bundle `index-D5Ufwtvm.js`
 - **Firebase release:** Hosting URL `https://k-line-prediction-app.web.app` (project `k-line-prediction-app`)
 - **Deploy Checklist PASS:** (1) `grep "/api/"` scan → test-only matches, no bare prefix in src production code; (2) `npm run build` exit 0; (3) `firebase deploy --only hosting` release complete.
-- **Pre-deploy gate:** tsc exit 0 + Vitest 36/36 + Playwright 186/186 (QA sign-off 2026-04-21)
+- **Live verification:** live bundle `index-D5Ufwtvm.js` grep 含 `"homepage-sections"` / `"diary-entries"` / `"diary-entry-wrapper"` / `"diary-marker"` — K-028 fix confirmed on production CDN.
+- **Pre-deploy gate:** tsc exit 0 + Vitest 36/36 + Playwright 186/186 (QA sign-off 2026-04-21 before merge)
 
 ## 相關連結
 
