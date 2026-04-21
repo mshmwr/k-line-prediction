@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom'
-
 export default function HeroSection() {
   return (
     <section>
@@ -21,15 +19,17 @@ export default function HeroSection() {
         >
           Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next.
         </p>
-        {/* CTA */}
+        {/* CTA — opens /app in new tab (K-030 C-1) */}
         <div className="flex gap-[14px]">
-          <Link
-            to="/app"
+          <a
+            href="/app"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-[#2A2520] text-[#F4EFE5] rounded-[6px] px-[26px] py-[12px] text-[13px] font-bold tracking-[1px]"
             style={{ fontFamily: '"Geist Mono", monospace' }}
           >
             Try the App →
-          </Link>
+          </a>
         </div>
       </div>
     </section>

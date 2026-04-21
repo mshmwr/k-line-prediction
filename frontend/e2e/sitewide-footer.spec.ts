@@ -2,15 +2,18 @@ import { test, expect } from '@playwright/test'
 import { mockApis } from './_fixtures/mock-apis.ts'
 
 // ── AC-021-FOOTER ────────────────────────────────────────────────────────────
-// Given: user visits /, /app, /business-logic
+// Given: user visits /, /business-logic, /about
 // When:  page is rendered
 // Then:  <HomeFooterBar /> 單行資訊列顯示 `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`
 // And:   字級 11px、顏色 #6B5F4E (text-muted)、top border
 //
 // /about 維持 <FooterCtaSection />（K-017 鎖定），不得渲染 HomeFooterBar。
 //
-// 3 個獨立 test case（PM 量化規則）+ /business-logic 登入後狀態 = 4；
-// 另加 /about FooterCtaSection 存在 + HomeFooterBar 不存在 = 5。
+// 2 個獨立 test case（PM 量化規則）+ /business-logic 登入後狀態 = 3；
+// 另加 /about FooterCtaSection 存在 + HomeFooterBar 不存在 = 4。
+//
+// 註（K-030）：/app 於 K-030 撤除 HomeFooterBar；/app footer-absent 斷言移至
+// frontend/e2e/app-bg-isolation.spec.ts（AC-030-NO-FOOTER）。
 //
 // LIFO ordering invariant 由 _fixtures/mock-apis.ts 內建。
 
@@ -41,12 +44,6 @@ test.describe('AC-021-FOOTER — HomeFooterBar per route', () => {
   test('/ — HomeFooterBar shows with 11px muted + border-top', async ({ page }) => {
     await mockApis(page)
     await page.goto('/')
-    await expectHomeFooterBarVisible(page)
-  })
-
-  test('/app — HomeFooterBar shows with 11px muted + border-top', async ({ page }) => {
-    await mockApis(page)
-    await page.goto('/app')
     await expectHomeFooterBarVisible(page)
   })
 

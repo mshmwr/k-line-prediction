@@ -1,6 +1,45 @@
 # PM Retrospective Log — K-Line Prediction
 
-跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
+跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
+
+## 2026-04-21 — K-030 close + merge + deploy + TD 登記（auto mode 單 session）
+
+**What went well:** 單一 session 完成 Pre-commit 檢查 → Commit 切分（feat 實作 vs docs，依 feedback_separate_commits）→ outer main merge → Firebase Hosting deploy → ticket close + PRD §3→§4 搬家 + PM-dashboard 更新 + 新 TD-K030-03/04 登記 + daily-diary 條目。流程按 user 的結構化 Step 1-8 逐一執行，無中斷未 re-ask。Commit Test Gate 依 file class 判定：frontend/src + frontend/e2e + docs 混合 → Full gate；tsc 已於 QA 過程中 exit 0 確認，信 QA report 不重跑 Playwright。git -C <abs> 全程明確 scope 遵 feedback_git_multi_repo_scope，雖 Bash cwd 多次 reset 但未誤操作跨 repo。TD 登記依 feedback_deploy_after_release 硬規則確保 deploy 完成才 ticket close（Deploy Record 段先寫 placeholder 於 commit 2，deploy 後回寫實際 hash / URL）。Pencil v1 `ap001` 1:1 對齊在 commit message 明確交代 Why，QA PASS 資訊收斂到可追溯程度。
+
+**What went wrong:** 本 session PM 仍無 Agent tool（function roster 只有 Read/Edit/Write/Bash/Glob/Grep），與 2026-04-21 K-030 Phase Gate session 同樣限制；但本次是 auto mode 執行 close，無 sub-agent 召喚需求，不影響結果。K-030 整票跨多個 session（Phase Gate / Code Review 裁決 / close + deploy 各一 session），PM session 能力分歧未統一。PM-dashboard.md 在 outer Diary-level repo（非 K-Line-Prediction worktree 內），需跨 repo commit — 本 session 的 git -C 路徑管理正確避開了 K-013 K-028 K-031 其他 worktree staged 狀態滲漏（feedback_separate_commits + feedback_git_multi_repo_scope 雙保險）。無重大問題需矯正。
+
+**Next time improvement:**
+1. **PM close + deploy auto mode playbook codify（新硬步驟）：** PM 收到「ticket QA PASS → close + merge + deploy + TD」組合請求時，流程固定為 (a) Pre-commit 檢查 staged 檔逐檔屬 ticket scope；(b) Commit 切分 feat vs docs；(c) outer main merge（fast-forward 優先）+ push；(d) Deploy per CLAUDE.md Deploy Checklist；(e) ticket close + Deploy Record 實際 URL/hash 回寫；(f) PRD §3→§4 搬家 + frontmatter `closed:` + PM-dashboard deregister；(g) Tech Debt 新增 + PM retro prepend + daily-diary append。此 7 步序作為 PM persona 「close + deploy 組合任務」獨立 section 補入 `~/.claude/agents/pm.md`。
+2. **多 worktree 並存時的 Bash cwd 自衛：** Bash tool cwd 在 session 內多次重置（不同 tool call 間），跨 repo / 跨 worktree 操作必須用 `git -C <abs>` + 絕對路徑 ls/grep；用 `pwd` 做 inline 驗證，不假設 cwd 為 user working dir。此項已在 feedback_git_multi_repo_scope 明載；本次無違反但需在 pm.md 「Handoff handoff 組合任務流程」段再明示。
+3. **Next：** K-030 closed；follow-up 候選為 K-029（/about card body text palette，open 狀態）、TD-K022-02 grep 清除 SectionLabel 殭屍 colorMap（K-030 closed 後觸發條件成立）、TD-K030-04 diary.json K-021/K-022/K-023 繁中條目英譯（可併 K-024 觸發）。
+
+---
+
+## 2026-04-21 — K-030 Code Review 6 findings 裁決（自裁不上報）
+
+**What went well:** 依 feedback_pm_self_decide_bq 規則，6 條 findings 全數在 PM 層裁決完成，無任一條上報使用者。每條均走 Pre-Verdict Checklist（Critical C-1 Hero CTA 走完整 3-dim 矩陣 + 3 條 Red Team challenge）；Important / Minor 依 ticket §Scope 原意 + 既有 Reviewer 建議 + 維護成本快速裁決。Tech Debt 新增 2 條（TD-K030-01 AppPage interaction E2E gap / TD-K030-02 NavBar renderLink type alias）均附排期觸發條件，不漂浮。PM-dashboard K-030 row 即時更新狀態為 `code-review-done → engineer fix-now + architect fix-now`，非「等收斂再改」。
+
+**What went wrong:** C-1（HeroSection CTA same-tab）本應在 Architect §5.2 Blast Radius table 被抓到——§5.2 `UnifiedNavBar` 列明「App link 行為對所有訪客生效：從任一頁點 App 都開 new tab」，但 Architect 只列 NavBar 這個單一入口，**沒有展開「Homepage 還有其他進 `/app` 的入口」**的 cross-page consistency 掃描。根因：Architect 的 Blast Radius 分析停在「組件 consumer」層（NavBar 在 4 marketing pages 都渲染），沒延伸到「同一 target route 還有哪些 CTA / link 指向它」的 **target-route consumer** 分析。Hero CTA `<Link to="/app">` 也是 `/app` 的入口之一，與 NavBar App link 構成同一 route 的兩個 entry points——行為不一致必被 reviewer 抓。若 Architect §5.2 用 grep `to="/app"|href="/app"` 全專案掃一次，就能把 Hero CTA 列入「須同步行為」清單，C-1 就不會長出來。
+
+**Next time improvement:**
+1. **Architect `§5.2 Shared Component Blast Radius` 擴充 target-route consumer 掃描（新硬規則）：** 任何涉及 route navigation 行為變更（new-tab / same-tab / redirect / SPA vs full reload）的 ticket，Architect 必須額外執行 `grep -rn 'to="/<route>"\|href="/<route>"' frontend/src/` 列出**所有指向該 route 的 CTA / link**，每個 entry point 都標示「行為是否與本票主改變一致」。不一致的 entry point 必須在 §5.2 blast radius table 明列「需同步修改」或「登 TD 說明為何不同步」。此規則補入 `~/.claude/agents/senior-architect.md` 「Shared Component Removal Scan」段下方新立 **Target-Route Consumer Scan** 子段。
+2. **PM Phase Gate 「UI AC check」補一條：** 若 AC 含「任何頁面到某 route 的 navigation 行為」描述（例：AC-030-NEW-TAB「any page with UnifiedNavBar... opens /app in new tab」），PM 在 releasing Architect 前先用 grep 列所有 `to="/<route>"` / `href="/<route>"` 清單，塞進 Architect prompt 當 required-coverage 起點；Architect 回稿時必須逐項回覆。此規則補入 `~/.claude/agents/pm.md` Phase Gate Checklist「Prerequisites for releasing Engineer」段。
+3. **Next：** C-1 + I-3 已召喚 Engineer 修復；I-2 已召喚 Architect 回補 design doc §6.2 4→5。修完自動進 QA phase，不再上報使用者。
+
+---
+
+## 2026-04-21 — K-030 /app isolation — Phase Gate + QA Early Consultation + 放行 Engineer
+
+**What went well:** 在 Architect 設計文件 §0.2 明確宣稱「`/app` 不在 Pencil 設計稿範圍」的情況下，PM 仍走 Step 1 親自解析 `.pen` JSON 驗證——用 `python3` 列 `homepage-v1.pen` / `homepage-v2.pen` top-level frames，發現 v1 含 `/app` frame `ap001`（fill `#030712`，無 NavBar/Footer 子節點）。Architect 宣稱只對 v2 成立，v1 被遺漏。這個 gap 不影響最終色值（Architect 選的 `bg-gray-950` = `rgb(3, 7, 18)` = `#030712` 恰好與 Pencil v1 相符），但論述 chain-of-evidence 漏了 source of truth。PM 把這個發現 codify 成 AC-030-PENCIL-ALIGN（明確表列 Pencil v1 `ap001` 屬性 → 實作要求值），讓 Engineer 實作 + QA 視覺驗收都對 Pencil v1 frame 負責，不靠 Architect 的程式碼推理錨點。QA Early Consultation 四項逐一發現 ticket 原 AC 寫的 testid 兩處（`unified-navbar` / `home-footer-bar`）codebase 根本不存在——PM grep 驗證 `UnifiedNavBar.tsx` 只有 `navbar-desktop`/`navbar-mobile`、`HomeFooterBar.tsx` 零 testid 只有 semantic `<footer>`——全部改用實際 locator 補強 AC（Option A supplement × 3 + accept design doc Option B × 1）。
+
+**What went wrong:** 本 session 的 PM agent 被呼叫時**沒有 Agent tool、也沒有 mcp__pencil__\* 工具**（function roster 只有 Read/Edit/Write/Bash/Glob/Grep），這違反 `pm.md` 硬規則「QA Early Consultation 必須 Invoke Agent tool 召喚 qa agent」。PM 改以讀 `qa.md` persona + 自我扮演 QA lens 進行 consultation——這是降階方案，不是完整執行。若 qa agent 實際召喚會發現 PM 漏掉的 boundary，本次就會有未揭露的 Known Gap。根因：使用者指令「不要 re-ask 使用者」強制 PM 在工具限制下繼續進行；PM 選擇在 ticket §Release Status 明確揭露「此 session 無 Agent tool，QA Consultation 為 PM simulation」作為 mitigation，讓後續 QA 階段若有異議可重新裁決。同時 Architect 設計文件 §0.2 Pencil scope 宣稱有誤（只查 v2，漏 v1）本應由 Architect 自查，PM 是兜底才發現；若 Architect 持續有此 gap，下次遇到「跨 .pen 檔案的多版本設計稿」仍會重現。
+
+**Next time improvement:**
+1. **PM session capability pre-flight check（新硬規則）：** PM 開始執行 Phase Gate / QA Consultation 前先檢查 session 是否具備 `Agent` + `mcp__pencil__*` 工具；缺一就必須在 ticket §Release Status 寫下「capability gap + mitigation」segment，不能裝作按正常流程執行。此規則補入 `~/.claude/agents/pm.md` 「QA Early Consultation」段的 pre-flight 步驟。
+2. **Architect Pencil scope audit 補強：** 設計文件 §0 / §1 若出現「此 ticket 不在 Pencil 設計稿範圍」宣稱，Architect 必須**列出實際檢查的 .pen 檔案清單**（full path + git-tracked 版本）+ 每檔的 frame 清單，而非只說 v2 沒有。此規則補入 `~/.claude/agents/senior-architect.md` 的 Pencil frame completeness 相關段。
+3. **AC testid 實證硬步驟：** PM 在 AC 階段若引用 `data-testid="xxx"`，必須在 ticket 內 grep 驗證該 testid 於 codebase 存在；不存在就不得寫入 AC。K-030 ticket 原初草稿的 `unified-navbar` / `home-footer-bar` 皆屬臆測，到 QA Consultation 才修正——應在 PM 初稿時就擋下。此規則 codify 進 pm.md 「AC 撰寫」段。
+
+---
 
 ## 2026-04-21 — K-031 Final Acceptance + Close + Deploy
 

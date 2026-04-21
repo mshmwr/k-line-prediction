@@ -20,6 +20,14 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-030 /app page isolation (final regression)
+
+**做得好：** Pencil v1 `ap001` frame 於本 session 透過直接讀 `frontend/design/homepage-v1.pen` JSON 確認 `fill: #030712`，對照 dev screenshot `/app` wrapper bg 視覺判讀吻合（同時 Playwright T4 已 assert `rgb(3, 7, 18)`）；mcp__pencil 工具不可用時以 .pen JSON 直讀替代，完成 AC-030-PENCIL-ALIGN 視覺比對。主動為 mobile (375px) + tablet (768px) viewport 補 `/app` isolation 驗證（寫入臨時 spec，執行後刪除），補 persona Boundary Sweep viewport 維度；mobile NavBar App link `target=_blank` 亦確認。
+
+**沒做好：** Full Playwright suite `npx playwright test` 跑時 webServer 不帶 `TICKET_ID` 環境變數，`visual-report.ts` fallback 產出 `K-UNKNOWN-visual-report.html` 汙染 `docs/reports/`。QA 驗到尾端才發現並手動 rm + 補跑 `TICKET_ID=K-030 npx playwright test visual-report.ts`。
+
+**下次改善：** 建議於 `frontend/e2e/visual-report.ts` 加 hard gate — `TICKET_ID` 未設時 `throw new Error('TICKET_ID not set')`，不 fallback K-UNKNOWN；或於 QA persona Step 1 改為「必先 export TICKET_ID=K-XXX 再跑 full suite」硬規則。屬 shared tooling，回報 PM 評估另開 TD 票處理。另發現 `frontend/public/diary.json` 存在繁中 milestone 名稱（違反 feedback_diary_json_english），屬 K-021/K-022/K-023 遺留，與本票 scope 無關，僅備註給 PM 參考。
+
 ## 2026-04-21 — K-031 /about 移除 Built by AI showcase section
 
 **做得好：** PM 已預先核定 targeted scope（about-v2 + about + pages 三 spec + 2 route 視覺驗證），QA 不盲目跑 full suite；tsc 0 errors + 95 passed / 1 skipped / 0 failed；獨立 visual spec 直接 evaluate document 的 8 個候選 section id，讀到的順序與 Architect 設計文件 §3 File Change List 的 7 SectionContainer 列完全一致（header → metrics → roles → pillars → tickets → architecture → footer-cta）；homepage banner 點擊 → `/about` SPA 導航一起驗；Pencil `.pen` JSON grep 對 `banner-showcase` / `Built by AI` 零命中，與 codebase parity 對齊。

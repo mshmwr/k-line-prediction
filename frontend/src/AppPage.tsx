@@ -6,8 +6,6 @@ import { PredictButton } from './components/PredictButton'
 import { MatchList } from './components/MatchList'
 import { StatsPanel } from './components/StatsPanel'
 import { MainChart } from './components/MainChart'
-import UnifiedNavBar from './components/UnifiedNavBar'
-import HomeFooterBar from './components/home/HomeFooterBar'
 import { usePrediction } from './hooks/usePrediction'
 import {
   aggregateProjectedBarsTo1D,
@@ -365,8 +363,7 @@ export default function AppPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <UnifiedNavBar />
+    <div className="h-screen flex flex-col overflow-hidden bg-gray-950 text-gray-100">
       <TopBar rowCount={ohlcData.filter(isRowComplete).length} />
       {errorMessage && (
         <div className="mx-4 mt-1 text-red-400 text-xs border border-red-700 rounded px-3 py-1.5 bg-red-950 flex-shrink-0">
@@ -493,7 +490,6 @@ export default function AppPage() {
           </div>
         </div>
       </div>
-      <HomeFooterBar />
     </div>
   )
 }

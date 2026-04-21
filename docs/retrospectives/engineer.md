@@ -16,6 +16,34 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-030 Code Review fix-now pass 2 (C-1 Hero CTA new tab + I-3 JSDoc drift)
+
+**What went well:**
+- TDD red-green preserved on the new C-1 spec: added `T6 AC-030-NEW-TAB — Homepage Hero CTA opens /app in new tab`, ran and confirmed it failed with `Expected string: "_blank" Received string: ""` (locator resolved to the correct Hero CTA `<a href="/app">` — validating target-scope self-check), then applied the `Link → <a target=_blank rel=noopener noreferrer>` edit in `HeroSection.tsx` and the case turned green.
+- Full verification chain held: `tsc --noEmit` exit 0 after source edit; full Playwright suite 172 pass / 1 skipped / 0 fail (one more than pass 1 thanks to T6); 5-route visual self-check via dedicated node script confirmed `/app` wrapper bg still `rgb(3, 7, 18)` (unchanged) and Homepage Hero CTA attributes exactly `tag=A target=_blank rel=noopener noreferrer href=/app`.
+- Locator distinction respected: T1 continues to target NavBar App link via `[data-testid="navbar-desktop"]` scope; T6 targets the Hero CTA via `getByRole('link', { name: /try the app/i })`, no collision between the two link assertions.
+- Unused `import { Link } from 'react-router-dom'` was removed from `HeroSection.tsx` after the switch — no dead import left behind (was the only consumer in that file).
+
+**What went wrong:**
+- PM's report line referenced `sitewide-footer.spec.ts L7 Given:` but the actual `Given:` clause lives at L5; L7 is the `Then:` clause. Had to Read the file to anchor the exact drift point before editing (diff was a single-line change at L5 adding `, /about`). This is a non-issue in practice but a reminder that when PM summarises file coordinates it is worth cross-referencing with a direct Read before accepting the coordinates verbatim.
+
+**Next time improvement:**
+- When a design doc / PM handoff hardcodes a file line number for an edit, always Read ±5 lines around it and confirm the semantic match (Given / When / Then / And header) before applying. Line numbers drift the moment any earlier edit lands — trust the semantic anchor, not the integer.
+
+## 2026-04-21 — K-030 /app isolation (new tab + no site chrome + gray-950 wrapper)
+
+**What went well:**
+- TDD red-green preserved: wrote `app-bg-isolation.spec.ts` first, ran and confirmed 4 failing + 1 passing (body paper still paper = design doc Option α proves itself), then applied implementation edits and reached 5/5 green.
+- Full verification chain held: `tsc --noEmit` exit 0 after each source edit; Vitest 36/36 unit tests pass; full Playwright suite 171 pass / 1 skipped / 0 fail; 5-route visual self-check via dedicated node script confirmed `/app` wrapper bg = `rgb(3, 7, 18)` (Pencil v1 `ap001.fill` `#030712`) and marketing routes' App link `target=_blank rel=noopener noreferrer`.
+- Pencil alignment verified numerically: wrapper bg equals Pencil v1 `ap001.fill` (`#030712` = `rgb(3, 7, 18)`) exactly, not approximately; TopBar `#111827` unchanged.
+
+**What went wrong:**
+- First full Playwright re-run after editing `AppPage.tsx` still showed the spec failing because Vite dev server (spawned by Playwright `webServer.reuseExistingServer`) was holding stale module cache under `node_modules/.vite`. The curl-on-served-source check (`curl http://localhost:5173/src/AppPage.tsx`) still returned old code that still imported `UnifiedNavBar` and `HomeFooterBar`, whereas disk showed the edit had landed. Lost ~5 minutes diagnosing this as spec or code bug before identifying cache staleness. Root cause: after an earlier spec run, Vite's transform cache persisted and the subsequent `npm run dev` spawned by Playwright re-used the cached transforms.
+- The initial Playwright webServer reuse flow is opaque: there is no explicit "server died / new one started" log, so stale-cache symptoms look identical to missing-edit symptoms.
+
+**Next time improvement:**
+- After any edit to frontend source immediately before running Playwright — especially when a dev server from a prior run may be cached — pre-invalidate by running `pkill -f vite && rm -rf frontend/node_modules/.vite` before `npx playwright test`. This must become a hard step in the Engineer persona under Frontend Implementation Order item 3 ("After each component: npx tsc --noEmit") — extend it to include vite cache clear whenever a prior playwright run has occurred in the same worktree.
+- When a spec fails immediately after source edit + tsc green, first diagnostic is `curl http://localhost:<port>/src/<edited-file>.tsx | grep <expected-change>`: if served source does not contain the edit, the cause is vite cache, not source or spec.
 ## 2026-04-21 — K-031 /about Built by AI showcase removal
 
 **What went well:** Architect's design doc §7 already flagged the two easy-to-mess-up items: use `toHaveCount(0)` (deleted-from-DOM, not hidden) and verify `SectionContainer` emits `<section>` before writing the adjacent-sibling selector. Following §7 item-by-item removed all guesswork. Pre-implementation grep of `BuiltByAIShowcaseSection` + `banner-showcase` + `Built by AI` + `The real banner is clickable` across `frontend/e2e/` and `frontend/src/` produced zero outside-scope hits, confirming pure deletion was safe before any edit landed. `git rm` (not `rm`) cleanly produced a staged `deleted:` entry without intermediate untracked state.

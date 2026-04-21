@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-21 (K-031 Architect design)
+updated: 2026-04-21 (K-030 + K-031 Architect design)
 ---
 
 ## Summary
@@ -115,7 +115,7 @@ ClaudeCodeProject/
 │   │           ├── OHLCEditor.tsx           ← OHLC 輸入表格
 │   │           ├── StatsPanel.tsx           ← 統計面板
 │   │           ├── PredictButton.tsx
-│   │           ├── TopBar.tsx               ← /app 上方 bar（被 UnifiedNavBar 覆蓋）
+│   │           ├── TopBar.tsx               ← /app 上方 bar（K-030 起 /app 不渲染 UnifiedNavBar，TopBar 為 /app 實際頂端 bar）
 │   │           ├── UnifiedNavBar.tsx        ← K-005 統一 NavBar（所有頁面）
 │   │           ├── NavBar.tsx               ← legacy，保留相容
 │   │           ├── home/
@@ -406,13 +406,13 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 | Path | Component | 說明 |
 |------|-----------|------|
 | `/` | `HomePage` | Hero + ProjectLogic + DevDiary 預覽 |
-| `/app` | `AppPage` | K-Line 預測功能（原 App.tsx；TD-005 待拆分） |
+| `/app` | `AppPage` | K-Line 預測功能（原 App.tsx；TD-005 待拆分）。**K-030 isolation**：不渲染 UnifiedNavBar、不渲染 HomeFooterBar；根 div 套 `bg-gray-950 text-gray-100` 覆蓋 body paper；視為獨立 tool viewport（由 marketing 頁 NavBar 的 App link 開 new tab 進入） |
 | `/about` | `AboutPage` | Portfolio-oriented recruiter page — 7 sections: PageHeader（One operator 聲明）+ MetricsStrip + RoleCards (6 roles × Owns/Artefact) + ReliabilityPillars (3 pillars + anchor quotes) + TicketAnatomy (K-002/K-008/K-009) + ProjectArchitecture + FooterCta（email/GitHub/LinkedIn）。`BuiltByAIBanner` 放 `/` homepage；`/about` 不含 banner showcase（K-031 移除 S7 BuiltByAIShowcaseSection）。K-017 重寫（2026-04-19），K-031 移除 S7 showcase（2026-04-21）|
 | `/diary` | `DiaryPage` | 工作日誌 Timeline（讀 `public/diary.json`） |
 | `/business-logic` | `BusinessLogicPage` | 交易邏輯（密碼保護，JWT 驗證後顯示） |
 | `*` | `Navigate to /` | 未匹配路徑一律導回首頁 |
 
-**NavBar：** `UnifiedNavBar` 掛在所有頁面頂端（K-005 統一方案 → K-021 設計系統對齊）。左側 home icon 連 `/`，右側 TEXT_LINKS：App / Diary / About（Prediction 暫隱藏，以常數註解保留）；active 狀態用 `aria-current="page"` + class `text-[#9C4A3B]`（brick-dark），非 active `text-[#6B5F4E]`（muted）。背景 `bg-paper`（#F4EFE5）。
+**NavBar：** `UnifiedNavBar` 掛在 4 個 marketing 頁面頂端（`/` / `/about` / `/diary` / `/business-logic`；K-005 統一方案 → K-021 設計系統對齊 → K-030 從 `/app` 撤除）。左側 home icon 連 `/`，右側 TEXT_LINKS：App / Diary / About（Prediction 暫隱藏，以常數註解保留）；active 狀態用 `aria-current="page"` + class `text-[#9C4A3B]`（brick-dark），非 active `text-[#6B5F4E]`（muted）。背景 `bg-paper`（#F4EFE5）。**K-030 起** `App` entry 於 TEXT_LINKS 標 `external: true`，改渲染原生 `<a target="_blank" rel="noopener noreferrer">` 而非 `<Link>`，使點擊於新 tab 開 `/app`。
 
 ---
 
@@ -456,6 +456,8 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 所有頁面的外層 `<div className="min-h-screen bg-[#0D0D0D] text-white">` 包 wrap（AboutPage / DiaryPage / AppPage / BusinessLogicPage）於 K-021 移除，改由 body 底色承接。HomePage 已是 `bg-[#F4EFE5]` 直接轉為繼承 body。
 
+**例外（K-030）：** `/app` 於 wrapper 層 override（`h-screen` 根 div 套 `bg-gray-950 text-gray-100`），body paper 規則對 `/app` 的視覺效果被完全覆蓋。`/app` 不屬 sitewide paper design system（tool page，非 marketing page）；此例外獨立守護於 `frontend/e2e/app-bg-isolation.spec.ts`。
+
 ### Footer 放置策略
 
 **決策：per-page import（非 Layout slot）**，原因：AppPage `h-screen overflow-hidden` 與 Layout slot 模型衝突，per-page 才能讓各頁獨立決定是否渲染 Footer 與放置位置（/diary 本票不決定、由 K-024 處理）。
@@ -465,15 +467,15 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 | `/` | `<HomeFooterBar />` |
 | `/about` | `<FooterCtaSection />`（註：K-021 同步把 text-white / border-white/10 等 dark-theme 遺留色改為 paper-theme，否則 paper bg 上不可見） |
 | `/diary` | 無 footer（K-021 本票不決定；由 K-024 處理） |
-| `/app` | `<HomeFooterBar />`（AppPage `h-screen overflow-hidden` 不滾動，放最外層 `flex flex-col` 最後子節點作 viewport-bottom） |
+| `/app` | 無 footer（K-030 isolation — `/app` 為獨立 tool viewport，撤除 NavBar 與 Footer 使其不繼承 marketing site chrome） |
 | `/business-logic` | `<HomeFooterBar />` |
 
 ### Shared Components 邊界
 
 | 組件 | 位置 | 用於 |
 |------|------|------|
-| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | 全 5 路由 |
-| `HomeFooterBar` | `components/home/HomeFooterBar.tsx` | `/` `/app` `/business-logic` |
+| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | `/` `/about` `/diary` `/business-logic`（K-030 起 `/app` 不渲染；TEXT_LINKS 的 `App` entry 標 `external: true`，於 4 marketing 頁點擊時開 new tab 載入 `/app`） |
+| `HomeFooterBar` | `components/home/HomeFooterBar.tsx` | `/` `/business-logic`（K-030 起 `/app` 撤出） |
 | `FooterCtaSection` | `components/about/FooterCtaSection.tsx` | `/about`（獨有 3 external links 結構） |
 
 ### Legacy NavBar
@@ -582,6 +584,7 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-21**（Architect, K-030 設計）— `/app` isolation：Design System §"Footer 放置策略" 表 `/app` 欄改為「無 footer（K-030 isolation）」；§"Shared Components 邊界" 表更新 `UnifiedNavBar` used-by 欄為 4 marketing 路由（`/app` 撤除）、`HomeFooterBar` used-by 欄縮為 `/ /business-logic`；§"全站 Body CSS 入口" 段加 K-030 例外註記（`/app` wrapper 層 override body paper，套 `bg-gray-950 text-gray-100`）。UnifiedNavBar TEXT_LINKS shape 新增 `external?: boolean`，App entry 設 `external: true` 改渲染 `<a target=_blank rel=noopener noreferrer>`（desktop + mobile 兩 map 同步）。AppPage 根 div 回到 pre-K-021 `bg-gray-950 text-gray-100` + 撤除 UnifiedNavBar + HomeFooterBar 子節點。E2E spec 連動（Engineer 交付後補磁碟異動）：`sitewide-body-paper.spec.ts` / `sitewide-footer.spec.ts` / `sitewide-fonts.spec.ts` 刪 `/app` case；`navbar.spec.ts` 刪 `/app` iteration；新增 `app-bg-isolation.spec.ts`（6 test cases：AC-030-NEW-TAB NavBar + NO-NAVBAR + NO-FOOTER + BG-COLOR wrapper + BG-COLOR body + Hero CTA new-tab）。設計文件：[K-030-app-isolation.md](../docs/designs/K-030-app-isolation.md)。
 - **2026-04-21**（Architect, K-031 設計）— `/about` S7 `BuiltByAIShowcaseSection` 移除：Summary 段 `8 sections` → `7 sections`；Directory Structure about/ block FooterCtaSection 註解 `S8` → `S7`（S7 空出，post-K-031 FooterCta 重編為 S7）；Frontend Routing `/about` 列 `8 sections` → `7 sections`，刪除誤導性的 `S7 (BuiltByAIBanner) 放 /` 括號（`BuiltByAIBanner` 是 homepage 組件，與已刪的 S7 `BuiltByAIShowcaseSection` 是不同組件），改註明 K-031 移除 S7 showcase。Pre-existing drift 順便 flag：`BuiltByAIShowcaseSection.tsx` 原本就未列入 Directory Structure（K-017 Pass 3 新增時漏填），故不需從 tree 移除。`SectionContainer` L147 consumer count `7 sections` 原本為 8-container 時代的 drift，K-031 移除後 value 意外對齊，保留不動。無 code 變更（Architect 設計；Engineer 交付後若需再補充配合 code diff）。設計文件 `docs/designs/K-031-remove-builtby-ai-showcase.md`。
 - **2026-04-21**（Architect, K-023 設計）— Directory Structure drift fix: 移除 `home/StepCard.tsx` + `home/TechTag.tsx` ghost entries（兩檔從未建立，step cards inline 於 `ProjectLogicSection.tsx`；ls 確認磁碟不存在）。K-023 設計文件產出 `docs/designs/K-023-homepage-structure.md`（含 4 個 Scope Questions 交 PM 裁決）。no structural code change — docs-only.
 - **2026-04-21**（PM, K-022 Code Review 裁決）— K-022 /about 結構細節 v2 交付後補入：about/ 新組件 DossierHeader.tsx / RedactionBar.tsx；CardShell.tsx dark→paper palette 遷移；SectionLabel.tsx 新增 SectionLabelRow（hairline + label）；PillarCard consumer 加 overflow-hidden（圓角修正）；PageHeaderSection 三層結構（主句 Bodoni Moda / 角色列 Newsreader / tagline Bodoni Moda）；5 section label（Nº 01~05）；6 Role Cards OWNS/ARTEFACT Geist Mono small-caps label

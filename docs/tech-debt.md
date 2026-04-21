@@ -37,6 +37,10 @@
 | TD-K027-04 | `assertLastCardVisible` 的 `waitForTimeout(200)` hardcoded sleep；CI 慢機器潛在不穩定；改 `toBeInViewport()` 須重構邏輯，目前 7 tests 全過 | K-027 Reviewer R2 I-R2-01b | 低 | 2026-04-21 |
 | TD-K022-01 | `font-italic` fontFamily class 與 `italic` font-style class 命名易混淆；應 rename `fontFamily.italic` → `fontFamily.newsreader` | K-022 Breadth Review I-2 | 低 | 2026-04-21 |
 | TD-K022-02 | `SectionLabel` 殭屍 colorMap（purple/cyan/pink/white）保留向後相容，K-026 確認 AppPage 也不用後一次清除 | K-022 Breadth Review I-3 | 低 | 2026-04-21 → K-026 後清理 |
+| TD-K030-01 | `AppPage` interaction regression E2E coverage 缺（PredictButton sticky 定位、OHLC edit 互動未有 Playwright 斷言）| K-030 Code Review I-1 | 低 | 2026-04-21 |
+| TD-K030-02 | `UnifiedNavBar` `renderLink` 本地 type alias 結構為 `typeof TEXT_LINKS[number]` 子集，應改用 `typeof` 派生型別避免 drift | K-030 Code Review M-3 | 低 | 2026-04-21 |
+| TD-K030-03 | `visual-report.ts` 未帶 `TICKET_ID` env var 時應 throw 而非 fallback `K-UNKNOWN`，避免 full Playwright suite 靜默汙染 `docs/reports/` | K-030 QA retro | 中 | 2026-04-21 |
+| TD-K030-04 | `frontend/public/diary.json` K-021/K-022/K-023 遺留繁中條目違反 `feedback_diary_json_english` 英文硬規則 | K-030 QA retro | 中 | 2026-04-21 |
 
 ---
 
@@ -469,6 +473,70 @@ AC-027-TEXT-READABLE 要求「無 text-overflow: ellipsis 截斷、無 overflow:
 **建議解法：** K-030 closed 後 grep `SectionLabel` 全專案使用點，確認僅 `/about` 相關組件使用（且皆用新 prop 格式）；移除 `purple/cyan/pink/white` colorMap branch；同步簡化型別定義。
 
 **排期觸發條件：** K-030 closed 後一個 review cycle 以內處理。
+
+---
+
+## TD-K030-01 — AppPage interaction regression E2E coverage 缺
+
+**來源：** K-030 Code Review I-1（2026-04-21）
+
+K-030 Engineer 交付後 Vitest 36 tests pass，但都只驗 render（`@testing-library/react` shallow render），無 Playwright spec 斷 PredictButton sticky 定位、OHLC 表格編輯互動、chart rerender 等 `/app` tool 內部行為。AC-030-FUNC-REGRESSION 僅透過 existing Vitest + existing E2E suite 維護，未新增互動層斷言。
+
+**風險：** 低 — QA 視覺比對（Pencil v1 `ap001` + get_screenshot）+ 既有 Vitest render test 仍能覆蓋主要 regression；但若未來 sticky 定位因 CSS flex context 變動（例如移除 `h-screen` 或改 `min-h-screen`）靜默破壞，現有測試無法抓到。
+
+**PM 裁決（2026-04-21）：** 低優先技術債，本票不擴 scope。理由：(a) K-030 核心 scope 是「isolation 層面」（new-tab + chrome removal + bg），非 `/app` 內部互動 hardening；(b) sticky 定位既有 Playwright `ma99-chart.spec.ts` + `visual-report.ts` 在視覺層有覆蓋；(c) TD-005（`AppPage.tsx` 責任過多）重構時一併補齊 interaction E2E 效益最大。
+
+**建議解法：** 新增 `frontend/e2e/app-interaction.spec.ts` 斷 (1) PredictButton `position: sticky` + `bottom: 0` computed style；(2) OHLC 表格 cell edit 後 state 更新；(3) Predict 按下後 chart rerender。
+
+**排期觸發條件：** TD-005 `AppPage.tsx` 拆分 ticket 啟動時一併補齊；或獨立小票處理。
+
+---
+
+## TD-K030-02 — UnifiedNavBar renderLink type alias 應用 typeof 派生
+
+**來源：** K-030 Code Review M-3（2026-04-21）
+
+`frontend/src/components/UnifiedNavBar.tsx` 內 `renderLink` 函式宣告的 link 參數型別為本地 inline `{ label: string; path: string; hidden?: boolean; external?: boolean }`，結構是 `TEXT_LINKS` entry 的子集；未來 `TEXT_LINKS` entry shape 擴充欄位（如 `icon` / `analyticsId`）時，`renderLink` 需同步手改型別，有 drift 風險。
+
+**風險：** 低 — 純 DX / 型別派生慣用法差異，無 runtime 影響。當前 TEXT_LINKS 欄位穩定。
+
+**PM 裁決（2026-04-21）：** 低優先技術債。Reviewer 建議改為 `typeof TEXT_LINKS[number]` 自動派生，一行 edit，無功能變更；但不 block K-030。
+
+**建議解法：** `renderLink(link: typeof TEXT_LINKS[number], isMobile: boolean)` 派生；確保未來 TEXT_LINKS 擴欄時 renderLink 簽名自動同步。
+
+**排期觸發條件：** TD-K021-02 / K-025 NavBar hex-to-token 後續票 / 或任一 NavBar 結構改動 ticket 啟動時順手處理。
+
+---
+
+## TD-K030-03 — visual-report.ts TICKET_ID 未提供時 fallback `K-UNKNOWN`
+
+**來源：** K-030 QA retrospective 2026-04-21
+
+`frontend/e2e/visual-report.ts` 當未帶 `TICKET_ID` env var 執行時，目前 fallback 為 `K-UNKNOWN-visual-report.html` 寫入 `docs/reports/`。K-030 QA 在 full Playwright suite 執行過程中誤觸發一次無 env var 跑法，產生 `K-UNKNOWN-visual-report.html` 汙染檔（已手動清除並重跑 `TICKET_ID=K-030 npx playwright test visual-report.ts`）。
+
+**風險：** 中 — 若 CI 或開發者未帶 env var 跑全 suite，會靜默寫入 `K-UNKNOWN` 檔；若後續 commit 誤 stage 此檔將污染版控。當前 `docs/reports/*.html` 在 gitignore 內緩解 commit 污染，但 local dir 仍會被蓋。
+
+**PM 裁決（2026-04-21）：** 中優先技術債。理由：(a) 當前 gitignore 阻擋 commit 層汙染；(b) local 污染需 QA / 開發者手動清理，影響 report 可信度；(c) 修法簡單（將 fallback 改 throw），但屬 tooling 範疇與 K-030 feature 無關，不擴 scope。
+
+**建議解法：** `frontend/e2e/visual-report.ts` 頂層（Playwright test discover 階段外，以符合 `feedback_test_module_toplevel_pure` — 搬進 `test.beforeAll` 或 config setup）讀 `process.env.TICKET_ID`；未提供時直接 `throw new Error('TICKET_ID env var required for visual-report.ts')`；刪除 `K-UNKNOWN` fallback。
+
+**排期觸發條件：** 下次 visual-report tooling 調整或 CI 加入 visual-report job 時一併處理。
+
+---
+
+## TD-K030-04 — diary.json K-021/K-022/K-023 遺留繁中條目違反英文硬規則
+
+**來源：** K-030 QA retrospective 2026-04-21
+
+`frontend/public/diary.json` 內 K-021 / K-022 / K-023 相關 milestone items 部分 `text` 欄位為繁體中文，違反 `~/.claude/memory/feedback_diary_json_english.md` 硬規則（「milestone 名稱與 text 欄位一律英文；對外 portfolio 頁面」）。
+
+**風險：** 中 — portfolio 對外頁面語言不一致，影響 recruiter / 訪客體驗。非功能性問題但屬 user-facing content。
+
+**PM 裁決（2026-04-21）：** 中優先技術債。理由：(a) 規則於 K-024 票確立後才 codify，K-021/22/23 為歷史條目；(b) 一次性翻譯作業屬獨立工作，不屬 K-030 scope（K-030 是 `/app` isolation）；(c) 需逐條 review 用詞，不宜急就章。
+
+**建議解法：** 逐條英譯 K-021/022/023 milestone items，保留技術名詞原樣（`UnifiedNavBar`、`HomeFooterBar` 等）；翻譯後跑 `DiaryPage.spec.ts` 確認 E2E 無破壞。
+
+**排期觸發條件：** 下次 diary 類 ticket（K-024 /diary 結構重做或其他 diary.json 更新）啟動時一併清理；或獨立開小票處理。
 
 ---
 

@@ -526,27 +526,8 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### K-030 — /app page isolation（new tab + no NavBar/Footer + background restore）
-
-- **Status:** open / type: fix
-- **Ticket:** [docs/tickets/K-030-app-page-isolation.md](docs/tickets/K-030-app-page-isolation.md)
-- **摘要：** `/app` 視為獨立 tool 頁；NavBar 的 App link 改 new tab；`/app` 頁面移除 NavBar + Footer；背景色脫離米白 paper。superseded K-026 + K-004（scope 已併入本票）。
-
-**AC：**
-
-#### AC-030-NEW-TAB: "App" link opens /app in a new tab
-
-- **Given** 使用者在任一含 UnifiedNavBar 的頁面（`/`、`/about`、`/diary`、`/business-logic`）
-- **When** 點擊 NavBar 的 App link
-- **Then** 瀏覽器在新分頁開啟 `/app`（原分頁保持不變）
-- **And** 新分頁成功載入 `/app`（無 404 / redirect）
-- **And** `<a>` 元素含 `target="_blank"` 與 `rel="noopener noreferrer"`
-
-#### AC-030-NO-NAVBAR / AC-030-NO-FOOTER / AC-030-BG-COLOR / AC-030-FUNC-REGRESSION
-
-見 [K-030](docs/tickets/K-030-app-page-isolation.md)：`/app` 無 UnifiedNavBar + 無 HomeFooterBar + 背景非 `rgb(244, 239, 229)` + Vitest / Playwright 現有 suite 不破。
-
----
+<!-- K-030 closed 2026-04-21 → see §4 Closed Tickets -->
+<!-- K-031 closed 2026-04-21 → see §4 Closed Tickets -->
 
 ---
 
@@ -843,6 +824,65 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
+### K-030 — /app page isolation（new tab + no NavBar/Footer + background restore）
+
+- **Status:** closed / type: fix / **Closed: 2026-04-21**
+- **Ticket:** [docs/tickets/K-030-app-page-isolation.md](docs/tickets/K-030-app-page-isolation.md)
+- **摘要：** `/app` 視為獨立 tool 頁；NavBar 的 App link + Homepage Hero CTA 雙入口均改 new tab；`/app` 頁面移除 NavBar + Footer；背景改 `bg-gray-950`（`rgb(3, 7, 18) = #030712`，對齊 Pencil v1 `ap001.fill`）。superseded K-026 + K-004（scope 已併入本票）。
+
+**AC：**
+
+#### AC-030-NEW-TAB: "App" link opens /app in a new tab
+
+- **Given** 使用者在任一含 UnifiedNavBar 的頁面（`/`、`/about`、`/diary`、`/business-logic`）
+- **When** 點擊 NavBar 的 App link
+- **Then** 瀏覽器在新分頁開啟 `/app`（原分頁保持不變）
+- **And** 新分頁成功載入 `/app`（無 404 / redirect）
+- **And** `<a>` 元素含 `target="_blank"` 與 `rel="noopener noreferrer"`
+
+#### AC-030-NO-NAVBAR: /app page has no UnifiedNavBar
+
+- **Given** 使用者訪問 `/app`
+- **When** 頁面載入完成
+- **Then** `[data-testid="navbar-desktop"]` + `[data-testid="navbar-mobile"]` 皆 `toHaveCount(0)`
+- **And** Home / Diary / About / App 四個 link role 皆不存在
+- **And** `/app` tool 內容（OHLC input / Predict button）可見
+
+#### AC-030-NO-FOOTER: /app page has no HomeFooterBar
+
+- **Given** 使用者訪問 `/app`
+- **When** 頁面載入完成
+- **Then** `getByRole('contentinfo')` `toHaveCount(0)`
+- **And** 既有 HomeFooterBar 簽名文字（`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` 與 GA 揭露文）皆不出現
+- **And** viewport 底部為 tool UI，不是 marketing footer
+
+#### AC-030-BG-COLOR: /app wrapper bg = gray-950 + body 仍為 paper
+
+- **Given** 使用者訪問 `/app`
+- **When** 頁面載入完成
+- **Then** `<div id="root">` 下層 wrapper `<div>` computed `background-color === 'rgb(3, 7, 18)'`
+- **And** `<body>` computed `background-color === 'rgb(244, 239, 229)'`（證明 wrapper override 策略未動 body 規則）
+- **And** viewport 上下無 paper bleed-through
+
+#### AC-030-FUNC-REGRESSION: 現有 /app 功能不破
+
+- **Given** K-030 layout 改動完成
+- **When** 使用者操作 OHLC input + Predict button
+- **Then** Vitest 既有 36/36 pass（AppPage / OHLCEditor / PredictButton / StatsPanel / MatchList）
+- **And** Playwright 既有 172 passed / 1 skipped / 0 failed
+- **And** chart / match list / stats panel 無視覺遮擋
+
+#### AC-030-PENCIL-ALIGN: /app 實作對齊 Pencil v1 `ap001` frame
+
+- **Given** Pencil v1 `frontend/design/homepage-v1.pen` 含 `/app` 正式 frame `ap001`（fill `#030712`，child `ap002` TopBar fill `#111827`，無 NavBar / Footer 子節點）
+- **When** K-030 implementation 完成
+- **Then** wrapper bg = `#030712`（`bg-gray-950`）+ TopBar bg = `#111827`（`bg-gray-900`）+ NavBar / Footer 結構性不存在
+- **And** QA `mcp__pencil__get_screenshot(ap001)` 視覺比對 PASS
+
+**Test case 總計下限：6 個新 AC + 既有 Vitest / Playwright regression。6 個新 Playwright cases 位於 `frontend/e2e/app-bg-isolation.spec.ts`。**
+
+---
+
 ### K-031 — /about 移除 "Built by AI" showcase section (S7)
 
 - **Status:** closed / type: fix / **Closed: 2026-04-21**
@@ -904,6 +944,10 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 | TD-K027-03 | milestone title overflow 屬性未驗（AC-027-TEXT-READABLE 有但 spec 缺斷言）| K-027 Reviewer N-003 | 低 | open — K-024 結構改動時補驗 |
 | TD-K027-04 | `assertLastCardVisible` 的 `waitForTimeout(200)` hardcoded sleep | K-027 Reviewer R2 I-R2-01b | 低 | open — K-024 diary spec 重寫時清理 |
 | TD-K022-01 | `fontFamily.italic` 命名與 `italic` font-style class 混淆 | K-022 Breadth Review I-2 | 低 | open — 下次 tailwind.config.ts 結構修改時 rename |
-| TD-K022-02 | `SectionLabel` 殭屍 colorMap（purple/cyan/pink/white）保留向後相容 | K-022 Breadth Review I-3 | 低 | open — K-030 closed 後 grep 確認清除 |
+| TD-K022-02 | `SectionLabel` 殭屍 colorMap（purple/cyan/pink/white）保留向後相容 | K-022 Breadth Review I-3 | 低 | open — K-030 closed 後 grep 確認清除（K-030 已 closed 2026-04-21，待 follow-up） |
+| TD-K030-01 | AppPage interaction regression E2E coverage 缺（PredictButton sticky / OHLC edit 互動無 Playwright 斷言）| K-030 Code Review I-1 | 低 | open — TD-005 AppPage 拆分 ticket 啟動時補齊 |
+| TD-K030-02 | UnifiedNavBar `renderLink` 本地 type alias 未改 `typeof TEXT_LINKS[number]` 派生 | K-030 Code Review M-3 | 低 | open — 下次 NavBar 結構改動 ticket 順手處理 |
+| TD-K030-03 | `visual-report.ts` 未帶 TICKET_ID 時 fallback `K-UNKNOWN` 汙染 `docs/reports/` | K-030 QA retro | 中 | open — 下次 visual-report tooling 改動時 throw + 移除 fallback |
+| TD-K030-04 | `frontend/public/diary.json` K-021/K-022/K-023 遺留繁中條目違反英文硬規則 | K-030 QA retro | 中 | open — 下次 diary 類 ticket（K-024 等）英譯 |
 
 **更新規則：** 新增技術債由 Code Reviewer 列單 → PM 逐條裁決 → 寫入 tech-debt.md；升級為 ticket 時在本表標 `→ K-XXX`；ticket closed 後保留紀錄。
