@@ -2,6 +2,26 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-027 Phase Gate Close（QA 通過 → 關票）
+
+**做得好：** Phase Gate 決策嚴格依 AC mapping 逐條核對：AC-027-NO-OVERLAP 對 TC-001~003、AC-027-TEXT-READABLE 對 TC-004~006、AC-027-DESKTOP-NO-REGRESSION 對 TC-007，三組 AC 都有對應 PASS TC 才宣告 close，沒有因為「127 passed 數字大就信任」而跳過逐 AC 覆蓋確認。本票 4 輪 Code Review 裁決過程（C-001 技術辯護 → AC 修訂路徑 / I-001 補最後 card 斷言 / N-002 全展開狀態斷言 / Round 2 死代碼清除 / Round 3 button scope 限定）各輪 PM 裁決理由均有技術依據，Engineer 修法路徑與 AC 一致，沒有「裁決結論 → 實作走偏」斷層。
+
+**沒做好：** Architect §3.1 TC 規劃階段 PM 放行 Engineer 時未逐行對 AC And/Then 子句做 TC mapping cross-check，導致 I-001（最後一個 card 可見）和 N-002（全展開狀態 y 區間）在 Round 1 Code Review 才被 Reviewer 抓出 TC 缺口；本應在 Engineer 開工前就補齊，浪費了一輪 fix 周期。（同一根因已記於本票 2026-04-21 Code Review 裁決條目。）
+
+**下次改善：** Architect 產出 TC 規劃後、PM 放行 Engineer 前，必須對 ticket 每條 AC 的 Then/And 子句做逐行 TC mapping check，標出「未被任何 TC 覆蓋的 And 子句」列為 Architect blocker，不等 Code Review 再揪。此規則候選補入 pm.md 「放行 Engineer 前提條件」章節。
+
+---
+
+## 2026-04-21 — K-027 Code Review 裁決（兩層 Reviewer 後 PM 逐條裁決）
+
+**做得好：** C-001（Critical）裁決時沒有從字面上直接強迫改實作，而是先讀設計文件 §2.2 確認「overflow-hidden 在 flex-col + break-words 下不截斷可讀文字」的技術辯護，判定辯護成立後選 AC 修訂路徑（維持實作 + 修訂措辭 + 補斷言），而非直接要求 Engineer 移除 overflow-hidden（風險更高）。每條 finding 都交代「為何不選另一選項」的理由，裁決有根據。
+
+**沒做好：** I-001「最後一個 card 完整可見」和 N-002「全展開狀態 y 不重疊」本應在 PM 開 AC 時就確保有對應 TC 規劃，但 Architect 的 §3.1 TC 規劃漏掉了這兩個 AC 子句的完整覆蓋——PM 在 Architect 放行前未要求對 AC 逐行 cross-check TC mapping。
+
+**下次改善：** Architect 產出測試規劃（§3 TC table）後，PM 放行 Engineer 前必須逐行對照 AC And/Then 子句確認每行都有對應 TC；有 TC 缺口者需 blocker 回 Architect 補完，不等 Code Review 才揪出缺口。此規則候選加入 PM persona「放行 Engineer 前提條件」章節。
+
+---
+
 ## 2026-04-21 — K-027 開票（DiaryPage mobile layout production bug）
 
 **沒做好：** K-021 AC-021-BODY-PAPER 當初只驗 5 路由 body computed CSS（paper/ink hex + 字型套用）**未加 mobile viewport 斷言**，Playwright 視覺報告（`docs/reports/K-021-visual-report.html`）全部為桌面截圖；K-017 portfolio-oriented 改版時 PM 定 AC 也未明列 mobile viewport 驗收條件——兩票均屬 portfolio-facing 頁面卻沒有 mobile 視覺 gate。根因：PM 寫 AC 時假設「桌面視覺 OK + Tailwind responsive default class 即可覆蓋手機」，但 `DiaryEntry` 用固定 `w-24`（96px date 欄）+ flex gap-4，在 375px viewport 下 text flex-1 只剩 ~240px 空間與中英文混排 line-height 互動產生視覺重疊，這種 layout 壓擠 regression 完全在桌面視覺 gate 盲區。portfolio-facing 定位意味著 recruiter 隨時可能用手機開啟，卻沒 mobile viewport 強制斷言 = portfolio 品質承諾與驗收 gate 脫節。

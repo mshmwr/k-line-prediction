@@ -20,6 +20,14 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-027 手機版 /diary milestone 重疊修復
+
+**做得好：** 設計開始前先 `ls` 驗證 `primitives/` 目錄，發現 architecture.md 聲稱 K-017 Pass 2 已將 `MilestoneSection.tsx` / `DiaryEntry.tsx` 刪除並替換為 `MilestoneAccordion.tsx`，但磁碟完全不存在 `MilestoneAccordion.tsx`。主動確認後以實際 codebase 為設計基準，並在設計文件 §1.1 明確標記此 drift，避免 Engineer 找不存在的組件。同時觸發 architecture.md 多處 drift 修正（diary/ 子樹 + DevDiarySection + Summary 段），一次清理。
+
+**沒做好：** `architecture.md` 的 K-017 Pass 2 drift（diary/ 組件被描述為刪除但實際保留）在 K-017 / K-021 任務結束時均未被稽核，累積至 K-027 才被發現。根因：K-017 Pass 3 廢棄了 P4/P7 primitive 方案，設計文件有更新，但 `architecture.md` 的 `Directory Structure` 段只更新了部分（primitives/ 目錄說明），未同步回退「diary/ 刪除 MilestoneSection.tsx / DiaryEntry.tsx」的描述。Architect 在 K-017 Pass 3 結束時的 doc sync 只做了 Summary 段的文字修正，未對 Directory Structure 做 `ls` 驗證。
+
+**下次改善：** Edit architecture.md `Directory Structure` 記錄「組件刪除」時，必須在同一個 Edit 操作前先 `ls` 或 `Glob` 確認磁碟狀態，不得以「下一步 Engineer 會刪」為由先標記刪除；若刪除尚未完成，改用「待刪除（K-XXX 步驟 N）」標記而非直接移除條目。此規則補充進 `senior-architect.md` Architecture Doc 同步規則段。
+
 ## 2026-04-20 — K-021 W-R3-01 architecture.md Shared Components 表跨表 drift（Round 3 第二層反省）
 
 **沒做好：**

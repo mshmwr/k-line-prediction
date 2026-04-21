@@ -16,6 +16,38 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-027 Round 3（純 spec 修正：刪死代碼 + Fix 2/Fix 3）
+
+**做得好：**
+- 實作前讀完整 spec 檔，發現 `containerOverflow` 使用錯誤變數名（`firstEntriesContainer` vs `entriesContainer`），當場修正，tsc exit 0 確認無型別問題。
+- 3 項修正各自 atomic edit，確認每項套用正確後再進行下一項。
+
+**沒做好：**
+- Fix 1 刪除死代碼時，PM 指示使用 `firstEntriesContainer` 作為 evaluate 目標，但 `assertTextReadable` 函數內的變數名是 `entriesContainer`（不同於 `assertMobileFlexCol` 的 `firstEntriesContainer`）。此次靠 tsc 抓到，但應該在 Edit 前就對照 scope 確認。
+
+**下次改善：**
+- 跨 function 套用範例程式碼前，先 grep 目標 function 內的變數名，確認對應關係，再調整範例中的識別符。
+
+## 2026-04-21 — K-027 Round 2（補斷言 C-001/I-001/N-002）
+
+**做得好：**
+- `containerNotClipping` 斷言失敗後立即寫 debug spec 打印四組數據（`offsetTop`、`offsetParent`、`getBoundingClientRect`、`scrollHeight`），確認根因是 `offsetParent = BODY`（不是 `.px-4.pb-4`），改用正確的 `getBoundingClientRect()` 基準，7 tests 全過。
+- 全量 128 tests 0 regression。
+
+**沒做好：**
+- `offsetTop` 是相對 `offsetParent` 而非任意祖先容器，這是 DOM 基礎，但仍寫出 `p.offsetTop + p.offsetHeight > container.clientHeight` 這種假設 offsetParent = container 的錯誤斷言。與 Round 1 的根因相同：沒有先 `page.evaluate` 確認實際值再寫斷言。
+
+**下次改善：**
+- 跨容器位置斷言的固定流程：先確認 `element.offsetParent.tagName === 預期容器`；不匹配一律改用 `getBoundingClientRect().bottom` 比較。
+
+## 2026-04-21 — K-027（手機版 /diary milestone 重疊修復）
+
+**沒做好：**
+- `assertMobileFlexCol` 中用 `getBoundingClientRect().width < 96` 判斷 `w-auto` 效果，未考慮 `flex-col` 下 span 撐滿父容器導致 width 遠大於 96px，斷言邏輯倒置。根因是未在瀏覽器環境預先驗證 computed value，直接憑直覺推算 flex-col 下 inline element 的 width 行為。
+
+**下次改善：**
+- computed style 相關斷言（尤其 flex/grid layout 下的 width/height），**先 `page.evaluate()` 確認預期值，再寫 `expect` 斷言**，不憑想像推算。
+
 ## 2026-04-20 — K-021 Round 4 fix（/about text-white readability）
 
 **做得好：**
