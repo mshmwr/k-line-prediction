@@ -2,6 +2,26 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-023 SQ Ruling (Architect Scope Questions → Engineer release)
+
+**What went well:** All four scope questions ruled without escalating to user. Each ruling was backed by direct code evidence (ProjectLogicSection.tsx:55–62 confirmed A-3 complete) and Pencil design file evidence (Architect's hpHero heroCol child-order analysis confirmed A-4/A-5 contradictions). Decisions applied the correct priority order: design file > ticket text (SQ-023-02/03/04). Both ticket ACs and design doc updated with explicit ruling citations and datestamps before declaring done.
+
+**What went wrong:** The two removed ACs (AC-023-HERO-SUBTITLE-TWO-LINE and AC-023-HERO-HAIRLINE) were written in the first place based on a PM visual comparison that misread the Pencil design. The root cause is that PM created AC text for A-4/A-5 without Architect confirming the design file contents first — Architect only reviews at design doc stage, which is after ticket ACs are written. This sequencing flaw means AC contradictions are caught late (at Architect design, not at AC definition).
+
+**Next time improvement:** When AC text says "Architect extracts content from design file," PM must read the Pencil frame before finalizing that AC — or explicitly mark the AC as "DRAFT — pending Architect design file confirmation" so it is understood to be unverified content. This prevents drafting ACs against design elements that do not exist.
+
+---
+
+## 2026-04-21 — K-023 Phase Gate (QA Early Consultation + Architect release)
+
+**What went well:** QA Early Consultation produced 6 concrete Challenges with specific root-cause evidence from reading the actual component code (`DevDiarySection.tsx:69` existing `rounded-[6px]`, `HeroSection.tsx:17` existing hairline at wrong position). All rulings (Option A vs Known Gap) made with explicit rationale and written into ticket before declaring done. PM Dashboard moved K-023 row from Backlog to in-progress table in the same session.
+
+**What went wrong:** QA Challenges #3 and #5 both deferred to "Architect design doc" without specifying a trigger mechanism — if Architect completes the design doc but does not notify PM to update the AC, KG-023-01/02/03 will remain open gaps at sign-off. The Known Gap tracking relies on QA remembering to enforce it, with no hard gate in the Architect design doc delivery step.
+
+**Next time improvement:** When creating Known Gaps that depend on Architect doc completion, PM must explicitly add "Architect design doc deliverable: PM to update AC-XXX text after receiving design doc" as a line item in the ticket's release conditions, so it cannot be skipped during Architect handoff.
+
+---
+
 ## 2026-04-21 — K-022 QA PASS + 關票彙整
 
 **做得好：** 讀各角色 retrospective 後正確識別出「AC 文字 vs 設計文件 vs 實作三端資訊不同步」為本票主要問題根因，而非個別角色失誤，歸因至 Architect 缺少「Pencil 實測後回寫 ticket AC」的硬步驟；本次無退回修復周期，四個收尾步驟（ticket frontmatter / PM 彙整 / dashboard / diary.json）全部用 tool call 落地，無口頭聲稱。

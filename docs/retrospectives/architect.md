@@ -20,6 +20,14 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-023 Homepage Structure Detail Alignment v2
+
+**What went well:** Pencil design file analysis surfaced four critical contradictions (A-3 already implemented, A-4 has no corresponding element in design, A-5 hairline is already in correct position per design, C-4 bottom padding mismatch) before any code was written. All four were escalated as Scope Questions to PM rather than self-resolved, preventing Engineer from implementing changes that contradict the design. Pre-Design Path Audit caught `StepCard.tsx` and `TechTag.tsx` as ghost entries in architecture.md.
+
+**What went wrong:** The ticket stated "Architect extracts text from design" for A-4, implying the content exists in the design. Architect read the ticket before checking the Pencil file structure, spending time on AC analysis before discovering the design has no second-line brick subtitle. The contradiction should have been surfaced in the first tool call sequence.
+
+**Next time improvement:** When a ticket references "Architect extracts exact content from design file", open the design file first to verify that content exists before reading AC details. Design file extraction should be the first operation, not confirmation of what AC already claims exists. Add this as a pre-condition check in the design workflow: "design file verification before AC analysis" when ticket scope involves design content extraction.
+
 ## 2026-04-21 — K-022 /about 結構細節設計
 
 **做得好：** 硬步驟 grep dark pattern 執行後，發現 `SectionLabel.tsx` 和 `SectionHeader.tsx` 目前 /about 根本未直接使用，避免 Engineer 改了一個 /about 不使用的組件；Pencil batch_get 取到 Redaction bar 高度（10px）/ Role Card 高度（320px）/ grid gap（14px）/ OWNS label 字級（10px）等精確數值，設計文件規格可直接照抄而非估算；發現 AC vs 設計稿兩處不一致（BQ-022-01 CASE FILE vs Nº 04、BQ-022-02 LAYER vs FILE Nº），列 Blocking Questions 交 PM 裁決，不自行選邊。Self-Diff 執行：13 列 vs 13 列 ✓。
