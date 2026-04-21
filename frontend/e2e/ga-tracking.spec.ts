@@ -31,8 +31,9 @@ test.describe('AC-018-PAGEVIEW — pageview events fired on route change', () =>
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       window.dataLayer = window.dataLayer || []
-      window.gtag = function (...args: unknown[]) {
-        window.dataLayer.push(args)
+      window.gtag = function () {
+        // eslint-disable-next-line prefer-rest-params
+        window.dataLayer.push(arguments)
       }
     })
   })
@@ -41,12 +42,12 @@ test.describe('AC-018-PAGEVIEW — pageview events fired on route change', () =>
     await page.goto('/')
     await page.waitForFunction(() =>
       (window.dataLayer as unknown[][]).some(
-        (entry) => Array.isArray(entry) && entry[0] === 'event' && entry[1] === 'page_view'
+        (entry) => (entry as IArguments)[0] === 'event' && (entry as IArguments)[1] === 'page_view'
       )
     )
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const pageviewEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[0] === 'event' && entry[1] === 'page_view'
+      (entry) => (entry as IArguments)[0] === 'event' && (entry as IArguments)[1] === 'page_view'
     )
     expect(pageviewEntry).toBeDefined()
     expect(pageviewEntry![2]).toMatchObject({ page_location: '/' })
@@ -56,12 +57,12 @@ test.describe('AC-018-PAGEVIEW — pageview events fired on route change', () =>
     await page.goto('/about')
     await page.waitForFunction(() =>
       (window.dataLayer as unknown[][]).some(
-        (entry) => Array.isArray(entry) && entry[0] === 'event' && entry[1] === 'page_view'
+        (entry) => (entry as IArguments)[0] === 'event' && (entry as IArguments)[1] === 'page_view'
       )
     )
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const pageviewEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[0] === 'event' && entry[1] === 'page_view'
+      (entry) => (entry as IArguments)[0] === 'event' && (entry as IArguments)[1] === 'page_view'
     )
     expect(pageviewEntry).toBeDefined()
     expect(pageviewEntry![2]).toMatchObject({ page_location: '/about' })
@@ -71,12 +72,12 @@ test.describe('AC-018-PAGEVIEW — pageview events fired on route change', () =>
     await page.goto('/app')
     await page.waitForFunction(() =>
       (window.dataLayer as unknown[][]).some(
-        (entry) => Array.isArray(entry) && entry[0] === 'event' && entry[1] === 'page_view'
+        (entry) => (entry as IArguments)[0] === 'event' && (entry as IArguments)[1] === 'page_view'
       )
     )
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const pageviewEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[0] === 'event' && entry[1] === 'page_view'
+      (entry) => (entry as IArguments)[0] === 'event' && (entry as IArguments)[1] === 'page_view'
     )
     expect(pageviewEntry).toBeDefined()
     expect(pageviewEntry![2]).toMatchObject({ page_location: '/app' })
@@ -86,12 +87,12 @@ test.describe('AC-018-PAGEVIEW — pageview events fired on route change', () =>
     await page.goto('/diary')
     await page.waitForFunction(() =>
       (window.dataLayer as unknown[][]).some(
-        (entry) => Array.isArray(entry) && entry[0] === 'event' && entry[1] === 'page_view'
+        (entry) => (entry as IArguments)[0] === 'event' && (entry as IArguments)[1] === 'page_view'
       )
     )
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const pageviewEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[0] === 'event' && entry[1] === 'page_view'
+      (entry) => (entry as IArguments)[0] === 'event' && (entry as IArguments)[1] === 'page_view'
     )
     expect(pageviewEntry).toBeDefined()
     expect(pageviewEntry![2]).toMatchObject({ page_location: '/diary' })
@@ -107,8 +108,9 @@ test.describe('AC-018-CLICK — CTA click events fired', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       window.dataLayer = window.dataLayer || []
-      window.gtag = function (...args: unknown[]) {
-        window.dataLayer.push(args)
+      window.gtag = function () {
+        // eslint-disable-next-line prefer-rest-params
+        window.dataLayer.push(arguments)
       }
     })
   })
@@ -122,7 +124,7 @@ test.describe('AC-018-CLICK — CTA click events fired', () => {
     await page.locator('[data-testid="cta-email"]').click()
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const clickEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[1] === 'cta_click'
+      (entry) => (entry as IArguments)[1] === 'cta_click'
     )
     expect(clickEntry).toBeDefined()
     expect(clickEntry![2]).toMatchObject({ label: 'contact_email' })
@@ -135,7 +137,7 @@ test.describe('AC-018-CLICK — CTA click events fired', () => {
     await page.locator('[data-testid="cta-github"]').click()
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const clickEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[1] === 'cta_click'
+      (entry) => (entry as IArguments)[1] === 'cta_click'
     )
     expect(clickEntry).toBeDefined()
     expect(clickEntry![2]).toMatchObject({ label: 'github_link' })
@@ -148,7 +150,7 @@ test.describe('AC-018-CLICK — CTA click events fired', () => {
     await page.locator('[data-testid="cta-linkedin"]').click()
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const clickEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[1] === 'cta_click'
+      (entry) => (entry as IArguments)[1] === 'cta_click'
     )
     expect(clickEntry).toBeDefined()
     expect(clickEntry![2]).toMatchObject({ label: 'linkedin_link' })
@@ -164,12 +166,12 @@ test.describe('AC-018-CLICK — CTA click events fired', () => {
     const clickPromise = page.locator('a[aria-label="About the AI collaboration behind this project"]').click()
     await page.waitForFunction(() =>
       (window.dataLayer as unknown[][]).some(
-        (entry) => Array.isArray(entry) && entry[1] === 'cta_click'
+        (entry) => (entry as IArguments)[1] === 'cta_click'
       )
     )
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const clickEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[1] === 'cta_click'
+      (entry) => (entry as IArguments)[1] === 'cta_click'
     )
     expect(clickEntry).toBeDefined()
     expect(clickEntry![2]).toMatchObject({ label: 'banner_about' })
@@ -188,15 +190,16 @@ test.describe('AC-018-PRIVACY — no PII in GA4 config', () => {
   test('gtag config call does not include user_id', async ({ page }) => {
     await page.addInitScript(() => {
       window.dataLayer = window.dataLayer || []
-      window.gtag = function (...args: unknown[]) {
-        window.dataLayer.push(args)
+      window.gtag = function () {
+        // eslint-disable-next-line prefer-rest-params
+        window.dataLayer.push(arguments)
       }
     })
     await page.goto('/')
     await page.waitForTimeout(300)
     const dataLayer = await page.evaluate(() => window.dataLayer)
     const configEntry = (dataLayer as unknown[][]).find(
-      (entry) => Array.isArray(entry) && entry[0] === 'config'
+      (entry) => (entry as IArguments)[0] === 'config'
     )
     if (configEntry) {
       expect(configEntry[2]).not.toHaveProperty('user_id')

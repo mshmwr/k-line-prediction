@@ -20,10 +20,13 @@ export function initGA(): void {
   const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined
   if (!measurementId) return
 
-  // Initialise dataLayer and define gtag helper
+  // Initialise dataLayer and define gtag helper.
+  // MUST push `arguments` (Arguments object), not a spread Array — gtag.js
+  // distinguishes gtag commands from GTM events by the Arguments-object shape.
   window.dataLayer = window.dataLayer || []
-  window.gtag = function (...args: unknown[]) {
-    window.dataLayer.push(args)
+  window.gtag = function () {
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer.push(arguments)
   }
 
   window.gtag('js', new Date())

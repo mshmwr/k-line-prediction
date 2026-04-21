@@ -16,6 +16,14 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-018 regression fix (ga-tracking.spec.ts)
+
+**What went well:** tsc exit 0 on first pass after casts added; all 12 ga-tracking tests + full 175-test suite pass with no regression outside the 8 previously-failing cases.
+
+**What went wrong:** K-018 fix landed in `analytics.ts` (Array → Arguments object) but the E2E spec still asserted `Array.isArray(entry)` AND pushed a spread array in `addInitScript`. Production bug fix was verified in GA4 real-time but the E2E mock was never re-aligned, so after the fix the spec's production-path entries (pushed by real `initGA()` reassignment) were Arguments objects and fell through all the `Array.isArray` filters. Root cause: test mock and production code drifted — the mock was treated as the "spec" while production was what actually mattered for the real network payload. No pre-commit gate caught this because K-018 was closed before the spec was re-run against the fixed code.
+
+**Next time improvement:** When fixing a production bug whose verification came from outside the test suite (e.g. GA4 Realtime, external platform), always re-run the full E2E before closing the ticket — even if the manual verification already passed. And when a test spec contains a mock of a browser API (`window.gtag`, `window.fetch`), the mock must be byte-identical to production shape; any drift is a latent bug. Add to pre-delivery check: grep `window.<api>` usage in `src/` and diff shape against any `addInitScript`/`evaluate` mock in `e2e/`.
+
 ## 2026-04-21 — K-023
 
 **What went well:** E2E spec logic self-check caught two issues before re-running: (1) `borderRadius: 0px` assertion would correctly fail in Before state, (2) `BuiltByAIBanner` text mismatch discovered by reading the component file instead of guessing.
