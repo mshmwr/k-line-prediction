@@ -1,9 +1,9 @@
 # CLAUDE.md — K-Line Prediction
 
-ETH/USDT K 線型態相似度預測系統。
+ETH/USDT K-line pattern similarity prediction system.
 
-**系統架構、API endpoints、資料流、欄位 mapping：** [agent-context/architecture.md](./agent-context/architecture.md)
-**K-Line 專屬規範（命名、pre-commit、時間格式、history database）：** [agent-context/conventions.md](./agent-context/conventions.md)
+**System architecture, API endpoints, data flow, field mapping:** [agent-context/architecture.md](./agent-context/architecture.md)
+**K-Line conventions (naming, pre-commit, time format, history database):** [agent-context/conventions.md](./agent-context/conventions.md)
 
 ---
 
@@ -102,8 +102,10 @@ After **any** edit to files under `frontend/src/` or `frontend/e2e/`:
 
 格式：
 ```json
-{ "milestone": "Phase X — 功能名稱", "items": [{ "date": "YYYY-MM-DD", "text": "一句話說明" }] }
+{ "milestone": "Phase X — Feature Name", "items": [{ "date": "YYYY-MM-DD", "text": "One sentence in English." }] }
 ```
+
+**語言規範：`milestone` 名稱與每筆 `text` 均須使用英文。**
 
 更新步驟：
 1. 在對應 milestone 的 `items` 陣列新增一筆，或新增 milestone 物件
