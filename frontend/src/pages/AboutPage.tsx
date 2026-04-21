@@ -7,7 +7,6 @@ import RoleCardsSection from '../components/about/RoleCardsSection'
 import ReliabilityPillarsSection from '../components/about/ReliabilityPillarsSection'
 import TicketAnatomySection from '../components/about/TicketAnatomySection'
 import ProjectArchitectureSection from '../components/about/ProjectArchitectureSection'
-import BuiltByAIShowcaseSection from '../components/about/BuiltByAIShowcaseSection'
 import FooterCtaSection from '../components/about/FooterCtaSection'
 
 /** Inline section label row (A-1): Geist Mono 13px bold + 1px hairline */
@@ -68,12 +67,7 @@ export default function AboutPage() {
         <ProjectArchitectureSection />
       </SectionContainer>
 
-      {/* S7 — BuiltByAIShowcaseSection (no section label — showcase banner) */}
-      <SectionContainer id="banner-showcase" width="wide" divider>
-        <BuiltByAIShowcaseSection />
-      </SectionContainer>
-
-      {/* S8 — FooterCtaSection (global footer) */}
+      {/* S7 — FooterCtaSection (global footer) */}
       <SectionContainer id="footer-cta" width="wide">
         <FooterCtaSection />
       </SectionContainer>

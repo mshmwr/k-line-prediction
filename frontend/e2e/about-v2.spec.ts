@@ -348,3 +348,49 @@ test.describe('AC-022-ROLE-GRID-HEIGHT — Role Cards grid height', () => {
     })
   }
 })
+
+// ── AC-031-SECTION-ABSENT ─────────────────────────────────────────────────────
+// Given: user navigates to /about
+// When:  page finishes loading
+// Then:  no #banner-showcase element, no "Built by AI" heading, no showcase caption text
+
+test.describe('AC-031-SECTION-ABSENT — Built by AI showcase section removed from /about', () => {
+  test('showcase section absent from DOM (id + heading + caption all gone)', async ({ page }) => {
+    await page.goto('/about')
+
+    // Primary signal: id is gone (deleted-from-DOM semantics per Architect §7 note)
+    await expect(page.locator('#banner-showcase')).toHaveCount(0)
+
+    // Heading with text "Built by AI" must not exist anywhere on /about
+    await expect(page.getByRole('heading', { name: 'Built by AI', exact: true })).toHaveCount(0)
+
+    // Caption text from removed component must not appear
+    await expect(
+      page.getByText('The real banner is clickable and navigates to /about', { exact: false })
+    ).toHaveCount(0)
+  })
+})
+
+// ── AC-031-LAYOUT-CONTINUITY ──────────────────────────────────────────────────
+// Given: user is on /about after S7 removal
+// When:  page renders
+// Then:  #architecture is immediately followed by #footer-cta (no banner-showcase between)
+
+test.describe('AC-031-LAYOUT-CONTINUITY — FooterCta immediately follows architecture', () => {
+  test('#architecture nextElementSibling is #footer-cta and banner-showcase absent', async ({ page }) => {
+    await page.goto('/about')
+
+    // Both neighbours present and visible
+    await expect(page.locator('#architecture')).toBeVisible()
+    await expect(page.locator('#footer-cta')).toBeVisible()
+
+    // Banner-showcase does not exist between them (or anywhere)
+    await expect(page.locator('#banner-showcase')).toHaveCount(0)
+
+    // DOM-order adjacency: architecture's nextElementSibling is footer-cta
+    const nextSiblingId = await page.evaluate(
+      () => document.getElementById('architecture')?.nextElementSibling?.id ?? null
+    )
+    expect(nextSiblingId).toBe('footer-cta')
+  })
+})
