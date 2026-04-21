@@ -16,6 +16,14 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-023
+
+**What went well:** E2E spec logic self-check caught two issues before re-running: (1) `borderRadius: 0px` assertion would correctly fail in Before state, (2) `BuiltByAIBanner` text mismatch discovered by reading the component file instead of guessing.
+
+**What went wrong:** Design doc specified `pt-[72px] pr-[96px] pb-[96px] pl-[96px] sm:pt-8 sm:pb-8 sm:px-6` but this inverts Tailwind's mobile-first semantics — `sm:` prefix means ≥640px, not <640px. Implementing the design doc verbatim caused desktop and mobile padding to swap. Also filed QA Interception for AC text color discrepancy (AC says `rgb(255, 255, 255)` but component uses `text-paper` = `rgb(244, 239, 229)`).
+
+**Next time improvement:** Before implementing any responsive Tailwind class, verify the responsive prefix direction against Tailwind docs (sm: = ≥640px, not <640px). When design doc specifies Tailwind responsive classes, always dry-run the viewport logic mentally: "without prefix = mobile default, with sm: = desktop override."
+
 ## 2026-04-21 — K-022 Code Review fix（I-1 + S-3）
 
 **做得好：**
