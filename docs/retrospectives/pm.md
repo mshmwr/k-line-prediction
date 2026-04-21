@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-013 Architect 交付物審查 + 放行 Engineer
+
+**What went well:** 嚴格執行 Arbitration Rules 三步——多維度矩陣（Go/回退/BQ 5 維度打分）+ 三條 Red Team challenges（Engineer / Reviewer / 3-month devil's advocate）+ 最終結論附最大未解風險。Pencil 檢查未盲目套用 `feedback_all_roles_check_pencil.md`，而是先讀 K-021 設計文件 §2 Pencil 完整性稽核段 + K-030 ticket scope，確認 **/app 無對應 Pencil frame 是既有設計決策**（K-021 明文記錄）而非 Architect 遺漏；K-030 進一步把 /app 從 marketing site palette 剝離，視覺驗證改採 design doc §6 Route Impact Table 的 dev server 目視 + StatsPanel code review，屬合規替代方案。兩條 SQ 經查 codebase 證據（SQ-013-01：grep `consensus_forecast_1h` producer 確認後端從未填；SQ-013-02：generator script 入版是 fixture drift 防線的合理選擇）皆同意 Architect 預判，不覆核。
+
+**What went wrong:** 初讀 persona checklist 時差點機械套用「ticket 有 design doc → 必有 Pencil frame cross-check」規則，若未先讀 K-021 §2 與 K-030 ticket，可能誤判 K-013 design doc 缺「Route Impact Table 的 Pencil cross-check 欄位」而回退 Architect——這會變成純粹的形式主義回退（Architect 無 frame 可比對，只能空轉）。根因：persona Pencil 檢查規則未區分「ticket scope 有無視覺變更」；K-013 為 zero-visual-change refactor，強行要求 Pencil frame cross-check 是 over-rule。
+
+**Next time improvement:**
+1. **PM Pencil cross-check 規則補條件分支（codify 進 pm.md Phase Gate）：** 「Ticket AC 含視覺變更 → Pencil frame 必驗；Ticket 為 pure refactor 且 design doc §API/§Route Impact 明示 zero visual change → Pencil cross-check 降級為『dev server 目視 + render path code review』，不得以缺 frame 為由回退 Architect」。
+2. **交叉票關係必入 PM context：** K-013 接手審查前未主動讀 K-021（/app frame 缺失記錄所在）與 K-030（/app scope 變更所在），靠 Pencil 檢查規則撞才補讀。應建立「審查 ticket 前先 grep 同路由相關 ticket」的 PM 硬步驟，尤其 /app / /about 這類跨多票作動的路由。
+
 ## 2026-04-21 — K-018 GA4 Tracking end-to-end 關閉
 
 **What went well:** K-018 從 frontmatter `open` 狀態拉到真 closed 的完整鏈路全數跑通——GA4 property 建立（`K-Line-Prediction`）、Measurement ID `G-9JC9YBZTPF` 取得、`.env.production` 寫入、`npm run build` 產出含 ID 的 bundle（curl 驗 deployed bundle 確認）、`firebase deploy --only hosting` 成功、GA4 即時頁使用者數從 0 翻到 1，整條鏈路在一個 session 內完整驗證。Debug 流程依序排除擴充套件（無痕分頁重測）、網路過濾、程式 wiring，最後用 `window.dataLayer` console 倒出 entry shape 鎖定 Array vs Arguments bug，避免盲 commit 無效修復。

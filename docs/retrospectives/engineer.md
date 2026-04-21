@@ -16,6 +16,14 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-013 Consensus / Stats SSoT (TD-008 Option C)
+
+**做得好：** design doc §7 的 8-step gate 架構讓每步失敗都能當下停住不往下擴散；Step 3 前端 vitest fail 後先跑 Python + JS 手算重現 2155.125 的 round 分歧，確認是 design doc §9.2 已警告的 rounding semantics 差異（非 K-009 類 bug），直接照 Architect 對策「fixture 用 non-tricky 數值」重新產生（current_close=2000 同 base，所有 future_ohlc 整數，scale=1.0），避免誤判為 scope creep 要 PM ruling；`git diff main -- backend/models.py` 空 diff 證明 API schema 真的沒動，AC-013-API-COMPAT 以機械驗證取代主觀斷言。
+
+**沒做好：** initial fixture generator 的 future_ohlc 值（2055 / 2050 / 1995 / 2005 等）沒先做 rounding parity dry-run，直接 generator → commit candidate → 前端 test fail 才回溯，浪費 1 次 Step 3 循環。根因：設計 fixture 時只想「matches 需要不同 correlation + sorted_highs[0] vs [1] 要可區分」，沒想到「median across 偶數個 value」會自然產生 .005 尾數。Architect §9.2 已警告此邊界，但我讀過後沒真正內化為「generator 前的 pre-check」，只當作「tolerance 1e-6 會吸收」的 safety net——實際 1e-6 根本吸收不了 1 cent 差距。
+
+**下次改善：** 跨層 contract fixture 產生前必做 rounding parity 自檢——在 generator script 內加 `assert (value * 100) == round(value * 100)` 迴圈（檢查所有 price/pct 是否 2-decimal clean），不通過就印警告或 raise。Codify 為 engineer persona 的「cross-layer contract implementation step」：generator 產 JSON 後、frontend test 前必須 dry-run 檢查 Python vs JS rounding parity。
+
 ## 2026-04-21 — K-018 regression fix (ga-tracking.spec.ts)
 
 **What went well:** tsc exit 0 on first pass after casts added; all 12 ga-tracking tests + full 175-test suite pass with no regression outside the 8 previously-failing cases.

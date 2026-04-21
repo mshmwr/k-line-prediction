@@ -20,6 +20,14 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-013 Consensus / Stats SSOT 設計文件
+
+**做得好：** §0 Pre-Design Audit 逐檔讀 `compute_stats` / `_projected_future_bars` / `computeDisplayStats` / `computeProjectedFutureBars` / `PredictStats` 五處實作，發現 pre-existing gap（`PredictStats.consensus_forecast_1h/1d` 後端永遠回 `[]`，全集下 StatsPanel 的 consensus 圖本來就沒畫），並列為 SQ-013-01 釘在 §0 讓 Engineer + Reviewer + PM 三方對齊，避免 Engineer 自行「順手修」擴大 scope 或 Reviewer 誤判為 K-013 引入的 regression。子決策 D1/D2/D3（util vs hook / generator script 入版 / import JSON）皆用 pre-verdict 打分表 ≥1 差距直接採，未事後補維度。architecture.md Edit 後對 `statsComputation` / `stats_contract_cases` / `computeStatsFromMatches` 三個關鍵字 grep 全檔 11 hits 逐一驗，並修正 §Consensus Stats Source of Truth 原本寫 `PredictStats` 回傳型別的過期簽名為 `StatsComputationResult`。
+
+**沒做好：** 初稿把 Directory Structure 新增的 `statsComputation.ts` / `fixtures/` / `statsComputation.test.ts` 寫成「K-013；…」而非「pending K-013 Engineer Step N」標記——磁碟上這三個檔案此刻**都不存在**（Architect 尚未啟動 Engineer），違反 persona 規則「must ls or Glob to confirm disk state; if deletion/creation hasn't happened, use pending marker」。Self-Diff 補救時發現才改回 pending。根因：寫 Directory Structure 時直覺用「目標狀態」措辭，漏掉磁碟現況驗證這一步。
+
+**下次改善：** 編輯 architecture.md Directory Structure block 前，**強制先跑 `ls` / `Glob`** 對照現在磁碟狀態，再決定每個條目用 "current state" 還是 "pending K-XXX Step N" 標記；把此步驟加進 Pre-Design Path Audit 的硬動作清單（K-023 已建立，本次擴充「磁碟-vs-目標 標記區分」這一小項）。
+
 ## 2026-04-21 — K-023 Homepage Structure Detail Alignment v2
 
 **What went well:** Pencil design file analysis surfaced four critical contradictions (A-3 already implemented, A-4 has no corresponding element in design, A-5 hairline is already in correct position per design, C-4 bottom padding mismatch) before any code was written. All four were escalated as Scope Questions to PM rather than self-resolved, preventing Engineer from implementing changes that contradict the design. Pre-Design Path Audit caught `StepCard.tsx` and `TechTag.tsx` as ghost entries in architecture.md.
