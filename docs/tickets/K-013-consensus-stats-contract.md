@@ -222,14 +222,14 @@ Codex 2026-04-18 review 指出 projected future bar aggregation / stats derivati
 
 ## Deploy Record — 2026-04-21
 
-- **Deploy date:** 2026-04-21 (UTC+8, post-merge)
-- **Commit range:** merge commit `<TBD>` on `main` (K-013 branch `refactor/K-013-consensus-ssot` tip `a5a46c6` → QA retro `153c694`)
-- **Build output:** `<TBD — frontend/dist/index.html hash + bundle size>`
-- **Firebase release:** Hosting URL `https://k-line-prediction-app.web.app` (project `k-line-prediction-app`)
-- **Deploy Checklist PASS:** (1) `grep "/api/"` scan → only test assertion stringContaining matches, no bare prefix in production src; (2) `npm run build` exit `<TBD>`; (3) `firebase deploy --only hosting` release `<TBD>`.
-- **Live verification:** `<TBD — /app route loads; Consensus chart renders full-set + subset smoke>`
-- **Pre-deploy gate:** tsc exit 0 + Vitest 45/45 + pytest 68/68 + Playwright full 173/174 (1 pre-existing skip) + K-013 spec 4/4 (QA Round 2 sign-off 2026-04-21 HEAD `a5a46c6`, visual report at `docs/reports/K-013-visual-report.html`)
-- **Rollback plan:** `git revert <merge-commit>` on `main` and re-deploy
+- **Deploy date:** 2026-04-21 23:36 (UTC+8, post-merge)
+- **Commit range:** merge commit `722df0c` on `main` (K-013 branch `refactor/K-013-consensus-ssot` tip `60ff637` including QA retro `153c694` + ticket close `60ff637`)
+- **Build output:** `frontend/dist` — `index.html` 1.01 kB / `index-D5JuSG-8.js` 114.62 kB (gzip 38.48 kB) / `index-D5mcz7J0.css` 44.34 kB / vendor chunks (charts 163.59 kB, react 179.29 kB, markdown 117.40 kB)
+- **Firebase release:** Hosting URL `https://k-line-prediction-app.web.app` (project `k-line-prediction`, site `k-line-prediction-app`) — `release complete` 2026-04-21 23:36 CST
+- **Deploy Checklist PASS:** (1) `grep -rE "['\"]/api/" frontend/src/` scan → only test assertion `stringContaining` matches in `__tests__/AppPage.test.tsx`, no bare prefix in production src; (2) `npm run build` exit 0 (prebuild ai-collab-protocols copy + tsc + vite build in 2.52s, 2015 modules); (3) `firebase deploy --only hosting` → "release complete" + Deploy complete
+- **Live verification:** `curl -sI https://k-line-prediction-app.web.app` → HTTP/2 200 + `last-modified: Tue, 21 Apr 2026 15:36:10 GMT` + etag `564b6660...f267e4`; HTML `<title>K-Line Prediction</title>` served
+- **Pre-deploy gate (post-merge re-run on `722df0c`):** tsc exit 0 + Vitest 45/45 + pytest 68/68 + Playwright full **190/191** (1 pre-existing skip, includes K-013 spec 4/4) in 54.1s. Visual report at `docs/reports/K-013-visual-report.html` regenerated on merged tree
+- **Rollback plan:** `git revert 722df0c` on `main` + `npm run build` + `firebase deploy --only hosting` re-release
 
 ## Retrospective
 
