@@ -13,13 +13,15 @@ export default function HomePage() {
     <div className="min-h-screen pt-8 pb-8 px-6 sm:pt-[72px] sm:pr-[96px] sm:pb-[96px] sm:pl-[96px]" data-testid="homepage-root">
       <UnifiedNavBar />
       <BuiltByAIBanner />
-      <HeroSection />
-      <ProjectLogicSection />
-      <DevDiarySection
-        milestones={entries}
-        loading={loading}
-        error={error}
-      />
+      <div className="flex flex-col gap-6 sm:gap-[72px]" data-testid="homepage-sections">
+        <HeroSection />
+        <ProjectLogicSection />
+        <DevDiarySection
+          milestones={entries}
+          loading={loading}
+          error={error}
+        />
+      </div>
       <HomeFooterBar />
     </div>
   )
