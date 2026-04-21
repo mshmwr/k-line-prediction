@@ -1,5 +1,11 @@
 [
   {
+    "milestone": "PM — README Future Enhancements",
+    "items": [
+      { "date": "2026-04-21", "text": "Added Future Enhancements section to README: grouped open tickets (K-028~031, K-018, K-013, K-012) into three recruiter-facing categories — Design System Completion, Analytics Integration, Architecture Refinement — to surface roadmap thinking alongside shipped features." }
+    ]
+  },
+  {
     "milestone": "K-023 — Homepage structure alignment v2 (3 items: A-2 / A-3 / C-4)",
     "items": [
       { "date": "2026-04-21", "text": "K-023 closed: Homepage visual detail alignment — rectangular brick-dark marker (20x14px, #9C4A3B) for diary timeline entries, STEP header bar (charcoal bg + paper text + Geist Mono 10px) for flow cards, and body padding (72px top / 96px right/bottom/left desktop; 32px/24px mobile) with per-section padding removal to prevent double-stacking; A-4/A-5 removed from scope after Pencil design confirmation; Code Review F1-F7 ruled (5 fix-now + 2 tech debt); 174 Playwright passed / 0 failed" }
