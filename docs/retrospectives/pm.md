@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-023 Close (KG-023-04 ruling + deploy + diary.json)
+
+**What went well:** KG-023-04 ruling (Option B Known Gap) was straightforward — single-option verification, Pre-Verdict Checklist correctly declared N/A. Deploy checklist executed in order: bare API path scan (only test assertions found, not production HTTP clients), npm run build (clean exit), firebase deploy (live). diary.json entry written in English with accurate K-023 summary. DiaryPage Playwright subset gate passed (4/4) before committing diary.json. Both inner and outer repo commits made separately by file class (docs-only ticket/dashboard vs Playwright-gated diary.json), following feedback_separate_commits rule.
+
+**What went wrong:** QA's retrospective note explicitly flagged that "QA adds at sign-off" Known Gaps must be escalated as formal QA Interception to PM — this gap was already identified by QA. The process improvement (any Known Gap with "QA adds at sign-off" label must trigger formal PM ruling, not remain as ticket metadata) was noted by QA but the pm.md persona does not yet have a hard gate for this pattern.
+
+**Next time improvement:** When closing tickets with QA-deferred Known Gaps, PM must verify each KG item labeled "QA adds at sign-off" has either (a) a formal PM ruling recorded in ticket, or (b) been converted to Engineer spec. This is now executed for KG-023-04. Candidate hard step: add to PM "Phase end" checklist: "scan all KG-XXX items — any with 'QA adds at sign-off' label that lacks a PM ruling = blocker for ticket close."
+
+---
+
 ## 2026-04-21 — K-023 Code Review Ruling (F1–F7)
 
 **What went well:** Applied the Pre-Verdict Checklist (scoring matrix + red team self-check) before ruling each finding. F3 required an extra design step — noticed the DOM-order assertion referenced `homepage-root` (the container) instead of something after the banner, caught the logic error before committing. Added `data-testid="built-by-ai-banner"` to the component to enable the structural assertion, keeping the implementation clean. All 5 fix-now changes were directly executed with tool calls in the same session before updating ticket/dashboard.
