@@ -19,18 +19,18 @@ function navLinksScope(page: import('@playwright/test').Page, isMobile: boolean)
   return page.locator(isMobile ? '[data-testid="navbar-mobile"]' : '[data-testid="navbar-desktop"]')
 }
 
-// ── AC-NAV-1: Desktop — home icon + nav links visible on all 5 pages ─────────
+// ── AC-NAV-1: Desktop — home icon + nav links visible on all 4 marketing pages ──
 // Given: desktop viewport (1280×800)
-// When:  user visits each of the 5 pages
+// When:  user visits each of the 4 marketing pages (K-030: /app is an isolated
+//        tool viewport and does not render UnifiedNavBar)
 // Then:  Home icon link (aria-label="Home") and right-side links (App, Diary, About) are visible
 // And:   Prediction link is NOT in DOM (hidden per K-021 AC-021-NAVBAR)
 
-test.describe('AC-NAV-1 — Desktop NavBar present on all 5 pages', () => {
+test.describe('AC-NAV-1 — Desktop NavBar present on all 4 marketing pages', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
   const pages = [
     { path: '/', name: 'HomePage' },
-    { path: '/app', name: 'AppPage' },
     { path: '/about', name: 'AboutPage' },
     { path: '/diary', name: 'DiaryPage' },
     { path: '/business-logic', name: 'BusinessLogicPage' },
@@ -59,16 +59,15 @@ test.describe('AC-NAV-1 — Desktop NavBar present on all 5 pages', () => {
 
 // ── AC-NAV-2: Mobile — home icon left, nav links right, no hamburger ─────────
 // Given: mobile viewport (375×667)
-// When:  user visits each of the 5 pages
+// When:  user visits each of the 4 marketing pages (K-030: /app does not render NavBar)
 // Then:  Home icon visible, App/Diary/About links visible, no hamburger
 // And:   Prediction link NOT in DOM
 
-test.describe('AC-NAV-2 — Mobile NavBar on all 5 pages', () => {
+test.describe('AC-NAV-2 — Mobile NavBar on all 4 marketing pages', () => {
   test.use({ viewport: { width: 375, height: 667 } })
 
   const pages = [
     { path: '/', name: 'HomePage' },
-    { path: '/app', name: 'AppPage' },
     { path: '/about', name: 'AboutPage' },
     { path: '/diary', name: 'DiaryPage' },
     { path: '/business-logic', name: 'BusinessLogicPage' },
@@ -138,13 +137,9 @@ test.describe('AC-NAV-3 — Home icon navigates to / (SPA) — mobile', () => {
 test.describe('AC-NAV-4 — Nav links navigate correctly (SPA)', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('App link navigates to /app', async ({ page }) => {
-    await mockApis(page)
-    await page.goto('/')
-    const nav = navLinksScope(page, false)
-    await nav.getByRole('link', { name: 'App', exact: true }).click()
-    await expect(page).toHaveURL('/app')
-  })
+  // 註（K-030）：原 `App link navigates to /app` same-tab SPA 斷言移除；
+  // /app 於 K-030 改為 new-tab 導航（<a target="_blank">），new-tab 行為由
+  // `frontend/e2e/app-bg-isolation.spec.ts` AC-030-NEW-TAB 覆蓋。
 
   test('About link navigates to /about', async ({ page }) => {
     await mockApis(page)
@@ -198,14 +193,8 @@ test.describe('AC-NAV-4 — Active link highlighted #9C4A3B, others #1A1814/60',
 test.describe('AC-NAV-4 — Active link highlighted (mobile)', () => {
   test.use({ viewport: { width: 375, height: 667 } })
 
-  test('App link is active (#9C4A3B) on /app page (mobile)', async ({ page }) => {
-    await mockApis(page)
-    await page.goto('/app')
-
-    const nav = navLinksScope(page, true)
-    await expect(nav.getByRole('link', { name: 'App', exact: true })).toHaveClass(/text-\[#9C4A3B\]/)
-    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-\[#1A1814\]/)
-  })
+  // 註（K-030）：原 `App link is active on /app page (mobile)` 測試移除；
+  // /app 於 K-030 不再渲染 NavBar，"active on /app" 語意消失。
 
   test('About link is inactive (#1A1814/60) on / page (mobile)', async ({ page }) => {
     await mockApis(page)
@@ -232,14 +221,8 @@ test.describe('AC-021-NAVBAR — active state per route', () => {
     await expect(homeLink).toHaveAttribute('aria-current', 'page')
   })
 
-  test('on /app — App link has aria-current=page', async ({ page }) => {
-    await mockApis(page)
-    await page.goto('/app')
-    const nav = navLinksScope(page, false)
-    const appLink = nav.getByRole('link', { name: 'App', exact: true })
-    await expect(appLink).toHaveAttribute('aria-current', 'page')
-    await expect(appLink).toHaveClass(/text-\[#9C4A3B\]/)
-  })
+  // 註（K-030）：原 `on /app — App link has aria-current=page` 測試移除；
+  // /app 於 K-030 不再渲染 NavBar，aria-current on /app 語意消失。
 
   test('on /diary — Diary link has aria-current=page', async ({ page }) => {
     await mockApis(page)

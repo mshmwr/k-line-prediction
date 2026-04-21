@@ -52,22 +52,6 @@ test.describe('AC-021-FONTS — font-mono class renders Geist Mono', () => {
   })
 })
 
-test.describe('AC-021-FONTS — HomeFooterBar fontFamily cross-route', () => {
-  test.use({ viewport: { width: 1280, height: 800 } })
-
-  test('/app HomeFooterBar fontFamily 含 "Geist Mono"', async ({ page }) => {
-    // 獨立驗證：HomeFooterBar 在不同路由 (/app) 仍套 Geist Mono
-    await mockApis(page)
-    await page.goto('/app')
-    await page.waitForLoadState('networkidle')
-
-    const footerText = page.getByText(
-      'yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn',
-      { exact: true }
-    )
-    await expect(footerText).toBeVisible()
-
-    const fontFamily = await footerText.evaluate(el => getComputedStyle(el).fontFamily)
-    expect(fontFamily).toMatch(/Geist Mono/)
-  })
-})
+// 註（K-030）：原 `AC-021-FONTS — HomeFooterBar fontFamily cross-route` describe block
+// 唯一的測試 case 是 /app HomeFooterBar fontFamily — 由於 /app 於 K-030 撤除 HomeFooterBar，
+// 該 case 已移除；HomePage HomeFooterBar Geist Mono 由上方 L35–53 既有 case 涵蓋。

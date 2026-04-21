@@ -2,12 +2,15 @@ import { test, expect } from '@playwright/test'
 import { mockApis } from './_fixtures/mock-apis.ts'
 
 // ── AC-021-BODY-PAPER ────────────────────────────────────────────────────────
-// Given: user visits any of the 5 routes (/, /about, /diary, /app, /business-logic)
+// Given: user visits any of the 4 marketing routes (/, /about, /diary, /business-logic)
 // When:  page finishes loading
 // Then:  <body> computed background-color = rgb(244, 239, 229) (#F4EFE5)
 // And:   <body> computed color = rgb(26, 24, 20) (#1A1814)
-// And:   each route is a standalone test case (PM 量化規則：5 個獨立 case 不合併；
-//        /business-logic 另加登入後狀態 = 6 cases 總計)
+// And:   each route is a standalone test case (PM 量化規則：4 個獨立 case 不合併；
+//        /business-logic 另加登入後狀態 = 5 cases 總計)
+//
+// 註（K-030）：/app 於 K-030 從 sitewide paper 規則撤出（wrapper 層 override gray-950）；
+// /app 的 bg 斷言移至 frontend/e2e/app-bg-isolation.spec.ts（AC-030-BG-COLOR）。
 //
 // LIFO ordering invariant 由 _fixtures/mock-apis.ts 內建：catch-all 先註冊、常用
 // 具體 mock 後註冊。Test 若需加額外具體 route（e.g. /api/auth）必須於 mockApis()
@@ -19,7 +22,7 @@ async function expectPaperBody(page: import('@playwright/test').Page) {
   expect(bodyColor).toBe('rgb(26, 24, 20)')
 }
 
-test.describe('AC-021-BODY-PAPER — body paper bg across 5 routes', () => {
+test.describe('AC-021-BODY-PAPER — body paper bg across 4 marketing routes', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
   test('HomePage (/) — body bg=#F4EFE5 + text=#1A1814', async ({ page }) => {
@@ -39,13 +42,6 @@ test.describe('AC-021-BODY-PAPER — body paper bg across 5 routes', () => {
   test('DiaryPage (/diary) — body bg=#F4EFE5 + text=#1A1814', async ({ page }) => {
     await mockApis(page)
     await page.goto('/diary')
-    await page.waitForLoadState('networkidle')
-    await expectPaperBody(page)
-  })
-
-  test('AppPage (/app) — body bg=#F4EFE5 + text=#1A1814', async ({ page }) => {
-    await mockApis(page)
-    await page.goto('/app')
     await page.waitForLoadState('networkidle')
     await expectPaperBody(page)
   })
