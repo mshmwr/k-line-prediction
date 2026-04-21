@@ -33,15 +33,20 @@ const TICKETS = [
 ]
 
 /**
- * S5 — TicketAnatomySection (AC-017-TICKETS)
+ * S5 — TicketAnatomySection (AC-017-TICKETS, AC-022-CASE-FILE-HEADER)
  * K-002 / K-008 / K-009 ticket anatomy trio.
+ * A-4: italic subtitle
+ * A-8: section label "Nº 04 — ANATOMY OF A TICKET" is rendered by AboutPage SectionLabelRow (BQ-022-01)
  */
 export default function TicketAnatomySection() {
   return (
     <div>
       <h2 className="font-mono font-bold text-ink text-2xl mb-2">Anatomy of a Ticket</h2>
-      <p className="text-gray-400 text-sm mb-6">
-        Three tickets that shaped how this project works.
+      <p
+        className="font-italic italic text-[15px] text-ink leading-relaxed mb-6"
+        data-section-subtitle
+      >
+        Three tickets that shaped how this project works — and the rules each one created.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {TICKETS.map(ticket => (

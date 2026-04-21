@@ -8,7 +8,10 @@ export default function ProjectArchitectureSection() {
   return (
     <div>
       <h2 className="font-mono font-bold text-ink text-2xl mb-2">Project Architecture</h2>
-      <p className="text-gray-400 text-sm mb-6">
+      <p
+        className="font-italic italic text-[15px] text-ink leading-relaxed mb-6"
+        data-section-subtitle
+      >
         How the codebase stays legible for a solo operator + AI agents.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

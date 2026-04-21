@@ -20,9 +20,10 @@ export default function TicketAnatomyCard({
     <CardShell padding="md">
       <div className="flex items-start justify-between gap-2 mb-3">
         <span className="font-mono text-xs text-purple-400 font-bold">{id}</span>
+        {/* A-7: link — Newsreader italic + underline */}
         <ExternalLink
           href={githubHref}
-          className="text-gray-500 text-xs font-mono hover:text-gray-300 underline"
+          className="font-italic italic text-xs text-muted hover:text-ink underline"
           ariaLabel={`View ${id} ticket on GitHub`}
         >
           GitHub →

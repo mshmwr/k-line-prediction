@@ -9,7 +9,7 @@ interface SectionContainerProps {
   children: ReactNode
 }
 
-// divider uses border-white/10, designed for dark-background pages (e.g. bg-[#0D0D0D])
+// divider uses border-muted/40, designed for paper-palette pages (e.g. bg-paper)
 export default function SectionContainer({
   id,
   width = 'wide',
@@ -20,7 +20,7 @@ export default function SectionContainer({
 }: SectionContainerProps) {
   const maxWidth = width === 'narrow' ? 'max-w-3xl' : 'max-w-5xl'
   const py = paddingY === 'md' ? 'py-12' : 'py-16'
-  const border = divider ? 'border-b border-white/10' : ''
+  const border = divider ? 'border-b border-muted/40' : ''
 
   return (
     <section

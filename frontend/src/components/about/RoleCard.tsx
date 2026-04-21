@@ -1,27 +1,67 @@
 import CardShell from '../primitives/CardShell'
+import RedactionBar from './RedactionBar'
 
 interface RoleCardProps {
   role: 'PM' | 'Architect' | 'Engineer' | 'Reviewer' | 'QA' | 'Designer'
   owns: string
   artefact: string
   borderColorClass?: string
+  annotation?: string   // A-11: marginalia annotation (BEHAVIOUR / POSITION / etc.)
+  redactArtefact?: boolean  // A-5: redact artefact field
 }
 
-export default function RoleCard({ role, owns, artefact, borderColorClass }: RoleCardProps) {
+/**
+ * A-8 role → annotation mapping (design-driven marginalia)
+ */
+const ROLE_ANNOTATIONS: Record<string, string> = {
+  PM: 'POSITION',
+  Architect: 'POSITION',
+  Engineer: 'BEHAVIOUR',
+  Reviewer: 'BEHAVIOUR',
+  QA: 'BEHAVIOUR',
+  Designer: 'BEHAVIOUR',
+}
+
+export default function RoleCard({ role, owns, artefact, borderColorClass, annotation, redactArtefact = false }: RoleCardProps) {
+  const roleAnnotation = annotation ?? ROLE_ANNOTATIONS[role]
+
   return (
-    <CardShell borderColorClass={borderColorClass ?? 'border-white/10'} padding="md">
-      <article data-role={role}>
-        <h3 className="font-mono font-bold text-ink text-base mb-3">{role}</h3>
-        <div className="space-y-2 text-sm">
+    <CardShell borderColorClass={borderColorClass ?? 'border-ink/20'} padding="md" className="flex flex-col min-h-[320px]">
+      <article data-role={role} className="flex flex-col flex-1">
+        {/* A-3 / §2.8: Role name Bodoni Moda 36px italic 700 text-brick */}
+        <h3 className="font-display font-bold italic text-[36px] text-brick leading-none mb-3">{role}</h3>
+
+        <div className="space-y-3 text-sm flex-1">
           <div>
-            <span className="text-gray-500 text-xs uppercase tracking-wide font-mono">Owns</span>
-            <p className="text-gray-300 mt-0.5">{owns}</p>
+            {/* A-6: OWNS label — Geist Mono 10px text-muted uppercase tracking-[2px] */}
+            <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">OWNS</span>
+            <p className="text-ink text-sm mt-0.5 leading-snug">{owns}</p>
           </div>
           <div>
-            <span className="text-gray-500 text-xs uppercase tracking-wide font-mono">Artefact</span>
-            <p className="text-gray-400 mt-0.5 font-mono text-xs">{artefact}</p>
+            {/* A-6: ARTEFACT label — Geist Mono 10px text-muted uppercase tracking-[2px] */}
+            <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">ARTEFACT</span>
+            {redactArtefact ? (
+              <div className="mt-1">
+                <RedactionBar width="w-[140px]" />
+                <span className="sr-only">{artefact}</span>
+              </div>
+            ) : (
+              <p className="text-muted mt-0.5 font-mono text-xs leading-snug">{artefact}</p>
+            )}
           </div>
         </div>
+
+        {/* A-11: marginalia annotation — Geist Mono 9px text-muted */}
+        {roleAnnotation && (
+          <div className="mt-3 pt-2 border-t border-ink/10">
+            <span
+              data-annotation
+              className="font-mono text-[9px] text-muted uppercase tracking-[2px]"
+            >
+              {roleAnnotation}
+            </span>
+          </div>
+        )}
       </article>
     </CardShell>
   )

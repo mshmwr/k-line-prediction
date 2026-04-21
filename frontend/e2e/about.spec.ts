@@ -40,11 +40,16 @@ test.describe('AC-017-HEADER — PageHeaderSection one-operator declaration', ()
   test('full hero text visible with correct role names and casing', async ({ page }) => {
     await page.goto('/about')
 
-    // h1 heading contains the declaration
+    // h1 heading contains the main operator declaration (A-3: Bodoni Moda italic)
     const h1 = page.getByRole('heading', { level: 1 })
     await expect(h1).toBeVisible()
-    await expect(h1).toContainText('One operator, orchestrating AI agents end-to-end —')
-    await expect(h1).toContainText('PM, architect, engineer, reviewer, QA, designer.')
+    await expect(h1).toContainText('One operator, orchestrating AI')
+    // agents end-to-end is a span inside h1 (accent color text-brick)
+    await expect(h1).toContainText('agents end-to-end —')
+
+    // A-3: "PM, architect..." moved to separate p element (Newsreader italic, below h1)
+    // The intent of AC-017-HEADER is all role names are visible on the page
+    await expect(page.getByText('PM, architect, engineer, reviewer, QA, designer.', { exact: true })).toBeVisible()
 
     // Closing sentence is in a separate element (p or span), not crammed on same line
     await expect(page.getByText('Every feature ships with a doc trail.', { exact: true })).toBeVisible()

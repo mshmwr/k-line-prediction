@@ -8,8 +8,8 @@ interface CtaButtonProps {
 }
 
 const variantMap = {
-  primary: 'bg-purple-600 hover:bg-purple-500 text-white border border-purple-600',
-  secondary: 'bg-transparent hover:bg-white/5 text-cyan-400 border border-cyan-400',
+  primary: 'bg-ink hover:bg-charcoal text-paper border border-ink',
+  secondary: 'bg-transparent hover:bg-ink/5 text-muted border border-muted',
 }
 
 export default function CtaButton({ label, href, variant, external = false }: CtaButtonProps) {

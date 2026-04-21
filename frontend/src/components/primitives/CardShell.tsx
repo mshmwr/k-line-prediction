@@ -7,10 +7,10 @@ interface CardShellProps {
   children: ReactNode
 }
 
-// Dark-theme card; bg-slate-800/60 assumes a dark page background (e.g. bg-[#0D0D0D])
+// Paper-palette card; bg-paper assumes a light page background (e.g. bg-paper)
 export default function CardShell({
   padding = 'md',
-  borderColorClass = 'border-white/10',
+  borderColorClass = 'border-ink/20',
   className = '',
   children,
 }: CardShellProps) {
@@ -18,7 +18,7 @@ export default function CardShell({
 
   return (
     <div
-      className={`rounded-xl border ${borderColorClass} bg-slate-800/60 ${paddingClass} ${className}`.trim()}
+      className={`rounded-xl border ${borderColorClass} bg-paper ${paddingClass} ${className}`.trim()}
     >
       {children}
     </div>

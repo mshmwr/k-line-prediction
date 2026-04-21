@@ -13,9 +13,10 @@ export default function FooterCtaSection() {
   return (
     <div className="text-center py-8 border-t border-ink/10">
       <p className="font-mono text-ink text-lg font-bold mb-3">Let's talk →</p>
+      {/* A-7: email link — Newsreader italic + underline */}
       <a
         href="mailto:yichen.lee.20@gmail.com"
-        className="text-brick-dark hover:text-brick text-sm font-mono underline"
+        className="font-italic italic text-brick-dark hover:text-brick text-sm underline"
         data-testid="cta-email"
         onClick={() => trackCtaClick('contact_email')}
       >
@@ -24,24 +25,26 @@ export default function FooterCtaSection() {
 
       <p className="text-muted text-sm mt-4 mb-2">Or see the source:</p>
       <div className="flex justify-center gap-4">
+        {/* A-7: GitHub link — Newsreader italic + underline */}
         <a
           href="https://github.com/mshmwr/k-line-prediction"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub repository"
-          className="text-ink hover:text-brick-dark text-sm font-mono underline"
+          className="font-italic italic text-ink hover:text-brick-dark text-sm underline"
           data-testid="cta-github"
           onClick={() => trackCtaClick('github_link')}
         >
           GitHub
         </a>
         <span className="text-muted">·</span>
+        {/* A-7: LinkedIn link — Newsreader italic + underline */}
         <a
           href="https://linkedin.com/in/yichenlee-career"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="LinkedIn profile"
-          className="text-ink hover:text-brick-dark text-sm font-mono underline"
+          className="font-italic italic text-ink hover:text-brick-dark text-sm underline"
           data-testid="cta-linkedin"
           onClick={() => trackCtaClick('linkedin_link')}
         >

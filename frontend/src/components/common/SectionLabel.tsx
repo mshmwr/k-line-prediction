@@ -1,6 +1,6 @@
 interface SectionLabelProps {
   text: string
-  color?: 'purple' | 'cyan' | 'pink' | 'white'
+  color?: 'purple' | 'cyan' | 'pink' | 'white' | 'ink'
 }
 
 const colorMap = {
@@ -8,6 +8,7 @@ const colorMap = {
   cyan: 'text-cyan-400 border-cyan-400',
   pink: 'text-pink-400 border-pink-400',
   white: 'text-white border-white',
+  ink: 'text-ink border-ink',
 }
 
 export default function SectionLabel({ text, color = 'purple' }: SectionLabelProps) {
