@@ -2,6 +2,46 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-031 開票（/about — remove "Built by AI" showcase section S7）
+
+**What went well:** Before writing ACs, verified the exact file path (`BuiltByAIShowcaseSection.tsx`) and its location in `AboutPage.tsx` (S7 SectionContainer lines 71–74 + import line 10). Cross-checked all E2E specs to confirm no existing test directly asserts the `/about` showcase section content — the `AC-017-BANNER` "One operator. Six AI agents." assertions all navigate to `/` (homepage), not `/about`. This means Engineer can delete the file without any spec update being required. Correctly scoped the removal to only the showcase section, preserving the homepage `BuiltByAIBanner.tsx` which is a separate unrelated component.
+
+**What went wrong:** Nothing notable for this ticket open; straightforward removal scoping.
+
+**Next time improvement:** When user says "remove a section from design + code," always verify whether that section's text content appears in any E2E spec (even as a substring match) before writing ACs — the "One operator. Six AI agents." string appears in both homepage and /about contexts visually, but the spec assertions are route-scoped to `/`, which required a grep + goto-context check to confirm safety.
+
+---
+
+## 2026-04-21 — K-030 開票（/app page isolation — new tab + no NavBar/Footer + background restore）
+
+**What went well:** Root cause for the background color issue was traced to a specific commit (`338e4b8`) before writing ACs, confirming K-021 as the introducing ticket (not K-022 or K-027). The spec conflict with `sitewide-body-paper.spec.ts` (AC-021-BODY-PAPER asserts `/app` has paper bg, which contradicts this fix) was explicitly identified and flagged in the ticket scope section — not buried or left ambiguous. QA Early Consultation correctly classified as Required due to: new-tab Playwright pattern, NavBar/Footer absence assertion pattern, background-color assertion layer selection (body vs wrapper), and the spec conflict resolution. Dashboard "next ID" counter updated to K-031.
+
+**What went wrong:** The `/app` NavBar + Footer were both present by design since K-005 (NavBar) and K-021 (Footer), yet neither ticket's AC explicitly documented the isolation requirement ("tool page should have no site chrome"). The requirement only surfaced via screenshot observation. This represents a scope assumption gap: K-005 and K-021 each treated `/app` as a standard SPA page without questioning whether it should share site chrome at all. PM did not challenge this assumption at ticket-open time for K-005 or K-021.
+
+**Next time improvement:** When a ticket adds shared chrome (NavBar / Footer / global body style) to "all pages," PM gate check must include an explicit question: "Does the `/app` prediction tool page require different treatment from marketing pages?" The `/app` page has fundamentally different UX requirements (full-viewport tool, no marketing navigation needed). This distinction should be surfaced in PRD scope, not caught post-deploy via screenshot.
+
+---
+
+## 2026-04-21 — K-029 開票（/about card body text dark-theme palette bug）
+
+**What went well:** Root cause analysis completed before writing ACs — read `ArchPillarBlock.tsx`, `TicketAnatomyCard.tsx`, `CardShell.tsx`, and the K-022 A-12 scope list to confirm the two affected files were explicitly absent from K-022 scope. This allowed accurate classification as a pre-existing bug (K-017 dark-theme origin, K-022 A-12 scope gap) rather than a K-022 regression. Also correctly identified the footer "bug" report as a non-issue: architecture doc Footer table + K-022 AC-022-FOOTER-REGRESSION both explicitly assign `FooterCtaSection` to `/about` — no ticket action needed there.
+
+**What went wrong:** The K-022 A-12 scope list was defined at ticket-open time without scanning all leaf-level `/about` components (only shared primitives were listed). `ArchPillarBlock.tsx` and `TicketAnatomyCard.tsx` were K-017-era dark-theme components that K-022 A-12 did not reach. PM did not enforce a full-component sweep of `components/about/` as part of A-12 scope definition. The root structural gap: A-12 scope was defined by component type (shared primitives) not by consumer scope (all `/about` components).
+
+**Next time improvement:** When opening a palette migration ticket scope (like A-12), PM must explicitly require Architect to grep all components under the affected page directory (`components/about/`) for dark-theme color patterns (`text-gray-*`, `text-purple-*`, `text-blue-*`, `bg-gray-*`), not just shared primitives. Add to PM Phase Gate pre-release check for palette migration tickets: "Architect has confirmed full scope sweep of all consumer-level components, not only shared primitives."
+
+---
+
+## 2026-04-21 — K-028 開票（Homepage 視覺修復 post-K-023 deploy）
+
+**What went well:** 開票前完成完整的 root cause 分析：閱讀 K-023 ticket 全文（含 PM 裁決 SQ-023-04 Q2）、讀取 `HomePage.tsx` 確認 K-023 body padding 實作正確、閱讀 `DevDiarySection.tsx` 確認 `ENTRY_HEIGHT = 140` 固定高度假設、對照 `diary.json` 確認 K-023 entry text 長度為 ~270 字元（遠超假設的容量）。這樣才能準確區分「K-023 regression vs 舊有缺陷觸發 vs K-023 設計決策副作用」三種不同性質，而非把所有問題一律歸咎 K-023。ID 衝突問題（K-025 已被 navbar hex-to-token 佔用）在 ls tickets/ 驗證後正確識別，ticket 重新命名為 K-028。
+
+**What went wrong:** 開票時未在第一步執行 `ls tickets/` 核對已存在 ID，直接以 K-025 命名，造成 ID 衝突需事後修正（mv + frontmatter Edit + 三條 AC 標籤 Edit）。PM Phase Gate 規則已明定「開票前 PM 必須 grep/ls 驗證路徑/ID 存在性」，但 ticket ID 分配這個步驟未觸發——根因是 PM Dashboard 的「下一個 ID：K-028」資訊在 Dashboard 讀取時已知，但 `ls tickets/` 驗證步驟不在本次執行路徑中（我預設信任 dashboard 的 ID 計數，但未核對 tickets/ 目錄實際檔案名）。
+
+**Next time improvement:** 開票前**強制** `ls tickets/` 確認下一個可用 ID，不信任 dashboard 的文字記載（文字可能落後於實際檔案狀態）。此規則候選補入 pm.md「開票前置步驟」：「ls docs/tickets/ 確認下一個未被佔用的 ID，再寫 ticket frontmatter」。
+
+---
+
 ## 2026-04-21 — K-023 Close (KG-023-04 ruling + deploy + diary.json)
 
 **What went well:** KG-023-04 ruling (Option B Known Gap) was straightforward — single-option verification, Pre-Verdict Checklist correctly declared N/A. Deploy checklist executed in order: bare API path scan (only test assertions found, not production HTTP clients), npm run build (clean exit), firebase deploy (live). diary.json entry written in English with accurate K-023 summary. DiaryPage Playwright subset gate passed (4/4) before committing diary.json. Both inner and outer repo commits made separately by file class (docs-only ticket/dashboard vs Playwright-gated diary.json), following feedback_separate_commits rule.
