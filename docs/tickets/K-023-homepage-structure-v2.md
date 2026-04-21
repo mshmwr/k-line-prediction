@@ -1,10 +1,11 @@
 ---
 id: K-023
 title: Homepage 結構細節對齊設計稿 v2（5 項）
-status: in-progress
+status: closed
 type: feat
 priority: medium
 created: 2026-04-20
+closed: 2026-04-21
 qa-early-consultation: completed-2026-04-21
 ---
 
@@ -241,3 +242,22 @@ QA Early Consultation completed before releasing to Architect.
 **Edge cases not covered:** AC-023-BODY-PADDING does not test the exact sm: breakpoint boundary (639px mobile vs 640px desktop). Existing tests only cover 375px and 1280px.
 
 **Next time improvement:** Any Known Gap labeled "QA adds at sign-off" must be escalated as a formal QA Interception to PM at sign-off — either Engineer adds the spec, or PM explicitly rules it as Known Gap with reason. Cannot leave it only in ticket metadata.
+
+---
+
+### PM Ruling — KG-023-04 (2026-04-21)
+
+**Decision: Option B — Declare Known Gap**
+
+**Rationale:** Testing Tailwind's `sm:` breakpoint boundary precision (639px vs 640px) is not the application's responsibility. The breakpoint boundary math is internal to Tailwind CSS framework and is tested at the framework level, not the application level. The existing 375px (mobile canonical) and 1280px (desktop canonical) Playwright test cases fully cover the application's padding intent for AC-023-BODY-PADDING. Application-level tests must verify business intent (correct padding values in mobile vs desktop contexts), not framework implementation details.
+
+**KG-023-04 status: Formally closed as Known Gap — Option B (framework-level boundary, not application responsibility)**
+
+---
+
+### Deploy Record
+
+**Deploy date:** 2026-04-21
+**Git SHA at deploy:** `fbbd58c2e1fdd1f8aaa4b79e5b76b58d57c7793c`
+**Hosting URL:** https://k-line-prediction-app.web.app
+**Status:** Live
