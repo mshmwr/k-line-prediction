@@ -38,13 +38,17 @@ related:
 
 ### 0.3 Scope Questions — pre-existing gap 需 PM 知情
 
-**SQ-013-01（資訊性，non-blocking）：後端 `PredictStats.consensus_forecast_1h/1d` 目前永遠是 `[]`。**
+**SQ-013-01（RETRACTED 2026-04-21 by Round 2 Fix 1 `853a8aa`；此段留底僅作歷史證據）：**
 
-- 觀察：`backend/predictor.py::compute_stats` 從未填入 `consensus_forecast_1h/1d`；`PredictStats` 模型預設為 `[]`（`models.py:58-59`）。
-- 實際後果：全集（`appliedSelection == all matches`）分支走 `appliedData.stats`，`StatsPanel` 的 `ConsensusForecastChart` 收到空陣列，**全集下不顯示 consensus 圖**；subset 分支前端在 `AppPage.tsx:231-235` 重新塞入 `projectedFutureBars` / `projectedFutureBars1D`，subset 下才有圖。
-- 此為 K-013 之前既存行為，ticket AC 未要求修復。
-- **PM 知情確認（non-blocking）：** 若 PM 期望「全集也顯示 consensus 圖」，須另開 K-XXX ticket；K-013 本票不擴 scope，僅保留現狀。本文件後段 §8 明示：subset→full 切換時 consensus 圖會「消失」是 pre-existing bug，不是 K-013 引入。
-- **對 fixture 影響：** `expected.consensus_forecast_1h/1d` 在 fixture 中統一以 `[]` 鎖定（snake_case，與後端輸出一致），contract test 只鎖 4 檔 OrderSuggestion + `win_rate` + `mean_correlation`。`consensusForecast1h/1d` 欄位之「subset 重算」非 contract test 範疇，前端 `computeStatsFromMatches` 在 subset 分支額外回傳的 `consensusForecast1h/1d` 由 `AppPage` 層注入而非 util 直回（詳 §2.2）。
+~~後端 `PredictStats.consensus_forecast_1h/1d` 目前永遠是 `[]` → 全集下不顯示 consensus 圖（pre-existing）。~~
+
+**更正（Round 2 Fix 1 建立的事實）：**
+
+- OLD base `b0212bb` `AppPage.tsx` L224-226 `displayStats` useMemo 實際對 **full-set 與 subset 兩條分支皆 unconditional 注入** `consensusForecast1h = projectedFutureBars` + `consensusForecast1d = projectedFutureBars1D`；後端 `consensus_forecast_1h/1d` 始終為 `[]` 是 wire-level 事實，但對使用者可觀測的 chart render 並無影響 — frontend 無條件覆寫此兩欄位。
+- 原設計文件推論「全集分支走 `appliedData.stats` → chart 收到 `[]` → 不顯示」是僅讀後端 schema + `usePrediction.ts` fallback 未 cross-verify OLD AppPage observable 行為的誤判；Round 1 `8442966` 把注入綁死 subset 分支 → 全集分支 chart 確實消失 → 觸發 C-1 Critical。
+- Round 2 Fix 1 `853a8aa` 於 `AppPage.tsx` 恢復無條件注入（spread base stats + 兩欄位覆寫），觀察行為已對齊 OLD base。
+- **正確 pre-existing 描述：** `consensus_forecast_1h/1d` **wire-level 永遠是 `[]`**（後端未填），但 **observable chart render 由前端 `AppPage.tsx` 注入 `projectedFutureBars` / `projectedFutureBars1D` 保證**；full-set 與 subset 兩分支皆注入；subset 分支另加 `computeStatsFromMatches` 回傳的 subset stats 合併。無「全集下不顯示 consensus 圖」的 pre-existing bug。
+- **對 fixture 影響（保留）：** `expected.consensus_forecast_1h/1d` 在 fixture 中統一以 `[]` 鎖定（snake_case，與後端 wire-level 輸出一致），contract test 只鎖 4 檔 OrderSuggestion + `win_rate` + `mean_correlation`。observable render 層的 `consensusForecast1h/1d` 注入屬 `AppPage` 職責，contract fixture 不涵蓋。
 
 **SQ-013-02（資訊性，non-blocking）：fixture 產生腳本是否入版？**
 
@@ -199,8 +203,8 @@ export function computeStatsFromMatches(
 | `second_highest` / `second_lowest` / `lowest` | `secondHighest` / `secondLowest` / `lowest` | 同 highest 結構 |
 | `win_rate` | `winRate` | float（後端 `round(..., 4)`） |
 | `mean_correlation` | `meanCorrelation` | float（後端 `round(..., 4)`） |
-| `consensus_forecast_1h` | `consensusForecast1h` | 固定 `[]`（見 §0.3 SQ-013-01），**不進 contract test 比對** |
-| `consensus_forecast_1d` | `consensusForecast1d` | 固定 `[]`，同上 |
+| `consensus_forecast_1h` | `consensusForecast1h` | wire-level 固定 `[]`（見 §0.3 SQ-013-01 RETRACTED 更正段），**不進 contract test 比對**；observable render 由 `AppPage` 注入 `projectedFutureBars` 保證 |
+| `consensus_forecast_1d` | `consensusForecast1d` | 同上；observable 由 `AppPage` 注入 `projectedFutureBars1D` |
 
 **Key 轉換工具：** 前端 contract test 使用 inline helper `snakeToCamelStats()` 針對 6 個 key（highest / second_highest / second_lowest / lowest + win_rate + mean_correlation + 每個 OrderSuggestion 內 occurrence_bar/occurrence_window/historical_time）做轉換。**不引入 lodash/camelcase-keys**（bundle 成本 > 自寫 30 行）。轉換邏輯附 regression case：數字結尾 key 如 `consensus_forecast_1h` → `consensusForecast1h`（whitelist 式 mapping，不用通用 algo）。
 
@@ -471,7 +475,7 @@ AppPage.tsx
 |------|--------|-------|------|
 | `POST /api/predict` request body schema | `PredictRequest`（`ohlc_data` / `selected_ids` / `timeframe` / `ma99_trend_override?`） | 同左 | **空** |
 | `POST /api/predict` response body schema | `PredictResponse`（`matches` / `stats` / `query_ma99_*` / `query_ma99_gap_*`） | 同左 | **空** |
-| `PredictStats` 欄位 | 4 × OrderSuggestion + `win_rate` + `mean_correlation` + `consensus_forecast_1h` + `consensus_forecast_1d` | 同左（§SQ-013-01 既存 `[]` 行為不變） | **空** |
+| `PredictStats` 欄位 | 4 × OrderSuggestion + `win_rate` + `mean_correlation` + `consensus_forecast_1h` + `consensus_forecast_1d` | 同左（wire-level `consensus_forecast_*` 維持 `[]`；observable render 由 AppPage 注入 — 見 §0.3 RETRACTED 更正段） | **空** |
 | `compute_stats()` signature | `(matches: List[MatchCase], current_close: float, timeframe: str = '1H') -> PredictStats` | 同左 | **空** |
 | 回傳值範圍 | 4 檔 OrderSuggestion 數值由演算法決定 | 同左（fixture 鎖定 bit-exact） | **空** |
 | usePrediction.ts camelCase 映射 | L91–92 `consensus_forecast_*` fallback 為 `[]` | 同左 | **空** |
@@ -510,7 +514,7 @@ AppPage.tsx
 
 | # | Gap | 來源 | 本票處置 |
 |---|-----|------|---------|
-| KG-013-01 | 全集分支 `consensusForecast1h/1d` 為 `[]`，StatsPanel `ConsensusForecastChart` 無圖 | 既存，非 K-013 引入 | 不修 — 需另開 ticket 決定「後端也算 consensus chart」還是「前端在全集分支也 compute」 |
+| ~~KG-013-01~~ | ~~全集分支 `consensusForecast1h/1d` 為 `[]`，StatsPanel `ConsensusForecastChart` 無圖~~ | **Superseded by Round 2 Fix 1 `853a8aa` (2026-04-21)** — OLD base `b0212bb` L224-226 實為無條件注入，本票 Round 1 誤為 subset-only 注入造成 C-1；Fix 1 恢復 OLD 行為，observable chart 兩分支皆可見。premise 撤回，非 pre-existing gap | Closed — observable 已無此 gap；wire-level `consensus_forecast_*` 仍回 `[]` 為設計保留（AppPage 層注入 observable），不視為 debt |
 | KG-013-02 | Float rounding 在 .005 邊界理論差異 | JS vs Python round 語意 | tolerance 1e-6 吸收；生產數據極少遇到（correlation / price 多位小數） |
 | KG-013-03 | Edge Case #4（全 null correlations）未加 fixture | §3.2 | design note；future work |
 | KG-013-04 | CI contract drift job 暫緩 | PM 2026-04-18 裁決 | 本 cycle 靠 PR reviewer + 雙端跑 fixture 自動失敗 |
@@ -562,3 +566,5 @@ AppPage.tsx
 - 初稿曾考慮把 `statsComputation.ts` 寫成接收 `projectedFutureBars` 的「第二層 util」（沿用目前 AppPage 先算 projectedFutureBars 再算 stats 的雙 step 結構），最終改為 util 內部自行呼叫 `computeProjectedFutureBars` 並在 `StatsComputationResult` 一次回傳，避免 AppPage 的雙重呼叫。trade-off：util 對 `aggregation.ts` 多一層耦合，但換來 AppPage 單一 call site。
 
 **Next time improvement:** 讀到「後端型別欄位有預設值 `[]`」時立即 `grep` 該欄位所有 producer — 這次花 ~5 min 才發現 backend 從不填 `consensus_forecast_1h/1d`；若一開始 grep `consensus_forecast_1h =` 或 `consensus_forecast_1h:` 在 backend/ 的所有 producer 位置，3 秒內就能確認。下次寫 cross-layer contract design 時，模型欄位「誰填、何時填、何時空」的檢查列為 §0 硬步驟。
+
+**2026-04-21 Post-Round 2 addendum（Architect SQ premise 被推翻後補記）：** 僅 `grep` 後端 producer 不夠 — 必須同時 `git show <base-commit>:<frontend-file>` 讀 observable consumer 的實際注入邏輯。本票 §0 SQ-013-01 僅跑了 backend producer grep + frontend fallback 映射檢查，未讀 OLD AppPage.tsx L224-226 實際 useMemo body，導致 premise「全集下不顯示 consensus 圖」錯誤地被當 pre-existing gap 寫入設計文件。Round 2 Code Review 在 `docs/designs/K-013-consensus-stats-ssot.md` 與 `agent-context/architecture.md` 回填「RETRACTED」段 + 「Observable override 由 AppPage 保證」文字以免下一位 reader 再次沿用錯誤 premise。下次 cross-layer contract design 硬步驟升級為三項：(1) backend producer grep、(2) frontend consumer grep、(3) observable override useMemo body 逐行 dry-run（`git show`）— 缺任一項 SQ premise 不得寫入設計文件。

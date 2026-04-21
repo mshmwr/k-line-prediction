@@ -2,6 +2,62 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-013 R2 Code Review Ruling（breadth + depth 合併裁決）
+
+**Breadth (superpowers:code-reviewer)：** Ready to merge Yes with I-1 flagged (plan-text vs 實作 drift) + M-1~M-4 minor。
+**Depth (reviewer agent)：** Ready to merge **No** — 1 Critical F-1（design doc + architecture.md 殘留 SQ-013-01/KG-013-01 錯誤前提）+ W-2（無正式 AC-013-APPPAGE-E2E block）+ W-3（Vitest warn noise）+ Suggestion 4/5。
+
+**Pre-Verdict Multi-dim Scoring Matrix（面向：影響度／成本／可逆／下游誤導風險）：**
+
+| Finding | fix-now(docs) | TD | accept | Choice |
+|---------|-------------|----|----|-------|
+| F-1 (Critical, premise 殘留) | 5 | 4 | 4 | **fix-now** |
+| W-2 (AC-E2E missing block) | 5 | 2 | 1 | **fix-now** |
+| I-1 + S-4 (AC 文字 drift) | 同 W-2 合併 edit | — | — | **fix-now** |
+| W-3 (Vitest warn noise) | 0 | 6 | 1 | **TD-K013-R2-01** |
+| S-5 (Case D comment dup) | 1 | 2 | 2 | **accept** |
+| Reviewer persona edit | 0 (非 PM 權限) | 3 | 4 (R1 已 80%) | **accept + TD-K013-R2-02** |
+
+**Red Team Self-Check：**
+1. Engineer challenge「為何不強制 Reviewer 立即 persona edit？」→ R1 已加 Pure-Refactor Behavior Diff hard gate；Bug Found Protocol 濫用會稀釋 trigger；TD 登記追蹤即可。
+2. Reviewer challenge「W-3 warn 污染 output 為何不 fix？」→ warn 信號對 regression 有價值，silencing 需 spy 成本 + cycle；`[K-013]` prefix 可自行 filter；TD 登記未來 harden。
+3. Devil's advocate「3 個月後失敗最可能路徑？」→ 下一位讀 design doc 再次沿用錯誤 premise → 再 C-1 cycle；這正是 F-1 fix-now 的直接理由。
+
+**Verdict（最大未解風險）：** KG-013-01 wire-level vs observable 的分層責任（是否應把 `consensus_forecast_*` 從 frontend injection 改為 backend computation）仍未決定 — 本票不擴 scope，另開 ticket 評估。
+
+**落地 4 Edits（docs-only）：**
+1. `docs/designs/K-013-consensus-stats-ssot.md` §0.3（RETRACTED 段）/ §2.3（fixture 映射備註）/ §8.1（PredictStats After 說明）/ §9.3（KG-013-01 ~~撤回~~ 標記）/ §Retrospective Post-R2 addendum — 5 處更正
+2. `agent-context/architecture.md` L354 `Known Gap` 段改為 `Wire-level vs Observable contract` + Changelog prepend R2 PM 裁決 entry
+3. `docs/tickets/K-013-consensus-stats-contract.md` AC-013-APPPAGE 文字重寫（無條件注入 + Behavior Diff binding） + 正式新增 `### AC-013-APPPAGE-E2E` block（4 cases G/W/T/A） + 尾部 Tech Debt section（TD-K013-R2-01 / TD-K013-R2-02 + Suggestion 5 accept-as-is）
+4. 本檔 prepend 本 entry
+
+**下一棒：** R2 merge-ready 解鎖 → 放行 QA regression + close ticket（per PM Phase Gate §Phase end 含 Deploy Checklist + Ticket closure bookkeeping）。
+
+**本次 PM 行為反省 / 下次改善：**
+- **做得好：** Pre-Verdict Scoring Matrix + Red Team 3 challenges 完整執行，避開「直接選 fix-now」的捷徑；F-1 裁決前先做 devil's advocate 確認下游誤導風險是主因而非 superstition。
+- **做得不夠：** Round 1 releasing 時未要求 Architect 在寫入 SQ-013-01 前做「frontend observable useMemo body 逐行 dry-run」，只檢查 backend producer grep 結果就放行 → 為 C-1 埋下 premise bug。下次有 `pre-existing` / `既存行為` trigger 字樣的 SQ entry，PM Phase Gate 要求 Architect 同步附「frontend observable `git show <base>:<file>` 逐行證據」，缺則不放行 Engineer。
+- **Codify action：** 此改善已於 senior-architect persona §Pre-Design Dry-Run Proof Gate 3 落地（Round 2 Bug Found Protocol Quality Check 已確認）。PM 本 persona 不新增 hard gate（避免重複；架構層 gate 一處即足）；僅在本 retrospective 留 cross-reference。
+
+---
+
+## 2026-04-21 — K-013 Round 2 BQ Ruling + Release Code Review
+
+**BQ-K013-R2-01 裁決：** Option X（Accept substitution）— Case D 1-bar future_ohlc path 與字面 deselect-all path 共用同一 `emptyResult` branch（`displayStats = appliedData.stats` + chart testid absent + fallback text visible），observable DOM 完全等價；AC-013-APPPAGE-E2E 意圖是鎖定 fallback render 路徑，非驗證特定 user gesture；spec 頂部 comment L23-34 + Case D 內 L263-270 明示 substitution 理由，未來 reader 可追溯。
+
+**AC-013-APPPAGE-E2E 4 cases 覆蓋評估：** 四分支全覆蓋（full-set chart / subset chart / empty-matches fallback / util-throw fallback），每 case positive + negative 雙斷言（chart testid vs fallback text 互斥），Behavior Diff Dry-Run 五列與 spec 行為逐列對齊，title-share 風險由 testid 消除。
+
+**Engineer 未 blocker-escalate 處理：** Light（不觸發 Bug Found Protocol）— `feedback_engineer_no_scope_downgrade.md` 的 rationale 是防「默默省略 AC」，本次 Engineer (a) 已完整執行 4 cases 非 3 cases，(b) ticket L308 + spec L23-34 + L263-270 三處明文記錄 substitution + 原因 + observable equivalence 推導，(c) 未修飾測試結果誤導 PM；僅需 Round 3 起加「替代方案實作前 1 次 BQ 往返」pre-escalation 訓練，寫入 engineer retro「下次改善」即可，不升級為 persona 新 hard gate。
+
+**Release decision：** 放行 Code Review Round 2（Step 1 superpowers breadth + Step 2 Agent(reviewer.md) depth，兩步缺一不可）
+
+**Review scope：** fix 三 commits `853a8aa` + `27120e9` + `4711b2f` + docs commit `942c305`；不含 Round 1 已 reviewed 的 `8442966` / `c9ae72c` / `d8b597c` / `3482d39`。Reviewer 重點檢查項：(a) `AppPage.tsx` L210-220 四行 patch 是否等於 OLD `b0212bb` L224-236 observable 行為（執行 §Pure-Refactor Behavior Diff Gate 1 四列 truth table 回查），(b) K-013-consensus-stats-ssot.spec.ts 4 cases positive + negative 斷言是否正確鎖定分支（尤其 Case D substitution 的 1-bar path 是否真的走到 `catch` block 而非其他 branch），(c) Fix 2 dev-mode warn 訊息的 guard `import.meta.env.DEV` 是否正確。
+
+**下次改善：**
+1. 替代實作 pre-escalation 訓練：Engineer 發現 AC 字面路徑不可達時，Round 3 起統一「1 次 BQ 回 PM」確認替代方向再動手，而非 commit 後事後說明；此條寫入 `docs/retrospectives/engineer.md` Round 2 entry 「下次改善」。
+2. PM 自己在 AC 落筆時加「路徑可達性 dry-run」：AC 涉及 UI gesture 時先 grep 相關 button `disabled` 條件，避免產生不可達 AC。此條 codify 到 `pm.md` §Phase Gate Checklist > Phase start，但強度僅列入「PM AC 寫作前自查清單」（非 hard gate，避免過度膨脹）。
+
+---
+
 ## 2026-04-21 — K-013 Bug Found Protocol Quality Check Round 2
 
 **Architect 三件套品質：** PASS

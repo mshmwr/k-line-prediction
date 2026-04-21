@@ -69,15 +69,46 @@ Codex 2026-04-18 review 指出 projected future bar aggregation / stats derivati
 **Then** 回傳型別等同後端 `PredictStats`（camelCase 映射：`consensusForecast1h` / `consensusForecast1d` / `highestOrder` / `secondHighest` / `secondLowest` / `lowestOrder` / `winRate` / `meanCorrelation`）
 **And** 函式為純函式，無 React 依賴、無 side effect、無隱式 `Date.now()`
 
-### AC-013-APPPAGE：AppPage.tsx displayStats 邏輯簡化
+### AC-013-APPPAGE：AppPage.tsx displayStats 邏輯簡化（updated 2026-04-21 Round 2 Code Review）
 
 **Given** `frontend/src/AppPage.tsx`
 **When** 讀取 `displayStats` useMemo
 **Then** 邏輯為：
-  - `appliedSelection` == all matches → 直接使用 `appliedData.stats`（不呼叫 util）
-  - `appliedSelection` ⊂ all matches 且長度 ≥ 1 → 呼叫 `computeStatsFromMatches(filteredMatches, currentClose, timeframe)`
-**And** 原 inline `computeDisplayStats`（約 30 行）已刪除
-**And** 原 `projectedFutureBars` useMemo 邏輯已合併進 `statsComputation.ts` 或 `displayStats` 分支，不留重複計算
+  - 呼叫 `computeStatsFromMatches(activeMatches, currentClose, viewTimeframe, lastBarTime)` 以取得 `projectedFutureBars` 與 subset 計算結果（util 唯一 call site）
+  - `appliedSelection` == all matches（full-set）→ 使用 `appliedData.stats` 作為 base stats（OrderSuggestion / winRate / meanCorrelation 走 backend baseline），util 回傳的 `stats` 欄位 discard
+  - `appliedSelection` ⊂ all matches 且長度 ≥ 1（subset）→ 使用 util 回傳的 `stats` 作為 base
+  - 無論 full-set 或 subset，皆無條件注入 `consensusForecast1h = projectedFutureBars` + `consensusForecast1d = aggregateProjectedBarsTo1D(projectedFutureBars)`（對齊 OLD base `b0212bb` `AppPage.tsx` L224-226 observable 行為；K-013 Round 1 `8442966` 把注入綁死 subset 造成 C-1，Round 2 Fix 1 `853a8aa` 恢復）
+  - `projectedFutureBars.length < 2` 或 util throw → fallback 到 `appliedData.stats`（catch block；dev-mode `console.warn('[K-013] ...')`）
+**And** 原 inline `computeDisplayStats`（約 30 行）與 `buildProjectedSuggestion` helper 已刪除
+**And** 原 `projectedFutureBars` useMemo 邏輯已合併進 util（util 內部唯一呼叫 `computeProjectedFutureBars`），AppPage 不再雙重計算
+
+**Note — Behavior Diff binding spec：** observable 等價判準由 Round 2 Engineer retrospective 5-row Behavior Diff Table 固定（ticket §Retrospective → Engineer Round 2 L266-274）；未來 Reviewer / Architect 若要修改此 AC 的 consensus 注入語意，必須同步更新 Behavior Diff Table 並通過 Reviewer §Pure-Refactor Behavior Diff Gate。Round 2 PM ruling 見 `docs/retrospectives/pm.md` 2026-04-21 — K-013 Round 2 BQ Ruling entry BQ-K013-R2-01（Option X accept substitution）。
+
+### AC-013-APPPAGE-E2E：AppPage chart vs fallback render 跨選擇狀態驗證（added 2026-04-21 Round 2）
+
+**Given** `frontend/e2e/K-013-consensus-stats-ssot.spec.ts`（新 spec file）
+**When** 執行 `npx playwright test K-013-consensus-stats-ssot.spec.ts --project=chromium`
+**Then** 4 個獨立 test cases 全 pass，每 case 皆採 positive（應可見元素 `toBeVisible`）+ negative（應不可見元素 `not.toBeVisible`）雙斷言，不得 merge 成單一 case：
+
+1. **Case A — full-set chart visible**：predict 完成後預設 full-set（`activeMatches == all matches`）狀態下，`ConsensusForecastChart` 1H section：
+   - Positive：`getByTestId('consensus-forecast-1h-chart').toBeVisible()` + `getByText('Consensus Forecast (1H)', { exact: true }).toBeVisible()`
+   - Negative：`getByText('Forecast unavailable', { exact: false }).not.toBeVisible()`
+
+2. **Case B — subset chart visible（deselect 1 + re-click predict sync）**：UI 上 deselect 任一 match 後，因 `applySelectionChange` 需重新 apply（或重按 Start Prediction 讓 `appliedSelection` 同步），subset 狀態下：
+   - Positive：`getByTestId('consensus-forecast-1h-chart').toBeVisible()`
+   - Negative：`getByText('Forecast unavailable', { exact: false }).not.toBeVisible()`
+
+3. **Case C — empty matches fallback**：mock `/api/predict` 回 `matches: []`（backend 無比對結果），`emptyResult.displayStats = appliedData.stats` + fallback render：
+   - Positive：`getByText('Forecast unavailable', { exact: false }).toBeVisible()`
+   - Negative：`getByTestId('consensus-forecast-1h-chart').not.toBeVisible()`
+
+4. **Case D — util throw fallback（substitution，見 PM Round 2 BQ-K013-R2-01 Option X accept ruling）**：原設計意圖為「UI 上 deselect-all → fallback」，但 `handlePredict` + `disabledReason` 組合使「deselect-all」僅能顯示 dirty banner 無法 commit 到 `appliedSelection`，該 UI gesture path 不可達；以「mock payload `future_ohlc` 僅 1 bar → util throw `projectedFutureBars.length < 2` → catch block fallback」替代，**observable DOM 與原路徑完全等價**（`emptyResult.displayStats = appliedData.stats` + `ConsensusForecastChart` fallback render）：
+   - Positive：`getByText('Forecast unavailable', { exact: false }).toBeVisible()`
+   - Negative：`getByTestId('consensus-forecast-1h-chart').not.toBeVisible()`
+
+**And** spec file 頂部 block comment + 每 case 前段 comment 明示（(a) Behavior Diff Table 綁定、(b) Case D substitution 理由引用 PM Round 2 Ruling）
+**And** 4 cases 不得 merge 或共用 setup 導致斷言交叉污染
+**And** 整份 spec 通過後與既有 `npx playwright test --project=chromium` 合併仍為 173 passed + 1 skipped / 174 total（Round 2 已驗證）
 
 ### AC-013-FIXTURE：Contract fixture 建立
 
@@ -315,3 +346,41 @@ if (import.meta.env.DEV) {
 - `npx playwright test --project=chromium` → 173 passed + 1 skipped (pre-existing) / 174 total（含新 4 cases）
 - `npx playwright test K-013-consensus-stats-ssot.spec.ts --project=chromium` → 4 passed
 - Browser smoke headless（nohup vite dev + chromium.launch + /api/* mock + click Start Prediction）→ `title_Consensus_Forecast_1H: true`, `chart_container_visible: true`, `fallback_text_visible: false`，screenshot `/tmp/k013-smoke-fullset.png`
+
+---
+
+## Tech Debt（opened by PM, 2026-04-21 Round 2 Code Review ruling）
+
+### TD-K013-R2-01 — Vitest 1-bar fixtures 觸發 dev-mode warn noise
+
+**Context：** Round 2 Fix 2 (`27120e9`) 於 `AppPage.tsx` `displayStats` catch block 加 `import.meta.env.DEV` guarded `console.warn('[K-013] Consensus fallback path triggered: ...')`，目的是為未來 regression 早期信號。Vitest 某些 1-bar `future_ohlc` fixture 會自然觸發此 catch block → warn 寫入 Vitest stdout，污染 45/45 綠測試的 output 可讀性。
+
+**PM 裁決（Round 2 不 fix）：**
+- (a) Vitest 的 warn 是設計信號、不是 false positive — 關掉會失去 regression 信號價值
+- (b) 若 mitigate 需 mock `console.warn` 或收緊 trigger condition（例如只在 production-profile fixtures 觸發），需額外 spy 設計 + 測試 cycle
+- (c) 當前 45/45 綠，warn 帶有 `[K-013]` prefix 可由開發者自行 `grep -v` 過濾
+
+**未來處置建議（下個 cycle 評估）：**
+- Option A：test setup 加 `vi.spyOn(console, 'warn').mockImplementation(() => {})` 於 `beforeEach`，於 `afterEach` assert 0 unexpected warn → 保留信號於 production
+- Option B：AppPage catch block trigger condition 改為「非 test 環境」（`import.meta.env.DEV && !import.meta.env.VITEST`）
+- Option C：fixture 調整避開 1-bar case（但會失去邊界 test 覆蓋）
+
+**Owner：** 未指派（待下個 cycle PM 評估後指派給 Engineer）
+
+### TD-K013-R2-02 — Reviewer persona Gate 4 dry-run + Post-Fix Doc Consistency Check
+
+**Context：** Round 2 Code Review（Agent(reviewer.md) depth pass）在發現 C-1 後，於 reviewer retrospective 提出兩項持續 hardening 建議：(a) Gate 4 dry-run（預先以 Behavior Diff Table 比對 fix 前/後 observable）、(b) Post-Fix Doc Consistency Check（修 code 後強制 grep 設計文件 SQ/KG entries 是否仍與 code 一致）。Reviewer 自評 R1 已加 Pure-Refactor Behavior Diff hard gate 覆蓋約 80%，剩下 20% 為「fix 後文件回填」與「dry-run 時機前移」。
+
+**PM 裁決（Round 2 不觸發 Bug Found Protocol）：**
+- Bug Found Protocol 原定義為「責任角色對自己引入 bug 的反省」。Round 2 Reviewer 未引入 bug 反而抓到 bug，升級 Bug Found Protocol 會稀釋其觸發語意（未來真的責任歸屬時會被質疑「誰都可以開」）。
+- Reviewer persona edit 非 PM 權限 — 避免跨角色 persona 代寫造成 ownership drift；需由 Reviewer agent 自己 session 決定是否寫入 `~/.claude/agents/reviewer.md`。
+
+**未來處置建議：**
+- Option A：下次觸發 reviewer agent 時，PM 在 prompt 中附「請評估是否加 Gate 4 dry-run + Post-Fix Doc Consistency hard gate 到 reviewer.md」指示，由 reviewer agent 自主決定
+- Option B：等待下次 reviewer 抓到類似 C-1 類型 bug 時再強化（避免過度 codify）
+
+**Owner：** Reviewer agent（下次召喚時自行評估）
+
+### 不落地為 Accepted-as-is 的 findings
+
+- **Suggestion 5（Case D comment 重複於 spec 頂部與 per-case 前段）：** 冗餘是刻意 — 頂部 block 綁定 PM Round 2 Ruling，per-case 綁定本 case 的替代實作理由；未來 reader 從任一進入點都能看到 substitution 說明。R2 close 不動。

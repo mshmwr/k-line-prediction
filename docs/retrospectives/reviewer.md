@@ -16,6 +16,19 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Reviewer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-013 Round 2 Fix Pack (Step 2 專案深度)
+
+**做得好：** Gate 1 Pure-Refactor Behavior Diff 我主動重跑 5 輸入路徑 dry-run（`appliedData.stats=null` / full-set×bars≥2 / full-set×bars<2 / subset×bars≥2 / empty matches），逐列對照 Engineer L268-274 table，五列全綠（consensusForecast1h/1d 在 R2 `displayStats` spread pattern 下恢復與 OLD `b0212bb` L224-226 一致的無條件注入語意，其他欄位如 winRate/meanCorrelation 走 full-set=backend baseline 為 K-013 AC-013-APPPAGE 刻意行為非 regression）。Gate 4 Architecture Doc cross-check 逐檔 grep `consensus` / `SQ-013-01` / `Known Gap`：`docs/designs/K-013-consensus-stats-ssot.md` L39-47 / L202-203 / L474 / L509-513 / L558 **仍保留** 「全集下不顯示 consensus 圖 … pre-existing 行為」的 false premise；`agent-context/architecture.md` L354 亦同；R2 commit range 對兩檔 diff 皆空。這是 Round 2 遺漏，列為 Critical F-1（design doc 與 reality 永久矛盾，未來 reader 踩坑）。Gate 5 dev-mode warn 確認 `import.meta.env.DEV` 正確保護，prod build dead-code-eliminated。Gate 6/7 commit 粒度四刀切乾淨，docs-only 第 4 commit 無需 gate 符合 CLAUDE.md §File Class。Case D substitution 代數等價性（observable DOM 相同：StatsProjectionChart `if (!bars.length)` fallback branch）經 StatsPanel.tsx L109-121 code trace 確認，PM Option X 裁決合理。
+
+**沒做好：** Round 1 review 時，Gate 4「architecture doc cross-check」只 grep `consensus_forecast_1h` producer 確認後端永遠 `[]`，但沒 grep 設計文件 SQ-013-01 文字斷言本身是否符合事實（本該把「全集下不顯示 consensus 圖」這句話本身 dry-run 一次，就能在 Round 1 抓到 C-1 的同一個源頭矛盾，而非等到 Pass/Fail table 回讀才觸發）。根因：我把「設計文件斷言」預設為可信 source，只驗 claim 內引用的具體 commit / file:line，沒直接 dry-run claim 本身。
+
+**下次改善：**
+1. **Gate 4 擴為「斷言本身 dry-run」：** 設計文件出現「不顯示 X」「無 Y」「全集下如 Z」等 negative/existential claim 時，除了驗 claim 引用的 file:line source，必須對 claim **結論本身**跑 dry-run（例：「全集下不顯示 consensus 圖」→ 模擬 isFullSet=true × projectedFutureBars.length>=2 → 追 displayStats.consensusForecast1h 值 → 追 StatsPanel.tsx bars.length 判斷 → 對結論「不顯示」成立與否做代數證明）。Codify 進 `~/.claude/agents/reviewer.md` §Architecture Doc Cross-Check 硬 gate，triggers = `pre-existing` / `全集下` / `subset 下` / 任何帶 existential quantifier 的 claim。
+2. **Round 2 remediation cycle 必掃「前一輪遺留 stale 敘述」：** Bug Found Protocol Round 2 fix commit range 對 design doc / architecture.md diff 為空時（本次 R2 兩檔皆空），需主動提醒 PM 驗證「前一輪斷言是否仍成立」。即使 fix commit 只動 code / test / retro，根因為 false premise 的票必伴隨 doc 斷言修訂，否則下一位 reader 會 inherit 同一誤解。Codify 為「Round 2 Post-Fix Doc Consistency Check」。
+
+---
+
+
 ## 2026-04-21 — K-013 Round 1 (Critical C-1 Consensus chart disappears on full-set)
 
 **做得好：** 設計文件 SQ-013-01 明寫「pre-existing behavior, full-set consensus chart 本來就不畫」，初讀接受 Architect 斷言過，但在 Pass/Fail table 編完後回讀一次覺得 AC-013-APPPAGE NEW 實作「full-set 吐 appliedData.stats」與「OLD 本來就不畫」兩個斷言組合邏輯不合（consensus chart OLD 究竟有沒有畫？無法同時成立），決定 `git show b0212bb:frontend/src/AppPage.tsx` 讀 base，跑 useMemo 資料流 dry-run（isFullSet=true × projectedFutureBars.length>=2），得出 OLD 實際一律注入 consensusForecast1h/1d 的結論 → 推翻 SQ-013-01 premise → 升級為 Critical C-1（K-013 引入 regression）。這一步不是測試驗證可覆蓋，Architect design doc + Engineer AC 字面 + 174 Playwright 全綠也不會觸發，單靠 Reviewer 回讀時「邏輯斷言矛盾感」+「手動 git show base」才能抓到。
