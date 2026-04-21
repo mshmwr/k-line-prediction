@@ -225,6 +225,9 @@ export default function AppPage() {
       // or currentClose invalid), fall back to backend baseline and skip
       // consensus chart / day-stats rendering — same behaviour as before the
       // refactor (`if (!computed) return appliedData.stats`).
+      if (import.meta.env.DEV) {
+        console.warn('[K-013] Consensus fallback path triggered: projectedFutureBars.length < 2 (or util threw)')
+      }
       return { ...emptyResult, displayStats: appliedData.stats }
     }
   }, [appliedData, appliedSelection, viewTimeframe])
