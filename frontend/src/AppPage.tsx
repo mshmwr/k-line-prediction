@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { OHLCRow, MatchCase, OrderSuggestion, PredictStats, DayStats, Ma99Gap } from './types'
+import { OHLCRow, MatchCase, PredictStats, DayStats, Ma99Gap } from './types'
 import { OHLCEditor } from './components/OHLCEditor'
 import { TopBar } from './components/TopBar'
 import { PredictButton } from './components/PredictButton'
@@ -12,10 +12,10 @@ import { usePrediction } from './hooks/usePrediction'
 import {
   aggregateProjectedBarsTo1D,
   aggregateRowsTo1D,
-  computeProjectedFutureBars,
   ProjectionBar,
   toDisplayMatch,
 } from './utils/aggregation'
+import { computeStatsFromMatches } from './utils/statsComputation'
 import { API_BASE } from './utils/api'
 const OFFICIAL_ROW_COUNT = 24
 
@@ -87,41 +87,6 @@ function isRowComplete(row: OHLCRow): boolean {
   return Boolean(row.time) && (['open', 'high', 'low', 'close'] as const).every(
     field => row[field] !== '' && !Number.isNaN(Number(row[field]))
   )
-}
-
-function buildProjectedSuggestion(
-  label: string,
-  price: number,
-  pct: number,
-  occurrenceBar: number,
-  occurrenceTime: string,
-  historicalTime: string,
-): OrderSuggestion {
-  return {
-    label,
-    price: Math.round(price * 100) / 100,
-    pct: Math.round(pct * 100) / 100,
-    occurrenceBar,
-    occurrenceWindow: occurrenceTime,
-    historicalTime,
-  }
-}
-
-function computeDisplayStats(matches: MatchCase[], projectedBars: ProjectionBar[], currentClose: number): Omit<PredictStats, 'consensusForecast1h' | 'consensusForecast1d'> | null {
-  if (projectedBars.length < 2) return null
-  const sortedHighs = [...projectedBars].sort((a, b) => b.high - a.high)
-  const sortedLows = [...projectedBars].sort((a, b) => a.low - b.low)
-  const corrs = matches.map(match => match.correlation).filter((value): value is number => value != null)
-  const wins = projectedBars.filter(bar => bar.close > currentClose)
-
-  return {
-    highest: buildProjectedSuggestion('Highest', sortedHighs[0].high, (sortedHighs[0].high - currentClose) / currentClose, sortedHighs[0].occurrenceBar, sortedHighs[0].time, 'Consensus'),
-    secondHighest: buildProjectedSuggestion('Second Highest', sortedHighs[1].high, (sortedHighs[1].high - currentClose) / currentClose, sortedHighs[1].occurrenceBar, sortedHighs[1].time, 'Consensus'),
-    secondLowest: buildProjectedSuggestion('Second Lowest', sortedLows[1].low, (sortedLows[1].low - currentClose) / currentClose, sortedLows[1].occurrenceBar, sortedLows[1].time, 'Consensus'),
-    lowest: buildProjectedSuggestion('Lowest', sortedLows[0].low, (sortedLows[0].low - currentClose) / currentClose, sortedLows[0].occurrenceBar, sortedLows[0].time, 'Consensus'),
-    winRate: wins.length / projectedBars.length,
-    meanCorrelation: corrs.length > 0 ? corrs.reduce((a, b) => a + b, 0) / corrs.length : 0,
-  }
 }
 
 function computeStatsByDay(projectedBars: Array<{ time: string; high: number; low: number }>, currentClose: number): DayStats[] {
@@ -208,32 +173,63 @@ export default function AppPage() {
     return null
   }, [maLoading, ohlcComplete, hasSelection, matches.length])
 
-  const projectedFutureBars = useMemo(() => {
-    if (!appliedData.stats) return []
+  // K-013 (TD-008 Option C): full-set stats come from backend
+  // (`appliedData.stats`, the authoritative baseline); subset stats come from
+  // the shared `statsComputation` util which is locked bit-exact to the
+  // backend via `backend/tests/fixtures/stats_contract_cases.json`. We derive
+  // `projectedFutureBars` once and reuse it for (a) StatsPanel consensus
+  // charts (subset branch only, full branch preserves backend's pre-existing
+  // empty consensus arrays — see KG-013-01) and (b) `displayStatsByDay`.
+  const workspace = useMemo<{
+    projectedFutureBars: ProjectionBar[]
+    projectedFutureBars1D: ProjectionBar[]
+    displayStats: PredictStats | null
+  }>(() => {
+    const emptyResult = { projectedFutureBars: [], projectedFutureBars1D: [], displayStats: null as PredictStats | null }
+    if (!appliedData.stats) return emptyResult
+
     const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
-    if (activeMatches.length === 0) return []
+    if (activeMatches.length === 0) {
+      return { ...emptyResult, displayStats: appliedData.stats }
+    }
+
     const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
     const lastBarTime = appliedData.inputs[appliedData.inputs.length - 1]?.time
-    return computeProjectedFutureBars(activeMatches, currentClose, lastBarTime)
-  }, [appliedData, appliedSelection])
-  const projectedFutureBars1D = useMemo(
-    () => (viewTimeframe === '1H' ? aggregateProjectedBarsTo1D(projectedFutureBars) : []),
-    [projectedFutureBars, viewTimeframe],
-  )
+    const isFullSet = activeMatches.length === appliedData.matches.length
 
-  const displayStats = useMemo(() => {
-    if (!appliedData.stats) return null
-    if (projectedFutureBars.length < 2) return appliedData.stats
-    const activeMatches = appliedData.matches.filter(m => appliedSelection.has(m.id))
-    const currentClose = Number(appliedData.inputs[appliedData.inputs.length - 1]?.close) || 0
-    const computed = computeDisplayStats(activeMatches, projectedFutureBars, currentClose)
-    if (!computed) return appliedData.stats
-    return {
-      ...computed,
-      consensusForecast1h: projectedFutureBars,
-      consensusForecast1d: projectedFutureBars1D,
+    try {
+      const { stats: subsetStats, projectedFutureBars } = computeStatsFromMatches(
+        activeMatches,
+        currentClose,
+        viewTimeframe,
+        lastBarTime,
+      )
+      const projectedFutureBars1D =
+        viewTimeframe === '1H' ? aggregateProjectedBarsTo1D(projectedFutureBars) : []
+
+      // Full set -> always defer to backend baseline (AC-013-APPPAGE line 1).
+      // Subset -> merge util stats with consensus bars for chart render.
+      const displayStats: PredictStats = isFullSet
+        ? appliedData.stats
+        : {
+            ...subsetStats,
+            consensusForecast1h: projectedFutureBars,
+            consensusForecast1d: projectedFutureBars1D,
+          }
+
+      return { projectedFutureBars, projectedFutureBars1D, displayStats }
+    } catch {
+      // Error contract: when util throws (e.g. projectedFutureBars.length < 2
+      // or currentClose invalid), fall back to backend baseline and skip
+      // consensus chart / day-stats rendering — same behaviour as before the
+      // refactor (`if (!computed) return appliedData.stats`).
+      return { ...emptyResult, displayStats: appliedData.stats }
     }
-  }, [appliedData, appliedSelection, projectedFutureBars, projectedFutureBars1D])
+  }, [appliedData, appliedSelection, viewTimeframe])
+
+  const projectedFutureBars = workspace.projectedFutureBars
+  const projectedFutureBars1D = workspace.projectedFutureBars1D
+  const displayStats = workspace.displayStats
 
   const displayStatsByDay = useMemo(() => {
     if (viewTimeframe === '1D') return []
