@@ -20,6 +20,22 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-030 post-code-review doc alignment（I-2 fix-now）
+
+**做得好：** 先讀 ticket AC 確認 BG-COLOR 經 QA Early Consultation 已被 PM 拆為兩 Playwright cases（ticket L191 Option A ruling），再 cross-reference ticket §AC total 明列 "minimum 5 new Playwright test cases (NEW-TAB × 1 + NO-NAVBAR × 1 + NO-FOOTER × 1 + BG-COLOR × 2)"，確認 source of truth = 5 cases，不是 4，也不是 6。Hero CTA 追加部分採保守策略（總數先寫 5 + §6.3 addendum 占位），避免前瞻寫 6 造成設計文件與 main branch spec count 不一致。
+
+**沒做好：** 設計文件 §6.2 撰寫時未與 AC 層 BG-COLOR 的「2 cases」要求對齊 — 當時只看到 AC title「/app page background matches ...」就心算成 1 case，未展開 ticket L191 PM ruling 的兩斷言結構（wrapper ≠ paper AND === gray-950；body === paper）直接拆兩 test case。結果 §6.2 表格實際已經在 T4 row 塞了 wrapper + body 兩個斷言（合併寫），計數卻仍標 4。這是典型「實作有做到但計數沒對齊」的 drift，Code Reviewer I-2 catch 後才暴露。
+
+**下次改善：** Architect persona checklist 加一條硬步驟「design doc §6.x test count vs ticket AC count cross-check」：每次寫 §6 Playwright 新 spec 段時，回讀 ticket §AC total 聲明的 minimum test case 數字，逐 AC 對應 test ID 列 mapping 表，mapping 表列數必須等於 §6.x 表格行數 = 聲明的「測試總數」。任一不等 → 設計文件未完成不得交付 Engineer。本條補進 senior-architect.md「All-Phase Coverage Gate」段同層。
+
+## 2026-04-21 — K-030 /app isolation 設計（new tab + 撤除 NavBar/Footer + bg 覆蓋）
+
+**做得好：** PM flag 的 spec conflict 僅列 `sitewide-body-paper.spec.ts`，但 Architect 在 §6 File Change List 之前主動 `grep -rn "/app" frontend/e2e/` 全目錄掃描，發現兩處額外必連動 spec（`sitewide-footer.spec.ts` L47–51 + `sitewide-fonts.spec.ts` L55–73 兩個 `/app` footer 斷言會在 footer 撤除後失敗）。若只處理 PM flag 的一個 spec，Engineer 上線時會撞另兩個 fail。此提前掃描避開了分段修復的往返。Pre-verdict scoring 兩處（§2.1 bg 色、§2.6 spec strategy）皆於裁決前 locked 5 維 weights，後採分差 ≥ 1 的 Option，無 post-hoc 調權。架構文件同步後於同檔 cross-table sweep `grep -n "HomeFooterBar|UnifiedNavBar"` 發現 L118 TopBar 描述與 L415 NavBar 敘述仍有 pre-K-030 stale 字串，一併修正，避免 K-021 Round 3 同類跨表 drift 重現。
+
+**沒做好：** 裁決 §2.1 bg 色時 Option A（pre-K-021 原設計 `bg-gray-950`）第一眼就很優，花了不少時間把 Option B/C/D 的 pros/cons 寫完整填表。對 Architect 而言 20 cell 打分提供了可追溯證據，但對 PM 讀性而言 §2.1 可更精簡——Option B/C/D 可合併為一列「淺色方案（white/off-white/paper-adjacent）」集中評分，減少重複維度。
+
+**下次改善：** Pre-verdict matrix 若同類 Option 的分差預期 ≥ 3 分，合併為同一列而非逐一展開（例如本票 B/C/D 三個淺色方案在「對齊原設計意圖」維度同為 2–3 分，可合併為「淺色系方案」單列），打分表縮為 Option A vs Option 淺色系兩列即可。保留差異化維度分析用 prose 補充，不靠表格逐格。此改善於 persona 的 Pre-Verdict Tiebreaker 段補一條「同質 Option 合併規則」。
+
 ## 2026-04-21 — K-023 Homepage Structure Detail Alignment v2
 
 **What went well:** Pencil design file analysis surfaced four critical contradictions (A-3 already implemented, A-4 has no corresponding element in design, A-5 hairline is already in correct position per design, C-4 bottom padding mismatch) before any code was written. All four were escalated as Scope Questions to PM rather than self-resolved, preventing Engineer from implementing changes that contradict the design. Pre-Design Path Audit caught `StepCard.tsx` and `TechTag.tsx` as ghost entries in architecture.md.
