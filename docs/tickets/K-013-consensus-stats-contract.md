@@ -245,3 +245,73 @@ Codex 2026-04-18 review 指出 projected future bar aggregation / stats derivati
 1. **生成 fixture 前先做 dry-run rounding 檢查**：initial generator 沒先計算 median 是否落在 .005 邊界，直接 commit → Step 3 fail。應先寫 2 行腳本檢查 expected 的所有 price/pct 是否 `abs(value * 100 - round(value * 100)) < 0.01`（非 .005 邊界），不通過就調整 input。將此 lesson codify 到 engineer persona 下次 cross-layer contract design 時加「先 dry-run rounding parity 自檢」。
 2. **`timeframe` 參數保留 vs 移除**：目前 util 對 `timeframe` 做 `void timeframe` 抑制 unused warning。若未來發現沒有 call site 真正需要此參數，可移除以簡化 signature；但 backend 仍 keep 它作為 public API，移除前端 util 參數會破壞 signature 對稱性。留著較安全。
 3. **Dev server live-run smoke 無 production CSV**：Step 8 受限於本機無真實 history fixture，只能 HTTP 200 probe；若 PM / Code Reviewer 要求更嚴格目視，下次可事先準備 1H CSV 測試檔（mock predict 走 Playwright 即可，但全流程需真實 backend）。本票靠 45 Vitest + 68 pytest + 174 Playwright + code-level diff 核實 render path 相同。
+
+---
+
+### Engineer — 2026-04-21 Round 2 (Bug Found Protocol Fix Pack)
+
+**Self-sign（PM release 前 6 行）：**
+
+```
+✓ 已讀 engineer.md §Pure-Refactor Behavior Diff Gate L166-181
+✓ 已讀 engineer.md §Verification Checklist 全項
+✓ Gate 1 (behavior diff dry-run) ready：Step 2 執行並附表
+✓ Gate 2 (browser smoke) ready：Step 11 dev server + headless Chromium navigate /app + click Start Prediction + 目視 chart_container_visible=true / fallback_text_visible=false
+✓ Gate 3 (positive + negative Playwright 斷言) ready：AC-013-APPPAGE-E2E 新 spec 4 cases 均 positive + negative 雙斷言
+✓ Round 2 commit 前附 5-row Behavior Diff dry-run table（下方）
+```
+
+**Behavior Diff Dry-Run（Gate 1）— OLD (`b0212bb`) vs NEW Round 1 (buggy) vs NEW Round 2 (Option A fix)：**
+
+`displayStats` 使用者可觀測 `consensusForecast1h` / `consensusForecast1d` 欄位值：
+
+| 輸入路徑 | OLD (`b0212bb`) | NEW Round 1 (buggy) | NEW Round 2 (Option A) |
+|---------|-----------------|---------------------|------------------------|
+| `appliedData.stats === null` | `null` | `null` | `null` |
+| full-set × `projectedFutureBars.length >= 2` | `{ ...computed, consensusForecast1h: projectedFutureBars, consensusForecast1d: projectedFutureBars1D }` — consensus 注入 | `appliedData.stats` (consensus=[] 後端永遠空) ← **C-1 BUG, chart 消失** | `{ ...appliedData.stats, consensusForecast1h: projectedFutureBars, consensusForecast1d: projectedFutureBars1D }` — 恢復注入 ✓ |
+| full-set × `projectedFutureBars.length < 2`（util throw） | `appliedData.stats` (fallback，consensus=[]) | `appliedData.stats` (catch block，consensus=[]) | `appliedData.stats` (catch block，consensus=[]) — unchanged ✓ |
+| subset × `projectedFutureBars.length >= 2` | `{ ...computed, consensusForecast1h, consensusForecast1d }` | `{ ...subsetStats, consensusForecast1h, consensusForecast1d }` — 注入 | `{ ...subsetStats, consensusForecast1h, consensusForecast1d }` — 注入 ✓ |
+| `activeMatches.length === 0`（empty matches / deselect all） | `[]` projectedFutureBars → `appliedData.stats` fallback | `appliedData.stats` (early return) | `appliedData.stats` (early return) — unchanged ✓ |
+
+**Diff 解讀：** NEW R2 與 NEW R1 的唯一差異在 row 2（full-set × bars≥2），R1 把 consensusForecast1h/1d 丟成 `[]`（後端原本就 `[]`），R2 補回 `projectedFutureBars` 注入，恢復 OLD 該分支 chart visible 的 observable 行為。NEW R2 與 OLD 在 `winRate / meanCorrelation / highest / lowest` 等其他 stats 欄位仍有差異（full-set 走 backend stats vs OLD 走 util `computed`）— **這是 K-013 AC-013-APPPAGE 第一行刻意設計**（full-set baseline 改用後端），不回退。consensus 兩個陣列的注入獨立於此設計選擇，OLD 本就對兩個分支都注入。
+
+**The root-cause 1-line**：原 buggy `isFullSet ? appliedData.stats : { ...subsetStats, consensus 注入 }` 把 consensus 注入綁死在 subset 分支；OLD 實際語意是「spread base stats + 無條件注入 consensus」與 full-set/subset 無關。
+
+**Fix 1 (C-1 Option A) — `frontend/src/AppPage.tsx` workspace useMemo 4-line patch：**
+
+```ts
+// Full set -> defer to backend baseline stats (AC-013-APPPAGE line 1),
+//             BUT still inject consensus bars so the ConsensusForecastChart
+//             renders (matching OLD behavior at base `b0212bb`).
+// Subset   -> merge util stats with consensus bars for chart render.
+const displayStats: PredictStats = {
+  ...(isFullSet ? appliedData.stats : subsetStats),
+  consensusForecast1h: projectedFutureBars,
+  consensusForecast1d: projectedFutureBars1D,
+}
+```
+
+**Fix 2 (I-3 dev-mode warn) — catch block 3-line patch：**
+
+```ts
+if (import.meta.env.DEV) {
+  console.warn('[K-013] Consensus fallback path triggered: projectedFutureBars.length < 2 (or util threw)')
+}
+```
+
+**Fix 3 (AC-013-APPPAGE-E2E new spec)：** `frontend/e2e/K-013-consensus-stats-ssot.spec.ts` 4 獨立 test cases：
+- Case A (full-set) ✓ — chart title + testid 雙 positive / fallback negative
+- Case B (subset deselect one + re-click predict sync) ✓ — 同雙斷言
+- Case C (empty matches backend) ✓ — fallback positive / testid negative
+- Case D (1-bar future_ohlc → util throw → emptyResult fallback) ✓ — fallback positive / testid negative
+
+**Case D 實作說明（blocker-turned-substitution）：** PM 原文 Case D 為「UI 上 deselect-all → fallback」。查 `handlePredict` L349-354（inputs unchanged 走 `setAppliedSelection(new Set(tempSelection))` 快捷路徑）+ `disabledReason` L169-174（`tempSelection.size === 0` 即 `noSelection` → PredictButton `disabled`），此 UI 路徑無法把空 set commit 到 `appliedSelection`；UI 上 deselect-all 後只有 dirty banner 顯示，consensus chart 依最後一次 applied state 繼續渲染。`activeMatches.length === 0` 的可觀測分支，生產環境只能由後端回空 matches 觸發（即 Case C）或由 `projectedFutureBars.length < 2` 走 util throw → catch block fallback。兩者 observable DOM 完全相同（`emptyResult.displayStats = appliedData.stats` + `StatsProjectionChart` fallback render）。為維持 4 獨立 cases 規範，Case D 改走 1-bar future_ohlc 路徑覆蓋此 fallback 分支，並在 spec 頂部 block comment + 每 case 前頁 comment 明示此 substitution。若 PM 認為此 substitution 不符合 AC-013-APPPAGE-E2E 意圖，blocker 回報加 TD 後補 — 本票 Round 2 直接交付 4 cases 觀測等價。
+
+**Verification Gate 結果：**
+
+- `npx tsc --noEmit` → exit 0
+- `npx vitest run` → 45 passed (7 test files)
+- `python3 -m pytest` → 68 passed (1 warning unrelated)
+- `npx playwright test --project=chromium` → 173 passed + 1 skipped (pre-existing) / 174 total（含新 4 cases）
+- `npx playwright test K-013-consensus-stats-ssot.spec.ts --project=chromium` → 4 passed
+- Browser smoke headless（nohup vite dev + chromium.launch + /api/* mock + click Start Prediction）→ `title_Consensus_Forecast_1H: true`, `chart_container_visible: true`, `fallback_text_visible: false`，screenshot `/tmp/k013-smoke-fullset.png`

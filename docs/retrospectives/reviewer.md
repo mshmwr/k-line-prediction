@@ -16,6 +16,16 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Reviewer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-013 Round 1 (Critical C-1 Consensus chart disappears on full-set)
+
+**做得好：** 設計文件 SQ-013-01 明寫「pre-existing behavior, full-set consensus chart 本來就不畫」，初讀接受 Architect 斷言過，但在 Pass/Fail table 編完後回讀一次覺得 AC-013-APPPAGE NEW 實作「full-set 吐 appliedData.stats」與「OLD 本來就不畫」兩個斷言組合邏輯不合（consensus chart OLD 究竟有沒有畫？無法同時成立），決定 `git show b0212bb:frontend/src/AppPage.tsx` 讀 base，跑 useMemo 資料流 dry-run（isFullSet=true × projectedFutureBars.length>=2），得出 OLD 實際一律注入 consensusForecast1h/1d 的結論 → 推翻 SQ-013-01 premise → 升級為 Critical C-1（K-013 引入 regression）。這一步不是測試驗證可覆蓋，Architect design doc + Engineer AC 字面 + 174 Playwright 全綠也不會觸發，單靠 Reviewer 回讀時「邏輯斷言矛盾感」+「手動 git show base」才能抓到。
+
+**沒做好：** Review 第一輪讀 design doc §0.1 + §SQ-013-01 時接受「pre-existing behavior」宣稱未 code-level 驗，等到 Pass/Fail table 回讀才懷疑。若 Reviewer Step 2 開場就把 type=refactor / SSOT 移轉 / hook 搬家類 ticket 固定做「Behavior Diff: OLD vs NEW」表作為第一步，不讓 Architect 敘述替代 code-level 驗，C-1 可在 review 第一輪前 10 分鐘抓到，省掉 PM Phase Gate 2 重跑。
+
+**下次改善：** 三條 codify 進 `~/.claude/agents/reviewer.md` Review Checklist：(1) refactor / SSOT 移轉 / util 抽取 / hook 搬家類 ticket 固定跑「Behavior Diff: OLD vs NEW」表為第一步，逐輸入路徑列 OLD return 欄位集合 vs NEW return 欄位集合；(2) design doc 任何「pre-existing」「legacy」「API 不變」敘述一律 `git show <base>:<file>` 驗證，未跑視為 SQ 未解；(3)「行為等價」為唯一通過標準，tsc+test 綠 + AC 字面符合皆不足以取代此步驟。記 `feedback_reviewer_pure_refactor_behavior_diff.md`（已寫）。
+
+---
+
 ## 2026-04-21 — K-022 /about 結構細節對齊 v2（Step 2 專案深度）
 
 **做得好：**
