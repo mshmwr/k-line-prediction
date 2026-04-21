@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-026 / K-004 supersede (K-030 takes precedence)
+
+**What went well:** User feedback on 2026-04-21 production screenshot review led to a fast scope re-evaluation. PM identified cross-ticket conflict (K-030 vs K-026 vs K-004) during audit and surfaced it for user decision before any Architect/Engineer time was wasted.
+
+**What went wrong:** K-026 was opened 2026-04-20 with "follow K-021 paper palette" as premise. The premise implicitly assumed /app is part of marketing site — this assumption was not explicitly flagged in the ticket, so K-030 emerged as a surprise rather than a scheduled re-evaluation.
+
+**Next time improvement:** When a ticket's AC depends on a page-role assumption (e.g., "/app is marketing" vs "/app is standalone tool"), add an explicit `## Page Role Assumption` section in the ticket so future PM audits can re-validate on new user feedback.
+
+---
+
 ## 2026-04-21 — K-031 開票（/about — remove "Built by AI" showcase section S7）
 
 **What went well:** Before writing ACs, verified the exact file path (`BuiltByAIShowcaseSection.tsx`) and its location in `AboutPage.tsx` (S7 SectionContainer lines 71–74 + import line 10). Cross-checked all E2E specs to confirm no existing test directly asserts the `/about` showcase section content — the `AC-017-BANNER` "One operator. Six AI agents." assertions all navigate to `/` (homepage), not `/about`. This means Engineer can delete the file without any spec update being required. Correctly scoped the removal to only the showcase section, preserving the homepage `BuiltByAIBanner.tsx` which is a separate unrelated component.

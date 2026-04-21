@@ -462,13 +462,13 @@ AC-027-TEXT-READABLE 要求「無 text-overflow: ellipsis 截斷、無 overflow:
 
 `components/common/SectionLabel.tsx` 保留 `purple/cyan/pink/white` 顏色選項以維持向後相容，但 K-022 完成後目前僅 `/about` 使用 SectionLabel 相關組件（以 `SectionLabelRow` 形式），且不使用上述顏色。
 
-**風險：** 低 — 殭屍代碼，無功能影響；K-026 確認 AppPage 也不引用後，這些 colorMap branch 可安全移除。
+**風險：** 低 — 殭屍代碼，無功能影響；K-030 確認 AppPage 也不引用後，這些 colorMap branch 可安全移除。
 
-**PM 裁決（2026-04-21）：** K-026 closed 後由 Reviewer 確認 AppPage consumer 情況，若確認無使用，列入 K-026 cleanup 或獨立小票一次清除。
+**PM 裁決（2026-04-21 更新）：** K-026 已 superseded by K-030（K-030 重新定位 `/app` 為獨立 tool，會重做 AppPage 配色與結構）。改由 K-030 closed 後 Reviewer 確認 AppPage consumer 情況，若確認無使用，列入 K-030 cleanup 或獨立小票一次清除。
 
-**建議解法：** K-026 closed 後 grep `SectionLabel` 全專案使用點，確認僅 `/about` 相關組件使用（且皆用新 prop 格式）；移除 `purple/cyan/pink/white` colorMap branch；同步簡化型別定義。
+**建議解法：** K-030 closed 後 grep `SectionLabel` 全專案使用點，確認僅 `/about` 相關組件使用（且皆用新 prop 格式）；移除 `purple/cyan/pink/white` colorMap branch；同步簡化型別定義。
 
-**排期觸發條件：** K-026 closed 後一個 review cycle 以內處理。
+**排期觸發條件：** K-030 closed 後一個 review cycle 以內處理。
 
 ---
 

@@ -62,7 +62,6 @@ const top = i * (ENTRY_HEIGHT + ENTRY_GAP)  // 每個 entry 從固定 top 位置
 ## 依賴關係
 
 - 無前置 ticket 依賴（K-023 已 closed，本票獨立修復）
-- K-026（AppPage paper palette 遷移）與本票可並行
 
 ## AC 設計決策紀錄
 

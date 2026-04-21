@@ -1,12 +1,20 @@
 ---
 id: K-026
 title: AppPage 子元件 paper palette 遷移（K-021 W-R3-02 follow-up）
-status: backlog
+status: superseded
+superseded-by: K-030
+superseded-date: 2026-04-21
 type: refactor
 priority: medium
 created: 2026-04-20
 source: K-021 Reviewer Round 3 W-R3-02
 ---
+
+## ⚠️ SUPERSEDED BY K-030 (2026-04-21)
+
+**Supersede reason:** K-030 redefines `/app` as a standalone tool page isolated from the marketing site (new tab, no NavBar/Footer, non-paper background). This makes K-026's premise — migrating `/app` subcomponents to paper palette — obsolete. Subcomponent color treatment for `/app` will be redefined by K-030 Architect design.
+
+**Action:** No work required on this ticket. Close as superseded. Related subcomponent color work (if any) will be tracked under K-030 implementation scope.
 
 ## 背景
 
@@ -82,4 +90,8 @@ K-021 已將 `/app` body 外層遷至 paper palette（`bg-paper` + `text-ink`）
 
 ## Retrospective
 
-（Architect / Engineer / Reviewer / QA / Designer 各自於完成階段補上；PM 於 QA PASS 後彙整）
+### PM — 2026-04-21
+
+**Supersede decision:** K-030 (high priority, user-reported 2026-04-21) redefines `/app` as isolated tool page. K-026's paper palette migration premise no longer holds. Superseded without any implementation work; saves Architect/Engineer effort.
+
+**Lesson:** Scope assumptions from past tickets (K-021 全站米白) must be re-validated when user feedback changes page-level 定位. K-026 was created on 2026-04-20; K-030 reversed the premise 1 day later. Future: when tickets touch cross-page palette decisions, explicitly flag the "page role assumption" in ticket background for future re-evaluation.

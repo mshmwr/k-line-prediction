@@ -1,11 +1,19 @@
 ---
 id: K-004
 title: /app TopBar Logo 點擊回 Home
-status: open
+status: superseded
+superseded-by: K-030
+superseded-date: 2026-04-21
 type: feat
 priority: medium
 created: 2026-04-16
 ---
+
+## ⚠️ SUPERSEDED BY K-030 (2026-04-21)
+
+**Supersede reason:** K-030 removes UnifiedNavBar from `/app` page and opens `/app` in a new browser tab. With no NavBar on `/app`, the TopBar logo-click-to-Home premise of K-004 no longer exists. Users naturally return to the marketing site by closing the `/app` tab; a dedicated Home link is redundant.
+
+**Action:** No work required on this ticket. Close as superseded.
 
 ## 背景
 
@@ -46,3 +54,14 @@ Logo（"K-Line Predictor"）點擊後導向 `/`。
 
 - [PM-dashboard.md](../../../PM-dashboard.md)
 - [設計稿 homepage.pen — App /app section](../../frontend/design/homepage.pen)
+- [K-030 — /app page isolation](./K-030-app-page-isolation.md)（本票 supersede 來源）
+
+---
+
+## Retrospective
+
+### PM — 2026-04-21
+
+**Supersede decision:** K-030 removes NavBar + Footer from `/app` and opens `/app` in a new tab. With no NavBar, the TopBar logo-click-to-Home UX need is dissolved — closing the tab replaces the Home link. Superseded without implementation work.
+
+**Lesson:** K-004 assumed `/app` is part of the marketing site chrome (same as `/about`, `/diary`). K-030 reframed `/app` as an isolated tool surface, which dissolved the "return-to-Home" UX need entirely. Future: when a navigation-related ticket depends on "page X shares chrome with page Y," explicitly state the chrome-sharing assumption so it can be re-validated when page role changes.
