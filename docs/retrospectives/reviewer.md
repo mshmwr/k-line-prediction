@@ -15,6 +15,16 @@
 - 倒序（最新在上）
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Reviewer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
+## 2026-04-21 — K-031 /about BuiltByAI showcase 移除（Step 2 depth review）
+
+**做得好：** AC-031 三條 AC 逐條到 Playwright 層：AC-031-SECTION-ABSENT 用 id + heading role + caption text 三重 toHaveCount(0) 斷言（不是 not.toBeVisible，真正 deleted-from-DOM 語義）；AC-031-LAYOUT-CONTINUITY 用 nextElementSibling 直接斷 DOM adjacency（Architect §7 已 pre-verify SectionContainer emits <section>，Engineer read 過再寫）；AC-031-K022-REGRESSION 靠既有 about-v2.spec.ts 39 cases 全 pass 佐證。architecture.md §8 self-diff 3 drift（L13/L140/L410）git diff 對照 row-by-row 全落地，Changelog entry 已補 L585。file deletion 用 git rm 不是 rm，staged 狀態 clean。Pencil .pen 194 行 S7 block 整段刪，JSON schema 驗 OK，homepage BuiltByAIBanner frame 完好。out-of-scope 三項（BuiltByAIBanner / Nº 01–05 / FooterCtaSection）grep + ls 驗證全數未動。
+
+**沒做好：** 無 Reviewer 此輪可抓早一點的問題。票乾淨、AC count / 設計文件 / 實作三者 count 一致（7 sections 全鏈路對齊），Engineer retro 自己抓到 worktree `node_modules` 缺漏屬於自運維範圍不涉及 review。唯一 observation：Pencil MCP offline 導致 Designer 無法輸出 get_screenshot，Designer retro 已明示 fallback 至 JSON + grep 三路交叉驗 + 主動要求 PM/使用者目視確認——此屬合理降級，不構成 MERGE blocker（純 removal，視覺變化 = 無此 section，無可「看錯」空間）。
+
+**下次改善：**
+1. **視覺 artefact deletion 類 ticket 的 Pencil screenshot 降級規則：** 當 ticket 屬 pure-removal 且 Designer JSON-level grep 已證殘骸為零時，MCP offline 不 block PM 驗收；Reviewer 負責在報告明示「視覺驗證 fallback 至 JSON schema + structural grep，無 screenshot」給 PM 裁決。無需 codify 進 persona（此為 Designer retro 已處理的議題；Reviewer 只做 relay）。
+2. **worktree node_modules 缺漏觀察：** Engineer retro 自提首次進入 `.worktrees/K-031` 需 `npm install`，屬 engineer.md Pre-Implementation Checklist 改善範圍，非 reviewer 規則；Reviewer 執行深度 review 時本次先遇到 tsc 跑不動就自己 npm install，不阻塞 verdict。
+
 
 ## 2026-04-21 — K-022 /about 結構細節對齊 v2（Step 2 專案深度）
 

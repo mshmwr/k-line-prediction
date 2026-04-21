@@ -20,6 +20,16 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-21 — K-031 /about remove "Built by AI" showcase (S7)
+
+**What went well:** Cross-repo grep for `BuiltByAIShowcaseSection|banner-showcase|The real banner is clickable` surfaced four distinct drift points in architecture.md (L13 Summary `8 sections`, L140 `S8 email`, L410 Frontend Routing row, plus L147 coincidence commentary) in a single audit pass. Ticket's pre-verified AC table (§Route / Component Existence Verification) aligned 1:1 with my grep evidence, meaning PM had already done the existence check — no duplicated work, no contradictions. No Scope Questions needed, delivery was pure mechanical removal + doc sync.
+
+**What went wrong:** The `BuiltByAIShowcaseSection.tsx` file was never added to architecture.md Directory Structure block during K-017 Pass 3 when the file was first created. I inherited this 2-day-old drift silently, and only noticed after running the §8 Self-Diff grep. If K-031 had been an add-feature ticket instead of a removal ticket, the missing entry would have caused me to treat the file as "new" rather than "existing". Architect's own earlier ticket (K-017 Pass 3) skipped the sync — a self-audit gap.
+
+**Next time improvement:** After any `/about` (or other page with a sub-component directory) ticket, execute `ls frontend/src/components/about/*.tsx | wc -l` and count the entries in architecture.md's about/ tree block — if mismatched, flag as "pre-existing drift" in design doc §Self-Diff and decide whether this ticket fixes it (cheap) or logs it as Known Gap. Codify this count-match check as an explicit bullet under `## Architecture Doc Structural Content Self-Diff` → `### Same-File Cross-Table Consistency Sweep` in senior-architect.md. Will propose persona edit if this pattern recurs in K-032+; for K-031 the fix is soft (noted in design doc §8.1), no persona edit this round.
+
+---
+
 ## 2026-04-21 — K-023 Homepage Structure Detail Alignment v2
 
 **What went well:** Pencil design file analysis surfaced four critical contradictions (A-3 already implemented, A-4 has no corresponding element in design, A-5 hairline is already in correct position per design, C-4 bottom padding mismatch) before any code was written. All four were escalated as Scope Questions to PM rather than self-resolved, preventing Engineer from implementing changes that contradict the design. Pre-Design Path Audit caught `StepCard.tsx` and `TechTag.tsx` as ghost entries in architecture.md.

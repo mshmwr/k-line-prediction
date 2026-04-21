@@ -548,33 +548,6 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### K-031 — /about 移除 "Built by AI" showcase section (S7)
-
-- **Status:** open / type: fix
-- **Ticket:** [docs/tickets/K-031-remove-built-by-ai-showcase-section.md](docs/tickets/K-031-remove-built-by-ai-showcase-section.md)
-- **摘要：** `/about` S7 `BuiltByAIShowcaseSection` 整段移除；homepage `BuiltByAIBanner` 不動。
-
-**AC：**
-
-#### AC-031-SECTION-ABSENT: "Built by AI" section is not present on /about
-
-- **Given** 使用者訪問 `/about`
-- **When** 頁面載入完成
-- **Then** DOM 無 `id="banner-showcase"` 元素；無 "Built by AI" heading；無 "The real banner is clickable and navigates to /about" 文字
-- **And** `BuiltByAIShowcaseSection.tsx` 檔案已從 codebase 刪除
-
-#### AC-031-LAYOUT-CONTINUITY: No layout gap between S6 and footer
-
-- **Given** 使用者在 `/about` 移除 S7 後
-- **When** 滾動過 Project Architecture section (Nº 05)
-- **Then** `FooterCtaSection` 緊接 architecture section，無可見空白 gap
-- **And** `SectionContainer id="banner-showcase"` 不存在於 DOM
-- **And** 整頁 scroll height 縮短（section 是被刪除，不是隱藏）
-
-#### AC-031-K022-REGRESSION
-
-見 [K-031](docs/tickets/K-031-remove-built-by-ai-showcase-section.md)：about-v2.spec.ts AC-022-* + about.spec.ts AC-017-BANNER 全綠；tsc exit 0。
-
 ---
 
 ## §4 Closed Tickets
@@ -867,6 +840,35 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - **AC-027-DESKTOP-NO-REGRESSION** — 桌面 1024 / 1280 / 1440 viewport 與 K-021 closed 時 visual-report 視覺一致；既有 diary spec 全量 regression 通過（桌面 baseline 1 case + 既有 diary-related 全量 regression）
 
 **Test case 總計下限：7 個新增 + 既有 regression。**
+
+---
+
+### K-031 — /about 移除 "Built by AI" showcase section (S7)
+
+- **Status:** closed / type: fix / **Closed: 2026-04-21**
+- **Ticket:** [docs/tickets/K-031-remove-built-by-ai-showcase-section.md](docs/tickets/K-031-remove-built-by-ai-showcase-section.md)
+- **摘要：** `/about` S7 `BuiltByAIShowcaseSection` 整段移除；homepage `BuiltByAIBanner` 不動。Architecture.md 3 項 pre-existing drift（L13/L140/L410）同 commit 修復。
+
+**AC：**
+
+#### AC-031-SECTION-ABSENT: "Built by AI" section is not present on /about
+
+- **Given** 使用者訪問 `/about`
+- **When** 頁面載入完成
+- **Then** DOM 無 `id="banner-showcase"` 元素；無 "Built by AI" heading；無 "The real banner is clickable and navigates to /about" 文字
+- **And** `BuiltByAIShowcaseSection.tsx` 檔案已從 codebase 刪除
+
+#### AC-031-LAYOUT-CONTINUITY: No layout gap between S6 and footer
+
+- **Given** 使用者在 `/about` 移除 S7 後
+- **When** 滾動過 Project Architecture section (Nº 05)
+- **Then** `FooterCtaSection` 緊接 architecture section，無可見空白 gap
+- **And** `SectionContainer id="banner-showcase"` 不存在於 DOM
+- **And** 整頁 scroll height 縮短（section 是被刪除，不是隱藏）
+
+#### AC-031-K022-REGRESSION
+
+見 [K-031](docs/tickets/K-031-remove-built-by-ai-showcase-section.md)：about-v2.spec.ts AC-022-* + about.spec.ts AC-017-BANNER 全綠；tsc exit 0。
 
 ---
 

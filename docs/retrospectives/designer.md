@@ -17,6 +17,24 @@
 
 ---
 
+## 2026-04-21 — K-031 /about S7 BuiltByAI showcase frame 移除
+
+**做得好：**
+- 開工前先 `grep` 所有 S7 關鍵字（`Built by AI` / `banner-showcase` / `BuiltByAIBanner` / `One operator` / `Every ticket leaves`）一次釘死 `/about` S7 frame 位置（lines 3037–3230，id `1UWzs` name `S7_BuiltByAIBannerSection`）與 homepage `BuiltByAIBanner`（line 3370，另一 frame 內，不動）；沒有把兩個同名資產搞混
+- 刪除後主動執行 `python3 -c "json.load(...)"` 驗 JSON 完整性，+ `git diff --stat` 確認 194 行刪除符合 S7 block 範圍，+ `Grep` 重掃確認 S7 殘骸為零、homepage BuiltByAIBanner 仍在；三路交叉驗
+- NavBar 強制檢查過關：刪除前後 `abNav` (line 18) 都在，符合 `feedback_designer_navbar_mandatory`
+- 刪除後 `/about` abBody 6 sections（S1→S6）順序連續、abFooterBar 仍為 root frame 尾端，與設計文件 §1 Summary 宣告的後狀態一致
+
+**沒做好：**
+- Pencil MCP 本次連線 `Failed to connect`，無法呼叫 `get_screenshot`；改用 JSON schema + structural grep 驗證，缺視覺回報
+- 沒在開工前先測 MCP 連線（`claude mcp list`）才決定走 MCP path 或 JSON 直編 path；是驗完 git status 準備截圖才發現，導致交付報告需要解釋 fallback
+
+**下次改善：**
+- Designer persona 開工第一步加 MCP 健康檢查：`claude mcp list | grep pencil`，回報 connected / failed，failed 時主動走 JSON 直編 path 並在最終報告明示「無視覺截圖，請 PM/使用者開啟 Pencil 應用目視確認」— 視覺驗證責任 handoff 明示
+- 純刪除類設計任務（non-visual-composition tickets）走 JSON 直編 path 反而更快、更精確，可作為未來 simple-removal ticket 的 preferred path
+
+---
+
 ## 2026-04-19 — K-017 Diary timeline 跨頁同步漏做
 
 **沒做好：**

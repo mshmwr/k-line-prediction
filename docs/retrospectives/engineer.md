@@ -16,6 +16,14 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-21 — K-031 /about Built by AI showcase removal
+
+**What went well:** Architect's design doc §7 already flagged the two easy-to-mess-up items: use `toHaveCount(0)` (deleted-from-DOM, not hidden) and verify `SectionContainer` emits `<section>` before writing the adjacent-sibling selector. Following §7 item-by-item removed all guesswork. Pre-implementation grep of `BuiltByAIShowcaseSection` + `banner-showcase` + `Built by AI` + `The real banner is clickable` across `frontend/e2e/` and `frontend/src/` produced zero outside-scope hits, confirming pure deletion was safe before any edit landed. `git rm` (not `rm`) cleanly produced a staged `deleted:` entry without intermediate untracked state.
+
+**What went wrong:** Worktree had no `node_modules/` so `npx tsc --noEmit` first attempt triggered npx's "This is not the tsc command you are looking for" fallback (misleading failure — really means typescript is not installed). Cost a round trip to install. Root cause: fresh `.worktrees/K-031/` checkout from main does not copy `node_modules/`; persona does not remind to run `npm install` first when working inside a new worktree.
+
+**Next time improvement:** When invoked inside a `.worktrees/*` path for the first time, before running any `tsc` / `vitest` / `playwright`, check `ls frontend/node_modules` and run `npm install` if missing. Will codify as a worktree-init step in `engineer.md` Pre-Implementation Checklist.
+
 ## 2026-04-21 — K-018 regression fix (ga-tracking.spec.ts)
 
 **What went well:** tsc exit 0 on first pass after casts added; all 12 ga-tracking tests + full 175-test suite pass with no regression outside the 8 previously-failing cases.

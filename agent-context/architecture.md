@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-21 (K-023 Architect design)
+updated: 2026-04-21 (K-031 Architect design)
 ---
 
 ## Summary
@@ -10,7 +10,7 @@ updated: 2026-04-21 (K-023 Architect design)
 ETH/USDT K 線型態相似度預測系統。使用者上傳近期 OHLC，後端在歷史資料庫中找出最相似的歷史片段，計算 MA99 並提供後續走勢統計。
 
 **現況（2026-04-19，K-017 Architect 設計完成後）：**
-- 前端：5 條 SPA 路由（`/` / `/app` / `/about` / `/diary` / `/business-logic`）+ Unified NavBar；`/about` K-017 重寫為 portfolio-oriented recruiter page（8 sections），homepage 加 `BuiltByAIBanner`
+- 前端：5 條 SPA 路由（`/` / `/app` / `/about` / `/diary` / `/business-logic`）+ Unified NavBar；`/about` K-017 重寫為 portfolio-oriented recruiter page（7 sections，K-031 移除 S7 BuiltByAIShowcaseSection），homepage 加 `BuiltByAIBanner`
 - 後端：FastAPI 單檔 `main.py` 內含所有 route + 併存 2 份 in-memory history（`_history_1h` / `_history_1d`）
 - Cross-layer 重複計算（stats）已於 TD-008 RFC 決議採 Option C — 前端算 subset、後端算全集、contract fixture 鎖漂移（K-013 實作中）
 - 多個大模組（`AppPage.tsx` / `main.py` / `predictor.py`）已登記為 TD-005/006/007，待 K-013 驗收後啟動拆分 RFC
@@ -137,7 +137,7 @@ ClaudeCodeProject/
 │   │           │   ├── TicketAnatomyCard.tsx             ← ID + title + outcome + learning + GitHub href
 │   │           │   ├── ProjectArchitectureSection.tsx    ← S6 Monorepo / Docs-driven / Testing pyramid
 │   │           │   ├── ArchPillarBlock.tsx               ← 單 arch pillar（含可選 testingPyramid list）
-│   │           │   ├── FooterCtaSection.tsx              ← S8 email + GitHub + LinkedIn 容器
+│   │           │   ├── FooterCtaSection.tsx              ← S7 email + GitHub + LinkedIn 容器（K-031 後從 S8 重編為 S7）
 │   │           │   └── FooterCtaLink.tsx                 ← 單 link（external 時 rel="noopener noreferrer"）
 │   │           ├── diary/
 │   │           │   ├── DiaryTimeline.tsx                  ← map milestones → MilestoneSection（K-017 Pass 2 重構未落地；舊三組件結構保留）
@@ -407,7 +407,7 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 |------|-----------|------|
 | `/` | `HomePage` | Hero + ProjectLogic + DevDiary 預覽 |
 | `/app` | `AppPage` | K-Line 預測功能（原 App.tsx；TD-005 待拆分） |
-| `/about` | `AboutPage` | Portfolio-oriented recruiter page — 8 sections: PageHeader（One operator 聲明）+ MetricsStrip + RoleCards (6 roles × Owns/Artefact) + ReliabilityPillars (3 pillars + anchor quotes) + TicketAnatomy (K-002/K-008/K-009) + ProjectArchitecture + FooterCta（email/GitHub/LinkedIn）。S7 (BuiltByAIBanner) 放 `/` homepage 而非此頁。K-017 重寫（2026-04-19）|
+| `/about` | `AboutPage` | Portfolio-oriented recruiter page — 7 sections: PageHeader（One operator 聲明）+ MetricsStrip + RoleCards (6 roles × Owns/Artefact) + ReliabilityPillars (3 pillars + anchor quotes) + TicketAnatomy (K-002/K-008/K-009) + ProjectArchitecture + FooterCta（email/GitHub/LinkedIn）。`BuiltByAIBanner` 放 `/` homepage；`/about` 不含 banner showcase（K-031 移除 S7 BuiltByAIShowcaseSection）。K-017 重寫（2026-04-19），K-031 移除 S7 showcase（2026-04-21）|
 | `/diary` | `DiaryPage` | 工作日誌 Timeline（讀 `public/diary.json`） |
 | `/business-logic` | `BusinessLogicPage` | 交易邏輯（密碼保護，JWT 驗證後顯示） |
 | `*` | `Navigate to /` | 未匹配路徑一律導回首頁 |
@@ -582,6 +582,7 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-21**（Architect, K-031 設計）— `/about` S7 `BuiltByAIShowcaseSection` 移除：Summary 段 `8 sections` → `7 sections`；Directory Structure about/ block FooterCtaSection 註解 `S8` → `S7`（S7 空出，post-K-031 FooterCta 重編為 S7）；Frontend Routing `/about` 列 `8 sections` → `7 sections`，刪除誤導性的 `S7 (BuiltByAIBanner) 放 /` 括號（`BuiltByAIBanner` 是 homepage 組件，與已刪的 S7 `BuiltByAIShowcaseSection` 是不同組件），改註明 K-031 移除 S7 showcase。Pre-existing drift 順便 flag：`BuiltByAIShowcaseSection.tsx` 原本就未列入 Directory Structure（K-017 Pass 3 新增時漏填），故不需從 tree 移除。`SectionContainer` L147 consumer count `7 sections` 原本為 8-container 時代的 drift，K-031 移除後 value 意外對齊，保留不動。無 code 變更（Architect 設計；Engineer 交付後若需再補充配合 code diff）。設計文件 `docs/designs/K-031-remove-builtby-ai-showcase.md`。
 - **2026-04-21**（Architect, K-023 設計）— Directory Structure drift fix: 移除 `home/StepCard.tsx` + `home/TechTag.tsx` ghost entries（兩檔從未建立，step cards inline 於 `ProjectLogicSection.tsx`；ls 確認磁碟不存在）。K-023 設計文件產出 `docs/designs/K-023-homepage-structure.md`（含 4 個 Scope Questions 交 PM 裁決）。no structural code change — docs-only.
 - **2026-04-21**（PM, K-022 Code Review 裁決）— K-022 /about 結構細節 v2 交付後補入：about/ 新組件 DossierHeader.tsx / RedactionBar.tsx；CardShell.tsx dark→paper palette 遷移；SectionLabel.tsx 新增 SectionLabelRow（hairline + label）；PillarCard consumer 加 overflow-hidden（圓角修正）；PageHeaderSection 三層結構（主句 Bodoni Moda / 角色列 Newsreader / tagline Bodoni Moda）；5 section label（Nº 01~05）；6 Role Cards OWNS/ARTEFACT Geist Mono small-caps label
 - **2026-04-21**（Architect, K-027 設計）— `diary/` 組件 Directory Structure drift 修正：K-017 Pass 2 P4/P7 primitive 重構未落地（`MilestoneAccordion.tsx` / `DiaryEntryRow.tsx` / `VerticalRail.tsx` / `TimelineMarker.tsx` 磁碟不存在），`MilestoneSection.tsx` / `DiaryEntry.tsx` 保留；K-027 hotfix：`DiaryEntry.tsx` 加 `flex-col sm:flex-row` + `break-words`；`MilestoneSection.tsx` 展開區加 `overflow-hidden` + `mb-4 sm:mb-3`；新增 `frontend/e2e/diary-mobile.spec.ts`（7 test cases：AC-027-NO-OVERLAP × 3 viewport + AC-027-TEXT-READABLE × 3 viewport + AC-027-DESKTOP-NO-REGRESSION × 1）

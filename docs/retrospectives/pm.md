@@ -2,6 +2,67 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆，最新在上。
 
+## 2026-04-21 — K-031 Final Acceptance + Close + Deploy
+
+**What went well:** Phase Gate end-checklist executed cleanly. 3/3 AC PASS via QA evidence (95 passed / 1 skipped / 0 failed, tsc exit 0). All 6 role retrospective logs present and filled (pm / architect / designer / engineer / reviewer / qa — verified by direct Read). Arbitration matrix (severity × actionable × ROI) already applied during Code Review step, so no re-arbitration needed at acceptance. Three-commit separation (code / design-asset / docs) successfully implemented Commit Hygiene + `feedback_separate_commits` + File Class Gate. Stray `package-lock.json` at repo root (Engineer artifact from npm install in wrong directory) caught during `git status` pre-commit scan and removed — demonstrates value of `git diff --cached --name-only` pre-flight rule. PRD §3→§4 AC migration + dashboard Active/Closed counter update + ticket frontmatter `closed:` date + Retrospective section fill all landed in a single docs commit per new bookkeeping rule.
+
+**What went wrong:** Pencil MCP `get_screenshot` offline meant PM could not execute the Phase Gate "Pencil frame vs implementation visual acceptance" step literally. Fell back to accepting QA's DOM-level evidence + Designer's JSON schema validation + grep zero-residuals. For a pure-removal ticket this is the correct fallback (there is no visual artifact to compare against when the artifact is intentionally deleted), but the current `pm.md` gate text reads as if `get_screenshot` is unconditionally required — creating ambiguity for future pure-removal tickets. This is the same ambiguity Reviewer observed in depth review but intentionally did not escalate as a finding.
+
+**Next time improvement:** Do NOT codify a Pencil MCP fallback exception into `~/.claude/agents/pm.md` yet. Per `feedback_new_rule_needs_session_evidence`, a single-event K-031 does not cross the evidence bar for a persona rule change. If a 2nd pure-removal ticket recurs with MCP offline, I will propose a narrow exception to the pencil-comparison gate: "pure-removal tickets (component deletion, no new visual artifact) + Designer JSON grep zero-residual + frame count match → screenshot waived." Logged as a pending persona edit trigger; no change this round.
+
+---
+
+## 2026-04-21 — K-031 Code Review 裁決（breadth PASS_WITH_NOTES + depth MERGE_READY，4 Info，釋出 QA）
+
+**What went well:** Code Review 雙軌（breadth + depth）回報零 Critical / 零 Warning / 4 Info，全數為低嚴重度觀察，無阻擋 merge 路徑。PM 逐條實證審查——Read `docs/designs/K-031-remove-builtby-ai-showcase.md:16-18` 確認 §1 Summary 文字「6 sections」與其後 S1-S7 枚舉確有單字不一致；Read `frontend/e2e/about-v2.spec.ts:380-395` 確認 `nextElementSibling` DOM 斷言為現況直接相鄰（無 wrapper div 介入）；architecture.md L147 Architect 於 Changelog 明寫「correct-by-coincidence」選擇不 silent-fix 符合透明性原則；comment renumber S8→S7 單邊調整在 ticket scope 內。Depth reviewer 單獨提「Pencil MCP offline，Designer 用 JSON+grep triangulation」非 finding 而是 process observation，PM 需裁決是否 codify。
+
+**Matrix（每 finding × fix-now/TechDebt/NoAction × severity/actionable/ROI 維度）：**
+
+| Finding | Severity (0/1/2) | Actionable (0/1/2) | ROI (0/1/2) | Total | 決策 |
+|---------|-----------------|-------------------|-------------|-------|------|
+| 1. Design doc §1 undercount | 0（doc-only wording，不影響 runtime / AC） | 2（1 字 Edit） | 1（審計一致性） | 3 | **Fix-now**（cost 1 分鐘，commit 前順手改） |
+| 2. nextElementSibling future-brittle | 0（現況 PASS） | 1（需改 selector 策略） | 0（YAGNI，未來 wrapper 改動時再處理） | 1 | **No action**（現況 PASS，不預防性擴張） |
+| 3. architecture.md L147 correct-by-coincidence | 0（已正確） | 0（Architect 已於 Changelog 主動聲明） | 0（silent-fix 反而喪失審計記錄） | 0 | **No action**（Architect 判斷正確） |
+| 4. Comment renumber one-sided | 0（Nº 01-05 labels 不屬 K-031 scope） | 0（無需動作） | 0 | 0 | **No action**（scope 判斷正確） |
+| Pencil MCP fallback | 0（K-031 pure removal 特殊情境） | 1（需 persona Edit） | 1（未來同類情境參考） | 2 | **Leave as retro**（單一事件不升格規則） |
+
+**Red Team Self-Check：**
+- **Engineer challenge：** 「Finding 2 現在不修，將來別人加 wrapper div 時 E2E 無預警壞掉怎麼辦？」→ 反駁：E2E 壞掉正是其職責；預防性改成 `:has(#footer-cta)` CSS selector 會讓失敗訊息更難 debug。保持現狀。
+- **Reviewer challenge：** 「Finding 1 只是 1 字不一致為什麼不進 Tech Debt batch 處理？」→ 反駁：doc-only + 1 字修改 + 同 commit 可帶 = fix-now cost ≈ TechDebt cost，無必要延後。
+- **Devil's advocate（3 個月後失敗模式）：** 「Pencil MCP offline 成常態，Designer 反覆走 JSON triangulation fallback 但 persona 無規則，每次都重新發明」→ 反駁：現況 K-031 是已知 MCP 服務暫時性 outage，非常態；若未來發生第 2 次才 codify 為 persona rule，符合「規則來自證據而非預測」原則。
+
+**裁決結論：**
+1. Finding 1（§1 Summary 文字 undercount）— **Fix-now**：1 字 Edit「6 sections」→「7 sections」，由 Engineer 於 commit 前順手修正。
+2. Finding 2（nextElementSibling future-brittle）— **No action**：現況 PASS，YAGNI 優先。
+3. Finding 3（architecture.md L147 correct-by-coincidence）— **No action**：Architect Changelog narration 判斷正確，silent-fix 會喪失審計記錄。
+4. Finding 4（Comment renumber one-sided）— **No action**：Nº 01-05 labels 不屬 ticket scope，Engineer 判斷正確。
+5. Pencil MCP fallback（Designer JSON+grep triangulation）— **Leave as retro**：單一事件 + K-031 removal-only 特殊情境，不足以升格 persona rule；僅記錄於 `docs/retrospectives/designer.md`。未來若第 2 次發生，再 codify 「Pencil MCP offline + removal-only + JSON valid → 可豁免 get_screenshot」例外規則到 `~/.claude/agents/designer.md`。
+
+**放行 QA：YES**
+- **Scope：targeted**（非 full regression suite）。理由：K-031 是純移除 ticket，無新 UI、無 shared component 變更、無跨路由影響（設計文件 §4 Route Impact Table 已確認）。
+- **Targeted scope：**
+  1. `frontend/e2e/about-v2.spec.ts` — 跑 AC-031-SECTION-ABSENT + AC-031-LAYOUT-CONTINUITY 兩 describe block
+  2. `frontend/e2e/about-v2.spec.ts` — regression 現有 AC-022-* blocks 確認未受影響
+  3. `frontend/e2e/HomePage.spec.ts` — 驗 `BuiltByAIBanner`（homepage 的相似命名組件）未被誤刪
+  4. Visual check：QA 用 dev server 目視 `/about` 確認 6 sections 正確渲染、無斷層、footer-cta 緊接 architecture
+- 不需 full suite 理由：ticket scope 侷限於 `/about`，其他路由 unaffected 已由 Route Impact Table 證明；global-style gate N/A。
+
+**What went wrong:** 無。4 Info findings 全數為低嚴重度觀察，零阻擋項；PM 裁決路徑最短。
+
+**Next time improvement:**
+1. **Pencil MCP offline 追蹤：** 若 K-031 後下次 Designer 任務再次遭遇 MCP outage，PM 主動 codify「removal-only + JSON valid → 豁免 get_screenshot」例外規則進 `~/.claude/agents/designer.md` 與 `~/.claude/agents/pm.md` 的設計稿驗證 gate。單次事件暫不入 persona（避免過早 codify）。
+2. **Code Review Info finding 裁決 rubric：** 本次 severity / actionable / ROI 三維度矩陣可作為 Info-only review 的標準模板——嚴重度 0 + ROI 0 = No action，嚴重度 0 + actionable 2 + ROI ≥ 1 = Fix-now 順手帶；避免所有 Info 一律丟 TechDebt 造成 backlog 膨脹。
+
+## 2026-04-21 — K-031 Architect 設計文件 PM 審查 APPROVE + 並行放行 Designer/Engineer
+
+**What went well:** Architect 設計文件 (`docs/designs/K-031-remove-builtby-ai-showcase.md`) 16/16 滿分通過 PM 多維度矩陣（AC 覆蓋 / 檔案範圍 / Route Impact Table / Shared Component Boundary / E2E plan / architecture.md self-diff / BQ 紀律 / Phase Coverage 八項），§0 Scope Questions 宣告 None，§8 architecture.md 3 處 drift 修正實際落入 git diff（L13 `8 sections` → `7 sections` / L140 `S8 email` → `S7 email (K-031 後從 S8 重編為 S7)` / L410 Frontend Routing row），Changelog 項已補 L585，PM 用 Read 逐處 grep 對照確認「真的有 Edit 不是 claim」。BQ 階段零上報——Architect 根據 ticket §Route / Component Existence Verification + 設計文件 §5 Shared Component Boundary Audit 自封閉，PM 免裁決。Designer/Engineer 並行決策基於兩角色的交付物（`.pen` vs code）零檔案重疊，無 race condition。
+
+**What went wrong:** 並無 PM 此輪可改善事件。K-031 票開得乾淨（純移除 + PM 已 pre-verify file existence），Architect 交付零 BQ，審查路徑最短。唯一 observational note：Ticket §Release Order 寫「Designer 先，Engineer 後」是套用一般 visual-spec 驅動票的 convention；對 K-031 這種「pure removal + 無新視覺決策」的 scenario，convention 過度保守，PM 需主動識別並改為並行以縮短 wall-clock。此為 convention 的 blanket-apply 問題，非 PM 失誤。
+
+**Next time improvement:**
+1. **Release Order 並行判斷準則：** ticket 若屬「純移除 / 無新視覺決策」且 Designer 與 Engineer 輸出檔案零重疊（`.pen` vs code），PM 放行時主動決策並行，不死守 ticket §Release Order 的 Designer-first 順序。Codify 進 `~/.claude/agents/pm.md` Release Order Parallelism Rule 段（下次類似 ticket 觸發時再寫進 persona，避免過早 codify）。
+2. **Architect 設計文件審查 rubric：** 本次 16/16 矩陣（8 dimensions × 0/1/2）可作為後續 Architect 設計文件審查模板——尤其 §8 architecture.md self-diff 的 git diff 對照步驟，是防止「claim 有改但沒改」的關鍵硬驗證。未來每次審 Architect 文件都執行同一 rubric。
+
 ## 2026-04-21 — K-018 GA4 Tracking end-to-end 關閉
 
 **What went well:** K-018 從 frontmatter `open` 狀態拉到真 closed 的完整鏈路全數跑通——GA4 property 建立（`K-Line-Prediction`）、Measurement ID `G-9JC9YBZTPF` 取得、`.env.production` 寫入、`npm run build` 產出含 ID 的 bundle（curl 驗 deployed bundle 確認）、`firebase deploy --only hosting` 成功、GA4 即時頁使用者數從 0 翻到 1，整條鏈路在一個 session 內完整驗證。Debug 流程依序排除擴充套件（無痕分頁重測）、網路過濾、程式 wiring，最後用 `window.dataLayer` console 倒出 entry shape 鎖定 Array vs Arguments bug，避免盲 commit 無效修復。
