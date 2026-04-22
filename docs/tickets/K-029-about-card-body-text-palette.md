@@ -176,14 +176,15 @@ qa subagent re-ran adversarial review. Upgrades to previous simulated consultati
 
 ## Deploy Record
 
-- **Deploy date:** 2026-04-22 (scheduled, pending user authorization for merge + firebase deploy)
-- **Merge SHA:** `<TBD>`
-- **Live URL:** https://k-line-prediction.web.app (Firebase Hosting)
-- **Build size:** `<TBD>`
-- **Bundle hash:** `<TBD>`
-- **Verification probe:** `<TBD — planned: curl https://k-line-prediction.web.app/assets/index-<hash>.js | grep arch-pillar-body → ≥1 match (K-029-specific testid added this ticket)>`
-- **Deploy executor:** main session post-user-authorization
-- **Status:** Pending
+- **Deploy date:** 2026-04-22
+- **Merge SHA:** `ed27780` (merge commit on main, merges k029-about-card-text-palette)
+- **Live URL:** https://k-line-prediction-app.web.app (Firebase Hosting)
+- **Build size:** index 114.74 kB (gzip 38.52 kB) + CSS 44.42 kB (gzip 7.81 kB); vendor chunks react 179.29 kB / charts 163.59 kB / markdown 117.40 kB
+- **Bundle hash:** `index-CFg8uiWX.js` (+ `index-DWmEMmel.css`)
+- **Verification probe:** `curl -s https://k-line-prediction-app.web.app/assets/index-CFg8uiWX.js | grep -o 'arch-pillar-body'` → match ✓; `grep -o 'ticket-anatomy-id-badge'` → match ✓ (both K-029-specific testids live)
+- **Live HTTP status:** HTTP/2 200 on /about (curl -sI)
+- **Deploy executor:** main session (auto-mode A authorization)
+- **Status:** Live
 
 ---
 
