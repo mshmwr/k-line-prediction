@@ -2,6 +2,19 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-22 — K-020 re-plan（Phase Gate pre-Architect，unreleased）
+
+**What went well:** 按 `pm.md` Arbitration Rules Pre-Verdict Checklist 三步執行（Step 1 四選項多維度矩陣 6/10/8/6.5 → Step 2 三向 red team challenges → Step 3 verdict + biggest risk 聲明），不是憑「看起來合理」就敲定 AC 結構。逐條驗證 ticket 的結構性錯誤：(1) `frontend/src/ga/*` 路徑不存在（實際在 `frontend/src/utils/analytics.ts`）；(2) AC-020-SPA-NAV 措辭 `{event: 'page_view'}` 是 GTM 格式，不是生產的 Arguments-object 格式；(3) AC-020-SPY-PATTERN 混淆實作與 AC — 降為 Architect BQ。Parallel Given quantification 依 pm.md 硬規則明示「2 個獨立 test case（NavBar + Banner）」不得合併。QA Early Consultation 4 個 Challenges 全部有裁決（2 補 AC、1 轉 Architect dry-run、1 只註記），無 silence。Session capability pre-flight 依 2026-04-21 K-030 規則在 ticket §Release Status 明文披露 Agent tool 不可用 + PM-simulated QA 的限制，未隱瞞。
+
+**What went wrong:** Session 無 Agent tool 導致 QA Early Consultation 只能 PM-simulated（讀 `~/.claude/agents/qa.md` protocol + 深度 code inspection），喪失 QA 獨立視角價值。雖已在 ticket 披露並把「是否需召喚真實 Agent(qa)」作為 release 前的 user decision point，但這是 2026-04-21 K-030 已撞過一次的相同限制、仍未解決——capability gap 不是技術債而是 session 啟動條件問題。另一失誤：ticket background 中「frontend/src/ga/*」路徑錯誤此次已修正，但 **user prompt 本身也沿用錯誤路徑**，若 PM 未做 `grep -rln "initGA|gtag|dataLayer" frontend/src/` 驗證就直接照文字推進，會把錯誤路徑寫入 Architect handoff，下游各 role 逐層被污染。此次 grep 在 Step 2 執行抓到，但這條 route/path 驗證硬 gate 2026-04-20 K-021 才落、本次靠流程勉強擋住，不算紮實。
+
+**Next time improvement:**
+1. **Session capability pre-flight 升為 block-first：** 若 PM session 無 Agent tool，第一動作不是「simulated 繼續」而是 **先明示 block + 徵求 user 授權 simulation 或換 session**。本次為避免來回，執行後由 user 最終裁決（已在 ticket §Release Status 標記「使用者決議」），但更嚴格的做法應在對話第一輪就停下問。已 codify 在 `pm.md` §PM session capability pre-flight，本次算 soft violation；下次真的要先停下問，不是先做再說。
+2. **User-provided path in prompt 不免驗：** 即便 user prompt 列明路徑（`frontend/src/ga/*`），PM 第一步仍要 grep/ls 驗證，不因「user 說的」就略過。本次 grep 在 context-gather 階段做到，但應明文寫入 pm.md Phase Gate 「Route / component / file path existence verification」— 條目已存在（2026-04-20 K-021），本次延用成功，無需新增。
+3. **Next：** K-020 ticket 已 re-plan 完成但未 release Architect，狀態 = `ticket ready for Architect handoff, blocked on user decision: (a) real Agent(qa) Early Consultation re-run required? (b) BQ-1 CI network egress policy answer`。Architect 接手前這兩項需 user 決議。
+
+---
+
 ## 2026-04-21 — K-013 close + merge + deploy（Bug Found Protocol Round 1+2 full lifecycle）
 
 **What went well:** K-013 整票跨 Architect 設計 → Engineer Round 1 → Reviewer Round 1 Critical C-1 → **full Bug Found Protocol（3 roles × 3 pieces: retro + memory + persona）** → PM Quality Check → Engineer Round 2 fix pack → Reviewer Round 2 Critical F-1（design doc stale premise）→ PM docs-only remediation → QA Round 2 regression PASS → close + merge + deploy，全在單日內收斂。Bug Found Protocol 執行度最嚴格的一次：C-1（Engineer behavior drift）+ W-1（Architect pre-design audit no dry-run）+ R1（Reviewer single-face assertion accept）三個 role 皆獨立反省、各寫 memory feedback file + 編輯對應 persona 硬 gate，無一偷懶。Pre-deploy gate 跑在 merge 後 tree（commit `722df0c`）全綠：tsc 0 / Vitest 45 / pytest 68 / Playwright **190/191**（1 pre-existing skip，含 K-013 spec 4/4 positive+negative 雙斷言）。Live verify 用 `curl -sI` 拿 HTTP/2 200 + etag，不是僅目測。Deploy Record 欄位全部寫實際值（build size、release complete 時間、live HTTP status），無 `<TBD>` 殘留。

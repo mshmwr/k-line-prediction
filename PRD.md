@@ -351,20 +351,36 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### K-020 — GA4 SPA Pageview E2E
+### K-020 — GA4 SPA Pageview E2E + HTTP Beacon Verification
 
 - **Status:** backlog / type: test
 - **Ticket:** [docs/tickets/K-020-ga-spa-pageview-e2e.md](docs/tickets/K-020-ga-spa-pageview-e2e.md)
-- **摘要：** Link click → SPA route change → pageview 驗證。K-018 W3/W4 完成後接上。
+- **摘要：** Link click → SPA route change → pageview 驗證 + 真實 `/g/collect` HTTP beacon 斷言。K-018 production bug 後 scope 擴充。2026-04-22 re-plan 拆 2 Phase。
 
 **AC：**
 
-#### AC-020-SPA-NAV：SPA Link click 觸發 pageview 事件
+#### AC-020-SPA-NAV：SPA Link click 觸發 pageview 事件（Phase 1）
 
-- **Given** 用戶在 `/` 頁面
-- **When** 點擊 NavBar 的 About 連結
-- **Then** Playwright 捕捉到 SPA navigate 完成後，`window.dataLayer` 含 `{ event: 'page_view', page_location: '/about' }`
-- **And** 測試無 `waitForTimeout`，改以 `waitForNavigation` 或事件訊號同步
+- **Given** 用戶在 `/` 頁面，`VITE_GA_MEASUREMENT_ID='G-TESTID0000'`，`window.dataLayer` 已由 production `initGA()` 初始化
+- **When** 用戶點擊 NavBar 的 About Link（SPA navigate，非 `page.goto`）
+- **Then** `waitForURL(/\/about$/)` + `waitForFunction` 確認 `window.dataLayer` 有 Arguments-object entry 滿足 entry[0]==='event' AND entry[1]==='page_view' AND entry[2].page_location==='/about'
+- **And** 測試記錄 click 前 dataLayer.length，斷言 click 後 length 增加且新 entry 指向 `/about`（區分初始 `/` pageview 與 click 觸發的 `/about` pageview）
+- **And** 測試無 `waitForTimeout`
+- **And** 至少 2 個獨立 Playwright test case — NavBar Link + BuiltByAIBanner CTA（不可合併）
+
+#### AC-020-BEACON：真實 HTTP pageview beacon 送出（Phase 2，blocked on BQ-1）
+
+- **Given** `VITE_GA_MEASUREMENT_ID='G-TESTID0000'`，`initGA()` 正常執行，Playwright 未 block `googletagmanager.com` / `google-analytics.com`
+- **When** 用戶 `goto('/about')` 觸發初始 pageview
+- **Then** `page.waitForRequest(req => /\/g\/collect/.test(req.url()))` 在 5s timeout 內捕捉到送往 google-analytics.com 的 request
+- **And** request URL query string 含 `en=page_view`
+- **And** 測試失敗時必須 throw，不得 `test.skip()`
+- **And** 至少 1 個獨立 Playwright test case
+
+**Architect Blocking Questions：**
+- BQ-1：CI network egress policy（repo 目前無 `.github/workflows/`）— Phase 2 依賴此決議
+- BQ-2：Mock 策略（spy vs replace）— PM 推薦移除 addInitScript mock，直接觀察 production dataLayer
+- BQ-3：`waitForRequest` SPA navigate race condition — Phase 2 延伸斷言需處理
 
 ---
 

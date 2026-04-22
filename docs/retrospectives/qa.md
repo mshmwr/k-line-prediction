@@ -20,6 +20,98 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-020 Early Consultation (real Agent(qa) run — independent pass)
+
+**Context:** Independent QA Early Consultation invoked by PM for K-020 (GA4 SPA Pageview E2E hardening) following the PM-simulated pass earlier this session. Scope: read ticket K-020 + PRD + `frontend/src/utils/analytics.ts` + `frontend/src/hooks/useGAPageview.ts` + `frontend/e2e/ga-tracking.spec.ts` + `frontend/playwright.config.ts`, probe AC for boundary / edge-case / race-condition gaps. PM pre-decided: BQ-1 resolved to `page.route()` intercept; AC-020-SPY-PATTERN removed.
+
+**Testability review:**
+- AC-020-SPA-NAV → ⚠️ Testable but incomplete — click-delta guard present, but beacon payload key not pinned (which of `page_path`, `page_location`, `page_title`, `dl`, `dp` on `/g/collect` query?), same-route / query-only / hash-only navigation behavior undefined, init-vs-SPA timing race for `page.route()` registration undefined.
+- AC-020-BEACON → ⚠️ Testable but incomplete — "URL + query" is vague; missing concrete required keys; no assertion that the beacon count matches pageview count (silent over-firing or double-fire undetectable); `page.route()` cleanup on failure unspecified.
+
+**QA Challenges raised (11):**
+
+**Blocking (Architect cannot design without PM ruling):**
+
+1. **QA Challenge #5 — AC-020-BEACON beacon payload keys unpinned.**  
+   Issue: AC says "URL query string contains `en=page_view`" but does not enumerate which payload keys constitute a valid pageview beacon. `/g/collect` carries `tid` (measurement ID), `dl` (document location / full URL), `dp` (document path), `dt` (title), `en` (event name), `v=2` (GA4). Asserting only `en=page_view` accepts a beacon that drops `dl` or points at the wrong path — that is precisely K-018 class of silent-drop bug moved one layer down.  
+   Needs supplementation: AC must specify required keys — recommend `v=2` AND `tid=G-TESTID0000` AND `en=page_view` AND (`dl` contains `/about` OR `dp=/about` — which one depends on gtag.js version, must be verified in dry-run).  
+   If not supplemented: BEACON test will pass on a partial/corrupt beacon, defeating the purpose.
+
+2. **QA Challenge #6 — AC-020-SPA-NAV and AC-020-BEACON do not cross-verify.**  
+   Issue: Phase 1 asserts dataLayer has a new entry after SPA navigate; Phase 2 asserts initial `/` load produces one `/g/collect` beacon. Neither AC asserts **SPA navigate produces a new `/g/collect` beacon**. This is the exact K-018 failure mode: `gtag('event', 'page_view', ...)` called but beacon never sent. If the helper internal implementation drifts (e.g. future refactor breaks the Arguments-object push), SPA-NAV will pass (dataLayer entry present) but no beacon leaves the page. AC currently has no test that catches this at the SPA layer.  
+   Needs supplementation: Add a third AC or extend AC-020-BEACON with a second test case — NavBar click to `/about` → `page.waitForRequest(/\/g\/collect/)` captures a second beacon whose path-key points to `/about`. BQ-3 in ticket alludes to this race but punts it ("Phase 2 初版只要求初始 load"). Punting it removes the only defense against K-018 shape drift in the SPA path.  
+   Recommendation: do NOT defer. Add as hard AC.
+
+3. **QA Challenge #7 — Same-route / query-only / hash-only navigation behavior undefined.**  
+   Issue: `useGAPageview` depends on `[location.pathname]`. Therefore:  
+   (a) `/` → `/` click (user clicks same-page link): `location.pathname` unchanged → `useEffect` does not re-fire → no pageview. Expected? AC silent.  
+   (b) `/?x=1` → `/?x=2` (query-param-only change): `pathname` unchanged → no pageview. Expected?  
+   (c) `/#foo` → `/#bar` (hash-only change): `pathname` unchanged, React Router may or may not remount depending on `BrowserRouter` vs `HashRouter` → no pageview. Expected?  
+   These are live user flows (tab click that points to current route, filter query changes, in-page anchor). AC and implementation silently disagree on (a)/(b): GA4 Measurement Protocol guidance says pageview should fire when `page_location` changes (location includes query). Current impl does NOT fire on query change — either a bug to be fixed (change hook dep to `location`) or intentional behavior to be documented.  
+   Needs supplementation: PM must rule — for each of (a)/(b)/(c), fire or not fire? Then AC must encode the ruling (at minimum one negative-case test: "query-only change does NOT push new dataLayer entry" if the ruling is "don't fire"; otherwise fix the hook + add positive test).
+
+**Non-blocking (Architect can design but must handle in design doc):**
+
+4. **QA Challenge #8 — Back/forward navigation not covered.**  
+   Browser back from `/about` to `/` and forward to `/about` again should each fire pageviews (standard GA4 expectation). React Router pushes popstate → pathname change → hook fires. Current AC only tests forward click; back/forward untested. Edge case recommendation: Architect adds a third SPA-NAV case (back button from `/about` fires pageview to `/`). Not blocking; can be Known Gap if PM rules scope.
+
+5. **QA Challenge #9 — Rapid sequential navigation race.**  
+   A → B → C within <100ms: three pageviews or coalesced? `useEffect` on `pathname` is synchronous per-render, so three renders = three effect runs = three `trackPageview` calls = three beacons. gtag.js may batch/debounce at the beacon layer. AC silent. Known production risk: rapid NavBar clicks (double-tap on mobile) firing duplicate beacons inflates GA4 user/session counts. Architect dry-run should measure.
+
+6. **QA Challenge #10 — Test isolation: `page.route()` cleanup on failure.**  
+   If AC-020-BEACON test throws mid-assertion (e.g. beacon query malformed), does the route handler leak into the next test in the file? Playwright `page.route()` scope is per-page, so `page.close()` cleans it, but `test.afterEach` explicit `page.unroute()` is safer. Specify in Architect design doc: "all `page.route('**/g/collect')` handlers must register in `test` body and rely on per-test page fixture teardown; no shared `test.beforeAll` route registration." — otherwise flake on CI parallel runs.
+
+7. **QA Challenge #11 — Beacon count assertion missing.**  
+   Even with correct `en=page_view`, nothing asserts that **exactly one** beacon fires per pageview. A future impl bug that fires the event twice (e.g. StrictMode double-invoke in dev, or someone adds a second `trackPageview` call) will pass current AC. Recommendation: Phase 2 test counts beacons between click and next assertion checkpoint and asserts `=== 1`.
+
+8. **QA Challenge #12 — Invalid measurement ID `G-TESTID0000` dry-run (covered in ticket as Challenge #3).**  
+   Already flagged by PM-simulated pass as Architect dry-run item. Reaffirm: gtag.js may refuse to fire `/g/collect` for syntactically malformed IDs. If dry-run shows no beacon fires, Phase 2 is un-implementable with current playwright.config env; need either real test ID or to accept that Phase 2 runs only against `G-` pattern + non-existent ID (possible — GA4 client-side validation is loose, but confirm).
+
+9. **QA Challenge #13 — Navigation type: NavBar Link vs BuiltByAIBanner CTA vs programmatic `navigate()`.**  
+   AC names two entry points. Third (programmatic: e.g. a future redirect-on-success-calls `navigate('/app')`) exists in the codebase — any component calling `useNavigate()` hits the same `useLocation()` reactive path, so the test logic is invariant. Recommendation: state explicitly in design doc that NavBar + BuiltByAIBanner cover all human-trigger entry types and that programmatic `navigate()` is considered equivalent (no separate test). Non-blocking — just document.
+
+10. **QA Challenge #14 — BuiltByAIBanner target route.**  
+    Current AC-020-SPA-NAV says both cases go `/` → `/about`. BuiltByAIBanner CTA indeed points at `/about` (confirmed via `a[aria-label="About the AI collaboration behind this project"]` in K-018 spec line 166). Two test cases testing the same route transition with different triggers is a weak test matrix. Recommendation: let NavBar test `/` → `/about` and BuiltByAIBanner test a different target if it exists, OR explicitly accept that the two cases are near-duplicates because the goal is to prove "different DOM entry points both reach the hook". Non-blocking — PM already rationalized this in AC wording, just make it explicit in the test comment.
+
+11. **QA Challenge #15 — `page_location` value semantics.**  
+    Impl `useGAPageview.ts:17` passes `location.pathname` (e.g. `/about`) as `page_location` — but GA4 Measurement Protocol convention is that `page_location` is the **full URL** (`https://host/about?q=...`), and `page_path` is the path. Helper is sending path-as-location. This works for funnel analysis on simple sites but is a semantic bug. Current AC pins `page_location: '/about'` which **codifies the bug**. Flag to PM: is this intentional (simplification) or a bug to fix now? If fix now, AC must change. Non-blocking for K-020 scope but user should know.
+
+**What went well:** Caught that both AC-020-SPA-NAV and AC-020-BEACON individually have click-delta / throw-on-fail guards but neither enforces the K-018-specific invariant "SPA navigate → new `/g/collect` beacon leaves the page" — which is the exact bug class the ticket was created to prevent. This is a hole. Also surfaced that `useGAPageview`'s `[location.pathname]` dep array causes query-only changes to be silently ignored, an undocumented behavior that AC codifies by omission.
+
+**What went wrong:** PM-simulated pass earlier today caught 4 challenges but missed these 11, including the scope-defining hole (#6 SPA → beacon cross-verify). Simulation from the PM seat lacks the adversarial posture QA role requires — PM-simulated review tends to validate existing design rather than stress-test it. This justifies the ticket's `§Release Status` row flagging "Agent(qa) required" as a real blocker, not a procedural formality.
+
+**Next time improvement:** When K-018-class ticket (production bug retrofit) is created, QA Early Consultation must map "original bug manifestation" → "which AC directly catches it" as a concrete table. For K-020 the bug was "gtag call succeeded but beacon never sent" — AC-020-BEACON covers it for initial load, nothing covers it for SPA navigate. A bug-mapping table would have made this omission visible on first read. Codify in qa.md Early Consultation protocol.
+
+---
+
+## 2026-04-22 — K-020 Early Consultation (self-retrospective on the consultation itself)
+
+**What went well:** Independent read of implementation before reading the ticket surfaced the `[location.pathname]` dep array gap (Challenge #7) and the `page_location`-as-pathname semantic issue (#15) — these would have been invisible if starting from AC text alone. Cross-referencing K-018 retro ("mock/production override order") with the current `addInitScript` pattern in `ga-tracking.spec.ts:34` confirmed BQ-2's premise is sound.
+
+**What went wrong:** Initial scan did not immediately spot Challenge #6 (SPA → beacon cross-verify missing) — it only surfaced after building the challenge list and cross-checking against the ticket's stated goal ("E2E against production GA4 pipeline"). Reading AC in order instead of mapping AC to failure modes allowed the hole to hide.
+
+**Next time improvement:** For any "E2E hardening" or "production bug regression test" ticket, start Early Consultation with a 2-column table — rows = historical bug modes from the linked ticket's retro, columns = AC covers / AC does not cover. Do this BEFORE reading AC line-by-line. If any row has no column checked, that is a blocking gap.
+
+## 2026-04-22 — K-020 Early Consultation (PM-simulated, Agent tool unavailable)
+
+**Context:** PM re-plan session for K-020 (GA4 SPA Pageview E2E). Session lacked Agent tool → could not spawn real `qa` sub-agent; PM executed Early Consultation by reading `~/.claude/agents/qa.md` §Early Consultation protocol + deep inspection of `frontend/src/utils/analytics.ts`, `frontend/src/hooks/useGAPageview.ts`, `frontend/e2e/ga-tracking.spec.ts`, `frontend/playwright.config.ts`. Explicitly disclosed as simulation in ticket §Release Status — user may require a real Agent(qa) pass before Architect release.
+
+**Testability review:**
+- AC-020-SPA-NAV → ✅ Testable after wording fix (original AC used GTM dataLayer `{event, page_location}` object shape; production pushes `Arguments` object with index-based access — corrected)
+- AC-020-BEACON → ⚠️ Needs supplementation — CI network policy unresolved (no `.github/workflows/` in repo)
+
+**Challenges raised (4):**
+1. AC-020-BEACON CI egress unknown → **supplemented to AC** (added "test must throw on timeout, not skip")
+2. AC-020-SPA-NAV initial-load pageview entry interferes with click assertion → **supplemented to AC** (added "record dataLayer.length before click, assert new entry points to `/about` after")
+3. AC-020-BEACON fake `G-TESTID0000` — does gtag.js fire beacon for invalid IDs? → **deferred to Architect dry-run** (must verify in design doc §Dry-run)
+4. Arguments-object type narrowing → **no AC change**, noted for Architect (use existing `IArguments` cast pattern from K-018 spec)
+
+**What went well:** Surfaced 2 AC-level defects (wrong dataLayer shape wording; no click-delta guard) before Architect took the ticket — Phase 1 would have false-passed on the initial `/` pageview entry otherwise. Identified that `ga-tracking.spec.ts:34` `addInitScript` mock is overwritten by production `initGA()` at module load, confirming K-018 retro's "mock/production override order" lesson and making BQ-2's recommendation (drop addInitScript mock, read real dataLayer) concrete.
+
+**What went wrong:** Could not run real Agent(qa) — PM simulating QA loses the independent-perspective value of the role; risks blind spots (e.g., Playwright version-specific `waitForRequest` behavior, edge cases QA would know from regression history). Disclosed in ticket as Known Gap pending user decision.
+
+**Next time improvement:** When PM session lacks Agent tool, block release at §Release Status with an explicit "BLOCK: Agent(qa) required" row rather than proceeding with simulation; only simulate when user has pre-authorized. Codify in `pm.md` §PM session capability pre-flight — already present since 2026-04-21 K-030; enforce "explicit user authorization" clause this session (done: ticket surfaces decision back to user).
+
 ## 2026-04-21 — K-013 Round 2 Regression Pass
 
 **做得好：** Round 2 gate 全綠一次過（tsc 0 / vitest 45 / pytest 68 / playwright full 173+1 skipped / K-013 spec 4/4），未停在第一個 fail 就中止；K-013 spec 4 cases（full-set / subset / empty matches / <2 bars fallback）直接對應 AC-013-APPPAGE-E2E 的四態斷言，regression 範圍完整。Visual report 5 route 全部截圖成功，輸出至 `docs/reports/K-013-visual-report.html`。Ticket §Pencil 設計稿檢查明確將本票標為 zero-visual-change exemption，sign-off 未錯誤要求 Pencil frame cross-check。
