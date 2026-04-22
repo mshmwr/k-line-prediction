@@ -1,25 +1,29 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { DiaryMilestone } from '../types/diary'
+import { DiaryJsonSchema } from '../types/diary'
+import type { DiaryEntry } from '../types/diary'
+import { sortDiary } from '../utils/diarySort'
 
 interface DiaryState {
-  entries: DiaryMilestone[]
+  entries: DiaryEntry[]
   loading: boolean
   error: string | null
   refetch: () => void
 }
 
 /**
- * Fetch /diary.json and return diary milestones.
+ * K-024 Phase 2 — fetch /diary.json and return flat DiaryEntry[] (sorted).
  *
- * @param limit - Maximum number of milestones to return.
- *   - Omitted or undefined → return all entries (full diary)
- *   - 0 → return empty array (no entries)
- *   - N > 0 → return first N entries
+ * - Returns entries sorted by date desc, tie-break array-index desc (design §3.5).
+ * - zod validates the response body; invalid data → error state, entries stays [].
+ * - limit:
+ *     undefined → return all sorted entries
+ *     0         → return []
+ *     N > 0     → return first N after sort
  *
  * Shared by HomePage (useDiary(3)) and DiaryPage (useDiary()).
  */
 export function useDiary(limit?: number): DiaryState {
-  const [entries, setEntries] = useState<DiaryMilestone[]>([])
+  const [entries, setEntries] = useState<DiaryEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,15 +32,15 @@ export function useDiary(limit?: number): DiaryState {
     setError(null)
 
     fetch('/diary.json')
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error(`Failed to load diary: ${res.status}`)
-        return res.json() as Promise<DiaryMilestone[]>
+        return res.json()
       })
-      .then(data => {
-        // limit === 0 → return empty array (explicit zero, not fallback)
-        // limit > 0 → slice to limit
-        // limit is undefined → return all
-        const result = limit === 0 ? [] : limit !== undefined ? data.slice(0, limit) : data
+      .then((data: unknown) => {
+        const parsed = DiaryJsonSchema.parse(data) // zod validates; throws on schema violation
+        const sorted = sortDiary(parsed)
+        const result =
+          limit === 0 ? [] : limit !== undefined ? sorted.slice(0, limit) : sorted
         setEntries(result)
         setLoading(false)
       })

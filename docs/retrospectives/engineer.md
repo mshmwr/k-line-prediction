@@ -16,6 +16,14 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-22 — K-024 Phase 1+2 (flat schema + zod + useDiary reshape)
+
+**做得好：** TDD sequence worked cleanly — the `useDiaryPagination` concurrency gate Vitest surfaced a React stale-closure bug in the `if (inFlight) return` gate before any E2E was ever written; switched to a `useRef` mirror (keeping the `inFlight` state for the `canLoadMore` derivation) to satisfy the "two rapid synchronous calls collapse to +5" design contract. The failing `AC-028-DIARY-EMPTY-BOUNDARY` Playwright test (mock using pre-flat nested milestone shape) was caught on the first E2E run and fixed surgically by updating only the mock fixture (Sacred assertion preserved: count=1 + 20x14 marker).
+
+**沒做好：** `PM — README Future Enhancements` milestone (2026-04-21) was silently dropped rather than being folded into the single legacy-merge entry or getting its own K-ID — design §3.4 lists an exhaustive "Covered milestones" enumeration that does not include it, and AC-024-LEGACY-MERGE caps legacy entries at 1, so there was no syntactic home for it; should have flagged this as a BQ to PM at Pre-implementation Q&A stage instead of exercising "mechanical grouping discretion" to drop it. Also: invocation PM listed `timelinePrimitives.ts` as Phase 1+2 NEW while Architect §10+§13 place it in Phase 3 — I resolved by adding it now (low risk, pre-placed for Phase 3 consumers) rather than BQing the invocation-vs-design delta; should have raised it explicitly. Finally, the concurrency-gate stale-closure bug in the original design snippet (design §4.2) is technically a design-vs-implementation gap: the design relied on React state closure to guard, which fails under synchronous double-call; fix was self-decidable (ref mirror, same interface) so not escalated, but the retrospective should note the pattern.
+
+**下次改善：** (a) When translating historical diary entries and encountering a pre-K-008 milestone not explicitly enumerated in the design doc's legacy-merge "Covered" list, stop and BQ to PM before dropping — "mechanical discretion" on content-bearing items is a scope call, not an Engineer call. Added to `~/.claude/agents/engineer.md` §Pre-implementation Q&A as a content-preservation check. (b) Invocation-vs-Architect-design deltas on file placement should surface as a BQ with 1-line justification, not silent Engineer call, even when risk is low. (c) React concurrency-gate patterns that depend on `useState`-captured closures for synchronous-call idempotency need a `useRef` mirror — codify as a snippet in `~/.claude/agents/engineer.md` §Implementation Standards § React / TypeScript.
+
 ## 2026-04-21 — K-030 Code Review fix-now pass 2 (C-1 Hero CTA new tab + I-3 JSDoc drift)
 
 **What went well:**

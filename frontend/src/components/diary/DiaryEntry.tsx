@@ -1,7 +1,15 @@
-import type { DiaryItem } from '../../types/diary'
+// K-024 Phase 1+2 — minimum-touch reshape to keep tsc green until Phase 3 rewrite.
+// This file is scheduled for deletion in Phase 3 (design §10 + §13 Phase 3 step 1).
+// The DiaryItem type is inlined here to decouple from the new flat DiaryEntry shape
+// in types/diary.ts; render behavior is unchanged.
+
+interface DiaryItemLocal {
+  date: string
+  text: string
+}
 
 interface DiaryEntryProps {
-  item: DiaryItem
+  item: DiaryItemLocal
 }
 
 export default function DiaryEntry({ item }: DiaryEntryProps) {

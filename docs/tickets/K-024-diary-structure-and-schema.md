@@ -499,3 +499,23 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 ## Retrospective
 
 （Architect / Engineer / Reviewer / QA / Designer 各自於完成階段補上反省；PM 於 QA PASS 後彙整）
+
+### Engineer (Phase 1+2)
+
+**Implementation steps that were smooth:** The TDD sequence worked — writing the `useDiaryPagination` Vitest spec first caught a React stale-closure bug in the `if (inFlight) return` concurrency gate (synchronous double-call bypassed the gate because the `useCallback` captured `inFlight=false` in both calls). Fixed with a `useRef` mirror while keeping the `inFlight` state for `canLoadMore` derivation — same public interface, correct semantics. Minimum-touch reshape of Phase-3-scoped files (`MilestoneSection.tsx` / `DiaryEntry.tsx` / `DiaryTimeline.tsx`) via inlined local private types kept tsc green with zero behavior drift; `DiaryPage.tsx` synthetic-milestone adapter (1 flat entry → 1 synthetic milestone) preserved AC-DIARY-1 accordion tests during the Phase 1+2 PR window (design §13 step 12 accepted failure, but adapter let them pass — no `test.skip` required). All 190 Playwright pass, 1 pre-existing skip, 0 fail. All 80 Vitest pass (27 K-024 new + existing).
+
+**Scope boundary issues found:**
+
+1. **BQ-ENG-K024-PHASE1 scoping conflict (previously ruled):** PM invocation initially said "Phase 1 ONLY" while Architect design §3.6 + §13 pre-ruled Phase 1+2 combined PR. Correctly stopped + filed BQ + PM ruled Option (A) per Architect design. Resumed Phase 1+2 scope.
+
+2. **Legacy-merge content boundary (not blocking, resolved as mechanical call but should have been BQ):** `"PM — README Future Enhancements"` milestone (2026-04-21) has no `K-XXX` ticket ID and was not enumerated in design §3.4 "Covered milestones" list. AC-024-LEGACY-MERGE caps legacy-shape entries at exactly 1, and the single legacy entry's title/date/text are PM-locked to Phase-0-through-Deployment content. With no syntactic home, I dropped the README milestone via "mechanical grouping discretion" per design §3.4. Content-bearing scope calls should have been BQ to PM, not Engineer call.
+
+3. **Invocation-vs-design placement of `timelinePrimitives.ts`:** PM invocation listed it under Phase 1+2 NEW while Architect §10 + §13 place it in Phase 3. Resolved by adding now as a purely additive constants file (zero consumers in Phase 1+2, pre-placed for Phase 3). Should have flagged the delta explicitly as BQ rather than silent Engineer resolution.
+
+4. **Design-vs-implementation pattern gap in `useDiaryPagination` concurrency gate:** design §4.2 snippet relied on `useState`-captured `inFlight` to guard double-calls, which fails under synchronous double-call (stale closure). Fix was self-decidable (ref mirror, identical interface + semantics) but the pattern should be codified in Engineer persona to avoid future occurrences.
+
+**Next time improvement:**
+
+- (a) When translating historical content and a source item isn't enumerated in the design's explicit legacy-merge coverage list, BQ to PM before dropping. "Mechanical discretion" only applies to formatting/ordering, never to content presence/absence.
+- (b) Invocation-vs-Architect-design deltas on file placement must surface as a 1-line BQ with "Architect design §X says Phase Y; invocation adds to Phase Z; my read: <Architect wins/invocation wins + reason>". Do not silently resolve.
+- (c) React concurrency-gate patterns for synchronous double-call idempotency need a `useRef` mirror, not `useState` closure. Codify in `~/.claude/agents/engineer.md` §Implementation Standards § React / TypeScript as a reusable snippet (`inFlightRef.current + setInFlight(true)` pattern).

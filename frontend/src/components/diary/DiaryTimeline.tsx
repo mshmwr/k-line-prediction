@@ -1,8 +1,17 @@
-import type { DiaryMilestone } from '../../types/diary'
 import MilestoneSection from './MilestoneSection'
 
+// K-024 Phase 1+2 — minimum-touch reshape to keep tsc green until Phase 3 rewrite.
+// This file will be rewritten to an <ol> + flat entries structure in Phase 3
+// (design §6.1, §6.6). The DiaryMilestone type is inlined here to decouple from
+// the new flat schema.
+
+interface DiaryMilestoneLocal {
+  milestone: string
+  items: { date: string; text: string }[]
+}
+
 interface DiaryTimelineProps {
-  milestones: DiaryMilestone[]
+  milestones: DiaryMilestoneLocal[]
 }
 
 export default function DiaryTimeline({ milestones }: DiaryTimelineProps) {

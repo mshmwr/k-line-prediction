@@ -1,26 +1,24 @@
 import { Link } from 'react-router-dom'
-import type { DiaryMilestone } from '../../types/diary'
+import type { DiaryEntry } from '../../types/diary'
 import LoadingSpinner from '../common/LoadingSpinner'
 import ErrorMessage from '../common/ErrorMessage'
 
 interface DevDiarySectionProps {
-  milestones: DiaryMilestone[]
+  entries: DiaryEntry[]
   loading: boolean
   error: string | null
 }
 
-// K-028: layout refactored from absolute positioning (ENTRY_HEIGHT=140 固定假設)
-// to flex-col flow. Entry height is now content-driven — long text entries
-// grow naturally and adjacent entries no longer overlap.
+// K-024 Phase 2 (flat schema consumer; preserves K-028 layout + K-023 marker).
 //
-// Rail: single absolute <div aria-hidden> positioned inside the relative flex
-// container, with top:40 / bottom:40 insets so it spans from the first marker
-// center to the last marker center automatically (no totalHeight arithmetic).
-//
-// K-023 contracts preserved: marker 20x14 brick-dark radius 0 unchanged;
-// diaryHead / subtitle / diaryViewAllRow unchanged.
+// - entries is a pre-sliced DiaryEntry[] from useDiary(3).
+// - Title renders `${ticketId} — ${title}` with em-dash U+2014 + single space on each side;
+//   ticketId absent → title only (legacy-merge entry case).
+// - Rail hidden when entries.length < 2 (1-entry boundary, design §4.3.1).
+// - Sacred testids preserved: diary-entries / diary-rail / diary-entry-wrapper / diary-marker.
+// - No second testid, no data-homepage-entry (per BQ-024-01 PM ruling (b), design §13 step 9).
 
-export default function DevDiarySection({ milestones, loading, error }: DevDiarySectionProps) {
+export default function DevDiarySection({ entries, loading, error }: DevDiarySectionProps) {
   return (
     <section>
       {/* diaryHead */}
@@ -36,7 +34,7 @@ export default function DevDiarySection({ milestones, loading, error }: DevDiary
         </span>
       </div>
 
-      {/* 介紹文字 */}
+      {/* Section intro */}
       <p className="font-['Newsreader'] text-[15px] italic text-[#1A1814] leading-relaxed mb-8">
         — A running log of decisions, fixes, and lessons from building this system.
       </p>
@@ -49,28 +47,28 @@ export default function DevDiarySection({ milestones, loading, error }: DevDiary
 
       {error && <ErrorMessage message={error} />}
 
-      {!loading && !error && milestones.length > 0 && (
+      {!loading && !error && entries.length > 0 && (
         <>
           {/* diaryEntries — flex-col flow layout (K-028) */}
           <div
             className="relative flex flex-col gap-5 mb-8"
             data-testid="diary-entries"
           >
-            {/*
-              Vertical rail — single absolute div spanning from first marker
-              center (top: 40) to last marker center (bottom: 40). Height is
-              derived from the flex wrapper's auto-grown size, not arithmetic.
-            */}
-            <div
-              className="absolute w-px bg-[#2A2520]"
-              style={{ left: 29, top: 40, bottom: 40 }}
-              aria-hidden="true"
-              data-testid="diary-rail"
-            />
-
-            {milestones.map((m) => (
+            {/* Vertical rail — spans from first marker center (top:40) to last marker
+                center (bottom:40). With 1 entry the inset math yields invisible/negative
+                height, so we hide the rail entirely (design §4.3.1). */}
+            {entries.length >= 2 && (
               <div
-                key={m.milestone}
+                className="absolute w-px bg-[#2A2520]"
+                style={{ left: 29, top: 40, bottom: 40 }}
+                aria-hidden="true"
+                data-testid="diary-rail"
+              />
+            )}
+
+            {entries.map((e) => (
+              <div
+                key={`${e.ticketId ?? 'no-id'}-${e.date}-${e.title}`}
                 className="relative pl-[92px] min-h-[48px]"
                 data-testid="diary-entry-wrapper"
               >
@@ -82,18 +80,15 @@ export default function DevDiarySection({ milestones, loading, error }: DevDiary
                   data-testid="diary-marker"
                 />
 
-                {/* Content flows in normal document order; height grows with text */}
                 <p className="font-['Bodoni_Moda'] text-[18px] italic font-bold text-[#1A1814] leading-tight">
-                  {m.milestone}
+                  {e.ticketId ? `${e.ticketId} — ${e.title}` : e.title}
                 </p>
                 <span className="font-mono text-[12px] text-[#6B5F4E] tracking-wide block mt-0.5">
-                  {m.items[0]?.date ?? ''}
+                  {e.date}
                 </span>
-                {m.items[0]?.text && (
-                  <p className="font-['Newsreader'] text-[18px] italic text-[#2A2520] leading-[1.55] mt-1 break-words">
-                    {m.items[0].text}
-                  </p>
-                )}
+                <p className="font-['Newsreader'] text-[18px] italic text-[#2A2520] leading-[1.55] mt-1 break-words">
+                  {e.text}
+                </p>
               </div>
             ))}
           </div>

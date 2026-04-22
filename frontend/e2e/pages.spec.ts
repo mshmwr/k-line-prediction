@@ -655,12 +655,13 @@ test.describe('HomePage — AC-028-DIARY-EMPTY-BOUNDARY', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
+        // K-024 Phase 1: flat schema — DiaryEntry { ticketId?, title, date, text }
         body: JSON.stringify([
           {
-            milestone: 'Solo milestone for empty-boundary test',
-            items: [
-              { date: '2026-04-21', text: 'Single entry test text.' },
-            ],
+            ticketId: 'K-999',
+            title: 'Solo entry for empty-boundary test',
+            date: '2026-04-21',
+            text: 'Single entry test text.',
           },
         ]),
       })
