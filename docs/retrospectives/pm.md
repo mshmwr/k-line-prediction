@@ -2,6 +2,18 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-22 — K-029 Deploy Commit Scope Violation (post-mortem, Option A recorded)
+
+**What went wrong:** Outer Diary commit `521f81c` ("chore(K-Line): mirror K-029 close + merge + deploy + K-020 close + dashboard/diary") bundled 20 files mixing K-029 mirror scope with K-020 session leftover mirror (K-020 ticket, K-020 design doc, K-032/K-033 follow-up tickets, `ga-spa-pageview.spec.ts`). Violates `feedback_separate_commits` memory rule — feat/kb/docs should be distinct commits; K-029 mirror and K-020 session leftover were two independent scopes that fell under different tickets.
+
+**Root cause:** Main session running auto-mode deploy sequence for K-029 had outer Diary uncommitted state carrying K-020 session residue. Pre-commit hygiene `git diff --cached --name-only` was run but not used for scope-filtering — saw all 20 files, committed all 20 files in one message. The rule is to `git restore --staged <file>` anything outside the in-flight ticket's scope before commit, not just inspect the list.
+
+**User ruling:** Option A — leave landed commit as-is + record in retro. Rationale (recorded on user's behalf): history already pushed to origin/main; two remediation alternatives (B `git revert` + re-split two commits; C `git reset --soft` + force-push) both add noise (extra revert commit) or risk (force-push to main) for a docs-only scope-mix that has no functional impact. Scope violation is a discipline log entry, not a blast-radius fix.
+
+**Next time improvement:** Auto-mode deploy sequence, before the outer-repo mirror commit step, must run `git status` in the outer repo and explicitly list any files outside the in-flight ticket's path-scope (e.g. for K-029: anything not matching `ClaudeCodeProject/K-Line-Prediction/**` K-029 ticket/mirror targets or `ClaudeCodeProject/PM-dashboard.md` or `daily-diary.md`); unmatched files → `git restore --staged` + stash or defer; commit only the filtered scope. Codify into `~/.claude/agents/pm.md` §Deploy Record as "outer-repo mirror pre-flight: scope-filter staged list against ticket path-scope before commit." Deferred Edit — flagged.
+
+---
+
 ## 2026-04-22 — K-029 Close Phase Docs (pre-deploy)
 
 **What went well:** PM subagent 在 close phase 把全部 docs 變動一次性收斂 — tech-debt.md 新增 TD-K029-01（Reviewer Step 2 W-1 + QA 雙方標記） + PRD §3 K-029 entry 整塊切入 §4 Closed Tickets 並同步 header 從 15→16 count + ticket §Retrospective 用 4-role synthesis（PM/Architect/Engineer/QA）+ cross-role insight 段對 K-029 雙階段 QA（simulated + verified）學習命名清楚 + Deploy Record block 依 persona 硬規則寫 placeholder（Git SHA / Bundle hash / Verification probe 指定為 `grep arch-pillar-body`，非空泛 200 probe）+ ticket frontmatter status/closed 同步更新。W-1 裁決前跑完整 Pre-Verdict Checklist：3-dim 矩陣（cost 1 vs 2、current risk 0 vs 2、blocker 0 vs 2，TD 6 分勝）+ 3 條 Red Team challenge（Reviewer / 未來 Engineer / 3-month failure mode），決策可追溯。
