@@ -107,3 +107,32 @@ K-021 交付時 `UnifiedNavBar.tsx` 保留 7 處 hex literal（3 個 distinct co
 **Final gate result:** 192 passed / 1 skipped / 0 failed full suite; tsc exit 0; `npm run build` exit 0; 4 marketing routes visual check SKIPPED per `visual-spec: N/A` exemption (zero rendered-color change).
 
 **Persona edits this ticket:** `~/.claude/agents/reviewer.md` (grep raw-count sanity hard gate), `~/.claude/agents/qa.md` (Early Consultation grep baseline sanity hard step).
+
+---
+
+## Deploy Record
+
+**Date:** 2026-04-22
+**Merge commit:** `37b8e18` (main)
+**Firebase Hosting:** https://k-line-prediction-app.web.app (release complete)
+**Bundle:**
+- `dist/assets/index-Ck55VN8m.js` — 114.71 kB (gzip 38.51 kB)
+- `dist/assets/index-Ds_VjIoB.css` — 44.21 kB (gzip 7.80 kB)
+- Vendor chunks: react / charts / markdown unchanged
+- CSS bundle delta: -210 bytes vs pre-K-025 (arbitrary-value selector dedup)
+
+**Production CSS declaration probe (post-deploy, `curl … | grep -oE … | wc -l`):**
+
+| Pattern | Expected (design §5.2) | Observed (prod) | Gate |
+|---|---|---|---|
+| `color:#9c4a3b` | 0 (arbitrary-value form absent) | 0 | ✅ |
+| `color:#1a1814[0-9a-f]{0,2}` | 7 (opacity-modifier `/60` alpha-byte form) | 7 | ✅ |
+| `background-color:#f4efe5` | 0 (arbitrary-value form absent) | 0 | ✅ |
+| `border-color:#1a1814` | 3 | 3 | ✅ |
+| `.text-brick-dark` named selector | ≥ 1 | 1 | ✅ |
+| `.bg-paper` named selector | ≥ 1 | 1 | ✅ |
+| `.border-ink` named selector | 3 | 3 | ✅ |
+
+**Gates:** HTTP 200 from prod root; etag `25af1516…` 2026-04-22 06:00:19 GMT; all 7 probes match design doc prediction. Rendered-color equivalence with pre-refactor main branch confirmed via named-selector-vs-arbitrary-value parity + identical declaration counts for opacity variants.
+
+**Out of scope (deferred):** TD-K025-01 grep pattern sanity (future Tailwind refactor tickets inherit codified reviewer/qa hard gates); hover/focus pseudo-state visual coverage (future NavBar ticket with active-state scope).
