@@ -17,6 +17,32 @@
 
 ---
 
+## 2026-04-22 — K-035 Phase 3.2 Footer unification Pencil confirmation (UNBLOCKED)
+
+**What went well:** MCP round-trip pre-check is now standard in persona; earlier today's BLOCKED invocation caught the transport-dead symptom before any wasted batch_get / batch_design calls; today's re-run ran `get_editor_state({ include_schema: false })` first and confirmed the transport was live (active editor = `frontend/design/homepage-v2.pen`, 4 top-level frames listed) before issuing any design tool call. Screenshots captured cleanly on first attempt for both frames `4CsvQ` (Homepage) + `35VCj` (About). NavBar sanity PASS on both frames (abNav voSTK + hpNav OSgI0 both present as first top-level child). No `batch_design` edits issued — correctly honored the design-doc §2 out-of-scope #3 "pixels must not change" gate + §4.3 Designer row "No batch_design edit unless frame drift found".
+
+**What went wrong:** previous invocation's prompt included non-existent .pen file references (`about-v2.pen`, `business-logic*.pen`, `diary*.pen`, `app*.pen`) — main-session invocation-prompt inventory sanity check (added to persona in previous retrospective cycle) caught this and corrected the scope for this re-invocation to only `homepage-v2.pen` frames 4CsvQ + 35VCj. Persona already updated; no further persona edit needed in this run.
+
+**Next time improvement:** confirm invocation-prompt scope matches `find frontend/design -name "*.pen"` output before accepting any Designer dispatch; if mismatch, raise BQ to PM immediately (already codified in persona §Invocation-Prompt Inventory Sanity Check). Also document observation that Pencil frames intentionally abbreviate footer DOM (show only contact bar anchor, omit GA disclosure `<p>` + about-variant CTA heading/anchors that live in code); this is by design per K-035 §2 scope, not drift. Pencil serves as existence + placement confirm, not full DOM mirror.
+
+---
+
+## 2026-04-22 — K-035 Phase 3 Footer unification Pencil frame verification (BLOCKED — MCP transport down + design-doc assumption drift)
+
+**沒做好：**
+1. **Pencil MCP 連線半死狀態**：`claude mcp list` 顯示 `pencil: ✓ Connected`，但每個實際 operation（`get_editor_state` / `open_document` / `batch_get` / `snapshot_layout`）都在 `failed to connect to running Pencil app: visual_studio_code after 3 retries: transport not connected to app: visual_studio_code` 回錯。MCP bridge daemon 活著但 VS Code Pencil extension 沒啟動，bridge ↔ app transport 斷。Designer persona health-check 步驟僅用 `claude mcp list | grep connected` 判定，沒有額外對 `get_editor_state` 做 round-trip smoke test，結果初判「連線 OK」後才在實際 operation 翻車。
+2. **JSON 後路被 Pencil MCP server instructions 封死**：persona §Pencil MCP Health Check 第 3 步說「Failed to connect → JSON-direct-edit path」，但 MCP server instructions 明文「.pen files are encrypted and can be only access via pencil MCP tools. DO NOT use Read or Grep tools」。兩條規則直接衝突，等於 MCP 斷線時 Designer 沒有任何合法閱讀手段。
+3. **Invocation prompt 對 Pencil frame inventory 做了不存在的假設**：prompt 列 `homepage-v2.pen` 4CsvQ + `about-v2.pen` 35VCj + `business-logic*.pen` / `diary*.pen` / `app*.pen`。實際 `find frontend/design -name "*.pen"` 只有 `homepage-v1.pen` + `homepage-v2.pen`，`about-v2.pen` 根本不存在。且設計文件 §4.1 docstring 寫 `variant="about" → frame 35VCj footer subtree (homepage-v2.pen)` — 意即 4CsvQ 與 35VCj 兩個 frame 都住在 `homepage-v2.pen`，`about-v2.pen` 是 prompt 的幻覺。
+4. **Audit 路徑錯誤**：prompt 指 `docs/audits/K-035-shared-component-drift.md` 在 worktree，但實際檔案只存在於 main checkout `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/docs/audits/`，worktree 沒 checkout 此檔（git log 應該可追，Phase 2 產物未同步到 K-035 worktree）。
+
+**下次改善：**
+1. **Health-check 升級為 round-trip smoke test**：不只跑 `claude mcp list | grep connected`，必須加 `get_editor_state({ include_schema: false })` round-trip；回 transport 錯誤 → 視為 MCP 斷線立即 BLOCK，不進 §3 JSON fallback（因 .pen 加密）。
+2. **Persona §Pencil MCP Health Check 第 3 步需修正**：把 "JSON-direct-edit path" 改成 "BLOCK 並回報 PM 需用戶手動啟動 VS Code Pencil extension 或 Pencil desktop app"；加一段說明 .pen 加密使 JSON 後路不可用。這條要同步 Edit `~/.claude/agents/designer.md`。
+3. **Invocation prompt 收到含 frame inventory 假設時，第一步用 `find` + `ls frontend/design/` 實測，發現不符立刻 BLOCK 回 PM**，不默默假設 prompt 正確。Cross-frame scan 規則升級：scan 前先枚舉 `.pen` 實體檔案，再對照 prompt 宣稱。
+4. **Retrospective log 必 prepend，即使任務 BLOCK 也要寫**（本筆即是）— 讓下次 Designer 接棒看得到 MCP 連線坑與 frame inventory 幻覺。
+
+---
+
 ## 2026-04-21 — K-031 /about S7 BuiltByAI showcase frame 移除
 
 **做得好：**
