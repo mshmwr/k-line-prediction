@@ -20,6 +20,18 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-024 Early Consultation Round 1
+
+**What went well:** Visual-spec.json SSOT pattern caught the PRD line 385 middle-dot vs em-dash drift in cross-check — without JSON to anchor against, this would have reached Engineer and produced a shipped bug. Cross-verified every AC citation against `K-024-visual-spec.json` in a role-by-role table (10 roles / 2 frames: wiDSi + N0WWY); all role references match exactly, no SSOT drift on in-ticket AC. Full 7-type boundary sweep executed (not just "happy path") and found 6 of 7 types had gaps — forced PM to address empty-list / concurrency / special-chars cases before Architect release. Produced 11 concrete Challenges with specific "needs supplementation" wording so PM could Edit the AC directly without re-analysis.
+
+**What went wrong:** 10 of 12 AC (83%) needed supplementation at first review; 6 of 7 boundary types had gaps. Root cause: PM wrote AC against the visual-spec.json citation catchall pattern (good) but did not independently sweep the boundary table or cross-check mobile scope consistency or enumerate empty/concurrency cases. AC-024-LOADING-ERROR-PRESERVED was released for QA review before Architect had defined selectors, creating a circular untestable — had to be deferred as a whole, requiring a QA Round 2 after Architect design lands. Only 1 AC (AC-024-PAGE-HERO) passed cleanly.
+
+**Next time improvement:**
+1. PM Phase Gate pre-flight checklist (codify in `pm.md`): before invoking QA Early Consultation, PM must self-run the 7-type boundary sweep table (empty / min-max / special-chars / API-fail / network / concurrency / list-size) and produce a coverage map. Any AC released with obvious empty/concurrency gaps → bounce back without QA cycles.
+2. Any AC that references "既有 UX" / "既有機制" / "existing component" without a stable selector must carry a `blocked-on: architect-design` marker and be excluded from Early Consultation Round 1 (review only Architect-dependent AC in a subsequent Round 2). Codify in `pm.md` AC authoring template.
+3. Cross-document drift check: when AC text is edited in ticket, PM runs `diff <(grep AC-024-ENTRY-LAYOUT docs/tickets/K-024.md) <(grep AC-024-ENTRY-LAYOUT PRD.md)` — the middle-dot vs em-dash drift would have been caught automatically. Codify as `pm.md` DoD before marking AC revision complete.
+4. Visual-spec SSOT cross-check (role-by-role table) must be a standard artifact in every QA Early Consultation report for any UI ticket with a visual-spec.json — codify in `qa.md` Early Consultation section.
+
 ## 2026-04-21 — K-013 Round 2 Regression Pass
 
 **做得好：** Round 2 gate 全綠一次過（tsc 0 / vitest 45 / pytest 68 / playwright full 173+1 skipped / K-013 spec 4/4），未停在第一個 fail 就中止；K-013 spec 4 cases（full-set / subset / empty matches / <2 bars fallback）直接對應 AC-013-APPPAGE-E2E 的四態斷言，regression 範圍完整。Visual report 5 route 全部截圖成功，輸出至 `docs/reports/K-013-visual-report.html`。Ticket §Pencil 設計稿檢查明確將本票標為 zero-visual-change exemption，sign-off 未錯誤要求 Pencil frame cross-check。

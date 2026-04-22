@@ -382,7 +382,7 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - **AC-024-HOMEPAGE-CURATION** — Homepage 顯示最新 3 條。
 - **AC-024-DIARY-PAGE-CURATION** — Diary 頁初始 5 條 + 滾動/按鈕載入更多。
 - **AC-024-TIMELINE-STRUCTURE** — 無 accordion；左側 1px rail；磚紅矩形 marker。
-- **AC-024-ENTRY-LAYOUT** — Title Bodoni italic 18px bold / Date Geist Mono 12px / Text Newsreader italic 18px；`ticketId` 存在時 title 前綴 `K-XXX · `。
+- **AC-024-ENTRY-LAYOUT** — entry-title / entry-date / entry-body 字型規格依 visual-spec `wiDSi` 對應 role；`ticketId` 存在時 title 前綴 `K-XXX — <title>`（em-dash U+2014，兩側各一半形空格；不得使用 middle-dot 或 hyphen）。
 - **AC-024-PAGE-HERO** — `Dev Diary` Bodoni italic 64px + 分隔線 + Newsreader italic 副標。
 - **AC-024-CONTENT-WIDTH** — desktop maxWidth 1248px。
 - **AC-024-LOADING-ERROR-PRESERVED** — Loading / Error UX 沿用既有機制。
