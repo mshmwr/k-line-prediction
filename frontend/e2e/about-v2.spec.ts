@@ -394,3 +394,112 @@ test.describe('AC-031-LAYOUT-CONTINUITY — FooterCta immediately follows archit
     expect(nextSiblingId).toBe('footer-cta')
   })
 })
+
+// ── AC-029-ARCH-BODY-TEXT ─────────────────────────────────────────────────────
+// Given: user visits /about
+// When:  page scrolls to Project Architecture section (Nº 05)
+// Then:  3 ArchPillarBlock body + 3 pyramid <li> detail + 3 layer span = 9 assertions
+// DOM enumeration (design doc §13): arch-pillar-body × 3 (one per pillar),
+// arch-pillar-layer × 3 (Unit/Integration/E2E in Pillar 3's testingPyramid only;
+// Pillars 1 & 2 have no testingPyramid prop).
+
+test.describe('AC-029-ARCH-BODY-TEXT — ArchPillarBlock paper palette text', () => {
+  const PAPER_ALLOW = ['rgb(26, 24, 20)', 'rgb(42, 37, 32)', 'rgb(107, 95, 78)']
+  const DISALLOW_ARCH = ['rgb(209, 213, 219)', 'rgb(156, 163, 175)', 'rgb(107, 114, 128)']
+
+  test('body color on all 3 pillars is paper palette (allow-list, not gray-300/400/500)', async ({ page }) => {
+    await page.goto('/about')
+    const bodies = page.getByTestId('arch-pillar-body')
+    await expect(bodies).toHaveCount(3)
+    for (let i = 0; i < 3; i++) {
+      const color = await bodies.nth(i).evaluate(el => getComputedStyle(el).color)
+      expect(PAPER_ALLOW).toContain(color)
+      expect(DISALLOW_ARCH).not.toContain(color)
+    }
+  })
+
+  test('pyramid <li> detail is strict text-muted rgb(107, 95, 78) on all 3 layers', async ({ page }) => {
+    await page.goto('/about')
+    // pyramid layer span × 3 (Unit/Integration/E2E in Pillar 3 only); parent <li> is the detail row.
+    const layers = page.getByTestId('arch-pillar-layer')
+    await expect(layers).toHaveCount(3)
+    for (let i = 0; i < 3; i++) {
+      const liColor = await layers.nth(i).evaluate(el => {
+        const li = el.closest('li')
+        return li ? getComputedStyle(li).color : ''
+      })
+      expect(liColor).toBe('rgb(107, 95, 78)')
+    }
+  })
+
+  test('pyramid layer span is strict text-ink rgb(26, 24, 20) on all 3 layers', async ({ page }) => {
+    await page.goto('/about')
+    const layers = page.getByTestId('arch-pillar-layer')
+    await expect(layers).toHaveCount(3)
+    for (let i = 0; i < 3; i++) {
+      const color = await layers.nth(i).evaluate(el => getComputedStyle(el).color)
+      expect(color).toBe('rgb(26, 24, 20)')
+    }
+  })
+})
+
+// ── AC-029-TICKET-BODY-TEXT ───────────────────────────────────────────────────
+// Given: user visits /about
+// When:  page scrolls to Anatomy of a Ticket section (Nº 04)
+// Then:  3 body + 3 Outcome + 3 Learning + 3 badge = 12 assertions
+// DOM enumeration: ticket-anatomy-body × 3, ticket-anatomy-id-badge × 3
+// (one per TicketAnatomyCard, 3 cards rendered via .map).
+
+test.describe('AC-029-TICKET-BODY-TEXT — TicketAnatomyCard paper palette text', () => {
+  const PAPER_ALLOW = ['rgb(26, 24, 20)', 'rgb(42, 37, 32)', 'rgb(107, 95, 78)']
+  const DISALLOW_TICKET = ['rgb(156, 163, 175)', 'rgb(107, 114, 128)']
+  const DISALLOW_BADGE = 'rgb(196, 181, 253)' // purple-400
+
+  test('body color on all 3 TicketAnatomyCards is paper palette (allow-list, not gray-400/500)', async ({ page }) => {
+    await page.goto('/about')
+    const bodies = page.getByTestId('ticket-anatomy-body')
+    await expect(bodies).toHaveCount(3)
+    for (let i = 0; i < 3; i++) {
+      const color = await bodies.nth(i).evaluate(el => getComputedStyle(el).color)
+      expect(PAPER_ALLOW).toContain(color)
+      expect(DISALLOW_TICKET).not.toContain(color)
+    }
+  })
+
+  test('Outcome label on all 3 cards is paper palette and not gray-500', async ({ page }) => {
+    await page.goto('/about')
+    const bodies = page.getByTestId('ticket-anatomy-body')
+    await expect(bodies).toHaveCount(3)
+    for (let i = 0; i < 3; i++) {
+      const label = bodies.nth(i).locator('span', { hasText: 'Outcome' })
+      await expect(label).toHaveCount(1)
+      const color = await label.evaluate(el => getComputedStyle(el).color)
+      expect(PAPER_ALLOW).toContain(color)
+      expect(color).not.toBe('rgb(107, 114, 128)')
+    }
+  })
+
+  test('Learning label on all 3 cards is paper palette and not gray-500', async ({ page }) => {
+    await page.goto('/about')
+    const bodies = page.getByTestId('ticket-anatomy-body')
+    await expect(bodies).toHaveCount(3)
+    for (let i = 0; i < 3; i++) {
+      const label = bodies.nth(i).locator('span', { hasText: 'Learning' })
+      await expect(label).toHaveCount(1)
+      const color = await label.evaluate(el => getComputedStyle(el).color)
+      expect(PAPER_ALLOW).toContain(color)
+      expect(color).not.toBe('rgb(107, 114, 128)')
+    }
+  })
+
+  test('ticket ID badge on all 3 cards is strict text-charcoal rgb(42, 37, 32) and not purple-400', async ({ page }) => {
+    await page.goto('/about')
+    const badges = page.getByTestId('ticket-anatomy-id-badge')
+    await expect(badges).toHaveCount(3)
+    for (let i = 0; i < 3; i++) {
+      const color = await badges.nth(i).evaluate(el => getComputedStyle(el).color)
+      expect(color).toBe('rgb(42, 37, 32)')
+      expect(color).not.toBe(DISALLOW_BADGE)
+    }
+  })
+})

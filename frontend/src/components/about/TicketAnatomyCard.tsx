@@ -19,7 +19,7 @@ export default function TicketAnatomyCard({
   return (
     <CardShell padding="md">
       <div className="flex items-start justify-between gap-2 mb-3">
-        <span className="font-mono text-xs text-purple-400 font-bold">{id}</span>
+        <span data-testid="ticket-anatomy-id-badge" className="font-mono text-xs text-charcoal font-bold">{id}</span>
         {/* A-7: link — Newsreader italic + underline */}
         <ExternalLink
           href={githubHref}
@@ -30,13 +30,13 @@ export default function TicketAnatomyCard({
         </ExternalLink>
       </div>
       <h3 className="font-mono font-semibold text-ink text-sm mb-3">{title}</h3>
-      <div className="space-y-2 text-xs text-gray-400 leading-relaxed">
+      <div data-testid="ticket-anatomy-body" className="space-y-2 text-xs text-muted leading-relaxed">
         <p>
-          <span className="text-gray-500 uppercase tracking-wide font-mono">Outcome</span>{' '}
+          <span className="text-muted uppercase tracking-wide font-mono">Outcome</span>{' '}
           {outcome}
         </p>
         <p>
-          <span className="text-gray-500 uppercase tracking-wide font-mono">Learning</span>{' '}
+          <span className="text-muted uppercase tracking-wide font-mono">Learning</span>{' '}
           {learning}
         </p>
       </div>

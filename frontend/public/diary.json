@@ -1,5 +1,11 @@
 [
   {
+    "milestone": "K-029 — /about ArchPillarBlock and TicketAnatomyCard paper palette migration",
+    "items": [
+      { "date": "2026-04-22", "text": "Migrate /about ArchPillarBlock and TicketAnatomyCard dark-theme gray/purple text to paper palette tokens (text-ink / text-charcoal / text-muted); 7 class sites migrated, 4 data-testid attributes injected for stable selectors; 21 new Playwright color assertions added to about-v2.spec.ts; 197 passed / 1 skipped / 0 failed; tsc exit 0." }
+    ]
+  },
+  {
     "milestone": "K-031 — Remove Built by AI showcase section from /about",
     "items": [
       { "date": "2026-04-21", "text": "K-031 closed: removed the explanatory Built by AI showcase section (S7) from /about — deleted BuiltByAIShowcaseSection.tsx, removed import and SectionContainer block from AboutPage.tsx, renumbered FooterCtaSection comment from S8 to S7; homepage BuiltByAIBanner unaffected; 2 new AC-031 Playwright tests (section-absent + layout-continuity) added to about-v2.spec.ts; 171 passed / 1 skipped / 0 failed; tsc exit 0." }
