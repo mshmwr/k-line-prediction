@@ -16,6 +16,14 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-22 — K-024 Phase 1+2 Code Review R1 remediation
+
+**做得好：** BQ-ENG-K024-R1-03 (AC contradiction between C-2 recruiter-facing PM-README content and AC-024-LEGACY-MERGE's "exactly 1 key-absent" clause) was surfaced as a BQ to PM rather than self-resolved — PM returned Option B (amend AC), and I executed the amendment + test rewrite + new 6th test cleanly in one pass. Worktree state drift check (`git diff <base>` on both carried-over files) caught nothing wrong but established the invariant before any new edit. Full gate (tsc + vitest 81/81 + playwright 190/1-skipped) green on first run after cache clear.
+
+**沒做好：** The original AC-024-LEGACY-MERGE clause "exactly 1 key-absent" conflated two semantically distinct invariants: (a) the PM-locked Phase-0 legacy-merge entry is unique, and (b) no other key-absent entries exist. Schema-level `ticketId` is optional by design §3.1, so (b) was an over-specification that foreclosed PM-level non-ticket milestones (README roadmap, cross-ticket decisions). This wasn't caught at AC authoring time because the single existing legacy-merge entry happened to be the only key-absent entry in the seed corpus — reviewer C-2 surfaced it the moment a second key-absent entry (PM-README) became recruiter-relevant. Also: test finder logic had to switch from `e.ticketId === undefined` (post-parse, works for zero-or-one key-absent) to `e.title === LEGACY_TITLE` (robust to any number of key-absent entries) — finders coupled to the "uniqueness" proxy, not to the actual identity anchor.
+
+**下次改善：** When writing AC for schema-optional fields, distinguish "identity constraint on the specific pinned entry" (pin by literal / immutable anchor) from "cardinality constraint on the field as a whole" (how many entries in total may have this shape) — never collapse them into a single clause. For optional keys especially, identity anchors should be a field that cannot collide (title literal, date+title tuple, or a reserved ID), not "count of rows where the key is absent". Codified into ticket Retrospective as a PM-AC-authoring note; if pattern recurs, promote to `feedback_ac_authoring_schema_optional.md` memory.
+
 ## 2026-04-22 — K-024 Phase 1+2 (flat schema + zod + useDiary reshape)
 
 **做得好：** TDD sequence worked cleanly — the `useDiaryPagination` concurrency gate Vitest surfaced a React stale-closure bug in the `if (inFlight) return` gate before any E2E was ever written; switched to a `useRef` mirror (keeping the `inFlight` state for the `canLoadMore` derivation) to satisfy the "two rapid synchronous calls collapse to +5" design contract. The failing `AC-028-DIARY-EMPTY-BOUNDARY` Playwright test (mock using pre-flat nested milestone shape) was caught on the first E2E run and fixed surgically by updating only the mock fixture (Sacred assertion preserved: count=1 + 20x14 marker).

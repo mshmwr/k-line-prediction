@@ -6,6 +6,11 @@
     "text": "Removed the explanatory Built by AI showcase section (S7) from /about by deleting BuiltByAIShowcaseSection.tsx, dropping its import and SectionContainer block from AboutPage.tsx, and renumbering the Footer CTA comment from S8 to S7; the homepage BuiltByAIBanner was untouched, two new AC-031 Playwright tests covered section-absent and layout-continuity, 171 passed and tsc exited 0."
   },
   {
+    "title": "README Future Enhancements roadmap",
+    "date": "2026-04-21",
+    "text": "Grouped open tickets (K-018, K-013, K-012, K-028~031) into three recruiter-facing categories — Design System Completion, Analytics Integration, Architecture Refinement — to surface roadmap thinking alongside shipped features."
+  },
+  {
     "ticketId": "K-023",
     "title": "Homepage structure alignment v2",
     "date": "2026-04-21",
@@ -32,6 +37,6 @@
   {
     "title": "Early project phases and deployment setup",
     "date": "2026-04-16",
-    "text": "Foundational phases: stood up FastAPI + React monorepo with JWT-protected business-logic endpoint, BrowserRouter SPA with five routes, and four base pages with a shared component library (useAsyncState, LoadingSpinner, ErrorMessage). Shipped 1H/1D forecast UI with unified UTC+0 timestamps, MA99 Pearson trend filter, early MA99 pre-compute hook for snappier UX, and per-match trend labels. Deployed backend to Cloud Run (multi-stage Docker) and frontend to Firebase Hosting via VITE_API_BASE_URL. Codex Review follow-up closed K-009 (1H predict MA history bug), K-010 (Vitest testid regression), and K-011 (LoadingSpinner label prop)."
+    "text": "Foundational phases: stood up FastAPI + React monorepo with JWT-protected business-logic endpoint, BrowserRouter SPA with five routes, and four base pages with a shared component library (useAsyncState, LoadingSpinner, ErrorMessage). Shipped 1H/1D forecast UI with unified UTC+0 timestamps, MA99 Pearson trend filter, early MA99 pre-compute hook for snappier UX, and per-match trend labels. Deployed backend to Cloud Run (multi-stage Docker) and frontend to Firebase Hosting via VITE_API_BASE_URL. Codex Review follow-up closed K-009 (1H predict MA history bug), K-010 (Vitest testid regression), and K-011 (LoadingSpinner label prop). Later, a shared UnifiedNavBar unified headers across all five routes."
   }
 ]

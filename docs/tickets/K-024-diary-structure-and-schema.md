@@ -156,17 +156,21 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 
 ---
 
-### AC-024-LEGACY-MERGE：舊無 K-XXX 條目統整為一筆 `[K-024]`
+### AC-024-LEGACY-MERGE：Phase-0 legacy-merge 條目 pinned by title literal `[K-024]`
 
 **Given** 開發者讀取 `frontend/public/diary.json`
 **When** 掃描所有 entry
-**Then** `ticketId` **缺席**（key 不存在）的 entry **正好一筆**
-**And** 空字串 `ticketId: ""` 不合法（由 AC-024-SCHEMA `^K-\d{3}$` regex 強制；LEGACY-MERGE 條目以「key 缺席」表達，不以空字串表達）
-**And** 該筆的 `title` literal 文字為 `"Early project phases and deployment setup"`（涵蓋 Phase 1/2/3 + Deployment + Codex Review Follow-up）
+**Then** 存在「PM-locked 的 Phase-0 legacy-merge 條目」**正好一筆**（由 title literal 唯一識別）
+**And** 該 legacy-merge 條目的 `ticketId` key 缺席（key 不存在；不以空字串表達）
+**And** 該筆的 `title` literal 文字為 `"Early project phases and deployment setup"`（涵蓋 Phase 1/2/3 + Deployment + Codex Review Follow-up + UnifiedNavBar）
 **And** 該筆的 `text` 為該段時期摘要：**50-100 英文字 word count**（以空白切分後計數，`text.trim().split(/\s+/).length` 介於 50~100 含邊界）
 **And** 該筆的 `date` 為 `"2026-04-16"`（PM 裁決 2026-04-22：該段時期最後活動日；Phase 1-3 + Deployment + Codex Review Follow-up 活動至 2026-04-16 告一段落，K-017 始於 2026-04-19）
-**And** Vitest 斷言：`entries.filter(e => !('ticketId' in e)).length === 1` 且 `entries.filter(e => e.ticketId === '').length === 0`
-**And** Vitest 斷言（word count）：該筆 `text.trim().split(/\s+/).length` 介於 50~100 含邊界
+**And** 其他 `ticketId` key 缺席的 entry（非 legacy-merge）**允許存在**，用於表達 PM-level 非票務里程碑（如 README 路線圖更新、跨票決策宣告）；此類 entry 不受 legacy-merge 的 title/date/text 約束
+**And** 空字串 `ticketId: ""` **不合法**（由 AC-024-SCHEMA `^K-\d{3}$` regex 強制；`ticketId` 缺席只能以「key 不存在」表達，不以空字串表達）
+**And** Vitest 斷言（legacy 唯一性）：`entries.filter(e => e.title === 'Early project phases and deployment setup').length === 1`
+**And** Vitest 斷言（legacy 條目 `ticketId` key 缺席）：該 legacy 條目在 raw JSON 層 `!('ticketId' in e)` 為 true
+**And** Vitest 斷言（word count）：該 legacy 條目 `text.trim().split(/\s+/).length` 介於 50~100 含邊界
+**And** Vitest 斷言（空字串禁止）：`entries.filter(e => e.ticketId === '').length === 0`
 
 ---
 
@@ -519,3 +523,21 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 - (a) When translating historical content and a source item isn't enumerated in the design's explicit legacy-merge coverage list, BQ to PM before dropping. "Mechanical discretion" only applies to formatting/ordering, never to content presence/absence.
 - (b) Invocation-vs-Architect-design deltas on file placement must surface as a 1-line BQ with "Architect design §X says Phase Y; invocation adds to Phase Z; my read: <Architect wins/invocation wins + reason>". Do not silently resolve.
 - (c) React concurrency-gate patterns for synchronous double-call idempotency need a `useRef` mirror, not `useState` closure. Codify in `~/.claude/agents/engineer.md` §Implementation Standards § React / TypeScript as a reusable snippet (`inFlightRef.current + setInFlight(true)` pattern).
+
+### Code Review R1 Remediation (2026-04-22)
+
+Code Reviewer R1 findings resolved (4 flags + 1 BQ-ruled AC amendment):
+
+- **C-1 (diary.json legacy-merge K-005 coverage):** `frontend/public/diary.json` legacy entry `text` extended with `" Later, a shared UnifiedNavBar unified headers across all five routes."` — K-005 (UnifiedNavBar) now represented in the Phase-0 summary; word count 95/100 (within 50–100 bound); title/date unchanged. Also updated AC-024-LEGACY-MERGE header per design: "涵蓋 Phase 1/2/3 + Deployment + Codex Review Follow-up + UnifiedNavBar".
+- **C-2 (PM-README recruiter-facing content):** Inserted flat entry at `diary.json` array index 1 (post-K-031, pre-K-023) — `title: "README Future Enhancements roadmap"`, `date: "2026-04-21"`, no `ticketId` key (PM-level non-ticket milestone). Legitimizes the previously-dropped milestone under the amended AC.
+- **W-1 (useDiary.ts non-Error catch safety):** `.catch((err: Error) =>` widened to `.catch((err: unknown) =>` with `instanceof ZodError` first (generic `"Invalid diary data format"` message to avoid leaking validation internals), then `instanceof Error` (passes `err.message`), else `"Unknown error loading diary"`. Imported `ZodError` from `zod`.
+- **W-2 (useDiary.ts validation error generic message):** Addressed as part of W-1 — ZodError path maps to generic `"Invalid diary data format"`, no schema path / field name leaked to UI.
+- **AC-024-LEGACY-MERGE amendment (Option B, per PM ruling on BQ-ENG-K024-R1-03):** Amended AC to pin legacy entry by `title` literal (not by "exactly 1 key-absent"). Other `ticketId`-key-absent entries now explicitly permitted for PM-level non-ticket milestones. Schema still enforces `ticketId: ""` illegal via `^K-\d{3}$` regex. Test suite `diary.legacy-merge.test.ts` rewrote 5 finders (`e.ticketId === undefined` → `e.title === LEGACY_TITLE`) and added a 6th test asserting non-legacy key-absent entries are permitted. AC header updated L159: "Phase-0 legacy-merge 條目 pinned by title literal".
+
+**Deferred (per invocation):**
+- W-3 breadth (Phase 3 `timelinePrimitives` consumer wiring) — Phase 3 scope, not this PR.
+- W-4 breadth — Tech Debt log.
+- W-2 depth (zod 4.x namespace migration) — no-op accepted, zod 3.x API stable.
+- W-3 depth (Engineer persona authority for AC self-edit) — filed as separate BQ to PM (Engineer persona currently forbids AC edits without PM rule; remediation required explicit BQ + PM ruling, which worked correctly).
+
+**Gate results:** `tsc --noEmit` exit 0; `vitest run` 81/81 pass (legacy-merge = 6); `playwright test` 190 pass / 1 skipped / 0 fail.

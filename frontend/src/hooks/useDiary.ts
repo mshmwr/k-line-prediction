@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { ZodError } from 'zod'
 import { DiaryJsonSchema } from '../types/diary'
 import type { DiaryEntry } from '../types/diary'
 import { sortDiary } from '../utils/diarySort'
@@ -44,8 +45,14 @@ export function useDiary(limit?: number): DiaryState {
         setEntries(result)
         setLoading(false)
       })
-      .catch((err: Error) => {
-        setError(err.message)
+      .catch((err: unknown) => {
+        if (err instanceof ZodError) {
+          setError('Invalid diary data format')
+        } else if (err instanceof Error) {
+          setError(err.message)
+        } else {
+          setError('Unknown error loading diary')
+        }
         setLoading(false)
       })
   }, [limit])
