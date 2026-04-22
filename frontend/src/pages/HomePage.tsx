@@ -17,7 +17,7 @@ export default function HomePage() {
         <HeroSection />
         <ProjectLogicSection />
         <DevDiarySection
-          milestones={entries}
+          entries={entries}
           loading={loading}
           error={error}
         />

@@ -28,6 +28,30 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-024 /diary structure rework + diary.json flat schema 設計（all 4 Phases）
+
+**做得好：**
+- All-Phase coverage gate 硬守：設計一次涵蓋 Phase 1 (schema + zod + Vitest) / Phase 2 (useDiary reshape + useDiaryPagination hook) / Phase 3 (/diary v2 visual rework + DevDiarySection reshape) / Phase 4 (PM persona edit)，未留「之後再補 Phase 3」空白。§16 All-Phase Coverage Gate 表四列全 ✓，Engineer 接手有完整全圖而非只能看前兩 Phase。
+- Pre-Design Dry-Run Proof：§0.3 對 `useDiary(limit)` 畫完整 3×3 truth table（limit=undefined / 0 / N × 資料 0/N 筆/N+ 筆），並引 `git show main:frontend/src/hooks/useDiary.ts` 驗 OLD 分支行為；避免 K-013 C-1 同類 pre-existing 誤判。
+- Cross-Page Duplicate Audit 真做：§9 grep `rail|marker|timeline` 三 pattern，認出 DevDiarySection + DiaryEntryV2 + DiaryRail + DiaryMarker 四檔共 rail/marker 模式，抽 `timelinePrimitives.ts` 常數模組，明寫 RAIL / MARKER / ENTRY_TYPE 三 export，避免 homepage vs /diary 間 drift。
+- BQ 守本分：`homepage-diary-entry` literal vs K-028 Sacred `diary-entry-wrapper` 衝突寫成 BQ-024-01 三選項 + Architect 建議 (a) rename-with-Sacred-update，明示「Phase 2 啟動前 blocked 等 PM 裁決」，不自行決定，不 Edit ticket AC。
+- AC ↔ Test Case count Cross-Check：§7.3 mapping 表 8 row + 33 test 總數 + 宣告「Playwright new test total: 33」三數字一致，Engineer 交付時 `wc -l test(` = 33 可直接驗證。
+- 1-entry rail boundary 捕捉：§4.3.1 認出 entries.length=1 時 rail `top:40 / bottom:40` 會 collapse（48px min-height 下），明定 `entries.length >= 2 && <DiaryRail />` 條件渲染，避免 orphan rail line。
+
+**沒做好（根因 + 為何 design 階段差點沒抓到）：**
+- §6.4 data-testid conflict 初稿誤推薦 (C) dual data-testid attribute，第二 pass 才意識到 HTML spec 禁止 duplicate attribute names。根因：AC literal 與 Sacred spec 衝突時，反射性想到「兩者並存」但沒先查 HTML 規格。Same-file cross-attribute check 應該是 §data-testid 段第一步。BQ-024-01 因此改寫兩次。
+- Pencil MCP 在本票仍不穩，但不是 K-024 第一次用：本票已知 `.pen` = JSON 可 fallback，仍花時間確認 MCP 狀態。K-028 retrospective 已提過這點。應該早一步直接 JSON parse。
+- 設計文件 24 + 8 + 3 = 35 檔異動規模偏大，一張票內含 4 Phase。雖 All-Phase Coverage Gate 要求全涵蓋，但 Phase 3 的 24 檔異動 + 2 spec + 8 fixtures + 刪除 3 檔，Engineer 實作 + Reviewer 審查壓力集中。Phase 1+2 / Phase 3 分 PR 是 §13 的緩解，但票本身應該當初 PM 拆更細（Phase 3 可能獨立一張票 K-024-B）。這是 PM 責任，但 Architect 在設計時可以主動 flag「建議拆票」而非只分 PR。
+
+**下次改善：**
+1. **HTML spec sanity check for testid conflicts (first pass, not second pass)**：任何 `data-testid` AC literal 與既有 Sacred 值衝突 → 先驗 HTML 規格是否允許 duplicate attribute（禁止）→ 直接跳過 dual-attribute 選項。此行為規則應加進 `~/.claude/agents/senior-architect.md` 作為 §Testid Conflict Resolution 子規則；若 K-025 同類重現再 codify，否則暫留 retrospective。
+2. **Pencil MCP fallback 成為反射動作**：本 retrospective 本身不再提 MCP 狀態，直接 `.pen` JSON parse。此行為已於 K-028 retro 提過，仍違反 → 本條 codify 到 persona：Pencil MCP 連線失敗或 `batch_get` error → 立即 Python traversal JSON，不等使用者提醒。
+3. **設計文件規模 > 1000 lines 或 4+ Phase → Architect 主動回報 PM 建議拆票**：不只分 PR，設計文件本身若超出臨界（行數 / Phase 數 / 檔案異動數）即為 ticket 過大訊號，應於 §0 Scope Questions 加一條「建議拆為 K-XXX-A + K-XXX-B」，讓 PM 在 Phase Gate 前決定。本條行為規則 candidate，K-025 觀察一輪再決定是否 codify persona。
+
+**BQ-024-01 resolution:** PM ruled Option (b) 2026-04-22 — K-024 AC literal `homepage-diary-entry` renamed to `diary-entry-wrapper` (reuse K-028 Sacred). PM rationale: K-028 closed + deployed + live CDN bundle grep-verified contains `diary-entry-wrapper` → Sacred immutability is absolute; AC literal edit is PM-owned (`feedback_ticket_ac_pm_only`) and cheapest. Architect's initial (a) rename-Sacred recommendation was wrong primary — should have ordered (b) → (c) → (a) with (a) flagged "requires Sacred-break PM override". Lesson codified in `docs/designs/K-024-diary-structure.md` §20 "Next time improvement" item 1 (deployed Sacred + conflicting AC literal → primary rec is AC literal edit). Will promote to `~/.claude/agents/senior-architect.md` if pattern recurs in K-025+.
+
+---
+
 ## 2026-04-22 — K-025 UnifiedNavBar hex→token + dual-rail spec upgrade
 
 **做得好：** Pure-refactor 落實「behavior equivalent at rendered-color level, NOT at CSS-selector level」分層敘述（對齊 QA Early Consultation Q1 修正）：§5 Behavior-diff Statement 三個 bullet 分別處理 rendered-color / selector-name / props-logic 三層，避免 K-021 Q2 裁決當時錯誤敘述「compiled CSS 相同」重演。§7 Step 2 / Step 5 設計為 `npm run build` 前後 dist CSS declaration count diff gate，讓 QA Q1 的 dist grep 等價性從 AC 文字落地到 pipeline 可執行驗證（而非仰賴 Engineer 心算）。§3 AC ↔ Test Case Count cross-check 列明 5 AC `And` ≤ 5 新/改 tests，避免「AC 3 條 inactive 斷言 = 3 獨立 test」膨脹問題（retrospective 段有詳述這個一度想歪的地方）。

@@ -1,0 +1,14 @@
+[
+  {
+    "ticketId": "K-100",
+    "title": "Older of two (array index 0)",
+    "date": "2026-04-20",
+    "text": "First in array order; tie-break rule says array-index larger = newer, so this should render BELOW the K-101 entry."
+  },
+  {
+    "ticketId": "K-101",
+    "title": "Newer of two (array index 1)",
+    "date": "2026-04-20",
+    "text": "Second in array order, same date — tie-break says this renders ABOVE K-100 on Homepage and /diary."
+  }
+]

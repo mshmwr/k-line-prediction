@@ -1,0 +1,8 @@
+[
+  {
+    "ticketId": "K-001",
+    "title": "Fixture single entry",
+    "date": "2026-04-20",
+    "text": "Single entry fixture used by 1-entry boundary tests on Homepage and /diary."
+  }
+]
