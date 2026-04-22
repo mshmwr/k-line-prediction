@@ -2,6 +2,40 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-22 — K-029 Architect design doc PM review + Engineer release
+
+**What went well:** Checklist A–F 逐列核對設計文件：§3 Route Impact Table 覆蓋 5 路由、§6 11-row 實作表（7 class + 4 testid）、§7 21 assertion（9 + 12）含 allow/disallow RGB 明列、§8 API Invariance 明述 props unchanged、§9 Pencil parity「no update needed」明示；§13 DOM 計數 Boundary Pre-emption 抓到 `arch-pillar-layer` 實為 3 而非 9（Pillar 3 內三層），防 Engineer toHaveCount 誤寫。AC trace 兩條皆可定位到具體 §7 斷言行。
+
+**What went wrong:** 無實質 block — Architect 設計文件齊全，AC 雙向可追溯。唯一瑕疵：架構 changelog 末「`ticket-anatomy-id-badge"`」有未閉合引號（L605），純排版非結構性錯誤，不礙放行。
+
+**Next time improvement:** PM 覆核 checklist A–F 本次全數 pass，流程順暢；維持「設計文件 §15 AC↔assertion cross-check 表」作為必備 section — 本次此表直接讓 PM bijective 驗證不需繞彎。
+
+---
+
+## 2026-04-22 — K-029 Second-Pass AC Patch (post qa subagent verified)
+
+**What went well:** Main session post-PM-release spawned real qa subagent to re-verify the PM-simulated Early Consultation; findings fed back as an additive patch (not a re-release). PM subagent executed the patch cleanly on ticket + qa.md with dual-entry audit trail (simulated + verified both preserved).
+
+**What went wrong:** PM simulation of QA produced blind spots on self-authored AC — 3 of 7 challenges needed correction (C3 KG → Architect mandate; C6 pyramid `<li>` → pin text-muted; AC "至少一個" → "三個皆"). Root cause: PM reviewing PM-drafted AC has structural agreement bias; "simulated QA" is not adversarial when the same role plays both sides. Capability-gap fallback worked for disclosure but not for catching substantive AC weaknesses.
+
+**Next time improvement:** When main session has Agent tool, run real qa subagent Early Consultation BEFORE handing off to PM subagent — feed findings into PM handoff prompt, don't rely on PM simulation as primary path. Simulation is pure fallback only when main session itself lacks Agent tool. Codified at main-session level (main session orchestrates qa → PM); not a pm.md persona gate since PM subagent cannot enforce its own caller's pre-flight.
+
+---
+
+## 2026-04-22 — K-029 Phase Gate（QA Early Consultation + Architect Pre-check BQ 裁決）
+
+**What went well:** 本 PM 被 main session handoff 時 prompt 明確告知 `qa-early-consultation: N/A` 違規、BLOCK 狀態，與需執行的 6 步 mandated sequence。依序完成：(1) 全讀 ticket + 三份 CLAUDE.md + architecture.md Design System tokens（L442-L477 原文）+ PillarCard / ArchPillarBlock / TicketAnatomyCard / RoleCard / MetricCard 源碼 + qa.md 最近 10 筆 retro；(2) grep scope 完整性（只 2 檔 / 7 sites 命中，無擴大 scope 必要）；(3) 三項 Architect Pre-check BQ 全部 PM 依 architecture.md L448-L453 Token 語義表 + WCAG AA 對比實算（text-muted 4.84:1 / text-charcoal 11.9:1 / text-ink 13.5:1）直接裁決（遵 feedback_pm_self_decide_bq，不 escalate user）；(4) QA Challenges 處置明確：AC 措辭升 RGB allow/disallow-list（C1 supplement）、badge 色 PM 裁 charcoal（C2）、selector 穩定性降 KG-029-01 Known Gap（C3）；(5) QA 模擬結果寫入 qa.md（明示揭露 simulated，qa subagent sign-off 覆驗）；(6) ticket frontmatter + QA 段 + AC 段 + Architect Pre-check 段 + Release Status 同步 Edit；(7) PM retro 本條 append。
+
+**What went wrong:** PM 子 agent session 無 Agent tool，無法真的 spawn qa subagent；被迫用 simulated QA consultation + 明示揭露（persona §PM session capability pre-flight 允許的 mitigation pattern）。這是 K-030 session 同款 capability gap 第 2 次復現（memory `feedback_pm_session_capability_pre-flight`）；雖每次都透明揭露、qa sign-off 時會覆驗，但「PM subagent 沒有 Agent tool」是結構性 session 權限問題，不是單票手段能解。另外 simulated QA 過程中的 WCAG 對比值是 PM 自行推算（工具無 contrast calc API），若數字有誤 qa subagent 覆驗時會糾正 — 非高風險（allow-list 三個 token 皆 architecture.md 官定 paper palette，本身已經過 K-021 AA 驗證）。
+
+**Next time improvement:**
+1. **PM subagent 被 handoff 時，main session 須明示 subagent 可用 tool 清單**：未來 user / main session 呼叫 PM subagent 時，prompt 須列 subagent 可用 tool（Agent? MCP? Bash?）。若 Agent 缺席即屬已知限制，subagent 依 persona §PM session capability pre-flight 直接揭露+ simulate，不再反覆自我檢討。此屬 main session 職責，不補入 pm.md。
+2. **AC RGB allow-list 寫法標準化**：K-029 的 AC 改寫從「可讀深色 / 或更深」改為「computed color ∈ {rgb list}」是有效的 testability 升級。同型 AC（color / font-size / tracking / computed style）未來一律用 allow-list（enumerable） + disallow-list（enumerable），不用比較詞（「更深」「更大」「更亮」）。補入 pm.md §Phase Gate Checklist「AC CSS wording check」擴充：除現有「用視覺意圖不用 property value」之外，新增「color/size/spacing 類 AC 用 enum allow-list，不用 ordinal 比較詞」子條款。
+3. **Badge 語義色裁決範式**：K-029 C-badge 裁決依「token 語義（architecture.md 定義）→ 對比合格性 → 與 sibling 元素階層避撞」三層逐項 weigh，而非直接抄 PillarCard。此三層思路可套用到未來任何 dark→paper palette 遷移的 accent color 決策。非 persona hard rule，列為 PM heuristic 備忘。
+4. **Next：** K-029 放行 Architect；Architect 設計文件需涵蓋 Route Impact Table（/about only affected）、Engineer checklist、Playwright selector 策略（testid or 結構 anchor）。Architect 完成後 PM 覆核再放行 Engineer。
+
+---
+
 ## 2026-04-21 — K-013 close + merge + deploy（Bug Found Protocol Round 1+2 full lifecycle）
 
 **What went well:** K-013 整票跨 Architect 設計 → Engineer Round 1 → Reviewer Round 1 Critical C-1 → **full Bug Found Protocol（3 roles × 3 pieces: retro + memory + persona）** → PM Quality Check → Engineer Round 2 fix pack → Reviewer Round 2 Critical F-1（design doc stale premise）→ PM docs-only remediation → QA Round 2 regression PASS → close + merge + deploy，全在單日內收斂。Bug Found Protocol 執行度最嚴格的一次：C-1（Engineer behavior drift）+ W-1（Architect pre-design audit no dry-run）+ R1（Reviewer single-face assertion accept）三個 role 皆獨立反省、各寫 memory feedback file + 編輯對應 persona 硬 gate，無一偷懶。Pre-deploy gate 跑在 merge 後 tree（commit `722df0c`）全綠：tsc 0 / Vitest 45 / pytest 68 / Playwright **190/191**（1 pre-existing skip，含 K-013 spec 4/4 positive+negative 雙斷言）。Live verify 用 `curl -sI` 拿 HTTP/2 200 + etag，不是僅目測。Deploy Record 欄位全部寫實際值（build size、release complete 時間、live HTTP status），無 `<TBD>` 殘留。

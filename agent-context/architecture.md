@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-21 (K-013 + K-028 + K-030 + K-031 close)
+updated: 2026-04-22 (K-029 Architect design)
 ---
 
 ## Summary
@@ -602,6 +602,7 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-22**（Architect, K-029 設計）— `/about` leaf 組件 paper palette 遷移完成設計：`components/about/ArchPillarBlock.tsx`（3 處：body `text-gray-300`→`text-muted` / pyramid li `text-gray-400`→`text-muted` / layer span `text-gray-300`→`text-ink`，加 `data-testid="arch-pillar-body"` + `arch-pillar-layer`）、`components/about/TicketAnatomyCard.tsx`（4 處：badge `text-purple-400`→`text-charcoal` / body wrapper `text-gray-400`→`text-muted` / Outcome + Learning label `text-gray-500`→`text-muted`，加 `data-testid="ticket-anatomy-body"` + `ticket-anatomy-id-badge"`）。K-022 A-12 遺漏補齊；/about 所有 card 文字全面對齊 paper palette。`frontend/e2e/about-v2.spec.ts` 新增 AC-029-ARCH-BODY-TEXT（9 assertions）+ AC-029-TICKET-BODY-TEXT（12 assertions）共 21 new computed `color` 斷言；沿用 L174-L198 canonical color-assertion pattern。無後端 / API / 路由 / props interface 變更。設計文件：[K-029-about-card-body-text-palette.md](../docs/designs/K-029-about-card-body-text-palette.md)。未改 code（Architect 僅設計），Engineer 交付後補檔案異動項。
 - **2026-04-21**（PM, K-013 close + merge + deploy）— K-013 Consensus / Stats SSOT（TD-008 Option C）closed after R2 bug-found remediation. Merge commit to main + Firebase Hosting deploy + PRD §3→§4 migration + PM-dashboard deregister + Deploy Record block appended. Final gate: tsc 0 / vitest 45/45 / pytest 68/68 / playwright 173+1 skipped / K-013 spec 4/4.
 - **2026-04-21**（PM, K-013 Round 2 Code Review 裁決）— SQ-013-01 premise retracted：Round 2 Fix 1 `853a8aa` 於 `AppPage.tsx` 恢復 OLD base `b0212bb` L224-226 無條件 `consensusForecast1h/1d` 注入，證偽原設計文件「全集下無 consensus 圖 pre-existing」假設；`docs/designs/K-013-consensus-stats-ssot.md` §0.3 / §2.3 / §8.1 / §9.3 更新 + `agent-context/architecture.md` `Consensus Stats Source of Truth` 段 Known Gap 改為 wire-level vs observable 分層敘述。wire-level `consensus_forecast_*` 仍回 `[]`（AppPage 層注入 observable），不視為 architecture debt。K-013 AC-013-APPPAGE 文字同步更正為「呼叫 util 取 projectedFutureBars + 無條件注入 consensusForecast1h/1d」；AC-013-APPPAGE-E2E 於 ticket §驗收條件正式補列。TD-K013-R2-01（Vitest 1-bar fixtures dev-mode warn noise）+ TD-K013-R2-02（Reviewer persona Gate 4 dry-run / Post-Fix Doc Consistency）登記追蹤。no code change（docs-only）。
 - **2026-04-21**（Engineer, K-013 實作）— TD-008 Option C 落地完成：`frontend/src/utils/statsComputation.ts` 新檔（純 util `computeStatsFromMatches` + snake→camel whitelist helpers）；`frontend/src/AppPage.tsx` 刪除 inline `computeDisplayStats` + `buildProjectedSuggestion`，`projectedFutureBars` + `displayStats` 合併進單一 `workspace` useMemo（full-set 走 backend baseline，subset 呼叫 util 並合併 `consensusForecast1h/1d`）；`backend/tests/fixtures/` 新目錄（generator + 3-case JSON，case 重設 current_close=2000 同 base 以避開 .005 rounding 邊界）；`backend/tests/test_predictor.py` +5 contract tests（`math.isclose(rel_tol=1e-6, abs_tol=1e-6)`）；`frontend/src/__tests__/statsComputation.test.ts` 9 tests；`backend/predictor.py::compute_stats` + `_projected_future_bars` 補 docstring 明示 full-set baseline + fixture 鎖 parity。Gate：tsc exit 0 / pytest 68 passed / vitest 45 passed / playwright 174 passed。`git diff main -- backend/models.py` 空 diff — AC-013-API-COMPAT 驗證通過。

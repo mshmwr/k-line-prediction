@@ -18,6 +18,14 @@
 
 ---
 
+## 2026-04-22 — K-029 /about card body text paper palette migration
+
+**做得好：** Pre-Design Audit 以 `git show main:<file>` 覆驗 ArchPillarBlock + TicketAnatomyCard 與 worktree 完全一致，確認 7 個 site 無遺漏；§13 Boundary Pre-emption 自查時抓到 `testingPyramid` 為 optional props，`arch-pillar-layer` 實際 DOM 數為 3（Pillar 3 內 Unit/Integration/E2E 三層），不是 9（三 Pillar × 三層）也不是 1，於設計文件明示避免 Engineer 誤寫 `toHaveCount`。
+**沒做好：** 初稿 §6.2 僅列 `data-testid` injection 4 項，未在同表同時交代 Outcome / Learning label 選擇路徑（從 `ticket-anatomy-body` 往下 `locator('span', { hasText })`），檢查 §15 AC↔Test Case 前還沒補；AC 說 3 Outcome + 3 Learning 各獨立斷言，若未指定 selector Engineer 可能自訂 testid 違反 Architect mandate。交付前補 §6.2 Note 段落才完整。
+**下次改善：** 未來 mandate testid 設計時，對同 AC 下所有需被斷言的元素（含 testid + 非 testid 選擇的 sub-element）一次列完選擇路徑，不要分兩階段寫。新增 "Assertion selector matrix: target-element × selector-path × toHaveCount" 為 §6 必備 sub-table。
+
+---
+
 <!-- 新條目從此處往上 append -->
 
 ## 2026-04-21 — K-030 post-code-review doc alignment（I-2 fix-now）
