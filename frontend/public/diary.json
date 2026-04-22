@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-036",
+    "title": "Favicon design and rasterization",
+    "date": "2026-04-22",
+    "text": "Designed K-036 favicon as a 4-candle chart (green spine + ascending green/red/green triplet with rounded corners) overlaid with two smooth moving-average curves (purple slow and amber fast) crossing in a golden-cross pattern on a transparent 512x512 canvas; rasterized to seven common formats (favicon.ico multi-size 16/32/48 bundle, favicon-16x16/32x32/48x48.png, apple-touch-icon.png 180x180, android-chrome-192x192.png, android-chrome-512x512.png) in frontend/public/; <link rel=icon> wiring into index.html deferred to a follow-up ticket to keep this ticket scope focused on design plus asset generation."
+  },
+  {
     "ticketId": "K-025",
     "title": "UnifiedNavBar hex-to-token refactor with navbar.spec dual-rail upgrade",
     "date": "2026-04-22",
