@@ -1,10 +1,11 @@
 ---
 id: K-029
 title: /about Architecture + Ticket Anatomy cards — dark-theme gray text 遷移至 paper palette
-status: open
+status: closed
 type: fix
 priority: high
 created: 2026-04-21
+closed: 2026-04-22
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-22 K-029
 ---
 
@@ -173,6 +174,38 @@ qa subagent re-ran adversarial review. Upgrades to previous simulated consultati
 
 ---
 
+## Deploy Record
+
+- **Deploy date:** 2026-04-22 (scheduled, pending user authorization for merge + firebase deploy)
+- **Merge SHA:** `<TBD>`
+- **Live URL:** https://k-line-prediction.web.app (Firebase Hosting)
+- **Build size:** `<TBD>`
+- **Bundle hash:** `<TBD>`
+- **Verification probe:** `<TBD — planned: curl https://k-line-prediction.web.app/assets/index-<hash>.js | grep arch-pillar-body → ≥1 match (K-029-specific testid added this ticket)>`
+- **Deploy executor:** main session post-user-authorization
+- **Status:** Pending
+
+---
+
 ## Retrospective
 
-（各角色完成後補上；PM 於 QA PASS 後彙整）
+### What went well
+- **[PM]**: Architect 設計文件覆核 checklist A–F 全列 pass（§3 Route Impact Table 覆蓋 5 路由 / §6 11-row 實作表 / §7 21 獨立斷言拆分 allow + disallow RGB / §8 API Invariance / §9 Pencil parity / §13 DOM 計數 Boundary Pre-emption 抓到 `arch-pillar-layer=3` 而非 9）；AC↔assertion bijective cross-check 直接可追。
+- **[Architect]**: Pre-Design Audit 以 `git show main:<file>` 逐檔確認 7 sites 無遺漏；§13 自查抓到 `testingPyramid` optional 導致 `arch-pillar-layer` 實際 count = 3（Pillar 3 內三層）而非想當然的 9，避免 Engineer toHaveCount 誤寫。
+- **[Engineer]**: 11-row checklist 一次跑到底（7 class + 4 testid），無 BQ 回報（Architect 已於 §0 全部預裁）；E2E spec logic self-check 抓出 `arch-pillar-layer` 斷言形狀議題（最初想 per-pillar toHaveCount(3) 會在 Pillar 1/2 resolved to 0），回讀 §13 後改為 flat `toHaveCount(3)` 一把到位；197 passed / 1 skipped / 0 failed first-run green。
+- **[QA]**: Independent full-suite re-run（197 pass / 1 skip / 0 fail）match Engineer report；pre-run 掃出並清理 stale `K-UNKNOWN-visual-report.html`（承襲 K-028 memory）；4 個 K-029 testids 逐項覆驗 present + exclusive；KG-029-01 closed cleanly；qa subagent 覆驗 PM-simulated Early Consultation，3 of 7 challenges 糾正（C3 upgrade to Architect mandate / C6 pyramid `<li>` pin text-muted / AC「至少一個」→「三個皆」）。
+
+### What went wrong
+- **[PM]**: PM subagent session 無 Agent tool，forced simulated QA Early Consultation；雖依 persona §PM session capability pre-flight 明示揭露，但 PM self-review PM-authored AC 有結構性 agreement bias — 7 challenges 中 3 項需 real qa subagent 覆驗時才糾正。Capability gap 為 K-030 同款問題第 2 次復現。
+- **[Architect]**: 初稿 §6.2 只列 4 個 testid injection，未在同表同時交代 Outcome / Learning label sub-element 選擇路徑（從 `ticket-anatomy-body` 往下 `locator('span', { hasText })`）；§15 AC↔Test Case 檢查前才補 §6.2 Note 段完整交代 — 若未發現 Engineer 可能自訂 testid 違反 Architect mandate。
+- **[Engineer]**: 無實質失誤 — scope 窄、設計文件明確、QA Early Consultation 已把 C6 hierarchy inversion trap 預先壓平。
+- **[QA]**: Pencil MCP tool 未授予 QA persona tool surface → 被迫以 source-grep fallback 驗證 Pencil parity，而非直接 `.pen` visual diff。parity confidence 降為「source palette match spec」間接 proxy，而非「design canvas match render」直接驗證。
+
+### Next time improvements
+- **[PM]**: (a) PM subagent handoff 時 main session prompt 須明示 subagent 可用 tool 清單（Agent / MCP / Bash）；若 Agent 缺席，依 persona §PM session capability pre-flight 直接揭露 + simulate，不再反覆自我檢討；(b) AC color/size/spacing 類斷言一律用 **enum allow-list + enum disallow-list**，不用 ordinal 比較詞（「更深」「更大」），已補入 `~/.claude/agents/pm.md` §Phase Gate Checklist「AC CSS wording check」擴充；(c) Badge 語義色裁決採「token 語義（architecture.md）→ 對比合格性 → sibling 元素階層避撞」三層 weigh 範式，列為 PM heuristic 備忘。
+- **[Architect]**: Mandate testid 設計時，對同 AC 下所有需被斷言的元素（含 testid + 非 testid 選擇的 sub-element）一次列完選擇路徑，不分兩階段寫；新增 "Assertion selector matrix: target-element × selector-path × toHaveCount" 為 §6 必備 sub-table，已補入 senior-architect.md。
+- **[Engineer]**: 設計文件 §6 明列數字的 N-row checklist 交付回 PM 時，印出 row-by-row DONE 表（本票 11 row），使 PM Phase Gate 一眼可 audit，不需再 cross-reference 設計文件。
+- **[QA]**: qa.md §0b 擴充：「if Pencil MCP tool 未授予 QA persona，BLOCK sign-off + request tool-grant from PM 前不進行」；目前 §0b 只處理 MCP-server-down，未處理 MCP-tool-not-granted 情境。
+
+### Cross-role insight
+K-029 是 K-Line 首張以「PM-simulated QA Early Consultation + real qa subagent 覆驗」雙階段執行的 ticket，捕捉到 **PM 自審自寫 AC 的結構性 agreement bias 會漏掉「至少一個」vs「三個皆」、selector 策略歸屬（Engineer 裁量 vs Architect mandate）、兄弟元素 hierarchy inversion 風險**三類 pattern。直接教訓：PM subagent 在沒有 Agent tool 時的 QA simulation 只能作為透明揭露 fallback，不能當 primary path；當 main session 有 Agent tool 時，應先召真實 qa subagent，把 consultation findings feed 進 PM handoff prompt，再交 PM subagent 執行 Phase Gate。這個 loop 已在 K-029 實證有效（3 項糾正全在 Engineer 動手前落地，無 rework），未來 UI 視覺類 ticket 一律遵循此次序。

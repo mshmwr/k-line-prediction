@@ -41,6 +41,7 @@
 | TD-K030-02 | `UnifiedNavBar` `renderLink` 本地 type alias 結構為 `typeof TEXT_LINKS[number]` 子集，應改用 `typeof` 派生型別避免 drift | K-030 Code Review M-3 | 低 | 2026-04-21 |
 | TD-K030-03 | `visual-report.ts` 未帶 `TICKET_ID` env var 時應 throw 而非 fallback `K-UNKNOWN`，避免 full Playwright suite 靜默汙染 `docs/reports/` | K-030 QA retro | 中 | 2026-04-21 |
 | TD-K030-04 | `frontend/public/diary.json` K-021/K-022/K-023 遺留繁中條目違反 `feedback_diary_json_english` 英文硬規則 | K-030 QA retro | 中 | 2026-04-21 |
+| TD-K029-01 | `about-v2.spec.ts` L474 / L487 Outcome / Learning label Playwright selector 使用 `locator('span', { hasText: 'Outcome' })` / `hasText: 'Learning'`；label copy 當下鎖定安全，但未來 data 彈性可能造成 sibling `<p>` 誤命中 | K-029 Reviewer Step 2 W-1 + QA sign-off | 低 | 2026-04-22 |
 
 ---
 
@@ -537,6 +538,29 @@ K-030 Engineer 交付後 Vitest 36 tests pass，但都只驗 render（`@testing-
 **建議解法：** 逐條英譯 K-021/022/023 milestone items，保留技術名詞原樣（`UnifiedNavBar`、`HomeFooterBar` 等）；翻譯後跑 `DiaryPage.spec.ts` 確認 E2E 無破壞。
 
 **排期觸發條件：** 下次 diary 類 ticket（K-024 /diary 結構重做或其他 diary.json 更新）啟動時一併清理；或獨立開小票處理。
+
+---
+
+## TD-K029-01 — about-v2.spec.ts Outcome / Learning label selector 未來 data 彈性風險
+
+**來源：** K-029 Reviewer Step 2 W-1 + QA sign-off（2026-04-22，兩方皆獨立標記為 TD 候選）
+
+`frontend/e2e/about-v2.spec.ts` L474 + L487 對 TicketAnatomyCard Outcome / Learning label span 使用 `locator('span', { hasText: 'Outcome' })` / `locator('span', { hasText: 'Learning' })` 作 selector。K-029 實作時 TicketAnatomyCard 的 Outcome / Learning label 文字**硬編在組件源碼**（非 data-driven），且 sibling `<p>` 元素內文為 `outcome` / `learning` 描述性句子，當下無 `hasText` 誤命中風險，21 個斷言全綠。
+
+**風險：** 低 — 需同時滿足三條件才破：(a) schema 改為 data-driven label；(b) 新 label 文字含 `Outcome` / `Learning` 字串（case-sensitive 完整包含）；(c) sibling `<p>` 文本同時出現該字串。當前 TicketAnatomyCard 的 label 是 component-level literal，改動要求 Architect-level scope（超出純視覺 ticket）。
+
+**PM 裁決（2026-04-22）：** 登記低優先技術債，本票 close 不修。理由：
+- Reviewer Step 1 (breadth) 0 Critical / 0 Important；Step 2 (depth) 0 Critical / 0 Warning；W-1 屬 Info 類 future-proofing 建議，非 active bug
+- QA sign-off PASS，full suite 197 pass / 1 skip / 0 fail
+- 修法明確（加 `data-testid="ticket-anatomy-outcome-label"` + `data-testid="ticket-anatomy-learning-label"` 兩 testid + spec getByTestId 替換），成本約 10 分鐘
+- 當前 label 為 component literal，未來任何 schema 動態化改動必落在 TicketAnatomyCard 本身的 ticket（觸發條件明確、不會靜默漂移）
+
+**建議解法：**
+1. `frontend/src/components/about/TicketAnatomyCard.tsx` 既有的兩個 label span 加 `data-testid="ticket-anatomy-outcome-label"` / `data-testid="ticket-anatomy-learning-label"`
+2. `frontend/e2e/about-v2.spec.ts` L474 / L487 把 `locator('span', { hasText: 'Outcome' })` 改為 `getByTestId('ticket-anatomy-outcome-label')`（Learning 同）
+3. 執行完整 Playwright suite 確認 21 斷言仍全綠
+
+**排期觸發條件：** (a) 下一張觸及 `TicketAnatomyCard.tsx` 的 ticket；(b) 或任一將 TicketAnatomyCard Outcome / Learning 改為 data-driven schema 的 ticket（發生前必先修本 TD）。
 
 ---
 

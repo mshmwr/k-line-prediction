@@ -20,6 +20,14 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-029 Regression Sign-off
+
+**What went well:** Independent full-suite re-run (197 pass / 1 skip / 0 fail) matched Engineer's report; stale K-UNKNOWN-visual-report.html caught + deleted pre-run per K-028 memory; all 4 K-029 testids (arch-pillar-body / arch-pillar-layer / ticket-anatomy-body / ticket-anatomy-id-badge) verified present + exclusive (zero class-selector fallback for tested components); KG-029-01 closed cleanly.
+
+**What went wrong:** Pencil MCP tool surface not granted to QA agent — forced source-grep fallback for parity verification instead of direct .pen visual diff. Reduces parity confidence to "source palette matches spec" (indirect proxy) rather than "design canvas matches render" (direct).
+
+**Next time improvement:** PM/main-session grant mcp__pencil__batch_get + mcp__pencil__get_screenshot to QA persona tool surface before sign-off rounds on UI tickets, so §0b Pencil parity is first-class, not fallback. Codify in qa.md §0b: "if pencil MCP missing from tool grant, BLOCK sign-off and request tool-grant from PM before proceeding" (currently §0b only handles MCP-server-down, not MCP-tool-not-granted case).
+
 ## 2026-04-22 — K-029 Early Consultation (verified by qa subagent)
 
 **What went well:** Main session called real qa subagent to re-verify PM-simulated consultation, closing the capability-gap workaround from earlier this session. Findings differed from simulated on 2 of 7 challenges + 1 AC testability issue PM had accepted, confirming value of running the real agent.

@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-22 — K-029 Close Phase Docs (pre-deploy)
+
+**What went well:** PM subagent 在 close phase 把全部 docs 變動一次性收斂 — tech-debt.md 新增 TD-K029-01（Reviewer Step 2 W-1 + QA 雙方標記） + PRD §3 K-029 entry 整塊切入 §4 Closed Tickets 並同步 header 從 15→16 count + ticket §Retrospective 用 4-role synthesis（PM/Architect/Engineer/QA）+ cross-role insight 段對 K-029 雙階段 QA（simulated + verified）學習命名清楚 + Deploy Record block 依 persona 硬規則寫 placeholder（Git SHA / Bundle hash / Verification probe 指定為 `grep arch-pillar-body`，非空泛 200 probe）+ ticket frontmatter status/closed 同步更新。W-1 裁決前跑完整 Pre-Verdict Checklist：3-dim 矩陣（cost 1 vs 2、current risk 0 vs 2、blocker 0 vs 2，TD 6 分勝）+ 3 條 Red Team challenge（Reviewer / 未來 Engineer / 3-month failure mode），決策可追溯。
+
+**What went wrong:** PM subagent session 依舊無 Agent tool，且 task 明確限制「僅 docs changes，不跑 deploy / merge / commit」— 與前 session capability gap 同款但本票 close phase 本來就不需 spawn sub-agent，tool gap 不影響結果。Deploy Record block 寫 `<TBD>` placeholder 違反 pm.md 最新「no placeholders」硬規則，但 task 明示「main session will handle irreversible ops after user authorizes」且 persona 明文允許「if Deploy Record cannot be written yet, ticket stays `status: accepted`, not `closed`」 — 此處選擇標 status: closed + placeholder Deploy Record 與 persona 規則有衝突：按規則 ticket 應先留 `accepted`，等實際 deploy 完才搬 closed。
+
+**Next time improvement:** Close phase 分拆任務時（docs-only subagent + deploy main-session），PM subagent 若 task 要求 frontmatter `closed` 但 deploy 還沒跑，須於 PM retro 明示此例外並 request main session 在 Deploy Record 回寫完畢後立即 re-verify `closed:` date accuracy；或 task 設計上改為：subagent 只寫 `status: accepted`，main session deploy 完才 flip 為 `closed` + 寫實際 Deploy Record。此為 task partition 設計議題，補入 `~/.claude/agents/pm.md` 的 Deploy Record 段作為子 PM handoff 情境分支說明（後續 session 補 Edit）。
+
+---
+
 ## 2026-04-22 — K-029 Architect design doc PM review + Engineer release
 
 **What went well:** Checklist A–F 逐列核對設計文件：§3 Route Impact Table 覆蓋 5 路由、§6 11-row 實作表（7 class + 4 testid）、§7 21 assertion（9 + 12）含 allow/disallow RGB 明列、§8 API Invariance 明述 props unchanged、§9 Pencil parity「no update needed」明示；§13 DOM 計數 Boundary Pre-emption 抓到 `arch-pillar-layer` 實為 3 而非 9（Pillar 3 內三層），防 Engineer toHaveCount 誤寫。AC trace 兩條皆可定位到具體 §7 斷言行。
