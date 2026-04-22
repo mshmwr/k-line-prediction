@@ -5,6 +5,7 @@ status: backlog
 type: feat
 priority: medium
 created: 2026-04-20
+visual-spec: docs/designs/K-024-visual-spec.json
 ---
 
 ## 背景
