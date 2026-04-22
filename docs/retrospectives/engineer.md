@@ -16,6 +16,19 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-22 — K-029 /about ArchPillarBlock + TicketAnatomyCard paper palette
+
+**What went well:**
+- Design doc §6.1 + §6.2 gave an atomic 11-row Engineer checklist (7 class migrations + 4 testid injections); implementation was one-pass with no BQ raised because Architect had already resolved all token choices (C-body/C-pyramid/C-badge) in §0. Two file edits → tsc exit 0 → spec append → first-try full green.
+- E2E spec logic self-check caught a latent selector shape issue before run: initially considered asserting `arch-pillar-layer` toHaveCount(3) per pillar (would have resolved to 0 on Pillar 1/2 with no testingPyramid). Re-read design doc §13 "DOM enumeration" clarification → asserted flat `toHaveCount(3)` across all 3 pyramid layer spans (Unit/Integration/E2E in Pillar 3 only). Matches Architect's explicit §13 warning.
+- 21 new assertions (9 AC-ARCH + 12 AC-TICKET) all passed first run; full suite 197 passed / 1 skipped / 0 failed — no K-022 / K-017 / K-028 / K-031 regression. Worktree `npm install` pre-flight (per K-031 2026-04-21 memory) was done before `npx tsc` to avoid the "not the tsc you are looking for" trap.
+
+**What went wrong:**
+- None — scope was tight, design doc was unambiguous, and QA Early Consultation had already tightened C6 (pyramid `<li>` detail strict text-muted, not allow-list) which prevented the hierarchy-inversion trap flagged in design doc §11 Regression trap 1.
+
+**Next time improvement:**
+- When design doc explicitly numbers a 11-row checklist across two tables (§6.1 class + §6.2 testid), print the row-by-row DONE table in the Engineer report back to PM — it makes the Phase Gate auditable in one glance rather than requiring PM to cross-reference the doc.
+
 ## 2026-04-21 — K-030 Code Review fix-now pass 2 (C-1 Hero CTA new tab + I-3 JSDoc drift)
 
 **What went well:**
