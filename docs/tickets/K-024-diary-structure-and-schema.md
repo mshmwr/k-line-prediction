@@ -334,23 +334,58 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 
 ---
 
-### AC-024-LOADING-ERROR-PRESERVED：Loading / Error 狀態機制保留 `[K-024]` 🚫 **DEFERRED**
+### AC-024-LOADING-ERROR-PRESERVED：Loading / Error / Empty 狀態機制保留 `[K-024]`
 
-**Status**: **Blocked on Architect design** — 2026-04-22 QA Early Consultation 裁定為 untestable 直至 Architect 交付 component 結構 + data-testid 合約。
+**範圍**：僅 `/diary` 頁面；Homepage DevDiarySection loading/error 路徑列為 Known Gap（見 KG-024-HOMEPAGE-ERROR）。
 
-**Reason**: 當前 AC 僅言「沿用既有 UX」+「例 `<LoadingSpinner>` 或 skeleton」+「等效訊息」；selector / literal 文字 / slow-network 模擬手法皆未定，QA 無法寫 spec。
+**Source of Truth**：本 AC Given/When/Then 為合約；selector / literal / 行為細則交叉引用 `docs/designs/K-024-diary-structure.md` §6.3 DiaryLoading / DiaryError / DiaryEmptyState 組件規格（Architect 2026-04-22 交付）。
 
-**Unblock protocol**:
-1. Architect 於 `docs/designs/K-024-diary-structure.md` 明確定義：
-   - Loading 組件 selector（`data-testid="diary-loading"`）與基本 DOM 結構
-   - Error 組件 selector（`data-testid="diary-error"`）+ canonical 錯誤 literal（或明示 selector-only 斷言）
-   - Slow-network 模擬手法（建議 `page.route('**/diary.json', r => setTimeout(() => r.continue(), 500))`；loading window ≥ 100ms visible）
-   - 400 / 500 / timeout / CORS / offline 等 error 分類範圍（全部 cover 或逐條列 Known Gap + 理由）
-   - Retry / recovery UX（retry button、auto-retry、或明示「單次 fetch 失敗無 retry」）
-2. PM 基於 Architect design 回補完整 Given/When/Then 至本 AC（含上述條款）
-3. PM 另起 **QA Early Consultation (round 2)** 只 review 本 AC 與 Architect design，通過後本 AC 移出 DEFERRED 並可放行 Engineer 實作
+---
 
-**直到 unblock 為止**：本 AC 不計入 Phase Gate AC 完備性評估；Engineer 實作 Phase 3 其他 AC 時不得觸碰 Loading / Error 邏輯（保持現狀 placeholder）。
+**Given** 使用者訪問 `/diary` 且 `useDiary()` 回傳 `loading === true`
+**When** 頁面渲染
+**Then** `[data-testid="diary-loading"]` 可見，具 `role="status"` 與 `aria-label="Loading diary entries"`（依 design doc §6.3 DiaryLoading spec）
+**And** 內含文字 `"Loading diary…"`
+**And** Playwright slow-network 模擬：`page.route('**/diary.json', r => setTimeout(() => r.continue(), 500))` → `diary-loading` 可見至少 100ms，fetch resolve 後才顯示 `diary-entry`
+**And** `diary-error` / `diary-empty` / `diary-entry` 於 loading 期間均不可見
+
+**Given** `/diary` fetch 回傳非 2xx（例：`page.route('**/diary.json', r => r.fulfill({ status: 404 }))`，或 5xx `{ status: 500 }`）
+**When** 頁面渲染
+**Then** `[data-testid="diary-error"]` 可見，具 `role="alert"`
+**And** 訊息文字為 `"Failed to load diary: <status>"`（`<status>` 為實際 HTTP 狀態碼；例 `"Failed to load diary: 404"`、`"Failed to load diary: 500"`）
+**And** 同一容器內含 `<button>Retry</button>` 可點擊
+**And** `diary-loading` / `diary-entry` / `diary-empty` 均不可見
+
+**Given** 使用者於 error 狀態下點擊 Retry button 一次
+**When** 點擊觸發
+**Then** `diary-loading` 立即重新出現（觸發 refetch）
+**And** Retry button 於 `loading === true` 期間為 `disabled`（防連點併發）
+**And** refetch resolve 後依結果顯示：2xx → `diary-entry`（`diary-error` 消失）；非 2xx → 持續 `diary-error`（再次可點擊 Retry）
+
+**Given** 使用者於 loading 期間連點 Retry（50ms 內兩次）
+**When** 雙擊
+**Then** 第二次 click 因 button `disabled` 不觸發；僅第一次 click 的 fetch 進行中
+**And** Playwright 斷言：`expect(retryButton).toBeDisabled()`（loading true 期間）；`expect(retryButton).toBeEnabled()`（error 且 !loading 時）
+
+**Given** `/diary` fetch 回傳空陣列 `[]`（fixture `_fixtures/diary/diary-empty.json`）
+**When** loading 結束
+**Then** `[data-testid="diary-empty"]` 可見，顯示文字 `"No entries yet. Check back soon."`（依 design doc §6.3 DiaryEmptyState spec）
+**And** `diary-loading` / `diary-error` / `diary-entry` 均不可見（count=0）
+
+**Given** 錯誤訊息長度 > 200 字元（例：zod schema validation error 多行輸出，或 fetch 傳入長 `err.message`）
+**When** `diary-error` 渲染於 mobile viewport（375px 寬）
+**Then** 訊息容器套 `word-break: break-word`，長訊息換行不水平溢出
+**And** Playwright 斷言：`expect(body.scrollWidth).toBeLessThanOrEqual(viewport.width)`（無橫向 scrollbar）
+**And** Retry button 不因訊息長度被擠出可見區域（`retryButton.isVisible()` true）
+
+---
+
+**錯誤分類涵蓋範圍：**
+- **必測（Playwright spec 覆蓋）**：404 (4xx 代表)、500 (5xx 代表)、empty `[]`、long error message (>200 字)
+- **Known Gap KG-024-LOADING-TIMEOUT**：timeout、offline、CORS 等不另行斷言。依 design doc §6.3 L574-576，三者皆由 browser 拋 TypeError，UI 呈現 `"Failed to load diary: <err.message>"` 與 4xx/5xx 等價；單獨測試 ROI 低，依賴 useDiary 統一錯誤處理。
+- **Known Gap KG-024-HOMEPAGE-ERROR**：Homepage `DevDiarySection` loading/error 路徑沿用 main 既有 `<ErrorMessage>` pattern（`frontend/src/components/home/DevDiarySection.tsx` 既有 conditional render），不列於本 AC 測試範圍。Engineer 實作 Phase 2 reshape 時須保留既有 conditional rendering；regression 測試（pages.spec.ts）覆蓋 happy path，error path 接受無 E2E 斷言。
+
+**Known Gap KG-024-LOADING-RETRY-SPAM**：本 AC 已以 `disabled={loading}` 保證 button-level 併發 gate，不再測試「同時觸發兩個 fetch」race condition。如 useDiary 未來加 AbortController，該斷言另開 AC。
 
 ---
 
@@ -401,7 +436,7 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 - Homepage / Diary 頁面元件 `data-testid` 合約（至少：`diary-entry-wrapper`（Homepage，復用 K-028 Sacred）/ `diary-entry`（/diary）/ `diary-loading` / `diary-error` / `diary-load-more`）
 - **Mobile breakpoint 決策**（PM 暫定：繼承 K-027 `sm:` 640px，除非 Architect 提出具體 design reason 改為 480px custom；不繼承須升級 blocker + 登 TD）
 - Mobile layout：entry 三層文字順序、字級、rail / marker 是否隱藏或縮放（≤ 480px 範圍；481-1247px no-overflow 即可）
-- Loading / Error 元件實際結構（AC-024-LOADING-ERROR-PRESERVED 已 DEFERRED，Architect 交付後 PM 另起 QA Early Consultation Round 2）
+- ~~Loading / Error 元件實際結構~~ → Architect 2026-04-22 交付 design doc §6.3（DiaryLoading / DiaryError / DiaryEmptyState）；AC-024-LOADING-ERROR-PRESERVED 於 QA R2 後 2026-04-22 完成補寫，解除 DEFERRED
 - Load more button literal 文字、disabled 樣式、位置（pattern 已定：button click + client-side slicing，見 AC-024-DIARY-PAGE-CURATION）
 
 **DoD Checklist（本票 close 時 PM 執行，非 AC）：**
@@ -417,8 +452,8 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 
 **QA Early Consultation 狀態：**
 - **Round 1（2026-04-22）完成**：12 AC 逐條 testability review + 7 類 boundary sweep + visual-spec drift 掃描；產出 11 條 Challenge；PM 於 2026-04-22 裁決回補（見各 AC + `docs/retrospectives/qa.md`）。
-- **Round 2（待排程）**：AC-024-LOADING-ERROR-PRESERVED 於 Architect 交付 design 文件後重啟，僅 review 該條 AC + 可能衍生的 Loading/Error AC 細則。
-- Frontmatter `qa-early-consultation` 欄位指向 `docs/retrospectives/qa.md` 2026-04-22 K-024 Early Consultation 條目。
+- **Round 2（2026-04-22）完成**：AC-024-LOADING-ERROR-PRESERVED 重啟 review（Architect design doc §6.3 為輸入）；產出 1 Challenge（AC body 需補寫）+ 3 Interception（retry flow / Homepage error gate / long message overflow）；PM 2026-04-22 裁決：Challenge 以 design doc §6.3 為據補寫 Given/When/Then；Interception #1 #3 Option A 補 AC，#2 Option B Known Gap KG-024-HOMEPAGE-ERROR。AC 解除 DEFERRED。
+- Frontmatter `qa-early-consultation` 欄位指向 `docs/retrospectives/qa.md` 2026-04-22 K-024 Early Consultation 條目（Round 1 + Round 2 同日條目）。
 
 **PM 放行 Architect 前置**（依 global CLAUDE.md PM Handoff Verification）：
 1. frontmatter `qa-early-consultation` 欄位已指向 Round 1 retrospective entry（commit `e2b6fe5` land ✓）
@@ -426,13 +461,29 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 3. 本 AC 版本為 2026-04-22 Round 1 後修訂版（PM 裁決 ✓）
 4. Architect 於 2026-04-22 交付 design 文件（`docs/designs/K-024-diary-structure.md`）+ 1 BQ；Architect 交付 design 文件後再走 QA Early Consultation Round 2 覆蓋 LOADING-ERROR，然後放行 Engineer。
 
-**PM BQ 裁決紀錄：**
+**PM BQ / Interception 裁決紀錄：**
 
 **BQ-024-01（Architect 2026-04-22 raised）**：AC-024-HOMEPAGE-CURATION 原 literal `data-testid="homepage-diary-entry"` 與 K-028 Sacred `data-testid="diary-entry-wrapper"` 在同一 DOM 元素衝突（HTML 禁同名 data-testid）。
 - **PM 2026-04-22 裁決**：Option (b) 更名 K-024 AC literal `homepage-diary-entry` → `diary-entry-wrapper`（復用 K-028 Sacred）。
 - **理由**：K-028 closed + deployed + CDN live bundle grep 驗證 `diary-entry-wrapper` 存在；Sacred 不可動 → Option (a) 違反；Option (c) 加廢 DOM → Option (b) 成本最低且 AC 為 PM-owned 屬許可操作。
-- **影響範圍**：K-024 ticket 3 處 literal（AC-024-HOMEPAGE-CURATION line 184 / 195，§放行狀態 data-testid 合約清單 line 401），已於本裁決同 commit 全部更新。
+- **影響範圍**：K-024 ticket 3 處 literal（AC-024-HOMEPAGE-CURATION line 184 / 195，§放行狀態 data-testid 合約清單），已於本裁決同 commit 全部更新。
 - **Phase 2 unblocked**：Architect 可繼續 Phase 2 curation 設計。
+
+**QA-R2 Challenge #12（2026-04-22 raised）**：AC-024-LOADING-ERROR-PRESERVED body 仍為 DEFERRED 區塊，未依 Unblock Protocol step 2 以 Architect design doc §6.3 為據補寫 Given/When/Then。Engineer 寫 AC 不寫 design doc。
+- **PM 2026-04-22 裁決**：接受 Challenge，AC body 補寫完成（見 AC-024-LOADING-ERROR-PRESERVED line 337+）。涵蓋 loading / 404 error / 500 error / empty / retry-disabled / long-message-overflow 6 條 Given/When/Then。
+- **影響範圍**：AC-024-LOADING-ERROR-PRESERVED 解除 DEFERRED 狀態；test count estimate 6 Playwright specs（T-L1 loading / T-L2a 404 / T-L2b 500 / T-L3 empty / T-L4 retry-disabled / T-L5 long-message）。
+
+**QA-R2 Interception #1（2026-04-22 raised）**：AC 未涵蓋 Retry button 行為（re-fetch + 併發防護）。
+- **PM 2026-04-22 裁決**：Option (a) 補 AC。Retry click → `diary-loading` 重現 → refetch；Retry button 於 loading 期間 `disabled={loading}` 防 spam（button-level gate，不需 AbortController）。Known Gap KG-024-LOADING-RETRY-SPAM 明示：同時兩個 fetch race condition 不測（disabled 已 cover 連點場景）。
+- **理由**：Retry UX 為使用者可見行為，須 AC 合約；`disabled={loading}` 為成本最低之併發防護（button-level prevention > AbortController 引入）。
+
+**QA-R2 Interception #2（2026-04-22 raised）**：Homepage `DevDiarySection` fetch 失敗 UX 無 AC 覆蓋；K-028 Sacred 僅測 happy path。
+- **PM 2026-04-22 裁決**：Option (b) Known Gap KG-024-HOMEPAGE-ERROR。Homepage DevDiarySection 沿用 main 既有 `<ErrorMessage>` conditional render（非 K-024 scope 變更）；Engineer Phase 2 reshape 時須保留 error path 既有行為；regression 接受無 E2E 斷言。
+- **理由**：Homepage error path 為 K-028 scope 遺留，K-024 重點為 /diary 扁平 timeline + diary.json flat schema，不宜擴張 AC；既有 conditional render 可 work，Engineer hand-off 須保留。
+
+**QA-R2 Interception #3（2026-04-22 raised）**：error message > 200 字元可能在 mobile 375px 水平溢出。
+- **PM 2026-04-22 裁決**：Option (a) 補 AC。`diary-error` 容器套 `word-break: break-word`；Playwright 斷言 mobile 375px 下 `body.scrollWidth <= viewport.width`；Retry button 不被擠出畫面。
+- **理由**：zod 嚴格 schema + raw `err.message` 可能輸出長訊息，違反 AC-024-CONTENT-WIDTH no-overflow spirit；`word-break` 為 CSS 單行成本，defensive 設計優於產生使用者面對 UI 破版。
 
 ## 相關連結
 
