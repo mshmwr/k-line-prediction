@@ -18,7 +18,53 @@
 
 ---
 
-## 2026-04-22 — K-029 /about card body text paper palette migration
+## 2026-04-22 — K-035 Phase 3 design-doc second-pass (/business-logic scope clarification sync)
+
+**做得好：**
+- PM scope-clarification loop caught the missed cross-section refs before Engineer release — 設計文件整體一致性在 Engineer step 1 之前補齊，系統完整性守住，沒有讓 stale `/business-logic` AC-verified 字樣外溢到 spec 實作或 verification 表。
+
+**沒做好：**
+- First-pass design doc 對 `/business-logic` 做了 30+ 處 reference（§0 BQ 裁決、§5 Route Impact Table、§6 EDIT 清單、§7 spec 註解、§8 QA 視覺、§9 Step 3、§11 architecture.md mapping、§13 Pre-Design Audit、§15 AC↔Test cross-check），當 PM 後續裁定 `/business-logic` 為 technical-cleanup-only 時，main-session 第一輪 scope-update pass 漏了 4 處非顯眼 cross-section：
+  1. §8.3 L473 `(4 cases)` — 測試數 literal
+  2. §9 Step 7 L547 `new 4 cases pass` — Engineer gate 語言
+  3. §6 EDIT #14 L667 Changelog 預寫文字內的 `4 cases：... /business-logic 斷言 ...` enumeration
+  4. §15 AC ↔ Test Case Count Cross-Check 整段（L789 / L791 / L795 / L802–803 / L805 五個位置）列 `/business-logic` 為 AC-035-NO-DRIFT 子測試 + 宣告 `4 = 4 = 4`
+- 根因：這些位置散佈於「預寫架構文件 Changelog」「Engineer gate 數字 literal」「AC ↔ test 數量硬 gate 表」三個 section，非 route-name grep 會直接命中的顯眼位置；scope-update 時靠 review `/business-logic` 關鍵字但漏了「數字 literal `4 cases` 本身也需要重算」這條獨立維度。Architect 本人 first-pass 已經為 `/business-logic` 寫了 §7.1 exclusion note 與 §8.4 visual placeholder — 但 §15 AC↔Test 硬 gate 表的 count math 沒同步重算，導致 §7.1 = 3 cases 與 §15 = 4 cases 的內部矛盾。
+
+**下次改善：**
+- 新增 Architect Post-Design Sweep 硬步驟：「當任一 spec row 或 AC cell 被標記為 `technical-cleanup-only` / `unaffected` / `must-be-isolated` 時，立即 grep 整個設計文件對該 route name 逐處出現審計，每處對照 route 狀態 cell 驗證語意一致性。」
+  - 具體步驟：
+    1. 設計文件第一輪完成後，對每個 non-standard-status route 執行 `grep -n "<route-name>" <design-doc>`
+    2. 對每個 hit 分類：AC-verified / technical-cleanup-only / exclusion-note / audit-reference / table-row
+    3. 任一 hit 分類與該 route 的權威 §5 Route Impact Table status cell 不一致 → 修正或加 exclusion 註釋
+    4. 同時對任一 test case count literal（`N cases` / `N tests` / 算式如 `+N` / `= N`）跨 §7 / §8 / §9 / §15 cross-check：§7 權威數字、§15 AC↔Test hard gate、§8 Playwright gate、§9 Engineer step 均需一致
+- 此改善為 candidate for codification；本輪採 surgical consistency pass 不動 `senior-architect.md` persona，留待 main session 或 retrospect skill 在 Phase 3 closed 後判定是否 codify（可能位置：Same-File Cross-Table Consistency Sweep 下新增 §Route-Status-Change Trigger 子條，或 AC ↔ Test Case Count Cross-Check 下新增 §Cross-Section Count Literal Sweep 子條）。
+
+---
+
+## 2026-04-22 — K-035 Phase 3 design — shared Footer migration + shared-component canonical registry
+
+**做得好：**
+- OQ-1 α/β/γ 變體選型以正式加權評分矩陣解（Pencil fidelity 0.25 / 行為等價契約 0.25 / drift resistance 0.20 / 維護成本 0.15 / 視覺變更 0.15），α 9.7 vs β 6.25 vs γ 5.3，差距 3.45 無需 tiebreaker；未事後加分也未回彈 PM，權重先於評分宣告符合 Pre-Verdict Tiebreaker Pre-listing Rule。
+- §3 OLD-vs-NEW behavior-diff 表 17 cell 逐格 dry-run（DOM tag / container class / content / link href / GA tracking / `data-testid` × home/about 兩 variant），17 equivalent / 0 divergent，Pure-Refactor Behavior Diff 硬 gate 以 enumerate 而非 summarize 通過。
+- §13 dual-axis API 不變性證明同時覆蓋 (a) wire-level schema diff（`git diff main -- frontend/public/diary.json` + types/ = 0 lines）與 (b) frontend observable behavior diff 4-row（homepage full / about full / business-logic full / /diary empty），閉掉 K-013 C-1 單軸漏洞。
+- §5 Route Impact Table 涵蓋全 5 route（`/` affected / `/about` affected / `/business-logic` affected / `/diary` unaffected no-footer / `/app` must-be-isolated K-030 Sacred），每列附「此 ticket 是否觸」+ 「Engineer 視覺驗證步驟」，對齊 `feedback_global_style_route_impact_table.md`。
+- Props interface required + 無 default 明示拒絕 silent drift（`variant: 'home' | 'about'`，三 import 點皆須顯式傳值），避免 Engineer 實作時為省事加 default 再讓未來新 route 預設拿錯 variant。
+- `components/shared/` 目錄作為 sitewide page-level chrome canonical registry 明確命名（非 `common/`、非 `primitives/`），第一位住戶 Footer，同時開 TD-K035-01 追 UnifiedNavBar 後續遷入，而非本票擴張 scope；架構 narrative 清楚分離「本票做」與「後續票做」。
+- architecture.md Self-Diff：Footer 放置策略表 3 列、Shared Components 邊界表 2 列（從 3 列合併）、Directory Structure 3 處（L160 FooterCtaSection pending deletion / L175 新 shared/ 區塊 / L455 /app 行 HomeFooterBar → Footer）、Changelog prepend — 5 處 Edit 全逐格對源，`grep HomeFooterBar|FooterCtaSection` 7 hit 分類（當前狀態 / Changelog 歷史）全部核對。
+
+**沒做好：**
+- §4 Pencil 節點 ID 引用（`4CsvQ` 首頁 footer / `35VCj` /about footer subtree）本應用 `mcp__pencil__batch_get` 驗證，但 Pencil MCP 在本 session 顯示 `No such tool available`，改以 K-021 設計文件 §Appendix + K-035 ticket §Evidence 既有節點引用為二手來源；若 K-035 前 Pencil 節點結構變化，二手來源會失準。Engineer Step 1 應於實作前加一步「Pencil MCP 可用後重跑 batch_get 覆驗 `4CsvQ` + `35VCj` DOM 結構是否仍對齊本設計文件」。
+- 初期 Phase 3 re-engagement 花了較多 context 在重建 K-017 / K-021 / K-022 三 ticket 的 Footer 歷史狀態（三票累積的 Sacred clause + K-021 drift-preservation test + K-022 link style mandate），若之前 Architect retrospective log 有 cross-ticket 「Sacred clause 表」會省不少回讀；這是下游改善，不是本次交付 gap。
+
+**下次改善：**
+- **Pre-Write Name-Reference Sweep**（新行為規則，已同步 Edit `~/.claude/agents/senior-architect.md`）：任何 architecture.md Edit 涉及 "rename / delete / replace" 類操作（例：`HomeFooterBar` → `Footer`、`FooterCtaSection` → 消失），Edit 完畢在 Self-Diff Verification 前必跑 `grep -n "<old-name>\|<new-name>"` 於同檔案，列所有 hit 分類為「當前狀態（需同步 Edit）」vs「Changelog 歷史（不得 Edit）」vs「其他表格（需同步）」；若分類 "當前狀態" 有遺漏 hit → 補 Edit；"其他表格" 有遺漏 hit → 擴大 Edit 至覆蓋全部 → 才進 Self-Diff。本次 L455 `/app` 行原差點漏掉（只因最後順手掃才抓到）。
+- **Sacred clause 退役需顯式登記**：K-021 `/about 維持 FooterCtaSection（K-017 鎖定）` 於 K-035 設計 retire，本設計文件 §2 有寫入 retired Sacred 表，但 retrospective log 同時記一次可讓未來任何 ticket grep "retired Sacred" 即查齊；下票起 Architect persona 加「Sacred 退役 Edit architecture.md Changelog 寫 retired：K-XYZ 某 clause（原鎖定 K-ABC）」為硬步驟。
+- **Pencil MCP 不可用時 fallback SOP**：遇 `No such tool available` 時，以「最近一次讀過 Pencil 節點 ID 的 ticket + 該 ticket 設計文件引用」為二手來源，並於本次設計文件 §4 加紅字 "Pencil MCP 不可用於本 session，Pencil 節點引用為二手來源（最後一次覆驗：K-XXX on YYYY-MM-DD），Engineer Step 1 須覆跑 batch_get"；避免未顯式標記讓下游以為節點剛被驗過。
+
+---
+
+
 
 **做得好：** Pre-Design Audit 以 `git show main:<file>` 覆驗 ArchPillarBlock + TicketAnatomyCard 與 worktree 完全一致，確認 7 個 site 無遺漏；§13 Boundary Pre-emption 自查時抓到 `testingPyramid` 為 optional props，`arch-pillar-layer` 實際 DOM 數為 3（Pillar 3 內 Unit/Integration/E2E 三層），不是 9（三 Pillar × 三層）也不是 1，於設計文件明示避免 Engineer 誤寫 `toHaveCount`。
 **沒做好：** 初稿 §6.2 僅列 `data-testid` injection 4 項，未在同表同時交代 Outcome / Learning label 選擇路徑（從 `ticket-anatomy-body` 往下 `locator('span', { hasText })`），檢查 §15 AC↔Test Case 前還沒補；AC 說 3 Outcome + 3 Learning 各獨立斷言，若未指定 selector Engineer 可能自訂 testid 違反 Architect mandate。交付前補 §6.2 Note 段落才完整。

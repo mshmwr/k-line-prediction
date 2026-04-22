@@ -1,3 +1,15 @@
+## 2026-04-22 — K-035 Phase 3 shared Footer migration (Step 2 depth review)
+
+**做得好：** Pure-Refactor Behavior Diff Gate 按 `feedback_reviewer_pure_refactor_behavior_diff.md` + K-013 規則逐行執行 — `git show bdc9231:frontend/src/components/home/HomeFooterBar.tsx` 與 `FooterCtaSection.tsx` 讀 OLD 後列 17-row byte-by-byte equivalence table，確認 `shared/Footer.tsx` L30-L37（home branch）與 L43-L87（about branch）為逐字節複製，零 class / attribute / text drift；設計稿 §3.3 「17 equivalent / 0 divergent」斷言 Reviewer 獨立驗證而非接受 Architect 敘事。K-025 Grep-Pattern Raw-Count Sanity gate 雙向驗證：pre-K-035 `git grep -c "HomeFooterBar\|FooterCtaSection" bdc9231 -- frontend/` 回 39 hits 跨 10 files，post-K-035 為 0 hits — 證明 Step 6 grep sweep 並非 degenerate proxy（pre==0==post）。QA Early Consultation 3 flags 全數對照 commit body 逐條 close：Flag 1 看 ga-tracking.spec.ts AC-018-CLICK 3 個 data-testid 仍指向 /about + Playwright 3/3 green；Flag 2 看 Step 6 commit message 7-line 明文記錄為何排除 `docs/audits/`；Flag 3 看 Step 7 commit body 含精確 Playwright timeout error 字串（`Timed out 5000ms waiting for expect(locator('footer').last()).toBeVisible()`），不接受含糊 "failed as expected"。Sacred 守護用 7-row 表把 K-017 / K-022 A-7 / K-024 / K-030 / K-018 對應 spec 檔案 + 行號逐條列出。架構文件 self-diff 以設計稿 §11.1 / §11.2 / §11.3 為 source-of-truth 逐 cell 驗證（Footer 表 5 rows ✓、Shared Components 表 2 rows ✓、Directory Structure shared/ block ✓）。
+
+**沒做好：** 本輪沒有 Critical / Warning 級 finding，但有 2 Minor drift 項（M-1 architecture.md L653 Architect 設計期「4 cases」與 L652 Engineer landing「3 cases」並存；M-2 architect/designer/pm/qa 其他 retros 仍 unstaged）— Engineer 自己的 retro 已 codify 為 Pre-Step-0 Architect Changelog cross-check rule，屬下游 catch，不屬於 Reviewer 首攔的早期階段問題。實質上 Reviewer 深度 review 在 Step 11 commit 已可見 Engineer 補正 Architect drift（L652 取代 L653）— Reviewer 無可早攔。
+
+**下次改善：** 
+1. 當設計稿含 design-phase Changelog（例如 architecture.md Architect 先寫入「預期 N cases」）時，Reviewer 深度 review 應主動 grep `architecture.md` 本 ticket ID 條目，對照 Engineer landing 實際值（例如 `grep -n "cases" architecture.md` + 比對 spec 檔 `test(` 實際 count），提前一輪發現「設計期宣稱 vs 實際落地」數字 drift，不等 Engineer 自查。這是對既有 K-025 raw-count sanity gate 的延伸 — 設計文件也是 grep-proxy 的一種 source-of-truth。此改善 codify 為 reviewer.md §Plan Alignment 新子條「架構文件 Changelog 設計期預期 vs landing 實際值 cross-check」。
+2. 確認「其他角色 retro 未 stage」屬合理分工（每角色 commit 自己的）還是 leak — 本次 M-2 判斷為前者，無需 escalation，但若未來出現 agent retro 遲遲未 commit 而導致 ticket close 後 diary/retrospective 斷層，應早期 PM 主動追蹤。Reviewer 側職責僅 surface，不主動 push 其他 role。
+
+---
+
 ## 2026-04-22 — K-035 Bug Found Protocol (Reviewer)
 
 **做得好（具體事件限定）：** 無。K-017（2026-04-19）與 K-022（2026-04-20）兩輪 Step 2 depth review 皆未攔截 `frontend/src/components/about/FooterCtaSection.tsx` 這個 inline footer duplicate，且 retrospective 全無提及 `/` 與 `/diary` 已有 `HomeFooterBar.tsx` 可重用。reviewer.md 現有 Review Checklist 針對 shared-component placement 的 `architecture.md` 表格 cross-check 規則是在 K-021 Round 2（2026-04-20）才落地，當時 K-017 已 closed；K-022 在該規則落地後 review，仍未觸發檢查，因為 K-022 的改動 scope 被 Architect 限縮為「結構細節對齊」，未列 Footer 為改動對象 → Reviewer 在 §Plan Alignment 執行「out-of-scope 改動偵測」反向邏輯（只驗有無越界改未列檔），未執行正向邏輯（本頁該用 shared component 卻重造）。
@@ -11,6 +23,8 @@
    - Step C：比對 inventory，重疊者分類標註：(a) structural chrome（footer/nav/hero/page-header）重複 → **Critical**，阻擋 merge，要求抽 shared 或 justify 在 design doc；(b) content cards / section wrapper 重複 → **Warning**，列 TD；(c) utility primitives（Button / Badge 等）重複 → Suggestion 即可。
 2. **AC 不要求 ≠ 可以不檢查**：reviewer.md 明文增註「shared-component reuse 屬 architectural smell 類檢查，即便 AC 未列，duplicate of structural chrome 一律升 Critical；不得以『AC 未要求』為理由降級。」理由：K-017 / K-022 兩輪 AC 都沒寫 "use shared Footer"，Reviewer 全部以「AC 全通過」結案，結果 duplicate footer 存活 6 天才被使用者肉眼抓到；這就是 Reviewer 角色失職。
 3. **新頁面 / 頁面 v2 類 ticket 觸發「Shared Inventory Cross-Ref」硬 gate**：review 開場先 `ls frontend/src/components/` + `ls frontend/src/pages/` 列現有 shared 候選，對照本票新增/改寫頁面，逐項問「這個 shared 是否該被 import？如果沒有，design doc 是否明列原因？」未列原因 → Critical。此步應與「設計文件 spec 清單 vs 實作檔名 cross-check」並列，為 page-level ticket 的預設開場動作。
+
+---
 
 ## 2026-04-22 — K-025 UnifiedNavBar hex→token + dual-rail spec upgrade (Step 2 depth review)
 

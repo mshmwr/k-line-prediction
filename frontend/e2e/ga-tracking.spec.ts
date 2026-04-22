@@ -209,7 +209,7 @@ test.describe('AC-018-PRIVACY — no PII in GA4 config', () => {
 })
 
 // ── AC-018-PRIVACY-POLICY ─────────────────────────────────────────────────────
-// Given: user visits any page with FooterCtaSection
+// Given: user visits any page with Footer variant="about"
 // When:  page loads
 // Then:  Google Analytics disclosure text is visible in the footer
 

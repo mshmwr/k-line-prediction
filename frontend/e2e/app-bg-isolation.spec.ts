@@ -5,7 +5,7 @@ import { mockApis } from './_fixtures/mock-apis.ts'
 // 6 個獨立 test case：
 //   T1  AC-030-NEW-TAB       clicking NavBar App link on / opens new tab with /app URL
 //   T2  AC-030-NO-NAVBAR     navbar testids absent on /app
-//   T3  AC-030-NO-FOOTER     HomeFooterBar absent on /app (role + 2 signature texts)
+//   T3  AC-030-NO-FOOTER     Footer absent on /app (role + 2 signature texts)
 //   T4  AC-030-BG-COLOR (a)  /app wrapper <div> bg = rgb(3, 7, 18) (gray-950 = Pencil #030712)
 //   T5  AC-030-BG-COLOR (b)  /app body bg still = rgb(244, 239, 229) (paper) — proving wrapper override
 //   T6  AC-030-NEW-TAB       Homepage Hero CTA opens /app in new tab (C-1 fix)
@@ -67,10 +67,10 @@ test.describe('AC-030-NO-NAVBAR — /app page has no UnifiedNavBar', () => {
   })
 })
 
-test.describe('AC-030-NO-FOOTER — /app page has no HomeFooterBar', () => {
+test.describe('AC-030-NO-FOOTER — /app page has no Footer', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('HomeFooterBar absent on /app (role + signature texts)', async ({ page }) => {
+  test('Footer absent on /app (role + signature texts)', async ({ page }) => {
     await mockApis(page)
     await page.goto('/app')
     await page.waitForLoadState('networkidle')

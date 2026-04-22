@@ -1,15 +1,44 @@
 import { trackCtaClick } from '../../utils/analytics'
 
 /**
- * S8 — FooterCtaSection (AC-017-FOOTER, AC-018-CLICK, AC-018-PRIVACY-POLICY)
- * Global footer CTA: email + GitHub + LinkedIn.
- * Used across all pages: AboutPage, HomePage, DiaryPage.
+ * Footer — sitewide footer (K-035 unification; K-021 /about separate-footer
+ * Sacred clause formally retired — see docs/designs/K-035-shared-component-migration.md §10.1).
  *
- * email uses <a href="mailto:"> directly (not ExternalLink — mailto is not http).
- * GitHub and LinkedIn use native <a> with target=_blank to allow onClick GA tracking
- * without modifying the ExternalLink primitive (Option A per K-018 design).
+ * Used on:
+ *   - `/`               via variant="home"  (HomePage.tsx)
+ *   - `/business-logic` via variant="home"  (BusinessLogicPage.tsx)
+ *   - `/about`          via variant="about" (AboutPage.tsx)
+ *
+ * NOT rendered on:
+ *   - `/diary` (K-024 no-footer decision; intentional)
+ *   - `/app`   (K-030 isolation; intentional)
+ *
+ * Pencil source of truth:
+ *   - variant="home"  → frame 4CsvQ (homepage-v2.pen)
+ *   - variant="about" → frame 35VCj footer subtree (homepage-v2.pen)
+ *
+ * Regression contract: frontend/e2e/shared-components.spec.ts asserts outerHTML
+ *   equivalence across all consuming routes modulo the variant axis.
  */
-export default function FooterCtaSection() {
+export interface FooterProps {
+  variant: 'home' | 'about'
+}
+
+export default function Footer({ variant }: FooterProps) {
+  if (variant === 'home') {
+    return (
+      <footer className="font-mono text-[11px] tracking-[1px] text-muted px-6 md:px-[72px] py-5 border-t border-ink w-full">
+        <div className="flex justify-between items-center">
+          <span>yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn</span>
+        </div>
+        <p className="text-center mt-3">
+          This site uses Google Analytics to collect anonymous usage data.
+        </p>
+      </footer>
+    )
+  }
+
+  // variant === 'about'
   return (
     <div className="text-center py-8 border-t border-ink/10">
       <p className="font-mono text-ink text-lg font-bold mb-3">Let's talk →</p>

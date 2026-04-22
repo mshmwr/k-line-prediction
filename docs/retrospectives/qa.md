@@ -20,6 +20,22 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-035 Phase 3 QA regression
+
+**做得好：** 全 Playwright suite 一把過 243 passed / 1 skipped / 1 failed（唯一 failure `ga-spa-pageview.spec.ts::AC-020-BEACON-SPA` 比對 K-033 tracker 症狀「SPA navigate 後 beacon count 維持 1 未增」完全相符，classify 為 pre-existing 非本票責任）；`shared-components.spec.ts` 3/3 綠 2.5 秒收工（/ variant="home" + /about variant="about" + /diary no-Footer 三向斷言 + 首 Cross-Page spec 首執行即穩定）；`ga-tracking.spec.ts` AC-018-CLICK 3 case 綠燈（contact_email / github_link / linkedin_link），Early Consultation Flag-1「GA click-event AC-visibility gap」以 spec 層面確認 trackCtaClick label 保留；Sacred 四 spec 全綠（sitewide-footer 3/3、pages.spec.ts L158 `/diary has no Footer`、app-bg-isolation AC-030-NO-FOOTER、sitewide-fonts font-mono on Footer variant="home"）；grep 掃 `HomeFooterBar|FooterCtaSection` 於 frontend/src + frontend/e2e = 0 hits，Engineer Step 6 刪除動作在 final commit 維持；visual-report.ts 以 `TICKET_ID=K-035` 跑出 `docs/reports/K-035-visual-report.html`（1.8MB；4 base64 PNG = /, /app, /about, /diary；/business-logic 依 `authRequired:true` 標 placeholder 符合 MVP 規範）；dev-server 多 viewport 手動 spot-check（375/390/414/1280）/ variant="home" Footer fontSize=11px + borderTop=1px + 文字基線一致、/about variant="about" email italic+underline + 所有 CTA href 正確、/diary + /app Sacred no-Footer（`<footer>` tag absent + `Let's talk →` absent + home-variant signature text absent）三條全滿。
+
+**下次改善：** 第一輪多 viewport 手動 spot-check script 用 `document.querySelector('footer')` 單一 selector 驗 `/about` Footer，誤判為「exists:false」卡 1 次；根因是未事先讀 Footer.tsx 確認 variant="about" 刻意 render `<div>` 非 `<footer>` tag（design doc §10.1 已明載）。Spot-check script v2 改用 `data-testid="cta-email/github/linkedin"` + `Let's talk →` 文字 + `class` 計算樣式三條斷言才通過。行為規則：QA 跑自製 spot-check script 前，若 target 組件有多 variant / 多 render 分支，應先 Read 該組件 source 或對照 shared-components.spec.ts 的官方 selector，再挑 selector；不可假設「Footer = `<footer>` tag」這類單一假設即涵蓋全 variant。
+
+## 2026-04-22 — K-035 Phase 3 QA Early Consultation
+
+**做得好：** 對 Pure-refactor behavior-diff 表（design doc §3 17/0）直接跑 QA-側 AC×spec×mock 三維檢核，而非只讀 AC；mockApis fixture 確認 `/api/**` catch-all + `/api/history-info` 具體覆蓋，斷言 shared-components.spec.ts 3 cases 所需 API 已全覆蓋；對 `sitewide-footer.spec.ts`、`pages.spec.ts` L160、`app-bg-isolation.spec.ts`、`sitewide-fonts.spec.ts`、`ga-tracking.spec.ts` L212 逐一 grep 現況，確認 design doc §6 EDIT #9–#13 的 rename/comment-only edits 與斷言邏輯不變，未放掉可能殘留的「含 `FooterCtaSection` 字樣但仍斷言 literal 的地方」。對 AC-035-CROSS-PAGE-SPEC 的 §7.1 spec 契約做 selector 強度檢查，確認 `class` string 字面全等 + `getByText({exact:true})` + `data-testid` + `href` 屬性等值四者已組成充足的 DOM-equivalence contract（不需升級為 outerHTML snapshot）。
+
+**沒做好：** GA click-event 回歸（`ga-tracking.spec.ts` AC-018-CLICK 3 個 email/github/linkedin case）在 design doc §3 diff table row 11 已宣稱 import path 與 `trackCtaClick` 呼叫保留但未在 AC-035-FOOTER-UNIFIED 的 AC 敘述裡以 And-clause 明載「GA click event 名稱（`contact_email` / `github_link` / `linkedin_link`）+ `page_location === '/about'` 不變」；僅靠現有 spec 綠燈等同於把 GA regression 藏在 ga-tracking.spec.ts 內而非明擺在 K-035 AC 上，AC-visibility 略低。依 `feedback_pm_ac_sacred_cross_check` 屬 AC↔Sacred 可並存非衝突，但若 Engineer 誤改 `trackCtaClick(label)` 的字串參數，ga-tracking.spec.ts 會 fail，但 K-035 AC 不會直接點名該失敗屬「AC-035-FOOTER-UNIFIED 違反」。
+
+**下次改善：** Early Consultation 在純 refactor 類 ticket 做 AC 覆盖盤點時，強制檢查「既有的非本票 spec 但斷言的行為是 refactor 必須保留」→ 建議 PM 在 AC-XXX-FOOTER-UNIFIED 這類 AC 加一條 And-clause `And existing <spec-file> <AC-ID> remains green without assertion text change`，讓 AC 層面直接鎖定跨 spec 的 Sacred 行為。
+
+---
+
 ## 2026-04-22 — K-035 Bug Found Protocol (QA)
 
 **What went wrong (root cause):**
