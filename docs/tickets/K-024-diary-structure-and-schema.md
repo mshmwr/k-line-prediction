@@ -181,7 +181,7 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 **And** 3 條均為 diary.json 中 `date` 最新的 3 筆
 **And** **Tie-break 規則**：兩筆 `date` 相同時，以 `diary.json` **陣列後出現者為新**（array index 越大越新；與 K-Line 每日 append 流程一致）
 **And** Homepage diary section 含 3 個 marker 元素（一一對應 3 條 entry），依 visual-spec `N0WWY` 的 marker role
-**And** Playwright 斷言：以 `data-testid="homepage-diary-entry"` 選擇器取得 3 個元素（脫離實作組件命名），`expect(page.locator('[data-testid="homepage-diary-entry"]')).toHaveCount(3)`；且 `expect(homepageMarkers).toHaveCount(3)`
+**And** Playwright 斷言：以 `data-testid="diary-entry-wrapper"` 選擇器取得 3 個元素（復用 K-028 Sacred testid，避免同一 DOM 兩個 `data-testid` 衝突），`expect(page.locator('[data-testid="diary-entry-wrapper"]')).toHaveCount(3)`；且 `expect(homepageMarkers).toHaveCount(3)`
 
 **Given** `diary.json` entry 數為 0（空陣列）
 **When** 使用者訪問 `/`
@@ -192,7 +192,7 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 **When** 使用者訪問 `/`
 **Then** 顯示 **所有可用 entry**（不 padding、不補空位、不隱藏 section；Homepage 顯示 N 條，N = entry 總數）
 **And** marker 數 = 顯示的 entry 數（非固定 3）
-**And** Playwright 斷言（fixture 1 entry 與 2 entries 各一組）：`homepage-diary-entry` count 等於 fixture 大小
+**And** Playwright 斷言（fixture 1 entry 與 2 entries 各一組）：`diary-entry-wrapper` count 等於 fixture 大小
 
 ---
 
@@ -398,7 +398,7 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 - diary.json schema migration 策略（一次性轉換 vs 雙 schema 並存 transition）
 - 中文條目英譯規劃（保留原意的翻譯準則）
 - 舊無 K-XXX 條目合併段落的實際 `text`（50-100 words；date 已定 `2026-04-16`，title 已定 `"Early project phases and deployment setup"`）
-- Homepage / Diary 頁面元件 `data-testid` 合約（至少：`homepage-diary-entry` / `diary-entry` / `diary-loading` / `diary-error` / `diary-load-more`）
+- Homepage / Diary 頁面元件 `data-testid` 合約（至少：`diary-entry-wrapper`（Homepage，復用 K-028 Sacred）/ `diary-entry`（/diary）/ `diary-loading` / `diary-error` / `diary-load-more`）
 - **Mobile breakpoint 決策**（PM 暫定：繼承 K-027 `sm:` 640px，除非 Architect 提出具體 design reason 改為 480px custom；不繼承須升級 blocker + 登 TD）
 - Mobile layout：entry 三層文字順序、字級、rail / marker 是否隱藏或縮放（≤ 480px 範圍；481-1247px no-overflow 即可）
 - Loading / Error 元件實際結構（AC-024-LOADING-ERROR-PRESERVED 已 DEFERRED，Architect 交付後 PM 另起 QA Early Consultation Round 2）
@@ -421,10 +421,18 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 - Frontmatter `qa-early-consultation` 欄位指向 `docs/retrospectives/qa.md` 2026-04-22 K-024 Early Consultation 條目。
 
 **PM 放行 Architect 前置**（依 global CLAUDE.md PM Handoff Verification）：
-1. frontmatter `qa-early-consultation` 欄位已指向 Round 1 retrospective entry（本 commit land 後 ✓）
-2. K-021 已 close + deployed（**外部 dependency，待驗證**）
+1. frontmatter `qa-early-consultation` 欄位已指向 Round 1 retrospective entry（commit `e2b6fe5` land ✓）
+2. K-021 已 close + deployed（2026-04-20 closed，CDN 驗證 ✓）
 3. 本 AC 版本為 2026-04-22 Round 1 後修訂版（PM 裁決 ✓）
-4. 三項齊備後 PM 放行 Architect；Architect 交付 design 文件後再走 QA Early Consultation Round 2 覆蓋 LOADING-ERROR，然後放行 Engineer。
+4. Architect 於 2026-04-22 交付 design 文件（`docs/designs/K-024-diary-structure.md`）+ 1 BQ；Architect 交付 design 文件後再走 QA Early Consultation Round 2 覆蓋 LOADING-ERROR，然後放行 Engineer。
+
+**PM BQ 裁決紀錄：**
+
+**BQ-024-01（Architect 2026-04-22 raised）**：AC-024-HOMEPAGE-CURATION 原 literal `data-testid="homepage-diary-entry"` 與 K-028 Sacred `data-testid="diary-entry-wrapper"` 在同一 DOM 元素衝突（HTML 禁同名 data-testid）。
+- **PM 2026-04-22 裁決**：Option (b) 更名 K-024 AC literal `homepage-diary-entry` → `diary-entry-wrapper`（復用 K-028 Sacred）。
+- **理由**：K-028 closed + deployed + CDN live bundle grep 驗證 `diary-entry-wrapper` 存在；Sacred 不可動 → Option (a) 違反；Option (c) 加廢 DOM → Option (b) 成本最低且 AC 為 PM-owned 屬許可操作。
+- **影響範圍**：K-024 ticket 3 處 literal（AC-024-HOMEPAGE-CURATION line 184 / 195，§放行狀態 data-testid 合約清單 line 401），已於本裁決同 commit 全部更新。
+- **Phase 2 unblocked**：Architect 可繼續 Phase 2 curation 設計。
 
 ## 相關連結
 
