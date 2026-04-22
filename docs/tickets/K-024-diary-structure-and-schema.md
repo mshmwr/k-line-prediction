@@ -767,3 +767,40 @@ Ticket ready for PM step 47 (deploy + Deploy Record + close). QA does **not** mo
 1. When Pencil MCP tool calls are unavailable mid-session, execute the three-step offline fallback immediately and declare the Known Gap in the sign-off table — do not silently omit visual verification. The persona rule from 2026-04-21 held up in practice this session; no persona edit needed.
 2. The visual-report.ts `TICKET_ID` env var is easy to forget; the existing persona rule already catches this. Confirmed this session ran `TICKET_ID=K-024` explicitly → generated `K-024-visual-report.html` (not `K-UNKNOWN`). Full-suite runs without explicit env write `K-UNKNOWN-visual-report.html`; harmless but noisy — consider a Playwright config default in future ticket.
 3. For Phase-3 sign-offs that include a production-code change from the R2 fix batch (here: `useDiary.ts` setError ordering + `DiaryEntryV2.tsx` tracking fix), QA should explicitly spot-check that those production changes are covered by the new test assertions (in this session: T-L4 covers the setError change, T-E6 covers the letterSpacing change). Both covered. Add to QA checklist as formal row.
+
+---
+
+## Deploy Record
+
+**Deploy date/time:** 2026-04-22 (Asia/Taipei)
+**Git SHA (worktree HEAD at deploy):** `e66aa6c`
+**Hosting URL:** https://k-line-prediction-app.web.app
+**Bundle:** `dist/assets/index-Dp0-Msfc.js` — md5 `47cdc1e66fdc7f51c356ddc62de827b4` (dist ↔ live parity ✓)
+**Deploy command:** `firebase deploy --only hosting` (from worktree root `.worktrees/k024`)
+**Firebase output:** `✔ hosting[k-line-prediction-app]: release complete` — 4 new files uploaded / 8 total.
+
+**Executed-probe verification (live bundle + live diary.json):**
+
+```
+$ JS_URL=$(curl -sL https://k-line-prediction-app.web.app/ | grep -oE 'assets/index-[^"]+\.js' | head -1)
+Bundle: assets/index-Dp0-Msfc.js
+
+$ curl -sL "https://k-line-prediction-app.web.app/$JS_URL" | grep -oE "diary-main|diary-entry-wrapper|diary-hero|diary-entry" | sort | uniq -c
+   1 diary-entry
+   1 diary-entry-wrapper
+   1 diary-main
+
+$ curl -sL https://k-line-prediction-app.web.app/diary.json | python3 -c "..."
+count: 7
+has em-dash in title (ticketId present): 5
+first: {'ticketId': 'K-031', ...}
+```
+
+**K-024-specific identifiers confirmed live:**
+- `diary-main` testid (K-024 new page wrapper, `/diary` V2 layout) ✓
+- `diary-entry` testid (K-024 `DiaryEntryV2` component) ✓
+- `diary-entry-wrapper` testid (K-024 / K-028 Sacred — Homepage 0-entry placeholder guard) ✓
+- Flat schema live: 7 entries, 5 with `ticketId` (K-024 AC-024-SCHEMA shape on live CDN) ✓
+- First entry is latest (K-031 2026-04-21), Homepage-curation ordering correct ✓
+
+**Status:** Live — K-024 end-to-end landed on production.
