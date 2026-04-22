@@ -351,36 +351,21 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### K-020 — GA4 SPA Pageview E2E + HTTP Beacon Verification
+### K-033 — GA4 SPA route-change beacon emission fix（useGAPageview gtag pattern）
 
-- **Status:** backlog / type: test
-- **Ticket:** [docs/tickets/K-020-ga-spa-pageview-e2e.md](docs/tickets/K-020-ga-spa-pageview-e2e.md)
-- **摘要：** Link click → SPA route change → pageview 驗證 + 真實 `/g/collect` HTTP beacon 斷言。K-018 production bug 後 scope 擴充。2026-04-22 re-plan 拆 2 Phase。
+- **Status:** backlog / type: bug / priority: medium
+- **Ticket:** [docs/tickets/K-033-ga-spa-beacon-emission-fix.md](docs/tickets/K-033-ga-spa-beacon-emission-fix.md)
+- **摘要：** 修 `useGAPageview` SPA route 切換時 `/g/collect` beacon 未送出的 pre-existing bug；採 canonical GA4 gtag SPA pattern（Architect dry-run 決定 Pattern A `gtag('config', ...)` vs Pattern B `gtag('set',...) + gtag('event',...)`）；landed 後 K-020 T4 AC-020-BEACON-SPA 由 red 翻 green，不得 loosen assertion。Soft depends on K-032（page_location 值先改 full URL）。
 
-**AC：**
+**AC 一覽：**
 
-#### AC-020-SPA-NAV：SPA Link click 觸發 pageview 事件（Phase 1）
+- **AC-033-BEACON-SPA-GREEN** — K-020 T4 turns green with original assertion preserved
+- **AC-033-BEACON-COUNT-GREEN** — T6 initial-load exactly 1 beacon unchanged
+- **AC-033-NEG-UNCHANGED** — T7/T8/T9 NEG-* remain green (hook deps `[location.pathname]` unchanged)
+- **AC-033-PAYLOAD-PINNED** — T5 beacon carries `v=2` + `tid` + `en=page_view` + path-key
+- **AC-033-NO-REGRESSION** — K-018 ga-tracking.spec.ts 12 tests unaffected
 
-- **Given** 用戶在 `/` 頁面，`VITE_GA_MEASUREMENT_ID='G-TESTID0000'`，`window.dataLayer` 已由 production `initGA()` 初始化
-- **When** 用戶點擊 NavBar 的 About Link（SPA navigate，非 `page.goto`）
-- **Then** `waitForURL(/\/about$/)` + `waitForFunction` 確認 `window.dataLayer` 有 Arguments-object entry 滿足 entry[0]==='event' AND entry[1]==='page_view' AND entry[2].page_location==='/about'
-- **And** 測試記錄 click 前 dataLayer.length，斷言 click 後 length 增加且新 entry 指向 `/about`（區分初始 `/` pageview 與 click 觸發的 `/about` pageview）
-- **And** 測試無 `waitForTimeout`
-- **And** 至少 2 個獨立 Playwright test case — NavBar Link + BuiltByAIBanner CTA（不可合併）
-
-#### AC-020-BEACON：真實 HTTP pageview beacon 送出（Phase 2，blocked on BQ-1）
-
-- **Given** `VITE_GA_MEASUREMENT_ID='G-TESTID0000'`，`initGA()` 正常執行，Playwright 未 block `googletagmanager.com` / `google-analytics.com`
-- **When** 用戶 `goto('/about')` 觸發初始 pageview
-- **Then** `page.waitForRequest(req => /\/g\/collect/.test(req.url()))` 在 5s timeout 內捕捉到送往 google-analytics.com 的 request
-- **And** request URL query string 含 `en=page_view`
-- **And** 測試失敗時必須 throw，不得 `test.skip()`
-- **And** 至少 1 個獨立 Playwright test case
-
-**Architect Blocking Questions：**
-- BQ-1：CI network egress policy（repo 目前無 `.github/workflows/`）— Phase 2 依賴此決議
-- BQ-2：Mock 策略（spy vs replace）— PM 推薦移除 addInitScript mock，直接觀察 production dataLayer
-- BQ-3：`waitForRequest` SPA navigate race condition — Phase 2 延伸斷言需處理
+完整 Given/When/Then/And 見 [K-033](docs/tickets/K-033-ga-spa-beacon-emission-fix.md)。
 
 ---
 
@@ -954,6 +939,67 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 #### AC-031-K022-REGRESSION
 
 見 [K-031](docs/tickets/K-031-remove-built-by-ai-showcase-section.md)：about-v2.spec.ts AC-022-* + about.spec.ts AC-017-BANNER 全綠；tsc exit 0。
+
+---
+
+### K-020 — GA4 SPA Pageview E2E + HTTP Beacon Verification
+
+- **Status:** closed / type: test / **Closed: 2026-04-22**
+- **Ticket:** [docs/tickets/K-020-ga-spa-pageview-e2e.md](docs/tickets/K-020-ga-spa-pageview-e2e.md)
+- **Follow-ups:** [K-032](docs/tickets/K-032-ga-page-location-full-url.md) (page_location value), [K-033](docs/tickets/K-033-ga-spa-beacon-emission-fix.md) (useGAPageview call pattern — T4 tracker)
+- **摘要：** Delivered 9 Playwright tests (SPA-NAV × 2, BEACON × 4, NEG × 3); 8 green merged as regression guard, 1 intentionally red (T4 AC-020-BEACON-SPA) kept as K-033 tracker per PM Option A ruling. T4 correctly caught a K-018-class production bug: `useGAPageview` `gtag('event','page_view',…)` under `send_page_view:false` is silently dropped by gtag.js on SPA navigate. Three anti-decay guards landed (spec doc-block, architecture.md Known Gap blockquote, dashboard Active row for K-033). No production runtime code modified. Deploy: N/A (test-only).
+
+**AC（原文保留）：**
+
+#### AC-020-SPA-NAV：SPA Link click 觸發 dataLayer pageview entry（Phase 1 — PASS）
+
+- **Given** 用戶在 `/` 頁面，`VITE_GA_MEASUREMENT_ID='G-TESTID0000'`（playwright.config.ts 已設定），`window.dataLayer` 已由 production `initGA()` 初始化
+- **When** 用戶點擊 NavBar 的 `About` Link（不是 `page.goto('/about')`），觸發 React Router SPA navigate
+- **Then** Playwright 透過 `page.waitForURL(/\/about$/)` 確認 URL 切換完成，並透過 `waitForFunction` 確認 `window.dataLayer` 中存在 Arguments-object entry 滿足：entry[0] === 'event' AND entry[1] === 'page_view' AND entry[2].page_location === '/about'
+- **And** 該 entry 必須在點擊動作之後產生，不得混淆初始 `/` load 時的 pageview（測試必須記錄 click 前 `dataLayer.length`，斷言 click 後 length 嚴格增加且新 entry 指向 `/about`）
+- **And** 測試無 `waitForTimeout`，改以 `waitForURL` + `waitForFunction` 同步
+- **And** 至少 2 個獨立 Playwright test case — 一個覆蓋 NavBar Link（`/` → `/about`），另一個覆蓋 BuiltByAIBanner CTA（`/` → `/about`，不同 DOM 進入點）；每個 case 獨立 spec（不可合併）
+
+#### AC-020-BEACON-INITIAL：初始 page load 發出 pageview beacon（Phase 2 — PASS）
+
+- **Given** `VITE_GA_MEASUREMENT_ID='G-TESTID0000'`，`page.route('**/g/collect*', ...)` 已在 test 開始前註冊攔截器，攔截器 `route.fulfill({status: 204})` 終止 request 且將 `route.request()` 收集至 per-test array
+- **When** 用戶 `page.goto('/about')` 觸發初始 pageview
+- **Then** 攔截器在 5 秒 timeout 內收到至少 1 個 `/g/collect` request
+- **And** 該 request host 必須是 `www.google-analytics.com`（或 `google-analytics.com`）
+- **And** 測試失敗時必須 throw（不得 `test.skip()` 或 try-catch 吞掉），使 beacon 未送出問題立即可見
+
+#### AC-020-BEACON-SPA：SPA navigate 發出新的 pageview beacon（Phase 2 — INTENTIONALLY RED, K-033 TRACKER）
+
+- **Given** 攔截器已註冊並記錄初始 `/` load 收到的 beacon 清單為 `initialBeacons`
+- **When** 用戶點擊 NavBar `About` Link 觸發 SPA navigate 到 `/about`
+- **Then** `page.waitForURL(/\/about$/)` 後，攔截器在 5 秒 timeout 內收到至少 1 個**新**的 `/g/collect` request（`beacons.length > initialBeacons.length`）
+- **And** 新 request 的 path key（`dl` 或 `dp`）必須 urlDecode 後包含 `/about`
+- **And** 至少 1 個獨立 Playwright test case
+
+**Red status rationale:** T4 currently fails because `useGAPageview` dispatches `gtag('event', 'page_view', {…})` while `initGA()` has set `send_page_view: false`; modern GA4 gtag.js silently drops this combo — no `/g/collect` emitted on SPA route change. K-020 Engineer Dry-Run (DR 2026-04-22) confirmed full-URL `page_location` does NOT fix beacon emission; the call pattern itself must change. **Do NOT loosen this assertion to turn it green** — loosening reintroduces the exact K-018-class gap K-020 was designed to close. K-033 will fix by migrating to canonical GA4 SPA pattern; AC-033-BEACON-SPA-GREEN defines green state preserving this assertion verbatim.
+
+#### AC-020-BEACON-PAYLOAD：beacon query string pin 必備欄位（Phase 2 — PASS）
+
+- **Given** 攔截器已捕捉到一個 pageview beacon request
+- **When** 測試讀取 `request.url()` 並 parse query string
+- **Then** query string 必須包含：`v=2` AND `tid=G-TESTID0000` AND `en=page_view`
+- **And** path key (`dl` per Engineer dry-run DR-2) urlDecode 後對應當前路由
+
+#### AC-020-BEACON-COUNT：每次 pageview 恰好 1 個 beacon（Phase 2 — PASS）
+
+- **Given** 攔截器已註冊並清空 beacon array
+- **When** 用戶完成 1 次 pageview 動作（初始 load 或 SPA navigate）
+- **Then** 該次動作完成後 1 秒內，攔截器收到的 `/g/collect` request count 恰為 1
+- **And** 防 StrictMode 雙重 invoke 或未來 duplicate call site 造成的 beacon 重複送出（DR-4 確認 gtag.js 內部 dedupe StrictMode 雙 push）
+
+#### AC-020-NEG-QUERY / NEG-HASH / NEG-SAMEROUTE：行為鎖死（Phase 3 — PASS）
+
+- **AC-020-NEG-QUERY:** query-only 變化（`/?x=1` → `/?x=2`）500ms 後攔截器 beacon count 不變
+- **AC-020-NEG-HASH:** hash-only 變化（`/about` → `/about#team`）500ms 後 beacon count 不變
+- **AC-020-NEG-SAMEROUTE:** 用戶在 `/about` 再次點擊 NavBar `About` Link，500ms 後 beacon count 不變
+- 鎖死目前 `[location.pathname]` deps 行為；未來改成 query/hash 敏感需另開 ticket + 改 AC
+
+**PM ruling 2026-04-22（Option A — split）：** Engineer delivered 8/9 pass. T4 root cause is pre-existing `useGAPageview` gtag call pattern (K-018 Engineer responsibility per Bug Found Protocol step 1). T4 retained as red, tracked to K-033. K-020 8 green 併入作 K-018-class regression guard. Pre-Verdict matrix: A=11/12, B=6/12, C=6/12 (red team 3 challenges all counterable; biggest unresolved risk = K-033 slippage, mitigated by medium priority + dashboard + in-file tracker). Bug Found Protocol 4 steps executed. Reviewer C-1/W-1/W-2/W-3 all fix-now. See ticket for full chain of custody.
 
 ---
 

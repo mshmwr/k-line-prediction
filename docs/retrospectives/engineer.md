@@ -16,6 +16,58 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-22 — K-020 Review Fix C-1 (K-033 TRACKER doc-block)
+
+**What went well:** PM ruling provided exact doc-block text + exact line anchor (between the previous test's closing `})` at line 140 and the `test('AC-020-BEACON-SPA ...)` at line 142). Edit was mechanical; `tsc` + full Playwright run both matched the pre-fix baseline (198 pass / 1 skip / 1 red T4). No behavior drift.
+
+**Next time improvement:** When a PM ruling specifies exact insertion text + line anchor, use `Edit` with the surrounding context (prev test's closing `})` + blank line + target `test(...)` signature) as `old_string` — guarantees single-site match without `replace_all` risk. Pattern to reuse for future doc-block insertion rulings.
+
+## 2026-04-22 — K-018 GA4 Tracking (back-fill, attributed via K-020 Bug Found Protocol)
+
+**Back-fill note:** this entry added by PM during K-020 reviewer W-2 ruling (2026-04-22) to satisfy Bug Found Protocol step 1 for the K-018-class bug surfaced by K-020 T4 AC-020-BEACON-SPA. Original K-018 delivery (2026-04-19) was accepted as green because its `addInitScript`-based mock hid the defect. K-020's first real-gtag.js run exposed it. Entry framed in K-018 Engineer's voice (as required by Bug Found Protocol), written retrospectively.
+
+**What went wrong (K-018 Engineer):**
+- Shipped `useGAPageview` calling `gtag('event','page_view',{page_location,page_title})` directly, combined with `initGA` calling `gtag('config', id, {send_page_view:false})`. The combination is broken under modern GA4 gtag.js: a manual `event page_view` while `send_page_view:false` is in effect does not emit a `/g/collect` request — gtag.js treats it as a housekeeping event, not a pageview. Initial `/` page load only worked because the first `config` call itself (before `send_page_view:false` was captured) happened to emit once. SPA route changes silently dropped.
+- E2E (`ga-tracking.spec.ts`) used `addInitScript` to install a mocked `window.gtag` that simply recorded invocations. Production `initGA()` then ran and overwrote the mock; no test step re-validated shape against the real overwrite. Assertions checked `entry[0]==='event'` etc. on the recorded dataLayer — which matched both Array and Arguments-object shapes, so shape defects were invisible.
+- No end-to-end `/g/collect` HTTP assertion was added. "GA4 pipeline actually delivers pageviews" was tested only manually (one live Realtime check), and that check was conducted shortly after deploy when the initial pageview beacon was indeed live — SPA nav scenario untested in production until K-018 lived in prod for ~2 days and Realtime showed 0 users.
+
+**Why K-018 safeguards did not cover it (structural):**
+- The test-mock strategy (`addInitScript` overriding `window.gtag`) was chosen to avoid out-bound network dependency, but no "does gtag.js actually emit `/g/collect`?" assertion was added to compensate. The mock was a safety-shortcut that removed the only observation point for the wire-level behavior.
+- AC-018-PAGEVIEW used `entry[0]` / `entry[1]` indexed access, which is polymorphic between Array and Arguments-object. PM AC review did not enforce shape-specificity.
+- Playwright's `page.route` pattern was not yet canonized as the standard GA4 intercept approach in `agent-context/architecture.md` (added retroactively by K-020 §GA4 E2E Test Matrix).
+
+**Next time improvement (codified):**
+- Engineer persona `~/.claude/agents/engineer.md` §"Regression-Guard Test Failing on First Run" (added during K-020 Engineer retro, lines 252-270) now mandates: when shipping an integration that depends on a third-party JS library's wire behavior (gtag.js, hcaptcha, Stripe.js), E2E must include at least one network-level assertion (`page.route` or `page.waitForRequest`) on the actual outbound request. Shape-only mock is not sufficient for regression defense.
+- `agent-context/architecture.md` §GA4 E2E Test Matrix (added 2026-04-22 K-020) now documents the canonical intercept contract so future tickets inherit the pattern.
+- PM persona does not need new language — existing Parallel Given quantification + AC CSS wording rules already cover the structural axis. This entry closes the bookkeeping loop for W-2 only.
+
+---
+
+## 2026-04-22 — K-020 GA4 SPA Pageview E2E — BLOCKED on BEACON-SPA (production bug surfaced)
+
+**What went well:**
+- Followed the design §3.1 scaffold literally; `tsc --noEmit` exit 0 on first write. 8 of 9 new tests passed on first green-field run (SPA-NAV × 2, BEACON-INITIAL, BEACON-PAYLOAD, BEACON-COUNT, NEG-QUERY, NEG-HASH, NEG-SAMEROUTE).
+- Dry-Run DR-1/2/3 captured live beacon URL from dev env via a scratch canary spec (`ga-canary.spec.ts`, deleted before delivery): `dl=%2F` confirmed (GA4 MP v2 `dl` key, not `dp`), so the tolerant `[?&](?:dl|dp)=[^&]*%2Fabout` regex is Correct. Payload pins (`v=2`, `tid=G-TESTID0000`, `en=page_view`) all present.
+- Dry-Run DR-4 confirmed StrictMode does NOT cause double beacon on initial load (gtag.js dedupes the 2 dataLayer `event page_view` entries into 1 `/g/collect` request). AC-020-BEACON-COUNT passes with `.toBe(1)` as-designed — no escalation needed for this axis.
+- Full Playwright suite ran 198 pass / 1 skip / 1 fail; the only failure is the new T4 AC-020-BEACON-SPA, no regression of K-018 `ga-tracking.spec.ts` or any other suite.
+- E2E spec logic self-check (K-027 3-point) applied: NavBar About locator scoped via `[data-testid="navbar-desktop"]` to disambiguate from the future (hidden) Prediction link and from HomePage's BuiltByAIBanner banner anchor; assertion direction FAIL-able (delta `toBeGreaterThan(initialCount)` would fail if the production hook were deleted); no unjustified `waitForTimeout` (the 500ms / 1000ms waits in NEG-* and BEACON-COUNT are per design §2.6 as bounded negative-assertion windows).
+
+**What went wrong (production bug, not test bug):**
+- AC-020-BEACON-SPA fails because gtag.js **never emits a second `/g/collect` request** after the SPA navigate `/` → `/about`. Canary diagnostic shows:
+  - After `page.goto('/')`: 1 beacon emitted with `en=page_view&dl=%2F&dt=...Home` (correct).
+  - After NavBar About click: `useGAPageview` fires; Arguments-object `['event','page_view',{page_location:'/about', page_title:'…About'}]` is correctly pushed to `window.dataLayer` (verified by `page.evaluate()`); but gtag.js does NOT emit a new `/g/collect` beacon for it. Even after a 10 s wait only one additional `user_engagement` beacon (`_eu=AAAAAAQ`, no `en=page_view`, still `dl=%2F`) is sent.
+  - Tried replacing the manual `gtag('event','page_view',{page_location:'http://localhost:5173/about',…})` with full-URL `page_location`: no change — still no new `en=page_view` beacon.
+  - Tried the documented SPA pattern `gtag('config', id, {page_path, page_title})`: this DOES trigger a follow-up beacon, but without `en=page_view` (it's a session-context update beacon).
+- **Root cause:** `frontend/src/utils/analytics.ts initGA()` calls `gtag('config', id, { send_page_view: false })` (to avoid double-firing the initial pageview, since `useGAPageview` handles it). That's correct for initial load. But for SPA route changes, the hook fires `gtag('event', 'page_view', {page_location, page_title})` directly — gtag.js's modern API treats manual `event page_view` as an ad-hoc event and does not open a new `/g/collect` request for it while `send_page_view: false` is in effect. The canonical GA4 SPA pattern requires either (a) re-calling `gtag('config', id, { page_path, page_title, send_page_view: true })` on each route change, or (b) calling `gtag('event','page_view')` **after** a `gtag('set', 'page_location', …)` that actually updates the session context.
+- **This is exactly the K-018 regression class that K-020 was designed to surface:** `ga-tracking.spec.ts` asserts only the dataLayer shape, so the fact that gtag.js swallows the event silently was invisible. K-020's BEACON-SPA assertion caught it on the first run — working as intended.
+- **Scope conflict:** the ticket explicitly states "no production code change expected" and "`frontend/src/hooks/useGAPageview.ts` UNCHANGED — behavior locked by AC-020-NEG-*". Fixing the hook would also change AC-020-NEG-* semantics (query-only/hash-only/same-route all still no-beacon — that part survives, but the hook's call signature would change).
+- K-032 (pre-existing `page_location` pathname-vs-full-URL bug) is a **separate** concern: my canary showed that even passing full URL does not fix beacon emission on SPA nav. K-032 alone will NOT make AC-020-BEACON-SPA pass. A hook rewrite to use `gtag('config', ...)` or `gtag('set',...)+gtag('event','page_view')` is required, which is production scope change outside K-020.
+
+**Next time improvement:**
+- Codify in `~/.claude/agents/engineer.md`: when a test-only ticket (`type: test`) is designed to surface a production bug class (K-020's stated goal per ticket §背景), Engineer must perform a "is the target behavior actually present?" dry-run on the production path **before** writing the hard-pinned assertion. Design doc §2.5 correctly framed "primary guard = beacon count ≥ 1 after SPA navigate" as the K-018-class guard; it just didn't spell out that if the guard fires red, that IS the valid outcome and must escalate to PM for follow-up production fix ticket, not be worked around in the test.
+- Added to `engineer.md` Bug Found Protocol section: "If a new test designed as a regression guard fails on first green-field run due to genuine production bug (not test bug), stop at 8/9 pass and escalate to PM; do not silently loosen the assertion. This is the test succeeding at its purpose."
+- This was a close call on the persona rule "Never downgrade design doc scope" — I did NOT skip or loosen any assertion; T4 is checked in as-is, failing red, so future production fix will turn it green.
+
 ## 2026-04-21 — K-030 Code Review fix-now pass 2 (C-1 Hero CTA new tab + I-3 JSDoc drift)
 
 **What went well:**

@@ -20,6 +20,16 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-020 GA4 SPA Pageview E2E Test Hardening (design)
+
+**What went well:** Built a 6-row "URL transition → `location.pathname` change → effect fires → beacon sent" truth table (§1 in design doc) before drafting any AC mapping. This table resolved 4 separate AC (SPA-NAV / NEG-QUERY / NEG-HASH / NEG-SAMEROUTE) from one source of behavior truth, prevented "Engineer decides" in negative-test design, and mapped 1:1 onto QA Challenge #7 (the blocking BQ the ticket was re-planned to close). AC ↔ test count cross-check (§4 in design doc) locked 9 = 9 = 9 before delivery — no silent drift between AC sum, test table row count, and declared total (K-030 I-2 class).
+
+**What went wrong:** On the `dl` vs `dp` GA4 MP v2 payload key question, I was tempted to pin `dl` decisively in design from knowledge-cutoff (GA4 gtag.js always emits `dl`), but Pre-Design Dry-Run Proof gate requires `git show <base>:<file>` or equivalent verifiable citation for pre-existing behavioral claims. I have no browser/network execution capability as an Architect persona — AC literally asks "Architect dry-run confirm" which is un-executable. Had to compromise to a test-tolerant regex `[?&](dl|dp)=` + mandate Engineer Dry-Run Record DR-1..3 at implementation time. This works, but it reveals a systemic gap: AC-level expectations (e.g. "Architect dry-run determines value X") assume Architect has runtime tools that the persona actually lacks.
+
+**Next time improvement:** Codify as a persona pattern "Dry-Run Deferral": when an AC asks Architect to determine a value that requires browser/network execution, the correct design output is (a) a test-tolerant assertion that accepts either plausible outcome + (b) an explicit Engineer Dry-Run Record block the Engineer must populate pre-freeze. This is NOT the same as "let Engineer decide" (which is forbidden) — the design still pins the contract; only the observable value identity is resolved at implementation. Will propose adding this as a named pattern under `## Pre-Design Dry-Run Proof` in senior-architect.md after K-020 closes (gates durable rule additions behind "pattern recurred ≥ 2 tickets" — K-020 is case 1, so log only this round, propose persona edit when case 2 appears).
+
+---
+
 ## 2026-04-21 — K-030 post-code-review doc alignment（I-2 fix-now）
 
 **做得好：** 先讀 ticket AC 確認 BG-COLOR 經 QA Early Consultation 已被 PM 拆為兩 Playwright cases（ticket L191 Option A ruling），再 cross-reference ticket §AC total 明列 "minimum 5 new Playwright test cases (NEW-TAB × 1 + NO-NAVBAR × 1 + NO-FOOTER × 1 + BG-COLOR × 2)"，確認 source of truth = 5 cases，不是 4，也不是 6。Hero CTA 追加部分採保守策略（總數先寫 5 + §6.3 addendum 占位），避免前瞻寫 6 造成設計文件與 main branch spec count 不一致。

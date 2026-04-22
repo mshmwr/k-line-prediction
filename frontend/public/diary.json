@@ -1,5 +1,11 @@
 [
   {
+    "milestone": "K-020 — GA4 SPA Pageview E2E hardening + HTTP beacon regression guard",
+    "items": [
+      { "date": "2026-04-22", "text": "K-020 closed: added 9 Playwright tests covering SPA link-click pageview, /g/collect HTTP beacon payload (v=2, tid, en=page_view, dl path-key), initial-load beacon count, and negative guards for query/hash/same-route navigations; 8 green merged as K-018-class regression guard and 1 intentionally red (AC-020-BEACON-SPA) retained as K-033 tracker after Engineer dry-run proved production useGAPageview drops gtag('event','page_view') under send_page_view:false; full suite 198 passed / 1 skipped / 1 designed-red; no production runtime code changed; follow-ups K-032 (page_location full URL) + K-033 (canonical GA4 SPA gtag pattern) logged with triple anti-decay guard (spec doc-block, architecture.md Known Gap, dashboard Active row)." }
+    ]
+  },
+  {
     "milestone": "K-031 — Remove Built by AI showcase section from /about",
     "items": [
       { "date": "2026-04-21", "text": "K-031 closed: removed the explanatory Built by AI showcase section (S7) from /about — deleted BuiltByAIShowcaseSection.tsx, removed import and SectionContainer block from AboutPage.tsx, renumbered FooterCtaSection comment from S8 to S7; homepage BuiltByAIBanner unaffected; 2 new AC-031 Playwright tests (section-absent + layout-continuity) added to about-v2.spec.ts; 171 passed / 1 skipped / 0 failed; tsc exit 0." }

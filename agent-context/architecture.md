@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-21 (K-013 + K-028 + K-030 + K-031 close)
+updated: 2026-04-22 (K-020 design — GA4 E2E Test Matrix)
 ---
 
 ## Summary
@@ -543,6 +543,27 @@ TICKET_ID=K-008 npx playwright test visual-report.ts
 
 ---
 
+## GA4 E2E Test Matrix (K-018 + K-020)
+
+**Test files (all in `frontend/e2e/`):**
+
+| File | Layer | Created | Owns |
+|------|-------|---------|------|
+| `ga-tracking.spec.ts` | Helper / shape layer | K-018 | `addInitScript` dataLayer spy — asserts `trackPageview` / `trackCtaClick` push correct Arguments-object shape. INSTALL + PAGEVIEW + CLICK + PRIVACY + PRIVACY-POLICY cases. |
+| `ga-spa-pageview.spec.ts` | HTTP beacon + SPA nav layer | K-020 | No mock; observes production `window.dataLayer` + intercepts real `/g/collect` via `context.route('**/g/collect*', fulfill 204)`. Phase 1 SPA-NAV (2 tests) + Phase 2 BEACON-INITIAL/SPA/PAYLOAD/COUNT (4 tests) + Phase 3 NEG-QUERY/HASH/SAMEROUTE (3 tests). 9 tests total. |
+
+**Intercept contract:** per KB `FE/playwright-network-interception.md`, context-level `context.route('**/g/collect*', fulfill({status:204}))` is canonical. Handler registered inside `test.beforeEach` to ensure page-fixture teardown (no cross-test bleed).
+
+**GA4 MP v2 payload pins (K-020 BEACON-PAYLOAD):** `v=2`, `tid=G-TESTID0000` (test env only), `en=page_view`, path-key (`dl` or `dp`) containing current pathname.
+
+**Hook behavior lock (K-020 NEG-*):** `useGAPageview` depends on `[location.pathname]` only. Query-only / hash-only / same-route navigation MUST NOT fire pageview. To change this, new ticket required (update AC + hook + tests simultaneously).
+
+**K-018 regression guard:** `gtag = function () { dataLayer.push(arguments) }` (Arguments-object) is enforced by BEACON-INITIAL + BEACON-SPA tests — if shape drifts to spread-Array, gtag.js rejects the event internally and no `/g/collect` beacon is sent, which these tests catch as `beacons.length === 0` after 5s timeout. (K-018 bug was invisible to `ga-tracking.spec.ts` because its `addInitScript` mock replaced the production shape; K-020 observes production dataLayer post-`initGA()` specifically to close this gap.)
+
+> **Known Gap (2026-04-22):** `BEACON-SPA` is currently red — tracked by **[K-033](../docs/tickets/K-033-ga-spa-beacon-emission-fix.md)**. Root cause: `useGAPageview` calls `gtag('event','page_view',{…})` while `initGA` has `send_page_view:false`, which gtag.js silently drops without emitting `/g/collect`. `BEACON-INITIAL` + `BEACON-PAYLOAD` + `BEACON-COUNT` + all `NEG-*` + both `SPA-NAV` dataLayer tests are green (8 / 9). Until K-033 lands, `BEACON-SPA` provides diagnostic signal (CI failure = reminder of the production gap) but is NOT an active guard. DO NOT loosen the assertion to green — that reintroduces the exact K-018-class gap K-020 was designed to close.
+
+---
+
 ## Scripts & Public Protocols Doc（K-017 起）
 
 ### `scripts/audit-ticket.sh`
@@ -602,6 +623,7 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-22**（Architect, K-020 設計）— GA4 SPA Pageview E2E 測試硬化設計：新增 `frontend/e2e/ga-spa-pageview.spec.ts`（9 tests：SPA-NAV × 2 + BEACON × 4 + NEG × 3）；`ga-tracking.spec.ts`（K-018）保留不動；新增 §GA4 E2E Test Matrix 段落（layer / owns / intercept contract / payload pins / hook behavior lock / K-018 regression guard）。No production code change. 設計文件：[K-020-ga-spa-pageview-e2e.md](../docs/designs/K-020-ga-spa-pageview-e2e.md)。
 - **2026-04-21**（PM, K-013 close + merge + deploy）— K-013 Consensus / Stats SSOT（TD-008 Option C）closed after R2 bug-found remediation. Merge commit to main + Firebase Hosting deploy + PRD §3→§4 migration + PM-dashboard deregister + Deploy Record block appended. Final gate: tsc 0 / vitest 45/45 / pytest 68/68 / playwright 173+1 skipped / K-013 spec 4/4.
 - **2026-04-21**（PM, K-013 Round 2 Code Review 裁決）— SQ-013-01 premise retracted：Round 2 Fix 1 `853a8aa` 於 `AppPage.tsx` 恢復 OLD base `b0212bb` L224-226 無條件 `consensusForecast1h/1d` 注入，證偽原設計文件「全集下無 consensus 圖 pre-existing」假設；`docs/designs/K-013-consensus-stats-ssot.md` §0.3 / §2.3 / §8.1 / §9.3 更新 + `agent-context/architecture.md` `Consensus Stats Source of Truth` 段 Known Gap 改為 wire-level vs observable 分層敘述。wire-level `consensus_forecast_*` 仍回 `[]`（AppPage 層注入 observable），不視為 architecture debt。K-013 AC-013-APPPAGE 文字同步更正為「呼叫 util 取 projectedFutureBars + 無條件注入 consensusForecast1h/1d」；AC-013-APPPAGE-E2E 於 ticket §驗收條件正式補列。TD-K013-R2-01（Vitest 1-bar fixtures dev-mode warn noise）+ TD-K013-R2-02（Reviewer persona Gate 4 dry-run / Post-Fix Doc Consistency）登記追蹤。no code change（docs-only）。
 - **2026-04-21**（Engineer, K-013 實作）— TD-008 Option C 落地完成：`frontend/src/utils/statsComputation.ts` 新檔（純 util `computeStatsFromMatches` + snake→camel whitelist helpers）；`frontend/src/AppPage.tsx` 刪除 inline `computeDisplayStats` + `buildProjectedSuggestion`，`projectedFutureBars` + `displayStats` 合併進單一 `workspace` useMemo（full-set 走 backend baseline，subset 呼叫 util 並合併 `consensusForecast1h/1d`）；`backend/tests/fixtures/` 新目錄（generator + 3-case JSON，case 重設 current_close=2000 同 base 以避開 .005 rounding 邊界）；`backend/tests/test_predictor.py` +5 contract tests（`math.isclose(rel_tol=1e-6, abs_tol=1e-6)`）；`frontend/src/__tests__/statsComputation.test.ts` 9 tests；`backend/predictor.py::compute_stats` + `_projected_future_bars` 補 docstring 明示 full-set baseline + fixture 鎖 parity。Gate：tsc exit 0 / pytest 68 passed / vitest 45 passed / playwright 174 passed。`git diff main -- backend/models.py` 空 diff — AC-013-API-COMPAT 驗證通過。

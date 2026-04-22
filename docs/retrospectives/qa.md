@@ -20,6 +20,15 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-020 Regression (full Playwright E2E sign-off)
+
+**What went well:** Full-suite run (200 tests discovered) landed exactly on the shape agreed in Early Consultation + design §3.1 — 198 pass / 1 skip / 1 fail, where the lone fail is the intentional K-033 tracker (`AC-020-BEACON-SPA`) carrying the PM-ruled C-1 doc-block above it. No pre-existing spec regressed; the 9 new tests in `frontend/e2e/ga-spa-pageview.spec.ts` match design §3.1 one-for-one. AC coverage mapping verified per spec: AC-020-SPA-NAV ×2 green, AC-020-BEACON-INITIAL / PAYLOAD / COUNT green, AC-020-NEG-QUERY / NEG-HASH / NEG-SAMEROUTE green, AC-020-BEACON-SPA red-on-purpose with visible K-033 TRACKER explainer in-source.
+
+**What went wrong:** Pencil MCP fallback policy triggered — `mcp__pencil__get_screenshot` not invoked because K-020 is a pure test-addition ticket (no production code, no UI delta, no `.pen` associated). Per persona the visual comparison is only mandatory when the ticket has a `.pen` design; still, I should be explicit that the visual layer is intentionally skipped rather than silently omitted. Also: `visual-report` run inside the full-suite call printed `TICKET_ID not set, output will be K-UNKNOWN-visual-report.html` — fine for this test-only regression where visual report isn't required, but a generic reminder that the screenshot wrapper needs `TICKET_ID=K-020` when a visual deliverable is expected. No rule was violated on this ticket because the task instruction explicitly waived per-test screenshots; logging so future test-only tickets inherit the same explicit waiver language.
+
+**Next time improvement:** When QA sign-off is a test-only / no-UI-delta ticket, declare in the verdict block "visual layer N/A — no production code change, no `.pen` delta" instead of silently omitting the Pencil comparison step. This makes the Known Gap explicit and matches the persona rule that unstated omissions don't count as sign-off. If any future test-only ticket also introduces even one UI-touching line, revert to full Pencil comparison.
+
+
 ## 2026-04-22 — K-020 Early Consultation (real Agent(qa) run — independent pass)
 
 **Context:** Independent QA Early Consultation invoked by PM for K-020 (GA4 SPA Pageview E2E hardening) following the PM-simulated pass earlier this session. Scope: read ticket K-020 + PRD + `frontend/src/utils/analytics.ts` + `frontend/src/hooks/useGAPageview.ts` + `frontend/e2e/ga-tracking.spec.ts` + `frontend/playwright.config.ts`, probe AC for boundary / edge-case / race-condition gaps. PM pre-decided: BQ-1 resolved to `page.route()` intercept; AC-020-SPY-PATTERN removed.
