@@ -1,3 +1,15 @@
+## 2026-04-22 — K-025 UnifiedNavBar hex→token + dual-rail spec upgrade (Step 2 depth review)
+
+**做得好：** Pure-Refactor Behavior Diff Gate 按規執行：`git show main:frontend/src/components/UnifiedNavBar.tsx` 讀 OLD 後列逐分支 truth table（isActive=true / isActive=false / external=true / external=false / pathname==='/' / pathname!=='/'）7 格，每格 NEW className 與 OLD className 經 tailwind.config 解析後 computed color 完全等價（`#9C4A3B` ↔ `rgb(156 74 59)`、`#1A1814` ↔ `rgb(26 24 20)`、`#F4EFE5` ↔ `rgb(244 239 229)`、`/60` opacity modifier 保留），props 零異動、`TEXT_LINKS` 靜態常數不動、`renderLink` external / SPA 分支邏輯不動、`useLocation`+`pathname` 判斷不動。AC ↔ test count cross-check 通過（AC-025-NAVBAR-SPEC 5 And 家族 → spec 新增/改寫 5 tests）。dual-rail 斷言 rgb/rgba 格式用已存在的 `toHaveCSS` 實例（app-bg-isolation L119 / sitewide-body-paper L20）佐證 Chromium stringify 格式，無需冷啟實驗；/business-logic 路由 NavBar 實際掛載（BusinessLogicPage.tsx L90 `<UnifiedNavBar />`）經 grep 證實，`toHaveCount(0)` 斷言為「hidden-route behavior」而非「NavBar 未 render 的 false-green」。
+
+**沒做好（本來該在更早階段攔截）：** AC-025-REGRESSION 的 4 條 `dist/assets/*.css` hex declaration grep（`color:#9c4a3b` / `color:#1a1814` / `background-color:#f4efe5` / `border-color:#1a1814`）作為等價性證據屬於 degenerate proxy — Tailwind JIT 對非 opacity-modified utility 輸出 `color:rgb(156 74 59)` 而非 lowercase hex，grep `color:#9c4a3b` 在 refactor 前與後同為 0（post-refactor dist 實測 0/7/0/3），pre==post 不變並非因為等價性成立而是因為 pattern 本身就測不到 brick-dark 與 paper 的主體 declaration。真正的 SSOT 是 `rgb(156 74 59)` (5 occurrences) / `rgb(244 239 229)` (5) / `rgb(26 24 20)` (7)，才是有 signal 的 invariant。此缺陷在 PRD QA Early Consultation Q1 採納時就應由 QA 或 Architect 追問「此 grep pattern 能否 capture 所有 declaration」，但當時 Q1 裁決用「dist grep pre==post」字眼結案，三方未對 pattern 覆蓋範圍追問。Engineer 在實作過程中自行發現並寫入 retrospective（§Next time improvement），屬下游 catch，不屬於 Reviewer 首攔的早期階段問題。
+
+**下次改善：**
+1. **QA Early Consultation 對 "grep-based equivalence proxy" 新增一步 SSOT 對齊檢驗：** 當 AC 引用「post-build grep 某 pattern 在 dist CSS 中 pre == post」作為等價性證據，QA 必須在 pre-Architect 階段先 `npm run build` 一次當前 main，把 grep pattern 跑過實際 dist/assets/*.css 並報告 raw count。若 raw count 為 0（或與可能的 SSOT 數量差距大），立即回 PM 要求 widen grep（例如補 `rgb(R G B` 形式）或換 strategy（例如 `.text-brick-dark` class 存在斷言）。此建議 codify 進 qa.md 硬步驟。
+2. **Reviewer Step 1 pre-build sanity：** 深度 review 時對「dist grep 等價」類 AC，先跑實際 grep 報 raw count，不只看 pre==post 結果是否相等。本次若執行 `grep -c 'color:#9c4a3b' dist/assets/*.css` = 0 在 Round 1 就會浮上 pattern-degenerate 疑慮，而不是靠 Engineer retrospective 揭示；codify 為 reviewer.md §Plan Alignment 子條「equivalence-grep proxy raw-count sanity」。
+
+---
+
 # Reviewer Retrospective Log — K-Line Prediction
 
 跨 ticket 累積式反省記錄。每次 review 結束前由 senior-engineer agent（code reviewer）append 一筆，最新在上。

@@ -16,7 +16,21 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
-## 2026-04-21 — K-030 Code Review fix-now pass 2 (C-1 Hero CTA new tab + I-3 JSDoc drift)
+## 2026-04-22 — K-025 UnifiedNavBar hex→token + navbar.spec.ts dual-rail assertions
+
+**What went well:**
+- Design doc was precise enough that the 7 className edits were a mechanical 1:1 substitution with zero ambiguity (3 single-line edits via Edit tool, no search-and-replace mistakes). Grep after edit returned only the 2 expected JSDoc comment hexes (L18 / L19), exactly matching §2.2 L65 of the design doc.
+- Playwright's `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` and `'rgb(156, 74, 59)'` stringification formats worked first try with no format-flex debugging — design doc §R-3 risk did not materialize.
+- dist CSS declaration count stayed identical pre==post for all 4 tracked declarations (0/7/0/3 both before and after), validating AC-025-REGRESSION without needing an escape hatch. CSS bundle also shrank 210 bytes from removing unused arbitrary-value selectors — nice confirmation the refactor is strict improvement.
+- Dual-rail assertion pattern (aria-current + toHaveCSS) is genuinely refactor-proof: if someone swaps active/inactive branches in `navLinkClass` the aria assertion catches the React-state bug; if someone changes the Tailwind token mapping the toHaveCSS catches the rendered-color regression. Two independent failure modes both caught.
+
+**What went wrong:**
+- Initial reading of the design doc §5 L139 grep pattern (`color:#9c4a3b` etc.) suggested a naive lowercase-hex declaration count, but the actual Tailwind output is more nuanced: arbitrary-value utilities emit `rgb(R G B / var(--tw-text-opacity, 1))` form (no lowercase hex in declarations), only opacity-modified utilities like `/60` emit `#RRGGBBAA` with alpha byte. Had to spend 3 exploratory Bash rounds (grep with different patterns) to confirm the pre==post invariant actually holds for the specific 4 patterns listed, because the grep isn't a comprehensive equivalence check — it's a narrow proxy that happens to hold. Architect's design was correct in outcome but under-documented on why the pattern works.
+
+**Next time improvement:**
+- When a design doc specifies a post-build grep-based equivalence check on Tailwind CSS output, have Engineer do a pre-baseline grep + inspect 2-3 matched/unmatched declarations BEFORE running the refactor, not after. This way any gap between "what the grep pattern captures" vs "what the design doc claims it proves" surfaces before the edits land, giving the option to either widen the grep or escalate back to Architect for a more comprehensive equivalence proxy (e.g. also grep `rgb(156 74 59` declarations, which is the actual SSOT for non-opacity variants).
+
+
 
 **What went well:**
 - TDD red-green preserved on the new C-1 spec: added `T6 AC-030-NEW-TAB — Homepage Hero CTA opens /app in new tab`, ran and confirmed it failed with `Expected string: "_blank" Received string: ""` (locator resolved to the correct Hero CTA `<a href="/app">` — validating target-scope self-check), then applied the `Link → <a target=_blank rel=noopener noreferrer>` edit in `HeroSection.tsx` and the case turned green.
