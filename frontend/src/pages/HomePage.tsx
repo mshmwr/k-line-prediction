@@ -3,7 +3,7 @@ import HeroSection from '../components/home/HeroSection'
 import ProjectLogicSection from '../components/home/ProjectLogicSection'
 import DevDiarySection from '../components/home/DevDiarySection'
 import BuiltByAIBanner from '../components/home/BuiltByAIBanner'
-import HomeFooterBar from '../components/home/HomeFooterBar'
+import Footer from '../components/shared/Footer'
 import UnifiedNavBar from '../components/UnifiedNavBar'
 
 export default function HomePage() {
@@ -22,7 +22,7 @@ export default function HomePage() {
           error={error}
         />
       </div>
-      <HomeFooterBar />
+      <Footer variant="home" />
     </div>
   )
 }
