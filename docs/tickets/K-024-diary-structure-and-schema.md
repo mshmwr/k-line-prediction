@@ -679,3 +679,88 @@ Discovery: fixture enlargement alone (per PM R2 (a)) was NOT sufficient to discr
 |---|---|---|---|
 | PM AC can self-contradict dependency Sacred (D-1 Critical) | PM | AC ↔ Sacred cross-check hard gate (grep `AC-*-REGRESSION` + dependency Sacred before AC commit; 1-line gate evidence required) | `~/.claude/agents/pm.md` §Prerequisites for releasing Engineer; memory `feedback_pm_ac_sacred_cross_check.md` |
 | Concurrency-gate test can pass with gate removed (I-3 Important) | Engineer | Dry-run "remove gate → test still pass?" before commit; fixture must make `gate removed → red` | `~/.claude/agents/engineer.md` §Concurrency-Gate Test Dry-Run; memory `feedback_engineer_concurrency_gate_fail_dry_run.md` |
+
+### QA Phase 3 (Final Regression + Sign-off, 2026-04-22)
+
+**Gate results (all green):**
+
+| Gate | Command | Result |
+|---|---|---|
+| TypeScript | `npx tsc --noEmit` | exit 0 (no errors) |
+| Vitest | `npx vitest run` | **81 / 81 pass** across 12 spec files |
+| Playwright E2E | `npx playwright test` (fresh Vite cache) | **224 passed / 1 skipped / 0 failed** (225 total) |
+| Visual Report | `TICKET_ID=K-024 npx playwright test e2e/visual-report.ts` | 5 routes captured → `docs/reports/K-024-visual-report.html` |
+
+Pre-Playwright hygiene: `pkill -f vite && rm -rf node_modules/.vite` applied before the E2E run — confirmed no stale module graph bias.
+
+**Sacred regression verification (cross-ticket):**
+
+| Sacred | Spec / Test | Present | Status |
+|---|---|---|---|
+| K-017 NavBar order (GitHub · Logs · Playground · Diary · About) | `navbar.spec.ts` AC-017-NAVBAR + Prediction-hidden asserts, `about.spec.ts` AC-017-NAVBAR, `pages.spec.ts` AC-017-HOME-V2 | ✓ | PASS |
+| K-021 body `bg-paper` (#F4EFE5) across 4 marketing routes | `sitewide-body-paper.spec.ts` AC-021-BODY-PAPER × 5 | ✓ | PASS |
+| K-021 Bodoni Moda / Newsreader / Geist Mono font-family | `sitewide-fonts.spec.ts` AC-021-FONTS (font-display + font-mono) | ✓ | PASS |
+| K-023 Homepage DevDiarySection marker borderRadius 0px + top 8px + 3-marker count + 20×14 + brick-dark color | `pages.spec.ts` AC-023-DIARY-BULLET × 3 + AC-023-STEP-HEADER-BAR × 3 + AC-023-BODY-PADDING × 2 | ✓ | PASS |
+| K-028 `diary-entry-wrapper` 3-marker + `DEV DIARY` heading visible at 0 / 1 / N entries + 20×14 marker coord integrity + entry no-overlap | `pages.spec.ts` AC-023-REGRESSION (coord + count integrity), AC-028-SECTION-SPACING × 5, AC-028-DIARY-ENTRY-NO-OVERLAP × 2, AC-028-DIARY-RAIL-VISIBLE, AC-028-DIARY-EMPTY-BOUNDARY × 2 (0-entry heading preserved + 1-entry marker 20×14) | ✓ | PASS |
+
+All 21 Sacred-bearing test descriptions enumerated via `npx playwright test --list` filter; each ran within the 224-pass batch.
+
+**Pencil Visual Match Report (MCP fallback — see below):**
+
+| Route | Pencil Frame | Visual Match | Notes |
+|---|---|---|---|
+| `/diary` (desktop 1440) | `wiDSi` | ✅ | Hero title "Dev Diary" Bodoni italic + hero divider 1px charcoal + italic Newsreader subtitle; 1px charcoal rail with 40px top/bottom insets; 20×14 brick-dark (#9C4A3B) markers with cornerRadius 6; entry 3-layer order title (Bodoni italic 18px bold #1A1814) / date (mono 12px #6B5F4E letterSpacing 1px) / body (Newsreader italic 18px #2A2520 lineHeight 27.9px = 1.55×18); em-dash U+2014 delimiter confirmed in every ticket title ("K-022 — About page…"); content maxWidth 1248px; all 8 wiDSi roles (hero-title / hero-divider / hero-subtitle / rail / marker / entry-title / entry-date / entry-body) accounted for in DOM + spec |
+| `/diary` (mobile 390) | `wiDSi` (mobile breakpoint) | ✅ | Rail hidden (computed `display: none`), markers hidden, no horizontal overflow (`scrollWidth ≤ innerWidth`), entry body wraps via `break-words`; mobile title 16px / body 16px scale applied per design |
+| `/` Homepage DevDiarySection (desktop 1440) | `N0WWY` | ✅ | DEV DIARY heading visible; 3-marker count; marker `borderRadius: 0px` preserved (K-023 Sacred, inline render override of shared `<DiaryMarker>` per design §9.1 deviation); marker 20×14 brick-dark; rail renders because entries.length ≥ 2 (§4.3.1); "READ FULL LOG →" link visible; NavBar K-017 order + HomeFooterBar present; Hero ↔ ProjectLogic ↔ DevDiary section gaps per AC-028-SECTION-SPACING |
+
+Screenshots captured: `/tmp/k024-diary-desktop-1440.png`, `/tmp/k024-diary-mobile-390.png`, `/tmp/k024-home-desktop-1440.png`. Visually inspected against visual-spec.json values + Pencil .pen frame IDs listed in frontmatter.
+
+**Pencil MCP offline fallback declaration (mandatory, per QA persona 2026-04-21 rule):**
+
+The Pencil MCP server instructions block was attached to this session but the `mcp__pencil__get_screenshot` / `mcp__pencil__batch_get` tools were not callable — tool registration reported as unavailable. Per the three-step offline fallback:
+
+1. **Positive delta grep / schema parity:** `docs/designs/K-024-visual-spec.json` top-level `frames[]` enumerates 2 frames × (8 + 5) = 13 role entries; grepped implementation (`frontend/src/components/diary/Diary*.tsx` + `frontend/src/pages/DiaryPage.tsx` + `frontend/src/components/home/DevDiarySection.tsx`) confirms every role has a corresponding DOM node with canonical `data-testid` (diary-rail / diary-marker / diary-entry / diary-entry-wrapper / diary-main) AND canonical CSS (Bodoni_Moda italic 18px 700 / Newsreader italic 18px lh 1.55 / Geist_Mono 12px letterSpacing 1px / #9C4A3B bg / #2A2520 rail / 20×14 cornerRadius 6 on /diary, cornerRadius 0 on Homepage per Sacred deviation). Raw-count parity: 8 wiDSi roles ↔ 8 Playwright-observable selectors; 5 N0WWY roles ↔ 5 DevDiarySection inline render sites.
+2. **Structural count cross-check:** visual-spec frame count matches ticket frontmatter `visual-spec: docs/designs/K-024-visual-spec.json` + design doc §0.2 preamble (2 frames: `wiDSi` /diary + `N0WWY` Homepage DevDiarySection); no missing or extra frame. em-dash U+2014 present in both `entry-title.textPattern` (`K-XXX — <title>`) AND in production `DiaryEntryV2.tsx` L21 + `DevDiarySection.tsx` L122.
+3. **Explicit gap registration:** **Visual layer not verified via Pencil MCP screenshot comparison in this session (MCP tool calls unavailable; grep + dev-server screenshot substitute applied).** This is a Known Gap registered by QA. The dev-server screenshots confirm the rendered output matches the expected visual-spec values role-by-role; direct pixel-level Pencil frame comparison was not performed. PM ruling on whether this Known Gap blocks sign-off → **not blocking per available evidence** (all grep + spec-value cross-checks positive; visual report HTML also shows implementation matches the intent; previous K-024 Phase 1+2 sign-off gates accepted the same substitute without regression).
+
+**R2 fix batch verification (six items):**
+
+| R2 item | Location | Verified |
+|---|---|---|
+| (a) T-D9 count=10 on 11-entry fixture via `dispatchEvent × 2` in single tick + inline dry-run comment | `diary-page.spec.ts` L194-232, cites "Dry-run verified 2026-04-22 (K-024 R2 I-3)" | ✓ |
+| (b) T-L4 `toBeDisabled()` on Retry during in-flight refetch | `diary-page.spec.ts` L668 "T-L4: Retry is enabled while error + !loading; disabled during in-flight refetch" | ✓ |
+| (c) T-C6 DiaryMarker `display: none` at 390px on /diary | `diary-page.spec.ts` L572 + L589 `expect(markers.first()).toHaveCSS('display', 'none')` | ✓ |
+| (d) T-C6 DiaryRail `display: none` at 390px on /diary | `diary-page.spec.ts` L592 `expect(railEl).toHaveCSS('display', 'none')` | ✓ |
+| (e) T-E6 entry-date letterSpacing 1px + entry-body fontWeight 400 + lineHeight 27.9px via `toHaveCSS` sourced from visual-spec | `diary-page.spec.ts` L426-464, all three assertions present, computed from `entryDate.font.letterSpacing` / `entryBody.font.weight|lineHeight|size` | ✓ |
+| (f) Design doc §6.4 `diary-main` row + §7.3 count 33 → 41 | `K-024-diary-structure.md` L625 (diary-main testid row) + L881–910 (7.3 "Playwright new test total: 5 + 9 + 6 + 6 + 3 + 6 + 6 = 41"; "actual: 36 + 5 = 41 ✓ as of R2 2026-04-22") | ✓ |
+
+**visual-spec.json consumption verification:**
+
+- `frontend/e2e/diary-page.spec.ts` L1–12: imports spec via `readFileSync + JSON.parse` (Playwright Node-ESM-safe pattern per Engineer note on ESM loader constraint), then destructures `entryTitle`, `entryDate`, `entryBody`, `rail`, `marker`, `heroTitle`, `heroSubtitle`, `heroDivider` role objects. All `toHaveCSS` assertions (font-family / size / style / weight / color / letterSpacing / lineHeight / cornerRadius) compute expected values from spec — no hardcoded px / hex in the spec file.
+- `frontend/src/components/diary/timelinePrimitives.ts` exports `RAIL`, `MARKER`, `ENTRY_TYPE` const objects whose values equal `K-024-visual-spec.json` `wiDSi` + `N0WWY` `sharedPrimitives`; consumers `DiaryRail.tsx`, `DiaryMarker.tsx`, `DiaryEntryV2.tsx`, and `DevDiarySection.tsx` all import from this file (verified via `grep -l "timelinePrimitives"`).
+
+**Dev-server regression screenshots (mobile + desktop):**
+
+- `/tmp/k024-diary-desktop-1440.png` — /diary desktop 1440: hero + rail + 20×14 rounded markers + 3-layer entries all aligned; em-dash in titles; content within 1248px maxWidth.
+- `/tmp/k024-diary-mobile-390.png` — /diary mobile 390: no rail, no markers, no horizontal overflow, entry body wraps cleanly.
+- `/tmp/k024-home-desktop-1440.png` — Homepage: NavBar + Hero + ProjectLogic + DevDiarySection (3 square markers + rail + "READ FULL LOG →") + HomeFooterBar all present.
+
+**Visual report:** `docs/reports/K-024-visual-report.html` generated with `TICKET_ID=K-024` (all 5 routes captured, 5/5 pass).
+
+**Sign-off verdict: PASS**
+
+All six gate conditions green:
+- [x] Full gate (tsc 0 / Vitest 81/81 / Playwright 224 pass / 1 skipped / 0 fail)
+- [x] Sacred regression (K-017 + K-021 + K-023 + K-028, all 21 Sacred-bearing tests green)
+- [x] Pencil visual match report (2 frames, both routes ✅ via grep-parity + dev-server screenshot; MCP offline Known Gap explicitly declared, non-blocking)
+- [x] visual-spec.json consumption verified in spec + components (`readFileSync + JSON.parse` pattern; `timelinePrimitives.ts` const re-export)
+- [x] R2 fix items (a)-(f) all present
+- [x] Mobile + desktop regression screenshots visually correct
+
+Ticket ready for PM step 47 (deploy + Deploy Record + close). QA does **not** modify any production code, AC text, diary.json, or ticket status; hands off to PM.
+
+**Next-time improvements (codified into per-role log):**
+
+1. When Pencil MCP tool calls are unavailable mid-session, execute the three-step offline fallback immediately and declare the Known Gap in the sign-off table — do not silently omit visual verification. The persona rule from 2026-04-21 held up in practice this session; no persona edit needed.
+2. The visual-report.ts `TICKET_ID` env var is easy to forget; the existing persona rule already catches this. Confirmed this session ran `TICKET_ID=K-024` explicitly → generated `K-024-visual-report.html` (not `K-UNKNOWN`). Full-suite runs without explicit env write `K-UNKNOWN-visual-report.html`; harmless but noisy — consider a Playwright config default in future ticket.
+3. For Phase-3 sign-offs that include a production-code change from the R2 fix batch (here: `useDiary.ts` setError ordering + `DiaryEntryV2.tsx` tracking fix), QA should explicitly spot-check that those production changes are covered by the new test assertions (in this session: T-L4 covers the setError change, T-E6 covers the letterSpacing change). Both covered. Add to QA checklist as formal row.
