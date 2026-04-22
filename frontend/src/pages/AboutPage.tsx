@@ -7,7 +7,7 @@ import RoleCardsSection from '../components/about/RoleCardsSection'
 import ReliabilityPillarsSection from '../components/about/ReliabilityPillarsSection'
 import TicketAnatomySection from '../components/about/TicketAnatomySection'
 import ProjectArchitectureSection from '../components/about/ProjectArchitectureSection'
-import FooterCtaSection from '../components/about/FooterCtaSection'
+import Footer from '../components/shared/Footer'
 
 /** Inline section label row (A-1): Geist Mono 13px bold + 1px hairline */
 function SectionLabelRow({ label }: { label: string }) {
@@ -67,9 +67,9 @@ export default function AboutPage() {
         <ProjectArchitectureSection />
       </SectionContainer>
 
-      {/* S7 — FooterCtaSection (global footer) */}
+      {/* S7 — Footer variant="about" (shared sitewide) */}
       <SectionContainer id="footer-cta" width="wide">
-        <FooterCtaSection />
+        <Footer variant="about" />
       </SectionContainer>
     </div>
   )
