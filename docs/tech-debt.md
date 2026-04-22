@@ -42,6 +42,7 @@
 | TD-K030-03 | `visual-report.ts` 未帶 `TICKET_ID` env var 時應 throw 而非 fallback `K-UNKNOWN`，避免 full Playwright suite 靜默汙染 `docs/reports/` | K-030 QA retro | 中 | 2026-04-21 |
 | TD-K030-04 | `frontend/public/diary.json` K-021/K-022/K-023 遺留繁中條目違反 `feedback_diary_json_english` 英文硬規則 | K-030 QA retro | 中 | 2026-04-21 |
 | TD-K029-01 | `about-v2.spec.ts` L474 / L487 Outcome / Learning label Playwright selector 使用 `locator('span', { hasText: 'Outcome' })` / `hasText: 'Learning'`；label copy 當下鎖定安全，但未來 data 彈性可能造成 sibling `<p>` 誤命中 | K-029 Reviewer Step 2 W-1 + QA sign-off | 低 | 2026-04-22 |
+| TD-K025-01 | Tailwind refactor AC grep pattern 對非 opacity-modifier utilities 為 degenerate proxy（`color:#hex` 只 match `/60` 等 alpha 變體，非 opacity 改用 `rgb(R G B / var(...))` 形式） | K-025 Reviewer W-1 | 中 | 2026-04-22 |
 
 ---
 
@@ -538,6 +539,30 @@ K-030 Engineer 交付後 Vitest 36 tests pass，但都只驗 render（`@testing-
 **建議解法：** 逐條英譯 K-021/022/023 milestone items，保留技術名詞原樣（`UnifiedNavBar`、`HomeFooterBar` 等）；翻譯後跑 `DiaryPage.spec.ts` 確認 E2E 無破壞。
 
 **排期觸發條件：** 下次 diary 類 ticket（K-024 /diary 結構重做或其他 diary.json 更新）啟動時一併清理；或獨立開小票處理。
+
+---
+
+## TD-K025-01 — Tailwind refactor AC grep pattern degenerate proxy
+
+**來源：** K-025 Reviewer depth (Step 2) W-1 2026-04-22
+
+AC-025-REGRESSION 的「pre==post declaration count」grep 對 4 個 hex pattern 實際只有 2 個有監控力（`color:#1a1814` 變體 / `border-color:#1a1814`），另 2 個（`color:#9c4a3b` / `background-color:#f4efe5`）pre 與 post 皆為 0，不論 refactor 是否正確都恆成立。
+
+**根因：** QA Q1 最初建議的 grep pattern 未 sanity-check 實際 dist CSS 形式。Tailwind JIT 對非 opacity-modifier utilities 產出 `color:rgb(R G B / var(--tw-text-opacity, 1))`，僅 opacity 變體（`/60`、`/80`）產出 lowercase-hex-with-alpha-byte 形式（`color:#1a181499`）。PM 整合建議入 AC、Architect 複製到設計文件、Engineer 執行均未重新驗證 pattern 實際 match 數。
+
+**本票實際影響：** 無。Reviewer behavior-diff truth table + dual-rail assertions（aria-current + toHaveCSS）已獨立證明 rendered-color 等價，grep 只是額外監控層。outcome 不受影響。
+
+**風險：** 中 — 未來 Tailwind refactor 若套用同樣 AC 模板，會誤以為有覆蓋實則無。需於 persona/skill 層級 codify raw-count sanity rule（本票同步執行）。
+
+**PM 裁決（2026-04-22）：** 接受為 TD，不阻 K-025 close。理由：(a) behavior 等價已由其他 gate 獨立證明；(b) 修 AC 需重跑 Engineer 驗證成本不成比例；(c) 同步 codify Reviewer/QA persona hard gate 預防未來 refactor ticket 重蹈覆轍（見 `feedback_refactor_ac_grep_raw_count_sanity.md`、`reviewer.md` §Pure-Refactor Behavior Diff + `qa.md` §Early Consultation gate）。
+
+**建議解法：** 下次 Tailwind refactor 類 ticket 建立 AC 時，pattern 清單須同時 cover：
+- Named selector 正向存在（`.text-brick-dark { color:` 的 count 不為 0）
+- 非 opacity utilities 的 `rgb(R G B /` 形式 count pre==post
+- Opacity-modifier utilities 的 alpha-byte hex 形式 count pre==post
+- 任何 raw count 為 0 的 pattern 視為「無監控力」需替換，不得當作等價證據
+
+**排期觸發條件：** 下次 Tailwind token refactor ticket 啟動時作為 AC template 要求；或獨立 TD 清理票處理。
 
 ---
 

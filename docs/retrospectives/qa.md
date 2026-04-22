@@ -20,6 +20,22 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-025 Final Sign-off (post-Code-Review)
+
+**做得好：** 三閘門串行驗證（tsc exit 0、`npm run build` exit 0、full Playwright suite 192 passed / 1 skipped / 0 failed、navbar.spec.ts 22/22）完全對齊 Engineer 實作回報；AC-025-NAVBAR-TOKEN 額外做 `grep -nE '#[0-9A-Fa-f]{6}' UnifiedNavBar.tsx` 並逐行驗證僅剩 L18–19 註解塊（K-017 legacy provenance 文字），runtime class literals 零 hex，未盲信 Engineer 宣稱。W-1 (TD-K025-01) PM 裁決 TD 入帳而非 sign-off blocker，因 behavior-diff truth table + dual-rail aria-current/computed color 斷言已獨立證明等價，CSS declaration grep 為冗餘 proxy 而非唯一證據。
+**沒做好：** 本票 visual verification 依 ticket frontmatter `visual-spec: N/A` + zero rendered-color change 豁免（SCHEMA.md §L124），未開 dev server 做全路由目視 — 對 zero-visual refactor 而言合理但仍屬 coverage 選擇；若未來有 NavBar class 同時跨 active/inactive/hover 三態的改動（非本票 scope），純 computed color 無法覆蓋 hover pseudo-state。
+**下次改善：** Sign-off 輸出強制段落化（Verdict / Evidence / Known Gap / Next-ticket-watch）於 persona `qa.md`「Mandatory Task Completion Steps」下加一條模板範例，避免未來 final sign-off 只寫結論不寫證據數字；並在 refactor 類 ticket sign-off 增列「hover/focus pseudo-state 未覆蓋」作為 Known Gap 顯式標示，不靠讀者自行推斷。
+
+---
+
+## 2026-04-22 — K-025 Early Consultation
+
+**做得好：** Pre-Architect gate 即完成三題 Q1/Q2/Q3 審查，提前鎖定 refactor behavior-equivalence 風險（Tailwind arbitrary-value vs token compile 差異）、aria-current attribute-only selector 的視覺盲點、`/business-logic` route 覆蓋 gap；Q2 建議雙軌斷言（aria-current + computed color `rgb(156,74,59)`）而非單純保留 class regex，避免 refactor 後測試僅驗屬性不驗顏色渲染。
+**沒做好：** 諮詢時 spec 裡仍殘留「`toHaveClass(/text-\\[#1A1814\\]/)` 同時命中 active `/60` 變體 + inactive 兩種狀態」的寬鬆 regex（L178、L204），K-021 放行時未挑出，導致 K-025 本票 selector 遷移前 regression baseline 本身不嚴格；早期 consultation 第一次看到該 spec。
+**下次改善：** 未來 pre-Architect QA consultation 必含一步「baseline spec grep」— `grep -E 'toHaveClass\(/' frontend/e2e/<target>.spec.ts` 列所有 class regex 斷言，逐條檢查 regex 是否唯一命中目標 state（不會跨 active/inactive 同時匹配），有歧義先回 PM 要求 AC 升級為 aria-current + computed color 雙軌，再進 Architect。
+
+---
+
 ## 2026-04-22 — K-029 Regression Sign-off
 
 **What went well:** Independent full-suite re-run (197 pass / 1 skip / 0 fail) matched Engineer's report; stale K-UNKNOWN-visual-report.html caught + deleted pre-run per K-028 memory; all 4 K-029 testids (arch-pillar-body / arch-pillar-layer / ticket-anatomy-body / ticket-anatomy-id-badge) verified present + exclusive (zero class-selector fallback for tested components); KG-029-01 closed cleanly.
@@ -183,7 +199,6 @@ text-muted on paper at 12px (text-xs) = 4.84:1 contrast — passes WCAG AA 4.5:1
 - **KG-029-01** — Playwright selector stability for new color assertions: no `data-testid` mandated in AC; Engineer may introduce testids or use structural anchors. QA sign-off will confirm chosen path.
 
 **Next time improvement:** If future PM session lacks Agent-tool access, escalate to user to re-spawn main session with full capabilities BEFORE starting BQ resolution. This session accepted the capability gap and mitigated via explicit simulation disclosure, but the upstream fix is session permission hygiene (see memory `feedback_pm_session_capability_pre-flight`).
-
 
 ## 2026-04-21 — K-013 Round 2 Regression Pass
 

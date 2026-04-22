@@ -28,6 +28,16 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-025 UnifiedNavBar hex→token + dual-rail spec upgrade
+
+**做得好：** Pure-refactor 落實「behavior equivalent at rendered-color level, NOT at CSS-selector level」分層敘述（對齊 QA Early Consultation Q1 修正）：§5 Behavior-diff Statement 三個 bullet 分別處理 rendered-color / selector-name / props-logic 三層，避免 K-021 Q2 裁決當時錯誤敘述「compiled CSS 相同」重演。§7 Step 2 / Step 5 設計為 `npm run build` 前後 dist CSS declaration count diff gate，讓 QA Q1 的 dist grep 等價性從 AC 文字落地到 pipeline 可執行驗證（而非仰賴 Engineer 心算）。§3 AC ↔ Test Case Count cross-check 列明 5 AC `And` ≤ 5 新/改 tests，避免「AC 3 條 inactive 斷言 = 3 獨立 test」膨脹問題（retrospective 段有詳述這個一度想歪的地方）。
+
+**沒做好：** 初稿曾把 `/` 3 inactive link 拆為 3 個獨立 test case，後才發現 ticket AC-025-NAVBAR-SPEC `And #3`「新增 `/` route desktop inactive 3 斷言」未要求 3 test。拆 3 test 會違反 persona 「test 數量對齊 AC 家族數不膨脹」原則；雖然設計階段抓到並改為 1 test 3 `expect`，但反映 Architect 在 pure-refactor 票缺乏「spec-file 舊結構掃描」作設計共用錨點。
+
+**下次改善：** 未來 pure-refactor / spec-refactor 類 ticket（type=refactor 且 scope 含 *.spec.ts / *.test.ts 改寫），在寫 §3 E2E diff table 前，先拉出一節 "Source of Truth Scan"（放 §1.5 或 appendix），以 `grep -n` 格式列出 spec 所有相關 describe / test 標題 + 所要改的斷言行號 + 對應 AC `And` #編號，作為 §2（code 對照表）+ §3（spec 對照表）共用引用源；避免後續人肉 cross-check 不同 §之間對應關係時重工，也避免「拆太細 test 數量膨脹」這類對齊失誤。本條補進 senior-architect.md「Pre-Design Dry-Run Proof」同層，作為 refactor-type ticket 的補充 gate。
+
+---
+
 ## 2026-04-22 — K-020 GA4 SPA Pageview E2E Test Hardening (design)
 
 **What went well:** Built a 6-row "URL transition → `location.pathname` change → effect fires → beacon sent" truth table (§1 in design doc) before drafting any AC mapping. This table resolved 4 separate AC (SPA-NAV / NEG-QUERY / NEG-HASH / NEG-SAMEROUTE) from one source of behavior truth, prevented "Engineer decides" in negative-test design, and mapped 1:1 onto QA Challenge #7 (the blocking BQ the ticket was re-planned to close). AC ↔ test count cross-check (§4 in design doc) locked 9 = 9 = 9 before delivery — no silent drift between AC sum, test table row count, and declared total (K-030 I-2 class).
