@@ -30,7 +30,11 @@ export function useDiary(limit?: number): DiaryState {
 
   const fetchDiary = useCallback(() => {
     setLoading(true)
-    setError(null)
+    // NOTE: `error` is NOT cleared here. Per AC-024-LOADING-ERROR-PRESERVED
+    // (ticket L366-L373), during a Retry-triggered refetch the prior error
+    // MUST remain rendered so that the Retry button stays in the DOM in a
+    // `disabled` state (tied to `loading === true`) until the new fetch
+    // resolves. Error is cleared on success, preserved on continued failure.
 
     fetch('/diary.json')
       .then((res) => {
@@ -43,6 +47,7 @@ export function useDiary(limit?: number): DiaryState {
         const result =
           limit === 0 ? [] : limit !== undefined ? sorted.slice(0, limit) : sorted
         setEntries(result)
+        setError(null) // clear stale error only on successful resolve
         setLoading(false)
       })
       .catch((err: unknown) => {

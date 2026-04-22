@@ -30,7 +30,9 @@ export default function DiaryEntryV2({ entry }: DiaryEntryV2Props) {
       </h2>
       <time
         dateTime={entry.date}
-        className="block font-mono text-[11px] sm:text-[12px] text-[#6B5F4E] tracking-wide mt-1"
+        // letter-spacing: 1px (K-024 visual-spec wiDSi entry-date.font.letterSpacing=1)
+        // NOT tracking-wide (0.025em → 0.3px at 12px font, off-spec).
+        className="block font-mono text-[11px] sm:text-[12px] text-[#6B5F4E] tracking-[1px] mt-1"
       >
         {entry.date}
       </time>

@@ -189,8 +189,9 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 
 **Given** `diary.json` entry 數為 0（空陣列）
 **When** 使用者訪問 `/`
-**Then** Homepage Diary section **整個隱藏**（不渲染 section heading、rail、marker；無 empty-state 訊息）
-**And** Playwright 斷言：`expect(page.locator('#hpDiary')).toHaveCount(0)`（或對應 section 選擇器）
+**Then** Homepage Diary section heading（`DEV DIARY` label）**保留渲染**（依 K-028 Sacred `AC-028-DIARY-EMPTY-BOUNDARY`）；rail 與 marker 不渲染；無 empty-state 訊息
+**And** Playwright 斷言：`expect(page.getByText('DEV DIARY', { exact: true })).toBeVisible()` + `expect(page.locator('[data-testid="diary-entry-wrapper"]')).toHaveCount(0)` + `expect(page.locator('[data-testid="diary-rail"]')).toHaveCount(0)` + `expect(page.locator('[data-testid="diary-marker"]')).toHaveCount(0)`
+**註**：此 clause 依 K-028 Sacred 於 2026-04-22 修訂（Code Review R1 depth pass D-1 發現）。原文「section 整個隱藏」與 AC-028-DIARY-EMPTY-BOUNDARY 直接衝突；K-028 Sacred 不可動 → 改寫 AC 對齊。
 
 **Given** `diary.json` entry 數為 1 或 2（`< 3`）
 **When** 使用者訪問 `/`
@@ -259,7 +260,7 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 **And** **marker 數量 = 當前已渲染的 entry 數**（動態語義；非固定 visual-spec entryCount literal）
   - `/diary` 初始載入：marker 數 = 初始 entry 數（5 或 entry 總數小於 5 時等於總數）
   - Load more 點擊後：marker 數 = 新的總顯示 entry 數
-  - Homepage：marker 數 = AC-024-HOMEPAGE-CURATION 的顯示 entry 數（0 時 section 隱藏則 0；1/2 時等於 entry 總數；≥3 時等於 3）
+  - Homepage：marker 數 = AC-024-HOMEPAGE-CURATION 的顯示 entry 數（0 時 marker 數=0，section heading 依 K-028 Sacred 保留；1/2 時等於 entry 總數；≥3 時等於 3）
 **And** Playwright **負斷言**（防 regression）：
   - `expect(page.locator('details, summary')).toHaveCount(0)` — 無 accordion
   - `expect(page.locator('[class*="divide-y"]')).toHaveCount(0)` — 舊 divider 已移除
@@ -614,3 +615,67 @@ Code Reviewer R1 findings resolved (4 flags + 1 BQ-ruled AC amendment):
 - (a) Before writing any geometric `toBeGreaterThan*` / `toBeLessThan*` assertion against computed `boundingBox()` values, dry-run both LHS and RHS in the spec's browser context via `page.evaluate` and log actual numbers — never write the assertion from design-prose imagination. This is already in Engineer persona §"Computed Style Assertion Rule"; I skipped it for T-T4 and learned again.
 - (b) Playwright-specific ESM loader constraints (JSON `with { type: 'json' }` attribute) differ from Vite/tsc bundler mode — when introducing a new `*.json` import under `frontend/e2e/`, prefer `readFileSync` + `JSON.parse` from day one, especially for Node 20+ toolchains.
 - (c) When a design spec has a K-XXX Sacred row AND a "shared primitive" recommendation that visually differ (like K-023 borderRadius 0 vs visual-spec cornerRadius 6), resolve via **partial primitive sharing** (const tokens via `timelinePrimitives.ts`, separate render components) instead of forcing a single component. Document the deviation in-code AND in ticket retrospective — done here for K-023 + K-028 + §9.1 deviation.
+
+### Code Review R1 Phase 3 — Two-Layer (2026-04-22)
+
+**Layer 1 breadth (`superpowers:code-reviewer`):** 0 Critical, 4 Important, 5 Minor. Findings:
+- I-1: `DiaryMarker` has `hidden sm:block` but no Playwright assertion that marker is actually `display:none` at mobile viewport (< 640px); `toHaveCount` passes even when elements are hidden.
+- I-2: Rail visibility asymmetry — `/diary` `DiaryRail` carries `hidden sm:block`, Homepage rail does not; no `/diary` mobile rail-hidden assertion in spec suite.
+- I-3: T-D9 rapid-double-click uses `diary-double-click.json` with 10 entries; first click goes 5→10 → `hasMore=false` → Load-More button unmounts → second click hits no element → count = 10 regardless of `useRef` gate. Test is tautological; gate is not actually verified (elevated to **Important**).
+- I-5: AC-024-ENTRY-LAYOUT catchall claims all entry-title / entry-date / entry-body font properties covered, but T-E6 omits `entry-date letterSpacing` and `entry-body fontWeight / lineHeight` — catchall language promises more than the test verifies.
+
+**Layer 2 depth (`reviewer.md` Agent):** 1 Critical, 2 Important, 7 Minor. Findings:
+- **D-1 Critical (PM AC self-contradiction):** `AC-024-HOMEPAGE-CURATION` 0-entry clause said "Homepage Diary section 整個隱藏（不渲染 section heading、rail、marker）" while **K-028 Sacred `AC-028-DIARY-EMPTY-BOUNDARY` locks** "0 entries 時 `DEV DIARY` heading 保留渲染". Engineer implemented per Sacred (correct); Playwright assertion derived from AC-024 would fail `#hpDiary toHaveCount(0)`. K-028 Sacred is cross-ticket binding (`feedback_ticket_ac_pm_only.md` + AC-024-REGRESSION lists K-028 as Sacred). AC is PM-owned; Engineer cannot edit — only BQ back. Found only at depth review, after ~1500 LOC Phase 3 landed.
+- **D-2 Important:** T-L4 missing `toBeDisabled()` assertion during refetch race — `AC-024-LOADING-ERROR-PRESERVED` L372 clause explicitly specified "Retry button must be disabled while refetch in-flight"; existing spec only asserts Retry visible, not disabled.
+- **D-4 Minor:** `data-testid="diary-main"` emitted by `DiaryPage.tsx` not in design §6.4 testid contract table (Architect deliverable gap).
+- §7.3 test count says 33; actual shipped = 40 (7 delta from D-9 double-click + D-10/D-11 fixture variants + homepage-5-test-suite spec shifts). Needs Architect doc update.
+
+**PM Ruling (2026-04-22):**
+- **D-1 Option (a) — rewrite AC to align with K-028 Sacred**: AC-024-HOMEPAGE-CURATION 0-entry clause rewritten above (L247–252 in this file) to "heading 保留 per K-028 Sacred; rail 與 marker 不渲染; 無 empty-state 訊息". Playwright pattern: `getByText('DEV DIARY', { exact: true }).toBeVisible() + diary-entry-wrapper/rail/marker toHaveCount(0)`. K-028 Sacred immutable (cross-ticket binding); PM owns AC → PM amends AC text.
+- **Bug Found Protocol step 3 (PM persona hardening)**: new hard gate added to `~/.claude/agents/pm.md` §"Prerequisites for releasing Engineer" → **AC ↔ Sacred cross-check (mandatory)**: PM must grep own ticket `AC-*-REGRESSION` + every dependency ticket's Sacred before committing new/revised AC; output 1-line gate evidence (`AC vs Sacred cross-check: ✓ no conflict` or `⚠️ resolved via Option (a/b/c)`) in release document. Memory file `feedback_pm_ac_sacred_cross_check.md` written + MEMORY.md index updated.
+- **I-3 Option (a) — fixture enlargement**: change `diary-double-click.json` from 10 to 11 entries (or reuse existing `diary-eleven.json`); T-D9 asserts count=10 (gated) vs ungated count=11; dry-run verified that removing gate from `useDiaryPagination.ts` flips the test to red.
+- **Bug Found Protocol step 3 (Engineer persona hardening)**: new hard gate added to `~/.claude/agents/engineer.md` adjacent to E2E spec logic self-check → **Concurrency-Gate Test Dry-Run (K-024 2026-04-22 入)**: any test asserting `useRef`/debounce/throttle/in-flight gate must `comment-out gate → re-run → still-pass` dry-run; still-pass = tautological = rewrite fixture until `gate removed → test red`. Memory file `feedback_engineer_concurrency_gate_fail_dry_run.md` written + MEMORY.md index updated.
+- **R2 fix batch bundled**: Engineer R2 agent to execute (a) I-3 fixture change + assertion rewrite; (b) D-2 T-L4 `toBeDisabled()` add; (c) I-1 DiaryMarker mobile `display:none` assertion; (d) I-2 `/diary` mobile rail `hidden` assertion; (e) I-5 ENTRY-LAYOUT catchall additions — entry-date letterSpacing + entry-body fontWeight/lineHeight via `toHaveCSS`; (f) D-4 / M-5 — Architect append `diary-main` testid to design §6.4 + §7.3 count 33→40 sync.
+- All 7 Minor findings + remaining 2 Important batched into R2 Engineer pass; no second-review-round required for Minors.
+
+### Engineer R2 (Code Review R1 fix batch, 2026-04-22)
+
+**Scope executed** (six items per PM R2 ruling):
+- **(a) I-3 fixture enlargement + T-D9 assertion rewrite.** `diary-double-click.json` 10 → 11 entries; T-D9 uses `page.evaluate` + `btn.dispatchEvent(new MouseEvent('click'))` twice in one JS tick to dispatch both clicks inside a single microtask window (Playwright's default `loadMore.click()` actionability wait hides the race by serializing clicks around the React `disabled` prop flip). Inline comment records the dry-run.
+- **(b) D-2 T-L4 `toBeDisabled()` during in-flight refetch.** Required a production-code change in `useDiary.ts`: removed eager `setError(null)` from `fetchDiary`; error now clears only on successful resolve. Without this, `{error && <DiaryError…/>}` unmounted the Retry button when Retry was clicked (because `error=null + loading=true`), making `toBeDisabled()` trivially unobservable. New T-L4 uses a hold-open fetch promise to guarantee the in-flight window is observable, asserts `retry.toBeVisible() + toBeDisabled()` during the window, then releases and asserts error-gone post-resolve.
+- **(c) I-1 + (d) I-2 combined into T-C6.** New test at 390px viewport asserts `DiaryMarker` + `DiaryRail` both computed `display: none` on `/diary`. Dry-run verified: removing `hidden sm:block` from `DiaryMarker.tsx` → T-C6 fails; restoring → passes.
+- **(e) I-5 ENTRY-LAYOUT catchall extension.** Added three `toHaveCSS` assertions to T-E6: entry-date `letter-spacing: 1px`, entry-body `font-weight: 400`, entry-body `line-height: 27.9px` (1.55 × 18, `.toFixed(1)` to drop JS IEEE-754 residue `27.900000000000002`). Surfaced a production mismatch on entry-date: `tracking-wide` (0.025em = 0.3px at 12px font) was off-spec vs visual-spec `letterSpacing: 1`. Fixed `DiaryEntryV2.tsx` to `tracking-[1px]`.
+- **(f) D-4 + M-5 design doc sync.** Appended `diary-main` row to §6.4 testid contract table (maps to `<main role="main">` landmark in `DiaryPage.tsx`). §7.3 shipped test count updated 33 → **41** (PM's estimate of 40 was off by one — actual homepage shipped 5 tests, not 4, due to the Phase 3 0-entry K-028 Sacred split; design §7.3 self-check now reflects `5 + 9 + 6 + 6 + 3 + 6 + 6 = 41`).
+
+**Concurrency-Gate Dry-Run observation table** (new persona hard gate, K-024 2026-04-22):
+
+| Scenario | Click mechanism | `useRef` gate state | Wrapper count | Test result |
+|---|---|---|---|---|
+| Original (R1 baseline, 10 entries, `Promise.all([click, click.catch…])`) | Playwright `click()` with actionability wait | Present | 10 (tautological — also 10 without gate) | green, tautological |
+| After fixture 10→11 only | Playwright `click()` with actionability wait | Present | 10 | green |
+| After fixture 10→11 only | Playwright `click()` with actionability wait | **Commented out** | 10 (`disabled` prop still absorbed second click) | green — STILL tautological |
+| After fixture 10→11 + `dispatchEvent × 2` | Raw `MouseEvent` in single microtask | Present | 10 | green |
+| After fixture 10→11 + `dispatchEvent × 2` | Raw `MouseEvent` in single microtask | **Commented out** | **11** | **red** ✓ |
+
+Discovery: fixture enlargement alone (per PM R2 (a)) was NOT sufficient to discriminate the gate, because the React state `inFlight` + `disabled` prop also blocked the second Playwright click (Playwright waits for `enabled` between the two `click()` calls, giving the microtask time to flush). The dispatchEvent-in-single-tick pattern is required to actually race both handlers in the same microtask before React re-renders. Both defenses (`useRef` and `disabled` prop) are present, but only the `useRef` is load-bearing under true synchronous double-dispatch; the `disabled` prop is the softer, Playwright-visible defense.
+
+**Production code changes made** (minimal, per design doc contracts):
+- `frontend/src/hooks/useDiary.ts` — removed eager `setError(null)` from `fetchDiary`; added `setError(null)` inside the success `.then()` only. Required for D-2 to be observable. Does not alter happy-path behavior; only affects the Retry → refetch state machine.
+- `frontend/src/components/diary/DiaryEntryV2.tsx` — `tracking-wide` → `tracking-[1px]` on the `<time>` element. Aligns with visual-spec `entry-date.font.letterSpacing: 1`.
+
+**Final gate:** `tsc --noEmit` exit 0; `vitest run` 81/81 pass; `playwright test` **224 pass / 1 skipped / 0 failed** (225 total, +1 from T-C6 addition).
+
+**Next-time improvements:**
+- (i) When the PM ruling states a test count ("33 → 40"), re-derive the count from `grep -c test(` at ticket-close before committing the design-doc number — don't trust the written figure blindly. I caught and corrected PM's 40 → 41 through direct enumeration, but this pattern could easily slip.
+- (ii) Concurrency-gate test suites that rely on `disabled` + `useRef` should explicitly document which defense is load-bearing and which is soft, with dry-run evidence for each — otherwise future refactors may delete the redundant-looking gate and break the test guarantee in a way the suite can't catch.
+
+### PM Summary
+
+**Cross-role recurring issues:**
+- (Placeholder — fill after Phase 4 + QA sign-off + close session)
+
+**Process improvement decisions:**
+| Issue | Responsible Role | Action | Update Location |
+|---|---|---|---|
+| PM AC can self-contradict dependency Sacred (D-1 Critical) | PM | AC ↔ Sacred cross-check hard gate (grep `AC-*-REGRESSION` + dependency Sacred before AC commit; 1-line gate evidence required) | `~/.claude/agents/pm.md` §Prerequisites for releasing Engineer; memory `feedback_pm_ac_sacred_cross_check.md` |
+| Concurrency-gate test can pass with gate removed (I-3 Important) | Engineer | Dry-run "remove gate → test still pass?" before commit; fixture must make `gate removed → red` | `~/.claude/agents/engineer.md` §Concurrency-Gate Test Dry-Run; memory `feedback_engineer_concurrency_gate_fail_dry_run.md` |

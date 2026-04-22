@@ -192,6 +192,19 @@ test.describe('DiaryPage — AC-024-DIARY-PAGE-CURATION', () => {
   })
 
   test('T-D9: rapid double-click on Load more advances +5 only once', async ({ page }) => {
+    // Fixture: 11 entries. Initial visible=5. Two synchronous DOM click events
+    // in the same JS tick (via page.evaluate + dispatchEvent, bypassing
+    // Playwright's actionability wait that would otherwise serialize the
+    // clicks around the React `disabled` state flip):
+    //   - With useDiaryPagination useRef gate  → first +5 → 10, second gated → 10.
+    //   - Without gate                         → first +5 → 10, second +5 capped → 11.
+    // Asserting count === 10 (NOT 11) is the only way to distinguish gated from
+    // ungated behaviour; a 10-entry fixture would yield 10 either way (gated
+    // leaves one-click remainder, ungated second click caps at 10 since
+    // min(10+5, 10) === 10). 11 is the minimum that surfaces the gate.
+    // Dry-run verified 2026-04-22 (K-024 R2 I-3): commenting out the
+    // `if (inFlightRef.current) return` guard → count=11 observed, test flips
+    // red. Restoring the guard → count=10 → test passes.
     await page.setViewportSize({ width: 1280, height: 800 })
     const fixture = await loadFixture('diary-double-click.json')
     await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
@@ -201,8 +214,20 @@ test.describe('DiaryPage — AC-024-DIARY-PAGE-CURATION', () => {
     const loadMore = page.locator('[data-testid="diary-load-more"]')
 
     await expect(entries).toHaveCount(5)
-    // Fire two clicks back-to-back — concurrency gate must collapse to one +5
-    await Promise.all([loadMore.click(), loadMore.click().catch(() => {})])
+    // Fire two synchronous DOM click events in the SAME microtask via
+    // page.evaluate — this bypasses Playwright's actionability wait that would
+    // otherwise serialize the two clicks around the React `disabled` state
+    // flip. Only `.dispatchEvent(new MouseEvent('click', ...))` on the raw
+    // DOM node lets us observe concurrency gates that rely purely on event
+    // handler ordering within one JS tick.
+    await page.evaluate(() => {
+      const btn = document.querySelector<HTMLButtonElement>(
+        '[data-testid="diary-load-more"]',
+      )
+      if (!btn) throw new Error('load-more button missing')
+      btn.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      btn.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
     await expect(entries).toHaveCount(10)
   })
 })
@@ -402,13 +427,41 @@ test.describe('DiaryPage — AC-024-ENTRY-LAYOUT', () => {
     await expect(dateEl).toHaveCSS('font-family', new RegExp(dateFont.family.replace(' ', '[\\s_]?')))
     await expect(dateEl).toHaveCSS('font-size', `${dateFont.size}px`)
     await expect(dateEl).toHaveCSS('color', hexToRgb(entryDate.color))
+    // I-5 (R2 2026-04-22): catchall previously omitted letter-spacing. Spec
+    // letterSpacing is expressed in px (Pencil unit); tracking-[1px] in
+    // DiaryEntryV2 matches. Previous `tracking-wide` resolved to 0.3px at
+    // 12px font size — off-spec.
+    await expect(dateEl).toHaveCSS('letter-spacing', `${dateFont.letterSpacing}px`)
 
     // entry-body
-    const bodyFont = entryBody.font as { family: string; size: number; style: string; lineHeight: number }
+    const bodyFont = entryBody.font as {
+      family: string
+      size: number
+      style: string
+      weight: string | number
+      lineHeight: number
+    }
     await expect(bodyEl).toHaveCSS('font-family', new RegExp(bodyFont.family.replace(' ', '[\\s_]?')))
     await expect(bodyEl).toHaveCSS('font-size', `${bodyFont.size}px`)
     await expect(bodyEl).toHaveCSS('font-style', bodyFont.style)
     await expect(bodyEl).toHaveCSS('color', hexToRgb(entryBody.color))
+    // I-5 (R2 2026-04-22): catchall previously omitted font-weight + line-height.
+    // Visual-spec weight "normal" maps to CSS computed font-weight "400";
+    // keywords other than "normal" (e.g., "bold") would map to "700". Guard
+    // both shapes explicitly.
+    const expectedWeight =
+      typeof bodyFont.weight === 'number'
+        ? String(bodyFont.weight)
+        : bodyFont.weight === 'bold'
+          ? '700'
+          : '400' // "normal" / "lighter" / others default to 400 for body text
+    await expect(bodyEl).toHaveCSS('font-weight', expectedWeight)
+    // line-height in Pencil is a unitless multiplier (1.55) → browsers compute
+    // it as `lineHeight × fontSize` px (1.55 × 18 = 27.9px). Assert against
+    // that computed form, not the raw multiplier. toFixed(1) drops the JS
+    // floating-point residue (1.55*18 = 27.900000000000002 in IEEE-754).
+    const expectedLineHeight = (bodyFont.lineHeight * bodyFont.size).toFixed(1)
+    await expect(bodyEl).toHaveCSS('line-height', `${expectedLineHeight}px`)
   })
 })
 
@@ -515,6 +568,29 @@ test.describe('DiaryPage — AC-024-CONTENT-WIDTH', () => {
     }))
     expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.innerWidth)
   })
+
+  test('T-C6: 390px mobile — DiaryMarker + DiaryRail computed display:none on /diary', async ({ page }) => {
+    // I-1 + I-2 (R2 fix-bundle 2026-04-22): DiaryMarker + DiaryRail both carry
+    // `hidden sm:block` (Tailwind ≥640px breakpoint). toHaveCount alone would
+    // pass even if the elements were display:none — assert computed display
+    // directly so a future regression (e.g., someone dropping `hidden` from
+    // the className) is caught by the spec.
+    //
+    // /diary markers hide on mobile by design (§6.8). Homepage rail remains
+    // visible on mobile (K-028 Sacred, asymmetric) — verified separately in
+    // diary-homepage.spec.ts; not checked here.
+    await page.setViewportSize({ width: 390, height: 844 })
+    const fixture = await loadFixture('diary-five.json')
+    await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
+    await page.goto('/diary')
+
+    const markers = page.locator('[data-testid="diary-marker"]')
+    await expect(markers).toHaveCount(5) // still in DOM, just hidden
+    await expect(markers.first()).toHaveCSS('display', 'none')
+
+    const railEl = page.locator('[data-testid="diary-rail"]')
+    await expect(railEl).toHaveCSS('display', 'none')
+  })
 })
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -590,15 +666,26 @@ test.describe('DiaryPage — AC-024-LOADING-ERROR-PRESERVED', () => {
   })
 
   test('T-L4: Retry is enabled while error + !loading; disabled during in-flight refetch', async ({ page }) => {
+    // AC-024-LOADING-ERROR-PRESERVED (ticket L367, L373) specifies Retry MUST
+    // be `disabled` during the refetch in-flight window. useDiary preserves the
+    // prior `error` string through the refetch so that <DiaryError> (and its
+    // Retry button) remains mounted — disabled state is observable during the
+    // loading window, not merely "the button has disappeared" (which would
+    // trivially satisfy toBeDisabled without actually gating concurrent
+    // clicks). Fix-bundle R2 D-2 (2026-04-22).
     await page.setViewportSize({ width: 1280, height: 800 })
     let firstHit = true
+    let secondFetchInFlightResolve: (() => void) | null = null
     await page.route('**/diary.json', async (route) => {
       if (firstHit) {
         firstHit = false
         await route.fulfill({ status: 404, contentType: 'application/json', body: '{}' })
       } else {
-        // Second attempt: hang briefly so we can observe disabled state
-        await new Promise((resolve) => setTimeout(resolve, 400))
+        // Hold the second fetch open until the test releases it so that the
+        // disabled-state assertion runs against a known in-flight window.
+        await new Promise<void>((resolve) => {
+          secondFetchInFlightResolve = resolve
+        })
         await mockDiaryBody(route, await loadFixture('diary-three.json'))
       }
     })
@@ -608,10 +695,19 @@ test.describe('DiaryPage — AC-024-LOADING-ERROR-PRESERVED', () => {
     await expect(retry).toBeVisible()
     await expect(retry).toBeEnabled()
 
-    // Click once; loading begins → retry becomes disabled (refetch in flight)
+    // Click once; loading begins → retry stays mounted (error preserved through
+    // refetch per useDiary L33 comment) but becomes `disabled` while loading.
     await retry.click()
     await expect(page.locator('[data-testid="diary-loading"]')).toBeVisible()
-    // After refetch resolves, entries render and error/retry are gone
+    // Retry button still in DOM (DiaryError not unmounted) and now disabled
+    // because `loading === true`.
+    await expect(retry).toBeVisible()
+    await expect(retry).toBeDisabled()
+
+    // Release the in-flight fetch → refetch resolves → error clears, entries
+    // render, and DiaryError (and thus Retry) unmount.
+    if (!secondFetchInFlightResolve) throw new Error('in-flight resolver missing')
+    secondFetchInFlightResolve()
     await expect(page.locator('[data-testid="diary-entry"]').first()).toBeVisible()
     await expect(page.locator('[data-testid="diary-error"]')).toHaveCount(0)
   })

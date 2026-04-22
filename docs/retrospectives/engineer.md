@@ -16,6 +16,18 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-22 — K-024 Phase 3 R2 fix batch (Code Review R1 — 6 items)
+
+**做得好：** Concurrency-Gate Dry-Run hard gate（engineer.md 2026-04-22 新入）首次實戰生效 — T-D9 fixture 10→11 + `Promise.all([click, click])` 組合下，註解掉 useRef guard 後仍 count=10（tautological）；立刻識別是 Playwright actionability-wait 在兩次 click 之間 flush microtask，切換到 `page.evaluate` + `btn.dispatchEvent(new MouseEvent('click'))` 兩次在同一 tick 內 dispatch，dry-run 才真正 flip red（count=11），restore gate 後 green（count=10）。用 5-row 觀察表寫進 ticket Retrospective 留證。D-2 Retry `toBeDisabled()` production-side 發現 `setError(null)` eager 在 refetch 開頭清錯 → DiaryError 立即 unmount → Retry 消失；把 setError(null) 搬進 success `.then()` 裡保留錯誤態跨 in-flight window，Retry 得以在 `loading=true` 視窗 stay mounted disabled。D-4 design §7.3 count 從 PM 估的 40 自查 enumerate 出實際 41（5 homepage + 36 diary-page），沒直接照填。
+
+**沒做好：** T-E6 line-height 第一版寫 `${1.55 * 18}px` 直接炸 — JS IEEE-754 讓 27.9 變 `27.900000000000002`，瀏覽器 computed 是 `"27.9px"`，toFixed(1) 才對齊。這屬於 Computed Style Assertion Rule 明寫要先 evaluate 驗實際值的場景，我靠 spec value 算數學寫 `toHaveCSS`，沒先 evaluate 一次印出瀏覽器回傳字串，等於 R1 retrospective (a) 條下次改善自己又沒守。另外 DiaryEntryV2 `tracking-wide` vs visual-spec `letterSpacing:1` 的 0.3px/1px 差 — R1 Phase 3 主 pass 沒 catch 是因為 E6 當時沒涵蓋 letter-spacing 斷言；這也是 I-5「catchall」存在的理由，R2 才補齊 entry-date letter-spacing + entry-body font-weight + entry-body line-height 三條。反過來說 Phase 3 R1 E6 被我當成「font family / size / color / italic 都驗了就夠」，沒 cross-check visual-spec 每個 font.* 欄位，才有 R2 的 catchall 作業。
+
+**下次改善：**
+
+- (a) **Visual-spec font.* 欄位強制全覆蓋 checklist** — 任何 ENTRY-LAYOUT / PANEL-LAYOUT 類 AC 寫 Playwright 斷言前，對照 visual-spec.json 裡該組件的 `font` object，把 family / size / weight / italic / letterSpacing / lineHeight 六欄逐一列成 `toHaveCSS` todo；少一欄都是 catchall debt。這條加進 engineer.md Frontend Implementation Order 做硬步驟。
+- (b) **`toHaveCSS` 數值算式一律先 evaluate 印出實際瀏覽器字串再寫斷言** — 不相信 JS 算術（`a * b` 有 IEEE-754 residue）、不相信單位推斷（unitless lineHeight 要乘 fontSize）、不相信 Tailwind plugin class 的 computed value（tracking-wide = 0.025em 不是 1px）。Computed Style Assertion Rule 再強調一次；R1 retro (a) 下次改善明白寫過但 R2 E6 又犯，補 todo checklist。
+- (c) **Refetch 類 AC 的 production-side state machine 要先跑 dry-run** — 寫 `toBeDisabled()` on Retry 前先手動點一次確認該元件在 `loading=true` 視窗還掛在 DOM；若 eager reset state 把它 unmount，就直接是 AC 與 production code 衝突，要不就改 production（R2 採取的方式）、要不就回報 PM 改 AC，不要靠 Playwright 錯誤訊息反推。
+
 ## 2026-04-22 — K-024 Phase 3 (/diary flat-timeline rewrite + old-component deletion)
 
 **做得好：** K-023/K-028 Sacred 與 design §9.1 shared-primitive 建議之間的 radius-0 vs cornerRadius-6 衝突，用「partial primitive sharing」（const tokens 共用、render 組件分離）收斂，而不是硬拉 prop 讓 DiaryMarker 兩邊都吃；K-028 `diary-entry-wrapper` + 20×14 markers + 3-marker count 全部保留不動（Playwright AC-023-DIARY-BULLET + AC-028-* 5 支 Sacred 全綠）。Migration Content-Preservation 表逐列對齊 `MilestoneSection.tsx` / 舊 `DiaryEntry.tsx` / `diary-mobile.spec.ts` 被刪掉的 9 個行為，每個都標到新 T-* 覆蓋或明確註記「by design removed」。Full suite 222 → 修 T-T4 geometry assertion → 223 passing / 1 skipped / 0 fail。

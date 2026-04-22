@@ -622,6 +622,7 @@ interface LoadMoreButtonProps {
 | `diary-entry` | `DiaryEntryV2` (wrapper) | `/diary` | AC-024-TIMELINE-STRUCTURE marker count = entries count |
 | `diary-entry-wrapper` | Homepage inline entry wrapper (also satisfies AC-024-HOMEPAGE-CURATION per BQ-024-01 PM ruling (b) 2026-04-22) | `/` only | K-028 Sacred preserved; K-024 AC reuses same testid — no second attr |
 | `diary-load-more` | `LoadMoreButton` | `/diary` only | AC-024-DIARY-PAGE-CURATION |
+| `diary-main` | `DiaryPage` `<main role="main">` landmark | `/diary` only | AC-024-CONTENT-WIDTH fallback locator (added R2 2026-04-22 per D-4 finding) |
 
 **Homepage entry testid resolution — BQ-024-01 RESOLVED 2026-04-22 (PM ruled Option (b)):**
 
@@ -886,27 +887,27 @@ Per persona "AC ↔ Test Case Count Cross-Check" rule: every AC requiring Playwr
 | AC-024-SCHEMA | Vitest (diary.schema.test.ts), not Playwright | — | 0 Playwright |
 | AC-024-ENGLISH | Vitest (diary.english.test.ts) | — | 0 Playwright |
 | AC-024-LEGACY-MERGE | Vitest (diary.legacy-merge.test.ts) | — | 0 Playwright |
-| AC-024-HOMEPAGE-CURATION | T-H1 (3-entry happy path + tie-break + marker count) / T-H2 (0-entry section hidden) / T-H3 (1-entry) / T-H4 (2-entries) | diary-homepage.spec.ts | **4** |
+| AC-024-HOMEPAGE-CURATION | T-H1 (3-entry happy path) / T-H2 (tie-break: same-date array-index-later on top) / T-H3 (0-entry boundary per K-028 Sacred — DEV DIARY heading preserved, rail/marker count=0) / T-H4 (1-entry) / T-H5 (2-entry) | diary-homepage.spec.ts | **5** |
 | AC-024-DIARY-PAGE-CURATION | T-D1 (5 initial) / T-D2 (Load more → 10) / T-D3 (entry=0 empty state) / T-D4 (entry=1) / T-D5 (entry=3 no button) / T-D6 (entry=5 no button) / T-D7 (entry=10 load once → hide) / T-D8 (entry=11 two loads) / T-D9 (rapid double-click) | diary-page.spec.ts | **9** |
 | AC-024-TIMELINE-STRUCTURE | T-T1 (no accordion; no `<details>/<summary>`) / T-T2 (no `divide-y`) / T-T3 (no `milestone` wrapper class) / T-T4 (rail backgroundColor + width + height-geq-entries-box) / T-T5 (marker count = entry count dynamic after Load More) / T-T6 (marker CSS bg + width + height + borderRadius) | diary-page.spec.ts | **6** |
-| AC-024-ENTRY-LAYOUT | T-E1 (DOM order title→date→body) / T-E2 (title regex /^K-\d{3} — .+$/) / T-E3 (no middle-dot prefix) / T-E4 (no hyphen-minus prefix) / T-E5 (no ticketId → title textContent doesn't match /^K-\d{3}/) / T-E6 (fontFamily + fontSize + fontStyle + lineHeight + color catchall for all 3 layers) | diary-page.spec.ts | **6** |
+| AC-024-ENTRY-LAYOUT | T-E1 (DOM order title→date→body) / T-E2 (title regex /^K-\d{3} — .+$/) / T-E3 (no middle-dot prefix) / T-E4 (no hyphen-minus prefix) / T-E5 (no ticketId → title textContent doesn't match /^K-\d{3}/) / T-E6 (fontFamily + fontSize + fontStyle + fontWeight + lineHeight + letterSpacing + color catchall for all 3 layers — R2 2026-04-22: T-E6 extended with entry-date letterSpacing + entry-body fontWeight + lineHeight per I-5) | diary-page.spec.ts | **6** |
 | AC-024-PAGE-HERO | T-P1 (hero-title text + CSS) / T-P2 (hero-subtitle text + CSS) / T-P3 (hero-divider backgroundColor) | diary-page.spec.ts | **3** |
-| AC-024-CONTENT-WIDTH | T-C1 (1920 viewport maxWidth 1248) / T-C2 (1440 viewport) / T-C3 (1248 boundary) / T-C4 (800 / 1024 / 1200 no-overflow) / T-C5 (390 mobile no-overflow) | diary-page.spec.ts | **5** |
-| AC-024-LOADING-ERROR-PRESERVED | **DEFERRED** (QA R2). Stubs: T-L1 (slow-network diary-loading visible ≥100ms) / T-L2 (404 diary-error visible + retry click) | diary-page.spec.ts (skipped pending R2) | **2 stubs** (skipped) |
+| AC-024-CONTENT-WIDTH | T-C1 (1920 viewport maxWidth 1248) / T-C2 (1440 viewport) / T-C3 (1248 boundary) / T-C4 (800 / 1024 / 1200 no-overflow) / T-C5 (390 mobile no-overflow) / T-C6 (390 mobile DiaryMarker + DiaryRail computed `display:none` — R2 2026-04-22 added per I-1 / I-2) | diary-page.spec.ts | **6** |
+| AC-024-LOADING-ERROR-PRESERVED | T-L1 (slow-network loading visible + role/label) / T-L2a (404 error + role=alert + message + Retry) / T-L2b (500 error + status-aware message) / T-L3 (empty state text) / T-L4 (Retry enabled when !loading, disabled during in-flight refetch — R2 2026-04-22 added `toBeDisabled()` assertion per D-2) / T-L5 (long error message no-overflow + Retry visible on mobile) | diary-page.spec.ts | **6** |
 | AC-024-REGRESSION | Handled by keeping K-017 / K-021 / K-023 / K-028 Sacred specs + full suite regression | (cross-spec) | Implicit (not new count) |
 
-**Playwright new test total: 4 + 9 + 6 + 6 + 3 + 5 + 2_stubs = 33 total, with 2 initially skipped pending AC-024-LOADING-ERROR-PRESERVED QA R2 unblock → 31 active at Phase 3 merge.**
+**Playwright new test total: 5 + 9 + 6 + 6 + 3 + 6 + 6 = 41 total** (R2 fix-bundle 2026-04-22: LOADING-ERROR-PRESERVED unblocked with 6 full specs replacing 2 stubs; CONTENT-WIDTH gained T-C6 per I-1/I-2; ENTRY-LAYOUT T-E6 extended per I-5 but row count unchanged; HOMEPAGE-CURATION shipped with 5 tests — Phase 3 adjustment from original 4-row plan for K-028 Sacred 0-entry clause split).
 
 **Vitest new test total: 4 spec files × (~3–6 cases each) ≈ 15–25 Vitest cases. Exact count determined at Engineer implementation.**
 
 **Self-Check (AC ↔ Test Count Cross-Check gate):**
-- Ticket AC total declared Playwright-necessary ACs: 6 (HOMEPAGE-CURATION, DIARY-PAGE-CURATION, TIMELINE-STRUCTURE, ENTRY-LAYOUT, PAGE-HERO, CONTENT-WIDTH). LOADING-ERROR-PRESERVED is DEFERRED. REGRESSION is multi-spec wrapper.
-- Expected test rows: 4 + 9 + 6 + 6 + 3 + 5 = **33** (excluding deferred stubs and regression wrapper).
-- Test total declared above: **33** ✓
+- Ticket AC total declared Playwright-necessary ACs: 7 (HOMEPAGE-CURATION, DIARY-PAGE-CURATION, TIMELINE-STRUCTURE, ENTRY-LAYOUT, PAGE-HERO, CONTENT-WIDTH, LOADING-ERROR-PRESERVED — unblocked in Round 2). REGRESSION is multi-spec wrapper.
+- Expected test rows: 5 + 9 + 6 + 6 + 3 + 6 + 6 = **41** (R2 2026-04-22 update).
+- Test total declared above: **41** ✓
 - All PM-split ACs: only HOMEPAGE-CURATION-boundary is split (0 / 1 / 2 / 3+) — each subcase is a separate test ID ✓
-- Count-vs-count: text total `33` ≡ table row sum `33` ≡ Declared test total "33" ✓
+- Count-vs-count: text total `41` ≡ table row sum `41` ≡ Declared test total "41" ✓
 
-Engineer cross-check: on final delivery, `wc -l`/grep `test(` in diary-page.spec.ts + diary-homepage.spec.ts must equal 33 (or 31 if deferred stubs excluded).
+Engineer cross-check: on final delivery, `wc -l`/grep `test(` in diary-page.spec.ts + diary-homepage.spec.ts must equal 41 (actual: 36 + 5 = 41 ✓ as of R2 2026-04-22).
 
 ### 7.4 Test fixtures
 
