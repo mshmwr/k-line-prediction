@@ -1,10 +1,11 @@
 ---
 id: K-024
 title: /diary 結構重做 + diary.json schema 扁平化
-status: backlog
+status: closed
 type: feat
 priority: medium
 created: 2026-04-20
+closed: 2026-04-22
 visual-spec: docs/designs/K-024-visual-spec.json
 qa-early-consultation: docs/retrospectives/qa.md#2026-04-22-k-024-early-consultation-round-1
 ---
@@ -394,11 +395,13 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 
 ---
 
-### ~~AC-024-PM-PERSONA-SYNC~~ → 移至 DoD Checklist（非 AC）
+### ~~AC-024-PM-PERSONA-SYNC~~ → 移至 DoD Checklist（非 AC）— **Closed 2026-04-22**
 
 **Reclassify 2026-04-22**（QA Challenge #10）：本項為 repo 外部檔案（`~/.claude/agents/pm.md`）的一次性手動 Edit，**無測試 harness**可驗證，不適合作為 Playwright/Vitest 可測的 AC。QA 裁定 untestable。
 
 **改列為 `## 放行狀態` 下的 DoD Checklist 項目**（見該 section）——由 PM 於本票 close 時執行 Edit tool call，記錄於 ticket `## Retrospective` 段內，不計入 Phase Gate AC 數。
+
+**Close 註記（2026-04-22）：** DoD 於本票進入 close 階段時已實質達成（grep `"K-023 上線後生效"` 在 `~/.claude/agents/` 回傳 0 行；`pm.md` line 262 `### Example: K-Line Prediction project` 下已為 `**Diary update automation:** After K-024 goes live, ...`）。無需本 session 再執行 Edit；DoD Checklist 三項皆為 `[x]`。
 
 ---
 
@@ -445,9 +448,9 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 - Load more button literal 文字、disabled 樣式、位置（pattern 已定：button click + client-side slicing，見 AC-024-DIARY-PAGE-CURATION）
 
 **DoD Checklist（本票 close 時 PM 執行，非 AC）：**
-- [ ] `~/.claude/agents/pm.md` 的 `## K-Line diary.json 每日維護（K-023 上線後生效）` 文字修正為「K-024 上線後生效」；PM auto trigger table 對應條目同步
-- [ ] 實際 Edit tool call 執行並於本票 `## Retrospective` PM 段紀錄 before/after diff
-- [ ] 完成後於 AC-024-PM-PERSONA-SYNC 已廢止區段註記「Closed 2026-MM-DD」
+- [x] `~/.claude/agents/pm.md` 的 diary automation 條目文字以 `K-024` 為準（line 262 `### Example: K-Line Prediction project` 下：`**Diary update automation:** After K-024 goes live, update frontend/public/diary.json following the flow in docs/tickets/K-024-diary-structure-and-schema.md ...`）——**2026-04-22 close session 驗證：persona 檔早於本票進入 close 階段即已同步為 K-024 文字**（舊「K-Line diary.json 每日維護（K-023 上線後生效）」區段於 audit-personas 整併時已被壓縮為 `### Example` 下的一段精簡文字，非於本 session 內新增 Edit）；DoD 實質已達成，無須再次 Edit。
+- [x] 實際驗證：`grep -rn "K-023 上線後生效" ~/.claude/agents/` 回傳 0 行；`grep -n "K-024 goes live" ~/.claude/agents/pm.md` 命中 line 262。無 before/after diff 可紀錄（早於本 session 已生效）。
+- [x] AC-024-PM-PERSONA-SYNC 已廢止區段標記 **Closed 2026-04-22**。
 
 **已由 visual-spec.json 定案（Architect 直接讀 `docs/designs/K-024-visual-spec.json`，不再待決）：**
 - ~~磚紅矩形 marker 精確尺寸~~ → `wiDSi` marker role（20×14px, cornerRadius 6）

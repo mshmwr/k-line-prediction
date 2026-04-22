@@ -368,28 +368,7 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### K-024 — /diary 結構重做 + diary.json schema 扁平化
-
-- **Status:** backlog / type: feat
-- **Ticket:** [docs/tickets/K-024-diary-structure-and-schema.md](docs/tickets/K-024-diary-structure-and-schema.md)
-- **摘要：** `/diary` 改設計稿 v2（`wiDSi`）扁平 timeline；diary.json 扁平 schema；英文化；Homepage 3 條 / Diary 頁 5 條 + Load more；PM persona 日更流程文字同步。
-
-**AC 一覽：**
-
-- **AC-024-SCHEMA** — flat array `{ ticketId?, title, date, text }`。
-- **AC-024-ENGLISH** — 全條目無 CJK。
-- **AC-024-LEGACY-MERGE** — 無 ticketId 舊條目最多 1 筆。
-- **AC-024-HOMEPAGE-CURATION** — Homepage 顯示最新 3 條。
-- **AC-024-DIARY-PAGE-CURATION** — Diary 頁初始 5 條 + 滾動/按鈕載入更多。
-- **AC-024-TIMELINE-STRUCTURE** — 無 accordion；左側 1px rail；磚紅矩形 marker。
-- **AC-024-ENTRY-LAYOUT** — entry-title / entry-date / entry-body 字型規格依 visual-spec `wiDSi` 對應 role；`ticketId` 存在時 title 前綴 `K-XXX — <title>`（em-dash U+2014，兩側各一半形空格；不得使用 middle-dot 或 hyphen）。
-- **AC-024-PAGE-HERO** — `Dev Diary` Bodoni italic 64px + 分隔線 + Newsreader italic 副標。
-- **AC-024-CONTENT-WIDTH** — desktop maxWidth 1248px。
-- **AC-024-LOADING-ERROR-PRESERVED** — Loading / Error UX 沿用既有機制。
-- **AC-024-PM-PERSONA-SYNC** — PM persona 「K-023 上線後生效」字串於本票關閉時改為「K-024 上線後生效」，且實際有 Edit tool call。
-- **AC-024-REGRESSION** — K-017 + AC-DIARY-1 + `<DevDiarySection>` 3 條斷言不破。
-
-完整 Given/When/Then/And 見 [K-024](docs/tickets/K-024-diary-structure-and-schema.md)。
+<!-- K-024 closed 2026-04-22 → see §4 Closed Tickets -->
 
 ---
 
@@ -457,7 +436,7 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ## §4 Closed Tickets
 
-以下 15 張 closed + 2 張 superseded ticket，AC 詳文從對應 `docs/tickets/*.md` 引用。`closed` 日期以 ticket frontmatter 為準；前期未登記 date 者以 `[Closed 2026-04, date TBD]` 占位。
+以下 16 張 closed + 2 張 superseded ticket，AC 詳文從對應 `docs/tickets/*.md` 引用。`closed` 日期以 ticket frontmatter 為準；前期未登記 date 者以 `[Closed 2026-04, date TBD]` 占位。
 
 ### K-001 — 後端測試補強（main.py route handler coverage 提升）
 
@@ -775,6 +754,29 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - **AC-023-REGRESSION** — K-017 所有 AC（特別 AC-017-HOME-V2 / AC-017-BANNER / AC-HOME-1）仍 PASS；`<DiaryTimelineEntry>` 絕對定位機制不破；tsc exit 0
 
 > AC-023-HERO-SUBTITLE-TWO-LINE 原為 A-4 項，經 PM 裁決 SQ-023-02 從 scope 移除（KG-023-01 正式 closed）。
+
+---
+
+### K-024 — /diary 結構重做 + diary.json schema 扁平化
+
+- **Status:** closed / type: feat / **Closed: 2026-04-22**
+- **Ticket:** [docs/tickets/K-024-diary-structure-and-schema.md](docs/tickets/K-024-diary-structure-and-schema.md)
+- **摘要：** `/diary` 改設計稿 v2（`wiDSi`）扁平 timeline；diary.json 扁平 schema；英文化；Homepage 3 條 / Diary 頁 5 條 + Load more；PM persona 日更流程文字同步；visual-spec.json SSOT 機制成形。
+
+**AC：**
+
+- **AC-024-SCHEMA** — flat array `{ ticketId?, title, date, text }`。
+- **AC-024-ENGLISH** — 全條目無 CJK。
+- **AC-024-LEGACY-MERGE** — 無 ticketId 舊條目最多 1 筆（Option B amend — 以 `chore` 登記保底彙總，date 落於該批最新條目）。
+- **AC-024-HOMEPAGE-CURATION** — Homepage 顯示最新 3 條（0 entries 情境：保留 `DEV DIARY` heading per K-028 Sacred，不渲染 rail / marker）。
+- **AC-024-DIARY-PAGE-CURATION** — `/diary` 初始 5 條 + `useDiaryPagination` 按鈕/滾動載入更多；concurrency gate 以 `useRef` 並行保護。
+- **AC-024-TIMELINE-STRUCTURE** — 無 accordion；左側 rail + 磚紅矩形 marker，尺寸/顏色依 `docs/designs/K-024-visual-spec.json` wiDSi 對應 role。
+- **AC-024-ENTRY-LAYOUT** — entry-title / entry-date / entry-body 字型/字級/letterSpacing/行高/顏色依 visual-spec role（Playwright 斷言 import JSON）；`ticketId` 存在時 title 為 `K-XXX — <title>` em-dash（U+2014）格式，不得使用 middle-dot 或 hyphen。
+- **AC-024-PAGE-HERO** — 大標 `Dev Diary`（hero-title role）+ 1px 分隔線 + italic 副標 `Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.`（hero-subtitle role）。
+- **AC-024-CONTENT-WIDTH** — desktop maxWidth 1248px；mobile rail/marker `display: none`，entry 三層文字單欄折行。
+- **AC-024-LOADING-ERROR-PRESERVED** — Loading / Error UX 沿用既有機制；refetch 期間 button disabled + 錯誤訊息保留。
+- **AC-024-PM-PERSONA-SYNC** — PM persona 「K-023 上線後生效」字串於本票關閉時改為「K-024 上線後生效」（audit-personas 早期已 sync，DoD 檢核 grep 已 `[x]`）。
+- **AC-024-REGRESSION** — K-017 + K-021 + K-023 + K-028 所有 Sacred 斷言（NavBar / body paper palette / 三字型 / Homepage marker `borderRadius:0`+`top:8` / DevDiary heading + 3-marker + 0-entry `diary-entry-wrapper`）全綠；QA Phase 3 sign-off PASS。
 
 ---
 
