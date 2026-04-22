@@ -2,6 +2,19 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-22 — K-024 Phase 3 Code Review R1 depth pass Critical D-1（AC-Sacred self-contradiction）
+
+**What went well:** Depth Code Review（reviewer.md Agent，第二層專案深度審）精準抓到 AC-024-HOMEPAGE-CURATION 0-entry clause 與 K-028 Sacred `AC-028-DIARY-EMPTY-BOUNDARY` 直接矛盾——在 Engineer 已依 Sacred 正確實作、Playwright 223/224 綠、tsc 0、Vitest 81/81 的「全綠」狀態下仍被 flag 為 Critical。表層（superpowers breadth）審查沒抓到此類「AC 自己對不上前置 Sacred」的跨 ticket 語義衝突，雙層 Code Review 架構（feedback_code_review_agent.md）第一次在 K-024 展示價值。PM 裁決採 Option (a)：Sacred 不可動（ticket AC 是 PM-owned，前置 ticket 的 Sacred 更 binding），改寫 K-024 新 AC 文字對齊 K-028；同時 Bug Found Protocol 完整執行：memory file `feedback_pm_ac_sacred_cross_check.md` 寫入、MEMORY.md index 更新、`~/.claude/agents/pm.md` Phase Gate Prerequisites 新增 **AC ↔ Sacred cross-check 硬 gate**（PM 召喚前 grep 本 ticket AC-*-REGRESSION + dependency ticket Sacred 清單，強制輸出「AC vs Sacred cross-check：✓ / ⚠️ resolved via Option (a/b/c)」一行 gate 證據）。未偷懶為 Round 2 fix 留 detection 責任給 Engineer / Reviewer。
+
+**What went wrong:** 根因是 PM 寫 AC-024-HOMEPAGE-CURATION 時，沒有先對照自己在同 ticket `AC-024-REGRESSION` 段落列的 K-028 Sacred 清單，直接寫出「0 entries 時 section 整個隱藏」這樣與 K-028 DOM 存在性斷言（`DEV DIARY` heading 保留渲染）直接衝突的文字。Phase Gate 並沒有 grep「本 ticket AC 條文 vs Sacred 清單」的硬 gate——僅有「AC CSS wording check」（視覺意圖 vs property value）和「AC ↔ ticket bidirectional link」（ticket 註記完整性），都不觸及語義衝突。因此該 Critical 被帶入 Engineer 完整跑完 ~1500 LOC Phase 3、Playwright 斷言 pattern 都寫好才在第二層 Code Review 被抓——付出代價是 Engineer 回工（Round 2 fix 配合 AC 文字修訂調 Playwright 斷言 pattern）。
+
+**Next time improvement:**
+1. **AC ↔ Sacred cross-check 硬 gate 已落（本次已做）：** `~/.claude/agents/pm.md` §Phase Gate Checklist 「Prerequisites for releasing Engineer」新增一條 checkbox（在 AC CSS wording check 下方），要求 PM 寫 / 修 AC 時四步驟：(1) 讀本 ticket AC-*-REGRESSION Sacred；(2) 讀所有 dependency ticket（已 close + deployed）的 Sacred；(3) 每個 DOM / testid / 計數 / 可見性斷言 vs Sacred 比對，衝突用 Option (a) 改 AC / (b) Sacred retired / (c) BQ 升級使用者；(4) 發行文件輸出「AC vs Sacred cross-check: ✓ / ⚠️」一行 gate 證據。未輸出此行 = handoff 被拒。已同步 memory `feedback_pm_ac_sacred_cross_check.md`。
+2. **PM 不得把 AC 衝突 detection 責任下放：** Engineer 依 Sacred 實作後 Playwright 會 fail（實作 vs AC 永遠不一致），但 Engineer 不得改 AC（`feedback_ticket_ac_pm_only.md`）→ 只能 blocker 升 PM，浪費一整個 Phase。本次 Code Review R1 depth pass 抓到已屬幸運；同類 AC 若表層 review 與 depth review 都 miss，Engineer 是 gate 最後防線但沒有修 AC 的權限 → 結構性死結。PM 端硬 gate 是唯一修復點。
+3. **Next：** Task 48 R2 fix batch 已 bundle：(a) Engineer R2 agent 修 I-3 fixture（10 → 11 entries 驗 gate 證據）+ D-2（T-L4 add `toBeDisabled()`）+ I-1/I-2（mobile viewport rail/marker hidden assertion）+ I-5（ENTRY-LAYOUT catchall 補 entry-date letterSpacing、entry-body fontWeight/lineHeight via toHaveCSS）；(b) Architect append `diary-main` testid 至 design §6.4 + §7.3 count 33→40 同步；(c) Engineer R2 完整 Playwright + tsc + Vitest 全綠後再放行 QA task 45。
+
+---
+
 ## 2026-04-21 — K-013 close + merge + deploy（Bug Found Protocol Round 1+2 full lifecycle）
 
 **What went well:** K-013 整票跨 Architect 設計 → Engineer Round 1 → Reviewer Round 1 Critical C-1 → **full Bug Found Protocol（3 roles × 3 pieces: retro + memory + persona）** → PM Quality Check → Engineer Round 2 fix pack → Reviewer Round 2 Critical F-1（design doc stale premise）→ PM docs-only remediation → QA Round 2 regression PASS → close + merge + deploy，全在單日內收斂。Bug Found Protocol 執行度最嚴格的一次：C-1（Engineer behavior drift）+ W-1（Architect pre-design audit no dry-run）+ R1（Reviewer single-face assertion accept）三個 role 皆獨立反省、各寫 memory feedback file + 編輯對應 persona 硬 gate，無一偷懶。Pre-deploy gate 跑在 merge 後 tree（commit `722df0c`）全綠：tsc 0 / Vitest 45 / pytest 68 / Playwright **190/191**（1 pre-existing skip，含 K-013 spec 4/4 positive+negative 雙斷言）。Live verify 用 `curl -sI` 拿 HTTP/2 200 + etag，不是僅目測。Deploy Record 欄位全部寫實際值（build size、release complete 時間、live HTTP status），無 `<TBD>` 殘留。

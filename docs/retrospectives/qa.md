@@ -20,6 +20,18 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-024 Phase 1+2 Post-R1 Regression Sign-off
+
+**What went well:** Full gate (tsc 0 / Vitest 81/81 / Playwright 190 passed / 1 skipped / 0 fail) green in a single pass after the R1 remediation commit 694510c, including the new diary.legacy-merge.test.ts (6 tests) which precisely validates the Option B amendment (title-literal pin + non-legacy key-absent permitted). Legacy-merge test coverage directly asserts all five PM-locked constraints (exactly-one, title literal, date 2026-04-16, 50–100 word count, ticketId key-absent at raw JSON level) plus the new non-legacy key-absent allowance — complete coverage of AC-024-LEGACY-MERGE. R1 remediation did not introduce any new regression: K-017/K-021/K-023/K-027 Sacred assertions (NavBar order, AC-021-BODY-PAPER, AC-021-FONTS, DevDiarySection 3-marker, AC-028-MARKER-COUNT-INTEGRITY, diary-mobile flex-col/break-words) all remained green, confirming the minimum-touch Phase 1+2 reshape strategy held through remediation.
+
+**What went wrong:** Nothing observed in this sign-off pass; R1 findings were resolved cleanly and no residual regression surfaced. Pre-existing 1 skipped Playwright test is inherited from main (not introduced by K-024) — acceptable per invocation. No cross-ticket boundary violations detected.
+
+**Next time improvement:**
+1. For Option-B-style AC amendments that relax a uniqueness constraint (here: "other ticketId-key-absent entries permitted"), the regression test suite should include at least one positive assertion that the relaxation is exercised in production data — the 6th legacy-merge test correctly does this by counting `!('ticketId' in e)` in raw JSON. Codify as a QA check pattern: whenever an AC amendment introduces a permissive clause, verify the test either exercises the permissive branch on production fixtures or adds a synthetic fixture that does.
+2. Visual report was generated with TICKET_ID=K-024 correctly; filename `K-024-visual-report.html` confirmed. No action needed — existing persona step worked.
+3. Phase 3 sign-off (future PR) will introduce DiaryPage rewrite + 6+ Playwright specs (T-L1..T-L5 loading/error/empty/retry/long-message, timeline-structure, entry-layout, page-hero, content-width, homepage-curation, diary-page-curation). Pre-commit to running all boundary fixtures (entry = 0/1/3/5/10/11) as separate Playwright specs rather than parametrized, to match the PM-enforced enumeration in AC-024-DIARY-PAGE-CURATION.
+
+
 ## 2026-04-22 — K-024 Early Consultation Round 2
 
 **What went well:** Architect's design doc §6.3 + §6.4 delivered concrete contracts for all three states (DiaryLoading wrapping LoadingSpinner label="Loading diary…", DiaryError with canonical fallback literal "Couldn't load the diary right now. Please try again." + "Retry" button + onRetry prop, DiaryEmptyState literal "No entries yet. Check back soon.") — every selector / literal / retry semantic needed for a Playwright spec is unambiguous in a single authoritative table. Confirmed visual-spec.json does NOT need loading/error roles (thin wrappers around existing LoadingSpinner/ErrorMessage — no new visual primitive), preventing a false Challenge about missing role entries. Cross-checked useDiary hook error classification (§4.1 L307-310) against DiaryError error-classification-scope (§6.3 L572-578) — matched: 4xx/5xx, network TypeError, JSON parse, timeout, no-auto-retry all consistent across both sections.
