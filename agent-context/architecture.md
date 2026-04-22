@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-22 (K-020 design — GA4 E2E Test Matrix)
+updated: 2026-04-22 (K-029 Architect design + K-020 GA4 E2E Test Matrix)
 ---
 
 ## Summary
@@ -623,6 +623,7 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-22**（Architect, K-029 設計）— `/about` leaf 組件 paper palette 遷移完成設計：`components/about/ArchPillarBlock.tsx`（3 處：body `text-gray-300`→`text-muted` / pyramid li `text-gray-400`→`text-muted` / layer span `text-gray-300`→`text-ink`，加 `data-testid="arch-pillar-body"` + `arch-pillar-layer`）、`components/about/TicketAnatomyCard.tsx`（4 處：badge `text-purple-400`→`text-charcoal` / body wrapper `text-gray-400`→`text-muted` / Outcome + Learning label `text-gray-500`→`text-muted`，加 `data-testid="ticket-anatomy-body"` + `ticket-anatomy-id-badge"`）。K-022 A-12 遺漏補齊；/about 所有 card 文字全面對齊 paper palette。`frontend/e2e/about-v2.spec.ts` 新增 AC-029-ARCH-BODY-TEXT（9 assertions）+ AC-029-TICKET-BODY-TEXT（12 assertions）共 21 new computed `color` 斷言；沿用 L174-L198 canonical color-assertion pattern。無後端 / API / 路由 / props interface 變更。設計文件：[K-029-about-card-body-text-palette.md](../docs/designs/K-029-about-card-body-text-palette.md)。未改 code（Architect 僅設計），Engineer 交付後補檔案異動項。
 - **2026-04-22**（Architect, K-020 設計）— GA4 SPA Pageview E2E 測試硬化設計：新增 `frontend/e2e/ga-spa-pageview.spec.ts`（9 tests：SPA-NAV × 2 + BEACON × 4 + NEG × 3）；`ga-tracking.spec.ts`（K-018）保留不動；新增 §GA4 E2E Test Matrix 段落（layer / owns / intercept contract / payload pins / hook behavior lock / K-018 regression guard）。No production code change. 設計文件：[K-020-ga-spa-pageview-e2e.md](../docs/designs/K-020-ga-spa-pageview-e2e.md)。
 - **2026-04-21**（PM, K-013 close + merge + deploy）— K-013 Consensus / Stats SSOT（TD-008 Option C）closed after R2 bug-found remediation. Merge commit to main + Firebase Hosting deploy + PRD §3→§4 migration + PM-dashboard deregister + Deploy Record block appended. Final gate: tsc 0 / vitest 45/45 / pytest 68/68 / playwright 173+1 skipped / K-013 spec 4/4.
 - **2026-04-21**（PM, K-013 Round 2 Code Review 裁決）— SQ-013-01 premise retracted：Round 2 Fix 1 `853a8aa` 於 `AppPage.tsx` 恢復 OLD base `b0212bb` L224-226 無條件 `consensusForecast1h/1d` 注入，證偽原設計文件「全集下無 consensus 圖 pre-existing」假設；`docs/designs/K-013-consensus-stats-ssot.md` §0.3 / §2.3 / §8.1 / §9.3 更新 + `agent-context/architecture.md` `Consensus Stats Source of Truth` 段 Known Gap 改為 wire-level vs observable 分層敘述。wire-level `consensus_forecast_*` 仍回 `[]`（AppPage 層注入 observable），不視為 architecture debt。K-013 AC-013-APPPAGE 文字同步更正為「呼叫 util 取 projectedFutureBars + 無條件注入 consensusForecast1h/1d」；AC-013-APPPAGE-E2E 於 ticket §驗收條件正式補列。TD-K013-R2-01（Vitest 1-bar fixtures dev-mode warn noise）+ TD-K013-R2-02（Reviewer persona Gate 4 dry-run / Post-Fix Doc Consistency）登記追蹤。no code change（docs-only）。

@@ -20,6 +20,15 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-029 Regression Sign-off
+
+**What went well:** Independent full-suite re-run (197 pass / 1 skip / 0 fail) matched Engineer's report; stale K-UNKNOWN-visual-report.html caught + deleted pre-run per K-028 memory; all 4 K-029 testids (arch-pillar-body / arch-pillar-layer / ticket-anatomy-body / ticket-anatomy-id-badge) verified present + exclusive (zero class-selector fallback for tested components); KG-029-01 closed cleanly.
+
+**What went wrong:** Pencil MCP tool surface not granted to QA agent — forced source-grep fallback for parity verification instead of direct .pen visual diff. Reduces parity confidence to "source palette matches spec" (indirect proxy) rather than "design canvas matches render" (direct).
+
+**Next time improvement:** PM/main-session grant mcp__pencil__batch_get + mcp__pencil__get_screenshot to QA persona tool surface before sign-off rounds on UI tickets, so §0b Pencil parity is first-class, not fallback. Codify in qa.md §0b: "if pencil MCP missing from tool grant, BLOCK sign-off and request tool-grant from PM before proceeding" (currently §0b only handles MCP-server-down, not MCP-tool-not-granted case).
+
+
 ## 2026-04-22 — K-020 Regression (full Playwright E2E sign-off)
 
 **What went well:** Full-suite run (200 tests discovered) landed exactly on the shape agreed in Early Consultation + design §3.1 — 198 pass / 1 skip / 1 fail, where the lone fail is the intentional K-033 tracker (`AC-020-BEACON-SPA`) carrying the PM-ruled C-1 doc-block above it. No pre-existing spec regressed; the 9 new tests in `frontend/e2e/ga-spa-pageview.spec.ts` match design §3.1 one-for-one. AC coverage mapping verified per spec: AC-020-SPA-NAV ×2 green, AC-020-BEACON-INITIAL / PAYLOAD / COUNT green, AC-020-NEG-QUERY / NEG-HASH / NEG-SAMEROUTE green, AC-020-BEACON-SPA red-on-purpose with visible K-033 TRACKER explainer in-source.
@@ -120,6 +129,61 @@
 **What went wrong:** Could not run real Agent(qa) — PM simulating QA loses the independent-perspective value of the role; risks blind spots (e.g., Playwright version-specific `waitForRequest` behavior, edge cases QA would know from regression history). Disclosed in ticket as Known Gap pending user decision.
 
 **Next time improvement:** When PM session lacks Agent tool, block release at §Release Status with an explicit "BLOCK: Agent(qa) required" row rather than proceeding with simulation; only simulate when user has pre-authorized. Codify in `pm.md` §PM session capability pre-flight — already present since 2026-04-21 K-030; enforce "explicit user authorization" clause this session (done: ticket surfaces decision back to user).
+
+
+## 2026-04-22 — K-029 Early Consultation (verified by qa subagent)
+
+**What went well:** Main session called real qa subagent to re-verify PM-simulated consultation, closing the capability-gap workaround from earlier this session. Findings differed from simulated on 2 of 7 challenges + 1 AC testability issue PM had accepted, confirming value of running the real agent.
+
+**Divergences from simulated (acted on):**
+- C3 (selector stability): simulated declared Known Gap with Engineer discretion; verified flagged this contradicts existing about/ testid convention (DossierHeader, FooterCtaSection already use data-testid) — upgraded to Architect design-doc mandate with 4 prescribed testid names (arch-pillar-body / arch-pillar-layer / ticket-anatomy-body / ticket-anatomy-id-badge).
+- C6 (pyramid layer span text-ink): simulated left `<li>` detail under 3-token allow-list; verified flagged hierarchy inversion risk (if Engineer picks text-ink for both `<li>` and layer span, the "label more prominent than detail" intent collapses since child==parent) — AC tightened to pin `<li>` detail at text-muted fixed.
+- AC "at least one" clause: simulated accepted (and even main session's initial post-PM review agreed); verified showed Engineer could pick a color outside BOTH allow and disallow lists (e.g. text-blue-600) — passes disallow, and only 1 of 3 cards needs allow match, so 2 cards with wrong color slip through. Tightened to "三個皆須命中 allow-list".
+
+**Confirmed (no action):**
+- No `darkMode` in tailwind.config + no `dark:` classes — PM's "no OS dark-mode boundary" claim VERIFIED.
+- K-022 `about-v2.spec.ts` L195 uses `getComputedStyle` + exact RGB — canonical pattern for K-029 to follow.
+- No K-022 spec asserts `text-gray-*` or `text-purple-*` on these components — AC-029-REGRESSION safe, no existing spec breakage.
+- Scope = 2 files (7 sites) — grep re-confirmed.
+- CardShell inheritance neutral on text color.
+
+**Borderline observation (recorded, no action):**
+text-muted on paper at 12px (text-xs) = 4.84:1 contrast — passes WCAG AA 4.5:1 but near the floor. If future font weight reduces perceived contrast, revisit.
+
+**Known Gap reframed:**
+**KG-029-01** — Playwright selector path: Architect design doc prescribes data-testid names; Engineer implements per doc; QA sign-off verifies compliance. (No longer speculative stability concern.)
+
+**What went wrong (capability-gap root cause):** PM subagent lacks Agent tool → initial consultation was PM self-review of PM-authored AC, with inherent blind spots. 3 of 7 challenges needed correction once real adversarial review ran. Confirms `feedback_pm_session_capability_pre-flight` is structural, not per-ticket; user/main session must call real qa subagent for Early Consultation when PM subagent cannot spawn one.
+
+**Next time improvement:** When main session hands off to PM subagent and flow requires QA Early Consultation, main session (which has Agent tool) should call qa subagent FIRST and feed the consultation findings into PM's handoff prompt — don't rely on PM simulation as the primary path. Simulation is fallback only when main session itself is unavailable. Codify in future PM release: "QA Early Consultation must come from qa subagent (not PM simulation) whenever main session has Agent tool available."
+
+---
+
+## 2026-04-22 — K-029 Early Consultation (AC testability + palette contrast review)
+
+**DISCLOSURE:** This consultation was simulated by the PM subagent because the current PM session has no Agent-tool access to spawn qa subagent. Per persona §PM session capability pre-flight + memory `feedback_pm_session_capability_pre-flight`, PM proceeded with explicit disclosure. Upon next K-029 QA sign-off the actual qa subagent will re-verify this consultation's findings; any missed boundary at sign-off = gap to be logged back here.
+
+**What went well (simulated QA review):** PM-driven scope scan via `grep -rn "text-gray-\|text-purple-\|text-blue-" frontend/src/components/about/` confirmed dark-theme residuals exist only in `ArchPillarBlock.tsx` (3 sites: body div / pyramid li / pyramid layer span) and `TicketAnatomyCard.tsx` (4 sites: body div / Outcome span / Learning span / ticket ID badge). RoleCard + MetricCard + PillarCard + FooterCtaSection already on paper palette — no additional scope. WCAG AA contrast on paper `#F4EFE5`: text-muted `#6B5F4E` ≈ 4.84:1 (passes AA for body), text-charcoal `#2A2520` ≈ 11.9:1 (AAA), text-ink `#1A1814` ≈ 13.5:1 (AAA). All three palette tokens clear AA for `text-xs` body. No dark-mode / OS-preference boundary — body is hard-pinned `bg-paper`.
+
+**Challenges raised (and resolution):**
+1. **AC phrasing "可讀深色" / "或更深" ambiguous** — `deeper` in color space not deterministically verifiable. → **Supplement AC**: replace with explicit allow-list (text-ink / text-charcoal / text-muted RGB) + explicit disallow-list (gray-300/400/500 + purple-400 RGB). PM will patch AC-029-ARCH-BODY-TEXT + AC-029-TICKET-BODY-TEXT.
+2. **Ticket ID badge semantic color BQ** — PM-002 asks `text-charcoal` vs `text-muted`. → **PM rules text-charcoal** (see ticket §Architect Pre-check decisions): badge is an identifier / metadata label (Geist Mono mono-weight), not body prose; token table assigns `charcoal` to "次文字 / 輔助元素" — exactly this role. `text-muted` is for Footer / meta / NavBar non-active per architecture.md L453. text-charcoal also gives AAA contrast, preserving the "prominent identifier" visual weight the original `text-purple-400 font-bold` was trying to achieve.
+3. **Playwright selector stability** — ArchPillarBlock + TicketAnatomyCard have no `data-testid`; new color assertions must anchor via section heading descent (fragile if Section reshuffles). → **Known Gap declared (KG-029-01)**: Engineer may add `data-testid="arch-pillar-body"` / `data-testid="ticket-anatomy-body"` + `data-testid="ticket-anatomy-id-badge"` at implementation time for stable assertion, OR anchor via `section:has(h2:has-text("Project Architecture"))` + descendant. Not AC-required; Engineer discretion. QA at sign-off will verify whichever path was taken produces stable selectors.
+4. **Regression: new computed-color spec vs existing K-022 about-v2.spec.ts** — K-022 spec exists; AC-029 requires extending with color assertions or new K-029 spec. → Engineer task; Architect must explicitly state in design doc which spec file the new assertions go into. Not AC-blocking.
+5. **Cross-component consistency (K-022 A-12 scope completion)** — Grep confirms no other `/about` components carry dark-theme residuals. Architect Pre-check item 3 resolved.
+6. **testing pyramid `<span>`** — currently `text-gray-300` on font-mono. Per Pre-check: Architect decides between `text-charcoal` (prominence, matches layer label treatment in PillarCard per PillarCard.tsx L22-L25 `text-paper` on `bg-charcoal`) or `text-ink` (direct tonal match with body). → **PM rules text-ink** for the layer span (same as body treatment; avoids visual hierarchy conflict with the bold sibling li). Documented below.
+7. **CardShell border/bg isolation** — PillarCard pattern confirms `CardShell` neutral on text color; children drive their own. No inheritance surprise.
+
+**Supplement to AC (PM will patch):**
+- AC-029-ARCH-BODY-TEXT Then/And rewritten with explicit RGB allow/disallow lists.
+- AC-029-TICKET-BODY-TEXT Then/And rewritten with explicit RGB allow/disallow lists.
+- AC-029-REGRESSION unchanged.
+
+**Known Gap declared:**
+- **KG-029-01** — Playwright selector stability for new color assertions: no `data-testid` mandated in AC; Engineer may introduce testids or use structural anchors. QA sign-off will confirm chosen path.
+
+**Next time improvement:** If future PM session lacks Agent-tool access, escalate to user to re-spawn main session with full capabilities BEFORE starting BQ resolution. This session accepted the capability gap and mitigated via explicit simulation disclosure, but the upstream fix is session permission hygiene (see memory `feedback_pm_session_capability_pre-flight`).
+
 
 ## 2026-04-21 — K-013 Round 2 Regression Pass
 

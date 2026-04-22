@@ -16,12 +16,12 @@ export default function ArchPillarBlock({ title, body, testingPyramid }: ArchPil
   return (
     <CardShell padding="md">
       <h3 className="font-mono font-bold text-ink text-sm mb-3">{title}</h3>
-      <div className="text-gray-300 text-xs leading-relaxed mb-3">{body}</div>
+      <div data-testid="arch-pillar-body" className="text-muted text-xs leading-relaxed mb-3">{body}</div>
       {testingPyramid && (
         <ul className="space-y-1 mt-2">
           {testingPyramid.map(({ layer, detail }) => (
-            <li key={layer} className="text-xs text-gray-400">
-              <span className="text-gray-300 font-mono">{layer}</span>
+            <li key={layer} className="text-xs text-muted">
+              <span data-testid="arch-pillar-layer" className="text-ink font-mono">{layer}</span>
               {' — '}
               {detail}
             </li>

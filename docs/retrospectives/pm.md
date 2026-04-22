@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-22 — K-029 Close Phase Docs (pre-deploy)
+
+**What went well:** PM subagent 在 close phase 把全部 docs 變動一次性收斂 — tech-debt.md 新增 TD-K029-01（Reviewer Step 2 W-1 + QA 雙方標記） + PRD §3 K-029 entry 整塊切入 §4 Closed Tickets 並同步 header 從 15→16 count + ticket §Retrospective 用 4-role synthesis（PM/Architect/Engineer/QA）+ cross-role insight 段對 K-029 雙階段 QA（simulated + verified）學習命名清楚 + Deploy Record block 依 persona 硬規則寫 placeholder（Git SHA / Bundle hash / Verification probe 指定為 `grep arch-pillar-body`，非空泛 200 probe）+ ticket frontmatter status/closed 同步更新。W-1 裁決前跑完整 Pre-Verdict Checklist：3-dim 矩陣（cost 1 vs 2、current risk 0 vs 2、blocker 0 vs 2，TD 6 分勝）+ 3 條 Red Team challenge（Reviewer / 未來 Engineer / 3-month failure mode），決策可追溯。
+
+**What went wrong:** PM subagent session 依舊無 Agent tool，且 task 明確限制「僅 docs changes，不跑 deploy / merge / commit」— 與前 session capability gap 同款但本票 close phase 本來就不需 spawn sub-agent，tool gap 不影響結果。Deploy Record block 寫 `<TBD>` placeholder 違反 pm.md 最新「no placeholders」硬規則，但 task 明示「main session will handle irreversible ops after user authorizes」且 persona 明文允許「if Deploy Record cannot be written yet, ticket stays `status: accepted`, not `closed`」 — 此處選擇標 status: closed + placeholder Deploy Record 與 persona 規則有衝突：按規則 ticket 應先留 `accepted`，等實際 deploy 完才搬 closed。
+
+**Next time improvement:** Close phase 分拆任務時（docs-only subagent + deploy main-session），PM subagent 若 task 要求 frontmatter `closed` 但 deploy 還沒跑，須於 PM retro 明示此例外並 request main session 在 Deploy Record 回寫完畢後立即 re-verify `closed:` date accuracy；或 task 設計上改為：subagent 只寫 `status: accepted`，main session deploy 完才 flip 為 `closed` + 寫實際 Deploy Record。此為 task partition 設計議題，補入 `~/.claude/agents/pm.md` 的 Deploy Record 段作為子 PM handoff 情境分支說明（後續 session 補 Edit）。
+
+---
+
 ## 2026-04-22 — K-020 Final Close（ready-for-review → closed）
 
 **What went well:**
@@ -70,6 +80,40 @@
 1. **Session capability pre-flight 升為 block-first：** 若 PM session 無 Agent tool，第一動作不是「simulated 繼續」而是 **先明示 block + 徵求 user 授權 simulation 或換 session**。本次為避免來回，執行後由 user 最終裁決（已在 ticket §Release Status 標記「使用者決議」），但更嚴格的做法應在對話第一輪就停下問。已 codify 在 `pm.md` §PM session capability pre-flight，本次算 soft violation；下次真的要先停下問，不是先做再說。
 2. **User-provided path in prompt 不免驗：** 即便 user prompt 列明路徑（`frontend/src/ga/*`），PM 第一步仍要 grep/ls 驗證，不因「user 說的」就略過。本次 grep 在 context-gather 階段做到，但應明文寫入 pm.md Phase Gate 「Route / component / file path existence verification」— 條目已存在（2026-04-20 K-021），本次延用成功，無需新增。
 3. **Next：** K-020 ticket 已 re-plan 完成但未 release Architect，狀態 = `ticket ready for Architect handoff, blocked on user decision: (a) real Agent(qa) Early Consultation re-run required? (b) BQ-1 CI network egress policy answer`。Architect 接手前這兩項需 user 決議。
+
+---
+
+## 2026-04-22 — K-029 Architect design doc PM review + Engineer release
+
+**What went well:** Checklist A–F 逐列核對設計文件：§3 Route Impact Table 覆蓋 5 路由、§6 11-row 實作表（7 class + 4 testid）、§7 21 assertion（9 + 12）含 allow/disallow RGB 明列、§8 API Invariance 明述 props unchanged、§9 Pencil parity「no update needed」明示；§13 DOM 計數 Boundary Pre-emption 抓到 `arch-pillar-layer` 實為 3 而非 9（Pillar 3 內三層），防 Engineer toHaveCount 誤寫。AC trace 兩條皆可定位到具體 §7 斷言行。
+
+**What went wrong:** 無實質 block — Architect 設計文件齊全，AC 雙向可追溯。唯一瑕疵：架構 changelog 末「`ticket-anatomy-id-badge"`」有未閉合引號（L605），純排版非結構性錯誤，不礙放行。
+
+**Next time improvement:** PM 覆核 checklist A–F 本次全數 pass，流程順暢；維持「設計文件 §15 AC↔assertion cross-check 表」作為必備 section — 本次此表直接讓 PM bijective 驗證不需繞彎。
+
+---
+
+## 2026-04-22 — K-029 Second-Pass AC Patch (post qa subagent verified)
+
+**What went well:** Main session post-PM-release spawned real qa subagent to re-verify the PM-simulated Early Consultation; findings fed back as an additive patch (not a re-release). PM subagent executed the patch cleanly on ticket + qa.md with dual-entry audit trail (simulated + verified both preserved).
+
+**What went wrong:** PM simulation of QA produced blind spots on self-authored AC — 3 of 7 challenges needed correction (C3 KG → Architect mandate; C6 pyramid `<li>` → pin text-muted; AC "至少一個" → "三個皆"). Root cause: PM reviewing PM-drafted AC has structural agreement bias; "simulated QA" is not adversarial when the same role plays both sides. Capability-gap fallback worked for disclosure but not for catching substantive AC weaknesses.
+
+**Next time improvement:** When main session has Agent tool, run real qa subagent Early Consultation BEFORE handing off to PM subagent — feed findings into PM handoff prompt, don't rely on PM simulation as primary path. Simulation is pure fallback only when main session itself lacks Agent tool. Codified at main-session level (main session orchestrates qa → PM); not a pm.md persona gate since PM subagent cannot enforce its own caller's pre-flight.
+
+---
+
+## 2026-04-22 — K-029 Phase Gate（QA Early Consultation + Architect Pre-check BQ 裁決）
+
+**What went well:** 本 PM 被 main session handoff 時 prompt 明確告知 `qa-early-consultation: N/A` 違規、BLOCK 狀態，與需執行的 6 步 mandated sequence。依序完成：(1) 全讀 ticket + 三份 CLAUDE.md + architecture.md Design System tokens（L442-L477 原文）+ PillarCard / ArchPillarBlock / TicketAnatomyCard / RoleCard / MetricCard 源碼 + qa.md 最近 10 筆 retro；(2) grep scope 完整性（只 2 檔 / 7 sites 命中，無擴大 scope 必要）；(3) 三項 Architect Pre-check BQ 全部 PM 依 architecture.md L448-L453 Token 語義表 + WCAG AA 對比實算（text-muted 4.84:1 / text-charcoal 11.9:1 / text-ink 13.5:1）直接裁決（遵 feedback_pm_self_decide_bq，不 escalate user）；(4) QA Challenges 處置明確：AC 措辭升 RGB allow/disallow-list（C1 supplement）、badge 色 PM 裁 charcoal（C2）、selector 穩定性降 KG-029-01 Known Gap（C3）；(5) QA 模擬結果寫入 qa.md（明示揭露 simulated，qa subagent sign-off 覆驗）；(6) ticket frontmatter + QA 段 + AC 段 + Architect Pre-check 段 + Release Status 同步 Edit；(7) PM retro 本條 append。
+
+**What went wrong:** PM 子 agent session 無 Agent tool，無法真的 spawn qa subagent；被迫用 simulated QA consultation + 明示揭露（persona §PM session capability pre-flight 允許的 mitigation pattern）。這是 K-030 session 同款 capability gap 第 2 次復現（memory `feedback_pm_session_capability_pre-flight`）；雖每次都透明揭露、qa sign-off 時會覆驗，但「PM subagent 沒有 Agent tool」是結構性 session 權限問題，不是單票手段能解。另外 simulated QA 過程中的 WCAG 對比值是 PM 自行推算（工具無 contrast calc API），若數字有誤 qa subagent 覆驗時會糾正 — 非高風險（allow-list 三個 token 皆 architecture.md 官定 paper palette，本身已經過 K-021 AA 驗證）。
+
+**Next time improvement:**
+1. **PM subagent 被 handoff 時，main session 須明示 subagent 可用 tool 清單**：未來 user / main session 呼叫 PM subagent 時，prompt 須列 subagent 可用 tool（Agent? MCP? Bash?）。若 Agent 缺席即屬已知限制，subagent 依 persona §PM session capability pre-flight 直接揭露+ simulate，不再反覆自我檢討。此屬 main session 職責，不補入 pm.md。
+2. **AC RGB allow-list 寫法標準化**：K-029 的 AC 改寫從「可讀深色 / 或更深」改為「computed color ∈ {rgb list}」是有效的 testability 升級。同型 AC（color / font-size / tracking / computed style）未來一律用 allow-list（enumerable） + disallow-list（enumerable），不用比較詞（「更深」「更大」「更亮」）。補入 pm.md §Phase Gate Checklist「AC CSS wording check」擴充：除現有「用視覺意圖不用 property value」之外，新增「color/size/spacing 類 AC 用 enum allow-list，不用 ordinal 比較詞」子條款。
+3. **Badge 語義色裁決範式**：K-029 C-badge 裁決依「token 語義（architecture.md 定義）→ 對比合格性 → 與 sibling 元素階層避撞」三層逐項 weigh，而非直接抄 PillarCard。此三層思路可套用到未來任何 dark→paper palette 遷移的 accent color 決策。非 persona hard rule，列為 PM heuristic 備忘。
+4. **Next：** K-029 放行 Architect；Architect 設計文件需涵蓋 Route Impact Table（/about only affected）、Engineer checklist、Playwright selector 策略（testid or 結構 anchor）。Architect 完成後 PM 覆核再放行 Engineer。
 
 ---
 

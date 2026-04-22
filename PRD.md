@@ -423,34 +423,7 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
-### K-029 — /about Architecture + Ticket Anatomy cards 文字配色遷移
-
-- **Status:** open / type: fix
-- **Ticket:** [docs/tickets/K-029-about-card-body-text-palette.md](docs/tickets/K-029-about-card-body-text-palette.md)
-- **摘要：** `/about` Architecture + Ticket Anatomy 兩 section 內 dark-theme gray-300/400/500 殘留 → 遷 K-021 paper palette（`text-muted` / `text-charcoal`）可讀深色。
-
-**AC：**
-
-#### AC-029-ARCH-BODY-TEXT：Architecture section card body 文字可讀深色
-
-- **Given** 使用者訪問 `/about`
-- **When** 滾動至 Project Architecture section（Nº 05）
-- **Then** ArchPillarBlock body text / testing pyramid detail / layer label 為可讀深色（非 gray-300/400）
-- **And** Playwright 斷言：至少一個 ArchPillarBlock body 段落 computed `color` = `text-muted`（`rgb(107, 95, 78)`）或更深
-
-#### AC-029-TICKET-BODY-TEXT：Ticket Anatomy section card body 文字可讀深色
-
-- **Given** 使用者訪問 `/about`
-- **When** 滾動至 Anatomy of a Ticket section（Nº 04）
-- **Then** TicketAnatomyCard Outcome / Learning / label / ticket ID badge 為可讀深色（非 gray-400/500 / purple-400）
-- **And** Playwright 斷言：至少一個 Outcome 段落 computed `color` = `text-muted` 或更深
-
-#### AC-029-REGRESSION：K-022 斷言不回歸
-
-見 [K-029](docs/tickets/K-029-about-card-body-text-palette.md)：K-022 + K-017 全斷言仍 PASS + tsc exit 0。
-
----
-
+<!-- K-029 closed 2026-04-22 → see §4 Closed Tickets -->
 <!-- K-030 closed 2026-04-21 → see §4 Closed Tickets -->
 <!-- K-031 closed 2026-04-21 → see §4 Closed Tickets -->
 
@@ -458,7 +431,7 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ## §4 Closed Tickets
 
-以下 15 張 closed + 2 張 superseded ticket，AC 詳文從對應 `docs/tickets/*.md` 引用。`closed` 日期以 ticket frontmatter 為準；前期未登記 date 者以 `[Closed 2026-04, date TBD]` 占位。
+以下 16 張 closed + 2 張 superseded ticket，AC 詳文從對應 `docs/tickets/*.md` 引用。`closed` 日期以 ticket frontmatter 為準；前期未登記 date 者以 `[Closed 2026-04, date TBD]` 占位。
 
 ### K-001 — 後端測試補強（main.py route handler coverage 提升）
 
@@ -802,6 +775,45 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - **AC-027-DESKTOP-NO-REGRESSION** — 桌面 1024 / 1280 / 1440 viewport 與 K-021 closed 時 visual-report 視覺一致；既有 diary spec 全量 regression 通過（桌面 baseline 1 case + 既有 diary-related 全量 regression）
 
 **Test case 總計下限：7 個新增 + 既有 regression。**
+
+---
+
+### K-029 — /about Architecture + Ticket Anatomy cards 文字配色遷移
+
+- **Status:** closed / type: fix / **Closed: 2026-04-22**
+- **Ticket:** [docs/tickets/K-029-about-card-body-text-palette.md](docs/tickets/K-029-about-card-body-text-palette.md)
+- **摘要：** `/about` Architecture + Ticket Anatomy 兩 section 的 `ArchPillarBlock` / `TicketAnatomyCard` 內 K-022 A-12 遷移遺漏的 dark-theme `text-gray-300/400/500` + `text-purple-400` → 遷 K-021 paper palette（body = `text-muted`；testing pyramid layer span = `text-ink`；ticket ID badge = `text-charcoal`；pyramid `<li>` detail pin `text-muted` 防 hierarchy inversion）。PM 於 Architect Pre-check BQ 依 architecture.md Design System tokens + WCAG AA 對比計算直接裁決三項 token 選擇。
+
+**AC（原文保留）：**
+
+#### AC-029-ARCH-BODY-TEXT：Architecture section card body 文字採用 paper palette token
+
+- **Given** 使用者訪問 `/about`
+- **When** 頁面滾動至 Project Architecture section（Nº 05）
+- **Then** 三個 ArchPillarBlock body text computed `color` ∈ {`rgb(26, 24, 20)`, `rgb(42, 37, 32)`, `rgb(107, 95, 78)`}（三個皆須命中）
+- **And** body text 不得為 `rgb(209, 213, 219)` / `rgb(156, 163, 175)` / `rgb(107, 114, 128)`
+- **And** testing pyramid `<li>` detail 固定 = `rgb(107, 95, 78)`（text-muted；不採 allow-list，防階層崩塌）
+- **And** testing pyramid layer label span（Unit / Integration / E2E）= `rgb(26, 24, 20)`（text-ink）
+- **And** Playwright 斷言：3 pillar + 3 pyramid li + 3 layer span = **9 個獨立斷言**
+
+#### AC-029-TICKET-BODY-TEXT：Ticket Anatomy section card body 文字採用 paper palette token
+
+- **Given** 使用者訪問 `/about`
+- **When** 頁面滾動至 Anatomy of a Ticket section（Nº 04）
+- **Then** 三個 TicketAnatomyCard Outcome / Learning 內容 computed `color` ∈ allow-list（三個皆須命中）+ 不得為 gray-400/500
+- **And** Outcome / Learning label（mono span）computed `color` ∈ allow-list，三個 card 皆逐一命中，不得為 gray-500
+- **And** ticket ID badge（`K-002` / `K-008` / `K-009`）= `rgb(42, 37, 32)`（text-charcoal），不得為 `rgb(196, 181, 253)`（purple-400）
+- **And** Playwright 斷言：3 body + 3 badge + 6 label = **12 個獨立斷言**
+
+#### AC-029-REGRESSION：K-022 既有斷言不回歸
+
+見 [K-029](docs/tickets/K-029-about-card-body-text-palette.md)：K-022 + K-017 全斷言仍 PASS + tsc exit 0。
+
+**Known Gap：** KG-029-01（Playwright selector path 由 Architect design doc prescribe 4 data-testid，Engineer 照辦；QA 驗 compliance）。
+
+**Tech Debt：** TD-K029-01（`about-v2.spec.ts` L474 / L487 Outcome / Learning label selector 用 `hasText`，label copy 當下鎖定安全，未來 data 彈性可能誤命中 sibling `<p>`；低優先，下一張觸及 TicketAnatomyCard 或 label 改 data-driven schema 的 ticket 一併遷移為 testid）。
+
+**Test case 總計：21 個新 Playwright 斷言（9 + 12）+ 既有 about-v2.spec.ts / about.spec.ts regression；full suite 197 pass / 1 skip / 0 fail。**
 
 ---
 

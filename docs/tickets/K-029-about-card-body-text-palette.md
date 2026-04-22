@@ -1,10 +1,12 @@
 ---
 id: K-029
 title: /about Architecture + Ticket Anatomy cards — dark-theme gray text 遷移至 paper palette
-status: open
+status: closed
 type: fix
 priority: high
 created: 2026-04-21
+closed: 2026-04-22
+qa-early-consultation: docs/retrospectives/qa.md 2026-04-22 K-029
 ---
 
 ## 背景
@@ -47,41 +49,97 @@ K-022 A-12 scope 清單只列 shared primitives，未往下掃 `/about` 所有 l
 - FooterCtaSection（設計語意正確，不改）
 - HomeFooterBar（不在 /about scope）
 
-## Architect Pre-check（開工前）
+## Architect Pre-check 決策（PM 2026-04-22 裁決）
 
-Engineer 開工前 Architect 須確認：
-1. `text-muted`（`#6B5F4E`）作為 body/description text 是否符合 paper bg 對比要求
-2. ticket ID badge（`K-002` / `K-008` / `K-009`）的語義色：`text-charcoal`（`#2A2520`）或 `text-muted`
-3. 全掃 `components/about/` 其餘組件是否還有 `text-gray-*` / `text-purple-*` / `text-blue-*` dark-theme 殘留，若有則併入本票 scope
+PM 依 architecture.md §Design System Tokens（L442-L463）+ 同類組件參照（`PillarCard.tsx` / `RoleCard.tsx` / `MetricCard.tsx`）+ WCAG AA 對比計算，直接裁決三項 BQ：
 
-## QA Early Consultation 評估
+### C-body：ArchPillarBlock / TicketAnatomyCard 主 body text token
+**決策：`text-muted`（`#6B5F4E`）**
+- **理由：**
+  - 與 `PillarCard.tsx` L29 `<div className="text-muted text-sm leading-relaxed mb-4 flex-1">{body}</div>` 語義對齊 — PillarCard 本身就是 K-022 A-12 paper palette 標準，照抄。
+  - WCAG AA 對比 `#F4EFE5` vs `#6B5F4E` ≈ 4.84:1，body text（12px `text-xs` / 14px `text-sm`）通過 AA 4.5:1 門檻。
+  - `text-muted` 於 architecture.md L453 定義為「Footer / meta / NavBar non-active」，延伸至 card body prose 屬合理擴張（PillarCard 已確立先例）。
 
-本票全部為 happy-path CSS token 替換，無 error state / boundary condition / network / auth edge case。
+### C-pyramid：ArchPillarBlock testing pyramid layer span（`Unit` / `Integration` / `E2E`）
+**決策：`text-ink`（`#1A1814`）**
+- **理由：**
+  - 原設計用 `text-gray-300` 搭配 `font-mono` 於 `text-gray-400` sibling li 之上，是想讓 layer label 比 detail 文字更突出；在 paper 環境下對應語義是「提高對比強度」。
+  - `text-ink` AAA（≈ 13.5:1），比 body 的 `text-muted` 多一階，維持原本「label 比 detail 顯著」的視覺階層。
+  - 避免 `text-charcoal` — 保留 charcoal 給 badge / CardShell LAYER header 等 identity 角色（見 C-badge 下方說明）。
 
-**QA Early Consultation: N/A — 所有 AC 均為 happy-path 視覺斷言，無 boundary/error/auth edge case。**
+### C-badge：TicketAnatomyCard ticket ID badge（`K-002` / `K-008` / `K-009`）
+**決策：`text-charcoal`（`#2A2520`）**
+- **理由：**
+  - Badge 於原設計是 `text-purple-400 font-bold`，語義是「identifier / metadata flag」而非 body prose — architecture.md L452 `charcoal` token 定義即「次文字 / 輔助元素」，對齊語義。
+  - AAA 對比（≈ 11.9:1），保留原先「勝過 body 的視覺權重」意圖（font-bold + higher contrast）。
+  - 不選 `text-ink` 因 ink 是主文字（card title `h3` 已用 `text-ink`），避免 badge 與 title 同階混淆。
+  - 不選 `text-muted` 因 muted 用於 body / meta，強度不足以替代原設計的「accent pop」角色。
+
+### C-scope：其餘 `components/about/` 組件 dark-theme 殘留掃描
+**結論：無需擴大 scope。**
+- grep `text-gray-* / text-purple-* / text-blue-* / text-slate-* / text-zinc-*` on `frontend/src/components/about/` → 只有 `ArchPillarBlock.tsx`（3 sites）+ `TicketAnatomyCard.tsx`（4 sites）命中。
+- RoleCard / MetricCard / PillarCard / FooterCtaSection / PageHeaderSection / SectionHeader / SectionContainer / DossierHeader / RedactionBar 全部乾淨（皆 `text-ink` / `text-muted`）。
+- ticket §範圍不擴大；K-022 A-12 + K-029 為完整 cover /about paper palette 遷移。
+
+## QA Early Consultation（2026-04-22 完成）
+
+記錄於 `docs/retrospectives/qa.md 2026-04-22 K-029`。**PM 子 agent session 無 Agent 工具，依 persona §PM session capability pre-flight 以明示揭露進行 simulated consultation**；QA sign-off 時由正式 qa subagent 覆驗。
+
+**Challenges 提出 7 項，處置：**
+- C1 AC 措辭「可讀深色 / 或更深」主觀 → **補 AC**：改 RGB allow-list（text-ink / text-charcoal / text-muted）+ disallow-list（gray-300/400/500 / purple-400）。
+- C2 Ticket ID badge 語義色 → **PM 裁 `text-charcoal`**（見下方 Architect Pre-check 決策）。
+- C3 Playwright selector 穩定性 → **KG-029-01 Known Gap**：Engineer 可自行加 testid 或用結構 anchor；非 AC 強制。
+- C4 新 spec 安置 → Architect 設計文件指定檔案，非 AC-blocking。
+- C5 cross-component 完整性 → grep 確認僅 2 檔殘留，scope 完整。
+- C6 Testing pyramid layer span 色 → **PM 裁 `text-ink`**（body 同階，與粗體 sibling li 避免對比混淆）。
+- C7 CardShell 繼承 → 驗證無繼承風險。
+
+**Known Gap：**
+- **KG-029-01** — Playwright selector path: Architect design doc prescribes data-testid names for 4 assertion targets (`arch-pillar-body` / `arch-pillar-layer` / `ticket-anatomy-body` / `ticket-anatomy-id-badge`). Engineer implements per design doc. QA sign-off verifies compliance with prescribed testids.
+
+### Verified by qa subagent 2026-04-22
+
+qa subagent re-ran adversarial review. Upgrades to previous simulated consultation:
+- C3 → KG reframed: testid naming is Architect mandate, not Engineer discretion (about/ DossierHeader + FooterCtaSection precedent)
+- C6 → AC tightened: pyramid `<li>` detail fixed to text-muted (prevents hierarchy inversion if Engineer chose text-ink for both li and span)
+- AC allow-list assertion tightened from "至少一個" to "三個皆" (previous wording allowed Engineer to pick a color outside both allow AND disallow lists and still pass "at least one" on 1/3 cards)
+- Borderline observation: text-muted on paper at 12px = 4.84:1 (passes AA 4.5:1 but close to floor) — recorded, no action
+- K-022 about-v2.spec.ts L195 color-assertion style confirmed as the canonical pattern to follow
 
 ## 驗收條件
 
-### AC-029-ARCH-BODY-TEXT：Architecture section card body 文字可讀深色 `[K-029]`
+### AC-029-ARCH-BODY-TEXT：Architecture section card body 文字採用 paper palette token `[K-029]`
 
 **Given** 使用者訪問 `/about`
 **When** 頁面滾動至 Project Architecture section（Nº 05）
-**Then** 三個 ArchPillarBlock 的 body text（description 段落、testing pyramid detail 文字）呈現為可讀深色，與米白背景形成明顯對比
-**And** body text 的 computed color 不得為 gray-300（`rgb(209, 213, 219)`）、gray-400（`rgb(156, 163, 175)`）等深色背景專用低對比色
-**And** testing pyramid layer label（`Unit` / `Integration` / `E2E`）文字亦為可讀深色，不得為 gray-300
-**And** Playwright 斷言：至少一個 ArchPillarBlock body 段落的 computed `color` 為 `text-muted`（`rgb(107, 95, 78)`）或更深
+**Then** 三個 ArchPillarBlock 的 body text（description 段落）computed `color` 必須等於下列三個 paper palette 之一（**三個 ArchPillarBlock 皆須命中**，逐個斷言，不得以「至少一個」通過）：
+  - `rgb(26, 24, 20)`（text-ink `#1A1814`）
+  - `rgb(42, 37, 32)`（text-charcoal `#2A2520`）
+  - `rgb(107, 95, 78)`（text-muted `#6B5F4E`）
+**And** 上述 body text 元素 computed `color` **不得**等於任一以下 dark-theme 殘值：
+  - `rgb(209, 213, 219)`（gray-300）
+  - `rgb(156, 163, 175)`（gray-400）
+  - `rgb(107, 114, 128)`（gray-500）
+**And** testing pyramid `<li>` detail（pyramid `<ul>` 下三個 `<li>` 的描述文字）computed `color` 必須**固定等於** `rgb(107, 95, 78)`（text-muted）— 不採 allow-list；避免與下一條 layer span 同色造成階層崩塌（child == parent）
+**And** testing pyramid layer label span（`Unit` / `Integration` / `E2E` mono span，nested 在 `<li>` 內）computed `color` 必須等於 `rgb(26, 24, 20)`（text-ink；PM 於 BQ 裁決，對齊 body 同階並在 muted `<li>` detail 上提亮，見 §Architect Pre-check C-pyramid）
+**And** Playwright 斷言：三個 ArchPillarBlock **逐一**（iterate 全部 instance）驗 body 段落 computed `color` 命中 allow-list 集合；三個 pyramid `<li>` detail 逐一驗 = `rgb(107, 95, 78)`；三個 layer span 逐一驗 = `rgb(26, 24, 20)`。本 AC 對應 3（pillar）+ 3（pyramid li）+ 3（layer span）= **9 個獨立 Playwright 斷言**，不得合併
 
 ---
 
-### AC-029-TICKET-BODY-TEXT：Ticket Anatomy section card body 文字可讀深色 `[K-029]`
+### AC-029-TICKET-BODY-TEXT：Ticket Anatomy section card body 文字採用 paper palette token `[K-029]`
 
 **Given** 使用者訪問 `/about`
 **When** 頁面滾動至 Anatomy of a Ticket section（Nº 04）
-**Then** 三個 TicketAnatomyCard 的 Outcome / Learning 內容文字呈現為可讀深色，與米白背景形成明顯對比
-**And** body text 的 computed color 不得為 gray-400（`rgb(156, 163, 175)`）、gray-500（`rgb(107, 114, 128)`）等深色背景專用低對比色
-**And** Outcome / Learning label（`OUTCOME` / `LEARNING`）的 computed color 亦為可讀深色（不得為 gray-500）
-**And** ticket ID badge（`K-002` / `K-008` / `K-009`）文字在 paper 背景上可讀（不得為 purple-400（`rgb(196, 181, 253)`））
-**And** Playwright 斷言：至少一個 TicketAnatomyCard Outcome 段落的 computed `color` 為 `text-muted` 或更深
+**Then** 三個 TicketAnatomyCard 的 Outcome / Learning 內容文字 computed `color` 必須等於下列三個 paper palette 之一（**三個 TicketAnatomyCard 皆須命中**，逐個斷言，不得以「至少一個」通過）：
+  - `rgb(26, 24, 20)`（text-ink `#1A1814`）
+  - `rgb(42, 37, 32)`（text-charcoal `#2A2520`）
+  - `rgb(107, 95, 78)`（text-muted `#6B5F4E`）
+**And** 上述 body 元素 computed `color` **不得**等於任一以下 dark-theme 殘值：
+  - `rgb(156, 163, 175)`（gray-400）
+  - `rgb(107, 114, 128)`（gray-500）
+**And** Outcome / Learning label（`Outcome` / `Learning` mono span）computed `color` 必須落在上述 allow-list，**三個 TicketAnatomyCard 的 Outcome label + Learning label 皆須逐一命中**，且**不得**為 `rgb(107, 114, 128)`（gray-500）
+**And** ticket ID badge（`K-002` / `K-008` / `K-009`）computed `color` **三個 TicketAnatomyCard 皆須**等於 `rgb(42, 37, 32)`（text-charcoal；PM 於 BQ 裁決，見 §Architect Pre-check C-badge），**不得**為 `rgb(196, 181, 253)`（purple-400）
+**And** Playwright 斷言：三個 TicketAnatomyCard **逐一**（iterate 全部 instance）驗 body 段落 computed `color` 命中 allow-list；三個 badge 逐一驗 = `rgb(42, 37, 32)`。本 AC 對應 3（body）+ 3（badge）+ 6（Outcome + Learning labels × 3）= **12 個獨立 Playwright 斷言**，不得合併
 
 ---
 
@@ -96,10 +154,17 @@ Engineer 開工前 Architect 須確認：
 
 ## 放行狀態
 
-**待 Architect 確認語義色（架構決策）後放行 Engineer。**
+**PM 2026-04-22 放行 Architect。**
 
-- [ ] Architect 確認 body text token（`text-muted` vs `text-charcoal`）
-- [ ] Architect 全掃 `components/about/` 剩餘 `text-gray-*` / `text-purple-*` residuals，確認 scope 完整
+- [x] QA Early Consultation 2026-04-22 完成（simulated with disclosure；qa subagent 於 sign-off 覆驗）
+- [x] AC 措辭升級為 RGB allow/disallow-list（C1）
+- [x] Architect Pre-check 全部 BQ 由 PM 直接裁決（C-body=`text-muted`、C-pyramid=`text-ink`、C-badge=`text-charcoal`、C-scope=2 檔完整）
+- [x] Architect 放行：設計文件須涵蓋
+  - Route Impact Table（/about 單頁，其他 route 標 unaffected — /、/diary、/app、/business-logic 無 ArchPillarBlock / TicketAnatomyCard）
+  - Engineer 實作 checklist（檔案 2 個 / 代換項 7 處 / Playwright spec 安置決策）
+  - **必須於 design doc prescribe 4 個 data-testid 名**：`arch-pillar-body` / `arch-pillar-layer` / `ticket-anatomy-body` / `ticket-anatomy-id-badge`，對齊 about/ 現有 testid convention（DossierHeader / FooterCtaSection 皆使用 `data-testid`）。Engineer 依 design doc 實作，不得自由裁量 selector 策略；QA sign-off 驗 compliance。
+  - 無後端 / API / 路由 / props interface 變更（視覺 token 替換）
+- [x] Engineer 放行：Architect 設計文件完成後 PM 覆核通過（2026-04-22 PM sign-off：checklist A/B/C/D/E/F 全綠；Route Impact Table §3、11-row implementation checklist §6、21-assertion Playwright strategy §7、§8 API Invariance、§9 Pencil Parity、§13 DOM 計數釐清全具備；architecture.md changelog L605 + `updated:` 2026-04-22 已更新；architect.md retro 2026-04-22 K-029 頂列已 append；AC↔design §15 cross-check 21 assertions bijective；KG-029-01 措辭與 ticket 一致）
 
 ## 相關連結
 
@@ -109,6 +174,38 @@ Engineer 開工前 Architect 須確認：
 
 ---
 
+## Deploy Record
+
+- **Deploy date:** 2026-04-22 (scheduled, pending user authorization for merge + firebase deploy)
+- **Merge SHA:** `<TBD>`
+- **Live URL:** https://k-line-prediction.web.app (Firebase Hosting)
+- **Build size:** `<TBD>`
+- **Bundle hash:** `<TBD>`
+- **Verification probe:** `<TBD — planned: curl https://k-line-prediction.web.app/assets/index-<hash>.js | grep arch-pillar-body → ≥1 match (K-029-specific testid added this ticket)>`
+- **Deploy executor:** main session post-user-authorization
+- **Status:** Pending
+
+---
+
 ## Retrospective
 
-（各角色完成後補上；PM 於 QA PASS 後彙整）
+### What went well
+- **[PM]**: Architect 設計文件覆核 checklist A–F 全列 pass（§3 Route Impact Table 覆蓋 5 路由 / §6 11-row 實作表 / §7 21 獨立斷言拆分 allow + disallow RGB / §8 API Invariance / §9 Pencil parity / §13 DOM 計數 Boundary Pre-emption 抓到 `arch-pillar-layer=3` 而非 9）；AC↔assertion bijective cross-check 直接可追。
+- **[Architect]**: Pre-Design Audit 以 `git show main:<file>` 逐檔確認 7 sites 無遺漏；§13 自查抓到 `testingPyramid` optional 導致 `arch-pillar-layer` 實際 count = 3（Pillar 3 內三層）而非想當然的 9，避免 Engineer toHaveCount 誤寫。
+- **[Engineer]**: 11-row checklist 一次跑到底（7 class + 4 testid），無 BQ 回報（Architect 已於 §0 全部預裁）；E2E spec logic self-check 抓出 `arch-pillar-layer` 斷言形狀議題（最初想 per-pillar toHaveCount(3) 會在 Pillar 1/2 resolved to 0），回讀 §13 後改為 flat `toHaveCount(3)` 一把到位；197 passed / 1 skipped / 0 failed first-run green。
+- **[QA]**: Independent full-suite re-run（197 pass / 1 skip / 0 fail）match Engineer report；pre-run 掃出並清理 stale `K-UNKNOWN-visual-report.html`（承襲 K-028 memory）；4 個 K-029 testids 逐項覆驗 present + exclusive；KG-029-01 closed cleanly；qa subagent 覆驗 PM-simulated Early Consultation，3 of 7 challenges 糾正（C3 upgrade to Architect mandate / C6 pyramid `<li>` pin text-muted / AC「至少一個」→「三個皆」）。
+
+### What went wrong
+- **[PM]**: PM subagent session 無 Agent tool，forced simulated QA Early Consultation；雖依 persona §PM session capability pre-flight 明示揭露，但 PM self-review PM-authored AC 有結構性 agreement bias — 7 challenges 中 3 項需 real qa subagent 覆驗時才糾正。Capability gap 為 K-030 同款問題第 2 次復現。
+- **[Architect]**: 初稿 §6.2 只列 4 個 testid injection，未在同表同時交代 Outcome / Learning label sub-element 選擇路徑（從 `ticket-anatomy-body` 往下 `locator('span', { hasText })`）；§15 AC↔Test Case 檢查前才補 §6.2 Note 段完整交代 — 若未發現 Engineer 可能自訂 testid 違反 Architect mandate。
+- **[Engineer]**: 無實質失誤 — scope 窄、設計文件明確、QA Early Consultation 已把 C6 hierarchy inversion trap 預先壓平。
+- **[QA]**: Pencil MCP tool 未授予 QA persona tool surface → 被迫以 source-grep fallback 驗證 Pencil parity，而非直接 `.pen` visual diff。parity confidence 降為「source palette match spec」間接 proxy，而非「design canvas match render」直接驗證。
+
+### Next time improvements
+- **[PM]**: (a) PM subagent handoff 時 main session prompt 須明示 subagent 可用 tool 清單（Agent / MCP / Bash）；若 Agent 缺席，依 persona §PM session capability pre-flight 直接揭露 + simulate，不再反覆自我檢討；(b) AC color/size/spacing 類斷言一律用 **enum allow-list + enum disallow-list**，不用 ordinal 比較詞（「更深」「更大」），已補入 `~/.claude/agents/pm.md` §Phase Gate Checklist「AC CSS wording check」擴充；(c) Badge 語義色裁決採「token 語義（architecture.md）→ 對比合格性 → sibling 元素階層避撞」三層 weigh 範式，列為 PM heuristic 備忘。
+- **[Architect]**: Mandate testid 設計時，對同 AC 下所有需被斷言的元素（含 testid + 非 testid 選擇的 sub-element）一次列完選擇路徑，不分兩階段寫；新增 "Assertion selector matrix: target-element × selector-path × toHaveCount" 為 §6 必備 sub-table，已補入 senior-architect.md。
+- **[Engineer]**: 設計文件 §6 明列數字的 N-row checklist 交付回 PM 時，印出 row-by-row DONE 表（本票 11 row），使 PM Phase Gate 一眼可 audit，不需再 cross-reference 設計文件。
+- **[QA]**: qa.md §0b 擴充：「if Pencil MCP tool 未授予 QA persona，BLOCK sign-off + request tool-grant from PM 前不進行」；目前 §0b 只處理 MCP-server-down，未處理 MCP-tool-not-granted 情境。
+
+### Cross-role insight
+K-029 是 K-Line 首張以「PM-simulated QA Early Consultation + real qa subagent 覆驗」雙階段執行的 ticket，捕捉到 **PM 自審自寫 AC 的結構性 agreement bias 會漏掉「至少一個」vs「三個皆」、selector 策略歸屬（Engineer 裁量 vs Architect mandate）、兄弟元素 hierarchy inversion 風險**三類 pattern。直接教訓：PM subagent 在沒有 Agent tool 時的 QA simulation 只能作為透明揭露 fallback，不能當 primary path；當 main session 有 Agent tool 時，應先召真實 qa subagent，把 consultation findings feed 進 PM handoff prompt，再交 PM subagent 執行 Phase Gate。這個 loop 已在 K-029 實證有效（3 項糾正全在 Engineer 動手前落地，無 rework），未來 UI 視覺類 ticket 一律遵循此次序。

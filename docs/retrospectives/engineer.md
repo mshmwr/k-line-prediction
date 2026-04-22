@@ -16,6 +16,19 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-22 — K-029 /about ArchPillarBlock + TicketAnatomyCard paper palette
+
+**What went well:**
+- Design doc §6.1 + §6.2 gave an atomic 11-row Engineer checklist (7 class migrations + 4 testid injections); implementation was one-pass with no BQ raised because Architect had already resolved all token choices (C-body/C-pyramid/C-badge) in §0. Two file edits → tsc exit 0 → spec append → first-try full green.
+- E2E spec logic self-check caught a latent selector shape issue before run: initially considered asserting `arch-pillar-layer` toHaveCount(3) per pillar (would have resolved to 0 on Pillar 1/2 with no testingPyramid). Re-read design doc §13 "DOM enumeration" clarification → asserted flat `toHaveCount(3)` across all 3 pyramid layer spans (Unit/Integration/E2E in Pillar 3 only). Matches Architect's explicit §13 warning.
+- 21 new assertions (9 AC-ARCH + 12 AC-TICKET) all passed first run; full suite 197 passed / 1 skipped / 0 failed — no K-022 / K-017 / K-028 / K-031 regression. Worktree `npm install` pre-flight (per K-031 2026-04-21 memory) was done before `npx tsc` to avoid the "not the tsc you are looking for" trap.
+
+**What went wrong:**
+- None — scope was tight, design doc was unambiguous, and QA Early Consultation had already tightened C6 (pyramid `<li>` detail strict text-muted, not allow-list) which prevented the hierarchy-inversion trap flagged in design doc §11 Regression trap 1.
+
+**Next time improvement:**
+- When design doc explicitly numbers a 11-row checklist across two tables (§6.1 class + §6.2 testid), print the row-by-row DONE table in the Engineer report back to PM — it makes the Phase Gate auditable in one glance rather than requiring PM to cross-reference the doc.
+
 ## 2026-04-22 — K-020 Review Fix C-1 (K-033 TRACKER doc-block)
 
 **What went well:** PM ruling provided exact doc-block text + exact line anchor (between the previous test's closing `})` at line 140 and the `test('AC-020-BEACON-SPA ...)` at line 142). Edit was mechanical; `tsc` + full Playwright run both matched the pre-fix baseline (198 pass / 1 skip / 1 red T4). No behavior drift.
@@ -67,6 +80,7 @@
 - Codify in `~/.claude/agents/engineer.md`: when a test-only ticket (`type: test`) is designed to surface a production bug class (K-020's stated goal per ticket §背景), Engineer must perform a "is the target behavior actually present?" dry-run on the production path **before** writing the hard-pinned assertion. Design doc §2.5 correctly framed "primary guard = beacon count ≥ 1 after SPA navigate" as the K-018-class guard; it just didn't spell out that if the guard fires red, that IS the valid outcome and must escalate to PM for follow-up production fix ticket, not be worked around in the test.
 - Added to `engineer.md` Bug Found Protocol section: "If a new test designed as a regression guard fails on first green-field run due to genuine production bug (not test bug), stop at 8/9 pass and escalate to PM; do not silently loosen the assertion. This is the test succeeding at its purpose."
 - This was a close call on the persona rule "Never downgrade design doc scope" — I did NOT skip or loosen any assertion; T4 is checked in as-is, failing red, so future production fix will turn it green.
+
 
 ## 2026-04-21 — K-030 Code Review fix-now pass 2 (C-1 Hero CTA new tab + I-3 JSDoc drift)
 

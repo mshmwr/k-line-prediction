@@ -1,116 +1,212 @@
 [
   {
+    "milestone": "K-029 — /about ArchPillarBlock and TicketAnatomyCard paper palette migration",
+    "items": [
+      {
+        "date": "2026-04-22",
+        "text": "Migrate /about ArchPillarBlock and TicketAnatomyCard dark-theme gray/purple text to paper palette tokens (text-ink / text-charcoal / text-muted); 7 class sites migrated, 4 data-testid attributes injected for stable selectors; 21 new Playwright color assertions added to about-v2.spec.ts; 197 passed / 1 skipped / 0 failed; tsc exit 0."
+      }
+    ]
+  },
+  {
     "milestone": "K-020 — GA4 SPA Pageview E2E hardening + HTTP beacon regression guard",
     "items": [
-      { "date": "2026-04-22", "text": "K-020 closed: added 9 Playwright tests covering SPA link-click pageview, /g/collect HTTP beacon payload (v=2, tid, en=page_view, dl path-key), initial-load beacon count, and negative guards for query/hash/same-route navigations; 8 green merged as K-018-class regression guard and 1 intentionally red (AC-020-BEACON-SPA) retained as K-033 tracker after Engineer dry-run proved production useGAPageview drops gtag('event','page_view') under send_page_view:false; full suite 198 passed / 1 skipped / 1 designed-red; no production runtime code changed; follow-ups K-032 (page_location full URL) + K-033 (canonical GA4 SPA gtag pattern) logged with triple anti-decay guard (spec doc-block, architecture.md Known Gap, dashboard Active row)." }
+      {
+        "date": "2026-04-22",
+        "text": "K-020 closed: added 9 Playwright tests covering SPA link-click pageview, /g/collect HTTP beacon payload (v=2, tid, en=page_view, dl path-key), initial-load beacon count, and negative guards for query/hash/same-route navigations; 8 green merged as K-018-class regression guard and 1 intentionally red (AC-020-BEACON-SPA) retained as K-033 tracker after Engineer dry-run proved production useGAPageview drops gtag('event','page_view') under send_page_view:false; full suite 198 passed / 1 skipped / 1 designed-red; no production runtime code changed; follow-ups K-032 (page_location full URL) + K-033 (canonical GA4 SPA gtag pattern) logged with triple anti-decay guard (spec doc-block, architecture.md Known Gap, dashboard Active row)."
+      }
     ]
   },
   {
     "milestone": "K-031 — Remove Built by AI showcase section from /about",
     "items": [
-      { "date": "2026-04-21", "text": "K-031 closed: removed the explanatory Built by AI showcase section (S7) from /about — deleted BuiltByAIShowcaseSection.tsx, removed import and SectionContainer block from AboutPage.tsx, renumbered FooterCtaSection comment from S8 to S7; homepage BuiltByAIBanner unaffected; 2 new AC-031 Playwright tests (section-absent + layout-continuity) added to about-v2.spec.ts; 171 passed / 1 skipped / 0 failed; tsc exit 0." }
+      {
+        "date": "2026-04-21",
+        "text": "K-031 closed: removed the explanatory Built by AI showcase section (S7) from /about — deleted BuiltByAIShowcaseSection.tsx, removed import and SectionContainer block from AboutPage.tsx, renumbered FooterCtaSection comment from S8 to S7; homepage BuiltByAIBanner unaffected; 2 new AC-031 Playwright tests (section-absent + layout-continuity) added to about-v2.spec.ts; 171 passed / 1 skipped / 0 failed; tsc exit 0."
+      }
     ]
   },
   {
     "milestone": "PM — README Future Enhancements",
     "items": [
-      { "date": "2026-04-21", "text": "Added Future Enhancements section to README: grouped open tickets (K-028~031, K-018, K-013, K-012) into three recruiter-facing categories — Design System Completion, Analytics Integration, Architecture Refinement — to surface roadmap thinking alongside shipped features." }
+      {
+        "date": "2026-04-21",
+        "text": "Added Future Enhancements section to README: grouped open tickets (K-028~031, K-018, K-013, K-012) into three recruiter-facing categories — Design System Completion, Analytics Integration, Architecture Refinement — to surface roadmap thinking alongside shipped features."
+      }
     ]
   },
   {
     "milestone": "K-023 — Homepage structure alignment v2 (3 items: A-2 / A-3 / C-4)",
     "items": [
-      { "date": "2026-04-21", "text": "K-023 closed: Homepage visual detail alignment — rectangular brick-dark marker (20x14px, #9C4A3B) for diary timeline entries, STEP header bar (charcoal bg + paper text + Geist Mono 10px) for flow cards, and body padding (72px top / 96px right/bottom/left desktop; 32px/24px mobile) with per-section padding removal to prevent double-stacking; A-4/A-5 removed from scope after Pencil design confirmation; Code Review F1-F7 ruled (5 fix-now + 2 tech debt); 174 Playwright passed / 0 failed" }
+      {
+        "date": "2026-04-21",
+        "text": "K-023 closed: Homepage visual detail alignment — rectangular brick-dark marker (20x14px, #9C4A3B) for diary timeline entries, STEP header bar (charcoal bg + paper text + Geist Mono 10px) for flow cards, and body padding (72px top / 96px right/bottom/left desktop; 32px/24px mobile) with per-section padding removal to prevent double-stacking; A-4/A-5 removed from scope after Pencil design confirmation; Code Review F1-F7 ruled (5 fix-now + 2 tech debt); 174 Playwright passed / 0 failed"
+      }
     ]
   },
   {
     "milestone": "K-022 — /about 結構細節對齊 v2（12 項 AC）",
     "items": [
-      { "date": "2026-04-21", "text": "K-022 closed：/about 頁面 12 項結構細節對齊設計稿 v2，含 DossierHeader bar、SectionLabelRow hairline、Hero 雙行（主句 Bodoni Moda + tagline italic）、5 section italic 副標、RedactionBar、Role Card OWNS/ARTEFACT Geist Mono label、Newsreader italic link、CASE FILE header、LAYER 1/2/3 prefix、role annotation（BEHAVIOUR/POSITION）、Role Card 3×2 grid 固定高度、shared primitives paper palette 遷移；Playwright 164 passed / 1 skipped / 0 failed，全流程一輪通過" }
+      {
+        "date": "2026-04-21",
+        "text": "K-022 closed：/about 頁面 12 項結構細節對齊設計稿 v2，含 DossierHeader bar、SectionLabelRow hairline、Hero 雙行（主句 Bodoni Moda + tagline italic）、5 section italic 副標、RedactionBar、Role Card OWNS/ARTEFACT Geist Mono label、Newsreader italic link、CASE FILE header、LAYER 1/2/3 prefix、role annotation（BEHAVIOUR/POSITION）、Role Card 3×2 grid 固定高度、shared primitives paper palette 遷移；Playwright 164 passed / 1 skipped / 0 failed，全流程一輪通過"
+      }
     ]
   },
   {
     "milestone": "K-021 — 全站設計系統基建（paper palette + 三字型 + NavBar + HomeFooterBar）",
     "items": [
-      { "date": "2026-04-20", "text": "K-021 closed：5 路由 body 配色米白化（paper/ink token）、Bodoni Moda + Newsreader + Geist Mono 三字型系統上線、NavBar 米白化 + 項目順序重整、HomeFooterBar 擴至 /app 與 /business-logic；歷經 4 rounds（R1 設計→實作 / R2 子元件 dark-class 補修 / R3 architecture.md cross-table drift / R4 /about text-white readability fix-now），Playwright 115 passed + 1 skipped，K-022/K-023/K-024 前置基建完成" }
+      {
+        "date": "2026-04-20",
+        "text": "K-021 closed：5 路由 body 配色米白化（paper/ink token）、Bodoni Moda + Newsreader + Geist Mono 三字型系統上線、NavBar 米白化 + 項目順序重整、HomeFooterBar 擴至 /app 與 /business-logic；歷經 4 rounds（R1 設計→實作 / R2 子元件 dark-class 補修 / R3 architecture.md cross-table drift / R4 /about text-white readability fix-now），Playwright 115 passed + 1 skipped，K-022/K-023/K-024 前置基建完成"
+      }
     ]
   },
   {
     "milestone": "K-008 — 自動化視覺報告 script（Playwright 截圖 → HTML）",
     "items": [
-      { "date": "2026-04-18", "text": "K-008 closed：新增 visual-report.ts 自動截圖 4 條路由產出 HTML 報告，playwright.config 拆 per-project testMatch 隔離 E2E 與 report；Reviewer 抓 4 Warnings 全本票內修（W1 module-level side effect、W3 scoped state、W4 TICKET_ID whitelist、S2 HTML gitignore）；tsc + Vitest 36 + Playwright 45 全綠" }
+      {
+        "date": "2026-04-18",
+        "text": "K-008 closed：新增 visual-report.ts 自動截圖 4 條路由產出 HTML 報告，playwright.config 拆 per-project testMatch 隔離 E2E 與 report；Reviewer 抓 4 Warnings 全本票內修（W1 module-level side effect、W3 scoped state、W4 TICKET_ID whitelist、S2 HTML gitignore）；tsc + Vitest 36 + Playwright 45 全綠"
+      }
     ]
   },
   {
     "milestone": "Codex Review Follow-up — K-009 / K-010 / K-011",
     "items": [
-      { "date": "2026-04-18", "text": "K-011 closed：LoadingSpinner 新增 label prop，4 個 callsite 改為情境文案（載入日記中…/載入內容中…/Running prediction...）；tsc exit 0、Vitest 36 pass、Playwright 45/45 全綠；同步更新 architecture.md 對 LoadingSpinner 的描述" },
-      { "date": "2026-04-18", "text": "K-010 closed：修復 Vitest AppPage 回歸測試，補齊 chart-timeframe-* testid 相關斷言" },
-      { "date": "2026-04-18", "text": "K-009 closed：修復 1H predict 路徑遺漏 ma_history=_history_1d 的後端 bug，pytest 63 passed" }
+      {
+        "date": "2026-04-18",
+        "text": "K-011 closed：LoadingSpinner 新增 label prop，4 個 callsite 改為情境文案（載入日記中…/載入內容中…/Running prediction...）；tsc exit 0、Vitest 36 pass、Playwright 45/45 全綠；同步更新 architecture.md 對 LoadingSpinner 的描述"
+      },
+      {
+        "date": "2026-04-18",
+        "text": "K-010 closed：修復 Vitest AppPage 回歸測試，補齊 chart-timeframe-* testid 相關斷言"
+      },
+      {
+        "date": "2026-04-18",
+        "text": "K-009 closed：修復 1H predict 路徑遺漏 ma_history=_history_1d 的後端 bug，pytest 63 passed"
+      }
     ]
   },
   {
     "milestone": "K-005 — UnifiedNavBar 統一五頁導覽列",
     "items": [
-      { "date": "2026-04-17", "text": "新增 UnifiedNavBar 共用組件（auth.ts utility），統一 5 個頁面的 NavBar；修復 CRITICAL-1（useState re-render）、CRITICAL-2（desktop ⌂ active class）、mobile ⌂ active state 不一致；46 Playwright tests passing" },
-      { "date": "2026-04-17", "text": "補填 diary.json 4/8–4/11 缺漏里程碑（Early MA99 / Shared Forecast / Pearson Filter），修正 4/1 錯誤日期" },
-      { "date": "2026-04-17", "text": "更正 About 頁面過時描述：Railway 單服務架構改為 Firebase Hosting + Cloud Run 分離部署，移除 Phase 5 截圖說法" }
+      {
+        "date": "2026-04-17",
+        "text": "新增 UnifiedNavBar 共用組件（auth.ts utility），統一 5 個頁面的 NavBar；修復 CRITICAL-1（useState re-render）、CRITICAL-2（desktop ⌂ active class）、mobile ⌂ active state 不一致；46 Playwright tests passing"
+      },
+      {
+        "date": "2026-04-17",
+        "text": "補填 diary.json 4/8–4/11 缺漏里程碑（Early MA99 / Shared Forecast / Pearson Filter），修正 4/1 錯誤日期"
+      },
+      {
+        "date": "2026-04-17",
+        "text": "更正 About 頁面過時描述：Railway 單服務架構改為 Firebase Hosting + Cloud Run 分離部署，移除 Phase 5 截圖說法"
+      }
     ]
   },
   {
     "milestone": "Deployment — Firebase Hosting + Cloud Run",
     "items": [
-      { "date": "2026-04-16", "text": "Deployed backend to Cloud Run (multi-stage Docker build); frontend to Firebase Hosting (k-line-prediction.web.app)" },
-      { "date": "2026-04-16", "text": "Fixed cross-origin API calls: added VITE_API_BASE_URL and centralised all fetch/axios calls through API_BASE utility" }
+      {
+        "date": "2026-04-16",
+        "text": "Deployed backend to Cloud Run (multi-stage Docker build); frontend to Firebase Hosting (k-line-prediction.web.app)"
+      },
+      {
+        "date": "2026-04-16",
+        "text": "Fixed cross-origin API calls: added VITE_API_BASE_URL and centralised all fetch/axios calls through API_BASE utility"
+      }
     ]
   },
   {
     "milestone": "Phase 3 — Frontend Pages",
     "items": [
-      { "date": "2026-04-16", "text": "Set up feat/phase3-pages worktree; established common component library (useAsyncState, LoadingSpinner, ErrorMessage, SectionLabel, SectionHeader, CtaButton)" },
-      { "date": "2026-04-16", "text": "Completed all 4 pages (Home, About, Diary, BusinessLogic) with 35 components and 22 Playwright E2E tests passing" }
+      {
+        "date": "2026-04-16",
+        "text": "Set up feat/phase3-pages worktree; established common component library (useAsyncState, LoadingSpinner, ErrorMessage, SectionLabel, SectionHeader, CtaButton)"
+      },
+      {
+        "date": "2026-04-16",
+        "text": "Completed all 4 pages (Home, About, Diary, BusinessLogic) with 35 components and 22 Playwright E2E tests passing"
+      }
     ]
   },
   {
     "milestone": "Phase 2 — BrowserRouter Routing + Page Shells",
     "items": [
-      { "date": "2026-04-15", "text": "Added react-router-dom v7; refactored App.tsx → AppPage.tsx; wired BrowserRouter routes for /, /app, /about, /diary, /business-logic" },
-      { "date": "2026-04-15", "text": "Review: fixed orphaned App.tsx + incorrect @types/react-router-dom dependency; confirmed SPA catch-all is last route in main.py" }
+      {
+        "date": "2026-04-15",
+        "text": "Added react-router-dom v7; refactored App.tsx → AppPage.tsx; wired BrowserRouter routes for /, /app, /about, /diary, /business-logic"
+      },
+      {
+        "date": "2026-04-15",
+        "text": "Review: fixed orphaned App.tsx + incorrect @types/react-router-dom dependency; confirmed SPA catch-all is last route in main.py"
+      }
     ]
   },
   {
     "milestone": "Phase 1 — JWT Auth Endpoints",
     "items": [
-      { "date": "2026-04-15", "text": "Built POST /api/auth (bcrypt password check) and GET /api/business-logic (JWT-protected markdown endpoint) with TDD — tests written before implementation" },
-      { "date": "2026-04-15", "text": "Security: hmac.compare_digest for password comparison; HS256 algorithm pinned; env-var lazy loading for testability" }
+      {
+        "date": "2026-04-15",
+        "text": "Built POST /api/auth (bcrypt password check) and GET /api/business-logic (JWT-protected markdown endpoint) with TDD — tests written before implementation"
+      },
+      {
+        "date": "2026-04-15",
+        "text": "Security: hmac.compare_digest for password comparison; HS256 algorithm pinned; env-var lazy loading for testability"
+      }
     ]
   },
   {
     "milestone": "Phase 0 — Architecture Planning + Design",
     "items": [
-      { "date": "2026-04-15", "text": "PM defined ACs for all 4 pages; Architect produced full component tree + props interfaces for Phase 3; Designer built Pencil.dev designs for HomePage, BusinessLogicPage, AboutPage" },
-      { "date": "2026-04-15", "text": "Key decisions: FastAPI serves static files (single Railway service); no Route Guard on /business-logic (page is its own auth entry); Designer added TechStackSection (7th section) to AboutPage after review" }
+      {
+        "date": "2026-04-15",
+        "text": "PM defined ACs for all 4 pages; Architect produced full component tree + props interfaces for Phase 3; Designer built Pencil.dev designs for HomePage, BusinessLogicPage, AboutPage"
+      },
+      {
+        "date": "2026-04-15",
+        "text": "Key decisions: FastAPI serves static files (single Railway service); no Route Guard on /business-logic (page is its own auth entry); Designer added TechStackSection (7th section) to AboutPage after review"
+      }
     ]
   },
   {
     "milestone": "MA99 Pearson 趨勢過濾器",
     "items": [
-      { "date": "2026-04-11", "text": "以 30 天 Pearson 斜率取代手動 ma99_trend_override；趨勢判斷改由統計驗算，移除人工覆蓋欄位" }
+      {
+        "date": "2026-04-11",
+        "text": "以 30 天 Pearson 斜率取代手動 ma99_trend_override；趨勢判斷改由統計驗算，移除人工覆蓋欄位"
+      }
     ]
   },
   {
     "milestone": "Shared 1H/1D Forecast UI",
     "items": [
-      { "date": "2026-04-09", "text": "統一所有時間戳為 UTC+0，修復 UTC+8 混用導致的顯示錯誤" },
-      { "date": "2026-04-10", "text": "加入共用 1H/1D Consensus Forecast UI；採 native timeframe API contract，直接傳 timeframe 給後端不做 bar 轉換" }
+      {
+        "date": "2026-04-09",
+        "text": "統一所有時間戳為 UTC+0，修復 UTC+8 混用導致的顯示錯誤"
+      },
+      {
+        "date": "2026-04-10",
+        "text": "加入共用 1H/1D Consensus Forecast UI；採 native timeframe API contract，直接傳 timeframe 給後端不做 bar 轉換"
+      }
     ]
   },
   {
     "milestone": "Early MA99 計算 + Match Trend Labels",
     "items": [
-      { "date": "2026-04-08", "text": "新增 /api/merge-and-compute-ma99 endpoint 與 computeMa99 function，提供後端 MA99 計算核心" },
-      { "date": "2026-04-08", "text": "前端上傳後立即觸發 MA99 計算（early loading state），提升操作體感速度" },
-      { "date": "2026-04-08", "text": "在 MatchList 每張 match card 新增 trend label（漲/跌/持平），從 projectedFutureBars 計算趨勢方向" }
+      {
+        "date": "2026-04-08",
+        "text": "新增 /api/merge-and-compute-ma99 endpoint 與 computeMa99 function，提供後端 MA99 計算核心"
+      },
+      {
+        "date": "2026-04-08",
+        "text": "前端上傳後立即觸發 MA99 計算（early loading state），提升操作體感速度"
+      },
+      {
+        "date": "2026-04-08",
+        "text": "在 MatchList 每張 match card 新增 trend label（漲/跌/持平），從 projectedFutureBars 計算趨勢方向"
+      }
     ]
   }
 ]
