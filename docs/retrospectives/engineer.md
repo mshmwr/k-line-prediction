@@ -13,6 +13,24 @@
 ```
 
 - 倒序（最新在上）
+
+---
+
+## 2026-04-22 — K-035 Phase 3 shared Footer migration
+
+**做得好：**
+- Architect design doc §3 「17/0 behavior-diff table」+ §11 self-diff block + §10 fail-if-gate-removed dry-run specification 讓 11 步 migration 幾乎零歧義；Engineer 只需照步驟走 + 驗證每步通過，不需自行裁決 scope。
+- Step 7 fail-if-gate-removed dry-run 真的跑了（不只宣稱跑）：註銷 HomePage `<Footer variant="home" />` → spec 於 `locator('footer').last() toBeVisible` 5000ms timeout 紅 → 復原後綠；exact symptom 字串寫進 Step 7 commit message 供 Reviewer 驗證。
+- Grep sweep 0 hits 意外撞到 Step 6 三個 retirement-context comments（Footer.tsx docstring / sitewide-footer.spec.ts header / sitewide-fonts.spec.ts K-030 note）— 沒自行降級「意圖註解不該算 hits」，而是全數 reword 保留語意（「retires K-021 Sacred /about 維持 FooterCtaSection」→「K-021 /about separate-footer Sacred clause formally retired」），結果 src/ + e2e/ grep 最終確為 0 hits 符合 design doc literal。
+
+**沒做好：**
+- 11 步走完後架構文件 Step 11 才動手，但 Architect Changelog L652 早就把設計期「4 cases」寫進 architecture.md（含 /business-logic 斷言），與實際落地 3 test.describe blocks（/business-logic 降級為 technical-cleanup-only per PM scope clarification）不符。Engineer 沒在 Step 1 開工前先讀 Architect Changelog 對照 PM scope clarification，導致文件漂移延續到 Step 11 才補回；若當時察覺可於 Step 7 spec 撰寫時直接註記 scope 差異，減少一層 reverse 溝通。
+- Worktree 初次 `npx tsc --noEmit` 撞 `TSC_MISSING` — 沒 upfront run `ls frontend/node_modules`（persona K-031 worktree init dependency check 已寫），多跑一趟 `npm install` 才開工。雖然該規則已 codify 仍於第一時間忘記執行。
+
+**下次改善：**
+- **New hard step**：Step 0 開工前必須 `git show <base>:<architecture.md>` + grep 本 ticket ID 找出 Architect Changelog 已寫入的設計期條目，與 PM ticket §scope 逐行對照；發現數字 / scope 不符（e.g. 「4 cases」vs 3 describes）立即 blocker 回 PM 裁決「Engineer entry 覆蓋 or Architect entry 修正」，不留到最後才補。
+- **worktree opening checklist** 加到 persona Step 0：`ls frontend/node_modules` 與 `git worktree list` 並列，兩者都沒跑先不動任何 `npx`。
+
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
