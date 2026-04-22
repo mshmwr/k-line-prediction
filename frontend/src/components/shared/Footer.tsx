@@ -1,7 +1,8 @@
 import { trackCtaClick } from '../../utils/analytics'
 
 /**
- * Footer — sitewide footer (K-035 unification, retires K-021 Sacred `/about 維持 FooterCtaSection`).
+ * Footer — sitewide footer (K-035 unification; K-021 /about separate-footer
+ * Sacred clause formally retired — see docs/designs/K-035-shared-component-migration.md §10.1).
  *
  * Used on:
  *   - `/`               via variant="home"  (HomePage.tsx)

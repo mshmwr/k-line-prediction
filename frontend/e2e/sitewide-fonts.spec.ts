@@ -52,8 +52,8 @@ test.describe('AC-021-FONTS — font-mono class renders Geist Mono', () => {
   })
 })
 
-// 註（K-030 + K-035）：原 `AC-021-FONTS — HomeFooterBar fontFamily cross-route` describe block
-// 唯一的測試 case 是 /app HomeFooterBar fontFamily — 由於 /app 於 K-030 撤除 Footer，
+// 註（K-030 + K-035）：原 `AC-021-FONTS — Footer fontFamily cross-route` describe block
+// 唯一的測試 case 是 /app Footer fontFamily — 由於 /app 於 K-030 撤除 Footer，
 // 該 case 已移除；HomePage Footer (variant="home") Geist Mono 由上方 L35–53 既有 case 涵蓋
-// （K-035 將 HomeFooterBar 合併入 components/shared/Footer.tsx variant="home" 分支，
-// font-mono class + DOM 不變，既有斷言繼續有效）。
+// （K-035 將 /、/business-logic、/about 三路由 Footer 合併入
+// components/shared/Footer.tsx；font-mono class + DOM 不變，既有斷言繼續有效）。
