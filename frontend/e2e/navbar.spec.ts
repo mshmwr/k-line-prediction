@@ -158,37 +158,52 @@ test.describe('AC-NAV-4 — Nav links navigate correctly (SPA)', () => {
   })
 })
 
-// ── AC-NAV-4: Active link highlighted — v2 color system ──────────────────────
-// Given: user is on /about
+// ── AC-NAV-4: Active link highlighted (brick-dark), inactive ink/60 — dual-rail ─
+// Given: user is on /about (or /diary)
 // When:  page loads
-// Then:  "About" link has text-[#9C4A3B] class (active), others text-[#1A1814]/60
+// Then:  active link has aria-current="page" AND computed color rgb(156, 74, 59)
+// And:   inactive link has computed color rgba(26, 24, 20, 0.6)
 //
-// 註：既有 8 處 text-\[#9C4A3B\] 斷言維持（編譯後 CSS 與 text-brick-dark 等價，
-// PM 2026-04-20 Q2 裁決）。
+// 註（K-025）：汰換 class-name regex 斷言（/text-\[#9C4A3B\]/ × 2 + /text-\[#1A1814\]/ × 3）
+// 為 attribute + computed color 雙軌斷言。舊 regex 與 refactor 後 named token selector
+// 不匹配，且對 state-swap bug 不敏感（/text-\[#1A1814\]/ 寬鬆匹配）。雙軌斷言脫離
+// selector 名稱依賴，驗 React state + rendered computed color，refactor-proof。
 
-test.describe('AC-NAV-4 — Active link highlighted #9C4A3B, others #1A1814/60', () => {
+test.describe('AC-NAV-4 — Active link highlighted (brick-dark), inactive ink/60 — dual-rail', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('About link is active (#9C4A3B) on /about page', async ({ page }) => {
+  test('About active + App inactive on /about (desktop, dual-rail)', async ({ page }) => {
     await mockApis(page)
     await page.goto('/about')
 
     const nav = navLinksScope(page, false)
-    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-\[#9C4A3B\]/)
-    await expect(nav.getByRole('link', { name: 'App', exact: true })).toHaveClass(/text-\[#1A1814\]/)
+    const aboutLink = nav.getByRole('link', { name: 'About', exact: true })
+    const appLink = nav.getByRole('link', { name: 'App', exact: true })
+
+    // Active: aria-current + computed brick-dark
+    await expect(aboutLink).toHaveAttribute('aria-current', 'page')
+    await expect(aboutLink).toHaveCSS('color', 'rgb(156, 74, 59)')
+    // Inactive: computed ink/60
+    await expect(appLink).toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')
   })
 
-  test('Diary link is active (#9C4A3B) on /diary page', async ({ page }) => {
+  test('Diary active + About inactive on /diary (desktop, dual-rail)', async ({ page }) => {
     await mockApis(page)
     await page.goto('/diary')
 
     const nav = navLinksScope(page, false)
-    await expect(nav.getByRole('link', { name: 'Diary', exact: true })).toHaveClass(/text-\[#9C4A3B\]/)
-    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-\[#1A1814\]/)
+    const diaryLink = nav.getByRole('link', { name: 'Diary', exact: true })
+    const aboutLink = nav.getByRole('link', { name: 'About', exact: true })
+
+    // Active: aria-current + computed brick-dark
+    await expect(diaryLink).toHaveAttribute('aria-current', 'page')
+    await expect(diaryLink).toHaveCSS('color', 'rgb(156, 74, 59)')
+    // Inactive: computed ink/60
+    await expect(aboutLink).toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')
   })
 })
 
-// ── AC-NAV-4 (mobile): Active link highlighted — mobile viewport ─────────────
+// ── AC-NAV-4 (mobile): Inactive link computed color — mobile viewport ────────
 
 test.describe('AC-NAV-4 — Active link highlighted (mobile)', () => {
   test.use({ viewport: { width: 375, height: 667 } })
@@ -196,12 +211,51 @@ test.describe('AC-NAV-4 — Active link highlighted (mobile)', () => {
   // 註（K-030）：原 `App link is active on /app page (mobile)` 測試移除；
   // /app 於 K-030 不再渲染 NavBar，"active on /app" 語意消失。
 
-  test('About link is inactive (#1A1814/60) on / page (mobile)', async ({ page }) => {
+  test('About link is inactive (ink/60) on / page (mobile)', async ({ page }) => {
     await mockApis(page)
     await page.goto('/')
 
     const nav = navLinksScope(page, true)
-    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveClass(/text-\[#1A1814\]/)
+    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')
+  })
+})
+
+// ── AC-025 — Inactive color on / route (desktop, TD-K021-09) ─────────────────
+// Given: user is on / (home)
+// When:  page loads (no route-matching link is active except Home icon)
+// Then:  App / Diary / About all render computed color rgba(26, 24, 20, 0.6)
+// 註（K-025）：補 TD-K021-09 `/` route inactive 3 斷言；合併於同 test 內 3 expect。
+
+test.describe('AC-025 — Inactive color on / route (desktop)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('App / Diary / About are inactive (ink/60) on /', async ({ page }) => {
+    await mockApis(page)
+    await page.goto('/')
+
+    const nav = navLinksScope(page, false)
+    await expect(nav.getByRole('link', { name: 'App', exact: true })).toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')
+    await expect(nav.getByRole('link', { name: 'Diary', exact: true })).toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')
+    await expect(nav.getByRole('link', { name: 'About', exact: true })).toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')
+  })
+})
+
+// ── AC-025 — /business-logic has no active link (QA Q3) ──────────────────────
+// Given: user is on /business-logic (Prediction hidden route)
+// When:  page loads
+// Then:  no NavBar link has aria-current="page"
+// 註（K-025）：hidden-route coverage gap 補齊。Home icon aria-current 僅在 pathname === '/'
+// 時為 "page"，在 /business-logic 時為 undefined；Prediction 本身 filter 過濾不 render；
+// App/Diary/About 的 path 均不匹配 /business-logic，故任何 link 皆無 aria-current="page"。
+
+test.describe('AC-025 — /business-logic has no active link', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('no NavBar link has aria-current on /business-logic', async ({ page }) => {
+    await mockApis(page)
+    await page.goto('/business-logic')
+
+    await expect(page.locator('[aria-current="page"]')).toHaveCount(0)
   })
 })
 

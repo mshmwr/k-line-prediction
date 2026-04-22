@@ -1,5 +1,11 @@
 [
   {
+    "milestone": "K-025 — UnifiedNavBar hex → token refactor + navbar.spec dual-rail assertion upgrade",
+    "items": [
+      { "date": "2026-04-22", "text": "K-025 closed: migrated UnifiedNavBar 7 hex literals to K-021 tokens (text-ink / text-brick-dark / bg-paper / border-ink) with zero visual change; upgraded navbar.spec.ts by dropping 5 brittle class-name regex assertions and replacing with dual-rail attribute (aria-current) + computed color (toHaveCSS rgb/rgba) assertions; supplemented missing coverage on / desktop inactive (3 links) and /business-logic no-active-link verification; QA Early Consultation integrated 4 recommendations into AC upfront; Reviewer Step 2 behavior-diff truth table + dist/assets CSS declaration count confirm rendered-color equivalence; 192 passed / 1 skipped / 0 failed; tsc exit 0; W-1 grep-pattern degeneracy accepted as TD-K025-01 and codified into reviewer.md + qa.md persona hard gates to prevent repeat." }
+    ]
+  },
+  {
     "milestone": "K-031 — Remove Built by AI showcase section from /about",
     "items": [
       { "date": "2026-04-21", "text": "K-031 closed: removed the explanatory Built by AI showcase section (S7) from /about — deleted BuiltByAIShowcaseSection.tsx, removed import and SectionContainer block from AboutPage.tsx, renumbered FooterCtaSection comment from S8 to S7; homepage BuiltByAIBanner unaffected; 2 new AC-031 Playwright tests (section-absent + layout-continuity) added to about-v2.spec.ts; 171 passed / 1 skipped / 0 failed; tsc exit 0." }

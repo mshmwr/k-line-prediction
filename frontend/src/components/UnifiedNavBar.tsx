@@ -33,9 +33,9 @@ export default function UnifiedNavBar() {
     const isActive = pathname === path
     const sizeClass = mobile ? 'text-[11px]' : 'text-[13px]'
     if (isActive) {
-      return `${sizeClass} font-mono text-[#9C4A3B] transition-colors`
+      return `${sizeClass} font-mono text-brick-dark transition-colors`
     }
-    return `${sizeClass} font-mono text-[#1A1814]/60 hover:text-[#1A1814] transition-colors`
+    return `${sizeClass} font-mono text-ink/60 hover:text-ink transition-colors`
   }
 
   const visibleLinks = TEXT_LINKS.filter(link => !link.hidden)
@@ -72,14 +72,14 @@ export default function UnifiedNavBar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between bg-[#F4EFE5] border-b border-[#1A1814] h-[56px] md:h-[72px] px-6 md:px-[120px]">
+    <nav className="sticky top-0 z-50 flex items-center justify-between bg-paper border-b border-ink h-[56px] md:h-[72px] px-6 md:px-[120px]">
       {/* Left: Home icon */}
       <Link
         to="/"
         aria-label="Home"
         aria-current={pathname === '/' ? 'page' : undefined}
       >
-        <HomeIcon size={16} className="text-[#1A1814] hover:text-[#9C4A3B] transition-colors" />
+        <HomeIcon size={16} className="text-ink hover:text-brick-dark transition-colors" />
       </Link>
 
       {/* Right: Nav links (desktop) */}
