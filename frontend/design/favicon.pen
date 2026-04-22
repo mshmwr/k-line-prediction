@@ -1,0 +1,185 @@
+{
+  "version": "2.11",
+  "children": [
+    {
+      "type": "frame",
+      "id": "nHXSO",
+      "x": 0,
+      "y": 0,
+      "name": "Favicon 512",
+      "width": 512,
+      "height": 512,
+      "fill": "#00000000",
+      "layout": "none",
+      "children": [
+        {
+          "type": "line",
+          "id": "DJUow",
+          "x": 125,
+          "y": 120,
+          "name": "K spine top wick",
+          "width": 0,
+          "height": 30,
+          "stroke": {
+            "align": "center",
+            "thickness": 8,
+            "cap": "round",
+            "fill": "#22C55E"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 8,
+          "id": "yau4L",
+          "x": 105,
+          "y": 150,
+          "name": "K spine body",
+          "fill": "#22C55E",
+          "width": 40,
+          "height": 220
+        },
+        {
+          "type": "line",
+          "id": "N8ta9",
+          "x": 125,
+          "y": 370,
+          "name": "K spine bottom wick",
+          "width": 0,
+          "height": 25,
+          "stroke": {
+            "align": "center",
+            "thickness": 8,
+            "cap": "round",
+            "fill": "#22C55E"
+          }
+        },
+        {
+          "type": "line",
+          "id": "TaoXg",
+          "x": 190,
+          "y": 355,
+          "name": "Candle A wick",
+          "width": 0,
+          "height": 90,
+          "stroke": {
+            "align": "center",
+            "thickness": 6,
+            "cap": "round",
+            "fill": "#22C55E"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "5Ot4p",
+          "x": 175,
+          "y": 380,
+          "name": "Candle A body",
+          "fill": "#22C55E",
+          "width": 30,
+          "height": 60
+        },
+        {
+          "type": "line",
+          "id": "BijXx",
+          "x": 262,
+          "y": 285,
+          "name": "Candle B wick",
+          "width": 0,
+          "height": 140,
+          "stroke": {
+            "align": "center",
+            "thickness": 6,
+            "cap": "round",
+            "fill": "#EF4444"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "xo19N",
+          "x": 245,
+          "y": 310,
+          "name": "Candle B body",
+          "fill": "#EF4444",
+          "width": 35,
+          "height": 110
+        },
+        {
+          "type": "line",
+          "id": "LNYdl",
+          "x": 345,
+          "y": 205,
+          "name": "Candle C wick",
+          "width": 0,
+          "height": 210,
+          "stroke": {
+            "align": "center",
+            "thickness": 6,
+            "cap": "round",
+            "fill": "#22C55E"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "U5v7B",
+          "x": 325,
+          "y": 230,
+          "name": "Candle C body",
+          "fill": "#22C55E",
+          "width": 40,
+          "height": 180
+        },
+        {
+          "type": "path",
+          "id": "2kmNo",
+          "x": 30,
+          "y": 220,
+          "name": "MA slow (purple)",
+          "geometry": "M30 265c90-30 170 0 230 15 80-10 160-45 220-60",
+          "viewBox": [
+            30,
+            220,
+            450,
+            70
+          ],
+          "fill": "#00000000",
+          "width": 450,
+          "height": 70,
+          "stroke": {
+            "align": "center",
+            "thickness": 7,
+            "join": "round",
+            "cap": "round",
+            "fill": "#A855F7"
+          }
+        },
+        {
+          "type": "path",
+          "id": "2Blq5",
+          "x": 30,
+          "y": 160,
+          "name": "MA fast (amber)",
+          "geometry": "M30 310c120 0 170 40 240 0 90-50 150-120 210-145",
+          "viewBox": [
+            30,
+            160,
+            450,
+            180
+          ],
+          "fill": "#00000000",
+          "width": 450,
+          "height": 180,
+          "stroke": {
+            "align": "center",
+            "thickness": 7,
+            "join": "round",
+            "cap": "round",
+            "fill": "#F59E0B"
+          }
+        }
+      ]
+    }
+  ]
+}
