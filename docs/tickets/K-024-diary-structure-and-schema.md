@@ -541,3 +541,76 @@ Code Reviewer R1 findings resolved (4 flags + 1 BQ-ruled AC amendment):
 - W-3 depth (Engineer persona authority for AC self-edit) — filed as separate BQ to PM (Engineer persona currently forbids AC edits without PM rule; remediation required explicit BQ + PM ruling, which worked correctly).
 
 **Gate results:** `tsc --noEmit` exit 0; `vitest run` 81/81 pass (legacy-merge = 6); `playwright test` 190 pass / 1 skipped / 0 fail.
+
+### Engineer (Phase 3)
+
+**Pre-implementation Q&A Log:**
+
+1. **K-023 Sacred (Homepage marker `borderRadius: 0px`) vs design §6.3 `<DiaryMarker>` reuse vs visual-spec `cornerRadius: 6` — contradictory.** Design §0.2 lists Homepage marker radius 0 as a **locked invariant** (Sacred > dedup recommendation). §9.1 dedup is soft; Sacred is bright-line. Self-decided as implementation detail: `DiaryMarker.tsx` = /diary-only primitive with `cornerRadius: 6`; `DevDiarySection.tsx` keeps inline marker (preserves radius 0 + `topInset: 8` K-023 Sacred). `timelinePrimitives.ts` still feeds color/size/leftInset to both — partial sharing, different render. Same treatment for rail (K-028 always-visible on Homepage; `DiaryRail` is `hidden sm:block` on /diary only; DevDiarySection keeps inline rail). Documented in both `DiaryMarker.tsx` / `DiaryRail.tsx` / `DevDiarySection.tsx` comment blocks.
+
+2. **T-T4 rail-height assertion (design §6.5 vs initial impl):** My first assertion (`rail.height >= (first entry top → last entry bottom)`) contradicted the spec: visual-spec encodes `top:40 / bottom:40` insets so rail is intentionally inset past first/last marker centers. Corrected assertion asserts only "rail exists + right bg + width + non-zero height + rail vertically inside timeline bounds" — matches design intent.
+
+**Migration Content-Preservation Gate (per design §9.2 + Engineer mandatory):**
+
+| Deleted behavior | Old file / test | Covered by (new file / test) |
+|------------------|-----------------|------------------------------|
+| Accordion open/close toggle | `MilestoneSection.tsx` | Design §0.2 Sacred says "accordion removed" — NOT preserved. T-T1/T-T2/T-T3 negative assertions (no `details/summary` / `divide-y` / `milestone` class). |
+| 2-layer entry (date + text) | `DiaryEntry.tsx` | Replaced by 3-layer (title+date+body) `DiaryEntryV2.tsx` — AC-024-ENTRY-LAYOUT T-E1..T-E6. |
+| `flex-col sm:flex-row` responsive wrap | `DiaryEntry.tsx` | `DiaryEntryV2.tsx` is flex-column on all viewports by design; mobile safety via `break-words` on body — asserted by T-E* (body font catch-all) + T-L5 (long-message no overflow). |
+| `border border-ink/10` wrapper | `MilestoneSection.tsx` | No wrapper per flat timeline design (§6.1). T-T3 negative asserts wrapper class absent. |
+| `divide-y divide-ink/5` between entries | `MilestoneSection.tsx` | No dividers per flat design. T-T2 negative asserts class absent. |
+| Mobile 375/390/414 no-overlap (TC-001..003 `diary-mobile.spec.ts`) | `diary-mobile.spec.ts` AC-027-NO-OVERLAP | T-C5 (mobile 390 no horizontal overflow) + T-L5 (long-message break-words no overflow) + `pages.spec.ts` AC-028-DIARY-ENTRY-NO-OVERLAP (mobile 375, preserved Sacred). |
+| Mobile text readability (TC-004..006) | `diary-mobile.spec.ts` AC-027-TEXT-READABLE | T-E1 (DOM order title/date/body) + T-E6 (body font catchall for readability) + T-L5 (long error message readable + Retry visible). |
+| Desktop accordion aria-expanded (TC-007) | `diary-mobile.spec.ts` AC-027-DESKTOP-NO-REGRESSION | N/A — accordion DOM gone by design §0.2 Sacred. T-T1 negative assertion covers. |
+| Old AC-DIARY-1 three accordion tests | `pages.spec.ts` L78–121 | Rewritten in-place: (1) hero title + entry visible, (2) negative on `details/summary`/`divide-y`/`milestone`, (3) Load more visible when entries>5. |
+| K-028 Sacred `data-testid="diary-entry-wrapper"` + 3-marker + 20×14 | `pages.spec.ts` AC-023-DIARY-BULLET + AC-028-* | **Preserved unchanged** — `DevDiarySection.tsx` kept inline marker+rail; all 5 Sacred specs pass. |
+
+**Design Doc Checklist verification (§10 Phase 3 files row-by-row):**
+
+| # | Design doc row | Status |
+|---|----------------|--------|
+| 1 | `DiaryPage.tsx` REWRITE → Hero + Timeline + LoadMore + pagination | ✓ done (uses `useDiary` + `useDiaryPagination`) |
+| 2 | `DiaryTimeline.tsx` REWRITE → `<ol role="list">` + `<DiaryRail>` + `<li><DiaryEntryV2>` | ✓ done |
+| 3 | `DiaryEntry.tsx` DELETE | ✓ done |
+| 4 | `MilestoneSection.tsx` DELETE | ✓ done |
+| 5 | `DiaryHero.tsx` ADD | ✓ done |
+| 6 | `DiaryEntryV2.tsx` ADD | ✓ done |
+| 7 | `DiaryRail.tsx` ADD | ✓ done |
+| 8 | `DiaryMarker.tsx` ADD | ✓ done (with K-023 Sacred deviation documented; DevDiarySection keeps inline marker) |
+| 9 | `DiaryLoading.tsx` ADD | ✓ done |
+| 10 | `DiaryError.tsx` ADD | ✓ done |
+| 11 | `DiaryEmptyState.tsx` ADD | ✓ done |
+| 12 | `LoadMoreButton.tsx` ADD | ✓ done |
+| 13 | `timelinePrimitives.ts` ADD | (already present from Phase 1+2 as additive constants — §10 row honored) |
+| 14 | `DevDiarySection.tsx` MOD (import shared primitives) | ✓ done — imports `RAIL`/`MARKER` constants from `timelinePrimitives.ts`; keeps inline render to preserve K-023 Sacred + K-028 Sacred |
+| 15 | `diary-mobile.spec.ts` DELETE | ✓ done |
+| 16 | `pages.spec.ts` MOD (AC-DIARY-1 3-test rewrite) | ✓ done |
+| 17 | `diary-page.spec.ts` ADD (35 tests per ticket L478 supplementation) | ✓ done — all 35 pass |
+| 18 | `diary-homepage.spec.ts` ADD (5 tests per ticket AC-024-HOMEPAGE-CURATION) | ✓ done — all 5 pass |
+| 19–26 | 8 fixtures under `_fixtures/diary/` | ✓ all 8 present |
+
+**Verification Checklist:**
+
+- [x] `npx tsc --noEmit` — exit 0
+- [x] `npx vitest run` — 81/81 pass
+- [x] `npx playwright test` — 223 pass / 1 skipped / 0 fail (full suite)
+- [x] Sitewide dark-class scan: all hits limited to `/app` isolated route; no body-layer CSS change made in K-024
+- [x] Route Impact Table cross-check: design §8 says only `/` + `/diary` affected (schema change, not CSS); confirmed
+- [x] K-028 + K-023 Sacred preserved: `pages.spec.ts` AC-023-DIARY-BULLET + AC-028-MARKER-COORD-INTEGRITY + AC-028-MARKER-COUNT-INTEGRITY + AC-028-DIARY-RAIL-VISIBLE + AC-028-DIARY-EMPTY-BOUNDARY all green
+- [x] E2E Spec Logic Self-check: target scope uses `container.getByRole()` not `page.getByRole()` where needed; assertions FAIL in before state (T-T1..T-T3 negative assertions require accordion removed to pass); no `waitForTimeout` — uses `toHaveCount` / `toBeVisible` / `toHaveCSS` only
+- [x] Computed Style Assertion Rule: all `toHaveCSS` assertions use computed values; no hardcoded px/hex — all pulled from `K-024-visual-spec.json` via `hexToRgb` helper
+- [x] Migration Content-Preservation Gate: table above maps every deleted behavior to new coverage or documents "NOT preserved per design"
+- [x] Worktree init check: worktree `node_modules/` already present from Phase 1+2 run; no reinstall needed
+- [x] Vite cache cleared before Playwright re-run: `pkill -f vite && rm -rf frontend/node_modules/.vite` applied twice (once post-T-T4 failure, once final)
+
+**Scope boundary issues found:**
+
+1. **Playwright ESM loader + JSON import attribute incompatibility:** `import spec from '../../docs/designs/K-024-visual-spec.json'` works in Vite + tsc bundler mode but fails under Playwright's Node-ESM loader (`TypeError: Module "...json" needs an import attribute of type "json"` on Node ≥20). Switched both spec files to `readFileSync` + `JSON.parse` sync pattern at module top level — semantically identical (the file is static). Documented inline in both specs; no scope creep.
+
+2. **T-T4 initial assertion contradicted design §6.5 geometry.** First pass: `rail.height >= (first entry top → last entry bottom)`. Actual: rail has 40px top + 40px bottom insets per visual-spec → rail height = `<ol>` height − 80, so assertion false by design. Rewrote to assert "rail exists + non-zero height + rail bounds inside timeline bounds". Should have dry-run the computed values via `page.evaluate` per Engineer Computed Style Assertion Rule before writing `toBeGreaterThanOrEqual` — logged as next-time.
+
+**Next time improvement:**
+
+- (a) Before writing any geometric `toBeGreaterThan*` / `toBeLessThan*` assertion against computed `boundingBox()` values, dry-run both LHS and RHS in the spec's browser context via `page.evaluate` and log actual numbers — never write the assertion from design-prose imagination. This is already in Engineer persona §"Computed Style Assertion Rule"; I skipped it for T-T4 and learned again.
+- (b) Playwright-specific ESM loader constraints (JSON `with { type: 'json' }` attribute) differ from Vite/tsc bundler mode — when introducing a new `*.json` import under `frontend/e2e/`, prefer `readFileSync` + `JSON.parse` from day one, especially for Node 20+ toolchains.
+- (c) When a design spec has a K-XXX Sacred row AND a "shared primitive" recommendation that visually differ (like K-023 borderRadius 0 vs visual-spec cornerRadius 6), resolve via **partial primitive sharing** (const tokens via `timelinePrimitives.ts`, separate render components) instead of forcing a single component. Document the deviation in-code AND in ticket retrospective — done here for K-023 + K-028 + §9.1 deviation.

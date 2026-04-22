@@ -1,0 +1,20 @@
+[
+  {
+    "ticketId": "K-010",
+    "title": "Three-entry fixture a",
+    "date": "2026-04-18",
+    "text": "Entry A body text used by 3-entry homepage and /diary boundary tests."
+  },
+  {
+    "ticketId": "K-011",
+    "title": "Three-entry fixture b",
+    "date": "2026-04-19",
+    "text": "Entry B body text used by 3-entry homepage and /diary boundary tests."
+  },
+  {
+    "ticketId": "K-012",
+    "title": "Three-entry fixture c",
+    "date": "2026-04-20",
+    "text": "Entry C body text used by 3-entry homepage and /diary boundary tests."
+  }
+]

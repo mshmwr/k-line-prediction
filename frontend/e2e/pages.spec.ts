@@ -75,48 +75,50 @@ test.describe('AboutPage — AC-ABOUT-1 (K-017)', () => {
   })
 })
 
-// ── AC-DIARY-1 ───────────────────────────────────────────────────────────────
+// ── AC-DIARY-1 (K-024 rewrite) ──────────────────────────────────────────────
 // Given: user visits /diary
 // When: diary.json loads successfully
-// Then: milestone titles are visible; first milestone is expanded (defaultOpen); clicking a closed milestone expands it
+// Then: flat timeline renders; Hero title visible; at least one entry visible;
+//       load-more button appears when entry count > 5.
+//
+// K-024 AC-024-REGRESSION Allowed-to-change: the old accordion-based
+// assertions (getByRole('button') + aria-expanded + .px-4.pb-4) targeted the
+// removed MilestoneSection DOM. Replaced with the new flat-timeline
+// observables, preserving the core behavior "diary.json loads and renders
+// entries".
 
-test.describe('DiaryPage — AC-DIARY-1', () => {
-  test('milestone titles visible and first milestone expanded by default', async ({ page }) => {
+test.describe('DiaryPage — AC-DIARY-1 (K-024 flat timeline)', () => {
+  test('hero title visible and at least one diary entry renders', async ({ page }) => {
     await page.goto('/diary')
 
-    // First milestone title visible
-    const firstMilestone = page.getByRole('button').first()
-    await expect(firstMilestone).toBeVisible()
+    // Hero title (AC-024-PAGE-HERO)
+    await expect(page.getByRole('heading', { level: 1, name: 'Dev Diary', exact: true })).toBeVisible()
 
-    // First milestone is expanded (aria-expanded=true)
-    await expect(firstMilestone).toHaveAttribute('aria-expanded', 'true')
-
-    // At least one diary entry text visible (first milestone open)
-    const entries = page.locator('.px-4.pb-4 p')
+    // At least one entry from diary.json is rendered
+    const entries = page.locator('[data-testid="diary-entry"]')
     await expect(entries.first()).toBeVisible()
   })
 
-  test('clicking a closed milestone expands it', async ({ page }) => {
+  test('flat timeline structure — no accordion, no divide-y, no milestone wrapper', async ({ page }) => {
     await page.goto('/diary')
 
-    // Second milestone starts closed
-    const buttons = page.getByRole('button')
-    const secondBtn = buttons.nth(1)
-    await expect(secondBtn).toHaveAttribute('aria-expanded', 'false')
-
-    // Click to open
-    await secondBtn.click()
-    await expect(secondBtn).toHaveAttribute('aria-expanded', 'true')
+    // K-024 AC-024-TIMELINE-STRUCTURE negative assertions
+    await expect(page.locator('details, summary')).toHaveCount(0)
+    await expect(page.locator('[class*="divide-y"]')).toHaveCount(0)
+    await expect(page.locator('[class*="milestone"]')).toHaveCount(0)
   })
 
-  test('clicking an open milestone collapses it', async ({ page }) => {
+  test('load-more button visible when diary entry count > 5', async ({ page }) => {
     await page.goto('/diary')
 
-    const firstBtn = page.getByRole('button').first()
-    await expect(firstBtn).toHaveAttribute('aria-expanded', 'true')
+    // Wait for initial 5 entries to render
+    const entries = page.locator('[data-testid="diary-entry"]')
+    await expect(entries.first()).toBeVisible()
 
-    await firstBtn.click()
-    await expect(firstBtn).toHaveAttribute('aria-expanded', 'false')
+    // Production diary.json has 7 entries (≥ 5 + 1) → button should appear
+    const loadMore = page.locator('[data-testid="diary-load-more"]')
+    await expect(loadMore).toBeVisible()
+    await expect(loadMore).toHaveText(/Load more/)
   })
 })
 

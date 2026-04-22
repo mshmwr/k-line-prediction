@@ -16,6 +16,20 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-22 — K-024 Phase 3 (/diary flat-timeline rewrite + old-component deletion)
+
+**做得好：** K-023/K-028 Sacred 與 design §9.1 shared-primitive 建議之間的 radius-0 vs cornerRadius-6 衝突，用「partial primitive sharing」（const tokens 共用、render 組件分離）收斂，而不是硬拉 prop 讓 DiaryMarker 兩邊都吃；K-028 `diary-entry-wrapper` + 20×14 markers + 3-marker count 全部保留不動（Playwright AC-023-DIARY-BULLET + AC-028-* 5 支 Sacred 全綠）。Migration Content-Preservation 表逐列對齊 `MilestoneSection.tsx` / 舊 `DiaryEntry.tsx` / `diary-mobile.spec.ts` 被刪掉的 9 個行為，每個都標到新 T-* 覆蓋或明確註記「by design removed」。Full suite 222 → 修 T-T4 geometry assertion → 223 passing / 1 skipped / 0 fail。
+
+**沒做好：** T-T4 rail-height 斷言寫出來就跟 design §6.5 visual-spec 的 `topInset:40 / bottomInset:40` 幾何矛盾 — rail 本來就比 `<ol>` 矮 80px，但我的斷言要求 `rail.height >= span`，跑了才知錯（582 vs 504）。這是 Engineer persona Computed Style Assertion Rule 明寫要先用 `page.evaluate` 驗 LHS/RHS 實際值再寫 `toBeGreaterThanOrEqual` 的場景，我靠 design-prose 想像寫了斷言，破功第二次（K-027 R1 之後又犯）。另外 Playwright ESM loader 對 JSON import attribute 的要求 (`TypeError: Module needs an import attribute of type "json"` on Node ≥20) 跟 Vite/tsc bundler mode 不一樣，第一輪直接 `import spec from '*.json'` 撞壁 — 早知道改 `readFileSync` 就沒這一輪。
+
+**下次改善：**
+
+- (a) 對 `boundingBox()` / `getBoundingClientRect()` / `getComputedStyle()` 幾何值寫 `toBeGreaterThan*` / `toBeLessThan*` 前，**強制先 `page.evaluate` 印出 LHS + RHS 實際值**，抄進 spec 註解再寫 assertion — 已在 Engineer persona §"Computed Style Assertion Rule"，這次沒遵守；把這一條在寫 assertion 前當 todo checkbox。
+- (b) `frontend/e2e/` 下任何新 `import *.json` 一律用 `readFileSync + JSON.parse`，不信任 Vite-mode import；Playwright ESM loader 需要 explicit `with { type: 'json' }` attribute，esbuild transform 不會合成。這條加進 Engineer persona E2E spec 建議段。
+- (c) 當 design spec 同時有 Sacred 鎖值 + 跨 frame 共用組件推薦但兩者視覺不等價時，預設選 partial primitive sharing（const tokens 共用、render 分離）+ 兩端 comment block 註明偏離；不要強拉 prop 讓一個 component 吃兩個視覺。
+
+---
+
 ## 2026-04-22 — K-024 Phase 1+2 Code Review R1 remediation
 
 **做得好：** BQ-ENG-K024-R1-03 (AC contradiction between C-2 recruiter-facing PM-README content and AC-024-LEGACY-MERGE's "exactly 1 key-absent" clause) was surfaced as a BQ to PM rather than self-resolved — PM returned Option B (amend AC), and I executed the amendment + test rewrite + new 6th test cleanly in one pass. Worktree state drift check (`git diff <base>` on both carried-over files) caught nothing wrong but established the invariant before any new edit. Full gate (tsc + vitest 81/81 + playwright 190/1-skipped) green on first run after cache clear.

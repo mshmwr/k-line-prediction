@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import type { DiaryEntry } from '../../types/diary'
 import LoadingSpinner from '../common/LoadingSpinner'
 import ErrorMessage from '../common/ErrorMessage'
+import { RAIL, MARKER } from '../diary/timelinePrimitives'
 
 interface DevDiarySectionProps {
   entries: DiaryEntry[]
@@ -9,14 +10,32 @@ interface DevDiarySectionProps {
   error: string | null
 }
 
-// K-024 Phase 2 (flat schema consumer; preserves K-028 layout + K-023 marker).
+// K-024 Phase 3 (flat schema consumer; preserves K-023 + K-028 Sacred layout).
 //
 // - entries is a pre-sliced DiaryEntry[] from useDiary(3).
-// - Title renders `${ticketId} — ${title}` with em-dash U+2014 + single space on each side;
-//   ticketId absent → title only (legacy-merge entry case).
+// - Title renders `${ticketId} — ${title}` with em-dash U+2014 + single space
+//   each side; ticketId absent → title only (legacy-merge entry case).
 // - Rail hidden when entries.length < 2 (1-entry boundary, design §4.3.1).
-// - Sacred testids preserved: diary-entries / diary-rail / diary-entry-wrapper / diary-marker.
-// - No second testid, no data-homepage-entry (per BQ-024-01 PM ruling (b), design §13 step 9).
+// - Sacred testids preserved: diary-entries / diary-rail / diary-entry-wrapper
+//   / diary-marker.
+//
+// K-023 Sacred exception (design §0.2 bullet 1):
+//   Homepage marker MUST render borderRadius: 0 (K-023 AC-023-DIARY-BULLET /
+//   AC-028-MARKER-COORD-INTEGRITY assert `borderRadius === '0px'`). This
+//   conflicts with visual-spec cornerRadius:6, so DevDiarySection keeps its
+//   marker inline rather than importing the shared <DiaryMarker /> component
+//   (which renders radius:6 for /diary). timelinePrimitives.MARKER constants
+//   still feed color / size / position — only cornerRadius diverges.
+//   The same rationale extends to rail: K-028 locks top:40 bottom:40 and
+//   always-visible on mobile; DiaryRail hides on <sm, so DevDiarySection
+//   keeps rail inline too. See design §9.1 + §0.2 for the contract.
+//
+// Marker top:8 carries over from pre-K-024 inline render (K-023 Sacred
+// coordinate, verified by AC-028-MARKER-COORD-INTEGRITY). Not changed to
+// MARKER.topInset (10) because that would shift the marker 2px downward on
+// Homepage — a non-design-doc-ordained visual change.
+
+const HOMEPAGE_MARKER_TOP_INSET = 8 // K-023 Sacred, not MARKER.topInset (10)
 
 export default function DevDiarySection({ entries, loading, error }: DevDiarySectionProps) {
   return (
@@ -41,7 +60,7 @@ export default function DevDiarySection({ entries, loading, error }: DevDiarySec
 
       {loading && (
         <div className="flex justify-center py-8">
-          <LoadingSpinner label="載入日記中…" />
+          <LoadingSpinner label="Loading diary…" />
         </div>
       )}
 
@@ -54,13 +73,23 @@ export default function DevDiarySection({ entries, loading, error }: DevDiarySec
             className="relative flex flex-col gap-5 mb-8"
             data-testid="diary-entries"
           >
-            {/* Vertical rail — spans from first marker center (top:40) to last marker
-                center (bottom:40). With 1 entry the inset math yields invisible/negative
-                height, so we hide the rail entirely (design §4.3.1). */}
+            {/* Vertical rail — spans from first marker center (top:40) to last
+                marker center (bottom:40). With 1 entry the inset math yields
+                invisible/negative height, so we hide the rail entirely
+                (design §4.3.1). Kept inline (not <DiaryRail />) to preserve
+                K-028 always-visible-on-mobile behavior. Values from RAIL const
+                (timelinePrimitives.ts) — shared with /diary for cross-frame
+                consistency. */}
             {entries.length >= 2 && (
               <div
-                className="absolute w-px bg-[#2A2520]"
-                style={{ left: 29, top: 40, bottom: 40 }}
+                className="absolute"
+                style={{
+                  width: RAIL.width,
+                  backgroundColor: RAIL.color,
+                  left: RAIL.xOffset,
+                  top: RAIL.topInset,
+                  bottom: RAIL.bottomInset,
+                }}
                 aria-hidden="true"
                 data-testid="diary-rail"
               />
@@ -72,10 +101,19 @@ export default function DevDiarySection({ entries, loading, error }: DevDiarySec
                 className="relative pl-[92px] min-h-[48px]"
                 data-testid="diary-entry-wrapper"
               >
-                {/* Marker — K-023 AC-023-DIARY-BULLET: 20x14 brick-dark radius 0 */}
+                {/* Marker — K-023 AC-023-DIARY-BULLET Sacred: 20x14 brick-dark,
+                    borderRadius 0 (NOT MARKER.cornerRadius=6). Kept inline to
+                    enforce radius:0 which differs from /diary's DiaryMarker. */}
                 <div
-                  className="absolute w-5 h-3.5 bg-brick-dark"
-                  style={{ left: 20, top: 8 }}
+                  className="absolute"
+                  style={{
+                    width: MARKER.width,
+                    height: MARKER.height,
+                    backgroundColor: MARKER.color,
+                    left: MARKER.leftInset,
+                    top: HOMEPAGE_MARKER_TOP_INSET,
+                    // borderRadius intentionally omitted → 0 (K-023 Sacred)
+                  }}
                   aria-hidden="true"
                   data-testid="diary-marker"
                 />

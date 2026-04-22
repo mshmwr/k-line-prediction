@@ -1,0 +1,12 @@
+[
+  { "ticketId": "K-501", "title": "Rapid click fixture 1",  "date": "2026-01-01", "text": "Body one." },
+  { "ticketId": "K-502", "title": "Rapid click fixture 2",  "date": "2026-01-03", "text": "Body two." },
+  { "ticketId": "K-503", "title": "Rapid click fixture 3",  "date": "2026-01-05", "text": "Body three." },
+  { "ticketId": "K-504", "title": "Rapid click fixture 4",  "date": "2026-01-07", "text": "Body four." },
+  { "ticketId": "K-505", "title": "Rapid click fixture 5",  "date": "2026-01-09", "text": "Body five." },
+  { "ticketId": "K-506", "title": "Rapid click fixture 6",  "date": "2026-01-11", "text": "Body six." },
+  { "ticketId": "K-507", "title": "Rapid click fixture 7",  "date": "2026-01-13", "text": "Body seven." },
+  { "ticketId": "K-508", "title": "Rapid click fixture 8",  "date": "2026-01-15", "text": "Body eight." },
+  { "ticketId": "K-509", "title": "Rapid click fixture 9",  "date": "2026-01-17", "text": "Body nine." },
+  { "ticketId": "K-510", "title": "Rapid click fixture 10", "date": "2026-01-19", "text": "Body ten." }
+]
