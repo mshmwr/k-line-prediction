@@ -16,6 +16,47 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-22 — K-035 Bug Found Protocol (Engineer)
+
+**What went wrong:**
+
+Root cause is a two-step drift that Engineer (me) never re-evaluated:
+
+1. **K-017 Pass 4 split the footer into two components without a future-facing consolidation plan.** The K-017 design doc (`docs/designs/K-017-about-portfolio.md` L236 Q8 decision + L285 Pass 4 note + L305–307 "與 FooterCtaSection 的差異" table) originally said `FooterCtaSection` was "全站共用" across `/`, `/about`, `/diary`. Pass 4 then said: "設計稿實際為純文字 `hpFooterBar`，非 FooterCtaSection（含 email/GitHub/LinkedIn 三個獨立外連）。兩者設計理念不同，不得混用" — so I created `frontend/src/components/home/HomeFooterBar.tsx` (commit `2318e67` wip-K-017) alongside `frontend/src/components/about/FooterCtaSection.tsx` (added in commit `54b55b9` K-018 bundle). The split itself was correct (two different Pencil frames). The bug was: neither the design doc nor I flagged that **one of these components must eventually move to `components/shared/`** once a second route adopts it. I took "design 理念不同，不得混用" as a permanent permission slip, not a temporary state. No `components/shared/` directory exists today, so the convention "if ≥2 routes use it, extract to shared/" had no physical hook to remind me.
+
+2. **K-021 "standardize HomeFooterBar sitewide" (commit `7d9fd4e`, 2026-04-20) extended `HomeFooterBar` to `/app` + `/business-logic` but explicitly excluded `/about` and `/diary`.** The commit message literally says "/about：維持 `<FooterCtaSection />`（K-017 鎖定，本票不動）" and "/diary：本票不插入（K-024 決定）". So at K-021 time the drift was *documented* and *intentional* — `HomeFooterBar` on 3 routes (`/`, `/app`, `/business-logic`), `FooterCtaSection` on 1 route (`/about`), `/diary` no footer at all. I implemented the commit exactly as designed. The miss was: I did not escalate "why are these two components still separate after a year of use?" back to Architect / PM. I treated every per-ticket footer decision as isolated, never aggregated.
+
+3. **K-022 only touched typography (A-7: Newsreader italic + underline) on `FooterCtaSection.tsx`; footer-identity was out of scope.** The K-022 design doc table (L32, L35 "純回歸斷言（不改組件）") made footer-identity a regression-only concern. Correct per-ticket; wrong globally — I had the `FooterCtaSection.tsx` file open for A-7 class edits and did not grep `HomeFooterBar.tsx` to ask "are these two structurally the same component with divergent styling?" The header comment I wrote in `FooterCtaSection.tsx` literally lies today: "Used across all pages: AboutPage, HomePage, DiaryPage" (L6). That comment was true on 2026-04-19 after K-017 Q8 but false after K-017 Pass 4; I never updated it when HomeFooterBar was created.
+
+**Why existing safeguards did not cover it:**
+
+- `feedback_shared_component_all_routes_visual_check.md` (mine, 2026-04-20) forces dev-server visual walk of `/`, `/about`, `/diary`, `/app` after sitewide changes — but it assumes the components being compared are already *canonical*. It does not ask "are there two components rendering the same conceptual role?" Visual walk on 2026-04-20 (K-021) would have shown different-looking footers on `/` vs `/about`, but because K-021 Route Impact Table explicitly scoped them as "intentional", my visual check passed — the safeguard was neutralized by the design doc's own scope boundary.
+- `feedback_architect_shared_components.md` (2026-04-21) requires Architect to "明確定義共用組件邊界 + props interface". K-017 Pass 4 did define the boundary (and the design doc did tabulate it), but the boundary was "two separate components, no shared parent". Engineer has no persona step that re-evaluates this boundary on every subsequent ticket that touches either file.
+- There is no `components/shared/` directory. The absence of a physical shared-component registry means `ls frontend/src/components/` returns 7 entries (`home/`, `about/`, `diary/`, `business-logic/`, `common/`, `primitives/`, plus loose files) and nothing in that listing prompts "check shared inventory first". `common/` and `primitives/` exist but are primitives, not page-level components.
+
+**Next time improvement — hard step to add to `engineer.md`:**
+
+Before creating any new `*Section.tsx` / `*Bar.tsx` / `*Footer.tsx` / `*Header.tsx` / `*Hero.tsx` under `frontend/src/components/<page>/`, Engineer must run a **Shared-Component Inventory Scan** and record the output in the ticket before any Edit:
+
+```bash
+# 1. Enumerate all existing components across pages
+ls frontend/src/components/
+ls frontend/src/components/shared/ 2>/dev/null  # may not exist yet
+
+# 2. Grep for conceptually equivalent structures across peer page dirs
+grep -rn "border-t\|<footer" frontend/src/components/        # for footer-like
+grep -rn "<nav\|NavBar\|TopBar" frontend/src/components/     # for nav-like
+grep -rn "<header\|PageHeader\|Hero" frontend/src/components/ # for header-like
+```
+
+Decision rule:
+- **≥ 1 hit in a peer page dir with the same conceptual role** → stop, BQ back to Architect: "Component X in `<peer>/` serves the same role; should I extract to `shared/` or reuse?" Do NOT self-decide "設計理念不同，不得混用" — that judgment belongs to Architect with Designer cross-reference to Pencil frames.
+- **0 hits** → proceed with new component, and **update the new component's file-header docstring to name the route(s) it is used on**; when any subsequent ticket adds a second consumer, that ticket's Engineer must update the docstring AND raise a BQ asking whether to extract.
+
+Additionally, when editing an existing `*Section.tsx` / `*Bar.tsx` file, verify the file-header docstring's "Used on: <routes>" line still matches reality by grep'ing `src/pages/` for the import. Mismatch = fix the docstring in the same commit + raise a BQ asking whether the divergence is still intentional. This closes the K-017 gap where the `FooterCtaSection.tsx` header claim "Used across all pages: AboutPage, HomePage, DiaryPage" went stale for 3 days without anyone catching it.
+
+---
+
 ## 2026-04-22 — K-025 UnifiedNavBar hex→token + navbar.spec.ts dual-rail assertions
 
 **What went well:**

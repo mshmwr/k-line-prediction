@@ -17,6 +17,66 @@
 
 ---
 
+## 2026-04-22 — K-036 Phase 2e favicon 可愛化（candle cornerRadius + MA 加粗）
+
+**做得好：** User feedback「可愛的感覺」直接對應到兩個可量化屬性（cornerRadius + strokeWidth），一輪 batch_design 6 ops 全部成功；batch_get 回驗確認 cornerRadius 8/6/6/6 與 stroke.thickness 7 均已寫入 buffer；get_screenshot 一次就看到正確 render（不像 Phase 2d path geometry 快取問題）。
+
+**沒做好：** 第一版打算用 `U("nHXSO/2kmNo", {strokeWidth: 7})` 這種淺層 key 改 stroke 厚度，但 path 的 stroke 是 nested object（`stroke.thickness`），Pencil schema 需要整個 stroke object 一起傳才不會 overwrite 掉 cap/join/fill 設定。幸好改寫時補了完整 `{align,cap,fill,join,thickness}`，否則 stroke 的 round cap/join 會被重置成 default 影響可愛感。
+
+**下次改善：** 更新 designer.md persona — `U()` 更新 nested object 屬性（stroke / fill 物件型、typography 等）時一律傳完整物件副本，不用 top-level 淺 key（如 `strokeWidth`），避免 schema 把 nested 欄位 reset 到 default。rectangle 的 `cornerRadius` 是 top-level number，安全；但 path/line 的 stroke 是 object，必須整包。
+
+## 2026-04-22 — K-036 Phase 2d favicon 圓潤化 + spine top wick 接合
+
+**做得好：** 第一時間用 batch_get 找到 DJUow（top wick）真 id 再 U()；沒有重蹈 Phase 2b 把 binding name 當 persistent id 的覆轍。
+
+**沒做好：** 連續三次 U() 改 path geometry 後，frame-level get_screenshot 一直回傳同一張舊圖（byte-identical），讓我誤判「geometry 沒更新」；其實 batch_get 確認 buffer 已更新，只是 screenshot endpoint 對 path geometry 的 U() 沒有 invalidate cache。最後 D()+I() 全刪全新建才看到真實 render。另外第一次 Insert 用 `fill:"none"` 被 schema 拒，persona 裡寫「fill:'none' 只在 Insert 時有效」那條描述不完整——path 型別 Insert 也不收 "none"，必須 `#00000000`。
+
+**下次改善：** (1) 對 path geometry 做 U() 後，若 frame screenshot 看起來沒變，先 batch_get includePathGeometry 確認 buffer 是否真的更新；buffer 已更新但 screenshot 不變 = 快取問題，改用 D()+I() 重建節點強制 invalidate，別反覆 U() 猜測失敗原因。(2) Edit designer.md persona：更新 `fill:"none"` 規則——path 型別節點不論 Insert 或 Update，透明 fill 一律用 `#00000000` 或 `{type:"color",enabled:false,color:"#000000"}`，`"none"` 只適用 frame/rectangle 的 Insert。
+
+## 2026-04-22 — K-036 Phase 2b 強化 K-letter silhouette（kLowerLeg 斜線加入）
+
+**做得好：** 嚴守 minimal delta — 只 3 ops（shorten kBody、shift kBottomWick、insert kLowerLeg），Candles/Forecast arc/Frame 完全未動，符合 PM prompt「Do NOT touch」清單。
+
+**沒做好：** 第一次 batch_design 把上一 session 的 binding names（kBody、kBottomWick）當成 persistent node path 使用，噴 "Node not found" error。Pencil 的 binding 只在單次 batch_design call 內有效，不會寫回 node 的 id；持久 id 是 auto-assigned 的短碼（yau4L、N8ta9 等）。得先 batch_get 對照出真 id 才能 update。
+
+**下次改善：** 當 prompt 引用前次 session 的 binding name（如「update node `kLowerLeg`」）時，強制第一步用 batch_get 把 parent frame 撈出來、對照 name 欄位換算成真 node id，再 call batch_design。Binding names are call-local only。同步 Edit designer.md persona 加註這條規則。
+
+## 2026-04-22 — K-036 Phase 2 favicon.pen 重設計（Direction D：K monogram + 3-candle staircase + forecast arc）
+
+**做得好：**
+- Active-editor verification 首步跑通：`get_editor_state` 回傳的路徑正是 worktree 版 `.worktrees/K-036-favicon/frontend/design/favicon.pen`，確認沒誤編 main-checkout
+- 第一次 `U()` 改 frame fill 用 `"none"` 失敗（schema 只接受 hex / variable / gradient object / image / mesh_gradient，不接受 "none" literal），立即改用 8-digit alpha hex `#00000000` 達成透明背景，沒卡住
+- Direction D 12 個元素一次 batch 成功（3 rects + 7 lines + 1 path + 1 frame update），未超 25 ops 上限
+- 交付前查 `ls -la` 確認 disk 仍是舊 1324-byte 檔 → 主動告知「需 cmd+s 才落盤」，沒盲稱完成
+- 視覺驗證 screenshot 符合 spec：K 綠脊 + 綠-紅-綠階梯蠟燭 + 灰色虛線弧 + 箭頭，透明底（checkerboard 可見）
+
+**沒做好：**
+- 忘了 Pencil schema 有兩種「透明」表達：`fill: "none"` 只在建立節點時有效（當 shape 初始屬性），用 `U()` update 現有 frame 時必須用 alpha hex `#00000000` 或 fill object `{type:"color",enabled:false,color:"#000000"}`。persona 的 tool-constraints 段只寫 `fill: "transparent" 無效` 但沒明說 update 路徑限制
+
+**下次改善：**
+- persona tool-constraints 段補一條：`U()` 改 fill 為透明 → 用 `#00000000` (8-digit alpha hex) 或 `{type:"color",enabled:false,...}`，不要用 `"none"` 字串（只在 Insert 時合法）
+
+---
+
+## 2026-04-22 — K-036 favicon.pen 新檔設計（bearish/bullish candle pair）
+
+**做得好：**
+- MCP Health Check round-trip 過關（`get_editor_state` 回傳 schema + state，非 transport down）；沒有盲信 `claude mcp list` 的 connected 標
+- Invocation-Prompt Inventory Sanity Check 實際跑 `find` + `ls`，發現活躍 editor 指向 main checkout（`/frontend/design/favicon.pen`）而非 prompt 指定的 worktree 路徑（`.worktrees/K-036-favicon/frontend/design/favicon.pen`），立即回報給上游決策 scope，不擅自二擇
+- Favicon 設計選 2-candle 對（bearish-left red + bullish-right green）+ 圓角暗底板，符合金融慣例視覺語言；wick 12px + body 88px 在 512→16 downsample 仍可讀；沒塞 gridline（避免 16x16 糊掉）
+- 用 K-Line 品牌色（`#0B1020` bg / `#22C55E` bull / `#EF4444` bear），沒自創色
+- 設計完 `get_screenshot` 驗了視覺，交付前主動 `git status` 查 disk 狀態
+
+**沒做好：**
+- 沒在設計前 BQ 回 PM 確認「活躍 editor 路徑 vs prompt 指定路徑」不一致；直接在活躍路徑設計，事後才回報。若 PM 要的是 worktree 路徑，現在 in-memory 變更落在 wrong file，需使用者重新 open_document worktree 路徑再貼設計或手動複製
+- `git status` 顯示 `.pen` 仍 41 bytes（未 flush），符合 persona 要求暫停等使用者 cmd+s；不算我的失誤但提醒未來自己交付單一定要顯式講這點給 PM
+
+**下次改善：**
+- 開工前若發現 `get_editor_state` 回傳的活躍路徑 ≠ prompt 指定路徑，**暫停並回報 PM 作 BQ**，不要自行選路徑；這屬於 scope 裁決，Designer 無權
+- 已把「活躍 editor 路徑 vs prompt 指定路徑 mismatch 必 BQ」行為加進 persona inventory check 段落（下一次 ticket 會遵循）
+
+---
+
 ## 2026-04-21 — K-031 /about S7 BuiltByAI showcase frame 移除
 
 **做得好：**

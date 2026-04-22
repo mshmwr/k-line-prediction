@@ -20,6 +20,70 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-22 — K-035 Bug Found Protocol (QA)
+
+**What went wrong (root cause):**
+User found on 2026-04-22 that `/about` renders `FooterCtaSection.tsx` while `/` and `/diary` render `HomeFooterBar`. Both K-017 (AC-017-FOOTER in `about.spec.ts` L306–346) and K-022 (AC-022-FOOTER-REGRESSION in `about-v2.spec.ts` L264–280) signed off because every footer assertion was **route-local** — they asserted "Let's talk →", `mailto:` link, "Or see the source:", GitHub / LinkedIn hrefs *on `/about` only*, never compared against the footer rendered on `/` or `/diary`.
+
+Worse, `sitewide-footer.spec.ts` (K-021) actively **codified the drift as intentional** at L10 (`/about 維持 <FooterCtaSection />（K-017 鎖定），不得渲染 HomeFooterBar`) and L88–101 (`/about renders FooterCtaSection, NOT HomeFooterBar`). A ticket-level decision ("K-017 is the About scope") was promoted into a sitewide regression assertion without anyone asking: *why does the "sitewide" footer have a one-route exception?* I treated the AC-017 boundary as ground truth and wrote a spec that pins `/about` away from the shared component — making the drift test-enforced.
+
+Trace of "did I consider cross-page consistency when writing K-017 / K-022 specs?" — **No.** The QA regression dimensions at the time were: (1) AC-per-route visible text + style, (2) visual report per page, (3) viewport-boundary sweeps. Cross-route DOM equivalence for shared chrome (Footer, NavBar, Hero, CTA) was not a dimension. The cross-route matrix pattern *does* exist in `navbar.spec.ts` (`for (const {path, name} of pages)` loop over `/`, `/about`, `/diary`, `/business-logic`) but only asserts "NavBar links present" — not "NavBar DOM is the same shared component." The pattern was never extended to Footer, and the shape-of-assertion (presence vs equivalence) never asked "is this the same component instance on every route?"
+
+Visual report (`visual-report.ts`) takes per-route screenshots side-by-side, but my sign-off criterion was "each screenshot looks correct for its own AC," not "Footer crop on `/about` is pixel-equivalent to Footer crop on `/`." FooterCtaSection and HomeFooterBar are *both* valid footers in isolation — only cross-page comparison surfaces the drift, and that comparison step was missing from the sign-off checklist.
+
+**What went well:** Omitted — no concrete QA behavior in K-017 / K-022 caught any part of this class of defect; claiming otherwise would be fabrication.
+
+**Next time improvement:**
+
+1. **Add `frontend/e2e/shared-components.spec.ts`** with the following hard assertions:
+   - `Footer`: on `/`, `/about`, `/diary` — assert `page.locator('footer').innerHTML()` (or normalized `innerText`) is **equal across all three routes**. Use one route as canonical reference (`/`), compare others against it. A new route rendering its own inline footer → fails automatically without spec edits.
+   - `NavBar`: on `/`, `/about`, `/diary`, `/business-logic` — assert `page.locator('nav').outerHTML()` modulo the single `aria-current="page"` attribute (which legitimately varies per route). Everything else must be byte-identical.
+   - `BuiltByAIBanner` (if rendered on ≥2 routes): same innerHTML equivalence pattern.
+   - Structure the spec so that adding a new route to the routes array is the *only* edit needed when the project adds `/foo`; the assertion body must not be per-route.
+
+2. **Delete the "`/about` maintains FooterCtaSection" assertion in `sitewide-footer.spec.ts` L88–101** once Phase 3 lands. A sitewide spec pinning one route *away* from the sitewide component is a drift-preservation anti-pattern — the spec itself enforced the bug.
+
+3. **Hard step to append to `~/.claude/agents/qa.md`** (under `## Test Scope (general framework)` → new subsection `### Cross-Page Shared-Component Consistency (mandatory when project has ≥2 routes rendering the same chrome)`):
+
+   ```
+   Every shared chrome component (Footer, NavBar, Hero, PageHeader, CTA block, banner) 
+   that renders on ≥2 routes MUST have a `frontend/e2e/shared-components.spec.ts` 
+   (or equivalent) that asserts DOM / innerText equivalence across ALL routes 
+   rendering it. Per-route presence assertions ("NavBar visible on /about") are 
+   insufficient — they pass when the route renders a duplicate inline copy with 
+   matching text.
+   
+   Required assertion pattern: capture reference route's component outerHTML/innerText, 
+   compare every other consuming route against the reference. Route-specific variations 
+   (aria-current, active link highlight) are allowed only as explicit modulo-X exceptions 
+   in the spec comment.
+   
+   Audit trigger for existing tickets: before QA sign-off on any ticket touching a 
+   shared chrome route, grep `frontend/e2e/` for a spec file that asserts 
+   cross-route equivalence of the component being changed. None found = QA sign-off 
+   withheld, PM escalation required (not a "nice to have" — a hard gate).
+   
+   Drift-preservation anti-pattern: if an existing sitewide spec contains a 
+   "route X renders <LocalComponent>, NOT <SharedComponent>" assertion, that is a 
+   red flag, not an AC. Flag to PM immediately as a cross-role drift, do not treat 
+   the assertion as ground truth.
+   ```
+
+4. **Hard step to append to `~/.claude/agents/qa.md` under `## Mandatory Task Completion Steps`** (new step 0.5, before Pencil comparison):
+
+   ```
+   0.5. **Cross-route shared-component equivalence check (mandatory when ticket 
+   touches any route that renders a shared chrome component):**
+   For each shared component on the affected route, run the Playwright 
+   `shared-components.spec.ts` subset. Any FAIL (cross-route DOM divergence) = 
+   do NOT declare PASS, file back to Engineer with route-diff in the bug report. 
+   Sign-off based on per-route AC pass + per-route visual report is insufficient — 
+   K-035 2026-04-22 proved 5 roles × 2 tickets can miss Footer drift when 
+   cross-route equivalence is not a regression dimension.
+   ```
+
+---
+
 ## 2026-04-22 — K-025 Final Sign-off (post-Code-Review)
 
 **做得好：** 三閘門串行驗證（tsc exit 0、`npm run build` exit 0、full Playwright suite 192 passed / 1 skipped / 0 failed、navbar.spec.ts 22/22）完全對齊 Engineer 實作回報；AC-025-NAVBAR-TOKEN 額外做 `grep -nE '#[0-9A-Fa-f]{6}' UnifiedNavBar.tsx` 並逐行驗證僅剩 L18–19 註解塊（K-017 legacy provenance 文字），runtime class literals 零 hex，未盲信 Engineer 宣稱。W-1 (TD-K025-01) PM 裁決 TD 入帳而非 sign-off blocker，因 behavior-diff truth table + dual-rail aria-current/computed color 斷言已獨立證明等價，CSS declaration grep 為冗餘 proxy 而非唯一證據。
