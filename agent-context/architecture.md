@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-22 (K-024 Architect design + K-029 Architect design + K-020 GA4 E2E Test Matrix)
+updated: 2026-04-22 (K-035 Engineer landed — shared Footer migration + components/shared/ canonical registry)
 ---
 
 ## Summary
@@ -157,7 +157,6 @@ ClaudeCodeProject/
 │   │           │   ├── TicketAnatomyCard.tsx             ← ID + title + outcome + learning + GitHub href
 │   │           │   ├── ProjectArchitectureSection.tsx    ← S6 Monorepo / Docs-driven / Testing pyramid
 │   │           │   ├── ArchPillarBlock.tsx               ← 單 arch pillar（含可選 testingPyramid list）
-│   │           │   ├── FooterCtaSection.tsx              ← S7 email + GitHub + LinkedIn 容器（K-031 後從 S8 重編為 S7）
 │   │           │   └── FooterCtaLink.tsx                 ← 單 link（external 時 rel="noopener noreferrer"）
 │   │           ├── diary/                                 ← K-024 Phase 3 大改（pending Engineer）：accordion → flat `<ol role="list">` timeline；rail + marker 重設計；8 新組件 + timelinePrimitives.ts 常數模組
 │   │           │   ├── DiaryTimeline.tsx                  ← K-024 Phase 3 pending rewrite；從 `map milestones → MilestoneSection` 重寫為 flat `<ol role="list" class="list-none p-0 m-0 relative flex flex-col gap-8">` → DiaryEntryV2 + DiaryRail + LoadMoreButton；key = `${ticketId ?? 'no-id'}-${date}-${title}`
@@ -177,6 +176,8 @@ ClaudeCodeProject/
 │   │           │   ├── CardShell.tsx                      ← P2；MetricCard / RoleCard / PillarCard / TicketAnatomyCard / ArchPillarBlock 共用（K-022：dark class 遷 paper palette；PillarCard consumer 加 overflow-hidden）
 │   │           │   └── ExternalLink.tsx                   ← P3；target=_blank + rel=noopener noreferrer 寫死
 │   │           │   （MilestoneAccordion.tsx / DiaryEntryRow.tsx / VerticalRail.tsx / TimelineMarker.tsx — K-017 Pass 2 P4/P5/P6/P7 未落地，磁碟不存在；K-024 結構重做時重新設計）
+│   │           ├── shared/                                 ← K-035 新目錄（2026-04-22 落地）；sitewide page-level chrome canonical registry（Footer / 未來 NavBar 搬入 per TD-K035-01）
+│   │           │   └── Footer.tsx                          ← K-035（2026-04-22 落地）；props `variant: 'home' | 'about'`（required, 無 default）；取代已刪除的 `components/home/HomeFooterBar.tsx`（variant="home"）+ `components/about/FooterCtaSection.tsx`（variant="about"）
 │   │           ├── business-logic/
 │   │           │   ├── PasswordForm.tsx
 │   │           │   ├── BusinessLogicContent.tsx
@@ -450,7 +451,7 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 | Path | Component | 說明 |
 |------|-----------|------|
 | `/` | `HomePage` | Hero + ProjectLogic + DevDiary 預覽（K-024 Phase 2：DevDiarySection 消費 `useDiary(3)` 回傳的 flat `DiaryEntry[]`，前 3 筆 sorted by date desc + array-index tie-break，共用 `timelinePrimitives.ts` rail/marker 常數） |
-| `/app` | `AppPage` | K-Line 預測功能（原 App.tsx；TD-005 待拆分）。**K-030 isolation**：不渲染 UnifiedNavBar、不渲染 HomeFooterBar；根 div 套 `bg-gray-950 text-gray-100` 覆蓋 body paper；視為獨立 tool viewport（由 marketing 頁 NavBar 的 App link 開 new tab 進入） |
+| `/app` | `AppPage` | K-Line 預測功能（原 App.tsx；TD-005 待拆分）。**K-030 isolation**：不渲染 UnifiedNavBar、不渲染 Footer（K-035 統一後為 `components/shared/Footer.tsx`；pre-K-035 為 `components/home/HomeFooterBar.tsx`）；根 div 套 `bg-gray-950 text-gray-100` 覆蓋 body paper；視為獨立 tool viewport（由 marketing 頁 NavBar 的 App link 開 new tab 進入） |
 | `/about` | `AboutPage` | Portfolio-oriented recruiter page — 7 sections: PageHeader（One operator 聲明）+ MetricsStrip + RoleCards (6 roles × Owns/Artefact) + ReliabilityPillars (3 pillars + anchor quotes) + TicketAnatomy (K-002/K-008/K-009) + ProjectArchitecture + FooterCta（email/GitHub/LinkedIn）。`BuiltByAIBanner` 放 `/` homepage；`/about` 不含 banner showcase（K-031 移除 S7 BuiltByAIShowcaseSection）。K-017 重寫（2026-04-19），K-031 移除 S7 showcase（2026-04-21）|
 | `/diary` | `DiaryPage` | K-024 Phase 3 v2 timeline：讀 `public/diary.json`（flat `DiaryEntry[]`）→ `<DiaryHero />` + `<DiaryTimeline />` (`<ol role="list">` flat renderer) + `<LoadMoreButton />`；Hero + rail + marker + 3-layer entry (title em-dash / date Geist Mono / body Newsreader italic)；初始 5 筆，Load more 每 click +5 (`useDiaryPagination` client-side slicing + inFlight 併發 gate)；content maxWidth 1248px；mobile < 640px rail/marker 隱藏、fonts 縮放；loading / error / empty-state 各有獨立 component + literal copy |
 | `/business-logic` | `BusinessLogicPage` | 交易邏輯（密碼保護，JWT 驗證後顯示） |
@@ -508,19 +509,18 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 | 頁面 | Footer |
 |------|--------|
-| `/` | `<HomeFooterBar />` |
-| `/about` | `<FooterCtaSection />`（註：K-021 同步把 text-white / border-white/10 等 dark-theme 遺留色改為 paper-theme，否則 paper bg 上不可見） |
+| `/` | `<Footer variant="home" />`（K-035 統一，2026-04-22 落地；pre-K-035 為 `<HomeFooterBar />`，已刪除） |
+| `/about` | `<Footer variant="about" />`（K-035 統一，2026-04-22 落地；pre-K-035 為 `<FooterCtaSection />`，已刪除；K-021 Sacred「/about 維持 FooterCtaSection」正式 retire） |
 | `/diary` | 無 footer（K-024 Architect 裁決：/diary v2 timeline 頁底無 footer；Pencil visual-spec wiDSi frame 亦無 footer 節點。design doc §8 Route Impact Table confirmed） |
 | `/app` | 無 footer（K-030 isolation — `/app` 為獨立 tool viewport，撤除 NavBar 與 Footer 使其不繼承 marketing site chrome） |
-| `/business-logic` | `<HomeFooterBar />` |
+| `/business-logic` | `<Footer variant="home" />`（K-035 統一，2026-04-22 落地；pre-K-035 為 `<HomeFooterBar />`，已刪除） |
 
 ### Shared Components 邊界
 
 | 組件 | 位置 | 用於 |
 |------|------|------|
-| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | `/` `/about` `/diary` `/business-logic`（K-030 起 `/app` 不渲染；TEXT_LINKS 的 `App` entry 標 `external: true`，於 4 marketing 頁點擊時開 new tab 載入 `/app`） |
-| `HomeFooterBar` | `components/home/HomeFooterBar.tsx` | `/` `/business-logic`（K-030 起 `/app` 撤出） |
-| `FooterCtaSection` | `components/about/FooterCtaSection.tsx` | `/about`（獨有 3 external links 結構） |
+| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | `/` `/about` `/diary` `/business-logic`（K-030 起 `/app` 不渲染；TEXT_LINKS 的 `App` entry 標 `external: true`，於 4 marketing 頁點擊時開 new tab 載入 `/app`）。**TD-K035-01 追蹤** 後續搬 `components/shared/NavBar.tsx`（blocked-by K-025 close） |
+| `Footer` | `components/shared/Footer.tsx` | `/` 透過 `variant="home"`；`/business-logic` 透過 `variant="home"`；`/about` 透過 `variant="about"`（K-035 統一，2026-04-22 落地；取代舊 `components/home/HomeFooterBar.tsx` + `components/about/FooterCtaSection.tsx`，兩者已刪除） |
 
 ### Legacy NavBar
 
@@ -649,6 +649,8 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-22**（Engineer, K-035 實作）— Shared Footer migration 11 步落地完成。新建 `frontend/src/components/shared/Footer.tsx`（props `variant: 'home' | 'about'`，required，無 default）+ 3 路由 import swap（`HomePage.tsx` L6+L25 / `BusinessLogicPage.tsx` L7+L117 / `AboutPage.tsx` L10+L70+L72）+ 刪除 `components/home/HomeFooterBar.tsx` + `components/about/FooterCtaSection.tsx`（grep sweep `src/ + e2e/` 0 hits 驗證）。`frontend/e2e/sitewide-footer.spec.ts` 刪除 L88–101 `/about boundary` drift-preservation block + helper 與 describe 改名；`pages.spec.ts` / `app-bg-isolation.spec.ts` / `sitewide-fonts.spec.ts` / `ga-tracking.spec.ts` comment-only 同步（4 檔）。新增 `frontend/e2e/shared-components.spec.ts`（3 test.describe：home 變體 `/` DOM-equivalence × 1 + about 變體 `/about` DOM 結構 × 1 + no-footer 路由 `/diary` × 1；`/business-logic` 因 technical-cleanup-only scope 未列入 AC-gated cross-route 斷言，由 `sitewide-footer.spec.ts` 既有 2 case 涵蓋）+ fail-if-gate-removed dry-run 驗證（註銷 HomePage `<Footer variant="home" />` 時 spec 於 `locator('footer').last() toBeVisible` 5000ms timeout；復原後 green）。Architect Changelog 聲稱「4 cases」為設計稿預期，落地實為 3 test.describe blocks（/business-logic 降級說明見 spec header comment）。Footer 放置策略表 + Shared Components 邊界表 + Directory Structure shared/ 區塊 + frontmatter `updated:` 4 處磁碟異動與此 commit 同包。Gate：tsc exit 0 / Playwright 193 passed + 1 skipped / grep sweep `src/ + e2e/` 0 hits。K-022 A-7 Sacred（Newsreader italic + underline） + K-017 content + K-024 /diary no-footer + K-030 /app isolation 全保留（shared Footer 'about' 分支 data-testid + computed fontStyle/textDecorationLine 雙重守護）。TD-K035-01 `UnifiedNavBar → components/shared/NavBar.tsx` blocked-by K-025 close，本 ticket 不動 NavBar。
+- **2026-04-22**（Architect, K-035 設計）— /about Footer shared-component regression fix 設計完成。新建 `frontend/src/components/shared/` 目錄（sitewide page-level chrome canonical registry），第一位住戶 `Footer.tsx`（props `variant: 'home' | 'about'`，required，無 default）取代 `components/home/HomeFooterBar.tsx`（Engineer Step 6 DELETE）+ `components/about/FooterCtaSection.tsx`（Engineer Step 6 DELETE）；3 個 import 點 swap（`HomePage.tsx` Step 2 / `BusinessLogicPage.tsx` Step 3 / `AboutPage.tsx` Step 4）。`frontend/e2e/sitewide-footer.spec.ts` L88–101 `test.describe('AC-021-FOOTER — /about boundary')` drift-preservation block 刪除（Engineer Step 5）；K-021 Sacred clause「/about 維持 FooterCtaSection（K-017 鎖定）」正式 retire。新增 `frontend/e2e/shared-components.spec.ts`（4 cases：home 變體 /、/business-logic 斷言 × 2 + about 變體 /about 斷言 × 1 + /diary no-footer × 1）+ fail-if-gate-removed dry-run 驗證（Engineer Step 7）。Footer 放置策略表 3 列 Footer cell 更新（`/` `/about` `/business-logic`）；Shared Components 邊界表 3 列 → 2 列（HomeFooterBar + FooterCtaSection 合併為單一 `Footer`）。K-022 A-7 link style + K-017 content + K-024 /diary no-footer + K-030 /app isolation Sacred 全保留（§3 diff 表 17 cells equivalent / 0 divergent；§13 dual-axis 證明 wire-level schema 0 diff + 4-row observable behavior diff 全 ✓）。開 TD-K035-01 追 UnifiedNavBar 搬 `components/shared/` 後續（blocked-by K-025 close）。設計文件：[K-035-shared-component-migration.md](../docs/designs/K-035-shared-component-migration.md)。未改 code（Architect 僅設計），Engineer Step 1–8 交付後補磁碟異動。
 - **2026-04-22**（PM, K-024 close + merge + deploy）— K-024 /diary flat-timeline + schema flatten + visual-spec SSOT closed after Phase 3 R2 remediation + QA Phase 3 sign-off. Merge commit to main + Firebase Hosting deploy (SHA `e66aa6c`, bundle md5 `47cdc1e66fdc7f51c356ddc62de827b4`) + PRD §3→§4 migration + PM-dashboard deregister + Deploy Record block appended. Final gate: tsc 0 / vitest 80 / playwright 190+1 skipped. Bug Found Protocol completed (D-1 PM AC-Sacred cross-check + I-3 Engineer concurrency-gate dry-run — persona + memory + retro landed).
 - **2026-04-22**（Engineer, K-025 實作）— UnifiedNavBar 7 處 hex→token 遷移完成（paper / ink / brick-dark）+ `navbar.spec.ts` 5 處 class-name regex drop / 雙軌 toHaveCSS 斷言 + TD-K021-09 `/` desktop 3 inactive + QA Q3 `/business-logic` no-active-link 一次收齊。Gate：tsc exit 0 / navbar.spec.ts 22 passed / full Playwright suite 192 passed + 1 skipped / dist CSS declaration pre == post 四條全相等（`color:#9c4a3b` 0→0，`color:#1a1814` 7→7，`background-color:#f4efe5` 0→0，`border-color:#1a1814` 3→3，K-025-AC-REGRESSION 守護）。`UnifiedNavBar.tsx` 零 props / 零 logic 分支改動（只替換 className 字串）；L18–L20 JSDoc 註釋 hex 保留（K-017 決策溯源，非 className）。no structural change（Directory Structure / Design System tokens / Shared Components 邊界表均不動）。CSS bundle 44.34KB→44.13KB（-210 bytes，arbitrary-value selectors 去重）。
 - **2026-04-22**（Architect, K-025 設計）— UnifiedNavBar hex → token 遷移設計完成：`UnifiedNavBar.tsx` 7 處 hex className 將 1:1 替換為 K-021 tokens（`text-[#9C4A3B]` → `text-brick-dark` / `text-[#1A1814]/60` → `text-ink/60` / `text-[#1A1814]` → `text-ink` / `bg-[#F4EFE5]` → `bg-paper` / `border-[#1A1814]` → `border-ink` / `hover:` 兩條同理）；`navbar.spec.ts` 5 處 class-name regex 斷言（L177/L178/L186/L187/L204）汰換為「attribute `[aria-current="page"]` + computed color `toHaveCSS(rgb/rgba(...))`」雙軌，補 TD-K021-09（`/` desktop 3 inactive）+ QA Q3（`/business-logic` no-active-link），Prediction hidden 2 test 不重複新增。rendered-color 層等價由 `dist/assets/*.css` 4 條 hex declaration count pre == post 守護；selector-level 會變但 computed value 不變。零結構改動（單組件 7 className 換字串 + 單 spec test 組調整），Directory Structure / Design System tokens / Shared Components 邊界表 / Frontend Routing 表均不動。設計文件：[K-025-design.md](../docs/designs/K-025-design.md)。no code change（Architect 僅設計）。
