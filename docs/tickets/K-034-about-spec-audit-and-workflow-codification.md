@@ -444,4 +444,21 @@ Full review artifacts: see session transcript / `docs/retrospectives/reviewer.md
 
 ## Deploy Record
 
-(Populated at end of Phase 1 and Phase 2 after each deploy.)
+### Phase 1 — 2026-04-23
+
+- **Git SHA (inner K-Line-Prediction):** `a26b0ce` (frontend feat) + `fccf4ee` (docs PM rulings)
+- **Git SHA (outer Diary mirror):** `aae47b4` (frontend) + `3d2a4cc` (docs)
+- **Hosting URL:** https://k-line-prediction-app.web.app
+- **Bundle path:** `assets/index-z_xtDeWa.js`
+- **Bundle sha256:** `3457315d5fee7f57ccd852e5356888720c909e5cfef755db65265de48add47ff`
+- **Probe — AC-034-P1-DEPLOY verification:**
+  ```bash
+  curl -s https://k-line-prediction-app.web.app/about \
+    | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js' | head -1
+  # → assets/index-z_xtDeWa.js
+  curl -s https://k-line-prediction-app.web.app/assets/index-z_xtDeWa.js \
+    | grep -c "Let's talk"
+  # → 0  (the old inline /about footer string "Let's talk →" is absent from the live bundle;
+  #       shared Footer uses "Contact:" per Pencil SSOT homepage-v2.pen 86psQ)
+  ```
+- **Deploy timestamp:** 2026-04-23 (Asia/Taipei)
