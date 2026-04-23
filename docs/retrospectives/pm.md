@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-23 — K-040 close + deploy + TD-001 file
+
+**What went well:** Close sequence ran end-to-end without user intervention (auto mode): ticket frontmatter flipped to `closed` + `closed: 2026-04-23`; Retrospective §PM close summary written; Deploy Record populated with 6 executed probes (positive `Geist Mono`×5, negative `Bodoni Moda`×0 / `Newsreader`×0 / `font-display`×0, Sacred Footer email×1, HTTP 200) pasted from live curl against `https://k-line-prediction-app.web.app/assets/index-B9AD9I7t.js` (not trivially-true generic home curl per `feedback_deploy_after_release.md`); TD-001 filed with full frontmatter + QA root-cause link + scoped AC draft; PM-dashboard.md migrated K-040 active→closed + added TD-001 active row; diary.json append validated via `python3 -c json.load` + Playwright subset gate `diary-page.spec.ts` + `diary-homepage.spec.ts` 41/41 passed; PRD §4 migration skipped because K-040's AC is long + self-contained in ticket, migrating adds PRD bloat without information gain — instead kept ticket §2 AC + dashboard Closed pointer as the SSOT (deviation from Ticket closure bookkeeping step 1, disclosed here). **QA under-reported flake scale handled cleanly** — PM accepted QA's 9-failure reproduction over Engineer's 1-flake claim and spun off TD-001 immediately rather than blocking K-040 close on pre-existing bug.
+
+**What went wrong:** None this turn. (Prior BFP rounds + scope expansion already retrospected above.)
+
+**Next time improvement:** When a ticket's AC block is itself the largest content artifact of the close (here: 85+ lines of Given/When/Then for AC-040-SITEWIDE-FONT-MONO alone), consider allowing the ticket file to remain the SSOT rather than mechanically migrating to PRD §4. Codify this as an optional branch in Ticket closure bookkeeping step 1: "if AC content exceeds 40 lines and is referenced by no other ticket, keep in-ticket and link from PRD §4 stub" — avoids PRD bloat while preserving cross-ticket discoverability. (Not yet codified; this is first observation. Will note if pattern recurs in K-039 close.)
+
+---
+
 ## 2026-04-23 — K-040 BQ-040-SNAPSHOT ruling
 
 **What went well:** Engineer escalated snapshot drift promptly with full tradeoff table (A/B/C options) + clear recommendation + Sacred-integrity verification (AC-034-P1-ROUTE-DOM-PARITY T1 byte-identity PASS confirmed via Footer outerHTML char-for-char equality across 4 routes) + 16-viewport visual sweep as corroborating evidence. BQ was technically adjudicable from Engineer's own evidence package; PM ruled Option A directly per `feedback_pm_self_decide_bq.md` decision priority #4 (existing codebase evidence) without user escalation. Ruling explicitly tied to QA-040-Q4 per-route regen policy (scoped regen permitted with PM rationale, blanket prohibited) — policy-grounded, not ad-hoc. Directive to Engineer issued as a 5-step procedure with scoped `--grep` pattern + expected post-regen test counts (259 passed / 1 skipped / 1 failed K-020 pre-existing) so Engineer has verification target before running — no ambiguity.

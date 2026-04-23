@@ -1,7 +1,7 @@
 ---
 id: K-040
 title: Sitewide UI polish batch — Sitewide font reset (Bodoni→Geist Mono), padding, footer spacing, mobile rail, /about protocol links
-status: open
+status: closed
 phase: 0
 type: polish
 priority: medium
@@ -10,6 +10,7 @@ content-delta: no
 design-locked: true
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-23 K-040-early-consultation
 created: 2026-04-23
+closed: 2026-04-23
 depends-on: []
 related-to: [K-017, K-022, K-024, K-030, K-034]
 worktree: .claude/worktrees/K-040-sitewide-ui-polish-batch
@@ -261,6 +262,14 @@ Designer is first because `visual-delta: yes` on 7 of 8 items. Engineer may be d
 
 ## 6. Retrospective
 
+### PM close summary (2026-04-23)
+
+**Outcome:** All 8 scope items + sitewide AC landed. Engineer BFP fix commit `a092598` (W-1 + W-2 + W-3 token semantic cleanup — zero runtime behavior change). Reviewer Step 2 depth re-verify: PASS (0 Critical / 0 Warning). QA regression: 114 passed / 1 skipped / 0 failed. Sacred invariants preserved: `AC-034-P1-ROUTE-DOM-PARITY` Footer byte-identity GREEN, `AC-038` NavBar consistency GREEN, `AC-040-SITEWIDE-FONT-MONO` GREEN.
+
+**Role retrospectives (detail):** see `docs/retrospectives/pm.md`, `engineer.md`, `architect.md`, `reviewer.md`, `qa.md`, `designer.md` entries dated 2026-04-23.
+
+**QA-flagged pre-existing flake (NOT a K-040 regression):** `frontend/e2e/ga-spa-pageview.spec.ts` — 9 test failures (SPA-NAV ×2, BEACON ×4, NEG ×3). QA verified pristine reproduction via `git checkout 66d9573` baseline → pre-existing. Provisional root cause: spec assumes Playwright isolated `webServer` but breaks when run against shared `npm run dev`. Engineer under-reported scale at BFP (claimed 1 flake; actual 9-test describe() collapse). **Filed as TD-001** (see `docs/tickets/TD-001-ga-spa-pageview-isolation.md`) — scope = isolated webServer config fix; NOT a K-040 blocker.
+
 ### Engineer
 
 **AC judgments that were wrong:**
@@ -280,7 +289,24 @@ Designer is first because `visual-delta: yes` on 7 of 8 items. Engineer may be d
 
 ## 7. Deploy Record
 
-(Populated post-deploy.)
+**Deploy date:** 2026-04-24 02:48:48 (Asia/Taipei)
+**Git SHA at deploy:** `a092598056a88803476c44eb323a954c70fab5c3`
+**Hosting URL:** https://k-line-prediction-app.web.app
+**Bundle hash:** `assets/index-B9AD9I7t.js` (live etag `142d1b3c73e2088b647aabffcb1749907a636d753eb08ff7aba27c3f90d49ae3`, Content-Length 176235)
+**Firebase site:** `k-line-prediction-app` (16 files in frontend/dist, 4 new uploaded, release complete)
+
+**Verification probes (executed at close time, layer = `frontend/src/**` add+remove):**
+
+| Probe | Command | Expected | Actual |
+|-------|---------|----------|--------|
+| Positive — K-040 added `Geist Mono` sitewide | `curl -s <bundle> \| grep -oE "Geist Mono" \| wc -l` | ≥1 | **5** ✓ |
+| Negative — K-040 removed `Bodoni Moda` | `curl -s <bundle> \| grep -oE "Bodoni Moda" \| wc -l` | 0 | **0** ✓ |
+| Negative — K-040 removed `Newsreader` | `curl -s <bundle> \| grep -oE "Newsreader" \| wc -l` | 0 | **0** ✓ |
+| Negative — K-040 removed `font-display` class | `curl -s <bundle> \| grep -oE '"font-display"' \| wc -l` | 0 | **0** ✓ |
+| Sacred — K-034 AC-034-P1 Footer byte-identity (email preserved) | `curl -s <bundle> \| grep -oE "yichen\.lee\.20@gmail\.com" \| wc -l` | 1 | **1** ✓ |
+| HTTP status | `curl -s -o /dev/null -w "%{http_code}" <bundle>` | 200 | **200** ✓ |
+
+**Status:** Live. All 6 probes pass. Sitewide Bodoni→Geist Mono token reset verified against live CDN bundle; Sacred Footer signature preserved.
 
 ---
 

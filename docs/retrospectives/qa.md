@@ -19,6 +19,16 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-23 — K-040 BFP Fix Regression Sweep (commit a092598)
+
+**What went well:** Targeted regression sweep (5 specs = 44 tests) all green on HEAD a092598 — sitewide-footer 5/5, navbar 22/22, sitewide-fonts 8/8, shared-components 8/8 (AC-034-P1 Footer byte-identity holds 4 routes), about+about-v2 71 passed 1 skipped. Dev server 200 on `/`, `/about`, `/diary`, `/business-logic`. K-040 commit scope (11 files under `frontend/src/components/about/` + 2 retro docs) is zero runtime behavior — aligned with Reviewer's 0 Critical / 0 Warning.
+
+**What went wrong:** Engineer's handoff claim "1 pre-existing flake AC-020-BEACON-SPA" under-reported severity. Standalone `npx playwright test e2e/ga-spa-pageview.spec.ts` reproduces **9 failures** on both a092598 AND baseline 66d9573 — full `describe()` block collapses (SPA-NAV ×2, BEACON ×4, NEG ×3). Verified pre-existing via `git checkout 66d9573` baseline run = identical 9 failures, identical timeout pattern → NOT K-040 regression, but Engineer's single-flake framing masked the scale. Likely root cause: spec file expects isolated webServer (Playwright config) vs shared `npm run dev` port 5173 — beacon collector race with hot state. Belongs in separate tech-debt ticket, not K-040 close.
+
+**Next time improvement:** QA regression sweep must re-run any spec Engineer flags as "flaky" standalone against both fix HEAD and `git show <base>:HEAD` baseline before accepting "pre-existing" designation. Single-test flake claims demand spec-file-level verification — a 1-test report for a 9-test collapse is a trust-erosion signal even when not a regression. Also: file `ga-spa-pageview.spec.ts` isolation-requirement drift as standalone TD for PM (spec unrunnable outside Playwright config webServer = operational bug distinct from K-040).
+
+---
+
 ## 2026-04-23 — K-040 QA Early Consultation (sitewide typography)
 
 **What went well:** Designer's 36-row per-site calibration table + AC-040-SITEWIDE-FONT-MONO 4× raw-count gates (font-display pre=13, Bodoni-inline pre=4, `'Bodoni Moda'` string pre=1, tailwind keys pre=2) already anticipated most sitewide-font-swap risks; QA additions were edge-case tightening (stale Bodoni/Newsreader spec assertions, no cross-viewport matrix, no unit test on `timelinePrimitives.ENTRY_TYPE`), not foundational gaps.
