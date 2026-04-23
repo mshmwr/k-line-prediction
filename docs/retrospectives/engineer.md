@@ -16,6 +16,21 @@
 
 ---
 
+## 2026-04-23 — K-034 Phase 0 (BFP Round 2 for K-035 α-premise failure)
+
+**沒做好：**
+- K-035 Phase 3 實作時 `<Footer variant="about" />` CTA 分支完全照 design doc §3 + PM-ruled Option α 落地，沒有任何一步回頭驗 Pencil SSOT 本身是否正確。Engineer 把「design doc + Architect scoring matrix + PM ruling」當成 SSOT，但三者全部建基於 Architect 未對 frame `4CsvQ` / `35VCj` 做 content-parity `batch_get` 的錯誤前提（Pencil 實際只有一個 footer 設計，不是兩個）。Engineer 無 `.pen` mutation 權限是對的，但也無任何讀 Pencil 的 verification 義務，所以 design-doc 層的漂移一路穿過 Engineer 到 production。
+- 現行 persona Step 0 只要求讀 `visual-spec.json` + `VISUAL-SPEC-SCHEMA.md`（K-024 入），但 K-035 屬 shared-component migration 類型，沒有 per-ticket `visual-spec.json` 產出流程；Step 0 gate 在 K-035 類 ticket 形同虛設，也沒有 fallback 要求「若無 visual-spec.json 則必讀 design doc 引用的 Pencil frame JSON dump」。
+- Post-implementation 只驗 tsc + Playwright + design-doc checklist，沒有任何一步把實作 DOM 的 font/content/spacing 逐項 diff against Pencil frame JSON，即使 Pencil 跟 design doc 已經不一致也偵測不到。
+
+**下次改善：**
+- Step 0 gate 擴充（hard gate，K-034 Phase 0 codify 為 `feedback_engineer_design_spec_read_gate.md`）：任何 `visual-delta: yes` ticket 開工前必做 (a) 讀 design doc §JSON snapshot block 列出的 key properties（fontFamily/fontSize/content/color/spacing/layout-direction/padding/gap）、(b) 讀 `frontend/design/specs/<page>.frame-<id>.json` 全量 frame dump（K-034 Phase 0 產出 infra）；兩個來源任一缺失 → 立即 blocker 回 PM，不得靠 design doc prose 自行推斷。
+- Post-implementation DOM-inspect-diff gate：每個 spec 引用的 component 實作完成後，跑 `page.evaluate` 抓 outerHTML + computedStyle，針對 JSON dump 的每個屬性逐欄比對；差異 → 決策表 blocker 回 PM（改 code 或改 `.pen`），不得自行吞。
+- 任何 design doc 出現 `variant` / branching prop / 跨 frame divergence 宣稱時，Engineer 額外義務：grep design doc 引用的 frame IDs，交叉驗 JSON dump 真的兩份 frame content 不同；content 相同卻被宣稱 divergent → blocker 回 PM 重新裁決（現行 Architect / Reviewer Pencil-parity gate 也會抓，但 Engineer 是最後一道實作前防線不該假設上游零漏）。
+- 改善規則同步 Edit 到 `claude-config/agents/engineer.md` Step 0 / Verification Checklist 區塊（Phase 0 deliverable 5），不只留 retrospective log。
+
+---
+
 ## 2026-04-22 — K-035 Phase 3 shared Footer migration
 
 **做得好：**

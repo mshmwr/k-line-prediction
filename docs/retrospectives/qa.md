@@ -20,6 +20,54 @@
 
 <!-- 新條目從此處往上 append -->
 
+## 2026-04-23 — K-034 Phase 0 (BFP Round 2 for K-035 α-premise failure)
+
+**做得好：** 省略 — K-017 / K-021 / K-022 / K-035 全程 QA regression 皆未在結構層面挑戰 variant 軸的 Pencil-backing，無具體事件可列。
+
+**沒做好：** `shared-components.spec.ts` K-035 一交付即 3/3 綠，但斷言契約是「DOM equivalence **modulo variant**」——variant 本身（home/about）被接受為「設計上 intentional 的分歧軸」而非須被挑戰的命題。K-034 §1.2 Pencil `batch_get` 現場證明 frame `86psQ`（/about）與 `1BGtd`（/home）為 byte-identical inline 單行（`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px），Pencil SSOT 只有一份 Footer 設計，不存在兩個 variant；K-035 的 Architect α-premise（「兩個 Pencil frame 各自的設計」）在 QA 側從未被要求以 Pencil content-parity 驗證過。QA 當時的 regression 維度為 AC-per-route / visual report per page / viewport sweep / cross-route DOM equivalence (K-035 首次加入)，但 cross-route equivalence **已含內建豁免**（variant axis）—spec 本身即為 drift carrier。QA persona 既無「shared-component Playwright spec 必須對照 Pencil `get_screenshot` PNG baseline」規則，也無「code-declared variant 必須對應 Pencil-declared divergence」檢查；QA 上游仰賴 Architect design doc + Reviewer depth review 作為品質閘，兩層皆靜默 propagate α-premise，QA 未在下游獨立挑戰。
+
+**下次改善：** （落地為 persona 硬 gate，Phase 0 由主 session Edit `~/.claude/agents/qa.md`；此處為 QA 同意的語意）(a) Q5a 硬 gate —— shared-component Playwright spec 必須以 `toMatchSnapshot()` + PNG baseline 位於 `frontend/e2e/__screenshots__/`，取代（或加成）現行 class/DOM-string 斷言；baseline 缺失時 spec 自動 fail，不得靠 `--update-snapshots` 靜默過。(b) Q5c 硬 gate —— sign-off 階段必須將 Designer 交付的 Pencil PNG（`frontend/design/screenshots/<page>-<frameid>.png`）與 dev-server PNG 做 pixel-diff（tolerance 由 Designer 在 design doc §Visual Acceptance 明列，預設 ≤0.5% RMS），任何超出 = regression fail，不得以「視覺相似」人眼判定。(c) 當 code 宣稱某組件有 N 個 variant，QA 必 grep `frontend/design/specs/` 對應頁面 JSON 驗證 N 個 variant 是否各自有獨立 Pencil frame ID + 非 byte-identical 的 content／layout／style key；若 N > Pencil divergence count，即 QA Challenge → PM（不得 sign-off）。(d) Cross-route spec 禁用「modulo variant」字樣當豁免語；divergence 必須以「frame-<idA> vs frame-<idB> 的 <key> 欄位 diff」具體列舉，沒有 frame-level 證據即 QA Challenge。
+
+---
+
+## 2026-04-23 — K-034 Phase 0 Early Consultation (new sitewide design workflow)
+
+**Scope:** Challenge edge cases / boundary conditions for the new `.pen`-SSOT-via-JSON workflow being codified in Phase 0 (17-decision table Q1–Q8c). QA 角色評估所有 Q-cell 實作後 Phase 1+ 的 QA-facing 回歸風險與 sign-off gate 可行性。以下為本 Early Consultation 盤點出的 7 條 Challenge，含建議 AC 補強條文與 PM 裁決待填欄。
+
+**Challenges (7):**
+
+**Q1. [`.pen` ↔ specs JSON drift detection]** 當 Designer Edit `.pen` 但遺漏重生 `frontend/design/specs/<page>.frame-<id>.json`（例如忘了跑 export script、或 script 跑一半出 error 被忽略），下游 Engineer / Reviewer / QA 全部對著**過期 JSON**工作卻綠燈，drift 只能靠下一次 Designer 主動 batch_get 時才暴露。
+- **建議 AC 補強**：Phase 0 新增 AC-034-P0-DRIFT-GATE：(i) `frontend/design/specs/` 目錄下每個 `*.json` 頂層 frontmatter 必含 `pen-file: <relative-path>` + `pen-mtime-at-export: <ISO-8601>` + `exporter-version: <semver>`；(ii) CI/pre-commit hook `scripts/check-pen-json-parity.sh` 對每個 specs JSON 檢驗 `stat -f %m <pen-file>` 與 `pen-mtime-at-export` 一致，不一致即 exit 1；(iii) PR template 在 `.pen` 或 `specs/*.json` 任一改動時強制列出「我已跑 export script 並確認 JSON 與 .pen 同步」checkbox。
+- **PM ruling (placeholder):** <pending PM response>
+
+**Q2. [Playwright snapshot baseline staleness vs Pencil re-export]** Q5a 引入 `toMatchSnapshot()` 後 baseline PNG 存於 `frontend/e2e/__screenshots__/`，但 Pencil 設計變更時 Designer 交付的 `frontend/design/screenshots/<page>-<frameid>.png` 會更新，而 Playwright baseline 不會自動追上——Engineer 只要跑 `--update-snapshots` 即可「通過」而實際上 live UI 與 Pencil 早已不一致。舊 baseline 反而形同 drift 的共犯。
+- **建議 AC 補強**：Phase 0 新增 AC-034-P0-SNAPSHOT-DUAL：(i) `frontend/e2e/__screenshots__/<component>-<route>.png` 與 `frontend/design/screenshots/<page>-<frameid>.png` 雙向比對為 QA sign-off 硬 gate（現行 Mandatory Task Completion Steps §0b 延伸）；(ii) QA sign-off 前跑 `scripts/compare-baselines.sh`，若 Playwright baseline hash ≠ Designer PNG hash 即 QA Challenge → PM（可能是 Pencil 改了 baseline 未重跑，也可能是 Engineer 跑 `--update-snapshots` 偷渡）；(iii) `package.json` script `test:e2e:update-snapshots` 新增 guard：只允許在 branch 名 `chore/baseline-refresh-*` 下執行，其他 branch 即 exit 1。
+- **PM ruling (placeholder):** <pending PM response>
+
+**Q3. [`visual-delta: none` exemption abuse]** Q7b 的 `visual-delta: none` 讓 Designer-less ticket 成為可能，但沒有結構性阻擋「Phase 2 audit-heavy ticket / 新組件 ticket」被誤標為 `none` 以求快速出貨——PM Phase Gate 若只做「frontmatter 有沒有填」的 syntactic 檢查，無法攔截語意層面的誤標。
+- **建議 AC 補強**：Phase 0 新增 AC-034-P0-VISUAL-DELTA-VALIDATOR：(i) ticket template 要求 `visual-delta: none` 時必附 `visual-delta-rationale:` 欄位（單行，Example："pure backend fix, no frontend/src/** file change"）；(ii) pre-commit hook `scripts/validate-visual-delta.sh` 對 `none` ticket 跑 `git diff --name-only main..HEAD -- 'frontend/src/**' 'frontend/public/**'`，若有任何 match 即 block commit；(iii) PM Phase Gate `feedback_pm_all_phases_before_engineer` 延伸：放行前 grep ticket file `visual-delta:`，若 `none` 但 Phase 計畫出現 "new component" / "layout" / "style" / "Pencil" 字樣即降為 QA Challenge。
+- **PM ruling (placeholder):** <pending PM response>
+
+**Q4. [Pencil-Pencil internal drift (orphan frames / stale subtrees)]** Pencil `.pen` 本身可能含「設計意圖已經作廢但還沒刪除」的 orphan frame / 子節點（例如某 CTA block 曾被 remove 但仍存在於某 navigation map frame 裡）。Workflow 假設 Pencil SSOT 為無矛盾整體，但現實中 Designer 可能漸進重構、短暫 carry 過期 frame——任何下游從 orphan frame 生 spec 即將 dead design 當活。
+- **建議 AC 補強**：Phase 0 新增 AC-034-P0-PENCIL-AUDIT-CADENCE：(i) Designer persona 加 monthly audit step：`batch_get` 所有 top-level frames、列 orphan（無 incoming reference 且無 top-level frame status）；(ii) `.pen` 新增 schema version 欄位，任何 frame 被 mark deprecated 或 deleted 時版本 bump，觸發 `frontend/design/specs/` full re-export；(iii) Ticket 若涉及 cross-frame reference (e.g. Q1 的 Footer 共用)，Architect Pre-Design Audit 必須 `batch_get` 所有被 reference 的 frame 確認非 orphan 再下刀。
+- **PM ruling (placeholder):** <pending PM response>
+
+**Q5. [Cross-page regression after Phase 1 Footer unification]** Phase 1 刪除 `variant` 後 `shared-components.spec.ts` 須由 DOM-equivalence-modulo-variant 升級為**byte-identical DOM across all consuming routes**。但現行 cross-route regression 只有 Footer 一處，NavBar / Hero / BuiltByAIBanner 等其他 shared chrome 未納入；未來任何 ticket 重新引入「針對某一 route 的共用組件 variant」（e.g. `<NavBar compact />` on /app），回歸 spec 仍可能通過。
+- **建議 AC 補強**：Phase 1 AC-034-P1-ROUTE-DOM-PARITY 擴充 + Phase 0 新增 AC-034-P0-SHARED-CHROME-INVENTORY：(i) `docs/designs/shared-components-inventory.md` 為 SSOT，列出全站所有 shared chrome 組件（Footer、NavBar、Hero、BuiltByAIBanner、PageHeader 等）+ 消費路由列表 + 允許的 variant（預設 0）；(ii) `shared-components.spec.ts` 為 inventory 的所有組件 × 所有路由自動生成 pairwise byte-identical 斷言；(iii) 任何 PR 引入新 variant prop 必先 Edit inventory + 得 PM 裁決 + 附 Pencil frame 證明 divergence。
+- **PM ruling (placeholder):** <pending PM response>
+
+**Q6. [CI cost of PNG snapshot + per-route byte-diff budget]** Q5a `toMatchSnapshot()` PNG baseline + Q5 所有 shared chrome × 所有路由 byte-diff 會顯著增加 CI 時間（估：現行 full Playwright suite ~3 分鐘，若 + 5 shared × 4 routes × screenshot + pixel-diff 估加 2–4 分鐘）。若無預算框架，工程 pressure 下會傾向關閉 snapshot 或 sample-only。
+- **建議 AC 補強**：Phase 0 新增 AC-034-P0-CI-BUDGET：(i) `docs/reports/ci-budget.md` 記錄 full-suite 時間上限（建議 ≤8 分鐘），超出觸發 PM + Architect review；(ii) PNG snapshot **僅限** shared-components.spec.ts 啟用（頁面層級 visual report 維持 on-demand via `TICKET_ID=K-XXX npx playwright test visual-report.ts`，非 CI 常駐）；(iii) 若未來 CI 時間超預算，reduction 優先順序：viewport sweep > page visual report > shared-component snapshot（snapshot 為 Sacred）。
+- **PM ruling (placeholder):** <pending PM response>
+
+**Q7. [New route onboarding checklist]** 當未來新增路由（e.g. /insights、/roadmap），workflow 需保證「Pencil frame 存在 + `frontend/design/specs/*.json` 導出 + `frontend/design/screenshots/*.png` 產出 + shared-components inventory 更新」四者皆 precede Engineer 動工，否則 new route 變成 SSOT 漏洞（無 Pencil backing 即可進 prod）。
+- **建議 AC 補強**：Phase 0 新增 AC-034-P0-NEW-ROUTE-GATE：(i) `docs/tickets/` template 新增「新路由 checklist」段落，列出 Pencil frame ID / specs JSON path / screenshots PNG path / inventory entry 四格，任一空即為 incomplete；(ii) PM Phase Gate 於釋出 Architect 前驗證四格皆填；(iii) Designer persona 新增「新路由 intake」流程：PM 提新路由需求時，Designer 先在 `.pen` 新增 frame + 產 specs JSON + 產 PNG + Edit inventory，再通知 PM 放行 Architect。
+- **PM ruling (placeholder):** <pending PM response>
+
+**Cross-reference:** 上述 7 條 Challenge 與 K-034 PRD §4 Phase 0 Deliverables 5–7 部分重疊（Q1/Q2/Q3/Q5 已有相關 persona edit 或 memory file 預計產出），但 Deliverables 未明列 CI/pre-commit hook、inventory 文件、ci-budget 規範、new-route checklist 等**結構性 gate** ——請 PM 裁決：(a) 是否納入 Phase 0 AC（建議 Q1、Q3、Q5、Q7 全納入；Q2、Q6 建議至少以 memory file 層級落地；Q4 建議列 Phase 2 後續 TD）；或 (b) 哪些降為 Known Gap 並記 `docs/tech-debt.md`。未得 PM 明確裁決前，QA 不對 Phase 1 AC 做最終 sign-off。
+
+**PM ruling (placeholder — PM will fill):** <pending PM response>
+
 ## 2026-04-22 — K-035 Phase 3 QA regression
 
 **做得好：** 全 Playwright suite 一把過 243 passed / 1 skipped / 1 failed（唯一 failure `ga-spa-pageview.spec.ts::AC-020-BEACON-SPA` 比對 K-033 tracker 症狀「SPA navigate 後 beacon count 維持 1 未增」完全相符，classify 為 pre-existing 非本票責任）；`shared-components.spec.ts` 3/3 綠 2.5 秒收工（/ variant="home" + /about variant="about" + /diary no-Footer 三向斷言 + 首 Cross-Page spec 首執行即穩定）；`ga-tracking.spec.ts` AC-018-CLICK 3 case 綠燈（contact_email / github_link / linkedin_link），Early Consultation Flag-1「GA click-event AC-visibility gap」以 spec 層面確認 trackCtaClick label 保留；Sacred 四 spec 全綠（sitewide-footer 3/3、pages.spec.ts L158 `/diary has no Footer`、app-bg-isolation AC-030-NO-FOOTER、sitewide-fonts font-mono on Footer variant="home"）；grep 掃 `HomeFooterBar|FooterCtaSection` 於 frontend/src + frontend/e2e = 0 hits，Engineer Step 6 刪除動作在 final commit 維持；visual-report.ts 以 `TICKET_ID=K-035` 跑出 `docs/reports/K-035-visual-report.html`（1.8MB；4 base64 PNG = /, /app, /about, /diary；/business-logic 依 `authRequired:true` 標 placeholder 符合 MVP 規範）；dev-server 多 viewport 手動 spot-check（375/390/414/1280）/ variant="home" Footer fontSize=11px + borderTop=1px + 文字基線一致、/about variant="about" email italic+underline + 所有 CTA href 正確、/diary + /app Sacred no-Footer（`<footer>` tag absent + `Let's talk →` absent + home-variant signature text absent）三條全滿。

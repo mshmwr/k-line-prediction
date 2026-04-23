@@ -408,6 +408,22 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
+### K-034 — /about spec audit + sitewide design-workflow codification (BFP Round 2 for K-035 α-premise failure)
+
+- **Status:** open / phase: 0 / type: fix + process / priority: high / **visual-delta: yes**
+- **Ticket:** [docs/tickets/K-034-about-spec-audit-and-workflow-codification.md](docs/tickets/K-034-about-spec-audit-and-workflow-codification.md)
+- **摘要：** K-035 變體 Footer 的 Option α「Pencil fidelity 10/10」前提為假 — Pencil MCP `batch_get` on frames `86psQ` + `1BGtd` 顯示兩 frame 內容完全相同的 inline 一行字（`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px），Pencil SSOT 只有一份 footer 設計。K-034 Phase 0 跑 BFP Round 2（6 roles + meta retrospective），codify 新的 `.pen` SSOT via JSON snapshot 工作流（17 decisions 覆蓋 Designer/Engineer/Reviewer/Architect/PM/QA personas + 9 memory files + `frontend/design/specs/` + `frontend/design/screenshots/` + `design-exemptions.md`）；Phase 1 hotfix /about footer 為 Pencil 相符的 inline 版本，刪除 `variant: 'about'` CTA 分支；Phase 2+ /about 全頁 Pencil JSON 對照 drift audit。K-036 由 K-034 blocked。
+
+**AC 一覽：**
+
+- **Phase 0 (BFP Round 2 + 工作流 codify)：** AC-034-P0-PRD, AC-034-P0-QA, AC-034-P0-RETROS, AC-034-P0-PERSONAS, AC-034-P0-MEMORY, AC-034-P0-INFRA, AC-034-P0-COMMITS
+- **Phase 1 (/about footer hotfix)：** AC-034-P1-FOOTER-UNIFIED, AC-034-P1-ROUTE-DOM-PARITY, AC-034-P1-NO-ABOUT-CTA, AC-034-P1-NO-FOOTER-ROUTES, AC-034-P1-FAIL-IF-GATE-REMOVED, AC-034-P1-DEPLOY
+- **Phase 2+ (/about 全頁 audit)：** AC-034-P2-AUDIT-DUMP, AC-034-P2-DRIFT-LIST (Phase 1 close 後展開)
+
+完整 Given/When/Then/And + 17-decision table + BFP Round-2 Why 見 [K-034](docs/tickets/K-034-about-spec-audit-and-workflow-codification.md)。
+
+---
+
 ## §4 Closed Tickets
 
 以下 16 張 closed + 2 張 superseded ticket，AC 詳文從對應 `docs/tickets/*.md` 引用。`closed` 日期以 ticket frontmatter 為準；前期未登記 date 者以 `[Closed 2026-04, date TBD]` 占位。

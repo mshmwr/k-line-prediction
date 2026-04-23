@@ -18,6 +18,21 @@
 
 ---
 
+## 2026-04-23 — K-034 Phase 0 (BFP Round 2 for K-035 α-premise failure)
+
+**What went wrong:**
+- K-035 design doc (`docs/designs/K-035-shared-component-migration.md`) §0 BQ-035-01 scoring matrix declared "Pencil fidelity: α=10, β=10, γ=0" with narrative rationale "Option α preserves both frames 4CsvQ + 35VCj — both render their own designs". The "both render their own designs" predicate was **asserted from memory of prior /about CTA-block perception**, not verified by `batch_get` on the two frames before scoring. Post-K-035 main-session `batch_get` on frames `86psQ` (/about footer) + `1BGtd` (/home footer) returned byte-identical content: one text node `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` in Geist Mono 11px. Pencil SSOT has ONE footer design, not two; the α-premise was empirically false and the correct ruling was γ (sitewide unify, no variant).
+- Root cause of miss: existing `feedback_architect_pre_design_audit_dry_run.md` hard gate (K-013 2026-04-21) covered (a) `git show <base>:<file>` code-level dry-run for "pre-existing" / "API 不變性" assertions and (b) backend-schema + frontend-observable dual-axis — but did **not** cover "Pencil frame **content parity** across frames cited in option-scoring matrices". Architect listed frame IDs `4CsvQ` / `35VCj` in design doc header and in §0 narrative, but the persona rule did not require retrieving each frame's text/children nodes to verify narrative claims about "what each frame renders". No gate required option-scoring "Pencil fidelity" scores to be backed by `batch_get` output + `get_screenshot` PNG **embedded as evidence block in the design doc itself**; narrative assertion was accepted as sufficient.
+- Compounding: Q6a "design locked = PM sign-off on Designer visual deliverable" did not yet exist as a persona rule — Architect started scoring options before Designer delivered any cross-frame content-parity artifact, so there was no upstream artifact to read. The whole "design locked → Architect starts" sequencing gate was missing from persona flow.
+
+**Next time improvement:**
+- **Structural fix (Q7c, §3 of K-034 ticket) — hard persona rule:** Architect may not produce a design doc for any route/page whose design is not represented by a corresponding Pencil frame exported to `frontend/design/specs/*.json`. No Pencil frame present → Architect escalates to PM (pushes back to Designer first), does not proceed with logic-only / parallel / "design catches up" path. To be codified into `senior-architect.md` during K-034 Phase 0 as a new top-level mandatory section alongside existing Pencil Frame Completeness Check.
+- **Pre-Design Pencil Content-Parity Dry-Run (upgrade of existing `feedback_architect_pre_design_audit_dry_run.md` from code-level to code + Pencil content-parity dry-run):** whenever the design doc scoring matrix or narrative cites ≥2 Pencil frames as distinct/equivalent, Architect must (1) run `batch_get` on each cited frame including full children/text subtree, (2) embed the retrieved JSON (or Designer-produced `frontend/design/specs/*.json`) verbatim into the design doc as evidence block, (3) produce a cell-by-cell content-parity truth table across frames (font family/size/weight, text string, layout direction, padding, gap, color), (4) only then score "Pencil fidelity" per option. Narrative claims of "both render their own designs" / "frame X preserves K-017 CTA" without embedded `batch_get` + truth-table evidence are invalid and block design-doc delivery.
+- **Maps to upcoming memory file `feedback_architect_no_design_without_pencil.md`** (K-034 Phase 0 deliverable 6), which will codify both the Q7c "no Pencil = no design doc" hard stop and the content-parity evidence-block requirement as a single combined gate. Existing `feedback_architect_pre_design_audit_dry_run.md` will be cross-linked (extended scope, not replaced).
+- Post-K-034 Phase 0, all future option-scoring matrices that cite Pencil fidelity must carry a new mandatory sub-section `### Pencil Content-Parity Evidence` with the `batch_get` output block + truth table; Reviewer Step 2 Pencil-parity sub-step (Reviewer-side memory file) will reject design docs missing this block.
+
+---
+
 ## 2026-04-22 — K-035 Phase 3 design-doc second-pass (/business-logic scope clarification sync)
 
 **做得好：**
