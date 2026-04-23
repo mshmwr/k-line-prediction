@@ -18,6 +18,22 @@
 
 ---
 
+## 2026-04-23 — K-034 Phase 1 — Footer variant retirement design
+
+**做得好：**
+- Pencil Artifact Preflight landed before any design-doc writing — verified `frontend/design/specs/home-footer.json` + `about-footer.json` + PNGs exist at HEAD, satisfying the K-034 Phase 0 `feedback_architect_no_design_without_pencil.md` gate on its first real-use ticket.
+- Caught GA Sacred cross-conflict as BQ-034-P1-01 rather than silent-retiring the `data-testid="cta-email-contact"` + `trackCtaClick('email-contact', ...)` path that K-017 marked Sacred; escalated to PM per `feedback_ticket_ac_pm_only` + `feedback_pm_ac_pen_conflict_escalate` instead of deciding in design doc.
+- Design doc §3 Route Impact Table enumerated all 5 routes (`/`, `/about`, `/diary`, `/app`, `/business-logic`) with affected / must-be-isolated / unaffected markers, matching `feedback_global_style_route_impact_table` hard gate for the shared-component retirement scope.
+
+**沒做好：**
+- First-pass draft recommended Option B on GA handling silently (retire `trackCtaClick` because "Pencil footer spec has no tracking attribute") — reviewing `feedback_ticket_ac_pm_only` + `feedback_pm_ac_pen_conflict_escalate` on second pass forced reclassification into BQ-034-P1-01 for PM ruling. Root cause: Architect instinct on refactor tickets is "simplify by dropping non-Pencil attributes"; Sacred invariant cross-check happens late in the pass rather than as a first-line grep.
+- No pre-existing persona rule required Architect to grep `data-testid="cta-"` + `trackCtaClick(` + `target="_blank"` + `href="mailto:"` against the files slated for retirement/replacement before recommending an option, so GA-side collisions only surfaced during §API 不變性證明 write-up after option scoring had already been drafted.
+
+**下次改善：**
+- Per PM ruling on BQ-034-P1-01 (§PM ruling in K-034 ticket): for refactor tickets touching `<a>` elements or CTA components, Architect first-pass must run a fixed grep sweep on `data-testid="cta-"` + `trackCtaClick(` + `target="_blank"` + `href="mailto:"` across `frontend/src/` + `frontend/e2e/`, list each hit with its Sacred-status (K-017 / K-024 / K-030 etc.), and include the sweep output as a new §Sacred Cross-Check row **before** drafting option-scoring matrix. Codify as persona addendum in `senior-architect.md` at Phase 1 close — GA-type collisions surface in first pass instead of second, matching the spirit of `feedback_pm_ac_sacred_cross_check` already in place for PM but not yet for Architect.
+
+---
+
 ## 2026-04-23 — K-034 Phase 0 (BFP Round 2 for K-035 α-premise failure)
 
 **What went wrong:**

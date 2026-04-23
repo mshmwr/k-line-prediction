@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-22 (K-035 Engineer landed — shared Footer migration + components/shared/ canonical registry)
+updated: 2026-04-23 (K-034 Phase 1 Architect — Footer variant prop retirement design landed; architecture.md synced in-session; Engineer implementation pending PM ruling on BQ-034-P1-01)
 ---
 
 ## Summary
@@ -177,7 +177,7 @@ ClaudeCodeProject/
 │   │           │   └── ExternalLink.tsx                   ← P3；target=_blank + rel=noopener noreferrer 寫死
 │   │           │   （MilestoneAccordion.tsx / DiaryEntryRow.tsx / VerticalRail.tsx / TimelineMarker.tsx — K-017 Pass 2 P4/P5/P6/P7 未落地，磁碟不存在；K-024 結構重做時重新設計）
 │   │           ├── shared/                                 ← K-035 新目錄（2026-04-22 落地）；sitewide page-level chrome canonical registry（Footer / 未來 NavBar 搬入 per TD-K035-01）
-│   │           │   └── Footer.tsx                          ← K-035（2026-04-22 落地）；props `variant: 'home' | 'about'`（required, 無 default）；取代已刪除的 `components/home/HomeFooterBar.tsx`（variant="home"）+ `components/about/FooterCtaSection.tsx`（variant="about"）
+│   │           │   └── Footer.tsx                          ← K-034 Phase 1 design 2026-04-23：variant prop 即將 retire（pending Engineer + PM BQ-034-P1-01 ruling）；post-Phase-1 為 zero-prop 單一 inline one-liner，Pencil SSOT = frames 86psQ + 1BGtd（byte-identical content parity, Designer 8d95c03）；pre-Phase-1 為 K-035 `variant: 'home' | 'about'` props（已 empirically 證偽 α-premise）
 │   │           ├── business-logic/
 │   │           │   ├── PasswordForm.tsx
 │   │           │   ├── BusinessLogicContent.tsx
@@ -509,18 +509,18 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 | 頁面 | Footer |
 |------|--------|
-| `/` | `<Footer variant="home" />`（K-035 統一，2026-04-22 落地；pre-K-035 為 `<HomeFooterBar />`，已刪除） |
-| `/about` | `<Footer variant="about" />`（K-035 統一，2026-04-22 落地；pre-K-035 為 `<FooterCtaSection />`，已刪除；K-021 Sacred「/about 維持 FooterCtaSection」正式 retire） |
+| `/` | `<Footer />`（K-034 Phase 1 design 2026-04-23：variant prop retired，Pencil SSOT frame 1BGtd byte-identical inline one-liner；pre-K-034 為 `<Footer variant="home" />`） |
+| `/about` | `<Footer />`（K-034 Phase 1 design 2026-04-23：variant prop retired，Pencil SSOT frame 86psQ byte-identical inline one-liner；K-035 α-premise 正式 retire — Pencil 實為單一設計；pre-K-034 為 `<Footer variant="about" />`；BQ-034-P1-01 待 PM 裁決 K-017/K-018/K-022 Sacred 去留） |
 | `/diary` | 無 footer（K-024 Architect 裁決：/diary v2 timeline 頁底無 footer；Pencil visual-spec wiDSi frame 亦無 footer 節點。design doc §8 Route Impact Table confirmed） |
 | `/app` | 無 footer（K-030 isolation — `/app` 為獨立 tool viewport，撤除 NavBar 與 Footer 使其不繼承 marketing site chrome） |
-| `/business-logic` | `<Footer variant="home" />`（K-035 統一，2026-04-22 落地；pre-K-035 為 `<HomeFooterBar />`，已刪除） |
+| `/business-logic` | `<Footer />`（K-034 Phase 1 design 2026-04-23：variant prop retired；pre-K-034 為 `<Footer variant="home" />`） |
 
 ### Shared Components 邊界
 
 | 組件 | 位置 | 用於 |
 |------|------|------|
 | `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | `/` `/about` `/diary` `/business-logic`（K-030 起 `/app` 不渲染；TEXT_LINKS 的 `App` entry 標 `external: true`，於 4 marketing 頁點擊時開 new tab 載入 `/app`）。**TD-K035-01 追蹤** 後續搬 `components/shared/NavBar.tsx`（blocked-by K-025 close） |
-| `Footer` | `components/shared/Footer.tsx` | `/` 透過 `variant="home"`；`/business-logic` 透過 `variant="home"`；`/about` 透過 `variant="about"`（K-035 統一，2026-04-22 落地；取代舊 `components/home/HomeFooterBar.tsx` + `components/about/FooterCtaSection.tsx`，兩者已刪除） |
+| `Footer` | `components/shared/Footer.tsx` | `/` / `/business-logic` / `/about` 三路由 render 同一 zero-prop `<Footer />`（K-034 Phase 1 design 2026-04-23：variant prop retired；Pencil SSOT = frames 86psQ + 1BGtd byte-identical inline one-liner, Designer 8d95c03）；pre-K-034 為 K-035 `variant: 'home' | 'about'` props（α-premise empirically 證偽）；Engineer 實作 pending PM BQ-034-P1-01 ruling |
 
 ### Legacy NavBar
 
@@ -649,6 +649,7 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 
 ## Changelog
 
+- **2026-04-23**（Architect, K-034 Phase 1 設計）— Footer `variant` prop retirement 設計完成。Pencil SSOT frames `86psQ`（/about consumer, abFooterBar）+ `1BGtd`（/ + /business-logic consumer, hpFooterBar）byte-identical content parity 已由 Designer preflight（commit 8d95c03）驗證 — 兩 frame 均為單一 text node `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px #6B5F4E。K-035 α-premise（「兩個 Pencil 設計」）empirically 證偽。設計：`FooterProps.variant: 'home' | 'about'` → 刪除整 interface；`Footer.tsx` 變單一 return（保留現 variant='home' 分支作為 canonical DOM）；3 call sites（`HomePage.tsx` L25 / `BusinessLogicPage.tsx` L117 / `AboutPage.tsx` L70–72）同步移除 `variant` prop + `AboutPage.tsx` S7 SectionContainer wrapper 移除（Footer 直接位於 AboutPage root div）。`shared-components.spec.ts` 重寫為跨路由 byte-identical outerHTML 斷言（4 test IDs：T1 cross-route parity / T2 Pencil-canonical text / T3 no-CTA-block / T4 /diary no-Footer）取代舊 variant-modulo 契約。Route Impact Table：5 路由全涵蓋（`/` `/about` `/business-logic` 三者 post-Phase-1 byte-identical；`/diary` `/app` 維持 Sacred no-Footer）。Footer 放置策略表 4 cells + Shared Components 邊界表 1 cell + Directory Structure `shared/Footer.tsx` 描述 4 處磁碟 Edit 本 commit 落地；Engineer 實作後 K-017/K-018/K-022 Sacred 連動 spec 依 PM BQ-034-P1-01 裁決（Option A/B/C）決定 cascade 刪改範圍。**BQ-034-P1-01 escalated to PM** — /about GA click-event tracking（K-018 AC-018-CLICK 3 tests on /about，綁定 cta-email/github/linkedin 3 anchors）vs Pencil 實為純 text（無 anchor）為 AC-vs-Pencil 衝突，PM 必須在 Option A（Pencil-literal，retire 3 Sacred）/ Option B（anchors styled-as-text，保留 GA + K-017 hrefs；retire string literals + K-022 A-7 style）/ Option C（separate CTA block，全 Sacred 保留；但違反 Pencil fidelity）裁決。Engineer release 於 BQ 裁決前 blocked。設計文件：[K-034-phase1-footer-inline-unification.md](../docs/designs/K-034-phase1-footer-inline-unification.md)。未改 code（Architect 僅設計）。
 - **2026-04-22**（Engineer, K-035 實作）— Shared Footer migration 11 步落地完成。新建 `frontend/src/components/shared/Footer.tsx`（props `variant: 'home' | 'about'`，required，無 default）+ 3 路由 import swap（`HomePage.tsx` L6+L25 / `BusinessLogicPage.tsx` L7+L117 / `AboutPage.tsx` L10+L70+L72）+ 刪除 `components/home/HomeFooterBar.tsx` + `components/about/FooterCtaSection.tsx`（grep sweep `src/ + e2e/` 0 hits 驗證）。`frontend/e2e/sitewide-footer.spec.ts` 刪除 L88–101 `/about boundary` drift-preservation block + helper 與 describe 改名；`pages.spec.ts` / `app-bg-isolation.spec.ts` / `sitewide-fonts.spec.ts` / `ga-tracking.spec.ts` comment-only 同步（4 檔）。新增 `frontend/e2e/shared-components.spec.ts`（3 test.describe：home 變體 `/` DOM-equivalence × 1 + about 變體 `/about` DOM 結構 × 1 + no-footer 路由 `/diary` × 1；`/business-logic` 因 technical-cleanup-only scope 未列入 AC-gated cross-route 斷言，由 `sitewide-footer.spec.ts` 既有 2 case 涵蓋）+ fail-if-gate-removed dry-run 驗證（註銷 HomePage `<Footer variant="home" />` 時 spec 於 `locator('footer').last() toBeVisible` 5000ms timeout；復原後 green）。Architect Changelog 聲稱「4 cases」為設計稿預期，落地實為 3 test.describe blocks（/business-logic 降級說明見 spec header comment）。Footer 放置策略表 + Shared Components 邊界表 + Directory Structure shared/ 區塊 + frontmatter `updated:` 4 處磁碟異動與此 commit 同包。Gate：tsc exit 0 / Playwright 193 passed + 1 skipped / grep sweep `src/ + e2e/` 0 hits。K-022 A-7 Sacred（Newsreader italic + underline） + K-017 content + K-024 /diary no-footer + K-030 /app isolation 全保留（shared Footer 'about' 分支 data-testid + computed fontStyle/textDecorationLine 雙重守護）。TD-K035-01 `UnifiedNavBar → components/shared/NavBar.tsx` blocked-by K-025 close，本 ticket 不動 NavBar。
 - **2026-04-22**（Architect, K-035 設計）— /about Footer shared-component regression fix 設計完成。新建 `frontend/src/components/shared/` 目錄（sitewide page-level chrome canonical registry），第一位住戶 `Footer.tsx`（props `variant: 'home' | 'about'`，required，無 default）取代 `components/home/HomeFooterBar.tsx`（Engineer Step 6 DELETE）+ `components/about/FooterCtaSection.tsx`（Engineer Step 6 DELETE）；3 個 import 點 swap（`HomePage.tsx` Step 2 / `BusinessLogicPage.tsx` Step 3 / `AboutPage.tsx` Step 4）。`frontend/e2e/sitewide-footer.spec.ts` L88–101 `test.describe('AC-021-FOOTER — /about boundary')` drift-preservation block 刪除（Engineer Step 5）；K-021 Sacred clause「/about 維持 FooterCtaSection（K-017 鎖定）」正式 retire。新增 `frontend/e2e/shared-components.spec.ts`（4 cases：home 變體 /、/business-logic 斷言 × 2 + about 變體 /about 斷言 × 1 + /diary no-footer × 1）+ fail-if-gate-removed dry-run 驗證（Engineer Step 7）。Footer 放置策略表 3 列 Footer cell 更新（`/` `/about` `/business-logic`）；Shared Components 邊界表 3 列 → 2 列（HomeFooterBar + FooterCtaSection 合併為單一 `Footer`）。K-022 A-7 link style + K-017 content + K-024 /diary no-footer + K-030 /app isolation Sacred 全保留（§3 diff 表 17 cells equivalent / 0 divergent；§13 dual-axis 證明 wire-level schema 0 diff + 4-row observable behavior diff 全 ✓）。開 TD-K035-01 追 UnifiedNavBar 搬 `components/shared/` 後續（blocked-by K-025 close）。設計文件：[K-035-shared-component-migration.md](../docs/designs/K-035-shared-component-migration.md)。未改 code（Architect 僅設計），Engineer Step 1–8 交付後補磁碟異動。
 - **2026-04-22**（PM, K-024 close + merge + deploy）— K-024 /diary flat-timeline + schema flatten + visual-spec SSOT closed after Phase 3 R2 remediation + QA Phase 3 sign-off. Merge commit to main + Firebase Hosting deploy (SHA `e66aa6c`, bundle md5 `47cdc1e66fdc7f51c356ddc62de827b4`) + PRD §3→§4 migration + PM-dashboard deregister + Deploy Record block appended. Final gate: tsc 0 / vitest 80 / playwright 190+1 skipped. Bug Found Protocol completed (D-1 PM AC-Sacred cross-check + I-3 Engineer concurrency-gate dry-run — persona + memory + retro landed).

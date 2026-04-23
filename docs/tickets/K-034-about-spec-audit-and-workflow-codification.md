@@ -344,6 +344,35 @@ QA retrospective `docs/retrospectives/qa.md 2026-04-23 — K-034 Phase 0 Early C
 
 (Populated at Phase 1 close and Phase 2 close.)
 
+### Architect (2026-04-23, Phase 1 design doc delivery)
+
+**Where most time was spent:** cross-checking Sacred invariants (K-017 / K-018 / K-022) against Pencil ground-truth. All three Sacred clauses depend on `<a>` anchors on /about that Pencil SSOT does not show. Surfaced as BQ-034-P1-01 requiring PM ruling (Option A Pencil-literal, B anchors-as-text, or C separate CTA block). Without this cross-check, Phase 1 would have shipped Option A and silently retired 3 Sacred clauses — the α-premise class of failure K-034 exists to prevent.
+
+**Which decisions needed revision:** Initial draft proposed Option B as architect recommendation. Second pass reclassified to BQ escalated to PM per `feedback_ticket_ac_pm_only.md` + `feedback_pm_ac_pen_conflict_escalate.md`. Retiring Sacred is a product-scope decision, not technical.
+
+**Next time improvement:** For any refactor-class ticket touching `<a>` elements, Architect grep sweep on `data-testid="cta-"` + `trackCtaClick(` + `target="_blank"` + `href="mailto:"` across `frontend/src/` + `frontend/e2e/` as a §Sacred cross-check row. Would have surfaced BQ-034-P1-01 in first-pass. Candidate for senior-architect.md persona addendum pending PM ruling at Phase 1 close.
+
+**Design doc:** [K-034-phase1-footer-inline-unification.md](../designs/K-034-phase1-footer-inline-unification.md)
+**BQ for PM:** BQ-034-P1-01 — Option A/B/C on /about GA click-event tracking under inline Footer (blocks Engineer release).
+
+### PM ruling on BQ-034-P1-01 (2026-04-23)
+
+**Ruling: Option A (Pencil-literal).** /about Footer = byte-identical DOM to / and /business-logic = single plain-text inline one-liner, no `<a>` anchors. Retires K-017 hrefs on /about, K-018 GA click events on /about, K-022 A-7 italic+underline on /about.
+
+**Rationale:** §1.4 user verdict already dictates "/about must render the inline one-liner, same as /" — "/" renders plain text (zero anchors per Designer JSON specs for frames 86psQ + 1BGtd). Under new Phase 0 workflow (AC-034-P0-PERSONAS Q6c + `feedback_pm_ac_pen_conflict_escalate`), Pencil SSOT supersedes pre-Phase-0 AC Sacred clauses when AC-vs-Pencil conflict exists. K-017 Sacred hrefs, K-018 Sacred GA events, K-022 Sacred A-7 style on /about are all pre-Phase-0 artifacts that Pencil SSOT never authorized — they are the α-premise failure class K-034 exists to correct. GA click events on / and /business-logic are NOT affected (those routes already render plain-text inline Footer today; there are no /about-specific events on those routes).
+
+**Sacred clause retirement log (binding on Phase 1 spec cascade):**
+- K-017 AC-017-FOOTER email/GitHub/LinkedIn anchor href + target="_blank" + rel assertions on /about → RETIRED (assertions deleted from `about.spec.ts`; comment-only retirement marker added referencing this ticket + §1.4 verdict).
+- K-018 AC-018-CLICK contact_email / github_link / linkedin_link GA events on /about → RETIRED (those 3 events now only fire on /business-logic if anchors ever appear there, or never; `ga-tracking.spec.ts` L118–159 /about-scoped assertions deleted).
+- K-022 A-7 italic + underline styling on /about CTA anchors → RETIRED (anchors no longer exist).
+- GA click events on / and /business-logic (if currently asserted) → UNCHANGED (those routes already render plain-text; no behavior change).
+
+**Engineer release condition:** Design doc Option A implementation path selected. Phase 1 scope proceeds with variant retirement + `variant='about'` branch deletion + 3 call site prop removals + Sacred retirement edits on 2 spec files (`about.spec.ts` + `ga-tracking.spec.ts`) + `shared-components.spec.ts` byte-identical DOM assertion upgrade. Engineer dispatched with this ruling as binding AC supplement.
+
+**Phase 1 AC supplement (binding, append to §AC for Phase 1):** `AC-034-P1-SACRED-RETIRE` — retiree spec files and retired AC identifiers enumerated above must be edited to delete /about-scoped assertions; each deletion must carry an inline code comment citing `K-034 §PM ruling on BQ-034-P1-01 — Sacred retired per §1.4 Pencil SSOT verdict`. Spec file test counts post-deletion must match pre-deletion minus retired-AC-count exactly.
+
+**Architect's persona-addendum proposal** (grep sweep on `data-testid="cta-"` / `trackCtaClick(` / `target="_blank"` / `href="mailto:"` for refactor-class tickets touching `<a>` elements): **ACCEPT at Phase 1 close.** Will Edit `senior-architect.md §Sacred cross-check` with this sweep as hard step after Phase 1 deploys successfully (codifying the improvement that this BQ would have surfaced automatically in first-pass). Not a Phase 1 blocker — it is a Phase 1-retrospective-class persona improvement.
+
 ## Deploy Record
 
 (Populated at end of Phase 1 and Phase 2 after each deploy.)
