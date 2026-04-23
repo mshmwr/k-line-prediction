@@ -19,6 +19,182 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-23 — K-038 Phase 0 — QA Early Consultation
+
+**Ticket：** `docs/tickets/K-038-diary-shared-footer-adoption.md` — /diary adopts shared Footer; retire K-017 + K-024 + K-034 P1 half Sacred; /app (K-030) preserved.
+
+**Scope reviewed：** ticket AC-038-P0-* + AC-038-P1-* (10 AC total); Sacred retirement table (§3 BQ-038-03); affected spec files `shared-components.spec.ts` T1/T2/T4 + `pages.spec.ts` L152–164 + `sitewide-footer.spec.ts` L3–20 header comment + `sitewide-fonts.spec.ts` L9 comment; DiaryPage.tsx current structure (3 terminal states + loading); shared Footer component (`components/shared/Footer.tsx` prop-less); K-030 `/app` isolation preserved.
+
+**Grep audit cross-reference：**
+- `grep -rn "/diary" frontend/e2e/ | grep -iE "footer"` → 3 hits: `shared-components.spec.ts:99–100` (T4), `pages.spec.ts:152/158` (AC-017-FOOTER no-footer block). No hidden third spec.
+- `grep -rn "footer" frontend/e2e/ | grep -i diary` → same 3 hits + `visual-report.ts:38` (visual report route list, benign — will auto-pick up Footer render after Phase 1).
+- `grep -n "diary\|Footer" sitewide-fonts.spec.ts` → 零 `/diary`-specific 斷言（既有 shared Footer fontFamily 斷言只跑 `/`，不需要改）。
+- `sitewide-footer.spec.ts` 頂端 L7 註解 `Given: user visits /, /business-logic` — /about 已因 K-035 退役 Sacred 納入共用 Footer；此 spec 的兩個 `test()` 只跑 `/` 與 `/business-logic`，/diary 不在其覆蓋面。Phase 1 若決定納入必須顯式討論（Challenge #6 涵蓋）。
+
+**QA Challenge 清單（9 條）：**
+
+---
+
+### QA Challenge #1 — AC-038-P1-DIARY-FOOTER-LOADING-ABSENT：loading state Footer 行為交給 Engineer「自己決定」= untestable
+
+**AC 原文：** "Engineer self-decides — not a product decision; Playwright asserts whichever the implementation chooses"
+
+**Issue：** 這不是 AC，這是開罰單時才補規範的 post-hoc rationalization。"any of two branches OK" 使 Playwright 無法在 fail-if-gate-removed dry-run 中偵測 regression — 若未來 Engineer 刪掉 loading-branch Footer 渲染（或反向），沒有任何 spec 會 FAIL。loading state 可能停留 >1s（`useDiary` 串 fetch `/diary.json`，慢網路 3G 實測 2–4s），非 transient，User 看得到。
+
+**需補充（PM 裁決二選一）：**
+- Option A — **loading 時渲染 Footer**：AC 改寫為 `locator('footer').count() === 1 during loading`；Playwright 用 `page.route('**/diary.json', ...)` 人為延遲 2s 斷言 loading skeleton + Footer 同時在 DOM。與 `/business-logic` PasswordForm 預登入 state（Footer 有渲染）一致。**推薦**：此選項與其他 consumer route 行為一致，實作最簡單（`<Footer />` 放 `<main>` 同層就自動覆蓋所有 state）。
+- Option B — **loading 時不渲染 Footer**：AC 改寫為 `locator('footer').count() === 0 during loading, count === 1 after loading done`；Engineer 需 conditional render `{!loading && <Footer />}`。測試需延遲 fixture + 雙重斷言。
+
+**若不補充：** AC-038-P1-DIARY-FOOTER-LOADING-ABSENT sign-off 時 QA mark FAIL（原因：AC 無 falsifiable predicate）。
+
+---
+
+### QA Challenge #2 — AC-038-P1-BYTE-IDENTITY-4-ROUTES 缺 mobile viewport 斷言
+
+**AC 原文：** T1 byte-identity matrix + viewport hardcoded `width: 1280, height: 800`（desktop only，繼承自 K-034 Phase 1）
+
+**Issue：** DiaryPage `<main>` 用 `px-6 sm:px-24`（mobile 24px / desktop 96px）而 Footer 用 `px-6 md:px-[72px]`（mobile 24px / desktop 72px ≥ 768px）。兩者 horizontal padding 在 **640px–768px 區間**（Tailwind `sm` 斷點 640px vs `md` 斷點 768px）會發生 main 已經切到 desktop 但 Footer 還是 mobile 的 **viewport-padding seam**。K-034 Phase 1 shared-components-inventory.md §INHERITED exemption 允許 Footer padding 因祖先差異視覺表現不同，但此 seam 在 `/diary` 是新情境 — `/`、`/about`、`/business-logic` 祖先都沒有 `sm:px-24` 同時存在。
+
+**需補充（PM 裁決二選一）：**
+- Option A — **byte-identity 僅 desktop，視覺 seam 列 Known Gap**：保留 T1 只跑 1280×800，PM 顯式裁決 "640–768px seam 不測，因為 K-034 §INHERITED 已允許 padding variance"。**推薦**：最低成本，與既有 Sacred 一致。但 QA 要求 `design-exemptions.md §INHERITED` 追加一行明列 /diary 情境。
+- Option B — **T1 跑三 viewport（360 / 768 / 1280）**：成本上升，但覆蓋 seam 真實渲染。若選 B，`footer-diary-chromium-darwin.png` snapshot baseline 從 1 個變成 3 個。
+
+**若不補充：** 640px–768px 區間若存在視覺 regression，Phase 1 sign-off 時 QA 無 spec 可依；走 Known Gap 路徑 (PM 表態 "不測") 才算覆蓋。
+
+---
+
+### QA Challenge #3 — AC-038-P1-DIARY-FOOTER-EMPTY-STATE / ERROR-STATE 缺 fixture 註冊機制
+
+**AC 原文：** "Given useDiary returns empty entries: []" / "Given useDiary returns error state"
+
+**Issue：** 未明說 Playwright 如何 **強制** 進入 empty / error state。`diary-page.spec.ts` 既有手法是 `page.route('**/diary.json', ...)` fulfill 空陣列或 status=500。AC 沒寫 → Engineer 可能漏寫 fixture 路由，測試跑 production `diary.json`（非空），empty-state 分支 0 coverage。K-024 Phase 3 AC-024-BOUNDARY 已確立 "boundary spec 用 `page.route` fulfill fixture、不改 production diary.json" — 此 AC 應引用既有 pattern。
+
+**需補充：** AC-038-P1-DIARY-FOOTER-EMPTY-STATE + ERROR-STATE 各加一行 `And Playwright uses page.route('**/diary.json', ...) to force the state (empty array / status=500) per K-024 Phase 3 boundary spec pattern`。且 Engineer 在 design doc 明列 fixture 檔名（`_fixtures/diary/empty.json` 已存在？）。**推薦**：直接複用既有 fixture，無新檔案。
+
+**若不補充：** Engineer 自創 state-mock 方式，test 可能誤 PASS（production `diary.json` 有資料 → 走 timeline 分支 → Footer 也在，斷言通過但沒驗到 empty/error 分支）。QA sign-off 時 FAIL。
+
+---
+
+### QA Challenge #4 — `pages.spec.ts` L158–164 退役後 describe block 命名殘留
+
+**AC 原文：** AC-038-P1-SACRED-RETIREMENT "the assertion block is deleted and a replacement inline comment reads ..."
+
+**Issue：** `pages.spec.ts` L157 有 `test.describe('DiaryPage — AC-017-FOOTER no footer', () => {...})`。AC-038 只說「刪除 assertion block + 加 inline comment」，沒說 describe wrapper 怎麼處理。若只刪 `test()` 內容留 describe block 外殼，spec 會 discovery 到空 describe（Playwright 不 FAIL 但 test count 報表顯示 orphan block）；若連 describe 一起刪，K-024 retirement log 的行號引用會失效。
+
+**需補充：** AC-038-P1-SACRED-RETIREMENT 明列：
+- **刪除整個 describe block**（L157–164）
+- **replacement inline comment 放在刪除處原位**，內容 verbatim: `// AC-017-FOOTER /diary negative clause retired per K-038 §3 BQ-038-03 — user intent change 2026-04-23; Footer now covered by shared-components.spec.ts T1 (byte-identity 4 routes)`
+- **行號引用更新** K-017 + K-024 ticket 回指 K-038 §7（非回指被刪掉的 spec 行號）
+
+**若不補充：** sign-off 時 QA 會發現 spec file 有 orphan describe 或 comment 位置錯亂；PM escalate。
+
+---
+
+### QA Challenge #5 — AC-038-P1-SNAPSHOT-BASELINE：新 baseline 容許 0.1% 變異但沒定義「祖先 padding 差異」如何處理
+
+**AC 原文：** "all 4 PNGs visually identical (pixel-level diff ≤ 0.1%; Footer content and styling byte-identical modulo ancestor padding variance per design-exemptions §2 INHERITED category)"
+
+**Issue：** 兩層問題：
+1. **Playwright `toMatchSnapshot` 是 per-route 獨立 baseline**，不是 cross-route diff；AC 文字「4 PNGs visually identical」技術上不精確 — 實際運作是 `footer-diary-chromium-darwin.png` 獨立 baseline，未來 CI 只比自己 vs 自己。跨 route identity 由 T1 byte-identity 斷言承擔（outerHTML 等價），不是 snapshot 承擔。
+2. **祖先 padding variance** — `/diary` Footer 繼承 `<main className="px-6 sm:px-24">` 祖先的 horizontal padding。Footer 自己 `w-full` + `px-6 md:px-[72px]` 是 viewport 級、不受祖先 padding 影響，但 Footer 截圖範圍（`footer.screenshot()`）若 Playwright clip 到 Footer element box 就沒影響，若包含 overflow 影響的祖先 scroll bar 就可能有 1–2px 差。這是 Phase 1 Engineer dry-run 才會知道。
+
+**需補充：** AC-038-P1-SNAPSHOT-BASELINE 改寫為：
+- **Mandatory：** 新 baseline `footer-diary-chromium-darwin.png` generated；per-route snapshot 獨立檢查不回歸。
+- **Cross-route identity by T1, not snapshot**：AC 文字移除「4 PNGs visually identical」這句（誤導）；改為 "cross-route byte-identity asserted by T1 outerHTML diff（per AC-034-P1-ROUTE-DOM-PARITY）; this AC only locks per-route visual baseline."
+- Engineer 在 design doc 先跑 dry-run 確認 `<main>` 祖先 padding 不外溢到 `<footer>` 截圖；若外溢 → 列 BQ 回 PM。
+
+**若不補充：** 第一次 CI 跑 snapshot 若因祖先 padding 產生 2–3px 差，Engineer 會被迫 retrofit baseline 或質疑 AC；sign-off 出現反覆。
+
+---
+
+### QA Challenge #6 — `sitewide-footer.spec.ts` 沒加 /diary 斷言 = Footer 各屬性斷言對 /diary 零覆蓋
+
+**Issue：** K-038 ticket 只規劃 `shared-components.spec.ts` T1 + snapshot；`sitewide-footer.spec.ts`（驗 fontSize 11px + color rgb(107, 95, 78) + border-top-width > 0）目前跑 `/`、`/business-logic` 兩 route（`/about` 由 K-035 退役後 K-034 Phase 1 rewrite 由 shared-components.spec.ts T1/T2 承擔）。
+
+- T1 byte-identity 只驗 outerHTML 字串完全相等，**不驗 computed style** — outerHTML 相等不保證 browser 實際 `getComputedStyle` 渲染出相同 `fontSize`（極端情境如 CSS inheritance 被 `<main>` 祖先某個 `font-size: 16px !important` override）。
+- T2 Pencil-canonical text 只跑 `/`（L58–73），單 route 抽樣。
+- `sitewide-footer.spec.ts` 的 computed-style 斷言才是 per-route defensive net，但 K-038 沒提。
+
+**需補充（PM 裁決）：**
+- Option A — **`sitewide-footer.spec.ts` 的 describe block 覆蓋 `/diary`**：新增 `test('/diary — shared Footer shows with 11px muted + border-top', ...)`，複用既有 `expectSharedFooterVisible()` helper，一行新增。**推薦**：成本極低，但覆蓋 T1 無法捕捉的 computed-style regression（CSS cascade 被破壞），與 /、/business-logic 對稱。
+- Option B — **不補充**：PM 顯式裁決 "T1 byte-identity 已涵蓋 `/diary` computed style"（理論上 outerHTML 相等 + 同一 CSS file → computed style 相等）；登 Known Gap，sign-off 時 QA 不 FAIL。
+
+**若不補充：** Sign-off 時 QA mark /diary computed-style regression 為 Known Gap（須 PM 表態），否則 FAIL。
+
+---
+
+### QA Challenge #7 — `shared-components-inventory.md` Footer 行未涵蓋 Pencil frame ID 重用條款
+
+**AC 原文：** AC-038-P0-INVENTORY "Footer row `Consuming routes` cell = `/`, `/about`, `/business-logic`, `/diary`"
+
+**Issue：** inventory.md 現行 Footer 行的 "Pencil Source of truth" 欄列 `4CsvQ`, `86psQ`, `1BGtd`, `35VCj`（homepage-v2.pen）。/diary 被加入 consumer 後，讀者可能誤解「需要為 /diary 找一個 Pencil frame ID」。BQ-038-01 PM ruling 明說 `/diary` 不需要新 Pencil frame（shared Footer 的 Pencil 起源已明列），但 inventory.md 若只改 consuming routes 欄、不加註解說明 "/diary inherits Pencil provenance via shared component（BQ-038-01 ruling）"，3 個月後新加入專案的 reviewer 會困惑並可能發起反向 BQ。
+
+**需補充：** AC-038-P0-INVENTORY 加一條：
+- **And** inventory.md Footer 行加 footnote 或 "Notes" 欄：`/diary consumes shared Footer per K-038 §3 BQ-038-01 ruling — no dedicated Pencil frame; Pencil provenance inherited from 86psQ + 1BGtd sitewide one-liner.`
+- **And** "Routes with NO shared chrome" section 刪除 `/diary` bullet 時，行上方加 comment 引用 K-038 ticket id。
+
+**若不補充：** 未來維護者重複發起 BQ；本次 Sacred 退役記錄不完整。
+
+---
+
+### QA Challenge #8 — AC-038-P1-FAIL-IF-GATE-REMOVED dry-run scope 不清
+
+**AC 原文：** "Engineer temporarily reverts `<Footer />` from DiaryPage.tsx as dry-run; ... dry-run is reverted before Phase 1 close; Engineer retro records stdout snippet"
+
+**Issue：** 三個 gap：
+1. **dry-run 要跑哪些 spec file？** 只跑 `shared-components.spec.ts`？還是全 Playwright suite？K-024 Phase 3 feedback_engineer_concurrency_gate_fail_dry_run 明確規定 fail-if-gate-removed 應「跑斷言直接相關的 spec subset」不跑全套。
+2. **"reverts Footer" 指哪種 revert？** (a) 刪 `import Footer`（tsc 會 FAIL）、(b) 刪 `<Footer />` JSX render 但保留 import、(c) 條件化 `{false && <Footer />}`。不同選法測試到的 failure mode 不同。
+3. **Engineer retro 要記什麼 stdout？** 只記 FAIL message？還是整個 test run summary？
+
+**需補充：** AC-038-P1-FAIL-IF-GATE-REMOVED 明列：
+- **Scope：** `npx playwright test shared-components.spec.ts` subset（3 個 test：T1、T4a `/app`、Footer snapshot on /diary），不跑全套
+- **Revert method：** (b) 只刪 `<Footer />` JSX（保留 import；tsc 不 FAIL；純 behavioral revert）
+- **Expected FAIL：** T1 `/diary` byte-identity assert FAIL + Footer snapshot baseline assert FAIL；T4a `/app` 應 PASS（不受影響，驗 `/diary` 與 `/app` 沒跨污染）
+- **Retro format：** 附 FAIL message + `Expected: <normalizedHtml>` vs `Received: <non-existent footer>` 前三行
+
+**若不補充：** Engineer 自定義 dry-run、Reviewer 深度 gate 可能放過 false-green（如沒跑到真正的 T1）。
+
+---
+
+### QA Challenge #9 — Sacred 退役後 K-017 / K-024 / K-034 ticket 歷史記錄追溯更新未明
+
+**AC 原文：** §7 Retired Items Log "K-024 ticket §Sacred table gets an appended retirement line pointing here" / "K-034 ticket §7 Sacred table gets an appended retirement line pointing here"
+
+**Issue：** §7 說 K-024 + K-034 ticket 要回寫「retirement line pointing here」，但 K-017 ticket 沒提要不要回寫。§3 BQ-038-03 表格也只說 "ticket K-017 AC text left unchanged (historical record)"。不一致：
+- K-017 Sacred 原生來源 → 不回寫（AC text 不動），但歷史讀者找 K-017 AC-017-FOOTER 時如何知道已退役？
+- K-024 inheritor → 回寫
+- K-034 inheritor → 回寫
+
+**需補充：** §7 Retired Items Log 加一列 K-017 處理方式：
+- **Option A — 回寫 K-017**：於 K-017 AC-017-FOOTER `/diary` 負斷言區塊下方 append 一行 `> **Retired 2026-04-23 by K-038 §3 BQ-038-03** — user intent change; see K-038 ticket for new AC-038-P1-FOOTER-ON-DIARY.`。AC text 本體保留（historical record）。**推薦**：一致性，3 個 ticket 都有 retirement trail。
+- **Option B — 不回寫**：僅靠 K-038 §7 table 作為唯一追溯來源。節省 K-017 不動原則，但 K-017 讀者視角殘缺。
+
+**若不補充：** Sign-off 時 PM retrospective 會發現 retirement trail 不一致；raise meta-BQ 回流 K-038。
+
+---
+
+### QA Challenge — NOT RAISED（已確認在 AC 內）
+
+以下 boundary QA pre-check pass，不列 Challenge：
+- **Sticky footer / viewport-short content overlay：** shared Footer 非 sticky（`w-full` + `border-t` + `py-5` 自然 flow），DiaryPage `<main pb-24>` 已有 96px 底 padding，viewport 高 且 entries 少時 Footer 自然落在 `<main>` 下方 — 不會與 DiaryEmptyState / DiaryError 重疊。
+- **SEO / GA disclosure route-specific variant：** Footer 已含 GA disclosure `<p>` 子元素，byte-identical 跨 route；/diary 自動繼承，不需要新 variant。
+- **Footer accessibility landmark 衝突：** DiaryPage 無其他 `<footer>` 或 `role="contentinfo"`；`page.getByRole('contentinfo')` 斷言單一匹配 OK。
+- **K-018 GA click events regression：** 如 ticket §Non-Goals 4 所述，shared Footer 已是純文字無 `<a>` 錨點；/diary 採用後無新 click 追蹤可觸發，不需 K-018 擴充。
+- **K-028 Diary empty-state Sacred 衝突：** K-028 AC-028-DIARY-EMPTY-BOUNDARY 管的是 **homepage 的 diary section**（`DevDiarySection.tsx`），非 `/diary` 頁。`/diary` 採 `DiaryEmptyState` 是獨立組件；Footer 加到 `/diary` 不動 K-028。
+
+---
+
+**總結：**
+- **Recommended additional AC / AC 強化：** 9 條（Challenge #1 / #3 / #4 / #5 / #7 / #8 / #9 各需直接補 AC 文字或 §7 table；Challenge #2 / #6 需 PM 二選一裁決 Option A/B）
+- **Known Gap 候選（若 PM 選 Option B）：** Challenge #2 mobile viewport seam、Challenge #6 /diary computed-style
+- **Sacred 退役無 regression risk：** 3 條退役 Sacred（K-017 `/diary` 負、K-024 `/diary` no-footer、K-034 P1 `/diary` half）與 1 條保留 Sacred（K-030 `/app` isolation）的 grep audit 無其他 hidden dependency；ticket §3 表格完整且與 spec 實際斷言 1:1 對應。K-017 AC-017-FOOTER about-page anchors 部分已由 K-034 Phase 1 另外退役，與 K-038 無交集。
+- **重大發現：** 無 regression-inducing Sacred conflict；K-030 `/app` isolation 完全不動、相關 spec (`app-bg-isolation.spec.ts`、`sitewide-fonts.spec.ts` L56 /app Footer removal comment) 與本 ticket 零交集。
+
+**PM ruling required：** 9 條 QA Challenge 逐條回覆（補 AC / 選 Option / 登 Known Gap）；完成後 Phase 0 design-locked sign-off 方可放行 Architect。
+
+
+---
+
 ## 2026-04-23 — K-034 Phase 1 QA sign-off gap — TD-K030-03 recurrence
 
 **沒做好：** 兩層失誤：(a) K-034 Phase 1 QA sign-off 未以 `TICKET_ID=K-034` 前綴執行 `visual-report.ts`，直接跑 `npx playwright test visual-report.ts`，落入 TD-K030-03 已知 fallback 分支，寫出 `K-UNKNOWN-visual-report.html`；(b) 寫出後 QA 未察覺檔名不符，未依 persona §Sign-off step 1 硬規則（`K-UNKNOWN output = failure, must re-run`）重跑。Persona 規則明文存在，Phase 1 QA run 靜默 bypass；兩次同類汙染（K-030 一次、K-034 Phase 1 一次）= TD-K030-03 recurrence count 2。
@@ -161,6 +337,15 @@ Visual report (`visual-report.ts`) takes per-route screenshots side-by-side, but
    ```
 
 ---
+
+
+## 2026-04-23 — K-037 Favicon Wiring Final Sign-off (post-Code-Review, post-Engineer-commit-pending)
+
+**做得好：** 三閘門機械驗證順序清晰 — (1) 完整 Playwright suite 257 passed / 1 skipped / 1 failed，唯一紅燈 `AC-020-BEACON-SPA` 透過 grep 確認是 `ga-spa-pageview.spec.ts` 檔案 L143 註解明文標註「K-033 TRACKER — currently RED on purpose」的預期紅，非 K-037 回歸；(2) favicon 獨立 suite 16/16 全綠（8 asset-200 + 6 link-tag + 1 manifest schema + 1 MIME accept-list）完全對齊 AC-037 四條可測 AC 結構；(3) 機械 AC-037-TAB-ICON-VISIBLE curl grep 驗證（rel="icon"×4 + apple-touch-icon×1 + manifest×1 + theme-color×1）全部吻合期望值，且 theme-color meta content `#F4EFE5` 與 manifest.json `theme_color` byte-for-byte 一致（Architect §3 binding contract #5 達成）。Sacred invariant 交叉比對零衝突 — K-037 scope 僅 `<head>` + `public/` + playwright config 三層（git diff --stat 確認 index.html +7 / playwright.config.ts +41-9 / diary.json +6），未觸及 K-028/K-035/K-021/K-024 shared chrome surfaces。Engineer 回報的 `diary-page T-L1` timing flake 本次 full-suite 未重現，與 Engineer retro「isolated re-run green」敘述一致（timing 類 flake 本質）。Visual report `TICKET_ID=K-037` 正確產生於 `docs/reports/K-037-visual-report.html`（1.8MB，5 captures），並主動清除先前 full-suite run 產生的 `K-UNKNOWN-visual-report.html` 殘檔，避免下游污染。
+
+**沒做好：** Playwright project-split 架構（`chromium` + `favicon-preview` + `visual-report` 三 project）首次出現，QA 未在 Early Consultation 時預先確認「full-suite 呼叫 `npx playwright test` 不帶 --project 參數是否會自動跑 favicon-preview 與 visual-report」— 實際行為是三 project 全跑（favicon 16 + visual 5 + chromium 核心），總數因此跳升到 257，與 Engineer pre-commit baseline 的 256 + 16 = 272 預期不完全一致（差異來自 visual-report 被無意間觸發 + 1 個 diary-page flake 未重現）。事後對照 playwright config 可推出（無 --project filter 時跑所有 project），但若 QA 在 Early Consultation 階段就預審 config 三 project 結構並書面化「full-suite 預期總數＝X（含 visual-report auto-run）」，可避免 sign-off 當下的瞬間困惑。另：mobile Safari iOS / Android Chrome 實機 tab icon 渲染仍為 ticket 內明示 Known Gap（AC-037-TAB-ICON-VISIBLE 條款），本次 sign-off 無法覆蓋 — 依賴 PM close-time 與 user 在真實裝置做側邊比對，非 QA 可機械驗。
+
+**下次改善：** Early Consultation 階段若 Engineer 計畫引入新 Playwright project（測試隔離/附加 webServer/多 baseURL 等），QA 必須書面產出「full-suite invocation matrix」表格（欄：`npx playwright test` / `--project=X` / `<spec-file>`；列：三 project 是否會被觸發；格：預期 test count）貼回 ticket Release Status，作為 sign-off 時對照基線。本次 K-037 回溯補 matrix：`npx playwright test` = chromium(236) + favicon-preview(16) + visual-report(5) = 257 total（1 skipped 在 chromium 核心，屬既有 K-033 tracker）；`npx playwright test favicon-assets.spec.ts --project=favicon-preview` = 16；`TICKET_ID=K-037 npx playwright test --project=visual-report` = 5。已 codify 至 `~/.claude/agents/qa.md` §Mandatory Task Completion Steps — 新增「Step 0c: multi-project playwright config invocation matrix pre-flight」，當 `playwright.config.ts` 出現 ≥2 project 時必備。
 
 ## 2026-04-22 — K-025 Final Sign-off (post-Code-Review)
 

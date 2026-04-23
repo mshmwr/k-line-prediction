@@ -18,6 +18,22 @@
 
 ---
 
+## 2026-04-23 — K-037（favicon wiring — architect-ruling only, no design doc）
+
+**做得好：**
+- PM pre-recommendation 充分（7 點 rationale、File Change Scope 已凍結、5 個技術問題明確分出「Architect 決定」而非混雜 PM 決定），Architect 端直接進 §Triage path 而非重推理論據；避免了 K-011 那次「no architecture needed 但 doc 已 drift」未先 grep 的歷史坑。
+- §Triage grep 命中 2 行都是 `dist/index.html`（SPA fallback）與 Google Font preconnect，無一筆描述 favicon/manifest — 直接確認 K-037 是 net-add，單行 Changelog 是正確治療路徑，無需改動 Directory Structure 或 Frontend Routing 段。
+- Q1 link tag 順序 / Q3 `display: browser` / Q4 no firebase headers / Q5 theme-color = `#F4EFE5` 五題全部給出 binding 具體值而非 "depends"，且每題附 rationale，符合 persona §Never Do「never leave boundary blank spots」。
+
+**沒做好：**
+- 本次 ruling 路徑本身很順，但 brief 的「capability disclosure」+「exempt from designer JSON+PNG gate」這類組織性決策是 PM 提前消化過的；如果未來遇到主 session 直接丟 ticket 沒 brief 的情境，Architect 需要自己判斷是否 exempt `feedback_designer_json_sync_hard_gate`，目前 persona 對「非頁面 iconographic artwork」這種 edge case 沒有明確條款，只有 K-037 此筆為案例。
+
+**下次改善：**
+- 在 `senior-architect.md` §Visual Spec JSON Consumption Gate 補一條「非頁面性 iconographic artwork（favicon / app icon / logo-as-image-file）exempt from `specs/*.json` 要求，但 ticket frontmatter 必須明示 `design-locked: pending — human side-by-side review` + 指向 Pencil source 檔案路徑」。此規則一旦落地，future 同類型 ticket 就不需要每次重新以「PM 提前消化」方式 ad-hoc 例外。**Action：** 本次 retro log 寫完後同步開一筆 Tech Debt / 待補 persona rule（K-037 close 時或下個 architect 會話由 PM 決定是否落地）。
+- K-037 有 5 個 Q 全部 Architect 可 rule，但若其中一個 Q 需要 PM 再 arbitrate（例如 Q3 改 `standalone` 要擴 AC），persona §Scope Question Pause Rule 的格式（§0 Scope Questions）未針對「brief 格式」做例子。此次沒觸發，但下次類似情境 Architect 應把 Q 搬進 brief 的獨立 §Scope Questions 區塊而非在 §Architect Ruling 裡混寫。
+
+---
+
 ## 2026-04-23 — K-034 Phase 1 — Design doc §8 Sacred cross-check coverage gap (Reviewer-surfaced)
 
 **做得好：** BQ-034-P1-01 (/about GA Sacred vs Pencil) 主動 surface 作為 blocker — 實際代表 §8 Sacred cross-check 在 K-017/K-018/K-022 三個 Sacred 維度是完整的。
@@ -114,7 +130,7 @@
 
 ---
 
-
+## 2026-04-22 — K-029 /about card body text paper palette migration
 
 **做得好：** Pre-Design Audit 以 `git show main:<file>` 覆驗 ArchPillarBlock + TicketAnatomyCard 與 worktree 完全一致，確認 7 個 site 無遺漏；§13 Boundary Pre-emption 自查時抓到 `testingPyramid` 為 optional props，`arch-pillar-layer` 實際 DOM 數為 3（Pillar 3 內 Unit/Integration/E2E 三層），不是 9（三 Pillar × 三層）也不是 1，於設計文件明示避免 Engineer 誤寫 `toHaveCount`。
 **沒做好：** 初稿 §6.2 僅列 `data-testid` injection 4 項，未在同表同時交代 Outcome / Learning label 選擇路徑（從 `ticket-anatomy-body` 往下 `locator('span', { hasText })`），檢查 §15 AC↔Test Case 前還沒補；AC 說 3 Outcome + 3 Learning 各獨立斷言，若未指定 selector Engineer 可能自訂 testid 違反 Architect mandate。交付前補 §6.2 Note 段落才完整。

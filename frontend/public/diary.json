@@ -1,9 +1,21 @@
 [
   {
+    "ticketId": "K-037",
+    "title": "Favicon wiring and Web App Manifest",
+    "date": "2026-04-23",
+    "text": "Wired the seven K-036 favicon assets into frontend/index.html via six rel=icon/apple-touch-icon/manifest link tags plus a meta theme-color (paper token #F4EFE5), added a minimal W3C Web App Manifest (frontend/public/manifest.json, display=browser, 192+512 icon entries, name K-Line Prediction), added a 16-case Playwright regression spec (favicon-assets.spec.ts) asserting asset 200 status + non-empty body + individual link tag attributes + manifest schema + Content-Type accept-list across a dedicated favicon-preview project running on vite preview port 4173, and accepted default Vite/Firebase JSON MIME per AC-037-MANIFEST-MIME-ACCEPTABLE with no firebase.json change."
+  },
+  {
     "ticketId": "K-034",
     "title": "About Footer Pencil-SSOT unification and variant prop retirement",
     "date": "2026-04-23",
     "text": "Retired FooterProps.variant and collapsed Footer.tsx to a single Pencil-literal inline one-liner (Geist Mono 11px tracking 1px U+00B7 middle-dot delimiter) matching homepage-v2.pen frames 86psQ and 1BGtd byte-identically; updated three call sites (HomePage, AboutPage, BusinessLogicPage) to prop-less Footer and removed the SectionContainer footer-cta wrapper on AboutPage; rewrote shared-components.spec.ts with four byte-identical outerHTML assertions plus three toMatchSnapshot baselines; retired twelve /about-scoped Sacred tests across four spec files (AC-017-FOOTER 5 tests, AC-022-FOOTER-REGRESSION 3 tests, pages.spec.ts Footer CTA 1 test, AC-018-CLICK /about-scoped 3 tests) per PM ruling BQ-034-P1-01 Option A; 235 passed with 1 skipped plus 1 pre-existing K-020 regression-guard red preserved; tsc exit 0; AC-034-P1-FAIL-IF-GATE-REMOVED dry-run proved gate fires (6 FAILs when variant branch re-added)."
+  },
+  {
+    "ticketId": "K-036",
+    "title": "Favicon design and rasterization",
+    "date": "2026-04-22",
+    "text": "Designed K-036 favicon as a 4-candle chart (green spine + ascending green/red/green triplet with rounded corners) overlaid with two smooth moving-average curves (purple slow and amber fast) crossing in a golden-cross pattern on a transparent 512x512 canvas; rasterized to seven common formats (favicon.ico multi-size 16/32/48 bundle, favicon-16x16/32x32/48x48.png, apple-touch-icon.png 180x180, android-chrome-192x192.png, android-chrome-512x512.png) in frontend/public/; <link rel=icon> wiring into index.html deferred to a follow-up ticket to keep this ticket scope focused on design plus asset generation."
   },
   {
     "ticketId": "K-025",
