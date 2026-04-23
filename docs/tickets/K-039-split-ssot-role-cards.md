@@ -1,0 +1,389 @@
+---
+id: K-039
+title: Split SSOT for /about RoleCardsSection — Pencil = visual SSOT, TSX ROLES = text SSOT (README sync generator + pre-commit + persona codification)
+status: open
+phase: 0
+type: refactor + process
+priority: medium
+visual-delta: none
+content-delta: yes
+design-locked: N/A — reason: visual-delta is none (no Pencil redraw required; TSX becomes text SSOT, Pencil text fields frozen-at-session)
+qa-early-consultation: docs/retrospectives/qa.md 2026-04-23 K-039
+created: 2026-04-23
+depends-on: []
+related: K-017 (original ROLES intro), K-022 (Phase 2 /about visual refresh), K-034 (Phase 2 D-4/D-5/D-6/D-7/D-8/D-26 Pencil-verbatim rule that this ticket splits), K-035 (BFP Round 1 SSOT root), K-040 (future — other /about card patterns)
+---
+
+## 0. One-Line Summary
+
+The /about role card content lives in four places today (Pencil JSON, TSX `ROLES`, README.md, `docs/ai-collab-protocols.md`). K-034 D-4/D-26 treats Pencil as SSOT for all four — meaning any text tweak triggers a full Designer session. This ticket refines the rule: **visual properties (font, size, color, layout) stay Pencil-SSOT; runtime text fields (`role` / `owns` / `artefact`, plus section subtitle) become TSX-SSOT**. Three phases: (1) drift-repair README + protocols.md to TSX verbatim + add sync markers; (2) ship `scripts/sync-role-docs.mjs` generator + pre-commit hook; (3) codify the split in 3 personas + 1 memory file + ticket template `content-delta` field.
+
+---
+
+## 1. Background
+
+### 1.1 Current state (HEAD 2e4ac97)
+
+Four content surfaces, byte-level audit:
+
+| Surface | Location | Owns text? |
+|---------|----------|------------|
+| Pencil frame | `frontend/design/specs/about-v2.frame-8mqwX.json` (exported 2026-04-21) | Yes — content, font, size, layout all baked in |
+| TSX const | `frontend/src/components/about/RoleCardsSection.tsx` L2-41 `ROLES` array | Yes — runtime strings |
+| README table | `README.md` L27-34 "AI Collaboration Flow" table | Yes — 6 Owns + 6 Artefact rows |
+| Protocols doc | `docs/ai-collab-protocols.md` L20-27 "The 6 Roles" table | Yes — 6 Owns + 6 Artefact rows |
+
+**Drift audit (HEAD, 2026-04-23):**
+
+- TSX ↔ Pencil JSON: byte-aligned (verified node `r1Owns`…`r6Owns` / `r1Art`…`r6Art` content against TSX rows)
+- TSX ↔ `docs/ai-collab-protocols.md`: Owns 6/6 match; Artefact 3/6 drift (Reviewer/QA/Designer rows differ)
+- TSX ↔ `README.md`: Responsibilities column is fully paraphrased (6/6 drift); Verifiable Output column 3/6 drift (Reviewer/QA/Designer rows)
+
+### 1.2 Why now
+
+K-034 Phase 2 declared AC-034-P2-DRIFT-D5 / D6 / D7 / D8 / D26 all locking Pencil as SSOT for text content. When K-034 Phase 2 deploys (WIP on main as of 2026-04-23), any tweak to `owns` or `artefact` text would force: Designer session → batch_design → re-export JSON+PNG → PM `design-locked: true` sign-off → Engineer mirror → Playwright re-sync. Acceptable for typography/color tweaks; disproportionate cost for a 6-word phrase change.
+
+### 1.3 Core diagnosis (plan §2)
+
+K-034 D-4 conflates two separable concerns: **visual** (Pencil-owned) vs **textual** (code-owned). The split lifts runtime text out of the Pencil-SSOT contract while preserving Pencil-SSOT over everything visual.
+
+---
+
+## 2. Goals / Non-Goals
+
+### Goals
+1. Drift-repair README + `docs/ai-collab-protocols.md` to match TSX `ROLES` verbatim at HEAD.
+2. Bind both files to TSX `ROLES` via sync markers (`<!-- ROLES:start --> … <!-- ROLES:end -->`).
+3. Ship `scripts/sync-role-docs.mjs` generator + `npm run sync-role-docs` entry + pre-commit hook (fails commit if output differs from committed).
+4. Codify split-SSOT rule across 3 personas (engineer.md, pm.md, designer.md) + 1 new memory (`feedback_content_ssot_split.md`) + ticket template frontmatter `content-delta: yes|none`.
+5. Retire-with-scope the text-content portion of K-034 AC-034-P2-DRIFT-D5/D6/D7/D8/D26 (visual properties of those ACs remain intact).
+
+### Non-Goals
+1. Not touching `MetricCard` / `PillarCard` / `TicketAnatomyCard` / `ArchPillarBlock` (per plan — defer to K-040 once K-039 pattern is proven; YAGNI).
+2. Not runtime-binding Pencil (no live data feed at app runtime).
+3. Not advocating text-first workflow for visual changes — Pencil remains SSOT for any `fontFamily` / `fontSize` / `fill` / `layout` / `padding` / `gap` change.
+4. Not bundling into K-034 (K-034 already has 3 phases + Phase 2 audit in flight; adding this = scope creep).
+
+---
+
+## 3. Cross-Ticket Sacred Check
+
+(Mandatory per `feedback_pm_ac_sacred_cross_check.md`.)
+
+**Checked against:**
+- This ticket's own AC-REGRESSION clauses: none yet (new ticket).
+- K-017 Sacred (AC-017-ROLES / AC-017-METRICS / AC-017-PILLARS / AC-017-TICKETS / AC-017-ARCH): preserved. K-017 Sacred governs section *identity* ("The Roles" section exists, 6 cards rendered), not verbatim wording of `owns` / `artefact`. No retirement needed.
+- K-022 Sacred (AC-022-DOSSIER-HEADER / LINK-STYLE / LAYER-LABEL / ANNOTATION): already retired per K-034 Phase 2 BQ-034-P2-ENG-02 (2026-04-23 ruling). No touch needed.
+- K-034 Phase 2 AC-034-P2-DRIFT-D5 / D6 / D7 / D8 / D26: **conflict for the `content` portion only**. D-5 mandates `redactArtefact: false`; D-6 mandates role font-size variance; D-7 mandates dark top-bar `FILE Nº 0N · PERSONNEL`; D-8 mandates typography tokens; D-26 mandates section subtitle verbatim from Pencil `s3Intro`. K-039 retires **only** the "text content must match Pencil verbatim" portion of D-5 / D-26 (the `owns` string in D-8 is implicitly affected too). Visual tokens (font-family, font-size, color, letter-spacing, padding, gap, border, top-bar presence, role font-size variance by name length) in D-5 / D-6 / D-7 / D-8 remain Pencil-SSOT. **Retirement is executed by AC-039-P3-SACRED-SPLIT** (see Phase 3 ACs below).
+
+**Conflict resolution:** Option (a) rewrite scope + (b) Sacred retirement, via AC-039-P3-SACRED-SPLIT. Not Option (c) BQ-to-user because plan §Codification #1 explicitly rules the split (user-approved plan, 2026-04-23).
+
+**AC vs Sacred cross-check:** conflict detected at K-034 AC-034-P2-DRIFT-D5/D6/D7/D8/D26 (content portion) → resolved via AC-039-P3-SACRED-SPLIT (scope retirement, see Phase 3).
+
+---
+
+## 4. Verification criteria (plan §Verification lifted)
+
+1. **Phase 1:** `diff <(grep -A8 "ROLES:start" README.md)` equals stringified TSX `ROLES`; same for `docs/ai-collab-protocols.md`; Playwright green.
+2. **Phase 2:** `npm run sync-role-docs` idempotent (running it on clean tree produces no diff); pre-commit hook blocks unsynced commits.
+3. **Phase 3:** `/audit-personas engineer` + `/audit-personas pm` + `/audit-personas designer` return `[OK]` including the new split-SSOT hard step.
+4. **Dogfood test:** flip one `owns` phrase in TSX → run pre-commit → confirm README + protocols.md regenerate to match → Playwright green without a Designer session.
+
+---
+
+## 5. Phase Plan
+
+### Phase 1 — Content-drift repair + sync markers + regression test
+
+**Scope:** purely text find/replace in README + protocols.md + one new Playwright spec. No architectural decision. Engineer-direct release OK.
+
+#### AC-039-P1-EXTRACT-ROLES-MODULE — `ROLES` extracted to pure-data module (QA Challenge #2 Option A)
+
+- **Given** `frontend/src/components/about/RoleCardsSection.tsx` declares `ROLES` inline without `export`
+- **When** Engineer completes Phase 1 first task
+- **Then** `ROLES` moves to new file `frontend/src/components/about/roles.ts`
+- **And** `roles.ts` has zero React imports (pure data module): only a `const ROLES = [...]` + `export { ROLES }` (or equivalent named export)
+- **And** `RoleCardsSection.tsx` imports `ROLES` from `./roles`
+- **And** the TSX entry shape is unchanged (6 entries; fields `role`, `owns`, `artefact`, `redactArtefact`; order PM → Architect → Engineer → Reviewer → QA → Designer as at HEAD)
+- **And** `npx tsc --noEmit` exits 0; existing `about.spec.ts` `owns` / `artefact` assertions still pass (no runtime change)
+
+#### AC-039-P1-TSX-CANON — TSX ROLES is the canonical text source at HEAD
+
+- **Given** `frontend/src/components/about/roles.ts` (post AC-039-P1-EXTRACT-ROLES-MODULE)
+- **When** the 6-row table in README and protocols.md is inspected
+- **Then** each `owns` text must match TSX `ROLES[i].owns` verbatim (case, punctuation, spacing)
+- **And** each `artefact` text must match TSX `ROLES[i].artefact` verbatim
+- **And** the role name order must match TSX `ROLES[i].role` order (PM / Architect / Engineer / Reviewer / QA / Designer)
+- **And** no mixing between `owns` / `artefact` / `responsibilities` descriptors is allowed (README currently blends paraphrased responsibilities into the owns slot — must pick one and stick to it)
+- **And** (QA Challenge #4 Option A) every TSX string in `owns` / `artefact` matches `/^[^|\n`]*$/` — no pipe, no unescaped newline, no unbalanced backtick; generator rejects (non-zero exit) and Playwright asserts
+
+#### AC-039-P1-ROLES-COUNT-INVARIANT — `ROLES.length === 6` (QA Challenge #3 Option A)
+
+- **Given** `frontend/src/components/about/roles.ts`
+- **When** Playwright spec `roles-doc-sync.spec.ts` runs
+- **Then** spec asserts `ROLES.length === 6`
+- **And** generator `scripts/sync-role-docs.mjs` asserts `parsedRoles.length === 6` and exits non-zero otherwise
+- **And** adding a 7th role (or removing one) is explicitly out of K-039 scope — requires a coordinated ticket that also updates Pencil 8mqwX sub-frames, README Mermaid diagram, AC-039 count invariant, and section label "Nº 02 — THE ROLES"
+
+#### AC-039-P1-README-SYNCED — README AI Collaboration table matches TSX verbatim
+
+- **Given** `README.md` L27-34 "AI Collaboration Flow" section with the 6-role table
+- **When** Engineer completes Phase 1
+- **Then** the table between `<!-- ROLES:start -->` and `<!-- ROLES:end -->` markers must render exactly three columns: `| Role | Owns | Artefact |` (QA Challenge #1 Option A — renamed from current `Role / Responsibilities / Verifiable Output`; narrative change to README beyond raw data drift repair is explicit PM decision)
+- **And** the 6 data rows must match TSX `ROLES` content verbatim
+- **And** the markers must be on their own lines immediately above the table header and below the table's last data row
+- **And** text outside the markers must remain untouched (only the table itself is regenerated — surrounding narrative, Mermaid diagram, bullet list preserved)
+
+#### AC-039-P1-PROTOCOLS-SYNCED — `docs/ai-collab-protocols.md` table matches TSX verbatim
+
+- **Given** `docs/ai-collab-protocols.md` L20-27 "The 6 Roles" section
+- **When** Engineer completes Phase 1
+- **Then** the 3-column table (Role / Owns / Artefact) between `<!-- ROLES:start -->` and `<!-- ROLES:end -->` markers matches TSX verbatim
+- **And** the column headers stay "Role / Owns / Artefact" (not renamed)
+- **And** text outside markers is unchanged
+
+#### AC-039-P1-MARKER-IDEMPOTENT — Sync markers are idempotent anchors
+
+- **Given** both README.md and `docs/ai-collab-protocols.md` after Phase 1
+- **When** the generator script (Phase 2) runs on them
+- **Then** the script reads only between `<!-- ROLES:start -->` and `<!-- ROLES:end -->` and rewrites only that span
+- **And** the markers themselves are preserved byte-for-byte across runs
+- **And** running the generator on an already-synced file produces zero diff
+
+#### AC-039-P1-PLAYWRIGHT-REGRESSION — Drift-detection spec exists
+
+- **Given** a new Playwright spec `frontend/e2e/roles-doc-sync.spec.ts`
+- **When** Playwright test run executes
+- **Then** spec asserts the marker-delimited table in README.md parses to a 6-row array that is deep-equal to `ROLES` imported from `frontend/src/components/about/RoleCardsSection.tsx`
+- **And** spec asserts the same for `docs/ai-collab-protocols.md`
+- **And** spec FAILs if either (a) a TSX `ROLES` row is edited without regenerating docs, (b) a doc table is hand-edited without running the generator, (c) a marker is deleted
+
+#### AC-039-P1-FAIL-IF-GATE-REMOVED — Spec proves its own monitoring power
+
+- **Given** the new Playwright spec from AC-039-P1-PLAYWRIGHT-REGRESSION
+- **When** Engineer temporarily replaces one word in README.md's synced table (e.g. `Requirements` → `Reqs`) and runs Playwright
+- **Then** `roles-doc-sync.spec.ts` must FAIL
+- **And** reverting the one-word tweak makes it PASS again
+- **And** Engineer must run this fail-dry-run and record the FAIL output in the ticket `§ Dogfood Evidence` before commit (per `feedback_engineer_concurrency_gate_fail_dry_run.md` pattern)
+
+#### AC-039-P1-NO-OTHER-CONTENT-TOUCHED — Drift repair is scoped
+
+- **Given** git diff for Phase 1
+- **When** reviewed
+- **Then** only these files may change: `README.md` (table region), `docs/ai-collab-protocols.md` (table region), `frontend/e2e/roles-doc-sync.spec.ts` (new file), `frontend/src/components/about/roles.ts` (new file — AC-039-P1-EXTRACT-ROLES-MODULE), `frontend/src/components/about/RoleCardsSection.tsx` (import-only change — AC-039-P1-EXTRACT-ROLES-MODULE), `docs/tickets/K-039-split-ssot-role-cards.md` (this file, status updates)
+- **And** no CSS / Pencil `.pen` / Pencil JSON spec / other React component is touched in Phase 1
+- **And** `grep -rn "ROLES:start" .` must return exactly 2 matches (1 in README.md, 1 in protocols.md)
+
+---
+
+### Phase 2 — Generator script + pre-commit hook
+
+**Scope:** new `scripts/sync-role-docs.mjs`, `package.json` entry, pre-commit hook. Architect consultation optional (small script, regex-parse acceptable); PM will assess at Phase 2 release whether Architect design doc is needed.
+
+#### AC-039-P2-GENERATOR-EXISTS — sync-role-docs.mjs landed
+
+- **Given** `scripts/sync-role-docs.mjs` (at repo root, not inside `frontend/`)
+- **When** executed via `node scripts/sync-role-docs.mjs`
+- **Then** script reads `frontend/src/components/about/roles.ts` (post AC-039-P1-EXTRACT-ROLES-MODULE), extracts the `ROLES` array (regex acceptable for this file size per plan)
+- **And** (QA Challenge #9 Option A) script uses `path.resolve(__dirname, '..')` to locate repo-root files (README.md, docs/*, frontend/src/*) — CWD-independent, works from any invocation directory
+- **And** rewrites the table between markers in both `README.md` and `docs/ai-collab-protocols.md`
+- **And** (QA Challenge #8 Option A) generator is DESTRUCTIVE inside the marker region — any in-cell markdown (links, bold, inline code) present in doc tables is replaced with plain TSX strings; enrichment at TSX level is K-040 candidate, out of scope K-039
+- **And** (QA Challenge #4 Option A) generator exits non-zero with a descriptive error if any `ROLES[i].owns` or `ROLES[i].artefact` contains `|`, unescaped `\n`, or unbalanced backticks — offending field is printed
+- **And** prints a 1-line summary per file: `synced / unchanged / error`
+- **And** exits 0 on success, non-zero on parse failure or file-not-found
+
+#### AC-039-P2-NPM-ENTRY — `npm run sync-role-docs` wired (QA Challenge #9 Option A)
+
+- **Given** `frontend/package.json` (the only `package.json` in the repo; no root-level `package.json` is created)
+- **When** user runs `cd frontend && npm run sync-role-docs`
+- **Then** the script entry invokes `node ../scripts/sync-role-docs.mjs` (generator at repo root, npm entry at frontend/, cross-directory invocation via relative path)
+- **And** the entry is discoverable via `npm run` listing
+- **And** the pre-commit hook (AC-039-P2-PRE-COMMIT) invokes `node scripts/sync-role-docs.mjs` from repo root DIRECTLY (bypassing npm for speed + CWD clarity)
+
+#### AC-039-P2-IDEMPOTENT — Running on clean tree produces no diff
+
+- **Given** a git-clean worktree with docs already synced
+- **When** `npm run sync-role-docs` runs
+- **Then** `git status --short` after the run shows zero modified files
+- **And** the script must NOT rewrite timestamps, trailing whitespace, or line endings of the files
+
+#### AC-039-P2-PRE-COMMIT — Hook blocks unsynced commits (QA Challenge #5 Option A — husky mandatory; QA Challenge #6 Option A — fail-not-auto-stage)
+
+- **Given** `husky` installed as devDependency in `frontend/package.json` + `.husky/pre-commit` hook file committed to repo (version-controlled, auto-installs on `npm install` per husky convention); root `.git/hooks/` or `lefthook` are NOT permitted
+- **When** user runs `git commit` after editing `frontend/src/components/about/roles.ts` `ROLES` without running the generator
+- **Then** the hook (a) runs `node scripts/sync-role-docs.mjs` from repo root, (b) checks `git status --porcelain README.md docs/ai-collab-protocols.md`, (c) **aborts the commit (exit non-zero)** if either file changed as a result, (d) prints a multi-line message including "Docs out of sync with TSX `ROLES`. Run `cd frontend && npm run sync-role-docs && cd .. && git add README.md docs/ai-collab-protocols.md` and retry commit."
+- **And** the hook MUST NOT auto-stage the regenerated files (Engineer must explicitly `git add` per `~/.claude/CLAUDE.md §Commit Hygiene` rule — staged file list is the pre-commit contract)
+- **And** the hook passes silently (exit 0 without noise) if no `roles.ts` change is staged
+- **And** the hook passes silently if `roles.ts` change is staged AND the regenerated docs match the staged docs
+- **And** the hook installation is idempotent: fresh-clone workflow `git clone && cd frontend && npm install` wires husky automatically without manual setup steps
+
+#### AC-039-P2-DOGFOOD-FLIP — End-to-end dogfood with real phrase change
+
+- **Given** the generator + pre-commit are landed
+- **When** Engineer (or PM) flips one `owns` phrase in TSX `roles.ts` (e.g. `Requirements, AC, Phase Gates` → `AC, Phase Gates, Requirements`), runs pre-commit (it fails as expected), runs `npm run sync-role-docs`, stages docs, commits, runs Playwright, runs `npm run build`
+- **Then** pre-commit first-run FAILs with the sync message (proving the gate works)
+- **And** after generator + stage + re-commit, pre-commit passes
+- **And** Playwright `roles-doc-sync.spec.ts` passes on the new content
+- **And** no Designer session / `batch_design` / `.pen` edit is required
+- **And** (QA Challenge #10 Option A) `npm run build` succeeds and `grep "AC, Phase Gates, Requirements" frontend/dist/assets/*.js` returns ≥1 match — proving the new phrase reaches the compiled bundle
+- **And** Engineer reverts the phrase (or keeps if intentional — PM rules at dogfood time) + records the full turn in ticket `§ 8 Dogfood Evidence`
+
+#### AC-039-P2-SCRIPT-NOT-IN-E2E — Generator does not ship to browser bundle
+
+- **Given** the generator script
+- **When** `npm run build` executes
+- **Then** `frontend/dist/` contains no reference to `sync-role-docs` or its regex parser
+- **And** the script lives outside `frontend/src/` (e.g. in repo-root `scripts/`)
+
+---
+
+### Phase 3 — Codify split-SSOT rule (3 personas + 1 memory + ticket template + Sacred retirement)
+
+**Scope:** documentation-only updates to `~/.claude/agents/`, `~/.claude/projects/`, and `docs/tickets/` template. No runtime code change. PM-authored; Engineer drafts text changes for PM review; PM Edits persona + memory personally per `feedback_ticket_ac_pm_only.md` (personas are PM's product).
+
+**Scope addendum (2026-04-24):** K-039 retrospect exposed a meta-rule gap — when PM proxies QA on docs/content tickets vs when real `qa` sub-agent must spawn. Codified same session as:
+- NEW memory `~/.claude/projects/-Users-yclee-Diary/memory/feedback_qa_early_proxy_tier.md` (three-tier table + PM proxy 3 hard rules)
+- Amendment to `feedback_qa_early_mandatory.md` (cross-reference the tier file)
+- `~/.claude/agents/pm.md` line 161 QA Early Consultation checklist extended with tier decision block
+Bundled here because K-039 (docs-only content-drift) is exactly the class of ticket the tier rule governs; separate ticket for this sub-rule = pure bookkeeping overhead. Tracked as an artifact-delivered addendum, not a separate AC.
+
+#### AC-039-P3-ENGINEER-PERSONA — `~/.claude/agents/engineer.md` Step 0 clarified
+
+- **Given** `~/.claude/agents/engineer.md` current Step 0 ("Read design spec JSON before implementing")
+- **When** Phase 3 lands
+- **Then** persona includes explicit clause: "For Pencil-backed components, JSON is SSOT for layout + typography + color + spacing. Runtime text fields (e.g. `content` values for role / owns / artefact / subtitle) may be stale if ticket has `content-delta: yes` AND `visual-delta: none`; in that case consult the TSX const (e.g. `ROLES`) as text SSOT instead of the Pencil JSON `content` field."
+- **And** persona cites this ticket K-039 as precedent
+
+#### AC-039-P3-PM-PERSONA — `~/.claude/agents/pm.md` design-locked gate clarified
+
+- **Given** `~/.claude/agents/pm.md` §visual-delta frontmatter + design-locked sign-off gate
+- **When** Phase 3 lands
+- **Then** persona gains parallel `content-delta: yes|none` frontmatter gate: `visual-delta: yes` triggers Designer session + design-locked; `content-delta: yes, visual-delta: none` skips Designer, Engineer-only path; both `yes` = both gates; both `none` = pure refactor / infra.
+- **And** persona clarifies "PM owns all card text decisions; main session distills persona changes into candidate phrases and surfaces to PM for ruling; PM Edits TSX via handoff to Engineer (not self-Edit — `feedback_ticket_ac_pm_only.md`)"
+- **And** persona cites K-039 as the codifying ticket
+
+#### AC-039-P3-DESIGNER-PERSONA — `~/.claude/agents/designer.md` text-in-Pencil clarification
+
+- **Given** `~/.claude/agents/designer.md`
+- **When** Phase 3 lands
+- **Then** persona includes: "Text in Pencil frames is frozen-at-session snapshot, not a runtime binding. When runtime text evolves (via a `content-delta: yes, visual-delta: none` ticket) Pencil frame holds stale text until the next Designer-led ticket; at that point Designer grep-re-syncs the TSX const before `batch_design`."
+- **And** persona adds Step 0 re-sync gate: before `batch_design`, grep TSX for any const bound by this rule (start with `ROLES` in RoleCardsSection) and update Pencil frame `content` fields to match
+
+#### AC-039-P3-MEMORY — New `feedback_content_ssot_split.md` memory file
+
+- **Given** `~/.claude/projects/-Users-yclee-Diary-ClaudeCodeProject-K-Line-Prediction/memory/` (or equivalent per project memory location)
+- **When** Phase 3 lands
+- **Then** new file `feedback_content_ssot_split.md` exists with frontmatter (type / tags / last-verified / codified-into) + body describing:
+  - The split rule (visual vs textual SSOT)
+  - Which fields are textual (`role`, `owns`, `artefact`, section subtitles)
+  - Which fields are visual (font, size, color, layout, padding, gap)
+  - How to tell which side owns a change (frontmatter `visual-delta` / `content-delta`)
+  - Format constraints: `role` 1 word title-case / `owns` ≤6 words comma-separated / `artefact` ≤8 words / `fileNo` integer 1-6
+  - Authorship chain: PM rules → main session proposes phrase → Engineer writes TSX → generator syncs docs
+- **And** `MEMORY.md` index is updated with a pointer to this file (per `feedback_memory_authoring_spec.md` 5-step protocol)
+
+#### AC-039-P3-TICKET-TEMPLATE — `content-delta` frontmatter field added to ticket template
+
+- **Given** the ticket drafting process for new tickets
+- **When** Phase 3 lands
+- **Then** any location documenting ticket frontmatter schema (`docs/tickets/README.md` if exists, or PM persona frontmatter checklist) is updated to include `content-delta: yes|none` alongside `visual-delta: yes|none`
+- **And** the rule is documented: `content-delta: none` = no runtime text change; `content-delta: yes` = runtime text change required
+
+#### AC-039-P3-SACRED-SPLIT — K-034 AC-034-P2-DRIFT Sacred retirement, per-D-ID explicit scope (QA Challenge #7 Option A)
+
+- **Given** K-034 AC-034-P2-DRIFT-D5 / D6 / D7 / D8 / D26 at close of K-034 Phase 2 (WIP on main)
+- **When** Phase 3 lands
+- **Then** `docs/tickets/K-034-about-spec-audit-and-workflow-codification.md` gains an inline annotation at each of the 5 ACs below with EXPLICIT per-AC scope (not blanket "content portion" wording):
+
+  | K-034 AC | K-039 retirement scope | What stays Pencil-SSOT |
+  |---|---|---|
+  | **AC-034-P2-DRIFT-D5-REVIEWER-UNREDACTED** | Retires: the string `"Review report + Reviewer 反省"` as content source (now TSX `ROLES[3].artefact`). | `redactArtefact: false` (absence of redaction), `font-mono text-[12px] text-ink` typography, no RedactionBar / no sr-only wrappers — all remain Pencil-SSOT and enforced by K-034 D-5. |
+  | **AC-034-P2-DRIFT-D6-ROLE-FONT-SIZE** | **NOT retired.** Role-length-based font-size (36px if `role.length ≤ 2` else 32px) is a visual rule computed from content length, not from content value. The computation logic stays Pencil-SSOT. | All of D-6 remains Pencil-SSOT and enforced by K-034 D-6. |
+  | **AC-034-P2-DRIFT-D7-ROLE-TOP-BAR** | **NOT retired.** The `FILE Nº 0N · PERSONNEL` label is Pencil-SSOT (label content is static across all 6 cards; `N` derives from `ROLES` index order which K-039 locks at AC-039-P1-ROLES-COUNT-INVARIANT). | All of D-7 remains Pencil-SSOT and enforced by K-034 D-7. |
+  | **AC-034-P2-DRIFT-D8-OWNS-ARTEFACT-TYPOGRAPHY** | Retires: `owns` string content + `artefact` string content (now TSX `ROLES[i].owns` / `ROLES[i].artefact`). | OWNS/ARTEFACT label text (`OWNS` / `ARTEFACT` literals), `font-mono text-[10px] text-muted tracking-[2px]` label typography, `font-italic italic text-[14px]` owns-text typography, `font-mono text-[12px]` artefact-text typography, 40px horizontal rule presence + 14px gap — all remain Pencil-SSOT and enforced by K-034 D-8. |
+  | **AC-034-P2-DRIFT-D26-SECTION-SUBTITLE** | Retires: section subtitle string content (now TSX — `RoleCardsSection.tsx` subtitle `<p>` content, which is bound by AC-039-P1-TSX-CANON to match TSX as SSOT; the specific subtitle text is K-034 Phase 2 Engineer's responsibility to set verbatim from Pencil at Phase 2 merge, but future tweaks are TSX-owned). | italic font-family (Newsreader), 15px size, lh 1.6, ink color — all remain Pencil-SSOT and enforced by K-034 D-26. |
+
+- **And** the annotation at each retired-content AC uses this template: `"**PARTIALLY RETIRED by K-039 AC-039-P3-SACRED-SPLIT (2026-04-DD):** the STRING CONTENT portion of <this AC> is now TSX-SSOT per K-039 AC-039-P1-TSX-CANON. Visual properties listed in 'What stays Pencil-SSOT' (see K-039 §5 AC-039-P3-SACRED-SPLIT table) continue to be enforced by this AC."`
+- **And** D-6 and D-7 receive an explicit "NOT retired" annotation to prevent future misinterpretation: `"**Not affected by K-039 AC-039-P3-SACRED-SPLIT (2026-04-DD):** this AC governs visual computation, not content string; retained in full."`
+- **And** K-034 frontmatter sacred-list (if present) cross-references K-039
+- **And** this retirement is also logged in K-034 PM retrospective log
+
+#### AC-039-P3-AUDIT-PERSONA-OK — Persona audit passes
+
+- **Given** `/audit-personas` command (if exists; else manual scorecard per `feedback_agent_persona_authoring_standards.md`)
+- **When** run against engineer.md / pm.md / designer.md after Phase 3 edits
+- **Then** each persona returns `[OK]` including the new split-SSOT hard step
+- **And** score delta pre-vs-post is ≥0 (no regression in other scorecard dimensions)
+
+#### AC-039-P3-NO-K034-P2-REGRESSION — K-034 Phase 2 visual ACs still pass
+
+- **Given** K-034 Phase 2 is in flight on main (WIP as of K-039 open)
+- **When** K-034 Phase 2 eventually merges and K-039 Phase 3 lands atop it
+- **Then** K-034 `about.spec.ts` / `about-v2.spec.ts` visual assertions still pass (font, size, color, layout — Pencil-verbatim portion)
+- **And** K-039's `roles-doc-sync.spec.ts` is green against the post-K-034 TSX shape (which will gain `fileNo`, drop `redactArtefact`, restore Pencil-verbatim subtitle text) — generator re-runs automatically on TSX change, no Sacred conflict
+- **And** any overlap in Playwright assertions between K-034 and K-039 is documented in Phase 3 retrospective
+
+---
+
+## 6. AC Authorship Notes
+
+All ACs above authored per:
+- `feedback_pm_ac_visual_intent.md`: no AC references CSS property values directly; "idempotent" / "verbatim" / "no regression" are outcome-framed.
+- `feedback_pm_ac_sacred_cross_check.md`: Sacred conflict at K-034 D-5/D-6/D-7/D-8/D-26 detected and resolved via AC-039-P3-SACRED-SPLIT (Option a rewrite scope + b Sacred retirement).
+- `feedback_refactor_ac_grep_raw_count_sanity.md`: Phase 1 AC-039-P1-NO-OTHER-CONTENT-TOUCHED uses `grep -rn "ROLES:start" . == 2` — pre=0 at HEAD (verified) → post=2 → monitoring power non-trivial (catches marker deletion).
+- `feedback_engineer_concurrency_gate_fail_dry_run.md`: AC-039-P1-FAIL-IF-GATE-REMOVED requires Engineer to run the FAIL dry-run before commit.
+
+---
+
+## 7. QA Early Consultation
+
+**Source:** `docs/retrospectives/qa.md` entry `2026-04-23 — K-039 — QA Early Consultation (Split SSOT + README sync generator)`.
+
+**Disclosure:** Main-session proxy (no `Agent` tool this session); QA persona `~/.claude/agents/qa.md` Read + boundary sweep applied manually. Risk disclosed in the qa.md entry. Mitigation: PM will re-invoke full QA agent for sign-off at Phase 3 close if Agent tool available.
+
+**10 Challenges raised; PM rulings below (per `feedback_pm_self_decide_bq.md` — all derivable from Priority-1 Pencil + Priority-2 plan text + Priority-3 memory rules + Priority-4 codebase):**
+
+| # | Challenge | PM ruling | AC patch |
+|---|-----------|-----------|----------|
+| 1 | README column headers rename is unstated | **Option A — explicit rename.** Plan §"README sync" explicitly says "Rewrites the 6-row table" following TSX shape; plan §Files Critical says "Table to be generator-managed". TSX has three columns (role/owns/artefact), generator output must mirror. Portfolio semantic cost of dual names > one-time rename cost. | AC-039-P1-README-SYNCED gains `And` clause (see §5). |
+| 2 | Playwright-TSX import path | **Option A — extract `ROLES` to `frontend/src/components/about/roles.ts` in Phase 1.** Pure-data module (no React imports) lets Playwright + generator both import cleanly; prevents dual-SSOT shim anti-pattern that K-039 exists to prevent. 5-line refactor acceptable in Phase 1 scope. | New AC-039-P1-EXTRACT-ROLES-MODULE added (see §5). |
+| 3 | Role count boundary (empty / 1 / 7) | **Option A — role count = 6 is an invariant at Phase 1.** Pencil 8mqwX has 6 sub-frames; Mermaid diagram has 6 nodes; section label "Nº 02 — THE ROLES" implies fixed count. Changing count requires coordinated update across all three surfaces — out of scope for K-039, must be its own ticket. | New AC-039-P1-ROLES-COUNT-INVARIANT added (see §5). |
+| 4 | Special chars in TSX strings break Markdown table | **Option A — reject at parse.** Per `feedback_sanitize_by_sink_not_source.md`: TSX string → Markdown table cell sink. Generator rejects `\|` / unescaped `\n` / unbalanced backticks; AC Playwright spec asserts TSX strings are Markdown-safe. 1-line regex. | AC-039-P1-TSX-CANON gains `And` clause (see §5). |
+| 5 | Pre-commit hook ecosystem (husky vs raw hook) | **Option A — `husky` is mandatory.** Version-controlled (in `package.json` + `.husky/`); installs automatically on fresh clone via `npm install`; standard in React/Vite ecosystem. Raw `.git/hooks/` not portable = silent re-emergence of drift on new clones = K-039's core promise violated. | AC-039-P2-PRE-COMMIT `Given` clause pins husky (see §5). |
+| 6 | Hook fail-vs-auto-stage | **Option A — fail + clear message.** `~/.claude/CLAUDE.md §Commit Hygiene` mandates explicit staged file list pre-flight; auto-staging modifies that set post-hoc. UX cost (re-stage + re-commit once) < hygiene rule violation. | AC-039-P2-PRE-COMMIT `And` clause explicit (see §5). |
+| 7 | Sacred retirement scope per-D-ID | **Option A — explicit per-D-ID scope.** K-034 D-5/D-6/D-7/D-8/D-26 are not uniform content-vs-visual splits; blanket retirement risks misinterpretation. Per-AC explicit scope aligns with `feedback_pm_ac_sacred_cross_check.md` rigor. | AC-039-P3-SACRED-SPLIT rewritten with per-D-ID table (see §5). |
+| 8 | Destructive generator on enriched cells | **Option A — accept destructive; enrich at TSX level.** YAGNI per plan's own scope exclusion; if future enrichment needed, `artefactLink` field on `ROLES` lands in K-040. | AC-039-P2-GENERATOR-EXISTS `And` clause documents destructive behavior (see §5). |
+| 9 | `package.json` location (root vs frontend) | **Option A — `frontend/package.json` entry + absolute paths in generator.** Script uses `path.resolve(__dirname, '..')` to find repo-root files (README.md, docs/*); npm entry at `frontend/package.json`; hook runs `node scripts/sync-role-docs.mjs` from repo root directly (CWD-independent). Avoids creating a second `package.json` at root. | AC-039-P2-GENERATOR-EXISTS `And` clause mandates absolute-path resolution (see §5). |
+| 10 | Dogfood deploy coverage | **Option A — add build-time grep.** One-line assertion proves the TSX change reaches the compiled bundle; dogfood otherwise proves only source-level. | AC-039-P2-DOGFOOD-FLIP `And` clause adds `npm run build && grep "<new-phrase>" frontend/dist/**/*.js` (see §5). |
+
+**Summary:** 10 Challenges → 10 Option A → 10 supplemented to AC (see §5 patches below). 0 declared Known Gap. 0 BQ escalated to user. All rulings derive from Priority 2 (plan text, user-approved 2026-04-23), Priority 3 (memory rules), Priority 4 (codebase inspection).
+
+---
+
+## 8. Dogfood Evidence
+
+(To be filled at Phase 2 dogfood step per AC-039-P2-DOGFOOD-FLIP.)
+
+---
+
+## 9. Release Status
+
+- 2026-04-23 (PM, this turn): ticket opened; worktree `.claude/worktrees/K-039-split-ssot-role-cards` created from HEAD 2e4ac97 (user directive: not from dirty main).
+- 2026-04-23 (PM, this turn): AC authored; Sacred cross-check recorded (K-034 D-5/D-6/D-7/D-8/D-26 partial conflict resolved via AC-039-P3-SACRED-SPLIT — per-D-ID explicit scope per QA Challenge #7 Option A).
+- 2026-04-23 (PM, this turn): QA Early Consultation complete (main-session proxy, no Agent tool available; disclosure in qa.md entry). 10 Challenges raised → 10 Option A rulings → 10 AC patches landed. 0 Known Gap. 0 BQ escalated.
+- 2026-04-23 (PM, this turn): **Handoff check: qa-early-consultation = `docs/retrospectives/qa.md 2026-04-23 K-039`, visual-delta = none (design-locked N/A), content-delta = yes, worktree = `.claude/worktrees/K-039-split-ssot-role-cards` (created) → OK**
+- 2026-04-23 (PM, this turn): next-action verdict — **release Engineer directly for Phase 1** (pure find/replace + 5-line module extraction + new Playwright spec; no architectural decision warranting Architect consultation per plan §Phase Plan). Architect consultation OPTIONAL for Phase 2 (generator script), deferred — PM will re-assess at Phase 1 close based on Engineer's Phase 1 retro.
+
+### Phase-by-phase role dispatch plan
+
+| Phase | Primary role | Architect? | Designer? | QA? |
+|---|---|---|---|---|
+| 1 (drift repair + markers + regression) | Engineer | No (plan §Phase Plan: "pure find/replace, no architectural decision") | No (visual-delta: none) | Sign-off only (post Code Review) |
+| 2 (generator + pre-commit) | Engineer | Optional — PM re-assesses at Phase 1 close. If regex parsing turns out non-trivial or hook installation has platform issues, Architect consultation before Engineer release. | No | Sign-off + dogfood verification |
+| 3 (persona codification + memory + Sacred retirement) | PM (drafts persona + memory text + K-034 annotation) + Engineer (template file creation if needed) | No | No | Optional — persona audit per AC-039-P3-AUDIT-PERSONA-OK |
+
+---
+
+## 10. Retrospective
+
+(To be written at ticket close.)

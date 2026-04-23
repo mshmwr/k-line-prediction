@@ -19,6 +19,210 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-23 — K-039 — QA Early Consultation (Split SSOT + README sync generator)
+
+**Disclosure (capability pre-flight, pm.md §PM session capability pre-flight):** This session has no `Agent` tool available. PM acted as main-session QA proxy; consultation was conducted by Reading `~/.claude/agents/qa.md` persona + codebase + specs + plan doc. Risk: blind spots a full QA agent with interactive boundary sweep might catch could be missed. Mitigation: (a) explicit disclosure here; (b) PM will re-invoke full QA agent for sign-off in a later turn if Agent tool becomes available; (c) QA Challenges below derived directly from `qa.md` §Boundary Condition Mandatory Sweep table applied to K-039 Phase 1/2/3 ACs + K-Line E2E spec inventory.
+
+**Pre-consultation evidence probe (2026-04-23):**
+- Worktree HEAD: 2e4ac97 (clean, pre-K-022/K-034 Phase 2 shape). TSX `ROLES` has `redactArtefact` field + no `fileNo`; section subtitle is paraphrased (not Pencil-verbatim).
+- Drift audit confirmed: README 6/6 responsibilities paraphrased + 3/6 artefact drift; `docs/ai-collab-protocols.md` 0/6 owns drift + 3/6 artefact drift; TSX ↔ Pencil `specs/about-v2.frame-8mqwX.json` byte-aligned on `owns`/`artefact` only (subtitle is the known HEAD divergence).
+- Existing E2E coverage: `frontend/e2e/about.spec.ts` asserts /about role card text via `getByText` (6 `owns` + 6 `artefact` entries, case-sensitive exact). `shared-components.spec.ts` exists for cross-route shared chrome (NavBar, Footer) — no role-card cross-surface equivalence spec yet.
+- No existing `scripts/` folder has a sync generator; only `scripts/audit-ticket.sh` lives there. Pre-commit hook ecosystem: repo has no `.husky/` or `lefthook.yml`; `.git/hooks/pre-commit` is absent. Engineer must pick pattern in Phase 2 (see Challenge #5).
+
+---
+
+### QA Challenge #1 — AC-039-P1-README-SYNCED — column-header rename is unstated
+
+**Issue:** AC says README markers-delimited table must have columns `Role / Owns / Artefact` (no Responsibilities/Verifiable Output rename). But README HEAD currently uses columns `Role / Responsibilities / Verifiable Output`. The AC mandates a column-header **rename** — this is a narrative change to the README that goes beyond "drift repair", and it's not called out as a Goal in §2. A reader passing by the AC might think the AC asks only for table data to be updated and leave the old column headers in place, producing a synced-but-wrongly-labeled table.
+
+**Risk:** Phase 1 ships README with columns `Role / Responsibilities / Verifiable Output` but data in the Owns/Artefact sense — semantic mismatch in a public-facing portfolio doc. Generator (Phase 2) would then have two options: (a) also rename the column headers on every run (silent cosmetic churn), or (b) preserve existing column-header text and only rewrite data rows — harder regex + risk of inconsistent output across the two files.
+
+**Option A (fix):** Add explicit AC clause: "AC-039-P1-README-SYNCED `And` — README column headers after Phase 1 must read exactly `| Role | Owns | Artefact |` (not `Responsibilities` / `Verifiable Output`); this is a narrative change to README beyond drift repair."
+
+**Option B (Known Gap):** Keep README columns `Responsibilities / Verifiable Output`; generator maps TSX `owns` → Responsibilities and `artefact` → Verifiable Output. Accepted risk: two names for the same concept across files, generator carries a rename map, cognitive overhead for future readers.
+
+**Recommendation:** **Option A.** Plan §"README sync" explicitly says "Rewrites the 6-row table" — the simplest mental model is TSX-shape mirror. Rename map is accidental complexity.
+
+**If not ruled:** AC-039-P1-README-SYNCED will be ambiguous at sign-off; Engineer may ship either variant and QA cannot declare PASS/FAIL deterministically.
+
+---
+
+### QA Challenge #2 — AC-039-P1-PLAYWRIGHT-REGRESSION — TSX import path from Playwright spec is non-trivial
+
+**Issue:** AC says `roles-doc-sync.spec.ts` must "deep-equal `ROLES` imported from `frontend/src/components/about/RoleCardsSection.tsx`". Playwright E2E specs run under Playwright's own tsconfig (`frontend/playwright.config.ts` + `frontend/e2e/tsconfig.json` if exists). Importing from `frontend/src/` into `frontend/e2e/` works in this repo (verified — `about.spec.ts` uses relative paths into `src/` for some specs), but (a) `ROLES` is currently declared inside the component file without `export`, (b) importing a React component module into Node Playwright causes the React import chain to resolve and can trip on CSS/Tailwind/image loaders.
+
+**Risk:** Engineer writes spec assuming clean import of `ROLES`, then hits a Vite/Playwright module-resolution failure, then adds a dual-source-of-truth shim (copies `ROLES` into a `.json` or `.ts` constant in spec folder) — **recreating the drift K-039 was meant to prevent**.
+
+**Option A (fix):** Refactor TSX to extract `ROLES` into a pure-data module: `frontend/src/components/about/roles.ts` (no React imports; exports `ROLES`). `RoleCardsSection.tsx` imports from there. Playwright spec imports directly from `roles.ts` (clean no-React module). This is a 5-line code change in Phase 1 — low cost, eliminates Challenge class.
+
+**Option B (Known Gap):** Playwright spec parses the marker-delimited tables in README + protocols.md and compares the two tables to each other (not to TSX). Covers "doc-vs-doc drift" but not "TSX-vs-doc drift" — if Engineer edits TSX and forgets to run generator, doc tables might still match each other from a previous sync.
+
+**Option C:** Playwright spec shells out to `node scripts/sync-role-docs.mjs --dry-run --json` which outputs the parsed ROLES as JSON, spec asserts parsed README table matches that JSON. Script is the SSOT adapter between TSX parse and Playwright assertion.
+
+**Recommendation:** **Option A.** Cleanest architecture; `roles.ts` data module is a natural split (data vs rendering) and makes generator regex trivially robust. Option C is clever but adds a runtime dependency from Playwright → script — fragile.
+
+**If not ruled:** AC-039-P1-PLAYWRIGHT-REGRESSION untestable without a chosen import path; Engineer may pick Option B silently and ship weaker coverage.
+
+---
+
+### QA Challenge #3 — Boundary: TSX `ROLES` array with < 6 or > 6 entries
+
+**Issue:** AC-039-P1-TSX-CANON mandates 6 roles (PM/Architect/Engineer/Reviewer/QA/Designer). If someone adds a 7th role (e.g. "Documentarian") to TSX, what does the generator do? What does the Playwright spec assert? No AC covers "role count changes". Empty `ROLES = []` is a degenerate case — generator should not crash, but neither spec nor AC specifies behavior.
+
+**Risk:** 7-role addition ships: generator silently writes a 7-row table; README visual section breaks (Mermaid diagram still shows 6 flowchart nodes); Playwright spec FAILs with unclear error; Engineer can't tell whether the change is rejected or the test is stale.
+
+**Option A (fix):** Add `AC-039-P1-ROLES-COUNT-INVARIANT` — generator + spec both assert `ROLES.length === 6`; changes to count require a separate ticket that also updates Mermaid diagram + Pencil 8mqwX frame + AC table. Count invariant is codified.
+
+**Option B (Known Gap):** Accept "adding a role is out of scope for K-039; any attempt will fail Playwright which is acceptable signal". TD registered for future role-count-change ticket.
+
+**Recommendation:** **Option A.** Role count is visually + architecturally significant (Pencil has 6 sub-frames, Mermaid has 6 flowchart nodes, section label "Nº 02 — THE ROLES" implies fixed count). Making it an invariant at Phase 1 gives the generator a clean precondition.
+
+**If not ruled:** boundary sweep row "Empty list / single / large (0 / 1 / 1000 items)" is unfilled — QA boundary table incomplete, sign-off blocked per `qa.md` §Boundary Condition Mandatory Sweep.
+
+---
+
+### QA Challenge #4 — Boundary: role-specific characters (CJK, pipe, asterisk) break Markdown table rendering
+
+**Issue:** Current TSX `ROLES[3].artefact = "Review report + Reviewer 反省"` contains CJK characters. Markdown handles CJK fine, but if a future `owns` or `artefact` contains `|` (table-column delimiter), `*` (emphasis), backticks (inline code), or a newline, the generator must escape or reject. Plan §Format constraints says `owns ≤6 words, comma-separated` — but doesn't forbid special chars.
+
+**Risk:** PM approves a phrase like `"code review | breadth + depth"` (pipe-separated); generator naïvely emits `| Reviewer | code review | breadth + depth | ... |` — 6-column row, breaks table rendering. README portfolio surface gets visual regression.
+
+**Option A (fix):** AC-039-P1-TSX-CANON gains an `And` clause: TSX string values must not contain `|`, unescaped newlines, or unbalanced backticks. Generator rejects (non-zero exit) if detected, prints offending field. Playwright spec adds `expect(roles.every(r => !/\||\n/.test(r.owns + r.artefact))).toBe(true)`.
+
+**Option B (Known Gap):** Accept — "PM will review phrases, won't approve special chars". No enforcement.
+
+**Recommendation:** **Option A.** Format enforcement at parse time is cheap (1-line regex) and prevents the class of bug. Per `feedback_sanitize_by_sink_not_source.md` — source is TSX string, sink is Markdown table cell; sanitize at sink boundary.
+
+**If not ruled:** boundary sweep row "Special chars / overlong input" unfilled; QA sign-off blocked.
+
+---
+
+### QA Challenge #5 — AC-039-P2-PRE-COMMIT — hook ecosystem not declared
+
+**Issue:** AC-039-P2-PRE-COMMIT says "new file under `.husky/`, `.git/hooks/`, or lefthook config — Engineer picks the project's existing pattern". But repo has NONE of these at HEAD (verified `ls -la .husky/ .git/hooks/pre-commit lefthook.yml` all absent/example-only). Leaving the choice to Engineer at implementation time means PM's Phase Gate can't verify the pattern a priori, and Engineer may choose the least robust option (e.g. raw `.git/hooks/pre-commit` — not version-controlled, doesn't install on fresh clone).
+
+**Risk:** Engineer picks `.git/hooks/pre-commit` (single-file). Ships. New contributor clones repo, edits TSX, commits — no hook runs, doc drift re-emerges. K-039's core deliverable (close the drift gap forever) silently fails.
+
+**Option A (fix):** PM rules at Phase 2 release: Engineer must use `husky` (de facto standard, version-controlled via `package.json` + `.husky/`). If Engineer rejects husky for size reasons, Engineer files a BQ with alternative (`simple-git-hooks`, `lefthook`) — PM approves before implementation.
+
+**Option B (Known Gap):** Hook is `.git/hooks/pre-commit` only; doc drift re-emerges on fresh clone is accepted as TD; README adds "run `npm run setup-hooks` after clone" step. Enforced by Engineer-authored setup script.
+
+**Recommendation:** **Option A.** `husky` is ~50 KB, standard in React ecosystem, version-controlled. Option B forces every contributor to remember a manual setup step — failure mode is silent.
+
+**If not ruled:** hook mechanism choice deferred to Engineer = Engineer could ship a non-portable hook = fresh-clone drift re-emerges.
+
+---
+
+### QA Challenge #6 — AC-039-P2-PRE-COMMIT — performance / interactive behavior unspecified
+
+**Issue:** Pre-commit hook runs generator + `git status` comparison on every commit that stages `RoleCardsSection.tsx`. But the hook mechanism of Option A (husky) typically runs in sub-shell and can auto-stage regenerated files OR fail with "re-run git add && git commit". AC doesn't say which. User experience of "commit, hook rewrites files, re-stage, re-commit" vs "commit auto-succeeds with regenerated staged files" is materially different.
+
+**Risk:** Engineer picks auto-stage behavior; hook silently modifies user's WIP commit (surprising side-effect on "commit pre-flight (mandatory)" rule in `~/.claude/CLAUDE.md`). Or Engineer picks fail+message behavior; first-time user hits confusing "generator modified files, run again" loop.
+
+**Option A (fix):** AC-039-P2-PRE-COMMIT `And` clause: hook must FAIL (non-zero exit + clear message "Run `npm run sync-role-docs` and stage the docs") rather than auto-stage. Rationale: `~/.claude/CLAUDE.md §Commit Hygiene` mandates explicit staged file list pre-flight; auto-staging violates that rule by modifying the staged set after `git diff --cached`.
+
+**Option B (Known Gap):** Auto-stage accepted; commit pre-flight rule is silently relaxed for this one hook.
+
+**Recommendation:** **Option A.** Keeps `git diff --cached` as the canonical pre-commit staged state.
+
+**If not ruled:** Engineer picks either, user surprise on first hit, retrospective entry.
+
+---
+
+### QA Challenge #7 — AC-039-P3-SACRED-SPLIT — retirement scope granularity
+
+**Issue:** AC says "retire `content` portion of K-034 AC-034-P2-DRIFT-D5/D6/D7/D8/D26". But reading D-5 / D-6 / D-7 / D-8 / D-26 verbatim: D-5 mandates Reviewer `redactArtefact: false` AND "ARTEFACT text `"Review report + Reviewer 反省"` renders as plain" (content portion) AND "no RedactionBar, no sr-only" (visual portion). D-6 mandates role name font-size = 36/32 based on `role.length <= 2` (computed from content — blend of content + visual). D-26 mandates section subtitle verbatim from Pencil `s3Intro` (pure content).
+
+Scope of "content portion" is not 100% clean across these 5 ACs. Blanket retirement risks retiring a D-6 clause that actually depends on content-length even when content itself is TSX-SSOT.
+
+**Risk:** K-034 reviewer reading retirement annotation interprets "content portion retired" as "entire D-6 retired" → drops role-length-based font-size logic → PM/QA gate re-triggers at next Sacred cross-check.
+
+**Option A (fix):** AC-039-P3-SACRED-SPLIT specifies per-D-ID exactly what's retired:
+- D-5: "Reviewer ARTEFACT content string" retired (TSX owns); redaction absence (`redactArtefact: false`) and typography tokens remain Pencil-SSOT.
+- D-6: NOT retired — role-length-based font-size is a visual rule computed from content length, not from content value; stays Pencil-SSOT.
+- D-7: NOT retired — `FILE Nº 0N · PERSONNEL` label is Pencil-SSOT (content-of-label is static, not runtime); `N` comes from `ROLES` order which is fine.
+- D-8: "owns text content + artefact text content" retired (TSX); typography tokens remain.
+- D-26: "section subtitle content string" retired (TSX); italic + font-family + size tokens remain.
+
+**Option B (Known Gap):** Accept blanket "content portion" framing; annotate K-034 once, trust future readers to re-interpret case-by-case. TD registered for per-AC clarification.
+
+**Recommendation:** **Option A.** Sacred retirement is a rare event; per-AC explicit scope prevents future confusion and matches `feedback_pm_ac_sacred_cross_check.md` rigor.
+
+**If not ruled:** AC-039-P3-SACRED-SPLIT annotation in K-034 will be ambiguous; future ticket reading D-6 + retirement note may misinterpret.
+
+---
+
+### QA Challenge #8 — Protocols.md table may contain links or nested markdown not in TSX
+
+**Issue:** `docs/ai-collab-protocols.md` is a reference-type wiki article (`type: reference`). The table at L20-27 today is plain text, but the surrounding article uses inline markdown links (`[artefact-audit]`, cross-file links). A future editor might add a link to an artefact path in a table cell (e.g. `[PRD.md](../PRD.md)`). If generator overwrites with plain TSX strings, links are lost.
+
+**Risk:** Protocols doc regresses from link-enhanced to plain-text on first generator run. User notices, files a Bug Found Protocol. Gap: AC-039-P1-PROTOCOLS-SYNCED says "table matches TSX verbatim" — intentionally destructive to any in-cell markdown enrichment.
+
+**Option A (fix):** Accept destructive behavior as design intent; add `And` clause "any pre-existing in-cell markdown (links, bold, inline code) is stripped on generator run; enrich at TSX level if needed (via dedicated `artefactLink` field in `ROLES`, out of scope K-039, register TD K-040 candidate)".
+
+**Option B:** Generator preserves in-cell markdown by diffing only text nodes — more complex regex, harder to prove idempotent.
+
+**Recommendation:** **Option A.** K-039 establishes the pattern; enrichment is YAGNI per plan's own scope exclusion.
+
+**If not ruled:** generator behavior on enriched cells undefined, first invocation could silently remove links.
+
+---
+
+### QA Challenge #9 — `npm run sync-role-docs` package.json location
+
+**Issue:** AC-039-P2-NPM-ENTRY says "Engineer decides at implementation, document choice" between repo-root and `frontend/package.json`. But project has both: repo root has no `package.json` (confirmed — repo root contains `Dockerfile`, `firebase.json`, no top-level `package.json`); `frontend/package.json` is the only existing one. Generator script lives in repo-root `scripts/` but npm entry would need to live in `frontend/package.json` — creating a cross-directory invocation: user must `cd frontend && npm run sync-role-docs`.
+
+**Risk:** Pre-commit hook running from repo root (`.git/hooks/pre-commit` or `.husky/pre-commit`) can't simply `npm run sync-role-docs` — must either `cd frontend &&` or use node directly. Cross-directory commands are fragile (path resolution, CWD assumptions in script).
+
+**Option A (fix):** Generator script uses absolute paths via `path.resolve(__dirname, '..')` to locate repo root files (README.md, docs/*, frontend/src/*). `frontend/package.json` script entry is `"sync-role-docs": "node ../scripts/sync-role-docs.mjs"`. Hook invokes `node scripts/sync-role-docs.mjs` from repo root directly (bypassing npm). Dual invocation paths both work.
+
+**Option B:** Create repo-root `package.json` just for this one script. Adds another package boundary to project, pollutes root with npm ecosystem.
+
+**Option C:** Move script invocation to a shell wrapper `scripts/sync-role-docs.sh` that does `node scripts/sync-role-docs.mjs`. Hook calls shell wrapper.
+
+**Recommendation:** **Option A.** `frontend/package.json` for npm-run convenience; absolute paths in the script make it CWD-independent; hook bypasses npm for speed.
+
+**If not ruled:** Engineer picks; implementation details could break pre-commit hook on cross-platform (macOS vs Linux CI) CWD differences.
+
+---
+
+### QA Challenge #10 — Dogfood test (AC-039-P2-DOGFOOD-FLIP) doesn't cover deploy
+
+**Issue:** AC says "no Designer session / `batch_design` / `.pen` edit is required" for a text tweak. Good. But doesn't mention **deploy verification**: does a deployed /about page reflect the TSX text change? If generator runs in pre-commit but Playwright visual baseline is stale, sign-off could pass while production bundle still serves old text.
+
+**Risk:** Dogfood "runs" but the K-034 Phase 2 `AC-034-P2-DRIFT-LIST` Pencil-verbatim assertions on role card text are still active (Phase 2 WIP on main will assert TSX `owns` equals Pencil `r*Owns.content`). K-039's split retires that for TSX side; K-034 Phase 2 E2E test post-merge may assert against stale PNG/JSON; dogfood doesn't catch it.
+
+**Option A (fix):** AC-039-P2-DOGFOOD-FLIP `And` clause: after flip + commit + Playwright pass, `npm run build && grep "<new-phrase>" frontend/dist/**/*.js` returns ≥1 match; or — if dogfood is reverted — build from clean state. Dogfood must touch the deploy path, not just the source.
+
+**Option B (Known Gap):** Deploy-level verification deferred to K-034 Phase 2 visual audit (which will cover /about build output). Dogfood is a source-only proof.
+
+**Recommendation:** **Option A.** Build-time assertion is trivial (one grep) and proves end-to-end.
+
+**If not ruled:** dogfood proves nothing about what ships to browser.
+
+---
+
+## Summary
+
+| # | Challenge | Recommended | Sign-off blocker? |
+|---|-----------|-------------|-------------------|
+| 1 | README column header rename unstated | Option A (explicit rename) | Yes |
+| 2 | Playwright-TSX import path | Option A (extract `roles.ts`) | Yes |
+| 3 | Role count boundary | Option A (count=6 invariant) | Yes |
+| 4 | Special chars in TSX strings | Option A (reject at parse) | Yes |
+| 5 | Pre-commit hook ecosystem | Option A (husky) | Yes |
+| 6 | Hook fail-vs-auto-stage | Option A (fail + message) | No (UX) |
+| 7 | Sacred retirement granularity | Option A (per-D-ID explicit) | Yes |
+| 8 | Markdown enrichment in cells | Option A (destructive, enrich at TSX) | No |
+| 9 | package.json location | Option A (frontend/ + absolute paths) | No |
+| 10 | Dogfood deploy coverage | Option A (+ build grep) | No |
+
+**Sign-off blockers (PM must rule before Engineer release):** 1, 2, 3, 4, 5, 7.
+
+**PM ruling status: PENDING — see K-039 ticket §5 Phase Plan for rulings, and §7 QA Early Consultation for pointer back here.**
+
+---
+
 ## 2026-04-23 — K-034 Phase 3 regression (/diary adopts shared Footer, absorbs ex-K-038)
 
 **Verdict:** RELEASE-PM
