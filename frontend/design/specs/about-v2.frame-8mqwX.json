@@ -1,0 +1,174 @@
+{
+  "pen-file": "frontend/design/homepage-v2.pen",
+  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
+  "exporter-version": "1.0",
+  "frame-id": "8mqwX",
+  "section-name": "S3_RoleCardsSection (Nº 02 — THE ROLES — 6 role cards: PM/Architect/Engineer/Reviewer/QA/Designer)",
+  "parent-frame": "35VCj",
+  "frame": {
+    "children": [
+      {
+        "alignItems": "center",
+        "children": [
+          { "content": "Nº 02 — THE ROLES", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 13, "fontWeight": "700", "id": "e5BzC", "letterSpacing": 2, "name": "s3label", "type": "text" },
+          { "fill": "#8B7A6B", "height": 1, "id": "ryXBb", "name": "s3Line", "type": "rectangle", "width": "fill_container" }
+        ],
+        "gap": 16,
+        "id": "eSzss",
+        "name": "s3Head",
+        "type": "frame",
+        "width": "fill_container"
+      },
+      {
+        "content": "— Each role a separate agent with spec'd responsibilities. Every handoff produces a verifiable artefact.",
+        "fill": "#1A1814",
+        "fontFamily": "Newsreader",
+        "fontSize": 15,
+        "fontStyle": "italic",
+        "fontWeight": "normal",
+        "id": "JcFQi",
+        "lineHeight": 1.6,
+        "name": "s3Intro",
+        "textGrowth": "fixed-width",
+        "type": "text",
+        "width": "fill_container"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [{ "content": "FILE Nº 01 · PERSONNEL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "w6UOK", "letterSpacing": 2, "name": "r1Lbl", "type": "text" }],
+                "fill": "#2A2520", "id": "WSfPx", "name": "r1Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "PM", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 36, "fontStyle": "italic", "fontWeight": "700", "id": "yHMgd", "lineHeight": 1, "name": "r1Role", "type": "text" },
+                  { "fill": "#2A2520", "height": 1, "id": "aTXDn", "name": "r1Rule", "type": "rectangle", "width": 40 },
+                  { "content": "OWNS", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "SdhGZ", "letterSpacing": 2, "name": "r1OwnsL", "type": "text" },
+                  { "content": "Requirements, AC, Phase Gates", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "OHq4O", "lineHeight": 1.5, "name": "r1Owns", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "content": "ARTEFACT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "mozdh", "letterSpacing": 2, "name": "r1ArtL", "type": "text" },
+                  { "content": "PRD.md, docs/tickets/K-XXX.md", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "normal", "id": "F7xEA", "lineHeight": 1.5, "name": "r1Art", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                ],
+                "gap": 14, "height": "fill_container", "id": "EUnlR", "layout": "vertical", "name": "r1Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "height": 320, "id": "szZ7h", "layout": "vertical", "name": "role_PM", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          },
+          {
+            "children": [
+              {
+                "children": [{ "content": "FILE Nº 02 · PERSONNEL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "VjPlZ", "letterSpacing": 2, "name": "r2Lbl", "type": "text" }],
+                "fill": "#2A2520", "id": "2t4sD", "name": "r2Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "Architect", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 32, "fontStyle": "italic", "fontWeight": "700", "id": "giJrw", "lineHeight": 1, "name": "r2Role", "type": "text" },
+                  { "fill": "#2A2520", "height": 1, "id": "cnz83", "name": "r2Rule", "type": "rectangle", "width": 40 },
+                  { "content": "OWNS", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "h1ncP", "letterSpacing": 2, "name": "r2OwnsL", "type": "text" },
+                  { "content": "System design, cross-layer contracts", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "mZjqa", "lineHeight": 1.5, "name": "r2Owns", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "content": "ARTEFACT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "p9yx1", "letterSpacing": 2, "name": "r2ArtL", "type": "text" },
+                  { "content": "docs/designs/K-XXX-*.md", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "normal", "id": "QLcUx", "lineHeight": 1.5, "name": "r2Art", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                ],
+                "gap": 14, "height": "fill_container", "id": "lmfvd", "layout": "vertical", "name": "r2Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "height": 320, "id": "p3NWv", "layout": "vertical", "name": "role_Architect", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          },
+          {
+            "children": [
+              {
+                "children": [{ "content": "FILE Nº 03 · PERSONNEL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "1Jidk", "letterSpacing": 2, "name": "r3Lbl", "type": "text" }],
+                "fill": "#2A2520", "id": "hilJ9", "name": "r3Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "Engineer", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 32, "fontStyle": "italic", "fontWeight": "700", "id": "Mz3WZ", "lineHeight": 1, "name": "r3Role", "type": "text" },
+                  { "fill": "#2A2520", "height": 1, "id": "hvGC9", "name": "r3Rule", "type": "rectangle", "width": 40 },
+                  { "content": "OWNS", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "S8v7G", "letterSpacing": 2, "name": "r3OwnsL", "type": "text" },
+                  { "content": "Implementation, stable checkpoints", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "bZAe1", "lineHeight": 1.5, "name": "r3Owns", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "content": "ARTEFACT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "PSIeb", "letterSpacing": 2, "name": "r3ArtL", "type": "text" },
+                  { "content": "commits + ticket retrospective", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "normal", "id": "HhnZi", "lineHeight": 1.5, "name": "r3Art", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                ],
+                "gap": 14, "height": "fill_container", "id": "DFb0T", "layout": "vertical", "name": "r3Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "height": 320, "id": "HGPky", "layout": "vertical", "name": "role_Engineer", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          }
+        ],
+        "gap": 14, "id": "HHO1Y", "name": "s3Row1", "type": "frame", "width": "fill_container"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [{ "content": "FILE Nº 04 · PERSONNEL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "0tca6", "letterSpacing": 2, "name": "r4Lbl", "type": "text" }],
+                "fill": "#2A2520", "id": "jIKVu", "name": "r4Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "Reviewer", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 32, "fontStyle": "italic", "fontWeight": "700", "id": "Oyr7h", "lineHeight": 1, "name": "r4Role", "type": "text" },
+                  { "fill": "#2A2520", "height": 1, "id": "Vsouq", "name": "r4Rule", "type": "rectangle", "width": 40 },
+                  { "content": "OWNS", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "kVVkr", "letterSpacing": 2, "name": "r4OwnsL", "type": "text" },
+                  { "content": "Code review, Bug Found Protocol", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "gqqx9", "lineHeight": 1.5, "name": "r4Owns", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "content": "ARTEFACT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "s6IM3", "letterSpacing": 2, "name": "r4ArtL", "type": "text" },
+                  { "content": "Review report + Reviewer 反省", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "normal", "id": "jASUA", "lineHeight": 1.5, "name": "r4Art", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                ],
+                "gap": 14, "height": "fill_container", "id": "LSdl9", "layout": "vertical", "name": "r4Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "height": 320, "id": "3O32j", "layout": "vertical", "name": "role_Reviewer", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          },
+          {
+            "children": [
+              {
+                "children": [{ "content": "FILE Nº 05 · PERSONNEL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "BIPH7", "letterSpacing": 2, "name": "r5Lbl", "type": "text" }],
+                "fill": "#2A2520", "id": "5jv1R", "name": "r5Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "QA", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 36, "fontStyle": "italic", "fontWeight": "700", "id": "uNkGq", "lineHeight": 1, "name": "r5Role", "type": "text" },
+                  { "fill": "#2A2520", "height": 1, "id": "uqKwa", "name": "r5Rule", "type": "rectangle", "width": 40 },
+                  { "content": "OWNS", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "2OjEk", "letterSpacing": 2, "name": "r5OwnsL", "type": "text" },
+                  { "content": "Regression, E2E, visual report", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "MEBI4", "lineHeight": 1.5, "name": "r5Owns", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "content": "ARTEFACT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "3td47", "letterSpacing": 2, "name": "r5ArtL", "type": "text" },
+                  { "content": "Playwright results + docs/reports/*.html", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "normal", "id": "RW7Hz", "lineHeight": 1.5, "name": "r5Art", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                ],
+                "gap": 14, "height": "fill_container", "id": "8bvnp", "layout": "vertical", "name": "r5Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "height": 320, "id": "msFox", "layout": "vertical", "name": "role_QA", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          },
+          {
+            "children": [
+              {
+                "children": [{ "content": "FILE Nº 06 · PERSONNEL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "9g8K5", "letterSpacing": 2, "name": "r6Lbl", "type": "text" }],
+                "fill": "#2A2520", "id": "xWgMJ", "name": "r6Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "Designer", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 32, "fontStyle": "italic", "fontWeight": "700", "id": "pnmDV", "lineHeight": 1, "name": "r6Role", "type": "text" },
+                  { "fill": "#2A2520", "height": 1, "id": "vFT1k", "name": "r6Rule", "type": "rectangle", "width": 40 },
+                  { "content": "OWNS", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "hOl3e", "letterSpacing": 2, "name": "r6OwnsL", "type": "text" },
+                  { "content": "Pencil MCP, flow diagrams", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "CxLxY", "lineHeight": 1.5, "name": "r6Owns", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "content": "ARTEFACT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "878lC", "letterSpacing": 2, "name": "r6ArtL", "type": "text" },
+                  { "content": ".pen file + get_screenshot output", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "normal", "id": "2d7dp", "lineHeight": 1.5, "name": "r6Art", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                ],
+                "gap": 14, "height": "fill_container", "id": "L4BO2", "layout": "vertical", "name": "r6Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "height": 320, "id": "vtpKx", "layout": "vertical", "name": "role_Designer", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          }
+        ],
+        "gap": 14, "id": "p2zei", "name": "s3Row2", "type": "frame", "width": "fill_container"
+      }
+    ],
+    "gap": 28,
+    "id": "8mqwX",
+    "layout": "vertical",
+    "name": "S3_RoleCardsSection",
+    "type": "frame",
+    "width": "fill_container"
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "pen-file": "frontend/design/homepage-v2.pen",
+  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
+  "exporter-version": "1.0",
+  "frame-id": "JFizO",
+  "section-name": "S6_ProjectArchitectureSection (Nº 05 — PROJECT ARCHITECTURE — 3 layer cards: Monorepo / Docs-driven / Testing pyramid)",
+  "parent-frame": "35VCj",
+  "frame": {
+    "children": [
+      {
+        "alignItems": "center",
+        "children": [
+          { "content": "Nº 05 — PROJECT ARCHITECTURE", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 13, "fontWeight": "700", "id": "NqwhK", "letterSpacing": 2, "name": "s6label", "type": "text" },
+          { "fill": "#8B7A6B", "height": 1, "id": "2y6ub", "name": "s6Line", "type": "rectangle", "width": "fill_container" }
+        ],
+        "gap": 16, "id": "ibJtF", "name": "s6Head", "type": "frame", "width": "fill_container"
+      },
+      { "content": "— How the codebase stays legible for a solo operator + AI agents.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 15, "fontStyle": "italic", "fontWeight": "normal", "id": "fG3xb", "lineHeight": 1.6, "name": "s6Intro", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [{ "content": "LAYER Nº 01 · BACKBONE", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "8JKTo", "letterSpacing": 2, "type": "text" }],
+                "fill": "#2A2520", "id": "aSBKs", "name": "arch1Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "Monorepo, contract-first", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 24, "fontStyle": "italic", "fontWeight": "700", "id": "9KmU3", "lineHeight": 1.15, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "fill": "#2A2520", "height": 1, "id": "tYwrH", "name": "arch1Rule", "type": "rectangle", "width": 40 },
+                  { "content": "BOUNDARY", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "IaCAq", "letterSpacing": 2, "type": "text" },
+                  { "content": "Frontend (React/TypeScript) and backend (FastAPI/Python) live in one repo.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "dcmjg", "lineHeight": 1.6, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "content": "CONTRACT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "iyV4P", "letterSpacing": 2, "type": "text" },
+                  { "content": "Every cross-layer change starts with a written API contract mapping snake_case (backend) ↔ camelCase (frontend) — parallel agents implement against it.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "MGceF", "lineHeight": 1.6, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                ],
+                "gap": 14, "id": "IDmfu", "layout": "vertical", "name": "arch1Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "id": "QdzBO", "layout": "vertical", "name": "arch_Monorepo", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          },
+          {
+            "children": [
+              {
+                "children": [{ "content": "LAYER Nº 02 · DISCIPLINE", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "RU0Fs", "letterSpacing": 2, "type": "text" }],
+                "fill": "#2A2520", "id": "HpnWf", "name": "arch2Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "Docs-driven tickets", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 24, "fontStyle": "italic", "fontWeight": "700", "id": "DRVNe", "lineHeight": 1.15, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "fill": "#2A2520", "height": 1, "id": "5cAiB", "name": "arch2Rule", "type": "rectangle", "width": 40 },
+                  { "content": "SPEC FORMAT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "F0TIA", "letterSpacing": 2, "type": "text" },
+                  { "content": "Acceptance Criteria are written in Behavior-Driven Development (BDD) style — Given/When/Then/And scenarios — so every Playwright test mirrors the spec 1:1.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "fJj0J", "lineHeight": 1.6, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "content": "FLOW", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "BvUYj", "letterSpacing": 2, "type": "text" },
+                  { "content": "PRD → docs/tickets/K-XXX.md → role retrospectives.", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "normal", "id": "bVYiH", "lineHeight": 1.5, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                ],
+                "gap": 14, "id": "NU7sS", "layout": "vertical", "name": "arch2Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "id": "U7EIO", "layout": "vertical", "name": "arch_DocsDriven", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          },
+          {
+            "children": [
+              {
+                "children": [{ "content": "LAYER Nº 03 · ASSURANCE", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "bdPhd", "letterSpacing": 2, "type": "text" }],
+                "fill": "#2A2520", "id": "3ZpST", "name": "arch3Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
+              },
+              {
+                "children": [
+                  { "content": "Three-layer testing pyramid", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 24, "fontStyle": "italic", "fontWeight": "700", "id": "Mp191", "lineHeight": 1.15, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
+                  { "fill": "#2A2520", "height": 1, "id": "CzNK4", "name": "arch3Rule", "type": "rectangle", "width": 40 },
+                  {
+                    "children": [
+                      { "content": "01", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 22, "fontWeight": "700", "id": "rBfp2", "lineHeight": 1, "type": "text" },
+                      {
+                        "children": [
+                          { "content": "UNIT", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "RXxHX", "letterSpacing": 2, "type": "text" },
+                          { "content": "Vitest (frontend), pytest (backend).", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "xPlc1", "lineHeight": 1.55, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                        ],
+                        "gap": 3, "id": "z76Nn", "layout": "vertical", "name": "a3R1Col", "type": "frame", "width": "fill_container"
+                      }
+                    ],
+                    "gap": 10, "id": "FvCV3", "name": "a3Row1", "type": "frame", "width": "fill_container"
+                  },
+                  {
+                    "children": [
+                      { "content": "02", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 22, "fontWeight": "700", "id": "3Xhny", "lineHeight": 1, "type": "text" },
+                      {
+                        "children": [
+                          { "content": "INTEGRATION", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "1GKjE", "letterSpacing": 2, "type": "text" },
+                          { "content": "FastAPI test client.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "t3iVW", "lineHeight": 1.55, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                        ],
+                        "gap": 3, "id": "7HfOg", "layout": "vertical", "name": "a3R2Col", "type": "frame", "width": "fill_container"
+                      }
+                    ],
+                    "gap": 10, "id": "pgs0J", "name": "a3Row2", "type": "frame", "width": "fill_container"
+                  },
+                  {
+                    "children": [
+                      { "content": "03", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 22, "fontWeight": "700", "id": "7AYnX", "lineHeight": 1, "type": "text" },
+                      {
+                        "children": [
+                          { "content": "E2E", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "jk06u", "letterSpacing": 2, "type": "text" },
+                          { "content": "Playwright, including a visual-report pipeline that renders every page to HTML for human review.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "jyv9C", "lineHeight": 1.55, "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
+                        ],
+                        "gap": 3, "id": "Vdv7r", "layout": "vertical", "name": "a3R3Col", "type": "frame", "width": "fill_container"
+                      }
+                    ],
+                    "gap": 10, "id": "fGHiF", "name": "a3Row3", "type": "frame", "width": "fill_container"
+                  }
+                ],
+                "gap": 12, "id": "kTT5l", "layout": "vertical", "name": "arch3Body", "padding": 20, "type": "frame", "width": "fill_container"
+              }
+            ],
+            "cornerRadius": 6, "fill": "#F4EFE5", "id": "Og2jv", "layout": "vertical", "name": "arch_TestingPyramid", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
+          }
+        ],
+        "gap": 14, "id": "Bh09q", "name": "s6Row", "type": "frame", "width": "fill_container"
+      }
+    ],
+    "gap": 28,
+    "id": "JFizO",
+    "layout": "vertical",
+    "name": "S6_ProjectArchitectureSection",
+    "type": "frame",
+    "width": "fill_container"
+  }
+}

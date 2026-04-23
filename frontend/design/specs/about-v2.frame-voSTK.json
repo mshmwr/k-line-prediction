@@ -1,0 +1,99 @@
+{
+  "pen-file": "frontend/design/homepage-v2.pen",
+  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
+  "exporter-version": "1.0",
+  "frame-id": "voSTK",
+  "section-name": "NavBar (abNav)",
+  "parent-frame": "35VCj",
+  "frame": {
+    "alignItems": "center",
+    "children": [
+      {
+        "content": "K-LINE PREDICTION",
+        "fill": "#1A1814",
+        "fontFamily": "Geist Mono",
+        "fontSize": 13,
+        "fontWeight": "700",
+        "id": "7LJwN",
+        "letterSpacing": 2,
+        "name": "abNavLogo3",
+        "type": "text"
+      },
+      {
+        "alignItems": "center",
+        "children": [
+          {
+            "content": "Home",
+            "fill": "#1A1814",
+            "fontFamily": "Geist Mono",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "id": "0i48c",
+            "letterSpacing": 1,
+            "name": "abNLnk1",
+            "type": "text"
+          },
+          {
+            "content": "App",
+            "fill": "#1A1814",
+            "fontFamily": "Geist Mono",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "id": "vhGok",
+            "letterSpacing": 1,
+            "name": "abNLnk2",
+            "type": "text"
+          },
+          {
+            "content": "Diary",
+            "fill": "#1A1814",
+            "fontFamily": "Geist Mono",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "id": "ZiDX9",
+            "letterSpacing": 1,
+            "name": "abNLnk3",
+            "type": "text"
+          },
+          {
+            "content": "Prediction",
+            "fill": "#1A1814",
+            "fontFamily": "Geist Mono",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "id": "qhtkl",
+            "letterSpacing": 1,
+            "name": "abNLnk4",
+            "type": "text"
+          },
+          {
+            "content": "About",
+            "fill": "#9C4A3B",
+            "fontFamily": "Geist Mono",
+            "fontSize": 12,
+            "fontWeight": "700",
+            "id": "CtrFz",
+            "letterSpacing": 1,
+            "name": "abNLnk5",
+            "type": "text"
+          }
+        ],
+        "gap": 28,
+        "id": "HWbeK",
+        "name": "abNavLinks",
+        "type": "frame"
+      }
+    ],
+    "id": "voSTK",
+    "justifyContent": "space_between",
+    "name": "abNav",
+    "padding": [18, 72],
+    "stroke": {
+      "align": "inside",
+      "fill": "#1A1814",
+      "thickness": { "bottom": 1 }
+    },
+    "type": "frame",
+    "width": "fill_container"
+  }
+}
