@@ -1,0 +1,33 @@
+{
+  "pen-file": "frontend/design/homepage-v2.pen",
+  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
+  "exporter-version": "1.0",
+  "frame-id": "86psQ",
+  "frame": {
+    "alignItems": "center",
+    "children": [
+      {
+        "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
+        "fill": "#6B5F4E",
+        "fontFamily": "Geist Mono",
+        "fontSize": 11,
+        "fontWeight": "normal",
+        "id": "hpwtD",
+        "letterSpacing": 1,
+        "name": "ftR",
+        "type": "text"
+      }
+    ],
+    "id": "86psQ",
+    "justifyContent": "space_between",
+    "name": "abFooterBar",
+    "padding": [20, 72],
+    "stroke": {
+      "align": "inside",
+      "fill": "#1A1814",
+      "thickness": { "top": 1 }
+    },
+    "type": "frame",
+    "width": "fill_container"
+  }
+}
