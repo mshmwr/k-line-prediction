@@ -1,7 +1,7 @@
 ---
 id: K-034
 title: /about spec audit + sitewide design-workflow codification (absorbs K-035 footer-drift hotfix + BFP Round 2; Phase 3 absorbs ex-K-038 /diary Footer adoption per user directive 2026-04-23)
-status: open
+status: closed
 phase: 3
 type: fix + process
 priority: high
@@ -13,6 +13,10 @@ phase-1-deploy-sha256: 3457315d5fee7f57ccd852e5356888720c909e5cfef755db65265de48
 phase-2-status: closed
 phase-2-deploy-sha256: dacced7c34c01cb12c69578534babfde2dd0aadde8b4fe7db770dc48a764e959
 phase-2-deployed-at: 2026-04-23T08:32:16Z
+phase-3-status: closed
+phase-3-deploy-sha256: 6300e44a430363618a74d68bf043a14914b450346a9691e5f74cd7c2c0d63e25
+phase-3-deployed-at: 2026-04-23
+closed: 2026-04-23
 created: 2026-04-23
 depends-on: [K-034-phase-2-closed]
 supersedes: K-037 (would-be /about footer re-hotfix, absorbed into Phase 1)
@@ -1201,3 +1205,47 @@ Two-layer Code Review complete at HEAD `dc172ff`. Step 1 (breadth) 3 Important +
 Handoff check: qa-early-consultation = `docs/retrospectives/qa.md 2026-04-23 K-034-P3` → OK; visual-delta = yes, design-locked = true → OK; worktree = Phase 3 grandfathered to main per §4.5 ruling → OK.
 
 Released to QA for full E2E regression + /diary Footer adoption AC verification (AC-034-P3-DIARY-FOOTER-ADOPTION + Sacred regression sweep: K-030 AC-030-NO-FOOTER on `/app`, K-017/022/035 shared Footer parity across `/`, `/about`, `/diary`).
+
+### Phase 3 — 2026-04-23 (Asia/Taipei)
+
+- **Deploy date:** 2026-04-23 (Asia/Taipei)
+- **Git SHA (inner K-Line-Prediction):**
+  - `80fa667` feat(K-034 Phase 3): DiaryPage adopts shared Footer (absorbs ex-K-038 §3)
+  - `6d6fb1b` docs(K-034 Phase 3): close — retros + Sacred retirement + TD + Code Review rulings
+  - (pre: `dc172ff` docs PM ruling on BQ-034-P3-04 + Architect design doc; `9cdde2f` Designer SSOT decision + PM design-locked sign-off)
+- **Git SHA (outer Diary mirror):** pending mirror commits post-Deploy Record
+- **Hosting URL:** https://k-line-prediction-app.web.app
+- **HTTP status:** `/diary` → 200
+- **Bundle path:** `assets/index--RYvGEJ2.js`
+- **Bundle sha256 (local == prod, identical):** `6300e44a430363618a74d68bf043a14914b450346a9691e5f74cd7c2c0d63e25`
+- **Build telemetry:** `vite build` — 2,100 modules transformed in 2.29s
+- **Deploy telemetry:** `firebase deploy --only hosting` — 2 new files uploaded (index--RYvGEJ2.js bundle + hashed index), version finalized, release complete
+- **Probe — AC-034-P3-DEPLOY verification (executed at close, output pasted):**
+  ```bash
+  # (1) prod /diary HTTP status + bundle path resolution
+  curl -s -o /dev/null -w "%{http_code}" https://k-line-prediction-app.web.app/diary
+  # → 200
+  curl -s https://k-line-prediction-app.web.app/diary \
+    | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js' | head -1
+  # → assets/index--RYvGEJ2.js
+
+  # (2) bundle sha256 parity (local dist == prod CDN)
+  shasum -a 256 frontend/dist/assets/index--RYvGEJ2.js
+  # → 6300e44a430363618a74d68bf043a14914b450346a9691e5f74cd7c2c0d63e25
+  curl -sL https://k-line-prediction-app.web.app/assets/index--RYvGEJ2.js | shasum -a 256
+  # → 6300e44a430363618a74d68bf043a14914b450346a9691e5f74cd7c2c0d63e25
+
+  # (3) positive probe — /diary rendered HTML references shared Footer one-liner
+  curl -s https://k-line-prediction-app.web.app/assets/index--RYvGEJ2.js \
+    | grep -c "yichen.lee.20@gmail.com"
+  # → 1 (shared Footer per Pencil SSOT homepage-v2.pen 86psQ + 1BGtd)
+
+  # (4) negative probe — no inline per-page footer leak on /diary
+  curl -s https://k-line-prediction-app.web.app/assets/index--RYvGEJ2.js \
+    | grep -c "Let's talk"
+  # → 0 (K-035 α-premise still holds; inline CTA never reintroduced)
+  ```
+- **QA verdict summary:** 253 passed / 1 pre-existing K-032 AC-020-BEACON-SPA fail (out of Phase 3 scope) / 1 skipped; all 7 Phase 3 AC PASS; 5 TD + 3 Log-Only + 1 Info from Code Review, zero Fix-Now per PM ruling.
+- **Pencil parity:** Footer JSX matches `homepage-v2.frame-86psQ.json` + `frame-1BGtd.json` content/font/color/borders verbatim; mobile padding delta at 640-768px viewport seam documented in `design-exemptions.md §2 RESPONSIVE` + `TD-K034-P3-02` (acceptable per feedback_pencil_ssot_json_snapshot + design-exemptions gate).
+- **Sacred preservation:** `app-bg-isolation.spec.ts` zero-edit verified (K-030 AC-030-NO-FOOTER PASS); K-017 AC-017-FOOTER + K-024 Phase 3 §3 blockquote-retired with verbatim annotations.
+- **Status:** Live
