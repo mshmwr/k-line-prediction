@@ -7,7 +7,7 @@ type: fix + process
 priority: high
 visual-delta: yes
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-23 K-038-absorbed-to-K-034-P3
-design-locked: false
+design-locked: true
 phase-1-status: closed
 phase-1-deploy-sha256: 3457315d5fee7f57ccd852e5356888720c909e5cfef755db65265de48add47ff
 phase-2-status: closed
@@ -737,6 +737,50 @@ QA Early Consultation ran on the ex-K-038 scope (now Phase 3) — see `docs/retr
 | #9 | K-017 Sacred retirement retroactive annotation | **Option A** — retroactive K-017 annotation for 3-ticket trail consistency | AC-034-P3-SACRED-RETIREMENT (K-017 explicit mention) |
 
 **QA sign-off condition:** Phase 3 QA release to Engineer conditional on (a) this §4.3 + §4.4 sections existing verbatim, (b) 7 AC-034-P3-* entries exist in §Phase 3 block above, (c) `docs/designs/shared-components-inventory.md` Footer row Edit pre-staged (or deferred to Engineer per AC), (d) `docs/tech-debt.md` TD-K034-P3-02 entry pre-opened (deferred to Engineer if design-doc workflow preferred).
+
+### §4.5 Phase 3 Designer Sign-off + PM `design-locked: true` gate (2026-04-23)
+
+**Designer BQ-034-P3-02 ruling (2026-04-23):** Option B — `homepage-v2.pen` frames `86psQ` + `1BGtd` are canonical SSOT for `/diary` Footer; no new `diary-v2.pen` required. Decision artifact: `frontend/design/specs/diary-footer-ssot-decision.md` (read-only provenance note; no `batch_design`, no new JSON/PNG export this session per `feedback_designer_json_sync_hard_gate.md`). Designer retrospective appended to `docs/retrospectives/designer.md` 2026-04-23 entry.
+
+**PM byte-identity verification (evidence):**
+
+| Field | `homepage-v2.frame-86psQ.json` | `homepage-v2.frame-1BGtd.json` | Match |
+|-------|-------------------------------|-------------------------------|-------|
+| `children[0].content` | `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` | (identical) | ✓ |
+| `children[0].fontFamily` | `Geist Mono` | (identical) | ✓ |
+| `children[0].fontSize` | `11` | (identical) | ✓ |
+| `children[0].fontWeight` | `normal` | (identical) | ✓ |
+| `children[0].fill` | `#6B5F4E` | (identical) | ✓ |
+| `children[0].letterSpacing` | `1` | (identical) | ✓ |
+| `alignItems` | `center` | (identical) | ✓ |
+| `justifyContent` | `space_between` | (identical) | ✓ |
+| `padding` | `[20, 72]` | (identical) | ✓ |
+| `stroke.thickness.top / fill / align` | `1 / #1A1814 / inside` | (identical) | ✓ |
+| `width` | `fill_container` | (identical) | ✓ |
+| Frame-internal `id` / `name` | `86psQ / abFooterBar` | `1BGtd / hpFooterBar` | ≠ (Pencil-internal only, no visual delta) |
+| Child text node `id` | `hpwtD` | `W3zUd` | ≠ (Pencil-internal only, no visual delta) |
+
+**All visual-intent fields identical**; only Pencil-internal frame/node identifiers differ. Claim "one design, two frame IDs" confirmed via JSON SSOT cross-check.
+
+**PM 4-route consistency sign-off:**
+
+| Route | React component | Pencil SSOT frame | Visual delta risk |
+|-------|----------------|-------------------|-------------------|
+| `/` | `<Footer />` (shared) | `86psQ` / `1BGtd` | None (Phase 1 T1 byte-identity confirmed live) |
+| `/about` | `<Footer />` (shared) | `86psQ` / `1BGtd` | None (Phase 1 T1 byte-identity confirmed live) |
+| `/business-logic` | `<Footer />` (shared) | `86psQ` / `1BGtd` | None (Phase 1 T1 byte-identity confirmed live) |
+| `/diary` (Phase 3 NEW) | `<Footer />` (shared) | `86psQ` / `1BGtd` (inherited) | None — same React component, no `variant` prop, no CSS scoping divergence; Pencil-literal rendering preserved |
+| `/app` | (none) | N/A | Isolation preserved per K-030 `AC-030-NO-FOOTER` Sacred (NOT retired in Phase 3) |
+
+**Designer screenshot artifacts verified on disk:**
+- `frontend/design/screenshots/homepage-v2-86psQ.png` — 9479 bytes, mtime 2026-04-23 11:31
+- `frontend/design/screenshots/homepage-v2-1BGtd.png` — 9479 bytes, mtime 2026-04-23 11:31
+- Identical file size consistent with byte-identical frame content.
+
+**PM ruling:** `design-locked: true` set in frontmatter this commit. Phase 3 Architect release gate (Pencil-artifact requirement per `feedback_architect_no_design_without_pencil.md`) is **SATISFIED** — Architect may reference `frontend/design/specs/homepage-v2.frame-86psQ.json` + `homepage-v2.frame-1BGtd.json` + `diary-footer-ssot-decision.md` as design-doc Pencil provenance; no blocker on missing `diary-v2.pen` per BQ-034-P3-02 ruling.
+
+**Handoff check: qa-early-consultation = `docs/retrospectives/qa.md 2026-04-23 K-038-absorbed-to-K-034-P3` (9 QA Challenges all ruled) → OK**
+**Handoff check: visual-delta = `yes`, design-locked = `true` → OK**
 
 ### Phase 3+ — as uncovered in Phase 2 or Phase 3 close.
 

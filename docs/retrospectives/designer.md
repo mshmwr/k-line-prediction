@@ -13,6 +13,12 @@
 ```
 
 - 倒序（最新在上）
+
+## 2026-04-23 — K-034 Phase 3 BQ-034-P3-02（/diary Footer SSOT 裁決）
+
+**做得好：** 先跑 Pencil MCP `batch_get` 對 `86psQ` + `1BGtd` 的完整節點樹，確認兩 frame 內容 byte-identical（同 content / fontFamily / fontSize / fontWeight / fill / letterSpacing / padding / stroke），再交叉核對 on-disk JSON spec 的 mtime（2026-04-21 match live `.pen`），有 evidence 才裁決 Option B，不憑印象跳結論。
+**沒做好：** Designer retro 過去沒有登記「本 footer 是全站 SSOT」的明確宣告；K-035 α-premise 糾正後這個事實只散落在 PM/QA retro 與 ticket §4.3，Designer 自己的 log 缺一條錨定條目，後續 Architect/Engineer 每次都要自己重推 SSOT 身分。
+**下次改善：** 本次同步產出 `frontend/design/specs/diary-footer-ssot-decision.md` 作為 `/diary` 消費登記 + Footer sitewide SSOT 單一參考點，下次任何 ticket 觸及共用 Footer/NavBar 時，優先連結這個文件而不是重建 provenance 表；若有 sitewide 共用屬性變更（font/padding/stroke/text），Designer 有責任同一 session 更新這份文件的 spec table 讓下游不必再翻 `.pen`。決策 artifact：`frontend/design/specs/diary-footer-ssot-decision.md`（read-only 決策紀錄，無 batch_design，無新 JSON/PNG export）。
 - 啟用日：2026-04-18（K-008 起）
 
 ---
