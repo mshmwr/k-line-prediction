@@ -43,6 +43,13 @@
 | TD-K030-04 | `frontend/public/diary.json` K-021/K-022/K-023 遺留繁中條目違反 `feedback_diary_json_english` 英文硬規則 | K-030 QA retro | 中 | 2026-04-21 |
 | TD-K029-01 | `about-v2.spec.ts` L474 / L487 Outcome / Learning label Playwright selector 使用 `locator('span', { hasText: 'Outcome' })` / `hasText: 'Learning'`；label copy 當下鎖定安全，但未來 data 彈性可能造成 sibling `<p>` 誤命中 | K-029 Reviewer Step 2 W-1 + QA sign-off | 低 | 2026-04-22 |
 | TD-K025-01 | Tailwind refactor AC grep pattern 對非 opacity-modifier utilities 為 degenerate proxy（`color:#hex` 只 match `/60` 等 alpha 變體，非 opacity 改用 `rgb(R G B / var(...))` 形式） | K-025 Reviewer W-1 | 中 | 2026-04-22 |
+| TD-K034-01 | `scripts/check-pen-json-parity.sh` 自動化：對 `frontend/design/specs/*.json` 驗 `pen-file` + `pen-mtime-at-export` 與實際 `.pen` 檔 mtime 一致；pre-commit hook 接入 | K-034 QA Early Consultation Q1 | 中 | 2026-04-23 |
+| TD-K034-02 | `scripts/validate-visual-delta.sh` 自動化：`visual-delta: none` ticket 觸發 `git diff main..HEAD -- frontend/src/** frontend/public/**`，match 即 block commit | K-034 QA Early Consultation Q3 | 中 | 2026-04-23 |
+| TD-K034-03 | Phase 2 expansion：`shared-components.spec.ts` auto-generated NavBar × 路由 + BuiltByAIBanner × 路由 pairwise byte-diff matrix，覆蓋 inventory 全體 | K-034 QA Early Consultation Q5（full 部分） | 中 | 2026-04-23 |
+| TD-K034-04 | Designer persona 「新路由 intake」硬 gate codification（`.pen` frame + specs JSON + PNG + inventory Edit 四件套完成才回報 PM） | K-034 QA Early Consultation Q7 | 低 | 2026-04-23 |
+| TD-K034-05 | Phase 1 QA sign-off 實裝 dual-baseline 驗證：`scripts/compare-baselines.sh` hash diff `frontend/e2e/__screenshots__/*.png` vs `frontend/design/screenshots/*.png`；`package.json` `test:e2e:update-snapshots` 加 branch-name guard（僅 `chore/baseline-refresh-*` 可執行） | K-034 QA Early Consultation Q2 | 中 | 2026-04-23 |
+| TD-K034-06 | Designer persona monthly Pencil orphan audit step；`.pen` schema version bump 機制（需 Pencil MCP 支援）；首次 orphan 事件發生時升級為硬 gate | K-034 QA Early Consultation Q4 | 低 | 2026-04-23 |
+| TD-K034-07 | `docs/reports/ci-budget.md` 制定：full Playwright suite >6 min 觸發 reduction；reduction 順序 visual-report > viewport sweep > shared-component snapshot（snapshot 為 Sacred） | K-034 QA Early Consultation Q6 | 低 | 2026-04-23 |
 
 ---
 

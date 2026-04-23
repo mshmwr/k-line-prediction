@@ -126,6 +126,8 @@ This table is the authoritative source for all downstream role rules. Every pers
    - `frontend/design/specs/` directory + `README.md` (schema + filename convention).
    - `frontend/design/screenshots/` directory + `README.md` (PNG naming: `<page>-<frameid>.png` and `<page>-<frameid>-side-by-side.png`).
    - `docs/designs/design-exemptions.md` seeded with `/app` route (K-030 isolation).
+   - `docs/designs/shared-components-inventory.md` MVP (Footer + UnifiedNavBar + BuiltByAIBanner × consuming routes + allowed-variant=0; per AC-034-P0-SHARED-CHROME-INVENTORY / QA Q5 ruling).
+   - `docs/tech-debt.md` appended with TD-K034-01 ~ TD-K034-07 (QA Early Consultation deferrals).
 8. Commits (file-class split per `feedback_separate_commits`):
    - Commit A: `ClaudeCodeProject/K-Line-Prediction/**` (this ticket + PRD + retrospectives + infra dirs + exemption doc) — docs-only gate.
    - Commit B: `claude-config/agents/**` + `claude-config/memory/**` (6 personas + 9 memory files + MEMORY.md index) — no gate per file-class table.
@@ -181,6 +183,56 @@ This table is the authoritative source for all downstream role rules. Every pers
 - **Then** there is a docs-only commit covering K-Line-Prediction tree changes and a separate claude-config commit for agents+memory
 - **And** `git diff --cached --name-only` at each commit time was filtered to that commit's scope only (per commit-hygiene rule)
 - **And** outer Diary mirror commit follows for each (dual-repo rule)
+
+#### AC-034-P0-DRIFT-GATE — .pen ↔ specs JSON drift detection (Q1 ruling, doc-level)
+- **Given** `frontend/design/specs/` contains exported frame JSON files
+- **When** any commit touches `frontend/design/*.pen` or `frontend/design/specs/*.json`
+- **Then** each `specs/*.json` file must carry top-level keys `pen-file: <relative-path>`, `pen-mtime-at-export: <ISO-8601>`, `exporter-version: <semver>`
+- **And** Designer persona (§Frame Artifact Export) enforces this on every `batch_design` as manual step until automation lands
+- **And** script automation `scripts/check-pen-json-parity.sh` deferred to TD-K034-01 (not Phase 0 blocker; Phase 0 rule is manual enforcement)
+- **Why:** QA Early Consultation Q1 — without drift detection, Designer editing `.pen` without re-export silently propagates stale JSON downstream. Phase 0 accepts the rule; script is TD.
+
+#### AC-034-P0-VISUAL-DELTA-VALIDATOR — ticket `visual-delta: none` semantic guard (Q3 ruling, doc-level)
+- **Given** a ticket frontmatter contains `visual-delta: none`
+- **When** the ticket is opened / updated
+- **Then** frontmatter must also contain `visual-delta-rationale: <single-line explanation>` (e.g. "pure backend fix, no frontend/src/** change")
+- **And** PM Phase Gate (pre-Architect release) rejects ticket when `visual-delta: none` but Phase plan text contains any of `new component / layout / style / Pencil frame`
+- **And** script automation `scripts/validate-visual-delta.sh` (git diff frontend/src + frontend/public against `none` label) deferred to TD-K034-02
+- **Why:** QA Q3 — unguarded `none` invites mis-labeling to skip Designer. Phase 0 = manual PM enforcement; script is TD.
+
+#### AC-034-P0-SHARED-CHROME-INVENTORY — shared-component inventory SSOT MVP (Q5 Phase 0 slice)
+- **Given** `docs/designs/shared-components-inventory.md`
+- **When** file is read
+- **Then** it enumerates every current shared chrome component (Footer, NavBar, BuiltByAIBanner) with columns: (a) file path, (b) consuming routes, (c) allowed variants (default 0), (d) Pencil frame IDs
+- **And** any PR introducing a new variant prop MUST first Edit this inventory + get PM ruling + cite Pencil frame evidence (Reviewer persona structural-chrome-duplication-scan cross-reference)
+- **And** Phase 2 expansion — `shared-components.spec.ts` auto-generated NavBar × routes + Banner × routes byte-diff matrix — deferred to TD-K034-03
+- **Why:** QA Q5 — Phase 1 Footer unification leaves NavBar/Banner unprotected. Inventory doc is MVP Phase 0 infrastructure; full pairwise matrix follows in Phase 2.
+
+#### AC-034-P0-NEW-ROUTE-GATE — new-route onboarding checklist (Q7 ruling, doc-level)
+- **Given** a ticket introduces a new route (e.g. /insights, /roadmap, /playbook)
+- **When** ticket is opened
+- **Then** ticket frontmatter must include `new-route-checklist:` block with 4 fields: `pencil-frame-id:`, `specs-json-path:`, `screenshots-png-path:`, `inventory-entry:`
+- **And** PM Phase Gate refuses to release Architect until all 4 non-empty (per PM persona new-route gate, added inline at §PM Ruling below)
+- **And** Designer persona "new-route intake" sub-flow (receive PM request → produce 4 artifacts → notify PM) lands at first new-route ticket; codification deferred to TD-K034-04
+- **Why:** QA Q7 — prevents new routes shipping without Pencil backing. Phase 0 = AC-level rule; Designer persona intake flow is TD.
+
+### §4.1 PM Rulings on QA Early Consultation Challenges
+
+QA retrospective `docs/retrospectives/qa.md 2026-04-23 — K-034 Phase 0 Early Consultation` raised 7 challenges. PM rulings (binding; QA sign-off of Phase 1 conditional on this section):
+
+| QA # | Topic | Ruling | Routed to |
+|------|-------|--------|-----------|
+| Q1 | `.pen` ↔ specs JSON drift | **ACCEPT** doc-level AC | AC-034-P0-DRIFT-GATE (above); TD-K034-01 for script |
+| Q2 | Snapshot dual-baseline vs Pencil re-export | **DEFER** to Phase 1 QA sign-off step | TD-K034-05; QA adds `scripts/compare-baselines.sh` check at Phase 1 close when Playwright baseline first lands |
+| Q3 | `visual-delta: none` abuse | **ACCEPT** doc-level AC | AC-034-P0-VISUAL-DELTA-VALIDATOR (above); TD-K034-02 for script |
+| Q4 | Pencil orphan frames | **DEFER** to tech-debt | TD-K034-06 (monthly audit; Designer persona addition at first recurrence) |
+| Q5 | Cross-page regression beyond Footer | **SPLIT** — inventory doc to Phase 0; full pairwise matrix to Phase 2 | AC-034-P0-SHARED-CHROME-INVENTORY (above); TD-K034-03 for Phase 2 matrix |
+| Q6 | CI cost budget | **DEFER** to tech-debt | TD-K034-07 (`docs/reports/ci-budget.md` when full-suite first exceeds 6 min; snapshot declared Sacred in reduction order) |
+| Q7 | New-route onboarding | **ACCEPT** doc-level AC | AC-034-P0-NEW-ROUTE-GATE (above); TD-K034-04 for Designer intake codification |
+
+**Rationale for DEFER choices:** Q2/Q4/Q6 are enforcement-layer concerns that (a) do not exist without Phase 1 baselines (Q2), (b) require empirical trigger before audit cadence is worth codifying (Q4), (c) are monitoring concerns not currently triggered (Q6). Phase 0 scope stays tight to the 17-decision rule set + QA's 4 ACCEPT ACs; enforcement scripts and audit cadence follow via tech-debt when Phase 1/2 events require them.
+
+**QA sign-off condition:** QA releases Phase 1 AC to Engineer only after (a) this section §4.1 exists in this ticket, (b) 7 tech-debt entries TD-K034-01 through TD-K034-07 land in `docs/tech-debt.md`, (c) 4 new Phase 0 AC entries exist above, (d) `docs/designs/shared-components-inventory.md` exists.
 
 ### Phase 1 — /about footer hotfix (Pencil-compliant inline version)
 
