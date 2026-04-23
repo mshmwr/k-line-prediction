@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-037",
+    "title": "Favicon wiring and Web App Manifest",
+    "date": "2026-04-23",
+    "text": "Wired the seven K-036 favicon assets into frontend/index.html via six rel=icon/apple-touch-icon/manifest link tags plus a meta theme-color (paper token #F4EFE5), added a minimal W3C Web App Manifest (frontend/public/manifest.json, display=browser, 192+512 icon entries, name K-Line Prediction), added a 16-case Playwright regression spec (favicon-assets.spec.ts) asserting asset 200 status + non-empty body + individual link tag attributes + manifest schema + Content-Type accept-list across a dedicated favicon-preview project running on vite preview port 4173, and accepted default Vite/Firebase JSON MIME per AC-037-MANIFEST-MIME-ACCEPTABLE with no firebase.json change."
+  },
+  {
     "ticketId": "K-036",
     "title": "Favicon design and rasterization",
     "date": "2026-04-22",
