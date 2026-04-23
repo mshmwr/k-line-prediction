@@ -1,230 +1,64 @@
 {
-  "pen-file": "frontend/design/homepage-v2.pen",
-  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
-  "exporter-version": "1.0",
-  "frame-id": "BF4Xe",
-  "section-name": "S2_MetricsStripSection (Nº 01 — DELIVERY METRICS — 4 metric cards)",
-  "parent-frame": "35VCj",
-  "frame": {
-    "children": [
-      {
-        "alignItems": "center",
-        "children": [
-          {
-            "content": "Nº 01 — DELIVERY METRICS",
-            "fill": "#1A1814",
-            "fontFamily": "Geist Mono",
-            "fontSize": 13,
-            "fontWeight": "700",
-            "id": "kvHMP",
-            "letterSpacing": 2,
-            "name": "s2label",
-            "type": "text"
-          },
-          {
-            "fill": "#8B7A6B",
-            "height": 1,
-            "id": "q6UUP",
-            "name": "s2Line",
-            "type": "rectangle",
-            "width": "fill_container"
-          }
-        ],
-        "gap": 16,
-        "id": "aXxCh",
-        "name": "s2Head",
-        "type": "frame",
-        "width": "fill_container"
-      },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "content": "FILE Nº 01",
-                    "fill": "#F4EFE5",
-                    "fontFamily": "Geist Mono",
-                    "fontSize": 10,
-                    "fontWeight": "normal",
-                    "id": "lJ886",
-                    "letterSpacing": 2,
-                    "name": "m1Lbl",
-                    "type": "text"
-                  }
-                ],
-                "fill": "#2A2520",
-                "id": "zWvxf",
-                "name": "m1Top",
-                "padding": [6, 10],
-                "type": "frame",
-                "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "fill": "#2A2520", "height": 10, "id": "AxyBl", "name": "m1Redact", "type": "rectangle", "width": 100 },
-                  { "content": "17", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 76, "fontWeight": "700", "id": "pArmD", "lineHeight": 1, "name": "m1Num", "type": "text" },
-                  { "content": "Features Shipped", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 22, "fontStyle": "italic", "fontWeight": "700", "id": "yzR3K", "lineHeight": 1.15, "name": "m1Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "height": "fill_container", "id": "n3Qew", "layout": "none", "name": "m1Spacer", "type": "frame", "width": "fill_container" },
-                  { "content": "17 tickets, K-001 → K-017", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "e41oW", "name": "m1Note", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 10,
-                "height": "fill_container",
-                "id": "yPEl5",
-                "layout": "vertical",
-                "name": "m1Body",
-                "padding": 18,
-                "type": "frame",
-                "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6,
-            "fill": "#F4EFE5",
-            "height": 280,
-            "id": "2k5ED",
-            "layout": "vertical",
-            "name": "m1_FeaturesShipped",
-            "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
-            "type": "frame",
-            "width": "fill_container"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  { "content": "FILE Nº 02", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "fvIDJ", "letterSpacing": 2, "name": "m2Lbl", "type": "text" }
-                ],
-                "fill": "#2A2520",
-                "id": "WkugM",
-                "name": "m2Top",
-                "padding": [6, 10],
-                "type": "frame",
-                "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "fill": "#2A2520", "height": 10, "id": "LKSJy", "name": "m2Redact", "type": "rectangle", "width": 140 },
-                  { "content": "First-pass Review Rate", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 28, "fontStyle": "italic", "fontWeight": "700", "id": "iRhDo", "lineHeight": 1.1, "name": "m2Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "content": "Reviewer catches issues before QA on most tickets", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "0crHb", "lineHeight": 1.5, "name": "m2Sub", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "height": "fill_container", "id": "lHUid", "layout": "none", "name": "m2Spacer", "type": "frame", "width": "fill_container" },
-                  { "content": "— classification: NARRATIVE, un-metered.", "fill": "#6B5F4E", "fontFamily": "Newsreader", "fontSize": 11, "fontStyle": "italic", "fontWeight": "normal", "id": "H8bkQ", "name": "m2Note", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 10,
-                "height": "fill_container",
-                "id": "seD31",
-                "layout": "vertical",
-                "name": "m2Body",
-                "padding": 18,
-                "type": "frame",
-                "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6,
-            "fill": "#F4EFE5",
-            "height": 280,
-            "id": "55Zha",
-            "layout": "vertical",
-            "name": "m2_FirstPassReview",
-            "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
-            "type": "frame",
-            "width": "fill_container"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  { "content": "FILE Nº 03", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "oPLAA", "letterSpacing": 2, "name": "m3Lbl", "type": "text" }
-                ],
-                "fill": "#2A2520",
-                "id": "HZUFn",
-                "name": "m3Top",
-                "padding": [6, 10],
-                "type": "frame",
-                "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "fill": "#2A2520", "height": 10, "id": "k4QdI", "name": "m3Redact", "type": "rectangle", "width": 110 },
-                  { "content": "Post-mortems Written", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 28, "fontStyle": "italic", "fontWeight": "700", "id": "TegqI", "lineHeight": 1.1, "name": "m3Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "content": "Every ticket has cross-role retrospective", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "XabnK", "lineHeight": 1.5, "name": "m3Sub", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "height": "fill_container", "id": "ugPPt", "layout": "none", "name": "m3Spacer", "type": "frame", "width": "fill_container" },
-                  { "content": "— filed per ticket, countersigned by PM.", "fill": "#6B5F4E", "fontFamily": "Newsreader", "fontSize": 11, "fontStyle": "italic", "fontWeight": "normal", "id": "MT6Lz", "name": "m3Note", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 10,
-                "height": "fill_container",
-                "id": "k89s2",
-                "layout": "vertical",
-                "name": "m3Body",
-                "padding": 18,
-                "type": "frame",
-                "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6,
-            "fill": "#F4EFE5",
-            "height": 280,
-            "id": "i7d8Y",
-            "layout": "vertical",
-            "name": "m3_PostMortems",
-            "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
-            "type": "frame",
-            "width": "fill_container"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  { "content": "FILE Nº 04", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "WOnwn", "letterSpacing": 2, "name": "m4Lbl", "type": "text" }
-                ],
-                "fill": "#2A2520",
-                "id": "BvZEW",
-                "name": "m4Top",
-                "padding": [6, 10],
-                "type": "frame",
-                "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "fill": "#2A2520", "height": 10, "id": "nbJOE", "name": "m4Redact", "type": "rectangle", "width": 90 },
-                  { "content": "3", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 76, "fontWeight": "700", "id": "6spHE", "lineHeight": 1, "name": "m4Num", "type": "text" },
-                  { "content": "Guardrails in Place", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 22, "fontStyle": "italic", "fontWeight": "700", "id": "yYtNH", "lineHeight": 1.15, "name": "m4Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "height": "fill_container", "id": "BGOar", "layout": "none", "name": "m4Spacer", "type": "frame", "width": "fill_container" },
-                  { "content": "Bug Found Protocol, per-role retro logs, audit script", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "VTbNw", "name": "m4Note", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 10,
-                "height": "fill_container",
-                "id": "XSj54",
-                "layout": "vertical",
-                "name": "m4Body",
-                "padding": 18,
-                "type": "frame",
-                "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6,
-            "fill": "#F4EFE5",
-            "height": 280,
-            "id": "jG43T",
-            "layout": "vertical",
-            "name": "m4_Guardrails",
-            "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
-            "type": "frame",
-            "width": "fill_container"
-          }
-        ],
-        "gap": 14,
-        "id": "cjNk5",
-        "name": "s2MetricsRow",
-        "type": "frame",
-        "width": "fill_container"
-      }
-    ],
-    "gap": 28,
-    "id": "BF4Xe",
-    "layout": "vertical",
-    "name": "S2_MetricsStripSection",
-    "type": "frame",
-    "width": "fill_container"
-  }
+  "ticket": "K-040",
+  "frameId": "BF4Xe",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "S2_MetricsStripSection (About /about section 2)",
+  "parentPage": "About /about (K-017 v2) [35VCj]",
+  "layout": "vertical",
+  "gap": 28,
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Sitewide Typography — Big metric numbers Bodoni 76→Mono 64 (kept weight); card titles varied (18/22); notes 12/11 all Mono normal. All italics removed.",
+  "components": [
+    {
+      "role": "section-label",
+      "nodeId": "kvHMP",
+      "content": "Nº 01 — DELIVERY METRICS",
+      "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 },
+      "color": "#1A1814"
+    },
+    {
+      "role": "metric-card",
+      "nodeId": "2k5ED",
+      "name": "m1_FeaturesShipped",
+      "items": [
+        { "role": "card-label", "nodeId": "lJ886", "content": "FILE Nº 01", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#F4EFE5" },
+        { "role": "metric-number", "nodeId": "pArmD", "content": "17", "font": { "family": "Geist Mono", "size": 64, "weight": "700", "style": "normal", "lineHeight": 1 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontSize": 76 },
+        { "role": "metric-title", "nodeId": "yzR3K", "content": "Features Shipped", "font": { "family": "Geist Mono", "size": 18, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 22 },
+        { "role": "metric-note", "nodeId": "e41oW", "content": "17 tickets, K-001 → K-017", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "style": "normal" }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 13 }
+      ]
+    },
+    {
+      "role": "metric-card",
+      "nodeId": "55Zha",
+      "name": "m2_FirstPassReview",
+      "items": [
+        { "role": "card-label", "nodeId": "fvIDJ", "content": "FILE Nº 02", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#F4EFE5" },
+        { "role": "metric-title", "nodeId": "iRhDo", "content": "First-pass Review Rate", "font": { "family": "Geist Mono", "size": 22, "weight": "700", "style": "normal", "lineHeight": 1.1 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontSize": 28 },
+        { "role": "metric-sub", "nodeId": "0crHb", "content": "Reviewer catches issues before QA on most tickets", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.5 }, "color": "#1A1814" },
+        { "role": "metric-note-small", "nodeId": "H8bkQ", "content": "— classification: NARRATIVE, un-metered.", "font": { "family": "Geist Mono", "size": 11, "weight": "normal" }, "color": "#6B5F4E", "previousFontFamily": "Newsreader", "previousFontStyle": "italic" }
+      ]
+    },
+    {
+      "role": "metric-card",
+      "nodeId": "i7d8Y",
+      "name": "m3_PostMortems",
+      "items": [
+        { "role": "card-label", "nodeId": "oPLAA", "content": "FILE Nº 03", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#F4EFE5" },
+        { "role": "metric-title", "nodeId": "TegqI", "content": "Post-mortems Written", "font": { "family": "Geist Mono", "size": 22, "weight": "700", "style": "normal", "lineHeight": 1.1 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontSize": 28 },
+        { "role": "metric-sub", "nodeId": "XabnK", "content": "Every ticket has cross-role retrospective", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.5 }, "color": "#1A1814" },
+        { "role": "metric-note-small", "nodeId": "MT6Lz", "content": "— filed per ticket, countersigned by PM.", "font": { "family": "Geist Mono", "size": 11, "weight": "normal" }, "color": "#6B5F4E", "previousFontFamily": "Newsreader", "previousFontStyle": "italic" }
+      ]
+    },
+    {
+      "role": "metric-card",
+      "nodeId": "jG43T",
+      "name": "m4_Guardrails",
+      "items": [
+        { "role": "card-label", "nodeId": "WOnwn", "content": "FILE Nº 04", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#F4EFE5" },
+        { "role": "metric-number", "nodeId": "6spHE", "content": "3", "font": { "family": "Geist Mono", "size": 64, "weight": "700", "style": "normal", "lineHeight": 1 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontSize": 76 },
+        { "role": "metric-title", "nodeId": "yYtNH", "content": "Guardrails in Place", "font": { "family": "Geist Mono", "size": 18, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 22 },
+        { "role": "metric-note", "nodeId": "VTbNw", "content": "Bug Found Protocol, per-role retro logs, audit script", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 13 }
+      ]
+    }
+  ]
 }

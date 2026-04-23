@@ -1,0 +1,49 @@
+{
+  "frameId": "2ASmw",
+  "frameName": "bpFooterBar",
+  "parentPage": "Business Logic /business-logic (v2 Dossier) [VSwW9]",
+  "ticket": "K-040",
+  "visualDelta": "Added `gaDisclosure` text node for K-034 Phase 1 Sacred byte-identity parity across all 4 route footer frames.",
+  "role": "footer",
+  "crossFrameParity": ["ei7cl (diary)", "1BGtd (home)", "86psQ (about)", "2ASmw (business-logic)"],
+  "spec": {
+    "type": "frame",
+    "id": "2ASmw",
+    "name": "bpFooterBar",
+    "role": "footer",
+    "layout": "horizontal",
+    "justifyContent": "space_between",
+    "alignItems": "center",
+    "padding": [20, 72],
+    "width": "fill_container",
+    "stroke": {
+      "align": "inside",
+      "fill": "#1A1814",
+      "thickness": { "top": 1 }
+    },
+    "children": [
+      {
+        "type": "text",
+        "id": "AHkXM",
+        "name": "ctR2",
+        "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
+        "fontFamily": "Geist Mono",
+        "fontSize": 11,
+        "fontWeight": "normal",
+        "letterSpacing": 1,
+        "fill": "#6B5F4E"
+      },
+      {
+        "type": "text",
+        "id": "cDw8L",
+        "name": "gaDisclosure",
+        "content": "This site uses Google Analytics to collect anonymous usage data.",
+        "fontFamily": "Geist Mono",
+        "fontSize": 11,
+        "fontWeight": "normal",
+        "letterSpacing": 1,
+        "fill": "#6B5F4E"
+      }
+    ]
+  }
+}

@@ -1,110 +1,55 @@
 {
-  "pen-file": "frontend/design/homepage-v2.pen",
-  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
-  "exporter-version": "1.0",
-  "frame-id": "EBC1e",
-  "section-name": "S5_TicketAnatomySection (Nº 04 — ANATOMY OF A TICKET — 3 ticket cards: K-002 / K-008 / K-009)",
-  "parent-frame": "35VCj",
-  "frame": {
-    "children": [
-      {
-        "alignItems": "center",
-        "children": [
-          { "content": "Nº 04 — ANATOMY OF A TICKET", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 13, "fontWeight": "700", "id": "CQyS0", "letterSpacing": 2, "name": "s5label", "type": "text" },
-          { "fill": "#8B7A6B", "height": 1, "id": "LSNvb", "name": "s5Line", "type": "rectangle", "width": "fill_container" }
-        ],
-        "gap": 16, "id": "cpEVK", "name": "s5Head", "type": "frame", "width": "fill_container"
-      },
-      { "content": "— Anatomy of a ticket. Three cases, each filed in full with outcome and learning.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 15, "fontStyle": "italic", "fontWeight": "normal", "id": "iUkFk", "lineHeight": 1.6, "name": "s5Intro", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "alignItems": "center",
-                "children": [
-                  { "content": "FILE Nº 01 · CASE FILE", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "vcvPk", "letterSpacing": 2, "name": "t1TopL", "type": "text" },
-                  { "content": "K-002", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "700", "id": "LVfTv", "letterSpacing": 2, "name": "t1TopR", "type": "text" }
-                ],
-                "fill": "#2A2520", "id": "wl30A", "justifyContent": "space_between", "name": "t1Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "content": "Case Nº 01", "fill": "#6B5F4E", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "kJyTC", "name": "t1CaseNo", "type": "text" },
-                  { "content": "UI optimization", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 26, "fontStyle": "italic", "fontWeight": "700", "id": "GtO0Z", "lineHeight": 1.15, "name": "t1Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "fill": "#2A2520", "height": 1, "id": "rl6WD", "name": "t1Rule", "type": "rectangle", "width": 40 },
-                  { "content": "OUTCOME", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "icZQk", "letterSpacing": 2, "name": "t1OutL", "type": "text" },
-                  { "content": "Large UI refactor where And-clause systematic omission was caught by three-role reflection.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "lwBEi", "lineHeight": 1.55, "name": "t1Out", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "content": "LEARNING", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "tgGNM", "letterSpacing": 2, "name": "t1LearnL", "type": "text" },
-                  { "content": "Birthed the per-role retrospective log mechanism.", "fill": "#B43A2C", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "wWdZj", "lineHeight": 1.55, "name": "t1Learn", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "content": "→ View K-002 on GitHub", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 11, "fontWeight": "normal", "id": "GBRSI", "letterSpacing": 1, "name": "t1Link", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 12, "id": "0NVSV", "layout": "vertical", "name": "t1Body", "padding": 20, "type": "frame", "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6, "fill": "#F4EFE5", "id": "835fD", "layout": "vertical", "name": "ticket_K002", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
-          },
-          {
-            "children": [
-              {
-                "alignItems": "center",
-                "children": [
-                  { "content": "FILE Nº 02 · CASE FILE", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "pduPf", "letterSpacing": 2, "name": "t2TopL", "type": "text" },
-                  { "content": "K-008", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "700", "id": "rJ9bg", "letterSpacing": 2, "name": "t2TopR", "type": "text" }
-                ],
-                "fill": "#2A2520", "id": "xEzsO", "justifyContent": "space_between", "name": "t2Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "content": "Case Nº 02", "fill": "#6B5F4E", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "jgyWD", "name": "t2CaseNo", "type": "text" },
-                  { "content": "Visual report script", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 26, "fontStyle": "italic", "fontWeight": "700", "id": "FIemh", "lineHeight": 1.15, "name": "t2Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "fill": "#2A2520", "height": 1, "id": "bRNIe", "name": "t2Rule", "type": "rectangle", "width": 40 },
-                  { "content": "OUTCOME", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "7ACs6", "letterSpacing": 2, "name": "t2OutL", "type": "text" },
-                  { "content": "Automated Playwright visual-report pipeline rendering every page to HTML.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "dAprq", "lineHeight": 1.55, "name": "t2Out", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "content": "LEARNING", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "WFYFa", "letterSpacing": 2, "name": "t2LearnL", "type": "text" },
-                  { "content": "Demonstrates the Bug Found Protocol four-step flow.", "fill": "#B43A2C", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "fA0eV", "lineHeight": 1.55, "name": "t2Learn", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "content": "→ View K-008 on GitHub", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 11, "fontWeight": "normal", "id": "hUnl9", "letterSpacing": 1, "name": "t2Link", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 12, "id": "8WFfj", "layout": "vertical", "name": "t2Body", "padding": 20, "type": "frame", "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6, "fill": "#F4EFE5", "id": "sl7k7", "layout": "vertical", "name": "ticket_K008", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
-          },
-          {
-            "children": [
-              {
-                "alignItems": "center",
-                "children": [
-                  { "content": "FILE Nº 03 · CASE FILE", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "f04x2", "letterSpacing": 2, "name": "t3TopL", "type": "text" },
-                  { "content": "K-009", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 12, "fontWeight": "700", "id": "JGr08", "letterSpacing": 2, "name": "t3TopR", "type": "text" }
-                ],
-                "fill": "#2A2520", "id": "sPkSi", "justifyContent": "space_between", "name": "t3Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "content": "Case Nº 03", "fill": "#6B5F4E", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "BOW69", "name": "t3CaseNo", "type": "text" },
-                  { "content": "1H MA history fix", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 26, "fontStyle": "italic", "fontWeight": "700", "id": "CMDTi", "lineHeight": 1.15, "name": "t3Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "fill": "#2A2520", "height": 1, "id": "rlEqT", "name": "t3Rule", "type": "rectangle", "width": 40 },
-                  { "content": "OUTCOME", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "8Ep5k", "letterSpacing": 2, "name": "t3OutL", "type": "text" },
-                  { "content": "TDD bug fix for 1H prediction MA history source mismatch.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "UsPNK", "lineHeight": 1.55, "name": "t3Out", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "content": "LEARNING", "fill": "#6B5F4E", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "aFc11", "letterSpacing": 2, "name": "t3LearnL", "type": "text" },
-                  { "content": "Test-driven discipline demonstration.", "fill": "#B43A2C", "fontFamily": "Newsreader", "fontSize": 13, "fontStyle": "italic", "fontWeight": "normal", "id": "RbIL9", "lineHeight": 1.55, "name": "t3Learn", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "content": "→ View K-009 on GitHub", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 11, "fontWeight": "normal", "id": "XOwQv", "letterSpacing": 1, "name": "t3Link", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 12, "id": "tov6A", "layout": "vertical", "name": "t3Body", "padding": 20, "type": "frame", "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6, "fill": "#F4EFE5", "id": "vnu0g", "layout": "vertical", "name": "ticket_K009", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
-          }
-        ],
-        "gap": 14, "id": "BV8YS", "name": "s5Row", "type": "frame", "width": "fill_container"
-      }
-    ],
-    "gap": 28,
-    "id": "EBC1e",
-    "layout": "vertical",
-    "name": "S5_TicketAnatomySection",
-    "type": "frame",
-    "width": "fill_container"
-  }
+  "ticket": "K-040",
+  "frameId": "EBC1e",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "S5_TicketAnatomySection (About /about section 5)",
+  "parentPage": "About /about (K-017 v2) [35VCj]",
+  "layout": "vertical",
+  "gap": 28,
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Sitewide Typography — s5 intro Newsreader italic 15→Mono 14 normal; 3 case cards with Title Bodoni italic 26→Mono 20 normal; CaseNo Newsreader italic 13→Mono 11 normal; outcome/learning body Mono 12; link Mono 11.",
+  "components": [
+    { "role": "section-label", "nodeId": "CQyS0", "content": "Nº 04 — ANATOMY OF A TICKET", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
+    { "role": "section-intro", "nodeId": "iUkFk", "content": "— Anatomy of a ticket. Three cases, each filed in full with outcome and learning.", "font": { "family": "Geist Mono", "size": 14, "weight": "normal", "style": "normal", "lineHeight": 1.6 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 15 },
+    {
+      "role": "ticket-card",
+      "nodeId": "835fD",
+      "name": "ticket_K002",
+      "items": [
+        { "role": "card-label", "nodeId": "vcvPk", "content": "FILE Nº 01 · CASE FILE", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#F4EFE5" },
+        { "role": "card-id", "nodeId": "LVfTv", "content": "K-002", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "letterSpacing": 2 }, "color": "#F4EFE5" },
+        { "role": "case-no", "nodeId": "kJyTC", "content": "Case Nº 01", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "style": "normal" }, "color": "#6B5F4E", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 13 },
+        { "role": "ticket-title", "nodeId": "GtO0Z", "content": "UI optimization", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
+        { "role": "field-label", "nodeId": "icZQk", "content": "OUTCOME", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#6B5F4E" },
+        { "role": "ticket-outcome", "nodeId": "lwBEi", "content": "Large UI refactor where And-clause systematic omission was caught by three-role reflection.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#1A1814" },
+        { "role": "field-label", "nodeId": "tgGNM", "content": "LEARNING", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#6B5F4E" },
+        { "role": "ticket-learning", "nodeId": "wWdZj", "content": "Birthed the per-role retrospective log mechanism.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#B43A2C" },
+        { "role": "ticket-link", "nodeId": "GBRSI", "content": "→ View K-002 on GitHub", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+      ]
+    },
+    {
+      "role": "ticket-card",
+      "nodeId": "sl7k7",
+      "name": "ticket_K008",
+      "items": [
+        { "role": "case-no", "nodeId": "jgyWD", "content": "Case Nº 02", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "style": "normal" }, "color": "#6B5F4E", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 13 },
+        { "role": "ticket-title", "nodeId": "FIemh", "content": "Visual report script", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
+        { "role": "ticket-outcome", "nodeId": "dAprq", "content": "Automated Playwright visual-report pipeline rendering every page to HTML.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#1A1814" },
+        { "role": "ticket-learning", "nodeId": "fA0eV", "content": "Demonstrates the Bug Found Protocol four-step flow.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#B43A2C" },
+        { "role": "ticket-link", "nodeId": "hUnl9", "content": "→ View K-008 on GitHub", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+      ]
+    },
+    {
+      "role": "ticket-card",
+      "nodeId": "vnu0g",
+      "name": "ticket_K009",
+      "items": [
+        { "role": "case-no", "nodeId": "BOW69", "content": "Case Nº 03", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "style": "normal" }, "color": "#6B5F4E", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 13 },
+        { "role": "ticket-title", "nodeId": "CMDTi", "content": "1H MA history fix", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
+        { "role": "ticket-outcome", "nodeId": "UsPNK", "content": "TDD bug fix for 1H prediction MA history source mismatch.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#1A1814" },
+        { "role": "ticket-learning", "nodeId": "RbIL9", "content": "Test-driven discipline demonstration.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#B43A2C" },
+        { "role": "ticket-link", "nodeId": "XOwQv", "content": "→ View K-009 on GitHub", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+      ]
+    }
+  ]
 }

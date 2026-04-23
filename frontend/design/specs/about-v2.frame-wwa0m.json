@@ -1,101 +1,25 @@
 {
-  "pen-file": "frontend/design/homepage-v2.pen",
-  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
-  "exporter-version": "1.0",
-  "frame-id": "wwa0m",
-  "section-name": "S1_PageHeaderSection (Hero / intro block)",
-  "parent-frame": "35VCj",
-  "frame": {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "content": "One operator, orchestrating AI",
-                "fill": "#1A1814",
-                "fontFamily": "Bodoni Moda",
-                "fontSize": 64,
-                "fontStyle": "italic",
-                "fontWeight": "700",
-                "id": "nolk3",
-                "lineHeight": 1.05,
-                "name": "ttl1",
-                "textGrowth": "fixed-width",
-                "type": "text",
-                "width": "fill_container"
-              },
-              {
-                "content": "agents end-to-end —",
-                "fill": "#B43A2C",
-                "fontFamily": "Bodoni Moda",
-                "fontSize": 64,
-                "fontStyle": "italic",
-                "fontWeight": "700",
-                "id": "02p72",
-                "lineHeight": 1.05,
-                "name": "ttl2",
-                "textGrowth": "fixed-width",
-                "type": "text",
-                "width": "fill_container"
-              },
-              {
-                "fill": "#2A2520",
-                "height": 1,
-                "id": "qFnDN",
-                "name": "divider1",
-                "type": "rectangle",
-                "width": "fill_container"
-              },
-              {
-                "content": "PM, architect, engineer, reviewer, QA, designer.",
-                "fill": "#1A1814",
-                "fontFamily": "Newsreader",
-                "fontSize": 18,
-                "fontStyle": "italic",
-                "fontWeight": "normal",
-                "id": "gNx84",
-                "lineHeight": 1.5,
-                "name": "roleLine",
-                "textGrowth": "fixed-width",
-                "type": "text",
-                "width": "fill_container"
-              },
-              {
-                "content": "Every feature ships with a doc trail.",
-                "fill": "#1A1814",
-                "fontFamily": "Bodoni Moda",
-                "fontSize": 22,
-                "fontStyle": "italic",
-                "fontWeight": "700",
-                "id": "TQmUG",
-                "lineHeight": 1.4,
-                "name": "tagline",
-                "textGrowth": "fixed-width",
-                "type": "text",
-                "width": "fill_container"
-              }
-            ],
-            "gap": 18,
-            "id": "b6TgM",
-            "layout": "vertical",
-            "name": "titleColumn",
-            "type": "frame",
-            "width": "fill_container"
-          }
-        ],
-        "gap": 40,
-        "id": "ocUD7",
-        "name": "s1HeaderRow",
-        "type": "frame",
-        "width": "fill_container"
-      }
-    ],
-    "gap": 32,
-    "id": "wwa0m",
-    "layout": "vertical",
-    "name": "S1_PageHeaderSection",
-    "type": "frame",
-    "width": "fill_container"
-  }
+  "ticket": "K-040",
+  "frameId": "wwa0m",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "S1_PageHeaderSection (About /about section 1)",
+  "parentPage": "About /about (K-017 v2) [35VCj]",
+  "layout": "vertical",
+  "gap": 32,
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Sitewide Typography — About page H1 Bodoni Moda 64 italic → Geist Mono 52 normal; roleLine Newsreader italic 18→Mono 16 normal; tagline Bodoni italic 22→Mono 18 normal.",
+  "components": [
+    {
+      "role": "title-column",
+      "nodeId": "b6TgM",
+      "gap": 18,
+      "items": [
+        { "role": "hero-title", "nodeId": "nolk3", "content": "One operator, orchestrating AI", "font": { "family": "Geist Mono", "size": 52, "weight": "700", "style": "normal", "lineHeight": 1.05 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 64 },
+        { "role": "hero-title-accent", "nodeId": "02p72", "content": "agents end-to-end —", "font": { "family": "Geist Mono", "size": 52, "weight": "700", "style": "normal", "lineHeight": 1.05 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 64 },
+        { "role": "hero-divider", "nodeId": "qFnDN", "fill": "#2A2520", "height": 1 },
+        { "role": "hero-role-line", "nodeId": "gNx84", "content": "PM, architect, engineer, reviewer, QA, designer.", "font": { "family": "Geist Mono", "size": 16, "weight": "normal", "style": "normal", "lineHeight": 1.5 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 18 },
+        { "role": "hero-tagline", "nodeId": "TQmUG", "content": "Every feature ships with a doc trail.", "font": { "family": "Geist Mono", "size": 18, "weight": "700", "style": "normal", "lineHeight": 1.4 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 22 }
+      ]
+    }
+  ]
 }

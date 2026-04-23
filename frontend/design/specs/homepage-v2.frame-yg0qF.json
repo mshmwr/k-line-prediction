@@ -1,0 +1,24 @@
+{
+  "ticket": "K-040",
+  "frameId": "yg0qF",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "diaryViewAllRow (Homepage hpDiary CTA row)",
+  "parentPage": "Homepage / (v2 Dossier) [4CsvQ] / hpBody [LKgNi] / hpDiary [gaIjh]",
+  "padding": [40, 0, 0, 0],
+  "justifyContent": "end",
+  "width": "fill_container",
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Item 4 (40px top padding) preserved + typography: CTA link now Geist Mono 12px 700 (was Bodoni Moda 14px).",
+  "components": [
+    {
+      "role": "view-full-log-link",
+      "nodeId": "zh5OA",
+      "content": "— View full log →",
+      "font": { "family": "Geist Mono", "size": 12, "weight": "700", "style": "normal", "letterSpacing": 1 },
+      "color": "#9C4A3B",
+      "previousFontFamily": "Bodoni Moda",
+      "previousFontStyle": "italic",
+      "previousFontSize": 14
+    }
+  ]
+}

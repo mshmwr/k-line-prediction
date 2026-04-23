@@ -154,10 +154,9 @@
                           "width": "fill_container",
                           "content": "One operator, orchestrating AI",
                           "lineHeight": 1.05,
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 64,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 52,
+                          "fontWeight": "700"
                         },
                         {
                           "type": "text",
@@ -168,10 +167,9 @@
                           "width": "fill_container",
                           "content": "agents end-to-end —",
                           "lineHeight": 1.05,
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 64,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 52,
+                          "fontWeight": "700"
                         },
                         {
                           "type": "rectangle",
@@ -190,10 +188,9 @@
                           "width": "fill_container",
                           "content": "PM, architect, engineer, reviewer, QA, designer.",
                           "lineHeight": 1.5,
-                          "fontFamily": "Newsreader",
-                          "fontSize": 18,
-                          "fontWeight": "normal",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 16,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "text",
@@ -204,10 +201,9 @@
                           "width": "fill_container",
                           "content": "Every feature ships with a doc trail.",
                           "lineHeight": 1.4,
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 22,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 18,
+                          "fontWeight": "700"
                         }
                       ]
                     }
@@ -323,8 +319,8 @@
                               "fill": "#1A1814",
                               "content": "17",
                               "lineHeight": 1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 76,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 64,
                               "fontWeight": "700"
                             },
                             {
@@ -336,10 +332,9 @@
                               "width": "fill_container",
                               "content": "Features Shipped",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 22,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 18,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "frame",
@@ -357,10 +352,9 @@
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
                               "content": "17 tickets, K-001 → K-017",
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -432,10 +426,9 @@
                               "width": "fill_container",
                               "content": "First-pass Review Rate",
                               "lineHeight": 1.1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 28,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 22,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "text",
@@ -446,10 +439,9 @@
                               "width": "fill_container",
                               "content": "Reviewer catches issues before QA on most tickets",
                               "lineHeight": 1.5,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -467,10 +459,9 @@
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
                               "content": "— classification: NARRATIVE, un-metered.",
-                              "fontFamily": "Newsreader",
+                              "fontFamily": "Geist Mono",
                               "fontSize": 11,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -542,10 +533,9 @@
                               "width": "fill_container",
                               "content": "Post-mortems Written",
                               "lineHeight": 1.1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 28,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 22,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "text",
@@ -556,10 +546,9 @@
                               "width": "fill_container",
                               "content": "Every ticket has cross-role retrospective",
                               "lineHeight": 1.5,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -577,10 +566,9 @@
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
                               "content": "— filed per ticket, countersigned by PM.",
-                              "fontFamily": "Newsreader",
+                              "fontFamily": "Geist Mono",
                               "fontSize": 11,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -650,8 +638,8 @@
                               "fill": "#1A1814",
                               "content": "3",
                               "lineHeight": 1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 76,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 64,
                               "fontWeight": "700"
                             },
                             {
@@ -663,10 +651,9 @@
                               "width": "fill_container",
                               "content": "Guardrails in Place",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 22,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 18,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "frame",
@@ -684,10 +671,9 @@
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
                               "content": "Bug Found Protocol, per-role retro logs, audit script",
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -743,10 +729,9 @@
                   "width": "fill_container",
                   "content": "— Each role a separate agent with spec'd responsibilities. Every handoff produces a verifiable artefact.",
                   "lineHeight": 1.6,
-                  "fontFamily": "Newsreader",
-                  "fontSize": 15,
-                  "fontWeight": "normal",
-                  "fontStyle": "italic"
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -811,10 +796,9 @@
                               "fill": "#B43A2C",
                               "content": "PM",
                               "lineHeight": 1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 36,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 26,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -844,10 +828,9 @@
                               "width": "fill_container",
                               "content": "Requirements, AC, Phase Gates",
                               "lineHeight": 1.5,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -933,10 +916,9 @@
                               "fill": "#B43A2C",
                               "content": "Architect",
                               "lineHeight": 1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 32,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 22,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -966,10 +948,9 @@
                               "width": "fill_container",
                               "content": "System design, cross-layer contracts",
                               "lineHeight": 1.5,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -1055,10 +1036,9 @@
                               "fill": "#B43A2C",
                               "content": "Engineer",
                               "lineHeight": 1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 32,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 22,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -1088,10 +1068,9 @@
                               "width": "fill_container",
                               "content": "Implementation, stable checkpoints",
                               "lineHeight": 1.5,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -1186,10 +1165,9 @@
                               "fill": "#B43A2C",
                               "content": "Reviewer",
                               "lineHeight": 1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 32,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 22,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -1219,10 +1197,9 @@
                               "width": "fill_container",
                               "content": "Code review, Bug Found Protocol",
                               "lineHeight": 1.5,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -1308,10 +1285,9 @@
                               "fill": "#B43A2C",
                               "content": "QA",
                               "lineHeight": 1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 36,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 26,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -1341,10 +1317,9 @@
                               "width": "fill_container",
                               "content": "Regression, E2E, visual report",
                               "lineHeight": 1.5,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -1430,10 +1405,9 @@
                               "fill": "#B43A2C",
                               "content": "Designer",
                               "lineHeight": 1,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 32,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 22,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -1463,10 +1437,9 @@
                               "width": "fill_container",
                               "content": "Pencil MCP, flow diagrams",
                               "lineHeight": 1.5,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -1546,10 +1519,9 @@
                   "width": "fill_container",
                   "content": "How AI Stays Reliable",
                   "lineHeight": 1.2,
-                  "fontFamily": "Bodoni Moda",
-                  "fontSize": 30,
-                  "fontWeight": "700",
-                  "fontStyle": "italic"
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 22,
+                  "fontWeight": "700"
                 },
                 {
                   "type": "frame",
@@ -1614,10 +1586,9 @@
                               "width": "fill_container",
                               "content": "Persistent Memory",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 26,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -1636,10 +1607,9 @@
                               "width": "fill_container",
                               "content": "File-based memory system indexed in MEMORY.md survives every session; past mistakes, preferences, and project state persist cross-conversation.",
                               "lineHeight": 1.6,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -1670,10 +1640,9 @@
                                   "width": "fill_container",
                                   "content": "Every \"stop doing X\" becomes a memory entry — corrections outlive the session.",
                                   "lineHeight": 1.55,
-                                  "fontFamily": "Bodoni Moda",
-                                  "fontSize": 14,
-                                  "fontWeight": "700",
-                                  "fontStyle": "italic"
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
                                 }
                               ]
                             },
@@ -1750,10 +1719,9 @@
                               "width": "fill_container",
                               "content": "Structured Reflection",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 26,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -1772,10 +1740,9 @@
                               "width": "fill_container",
                               "content": "Each role appends to docs/retrospectives/<role>.md after every ticket; the PM aggregates cross-role patterns. Bug Found Protocol gates fixes behind mandatory reflection + memory write.",
                               "lineHeight": 1.6,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -1806,10 +1773,9 @@
                                   "width": "fill_container",
                                   "content": "No memory write = the bug is not closed.",
                                   "lineHeight": 1.55,
-                                  "fontFamily": "Bodoni Moda",
-                                  "fontSize": 14,
-                                  "fontWeight": "700",
-                                  "fontStyle": "italic"
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
                                 }
                               ]
                             },
@@ -1886,10 +1852,9 @@
                               "width": "fill_container",
                               "content": "Role Agents",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 26,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -1908,10 +1873,9 @@
                               "width": "fill_container",
                               "content": "PM / Architect / Engineer / Reviewer / QA / Designer are separate agents with spec'd responsibilities. Handoffs produce artifacts that ./scripts/audit-ticket.sh K-XXX can verify end-to-end.",
                               "lineHeight": 1.6,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -1942,10 +1906,9 @@
                                   "width": "fill_container",
                                   "content": "No artifact = no handoff.",
                                   "lineHeight": 1.55,
-                                  "fontFamily": "Bodoni Moda",
-                                  "fontSize": 14,
-                                  "fontWeight": "700",
-                                  "fontStyle": "italic"
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "700"
                                 }
                               ]
                             },
@@ -2016,10 +1979,9 @@
                   "width": "fill_container",
                   "content": "— Anatomy of a ticket. Three cases, each filed in full with outcome and learning.",
                   "lineHeight": 1.6,
-                  "fontFamily": "Newsreader",
-                  "fontSize": 15,
-                  "fontWeight": "normal",
-                  "fontStyle": "italic"
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -2094,10 +2056,9 @@
                               "name": "t1CaseNo",
                               "fill": "#6B5F4E",
                               "content": "Case Nº 01",
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2108,10 +2069,9 @@
                               "width": "fill_container",
                               "content": "UI optimization",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 26,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -2141,10 +2101,9 @@
                               "width": "fill_container",
                               "content": "Large UI refactor where And-clause systematic omission was caught by three-role reflection.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2166,10 +2125,9 @@
                               "width": "fill_container",
                               "content": "Birthed the per-role retrospective log mechanism.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2254,10 +2212,9 @@
                               "name": "t2CaseNo",
                               "fill": "#6B5F4E",
                               "content": "Case Nº 02",
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2268,10 +2225,9 @@
                               "width": "fill_container",
                               "content": "Visual report script",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 26,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -2301,10 +2257,9 @@
                               "width": "fill_container",
                               "content": "Automated Playwright visual-report pipeline rendering every page to HTML.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2326,10 +2281,9 @@
                               "width": "fill_container",
                               "content": "Demonstrates the Bug Found Protocol four-step flow.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2414,10 +2368,9 @@
                               "name": "t3CaseNo",
                               "fill": "#6B5F4E",
                               "content": "Case Nº 03",
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2428,10 +2381,9 @@
                               "width": "fill_container",
                               "content": "1H MA history fix",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 26,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -2461,10 +2413,9 @@
                               "width": "fill_container",
                               "content": "TDD bug fix for 1H prediction MA history source mismatch.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2486,10 +2437,9 @@
                               "width": "fill_container",
                               "content": "Test-driven discipline demonstration.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2558,10 +2508,9 @@
                   "width": "fill_container",
                   "content": "— How the codebase stays legible for a solo operator + AI agents.",
                   "lineHeight": 1.6,
-                  "fontFamily": "Newsreader",
-                  "fontSize": 15,
-                  "fontWeight": "normal",
-                  "fontStyle": "italic"
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -2624,10 +2573,9 @@
                               "width": "fill_container",
                               "content": "Monorepo, contract-first",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 24,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -2655,10 +2603,9 @@
                               "width": "fill_container",
                               "content": "Frontend (React/TypeScript) and backend (FastAPI/Python) live in one repo.",
                               "lineHeight": 1.6,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2678,10 +2625,9 @@
                               "width": "fill_container",
                               "content": "Every cross-layer change starts with a written API contract mapping snake_case (backend) ↔ camelCase (frontend) — parallel agents implement against it.",
                               "lineHeight": 1.6,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -2741,10 +2687,9 @@
                               "width": "fill_container",
                               "content": "Docs-driven tickets",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 24,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -2772,10 +2717,9 @@
                               "width": "fill_container",
                               "content": "Acceptance Criteria are written in Behavior-Driven Development (BDD) style — Given/When/Then/And scenarios — so every Playwright test mirrors the spec 1:1.",
                               "lineHeight": 1.6,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 14,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -2857,10 +2801,9 @@
                               "width": "fill_container",
                               "content": "Three-layer testing pyramid",
                               "lineHeight": 1.15,
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 24,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -2883,7 +2826,7 @@
                                   "fill": "#B43A2C",
                                   "content": "01",
                                   "lineHeight": 1,
-                                  "fontFamily": "Bodoni Moda",
+                                  "fontFamily": "Geist Mono",
                                   "fontSize": 22,
                                   "fontWeight": "700"
                                 },
@@ -2913,10 +2856,9 @@
                                       "width": "fill_container",
                                       "content": "Vitest (frontend), pytest (backend).",
                                       "lineHeight": 1.55,
-                                      "fontFamily": "Newsreader",
-                                      "fontSize": 13,
-                                      "fontWeight": "normal",
-                                      "fontStyle": "italic"
+                                      "fontFamily": "Geist Mono",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -2935,7 +2877,7 @@
                                   "fill": "#B43A2C",
                                   "content": "02",
                                   "lineHeight": 1,
-                                  "fontFamily": "Bodoni Moda",
+                                  "fontFamily": "Geist Mono",
                                   "fontSize": 22,
                                   "fontWeight": "700"
                                 },
@@ -2965,10 +2907,9 @@
                                       "width": "fill_container",
                                       "content": "FastAPI test client.",
                                       "lineHeight": 1.55,
-                                      "fontFamily": "Newsreader",
-                                      "fontSize": 13,
-                                      "fontWeight": "normal",
-                                      "fontStyle": "italic"
+                                      "fontFamily": "Geist Mono",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -2987,7 +2928,7 @@
                                   "fill": "#B43A2C",
                                   "content": "03",
                                   "lineHeight": 1,
-                                  "fontFamily": "Bodoni Moda",
+                                  "fontFamily": "Geist Mono",
                                   "fontSize": 22,
                                   "fontWeight": "700"
                                 },
@@ -3017,10 +2958,9 @@
                                       "width": "fill_container",
                                       "content": "Playwright, including a visual-report pipeline that renders every page to HTML for human review.",
                                       "lineHeight": 1.55,
-                                      "fontFamily": "Newsreader",
-                                      "fontSize": 13,
-                                      "fontWeight": "normal",
-                                      "fontStyle": "italic"
+                                      "fontFamily": "Geist Mono",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -3061,6 +3001,17 @@
               "name": "ftR",
               "fill": "#6B5F4E",
               "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
+              "fontFamily": "Geist Mono",
+              "fontSize": 11,
+              "fontWeight": "normal",
+              "letterSpacing": 1
+            },
+            {
+              "type": "text",
+              "id": "urTl0",
+              "name": "gaDisclosure",
+              "fill": "#6B5F4E",
+              "content": "This site uses Google Analytics to collect anonymous usage data.",
               "fontFamily": "Geist Mono",
               "fontSize": 11,
               "fontWeight": "normal",
@@ -3207,11 +3158,10 @@
               "id": "RmIfG",
               "fill": "#9C4A3B",
               "content": "See how →",
-              "fontFamily": "Bodoni Moda",
-              "fontSize": 14,
+              "fontFamily": "Geist Mono",
+              "fontSize": 12,
               "fontWeight": "700",
-              "letterSpacing": 0.5,
-              "fontStyle": "italic"
+              "letterSpacing": 0.5
             }
           ]
         },
@@ -3251,11 +3201,10 @@
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
                       "content": "Predict the next move",
-                      "lineHeight": 1.05,
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 64,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "lineHeight": 1.1,
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 56,
+                      "fontWeight": "700"
                     },
                     {
                       "type": "text",
@@ -3264,11 +3213,10 @@
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
                       "content": "before it happens —",
-                      "lineHeight": 1.05,
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 64,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "lineHeight": 1.1,
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 56,
+                      "fontWeight": "700"
                     },
                     {
                       "type": "rectangle",
@@ -3285,10 +3233,9 @@
                       "width": "fill_container",
                       "content": "Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next.",
                       "lineHeight": 1.5,
-                      "fontFamily": "Newsreader",
-                      "fontSize": 18,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -3394,10 +3341,9 @@
                   "width": "fill_container",
                   "content": "— The engine scans historical K-line data to find windows that resemble the current formation, then shows you the price action that followed.",
                   "lineHeight": 1.6,
-                  "fontFamily": "Newsreader",
-                  "fontSize": 15,
-                  "fontWeight": "normal",
-                  "fontStyle": "italic"
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -3456,10 +3402,9 @@
                               "id": "1E23F",
                               "fill": "#1A1814",
                               "content": "Upload",
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 24,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -3476,10 +3421,9 @@
                               "width": "fill_container",
                               "content": "Drop in a CSV of 24 × 1H OHLC bars. The reference sample.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -3535,10 +3479,9 @@
                               "id": "5AcjN",
                               "fill": "#1A1814",
                               "content": "Scan",
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 24,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -3555,10 +3498,9 @@
                               "width": "fill_container",
                               "content": "Cosine similarity walks the history database to rank windows.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -3614,10 +3556,9 @@
                               "id": "mK0Ci",
                               "fill": "#1A1814",
                               "content": "Project",
-                              "fontFamily": "Bodoni Moda",
-                              "fontSize": 24,
-                              "fontWeight": "700",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 20,
+                              "fontWeight": "700"
                             },
                             {
                               "type": "rectangle",
@@ -3634,10 +3575,9 @@
                               "width": "fill_container",
                               "content": "Show the price action that followed each matched window.",
                               "lineHeight": 1.55,
-                              "fontFamily": "Newsreader",
-                              "fontSize": 13,
-                              "fontWeight": "normal",
-                              "fontStyle": "italic"
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -3743,10 +3683,9 @@
                   "width": "fill_container",
                   "content": "— A running log of decisions, fixes, and lessons from building this system.",
                   "lineHeight": 1.6,
-                  "fontFamily": "Newsreader",
-                  "fontSize": 15,
-                  "fontWeight": "normal",
-                  "fontStyle": "italic"
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -3817,10 +3756,9 @@
                           "width": 900,
                           "content": "Rewrote /about for recruiter audience — 8 sections, 10 AC, portfolio-oriented narrative.",
                           "lineHeight": 1.55,
-                          "fontFamily": "Newsreader",
-                          "fontSize": 18,
-                          "fontWeight": "normal",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "text",
@@ -3832,10 +3770,9 @@
                           "textGrowth": "fixed-width",
                           "width": 900,
                           "content": "K-017 — Portfolio /about Rewrite",
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 18,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 16,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -3889,10 +3826,9 @@
                           "width": 900,
                           "content": "Automated HTML visual reports — Playwright baseline screenshots, drift detection in CI.",
                           "lineHeight": 1.55,
-                          "fontFamily": "Newsreader",
-                          "fontSize": 18,
-                          "fontWeight": "normal",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "text",
@@ -3904,10 +3840,9 @@
                           "textGrowth": "fixed-width",
                           "width": 900,
                           "content": "K-008 — Automated Visual Reports",
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 18,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 16,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -3961,10 +3896,9 @@
                           "width": 900,
                           "content": "TDD bug fix on MA source — RED test first reproducing 1H MA history gap, then GREEN.",
                           "lineHeight": 1.55,
-                          "fontFamily": "Newsreader",
-                          "fontSize": 18,
-                          "fontWeight": "normal",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "text",
@@ -3976,10 +3910,9 @@
                           "textGrowth": "fixed-width",
                           "width": 900,
                           "content": "K-009 — TDD Bug Fix: MA History",
-                          "fontFamily": "Bodoni Moda",
-                          "fontSize": 18,
-                          "fontWeight": "700",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 16,
+                          "fontWeight": "700"
                         }
                       ]
                     }
@@ -3990,6 +3923,12 @@
                   "id": "yg0qF",
                   "name": "diaryViewAllRow",
                   "width": "fill_container",
+                  "padding": [
+                    40,
+                    0,
+                    0,
+                    0
+                  ],
                   "justifyContent": "end",
                   "children": [
                     {
@@ -4033,6 +3972,17 @@
               "id": "W3zUd",
               "fill": "#6B5F4E",
               "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
+              "fontFamily": "Geist Mono",
+              "fontSize": 11,
+              "fontWeight": "normal",
+              "letterSpacing": 1
+            },
+            {
+              "type": "text",
+              "id": "i9kkN",
+              "name": "gaDisclosure",
+              "fill": "#6B5F4E",
+              "content": "This site uses Google Analytics to collect anonymous usage data.",
               "fontFamily": "Geist Mono",
               "fontSize": 11,
               "fontWeight": "normal",
@@ -4152,7 +4102,7 @@
           "padding": [
             72,
             96,
-            96,
+            48,
             96
           ],
           "children": [
@@ -4177,10 +4127,9 @@
                       "fill": "#1A1814",
                       "content": "Dev Diary",
                       "lineHeight": 1.05,
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 64,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 52,
+                      "fontWeight": "700"
                     },
                     {
                       "type": "rectangle",
@@ -4197,10 +4146,9 @@
                       "width": "fill_container",
                       "content": "Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.",
                       "lineHeight": 1.55,
-                      "fontFamily": "Newsreader",
-                      "fontSize": 17,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -4275,10 +4223,9 @@
                       "width": 900,
                       "content": "Rewrote /about for recruiter audience — 8 sections, 10 AC, portfolio-oriented narrative.",
                       "lineHeight": 1.55,
-                      "fontFamily": "Newsreader",
-                      "fontSize": 18,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -4291,10 +4238,9 @@
                       "textGrowth": "fixed-width",
                       "width": 900,
                       "content": "K-017 — Portfolio /about Rewrite",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 18,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 16,
+                      "fontWeight": "700"
                     }
                   ]
                 },
@@ -4348,10 +4294,9 @@
                       "width": 900,
                       "content": "Automated HTML visual reports — Playwright baseline screenshots, drift detection in CI.",
                       "lineHeight": 1.55,
-                      "fontFamily": "Newsreader",
-                      "fontSize": 18,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -4364,10 +4309,9 @@
                       "textGrowth": "fixed-width",
                       "width": 900,
                       "content": "K-008 — Automated Visual Reports",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 18,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 16,
+                      "fontWeight": "700"
                     }
                   ]
                 },
@@ -4421,10 +4365,9 @@
                       "width": 900,
                       "content": "TDD bug fix on MA source — RED test first reproducing 1H MA history gap, then GREEN.",
                       "lineHeight": 1.55,
-                      "fontFamily": "Newsreader",
-                      "fontSize": 18,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -4437,10 +4380,9 @@
                       "textGrowth": "fixed-width",
                       "width": 900,
                       "content": "K-009 — TDD Bug Fix: MA History",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 18,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 16,
+                      "fontWeight": "700"
                     }
                   ]
                 },
@@ -4479,10 +4421,9 @@
                       "textGrowth": "fixed-width",
                       "width": 900,
                       "content": "K-005 — Pattern Matching Engine",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 18,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 16,
+                      "fontWeight": "700"
                     },
                     {
                       "type": "text",
@@ -4510,10 +4451,9 @@
                       "width": 900,
                       "content": "K-line pattern similarity engine — finds historical formations matching current chart, returns top N matches with probability.",
                       "lineHeight": 1.55,
-                      "fontFamily": "Newsreader",
-                      "fontSize": 18,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -4552,10 +4492,9 @@
                       "textGrowth": "fixed-width",
                       "width": 900,
                       "content": "K-002 — UI Optimization Refactor",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 18,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 16,
+                      "fontWeight": "700"
                     },
                     {
                       "type": "text",
@@ -4583,10 +4522,9 @@
                       "width": 900,
                       "content": "Full UI overhaul — three-role retrospective after And-clause omission directly spawned the per-role retro log mechanism.",
                       "lineHeight": 1.55,
-                      "fontFamily": "Newsreader",
-                      "fontSize": 18,
-                      "fontWeight": "normal",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -4619,6 +4557,17 @@
               "name": "ctR1",
               "fill": "#6B5F4E",
               "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
+              "fontFamily": "Geist Mono",
+              "fontSize": 11,
+              "fontWeight": "normal",
+              "letterSpacing": 1
+            },
+            {
+              "type": "text",
+              "id": "hyhx5",
+              "name": "gaDisclosure",
+              "fill": "#6B5F4E",
+              "content": "This site uses Google Analytics to collect anonymous usage data.",
               "fontFamily": "Geist Mono",
               "fontSize": 11,
               "fontWeight": "normal",
@@ -4779,10 +4728,9 @@
               "content": "Business logic access",
               "lineHeight": 1.1,
               "textAlign": "center",
-              "fontFamily": "Bodoni Moda",
-              "fontSize": 48,
-              "fontWeight": "700",
-              "fontStyle": "italic"
+              "fontFamily": "Geist Mono",
+              "fontSize": 36,
+              "fontWeight": "700"
             },
             {
               "type": "frame",
@@ -4812,10 +4760,9 @@
                       "id": "AvEbq",
                       "fill": "#1A1814",
                       "content": "Enter access token",
-                      "fontFamily": "Bodoni Moda",
-                      "fontSize": 22,
-                      "fontWeight": "700",
-                      "fontStyle": "italic"
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 18,
+                      "fontWeight": "700"
                     },
                     {
                       "type": "rectangle",
@@ -4907,10 +4854,9 @@
                           "id": "7LAOS",
                           "fill": "#9C4A3B",
                           "content": "Invalid token — try again.",
-                          "fontFamily": "Newsreader",
-                          "fontSize": 13,
-                          "fontWeight": "normal",
-                          "fontStyle": "italic"
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -4971,6 +4917,17 @@
               "name": "ctR2",
               "fill": "#6B5F4E",
               "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
+              "fontFamily": "Geist Mono",
+              "fontSize": 11,
+              "fontWeight": "normal",
+              "letterSpacing": 1
+            },
+            {
+              "type": "text",
+              "id": "cDw8L",
+              "name": "gaDisclosure",
+              "fill": "#6B5F4E",
+              "content": "This site uses Google Analytics to collect anonymous usage data.",
               "fontFamily": "Geist Mono",
               "fontSize": 11,
               "fontWeight": "normal",

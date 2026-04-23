@@ -1,8 +1,11 @@
 {
   "pen-file": "frontend/design/homepage-v2.pen",
-  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
+  "pen-mtime-at-export": "2026-04-23T17:57:56+0800",
   "exporter-version": "1.0",
   "frame-id": "86psQ",
+  "ticket": "K-040",
+  "visual-delta": "K-040 Item 5 — added `gaDisclosure` text node; all 4 route footer frames carry GA disclosure for K-034 P1 Sacred byte-identity parity.",
+  "cross-frame-parity": ["ei7cl (diary)", "1BGtd (home)", "86psQ (about)", "2ASmw (business-logic)"],
   "frame": {
     "alignItems": "center",
     "children": [
@@ -15,6 +18,17 @@
         "id": "hpwtD",
         "letterSpacing": 1,
         "name": "ftR",
+        "type": "text"
+      },
+      {
+        "content": "This site uses Google Analytics to collect anonymous usage data.",
+        "fill": "#6B5F4E",
+        "fontFamily": "Geist Mono",
+        "fontSize": 11,
+        "fontWeight": "normal",
+        "id": "urTl0",
+        "letterSpacing": 1,
+        "name": "gaDisclosure",
         "type": "text"
       }
     ],

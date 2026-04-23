@@ -1,0 +1,68 @@
+{
+  "ticket": "K-040",
+  "frameId": "VSwW9",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "Business Logic /business-logic (v2 Dossier)",
+  "route": "/business-logic",
+  "width": 1440,
+  "background": "#F4EFE5",
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Sitewide Typography Reset — Business-logic page composite. Gate title Bodoni→Mono 36; form field title Bodoni italic→Mono 18 normal; all body text Geist Mono. NavBar + Footer untouched (Footer 2ASmw Sacred).",
+  "components": [
+    {
+      "role": "navbar",
+      "nodeId": "B5PEH",
+      "padding": [18, 72],
+      "items": [
+        { "nodeId": "BmQfD", "content": "K-LINE PREDICTION", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
+        { "nodeId": "nHW1v", "content": "Home", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" },
+        { "nodeId": "Oztg6", "content": "App", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" },
+        { "nodeId": "FTCm7", "content": "Diary", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" },
+        { "role": "navbar-link-active", "nodeId": "EyMMr", "content": "Prediction", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "letterSpacing": 1 }, "color": "#9C4A3B" },
+        { "nodeId": "flObE", "content": "About", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+      ]
+    },
+    {
+      "role": "page-body",
+      "nodeId": "wY3Aw",
+      "padding": [72, 96],
+      "gap": 32,
+      "items": [
+        {
+          "role": "head-row",
+          "nodeId": "9wH0h",
+          "items": [
+            { "nodeId": "url2A", "content": "ACCESS GATE", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 2 }, "color": "#1A1814" }
+          ]
+        },
+        { "role": "gate-title", "nodeId": "DYAX8", "content": "Business logic access", "font": { "family": "Geist Mono", "size": 36, "weight": "700", "style": "normal", "lineHeight": 1.1 }, "color": "#1A1814", "textAlign": "center", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 48 },
+        {
+          "role": "access-card",
+          "nodeId": "Ci9Dx",
+          "width": 480,
+          "cornerRadius": 6,
+          "fill": "#F4EFE5",
+          "stroke": "#1A1814 1px",
+          "items": [
+            { "role": "form-title", "nodeId": "AvEbq", "content": "Enter access token", "font": { "family": "Geist Mono", "size": 18, "weight": "700", "style": "normal" }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 22 },
+            { "role": "form-label", "nodeId": "vGJcq", "content": "TOKEN", "font": { "family": "Geist Mono", "size": 10, "weight": "700", "letterSpacing": 2 }, "color": "#6B5F4E" },
+            { "role": "form-input-placeholder", "nodeId": "Zg99L", "content": "••••••••••••", "font": { "family": "Geist Mono", "size": 13, "weight": "normal", "letterSpacing": 2 }, "color": "#6B5F4E" },
+            { "role": "form-error-icon", "nodeId": "T8tHL", "content": "✕", "font": { "family": "Geist Mono", "size": 12, "weight": "700" }, "color": "#9C4A3B" },
+            { "role": "form-error-text", "nodeId": "7LAOS", "content": "Invalid token — try again.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#9C4A3B" },
+            { "role": "cta-primary", "nodeId": "j1NbE", "fill": "#2A2520", "label": { "nodeId": "QDU9C", "content": "Unlock →", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#F4EFE5" } }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "footer",
+      "nodeId": "2ASmw",
+      "note": "K-034 Phase 1 Sacred — byte-identical to other 3 route footers.",
+      "padding": [20, 72],
+      "items": [
+        { "role": "footer-contact", "nodeId": "AHkXM", "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#6B5F4E" },
+        { "role": "footer-ga", "nodeId": "cDw8L", "content": "This site uses Google Analytics to collect anonymous usage data.", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#6B5F4E" }
+      ]
+    }
+  ]
+}

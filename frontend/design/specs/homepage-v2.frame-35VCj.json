@@ -1,0 +1,34 @@
+{
+  "ticket": "K-040",
+  "frameId": "35VCj",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "About /about (K-017 v2)",
+  "route": "/about",
+  "width": 1440,
+  "background": "#F4EFE5",
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Sitewide Typography Reset — About page composite. Reference the 6 sub-section specs (about-v2.frame-wwa0m/BF4Xe/8mqwX/UXy2o/EBC1e/JFizO.json) for full node-by-node detail. Footer 86psQ Sacred, navbar voSTK already mono.",
+  "components": [
+    { "role": "navbar", "nodeId": "voSTK", "reference": "about-v2.frame-voSTK.json" },
+    { "role": "page-body", "nodeId": "Y80Iv", "padding": [72, 96, 96, 96], "gap": 72, "layout": "vertical",
+      "sections": [
+        { "role": "section-header", "nodeId": "wwa0m", "sectionNumber": 1, "reference": "about-v2.frame-wwa0m.json" },
+        { "role": "section-metrics", "nodeId": "BF4Xe", "sectionNumber": 2, "reference": "about-v2.frame-BF4Xe.json" },
+        { "role": "section-roles", "nodeId": "8mqwX", "sectionNumber": 3, "reference": "about-v2.frame-8mqwX.json" },
+        { "role": "section-pillars", "nodeId": "UXy2o", "sectionNumber": 4, "reference": "about-v2.frame-UXy2o.json" },
+        { "role": "section-tickets", "nodeId": "EBC1e", "sectionNumber": 5, "reference": "about-v2.frame-EBC1e.json" },
+        { "role": "section-architecture", "nodeId": "JFizO", "sectionNumber": 6, "reference": "about-v2.frame-JFizO.json" }
+      ]
+    },
+    {
+      "role": "footer",
+      "nodeId": "86psQ",
+      "note": "K-034 Phase 1 Sacred — byte-identical to other 3 route footers.",
+      "padding": [20, 72],
+      "items": [
+        { "role": "footer-contact", "nodeId": "hpwtD", "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#6B5F4E" },
+        { "role": "footer-ga", "nodeId": "urTl0", "content": "This site uses Google Analytics to collect anonymous usage data.", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#6B5F4E" }
+      ]
+    }
+  ]
+}

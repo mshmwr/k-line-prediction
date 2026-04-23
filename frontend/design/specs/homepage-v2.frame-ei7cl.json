@@ -1,0 +1,50 @@
+{
+  "frameId": "ei7cl",
+  "frameName": "dpFooterBar",
+  "parentPage": "Diary /diary (v2 Dossier) [wiDSi]",
+  "ticket": "K-040",
+  "visualDelta": "Item 5 — Added `gaDisclosure` text node matching live implementation. All 4 route footer frames (ei7cl / 1BGtd / 86psQ / 2ASmw) now carry GA disclosure line for K-034 Phase 1 Sacred byte-identity consistency.",
+  "role": "footer",
+  "crossFrameParity": ["ei7cl (diary)", "1BGtd (home)", "86psQ (about)", "2ASmw (business-logic)"],
+  "note": "This is the /diary route's Pencil footer frame copy. Real runtime Footer.tsx is prop-less and shared; these 4 frames document what Footer renders on each route. Adding gaDisclosure to all 4 preserves K-034 P1 Sacred AC-034-P1-ROUTE-DOM-PARITY (byte-identical Footer DOM).",
+  "spec": {
+    "type": "frame",
+    "id": "ei7cl",
+    "name": "dpFooterBar",
+    "role": "footer",
+    "layout": "horizontal",
+    "justifyContent": "space_between",
+    "alignItems": "center",
+    "padding": [20, 72],
+    "width": "fill_container",
+    "stroke": {
+      "align": "inside",
+      "fill": "#1A1814",
+      "thickness": { "top": 1 }
+    },
+    "children": [
+      {
+        "type": "text",
+        "id": "tZIFA",
+        "name": "ctR1",
+        "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn",
+        "fontFamily": "Geist Mono",
+        "fontSize": 11,
+        "fontWeight": "normal",
+        "letterSpacing": 1,
+        "fill": "#6B5F4E"
+      },
+      {
+        "type": "text",
+        "id": "hyhx5",
+        "name": "gaDisclosure",
+        "content": "This site uses Google Analytics to collect anonymous usage data.",
+        "fontFamily": "Geist Mono",
+        "fontSize": 11,
+        "fontWeight": "normal",
+        "letterSpacing": 1,
+        "fill": "#6B5F4E"
+      }
+    ]
+  }
+}

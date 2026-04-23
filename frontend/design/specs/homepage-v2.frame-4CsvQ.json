@@ -1,0 +1,123 @@
+{
+  "ticket": "K-040",
+  "frameId": "4CsvQ",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "Homepage / (v2 Dossier)",
+  "route": "/",
+  "width": 1440,
+  "background": "#F4EFE5",
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Sitewide Typography Reset — Bodoni Moda + Newsreader replaced by Geist Mono (italic OFF) across every text node in this frame. Footer (1BGtd) byte-identity preserved under K-034 Sacred.",
+  "components": [
+    {
+      "role": "navbar",
+      "nodeId": "OSgI0",
+      "name": "hpNav",
+      "padding": [18, 72],
+      "strokeBottom": "#1A1814 1px",
+      "fill": "#F4EFE5",
+      "items": [
+        { "role": "navbar-logo", "nodeId": "FnRgF", "content": "K-LINE PREDICTION", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
+        { "role": "navbar-link-active", "nodeId": "LQHA3", "content": "Home", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "letterSpacing": 1 }, "color": "#9C4A3B" },
+        { "role": "navbar-link", "nodeId": "jmbgh", "content": "App", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" },
+        { "role": "navbar-link", "nodeId": "504PI", "content": "Diary", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" },
+        { "role": "navbar-link", "nodeId": "SdCSj", "content": "Prediction", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" },
+        { "role": "navbar-link", "nodeId": "aulca", "content": "About", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+      ]
+    },
+    {
+      "role": "built-by-ai-banner",
+      "nodeId": "96Spc",
+      "fill": "#F4EFE5",
+      "padding": [12, 72],
+      "gap": 14,
+      "strokeTopBottom": "#1A1814 1px",
+      "items": [
+        { "nodeId": "zJHys", "content": "One operator. Six AI agents. Every ticket leaves a doc trail.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" },
+        { "nodeId": "RmIfG", "content": "See how →", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "letterSpacing": 0.5 }, "color": "#9C4A3B" }
+      ]
+    },
+    {
+      "role": "hero",
+      "nodeId": "zyttw",
+      "gap": 48,
+      "items": [
+        { "role": "hero-title", "nodeId": "rXURl", "content": "Predict the next move", "font": { "family": "Geist Mono", "size": 56, "weight": "700", "lineHeight": 1.1 }, "color": "#1A1814" },
+        { "role": "hero-title-accent", "nodeId": "2bQtY", "content": "before it happens —", "font": { "family": "Geist Mono", "size": 56, "weight": "700", "lineHeight": 1.1 }, "color": "#9C4A3B" },
+        { "role": "hero-divider", "nodeId": "u7CDu", "fill": "#2A2520", "height": 1 },
+        { "role": "hero-subtitle", "nodeId": "PrI8l", "content": "Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next.", "font": { "family": "Geist Mono", "size": 16, "weight": "normal", "lineHeight": 1.5 }, "color": "#1A1814" },
+        { "role": "cta-primary", "nodeId": "iz4bR", "fill": "#2A2520", "padding": [12, 26], "cornerRadius": 6, "label": { "nodeId": "iIZ8M", "content": "Try the App →", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 1 }, "color": "#F4EFE5" } }
+      ]
+    },
+    {
+      "role": "logic-section",
+      "nodeId": "b8KQJ",
+      "gap": 28,
+      "items": [
+        { "nodeId": "rORsj", "content": "§ PROJECT LOGIC", "font": { "family": "Geist Mono", "size": 16, "weight": "700", "letterSpacing": 3 }, "color": "#F4EFE5", "stampFill": "#9C4A3B" },
+        { "nodeId": "JEwXn", "content": "HOW IT WORKS", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 2 }, "color": "#1A1814" },
+        { "nodeId": "BMFct", "content": "— The engine scans historical K-line data to find windows that resemble the current formation, then shows you the price action that followed.", "font": { "family": "Geist Mono", "size": 14, "weight": "normal", "lineHeight": 1.6 }, "color": "#1A1814" },
+        {
+          "role": "logic-step",
+          "nodeId": "AP34H",
+          "steps": [
+            { "stepLabelId": "seKRz", "stepLabel": "STEP 01 · INGEST", "titleId": "1E23F", "title": "Upload", "titleFont": { "family": "Geist Mono", "size": 20, "weight": "700" }, "bodyId": "nwGzj", "body": "Drop in a CSV of 24 × 1H OHLC bars. The reference sample.", "bodyFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 } }
+          ]
+        },
+        {
+          "role": "logic-step",
+          "nodeId": "4QeGF",
+          "steps": [
+            { "stepLabelId": "anMv4", "stepLabel": "STEP 02 · MATCH", "titleId": "5AcjN", "title": "Scan", "titleFont": { "family": "Geist Mono", "size": 20, "weight": "700" }, "bodyId": "qQ2IL", "body": "Cosine similarity walks the history database to rank windows.", "bodyFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 } }
+          ]
+        },
+        {
+          "role": "logic-step",
+          "nodeId": "BFjhU",
+          "steps": [
+            { "stepLabelId": "RN2rn", "stepLabel": "STEP 03 · PROJECT", "titleId": "mK0Ci", "title": "Project", "titleFont": { "family": "Geist Mono", "size": 20, "weight": "700" }, "bodyId": "A5aIX", "body": "Show the price action that followed each matched window.", "bodyFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 } }
+          ]
+        },
+        {
+          "role": "tech-row",
+          "nodeId": "MUEQA",
+          "items": [
+            { "nodeId": "ngqfs", "content": "STACK —", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 2 }, "color": "#6B5F4E" },
+            { "nodeId": "MdNRn", "content": "React · TypeScript · Vite · FastAPI · Python · Playwright", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "diary-section",
+      "nodeId": "gaIjh",
+      "gap": 28,
+      "items": [
+        { "nodeId": "XPdR3", "content": "§ DEV DIARY", "font": { "family": "Geist Mono", "size": 16, "weight": "700", "letterSpacing": 3 }, "color": "#F4EFE5", "stampFill": "#9C4A3B" },
+        { "nodeId": "vhsBO", "content": "DEVELOPMENT LOG", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 2 }, "color": "#1A1814" },
+        { "nodeId": "FbZyg", "content": "— A running log of decisions, fixes, and lessons from building this system.", "font": { "family": "Geist Mono", "size": 14, "weight": "normal", "lineHeight": 1.6 }, "color": "#1A1814" },
+        {
+          "role": "timeline",
+          "nodeId": "N0WWY",
+          "railColor": "#2A2520",
+          "entries": [
+            { "titleId": "UFzkG", "title": "K-017 — Portfolio /about Rewrite", "titleFont": { "family": "Geist Mono", "size": 16, "weight": "700" }, "dateId": "OfacV", "date": "2026-04-19", "dateFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "bodyId": "QN271", "body": "Rewrote /about for recruiter audience — 8 sections, 10 AC, portfolio-oriented narrative.", "bodyFont": { "family": "Geist Mono", "size": 15, "weight": "normal", "lineHeight": 1.55 } },
+            { "titleId": "jAD5v", "title": "K-008 — Automated Visual Reports", "titleFont": { "family": "Geist Mono", "size": 16, "weight": "700" }, "dateId": "44ek7", "date": "2026-04-18", "dateFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "bodyId": "MCI81", "body": "Automated HTML visual reports — Playwright baseline screenshots, drift detection in CI.", "bodyFont": { "family": "Geist Mono", "size": 15, "weight": "normal", "lineHeight": 1.55 } },
+            { "titleId": "hU9zy", "title": "K-009 — TDD Bug Fix: MA History", "titleFont": { "family": "Geist Mono", "size": 16, "weight": "700" }, "dateId": "GBTUt", "date": "2026-04-16", "dateFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "bodyId": "ZAsNk", "body": "TDD bug fix on MA source — RED test first reproducing 1H MA history gap, then GREEN.", "bodyFont": { "family": "Geist Mono", "size": 15, "weight": "normal", "lineHeight": 1.55 } }
+          ]
+        },
+        { "role": "view-full-log-row", "nodeId": "yg0qF", "padding": [40, 0, 0, 0], "link": { "nodeId": "zh5OA", "content": "— View full log →", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "letterSpacing": 1 }, "color": "#9C4A3B" } }
+      ]
+    },
+    {
+      "role": "footer",
+      "nodeId": "1BGtd",
+      "note": "K-034 Phase 1 Sacred — NOT touched by K-040; byte-identity preserved across 4 route footers.",
+      "padding": [20, 72],
+      "items": [
+        { "role": "footer-contact", "nodeId": "W3zUd", "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#6B5F4E" },
+        { "role": "footer-ga", "nodeId": "i9kkN", "content": "This site uses Google Analytics to collect anonymous usage data.", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#6B5F4E" }
+      ]
+    }
+  ]
+}

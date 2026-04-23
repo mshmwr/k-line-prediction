@@ -1,98 +1,49 @@
 {
-  "pen-file": "frontend/design/homepage-v2.pen",
-  "pen-mtime-at-export": "2026-04-21T19:52:16+0800",
-  "exporter-version": "1.0",
-  "frame-id": "UXy2o",
-  "section-name": "S4_ReliabilityPillarsSection (Nº 03 — RELIABILITY — 3 pillar cards: Persistent Memory / Structured Reflection / Role Agents)",
-  "parent-frame": "35VCj",
-  "frame": {
-    "children": [
-      {
-        "alignItems": "center",
-        "children": [
-          { "content": "Nº 03 — RELIABILITY", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 13, "fontWeight": "700", "id": "tDZ9f", "letterSpacing": 2, "name": "s4label", "type": "text" },
-          { "fill": "#8B7A6B", "height": 1, "id": "Qnzrq", "name": "s4Line", "type": "rectangle", "width": "fill_container" }
-        ],
-        "gap": 16, "id": "L6UjX", "name": "s4Head", "type": "frame", "width": "fill_container"
-      },
-      { "content": "How AI Stays Reliable", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 30, "fontStyle": "italic", "fontWeight": "700", "id": "PyUKW", "lineHeight": 1.2, "name": "s4Intro", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "children": [{ "content": "FILE Nº 01 · PROTOCOL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "Y3VDv", "letterSpacing": 2, "name": "p1Lbl", "type": "text" }],
-                "fill": "#2A2520", "id": "uCvA4", "name": "p1Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "content": "Persistent Memory", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 26, "fontStyle": "italic", "fontWeight": "700", "id": "BTiRG", "lineHeight": 1.15, "name": "p1Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "fill": "#2A2520", "height": 1, "id": "40Sll", "name": "p1Rule", "type": "rectangle", "width": 40 },
-                  { "content": "File-based memory system indexed in MEMORY.md survives every session; past mistakes, preferences, and project state persist cross-conversation.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "gCpJd", "lineHeight": 1.6, "name": "p1Body", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  {
-                    "children": [{ "content": "Every \"stop doing X\" becomes a memory entry — corrections outlive the session.", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 14, "fontStyle": "italic", "fontWeight": "700", "id": "6jUNq", "lineHeight": 1.55, "name": "p1QuoteText", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }],
-                    "id": "21Mmz", "layout": "vertical", "name": "p1QuoteWrap", "padding": [0, 0, 0, 14], "stroke": { "align": "inside", "fill": "#B43A2C", "thickness": { "left": 3 } }, "type": "frame", "width": "fill_container"
-                  },
-                  { "content": "→ Per-role Retrospective Log protocol", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 11, "fontWeight": "normal", "id": "F07v6", "letterSpacing": 1, "name": "p1Link", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 14, "id": "KfkwJ", "layout": "vertical", "name": "p1Body", "padding": 20, "type": "frame", "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6, "fill": "#F4EFE5", "id": "aEuqt", "layout": "vertical", "name": "pillar_PersistentMemory", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
-          },
-          {
-            "children": [
-              {
-                "children": [{ "content": "FILE Nº 02 · PROTOCOL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "ZIqEm", "letterSpacing": 2, "name": "p2Lbl", "type": "text" }],
-                "fill": "#2A2520", "id": "gK4Xt", "name": "p2Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "content": "Structured Reflection", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 26, "fontStyle": "italic", "fontWeight": "700", "id": "erYTg", "lineHeight": 1.15, "name": "p2Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "fill": "#2A2520", "height": 1, "id": "nJC9s", "name": "p2Rule", "type": "rectangle", "width": 40 },
-                  { "content": "Each role appends to docs/retrospectives/<role>.md after every ticket; the PM aggregates cross-role patterns. Bug Found Protocol gates fixes behind mandatory reflection + memory write.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "lms63", "lineHeight": 1.6, "name": "p2BodyText", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  {
-                    "children": [{ "content": "No memory write = the bug is not closed.", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 14, "fontStyle": "italic", "fontWeight": "700", "id": "SWfWe", "lineHeight": 1.55, "name": "p2QuoteText", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }],
-                    "id": "RKbzZ", "layout": "vertical", "name": "p2QuoteWrap", "padding": [0, 0, 0, 14], "stroke": { "align": "inside", "fill": "#B43A2C", "thickness": { "left": 3 } }, "type": "frame", "width": "fill_container"
-                  },
-                  { "content": "→ Bug Found Protocol", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 11, "fontWeight": "normal", "id": "XOuiN", "letterSpacing": 1, "name": "p2Link", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 14, "id": "pgdsa", "layout": "vertical", "name": "p2Body", "padding": 20, "type": "frame", "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6, "fill": "#F4EFE5", "id": "B5H4m", "layout": "vertical", "name": "pillar_StructuredReflection", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
-          },
-          {
-            "children": [
-              {
-                "children": [{ "content": "FILE Nº 03 · PROTOCOL", "fill": "#F4EFE5", "fontFamily": "Geist Mono", "fontSize": 10, "fontWeight": "normal", "id": "1InMY", "letterSpacing": 2, "name": "p3Lbl", "type": "text" }],
-                "fill": "#2A2520", "id": "xLKUe", "name": "p3Top", "padding": [6, 10], "type": "frame", "width": "fill_container"
-              },
-              {
-                "children": [
-                  { "content": "Role Agents", "fill": "#1A1814", "fontFamily": "Bodoni Moda", "fontSize": 26, "fontStyle": "italic", "fontWeight": "700", "id": "qcoYd", "lineHeight": 1.15, "name": "p3Title", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  { "fill": "#2A2520", "height": 1, "id": "kmaBA", "name": "p3Rule", "type": "rectangle", "width": 40 },
-                  { "content": "PM / Architect / Engineer / Reviewer / QA / Designer are separate agents with spec'd responsibilities. Handoffs produce artifacts that ./scripts/audit-ticket.sh K-XXX can verify end-to-end.", "fill": "#1A1814", "fontFamily": "Newsreader", "fontSize": 14, "fontStyle": "italic", "fontWeight": "normal", "id": "YWsPP", "lineHeight": 1.6, "name": "p3BodyText", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" },
-                  {
-                    "children": [{ "content": "No artifact = no handoff.", "fill": "#B43A2C", "fontFamily": "Bodoni Moda", "fontSize": 14, "fontStyle": "italic", "fontWeight": "700", "id": "bMMUc", "lineHeight": 1.55, "name": "p3QuoteText", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }],
-                    "id": "tzhkL", "layout": "vertical", "name": "p3QuoteWrap", "padding": [0, 0, 0, 14], "stroke": { "align": "inside", "fill": "#B43A2C", "thickness": { "left": 3 } }, "type": "frame", "width": "fill_container"
-                  },
-                  { "content": "→ Role Flow", "fill": "#1A1814", "fontFamily": "Geist Mono", "fontSize": 11, "fontWeight": "normal", "id": "HlDKp", "letterSpacing": 1, "name": "p3Link", "textGrowth": "fixed-width", "type": "text", "width": "fill_container" }
-                ],
-                "gap": 14, "id": "yRYke", "layout": "vertical", "name": "p3Body", "padding": 20, "type": "frame", "width": "fill_container"
-              }
-            ],
-            "cornerRadius": 6, "fill": "#F4EFE5", "id": "oHUNQ", "layout": "vertical", "name": "pillar_RoleAgents", "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 }, "type": "frame", "width": "fill_container"
-          }
-        ],
-        "gap": 14, "id": "S5ulN", "name": "s4Row", "type": "frame", "width": "fill_container"
-      }
-    ],
-    "gap": 28,
-    "id": "UXy2o",
-    "layout": "vertical",
-    "name": "S4_ReliabilityPillarsSection",
-    "type": "frame",
-    "width": "fill_container"
-  }
+  "ticket": "K-040",
+  "frameId": "UXy2o",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "S4_ReliabilityPillarsSection (About /about section 4)",
+  "parentPage": "About /about (K-017 v2) [35VCj]",
+  "layout": "vertical",
+  "gap": 28,
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Sitewide Typography — s4 intro 'How AI Stays Reliable' Bodoni italic 30→Mono 22 normal; 3 pillar cards with titles Bodoni 26→Mono 20; bodies Newsreader italic→Mono normal; quote text Bodoni 14→Mono 12.",
+  "components": [
+    { "role": "section-label", "nodeId": "tDZ9f", "content": "Nº 03 — RELIABILITY", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
+    { "role": "section-intro", "nodeId": "PyUKW", "content": "How AI Stays Reliable", "font": { "family": "Geist Mono", "size": 22, "weight": "700", "style": "normal", "lineHeight": 1.2 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 30 },
+    {
+      "role": "pillar-card",
+      "nodeId": "aEuqt",
+      "name": "pillar_PersistentMemory",
+      "items": [
+        { "role": "card-label", "nodeId": "Y3VDv", "content": "FILE Nº 01 · PROTOCOL", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#F4EFE5" },
+        { "role": "pillar-title", "nodeId": "BTiRG", "content": "Persistent Memory", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
+        { "role": "pillar-body", "nodeId": "gCpJd", "content": "File-based memory system indexed in MEMORY.md survives every session; past mistakes, preferences, and project state persist cross-conversation.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "style": "normal", "lineHeight": 1.6 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 14 },
+        { "role": "pillar-quote", "nodeId": "6jUNq", "content": "Every \"stop doing X\" becomes a memory entry — corrections outlive the session.", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "style": "normal", "lineHeight": 1.55 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 14 },
+        { "role": "pillar-link", "nodeId": "F07v6", "content": "→ Per-role Retrospective Log protocol", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+      ]
+    },
+    {
+      "role": "pillar-card",
+      "nodeId": "B5H4m",
+      "name": "pillar_StructuredReflection",
+      "items": [
+        { "role": "pillar-title", "nodeId": "erYTg", "content": "Structured Reflection", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
+        { "role": "pillar-body", "nodeId": "lms63", "content": "Each role appends to docs/retrospectives/<role>.md after every ticket; the PM aggregates cross-role patterns. Bug Found Protocol gates fixes behind mandatory reflection + memory write.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "style": "normal", "lineHeight": 1.6 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 14 },
+        { "role": "pillar-quote", "nodeId": "SWfWe", "content": "No memory write = the bug is not closed.", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "style": "normal", "lineHeight": 1.55 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 14 },
+        { "role": "pillar-link", "nodeId": "XOuiN", "content": "→ Bug Found Protocol", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+      ]
+    },
+    {
+      "role": "pillar-card",
+      "nodeId": "oHUNQ",
+      "name": "pillar_RoleAgents",
+      "items": [
+        { "role": "pillar-title", "nodeId": "qcoYd", "content": "Role Agents", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
+        { "role": "pillar-body", "nodeId": "YWsPP", "content": "PM / Architect / Engineer / Reviewer / QA / Designer are separate agents with spec'd responsibilities. Handoffs produce artifacts that ./scripts/audit-ticket.sh K-XXX can verify end-to-end.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "style": "normal", "lineHeight": 1.6 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 14 },
+        { "role": "pillar-quote", "nodeId": "bMMUc", "content": "No artifact = no handoff.", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "style": "normal", "lineHeight": 1.55 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 14 },
+        { "role": "pillar-link", "nodeId": "HlDKp", "content": "→ Role Flow", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
+      ]
+    }
+  ]
 }

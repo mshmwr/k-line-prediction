@@ -1,0 +1,24 @@
+{
+  "ticket": "K-040",
+  "frameId": "zyttw",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "hpHero (Homepage Hero section)",
+  "width": "fill_container",
+  "gap": 48,
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Item 1 scope-expanded: H1 dual-line now Geist Mono 56px 700 normal (italic OFF). BQ-040-01 Option B locked.",
+  "components": [
+    {
+      "role": "hero-col",
+      "nodeId": "dC3Du",
+      "gap": 18,
+      "items": [
+        { "role": "hero-title", "nodeId": "rXURl", "content": "Predict the next move", "font": { "family": "Geist Mono", "size": 56, "weight": "700", "style": "normal", "lineHeight": 1.1 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 64 },
+        { "role": "hero-title-accent", "nodeId": "2bQtY", "content": "before it happens —", "font": { "family": "Geist Mono", "size": 56, "weight": "700", "style": "normal", "lineHeight": 1.1 }, "color": "#9C4A3B", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 64 },
+        { "role": "hero-divider", "nodeId": "u7CDu", "fill": "#2A2520", "height": 1 },
+        { "role": "hero-subtitle", "nodeId": "PrI8l", "content": "Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next.", "font": { "family": "Geist Mono", "size": 16, "weight": "normal", "style": "normal", "lineHeight": 1.5 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 18 },
+        { "role": "cta-primary", "nodeId": "iz4bR", "fill": "#2A2520", "padding": [12, 26], "cornerRadius": 6, "label": { "nodeId": "iIZ8M", "content": "Try the App →", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 1 }, "color": "#F4EFE5" } }
+      ]
+    }
+  ]
+}

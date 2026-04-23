@@ -1,0 +1,51 @@
+{
+  "ticket": "K-040",
+  "frameId": "wtC03",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "frameName": "dpBody (Diary page body)",
+  "parentPage": "Diary /diary (v2 Dossier) [wiDSi]",
+  "padding": [72, 96, 48, 96],
+  "gap": 56,
+  "width": "fill_container",
+  "generatedAt": "2026-04-23",
+  "generatorNote": "K-040 Item 2 (bottom padding 96→48) preserved + K-040 sitewide typography: Dev Diary H1 Geist Mono 52px 700, subtitle 15px normal, timeline entries 16px title / 12px date / 15px body.",
+  "engineeringHints": {
+    "mainBottomPaddingClass": "pb-12",
+    "mainBottomPaddingPx": 48,
+    "horizontalPaddingPx": 96,
+    "topPaddingPx": 72
+  },
+  "components": [
+    {
+      "role": "hero",
+      "nodeId": "WsBBQ",
+      "gap": 40,
+      "items": [
+        {
+          "role": "hero-col",
+          "nodeId": "2iyC8",
+          "gap": 16,
+          "items": [
+            { "role": "page-title", "nodeId": "g2RUM", "content": "Dev Diary", "font": { "family": "Geist Mono", "size": 52, "weight": "700", "style": "normal", "lineHeight": 1.05 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 64 },
+            { "role": "hero-divider", "nodeId": "07jVn", "fill": "#2A2520", "height": 1 },
+            { "role": "hero-subtitle", "nodeId": "PKZXk", "content": "Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.", "font": { "family": "Geist Mono", "size": 15, "weight": "normal", "style": "normal", "lineHeight": 1.55 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 17 }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "timeline",
+      "nodeId": "CGijt",
+      "width": 1248,
+      "railColor": "#2A2520",
+      "railGeometry": { "x": 29, "y": 40, "width": 1, "height": 624 },
+      "entries": [
+        { "titleId": "5iZAT", "title": "K-017 — Portfolio /about Rewrite", "titleFont": { "family": "Geist Mono", "size": 16, "weight": "700" }, "dateId": "uUrWx", "date": "2026-04-19", "dateFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "bodyId": "chCIG", "body": "Rewrote /about for recruiter audience — 8 sections, 10 AC, portfolio-oriented narrative.", "bodyFont": { "family": "Geist Mono", "size": 15, "weight": "normal", "lineHeight": 1.55 } },
+        { "titleId": "rPCgh", "title": "K-008 — Automated Visual Reports", "titleFont": { "family": "Geist Mono", "size": 16, "weight": "700" }, "dateId": "UuKCz", "date": "2026-04-18", "dateFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "bodyId": "9VJJb", "body": "Automated HTML visual reports — Playwright baseline screenshots, drift detection in CI.", "bodyFont": { "family": "Geist Mono", "size": 15, "weight": "normal", "lineHeight": 1.55 } },
+        { "titleId": "LMjes", "title": "K-009 — TDD Bug Fix: MA History", "titleFont": { "family": "Geist Mono", "size": 16, "weight": "700" }, "dateId": "7mIk2", "date": "2026-04-16", "dateFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "bodyId": "bCyqt", "body": "TDD bug fix on MA source — RED test first reproducing 1H MA history gap, then GREEN.", "bodyFont": { "family": "Geist Mono", "size": 15, "weight": "normal", "lineHeight": 1.55 } },
+        { "titleId": "HctQH", "title": "K-005 — Pattern Matching Engine", "titleFont": { "family": "Geist Mono", "size": 16, "weight": "700" }, "dateId": "nYpxm", "date": "2026-04-13", "dateFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "bodyId": "HVSSq", "body": "K-line pattern similarity engine — finds historical formations matching current chart, returns top N matches with probability.", "bodyFont": { "family": "Geist Mono", "size": 15, "weight": "normal", "lineHeight": 1.55 } },
+        { "titleId": "kxg59", "title": "K-002 — UI Optimization Refactor", "titleFont": { "family": "Geist Mono", "size": 16, "weight": "700" }, "dateId": "eUcm2", "date": "2026-04-10", "dateFont": { "family": "Geist Mono", "size": 12, "weight": "normal", "letterSpacing": 1 }, "bodyId": "FxsUA", "body": "Full UI overhaul — three-role retrospective after And-clause omission directly spawned the per-role retro log mechanism.", "bodyFont": { "family": "Geist Mono", "size": 15, "weight": "normal", "lineHeight": 1.55 } }
+      ]
+    }
+  ]
+}
