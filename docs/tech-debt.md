@@ -596,6 +596,40 @@ AC-025-REGRESSION 的「pre==post declaration count」grep 對 4 個 hex pattern
 
 ---
 
+## TD-K034-08 — HomePage Footer 容器寬度跨路由視覺不一致（byte-diff 不可視）
+
+**來源：** K-034 Phase 1 Reviewer Step 2 Warning #W3（2026-04-23）
+
+`frontend/src/pages/HomePage.tsx:13` 根 div `<div className="... sm:pl-[96px] sm:pr-[96px]">` 將 `<Footer />` 也包在左右各 96px 的 padding 內，viewport=1280 時 `/` 的 `<footer>` 有效寬度為 `1280 − 192 = 1088px`；而 `/about`（`AboutPage.tsx:71`）與 `/business-logic`（`BusinessLogicPage.tsx`）皆將 `<Footer />` 以根層 sibling 全寬渲染（有效寬 1280px）。
+
+**Reviewer 實證：** `frontend/e2e/shared-components.spec.ts-snapshots/` 三張 PNG 基準：
+- `footer-home-chromium-darwin.png` → 1088 × 87 px
+- `footer-about-chromium-darwin.png` → 1280 × 87 px
+- `footer-business-logic-chromium-darwin.png` → 1280 × 86 px
+
+**為何 K-034 Phase 1 不修：**
+- AC-034-P1-ROUTE-DOM-PARITY 斷言的是 `<footer>` outerHTML byte-identical — 滿足（`<footer>` 元素本身三路由完全相同，只有 ancestor 結構不同）
+- T1 byte-identity gate 讀的是 `<footer>`.outerHTML，看不到 ancestor padding 導致的 render-width 差異，屬 out-of-scope class of divergence
+- 修法需動 HomePage 根 div 結構（把 `<Footer />` 拉出 padded wrapper 成 root sibling），牽動 HomePage 其他 section 的左右 padding 語義 — 超出 K-034 Phase 1「variant prop 退役」的 scope
+- 已登入 `docs/designs/design-exemptions.md` §2 INHERITED 分類（pre-existing since K-017 / K-021；暫時宣告視覺跨路由差異為可接受）
+
+**風險：** 中 — `/` 的 Footer 視覺上比 `/about` / `/business-logic` 窄 192px，portfolio 對外呈現跨頁不一致；K-036 UI polish Item 3（HomePage 桌面 padding 調整）若未同時處理 Footer wrapper 結構可能加劇或固化此差異。
+
+**建議解法：**
+1. `frontend/src/pages/HomePage.tsx` 拆解根 div：padded wrapper 僅包住需要內縮的 section（HeroSection / FeaturesSection 等），`<Footer />` 移出成為根 fragment 下的 sibling
+2. 跑 `shared-components.spec.ts` PNG snapshot — 此時 `/` 的 PNG 應變成 1280px，需 `--update-snapshots` 重建基準（審閱 diff 確認只差 width）
+3. 確認 HomePage 其他 section 的左右 padding 語義未破（視需要在 section 本身加 `px-6 md:px-[96px]` 以維持既有內縮）
+4. 同步刪除 `docs/designs/design-exemptions.md` §2 "HomePage.tsx Footer render context" 列（結構已矯正）
+
+**排期觸發條件：**
+- (a) K-036 UI polish Item 3（HomePage 桌面 padding 調整）實作時併處理 — 推薦
+- (b) 或任何觸及 HomePage 根層結構的 ticket（發生前必先評估是否併修）
+- (c) 獨立 ticket K-037+（若 K-036 決議只動 Hero/features padding 不動 Footer wrapper）
+
+**PM 裁決（2026-04-23）：** 登記中優先技術債，K-034 Phase 1 close 不修。理由：pre-existing since K-017；byte-identity AC 滿足；已登 design-exemptions §2 INHERITED；K-036 自然觸發點明確。
+
+---
+
 ## 更新規則
 
 - 新增技術債：先由 Code Reviewer 整理列單 → PM 逐條裁決 → 寫入本檔

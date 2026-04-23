@@ -18,6 +18,25 @@
 
 ---
 
+## 2026-04-23 — K-034 Phase 1 — Design doc §8 Sacred cross-check coverage gap (Reviewer-surfaced)
+
+**做得好：** BQ-034-P1-01 (/about GA Sacred vs Pencil) 主動 surface 作為 blocker — 實際代表 §8 Sacred cross-check 在 K-017/K-018/K-022 三個 Sacred 維度是完整的。
+
+**沒做好：** §8 Sacred cross-check table 漏列兩類 Sacred：
+1. **K-031 AC-031-LAYOUT-CONTINUITY + AC-031-SECTION-ABSENT** — §4.3 Option A 刪除 `<SectionContainer id="footer-cta">` wrapper 會連帶作廢 `about-v2.spec.ts` L373-382 的 `#architecture.nextElementSibling.id === 'footer-cta'` 斷言。這個 downstream DOM-id 依賴在 §8 table 9 列沒列出 K-031。Engineer 首次 Playwright run 才 FAIL，self-adjudicated 為 pure selector upgrade (Reviewer 驗證通過為合法 pure refactor)，但流程上應該由 Architect 早期 grep 出來列入 §8 Sacred table 作為 downstream impact，而非 Engineer 到 red 才發現。
+2. **AC-018-PRIVACY-POLICY GA disclosure vs Pencil SSOT** — §8 最末列提到 AC-018-PRIVACY-POLICY "Passes as-is"，但未把 GA disclosure `<p>` 節點 not in Pencil frames (86psQ + 1BGtd `children.length = 1`) 列為 AC-vs-Pencil 結構衝突。Reviewer Pencil parity gate 首次實戰把它 surface 為 Critical #C1，強迫 PM 當場開 `design-exemptions.md` §2 REGULATORY category 收案。Architect 端若在設計時就列為 BQ-034-P1-02 可讓 PM 在放行 Engineer 前裁決而非 Review 階段才發現。
+
+根因：senior-architect.md §Sacred cross-check 當前的篩選策略是「grep ticket ID 前綴 (K-017 / K-018 / K-022)」，但 Sacred 不限於「此 ticket 改的檔案原本被誰擁有」— 還包括「本 ticket 改動的 JSX 結構/DOM `id` 被誰在 E2E spec 斷言」這個反向依賴。K-031 AC-031 正是這種下游依賴類 Sacred，按 ticket ID 前綴 grep 找不到（K-031 的 spec 檔是 `about-v2.spec.ts`，與本 ticket 改動的 JSX wrapper id 是間接關係）。
+
+**下次改善（Phase 1 close 時 Edit senior-architect.md persona）：**
+1. **擴展 §Sacred cross-check 前置 grep 範圍**（原先已有 `data-testid="cta-"` + `trackCtaClick(` + `target="_blank"` + `href="mailto:"` 四項，擬於 K-034 Phase 1 close 加入 persona — 擴展兩項新增）：
+   - `nextElementSibling.id\|previousElementSibling.id\|.closest('#.*')\|querySelector('#` — 任何 spec 對 JSX `id` 的跨節點 DOM-adjacency 斷言
+   - `querySelectorAll('[id=` / `parentElement.id` / `#<id-regex>.nextElementSibling` 等變體
+2. **Pencil-vs-Sacred AC 衝突矩陣必建** — 凡設計 doc `visual-delta: yes` 且 ticket 改動的組件有任何 Sacred AC 約束，§8 Sacred cross-check 表必多一欄「Pencil SSOT 對此 Sacred AC 所述節點 / 屬性有無對應 frame.children 節點」。任一列該欄 = "NO / PARTIAL" 即列 BQ-escalate-to-PM 而非自行 implicit 解決於 design doc NEW column。
+3. 兩項改善將於 Phase 1 close 時同步 Edit 進 `~/.claude/agents/senior-architect.md` §Sacred cross-check，與 BQ-034-P1-01 §PM ruling 已 pre-ACCEPT 的原四項 grep 合為完整 persona addendum。
+
+---
+
 ## 2026-04-23 — K-034 Phase 1 — Footer variant retirement design
 
 **做得好：**

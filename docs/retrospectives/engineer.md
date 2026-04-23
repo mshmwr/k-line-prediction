@@ -16,6 +16,20 @@
 
 ---
 
+## 2026-04-23 — K-034 Phase 1 (Footer Pencil-SSOT unification + variant retirement)
+
+**做得好：** 新的 Pencil-SSOT 流程 (K-034 Phase 0 codified) 在 Phase 1 首次實戰就運作良好 — Step 0 讀 `frontend/design/specs/homepage-v2.frame-86psQ.json` + `homepage-v2.frame-1BGtd.json` + side-by-side PNG，直接從 JSON 拿 `letterSpacing: 1` / `padding: [20, 72]` / 純文字 delimiter `·` (U+00B7) 等值，無需猜測。Engineer Step 0 persona gate 生效。另一個做得好的是 AC-034-P1-FAIL-IF-GATE-REMOVED dry-run 按設計 §7 完整執行，6 個 shared-components 斷言全部 FAIL，證明 gate 有效（不是 tautological 斷言）。
+
+**沒做好：**
+1. **`__playwright_target__` 屬性沒事先料到** — T1 byte-identity 首次執行失敗，原因是 Playwright locator engine 注入 `__playwright_target__="call@NNN"` 且 NNN 每次 query 遞增。Design doc §6.4 `outerHTML normalization note` 只提 React dynamic attrs，沒提 Playwright 內部屬性。若第一版 `normalizeFooterHtml()` 就加 `__playwright_target__` 替換，即可一次 pass。
+2. **`#footer-cta` id 被拔掉時沒 grep 下游 E2E spec** — AboutPage §4.3 Option A 要求刪除 `<SectionContainer id="footer-cta">` wrapper，但沒做 `grep -rn '#footer-cta' frontend/e2e/` 就下手。結果 about-v2.spec.ts AC-031-LAYOUT-CONTINUITY 斷言 `nextElementSibling.id === 'footer-cta'` 首次 Playwright run 才 FAIL。行為不變（架構 section 後仍是 Footer，中間無 banner-showcase）所以改成 `nextElementSibling.tagName === 'footer'`，屬於 Engineer persona 允許的「pure selector 升級」。但第一次就 grep 會更早發現。
+
+**下次改善：**
+1. **Playwright outerHTML 斷言策略：** 任何 `outerHTML` 比對測試，`normalize` helper 預設包含 `__playwright_target__` 屬性 strip（新增到 engineer.md 備註）。
+2. **Refactor 拔 DOM `id` 前必 grep E2E spec：** 刪除或改名 `<SectionContainer id="...">` / `data-testid="..."` / 任何 DOM `id` 前，先 `grep -rn '#<id>\|"<id>"' frontend/e2e/`。列出受影響 spec，評估是 Engineer persona 允許的 pure selector upgrade 或需 PM 裁決的斷言內容變更。
+
+---
+
 ## 2026-04-23 — K-034 Phase 0 (BFP Round 2 for K-035 α-premise failure)
 
 **沒做好：**
