@@ -22,7 +22,9 @@ Phase 2 (or TD-K034-03 trigger) expands this to: auto-generated
 
 | Component | Source file | Consuming routes | Allowed variants | Pencil frame IDs | Notes |
 |-----------|-------------|------------------|------------------|------------------|-------|
-| **Footer** | `frontend/src/components/shared/Footer.tsx` | `/`, `/about`, `/business-logic` | **0 (Phase 1 retires `variant` prop per AC-034-P1-FOOTER-UNIFIED)** | `4CsvQ` (homepage-v2.pen), `86psQ` (homepage-v2.pen), `1BGtd` (homepage-v2.pen), `35VCj` footer subtree (homepage-v2.pen) | K-035 α-premise: frames 86psQ + 1BGtd + 4CsvQ + 35VCj footer subtree all byte-identical inline one-liner (`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px). `/diary` and `/app` intentionally render NO Footer (K-024 no-footer, K-030 isolation). |
+| **Footer** | `frontend/src/components/shared/Footer.tsx` | `/`, `/about`, `/business-logic`, `/diary` [^diary-adoption] | **0 (Phase 1 retires `variant` prop per AC-034-P1-FOOTER-UNIFIED)** | `4CsvQ` (homepage-v2.pen), `86psQ` (homepage-v2.pen), `1BGtd` (homepage-v2.pen), `35VCj` footer subtree (homepage-v2.pen) | K-035 α-premise: frames 86psQ + 1BGtd + 4CsvQ + 35VCj footer subtree all byte-identical inline one-liner (`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px). `/app` intentionally renders NO Footer (K-030 isolation, PRESERVED). `/diary` no-footer Sacred RETIRED 2026-04-23 by K-034 Phase 3 — see [^diary-adoption]. |
+
+[^diary-adoption]: `/diary` added 2026-04-23 via K-034 Phase 3 (absorbed ex-K-038 per user directive), retires K-017 AC-017-FOOTER `/diary` negative clause + K-024 `/diary` no-footer Sacred invariant + K-034 Phase 1 T4 AC-034-P1-NO-FOOTER-ROUTES `/diary` row. No dedicated Pencil frame for `/diary` — Pencil provenance inherited from `homepage-v2.pen` frames `86psQ` + `1BGtd` sitewide one-liner per BQ-034-P3-01 ruling ("shared Footer already Pencil-backed; adding route to consumer list ≠ new visual element"). Designer may optionally add `diary-v2.pen` frame (BQ-034-P3-02 optional) but Phase 3 release is not gated on it.
 | **UnifiedNavBar** | `frontend/src/components/UnifiedNavBar.tsx` | `/`, `/about`, `/diary`, `/business-logic` | **0 (no variant prop; per-route `active` state derived from `useLocation`)** | TBD — NavBar not yet explicitly framed in `.pen` (covered in homepage-v2.pen top strip area); Designer to assign frame ID during Phase 2 or first NavBar-scoped ticket | `/app` renders NO NavBar (K-030 `/app` isolation). Route list for `active` states derived from `TEXT_LINKS` const — changes there require inventory Edit. |
 | **BuiltByAIBanner** | `frontend/src/components/home/BuiltByAIBanner.tsx` | `/` **only** | 0 (single-route consumer; not technically "chrome" but listed to prevent future spillage without PM gate) | TBD — visible inside homepage-v2.pen hero strip; Designer to assign frame ID if Phase 2 reshuffle | If a future ticket adds this to `/about` or `/business-logic`, PR MUST first Edit this inventory + PM ruling + Pencil frame evidence. |
 
@@ -31,7 +33,7 @@ Phase 2 (or TD-K034-03 trigger) expands this to: auto-generated
 ## Routes with NO shared chrome (intentional isolation)
 
 - `/app` — K-030 isolation: no Footer, no UnifiedNavBar, no BuiltByAIBanner (Sacred per AC-030-NO-FOOTER + AC-030-NO-NAVBAR). Listed in `docs/designs/design-exemptions.md` under "intentionally no design".
-- `/diary` — K-024 no-Footer (Sacred per `pages.spec.ts` L158 `/diary has no Footer`); UnifiedNavBar present.
+- ~~`/diary` — K-024 no-Footer (Sacred per `pages.spec.ts` L158 `/diary has no Footer`); UnifiedNavBar present.~~ **RETIRED 2026-04-23 by K-034 Phase 3** (absorbs ex-K-038) — `/diary` now renders shared Footer per AC-034-P3-DIARY-FOOTER-RENDERS; see Footer row above + footnote `[^diary-adoption]`. UnifiedNavBar remains present (unchanged).
 
 ---
 

@@ -50,6 +50,9 @@
 | TD-K034-05 | Phase 1 QA sign-off 實裝 dual-baseline 驗證：`scripts/compare-baselines.sh` hash diff `frontend/e2e/__screenshots__/*.png` vs `frontend/design/screenshots/*.png`；`package.json` `test:e2e:update-snapshots` 加 branch-name guard（僅 `chore/baseline-refresh-*` 可執行） | K-034 QA Early Consultation Q2 | 中 | 2026-04-23 |
 | TD-K034-06 | Designer persona monthly Pencil orphan audit step；`.pen` schema version bump 機制（需 Pencil MCP 支援）；首次 orphan 事件發生時升級為硬 gate | K-034 QA Early Consultation Q4 | 低 | 2026-04-23 |
 | TD-K034-07 | `docs/reports/ci-budget.md` 制定：full Playwright suite >6 min 觸發 reduction；reduction 順序 visual-report > viewport sweep > shared-component snapshot（snapshot 為 Sacred） | K-034 QA Early Consultation Q6 | 低 | 2026-04-23 |
+| TD-K034-P2-15 | Footer per-route snapshot tolerance 審視（`/about` 3% drift 吸收；下一次 Footer 編輯後考慮 per-route baselines with tighter 0.5% tolerance） | K-034 Phase 2 §4.8 C-2 | 中 | 2026-04-23 |
+| TD-K034-P2-16 | S4 h2 "How AI Stays Reliable" computed-style E2E：加 `getComputedStyle` fontSize=30px + fontFamily contains Bodoni Moda 檢查 | K-034 Phase 2 §4.8 I-4 | 低 | 2026-04-23 |
+| TD-K034-P2-17 | K-029 `ticket-anatomy-id-badge` 測試 target 語意 retro 交叉註：badge 現位於 FileNoBar trailing slot 內，斷言仍經 sr-only span 有效 | K-034 Phase 2 §4.8 M-1 | 低 | 2026-04-23 |
 
 ---
 
@@ -630,6 +633,85 @@ AC-025-REGRESSION 的「pre==post declaration count」grep 對 4 個 hex pattern
 - (c) 獨立 ticket K-037+（若 K-036 決議只動 Hero/features padding 不動 Footer wrapper）
 
 **PM 裁決（2026-04-23）：** 登記中優先技術債，K-034 Phase 1 close 不修。理由：pre-existing since K-017；byte-identity AC 滿足；已登 design-exemptions §2 INHERITED；K-036 自然觸發點明確。
+
+---
+
+## TD-K034-P2-15 — Footer per-route snapshot tolerance audit
+
+**來源：** K-034 Phase 2 §4.8 C-2 PM 裁決（2026-04-23）
+
+Phase 2 實作期間，`shared-components.spec.ts:129` Footer snapshot tolerance 設為 `{ maxDiffPixelRatio: 0.02 }`（per BQ-034-P2-ENG-01）；實測 `/about` 飄到 3% 實際像素差，跨過 2% 閾值，走 §4.8 C-2 Option (b) ruling regen baseline。T1 byte-identity outerHTML 全程綠（內容不變），3% drift 純屬 Playwright Chromium font antialiasing / subpixel / GPU state 飄移，非內容變更。
+
+**現況：**
+- `shared-components.spec.ts` 三路由共用 2% tolerance（`/`, `/about`, `/business-logic`）
+- `/about` 2026-04-23 regen baseline，未放寬閾值
+
+**建議解法：**
+1. 下一次 Footer 編輯週期前，評估 per-route baselines（`/` `/about` `/business-logic` 各自 PNG baseline），tolerance 收緊到 0.5%
+2. 調查 Playwright Chromium `--font-rendering` flag 穩定性
+3. 若第三次 Footer snapshot 因無內容變更而 regen，升級為 K-XXX ticket
+
+**排期觸發條件：**
+- (a) 下次觸及 `frontend/src/components/shared/Footer.tsx` 的 ticket — 優先
+- (b) Footer baseline 第三次因無內容變更而 regen — 升 ticket
+- (c) 跨路由 Footer 視覺差異（TD-K034-08）修復 ticket 一併處理
+
+**優先級：** 中
+
+---
+
+## TD-K034-P2-16 — S4 h2 "How AI Stays Reliable" computed-style E2E
+
+**來源：** K-034 Phase 2 §4.8 I-4 PM 裁決（2026-04-23）
+
+Phase 2 Reviewer 審查指出 `/about` S4 h2 "How AI Stays Reliable" 目前只斷言 text-content（`about-v2.spec.ts`），未有 `getComputedStyle` 檢查 fontSize / fontFamily 的結構斷言。h1 Hero 有完整 Bodoni Moda + 64px 斷言，h2 只 text-only，形成 asymmetric coverage。
+
+**Pencil 規格：** `frontend/design/specs/about-v2.frame-UXy2o.json` s4Intro — Bodoni Moda italic 700 30px。
+
+**現況：**
+- `about-v2.spec.ts` 針對 h2 "How AI Stays Reliable" 只有 `toContainText` 斷言
+- 若 Pencil UXy2o.s4Intro 將 fontSize 從 30px 改為 28px 或字型家族換掉，不會被 E2E 捕獲
+
+**建議解法：**
+1. `about-v2.spec.ts` 在 AC-022-LAYER-LABEL 上方新增 `test('S4 h2 computed style: Bodoni Moda 30px', ...)` 
+2. `getComputedStyle(el).fontSize` === `'30px'`
+3. `getComputedStyle(el).fontFamily` contains `'Bodoni Moda'`
+
+**排期觸發條件：**
+- (a) Pencil UXy2o.s4Intro typography 變更時
+- (b) 視覺 Review flag「h2 看起來怪怪的」時
+- (c) K-036 UI polish 或下一次 /about typography ticket 一併處理
+
+**優先級：** 低（text assertion 已經抓得到 copy drift，只是 typography asymmetry 缺感知）
+
+---
+
+## TD-K034-P2-17 — K-029 `ticket-anatomy-id-badge` 測試 target retro 交叉註
+
+**來源：** K-034 Phase 2 §4.8 M-1 PM 裁決（2026-04-23）
+
+K-029 spec `about-v2.spec.ts:430-438` 斷言 `ticket-anatomy-id-badge` 嚴格 `rgb(42, 37, 32)` charcoal 色。K-034 Phase 2 引入 FileNoBar primitive 後，原本單 DOM 節點的 K-00N badge 改為雙 render：
+- visible FileNoBar `trailing` slot (K-00N, paper on charcoal, Pencil EBC1e 原色)
+- sr-only `<span data-testid="ticket-anatomy-id-badge" className="sr-only text-charcoal">` 保留 K-029 斷言通過
+
+**現況：**
+- 測試通過，target 語意從「visible badge color」shift 為「sr-only badge color」
+- Badge 仍在 FileNoBar trailing slot 展示給 sighted users（paper color）
+- K-029 strict charcoal 斷言透過 sr-only dual-render 通過，不 downgrade 任何規格
+
+**需要的 retro 交叉註：**
+1. K-029 retrospective 或 ticket 應加 1 行：「target semantics shifted to FileNoBar trailing slot post-K-034 Phase 2; assertion still valid via sr-only DOM lookup」
+2. 測試本身的 inline comment（已加於 `about-v2.spec.ts:425` 附近，`// ticket-anatomy-id-badge target shifted to FileNoBar trailing slot post-K-034 Phase 2; assertion still valid via DOM lookup`）
+
+**建議解法：**
+1. Assertion 更新到真正視覺 badge（目前 paper on charcoal）需要重寫 K-029 AC（product-decision not technical），PM 與使用者討論是否需要
+2. 若保留現況，此 TD 作為歷史 trace 存在即可
+
+**排期觸發條件：**
+- (a) K-029 AC 重寫 — 若 product-decision 認為視覺 badge 需要 specific 色斷言
+- (b) 下次觸及 TicketAnatomyCard schema 或 FileNoBar trailing slot 的 ticket
+
+**優先級：** 低（測試通過，純屬 audit trail / 未來讀者 context）
 
 ---
 

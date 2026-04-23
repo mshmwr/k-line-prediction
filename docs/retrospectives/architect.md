@@ -18,6 +18,24 @@
 
 ---
 
+## 2026-04-23 — K-034 Phase 2 — /about full Pencil SSOT audit design doc
+
+**做得好：**
+- §1 Pencil SSOT Read Gate `PASS` 前先對 7 JSON + 9 PNG 全部 `ls -l` 驗檔案存在 + byte size，非依賴 Designer retro 口頭聲稱；Manifest `about-v2-manifest.md` 也讀取驗證。符合 persona §Pencil Artifact Preflight 硬 gate。
+- §3 27 列 Drift Truth Table 對應 ticket §5 PM 裁決逐列抄入，schema（section | node-path | property | pencil-raw | pencil-normalized | code-raw | code-normalized | drift | resolution）與 BQ-034-P2-QA-02 PM ruling 一致；23 列 code-side 逐列連結到 §7 Step 編號 + AC 編號。
+- §6.3 FileNoBar 為 new primitive vs CardShell 擴 prop 的選型跑了正式 scoring matrix（cohesion/coupling/blast-radius/reuse）Option B 8.5 > Option A 6.5；避免 Tiebreaker post-hoc 問題（K-021 案例）。cardPaddingSize prop 明示「跟隨 CardShell size 防止 silent drift」是主動把隱形 coupling 提前封掉。
+- §10 architecture.md sync plan 先草擬出 Edit scope 再執行，Pre-Write name-reference sweep grep `DossierHeader|FileNoBar|K-034 Phase 2` 分類 hit 至 current-state vs historical，L19 / L671 K-022 歷史 Changelog 正確保留未誤改。
+
+**沒做好：**
+- Prompt summary 說「17 new AC」但 ticket §5.1 實際列出 19 個 `####` AC heading。Architect 查到後以 BQ-034-P2-ARCH-01 記入 §12 Risks 但繼續設計（因為 19 條全部已在 drift table / Step 中涵蓋，無 blocker 性）。但更規範的做法是：在 §0 Scope Questions 停下，請 PM 確認數字（17 vs 19 要不要改 ticket summary 以對齊 §5.1），符合 persona §AC Sync Gate「只有 PM 可以改 AC」的精神；本次以 Risk 記錄 + 繼續設計屬於邊界判斷，非違反但非最佳實踐。
+- Pencil frame JSON 逐檔讀後對 Bodoni font-size 寫入 §3 時，幾個 MetricCard title 的 fontSize 是 22 vs 28 的「依卡分化」（m1/m3/m4 = 22；m2 = 28），§3 row D-2 以「Bodoni 22/28 italic」summary 形式記錄但沒把每卡 granular 值展開到 FileNoBar 或 MetricCard §2.1 sub-table；Engineer 實作時需回看 frame JSON 才能得到 per-card exact value。更好是把 per-m1..m4 的 Pencil-verbatim token 值列成 MetricCard 專屬 sub-table（類似 §6.2 FileNoBar 規格表），讓 Engineer 單讀設計文件即可實作無需回查 JSON。
+
+**下次改善：**
+- 設計文件寫到 multi-variant 同類型 card（m1/m3/m4 vs m2 差異、6 RoleCard、3 PillarCard、3 TicketAnatomyCard、3 ArchPillarBlock）時，若 Pencil 值 per-variant 不同，必須在 §6 或 §7 中附 per-variant token 值表；不能只以「參見 frame JSON」的模糊引用。Action：senior-architect.md §Visual Spec JSON Consumption Gate 補一條「per-variant values: when a component is rendered N times with different Pencil values, design doc must include an N-row token table with pencil-verbatim values; cannot defer to JSON lookup by Engineer」。
+- AC 數量不一致（prompt summary vs ticket §5.1）的「continue 還是 pause」邊界判斷，下次遇到差異 ≥ 2 條（本次 19 vs 17 = 差 2）直接走 §0 Scope Questions 停下問 PM，不再自行 continue + Risk 記錄。Action：senior-architect.md §Scope Question Pause Rule 增加「ticket AC count 與 prompt / summary 差異 ≥ 2 即 pause」的明確數字門檻。
+
+---
+
 ## 2026-04-23 — K-037（favicon wiring — architect-ruling only, no design doc）
 
 **做得好：**

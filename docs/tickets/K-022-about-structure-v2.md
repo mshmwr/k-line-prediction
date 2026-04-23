@@ -99,7 +99,10 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 
 ---
 
-### AC-022-DOSSIER-HEADER：頁面頂部 dossier header bar + FILE Nº `[K-022]`
+### ~~AC-022-DOSSIER-HEADER：頁面頂部 dossier header bar + FILE Nº `[K-022]`~~ **RETIRED 2026-04-23 K-034-Phase-2**
+
+> **Retired 2026-04-23 by K-034 Phase 2 §5 drift audit (BQ-034-P2-ENG-02)** — DossierHeader component has no Pencil frame backing per §Phase 2 Drift Audit D-1 (Designer manifest DRIFT-P2-MISSING-FRAME confirmed `frame 35VCj` contains no dossier bar subtree). Pencil SSOT supersedes pre-Phase-0 AC Sacred clauses per Q6c + `feedback_pm_ac_pen_conflict_escalate.md`. Superseded by **AC-034-P2-DRIFT-D1** (DossierHeader component retired) + **AC-034-P2-SACRED-RETIRE**. AC text body preserved below as historical record.
+
 
 **Given** 使用者訪問 `/about`
 **When** 頁面載入完成
@@ -153,7 +156,10 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 
 ---
 
-### AC-022-LINK-STYLE：頁內 link 採 Newsreader italic + underline `[K-022]`
+### ~~AC-022-LINK-STYLE：頁內 link 採 Newsreader italic + underline `[K-022]`~~ **RETIRED 2026-04-23 K-034-Phase-2**
+
+> **Retired 2026-04-23 by K-034 Phase 2 §5 drift audit (BQ-034-P2-ENG-02)** — K-034 Phase 2 Pencil SSOT (frame `35VCj` + sub-frames) establishes link styling from JSON source-of-truth; pre-Phase-0 assumptions (Newsreader italic + underline across all `/about` links) superseded by per-drift-row Pencil-exact assertions. Pencil SSOT supersedes pre-Phase-0 AC Sacred clauses per Q6c + `feedback_pm_ac_pen_conflict_escalate.md`. Superseded by Phase 2 drift rulings (see §5 Phase 2 Drift Audit) + **AC-034-P2-SACRED-RETIRE**. AC text body preserved below as historical record.
+
 
 **Given** 使用者訪問 `/about`
 **When** 頁面內任一 link（Ticket cards 的 GitHub link / Pillar inline link / Footer CTA 的 email/GitHub/LinkedIn link）
@@ -173,7 +179,10 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 
 ---
 
-### AC-022-LAYER-LABEL：How AI Stays Reliable 三 pillar 含 LAYER 前綴 label `[K-022]`
+### ~~AC-022-LAYER-LABEL：How AI Stays Reliable 三 pillar 含 LAYER 前綴 label `[K-022]`~~ **RETIRED 2026-04-23 K-034-Phase-2**
+
+> **Retired 2026-04-23 by K-034 Phase 2 §5 drift audit (BQ-034-P2-ENG-02)** — K-034 Phase 2 Pencil SSOT (frame `35VCj` Reliability sub-frame) shows pillar label copy is `FILE Nº 0N · PROTOCOL` (not `LAYER 1/2/3` as K-022 AC asserted). Pencil SSOT supersedes pre-Phase-0 AC Sacred clauses per Q6c + `feedback_pm_ac_pen_conflict_escalate.md`. Superseded by Phase 2 drift rulings (pillar label copy normalized to Pencil-exact `FILE Nº 0N · PROTOCOL`) + **AC-034-P2-SACRED-RETIRE**. AC text body preserved below as historical record.
+
 
 **Given** 使用者訪問 `/about`
 **When** 頁面滾動至 `How AI Stays Reliable` 區塊
@@ -194,7 +203,10 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 
 ---
 
-### AC-022-ANNOTATION：Role Cards 下方 marginalia annotation `[K-022]`
+### ~~AC-022-ANNOTATION：Role Cards 下方 marginalia annotation `[K-022]`~~ **RETIRED 2026-04-23 K-034-Phase-2**
+
+> **Retired 2026-04-23 by K-034 Phase 2 §5 drift audit (BQ-034-P2-ENG-02)** — K-034 Phase 2 Pencil SSOT (frame `35VCj` RoleCardsSection) shows RoleCard subtree contains OWNS/ARTEFACT labels only; POSITION/BEHAVIOUR marginalia is absent from Pencil. Pre-Phase-0 AC assumption (annotation marginalia required) superseded. Pencil SSOT supersedes pre-Phase-0 AC Sacred clauses per Q6c + `feedback_pm_ac_pen_conflict_escalate.md`. Superseded by Phase 2 drift rulings (RoleCard POSITION/BEHAVIOUR annotation removed) + **AC-034-P2-SACRED-RETIRE**. AC text body preserved below as historical record.
+
 
 **Given** 使用者訪問 `/about`
 **When** 頁面滾動至 Role Cards 區塊

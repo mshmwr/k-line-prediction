@@ -19,9 +19,154 @@
 ---
 
 <!-- 新條目從此處往上 append -->
-## 2026-04-23 — K-038 Phase 0 — QA Early Consultation
+## 2026-04-23 — K-034 Phase 2 sign-off regression (Engineer fix-forward complete)
 
-**Ticket：** `docs/tickets/K-038-diary-shared-footer-adoption.md` — /diary adopts shared Footer; retire K-017 + K-024 + K-034 P1 half Sacred; /app (K-030) preserved.
+**做得好：**
+- Full Playwright regression 251 passed / 1 failed / 1 skipped — single failure is the pre-existing K-032 GA gap `ga-spa-pageview.spec.ts:142` (AC-020-BEACON-SPA), matching Engineer's fix-forward expectation exactly; zero new regressions introduced by Phase 2 (19 AC).
+- tsc `--noEmit` exit 0; visual report regenerated with `TICKET_ID=K-034` to `docs/reports/K-034-visual-report.html` (all 4 marketing routes captured green); Sacred cross-check clean — `grep -rE "DossierHeader|dossier-header|data-annotation|ROLE_ANNOTATIONS"` against `frontend/src/` + `frontend/e2e/` returns zero live dependencies on the 4 retired K-022 Sacred clauses (only historical retirement comments remain).
+- Cross-route shared-component parity gate (`shared-components.spec.ts`) T1 byte-identity + T2 Pencil-canonical content + T3 no /about CTA + T4 /diary footer absence all pass — Phase 2 did not disturb Phase 1 Footer invariants.
+- Pencil parity spot-check on FileNoBar vs `BF4Xe m*Top/m*Lbl` + `8mqwX r*Top` + `UXy2o p*Top` + `EBC1e t*Top` + `JFizO arch*Top`: `padding [6,10] → px-[10px] py-[6px]`, `fill #2A2520 → bg-charcoal`, `Geist Mono 10 paper letterSpacing 2 → font-mono text-[10px] text-paper tracking-[2px]`, `label?` optional matching MetricCard bare `FILE Nº 0N` — all match, zero drift in 5 FileNoBar consumers.
+
+**沒做好：**
+- **New QA Flag (Minor, not a blocker)** — `MetricCard` m1Note + m4Note typography drift vs Pencil `BF4Xe.m1Note`/`m4Note`: Pencil specifies `fontSize: 13, fill: #1A1814 (ink)` (distinct from m2Note/m3Note which ARE `11px muted`), but code `MetricCard.tsx:56` renders ALL notes uniformly as `text-[11px] text-muted`. Reviewer §4.8 gate missed this because §5 drift row D-2 lumped all notes as "Newsreader 11 italic note" (design-doc level drift vs Pencil JSON) and no E2E `getComputedStyle` assertion exists on `17 tickets, K-001 → K-017` or `Bug Found Protocol, per-role retro logs, audit script` fontSize/color (only `toBeVisible` text-content gates). Recommend Engineer open TD-K034-P2-18 "MetricCard m1/m4 note: restore Pencil `fontSize: 13` + `fill: ink` (distinguish high-signal notes from low-signal muted classification lines)"; NOT a Phase 2 close blocker — pre-existing design-doc-vs-Pencil drift class, content verbatim, visually minor, caught at QA parity spot-check (which is what the gate is for).
+- AC-coverage audit: 16 / 19 Phase 2 new AC have direct E2E assertion coverage; 3 AC (AC-034-P2-AUDIT-DUMP revised, AC-034-P2-DRIFT-LIST revised, AC-034-P2-DESIGNER-ATOMICITY, AC-034-P2-SNAPSHOT-POLICY, AC-034-P2-SACRED-RETIRE, AC-034-P2-DEPLOY) are documentation/infra/deploy gates — not E2E-assertable by design; verified via filesystem + ticket content. AC-034-P2-DRIFT-D19-D21-HERO-REWRITE has `Bodoni Moda` + `text-brick` assertions in `about-v2.spec.ts:66-91` but no explicit `64px`/`left-align`/`fill_container divider` computed-style assertion — covered indirectly via `AC-022-HERO-TWO-LINE` snapshot baseline + font family check; tight enough for sign-off but TD-eligible for future hardening.
+
+**下次改善：**
+- Add a Pencil-font-size parity sweep to QA sign-off checklist: for each `FileNoBar` / `MetricCard` / `RoleCard` / `PillarCard` / `TicketAnatomyCard` / `ArchPillarBlock` body text node, grep Pencil JSON `fontSize` + `fill` values, enumerate per-card (not per-card-type), and compare against code `text-[Npx]` / `text-ink|muted|brick|charcoal` — catches m1Note-class drifts that Reviewer's §5-table-scoped gate misses. Codify as new `qa.md` §Mandatory Task Completion step 0d "Pencil text-node typography sweep" so future `.pen`-backed UI tickets enumerate per-node typography, not per-component-class.
+
+## 2026-04-23 — K-034 Phase 2 Early Consultation (/about visual audit)
+
+**Consultation trigger:** PM opening Phase 2 with 2 placeholder ACs (AC-034-P2-AUDIT-DUMP, AC-034-P2-DRIFT-LIST). Both are untestable as written. QA filing 9 Challenges before PM releases Designer/Architect/Engineer.
+
+**Pre-consultation evidence probe (2026-04-23):**
+- `frontend/design/` contains: `favicon.pen`, `homepage-v1.pen`, `homepage-v2.pen` — **no `about-v2.pen` file exists**.
+- `frontend/design/specs/` contains 2 JSONs: `homepage-v2.frame-86psQ.json` + `homepage-v2.frame-1BGtd.json` — both are Footer frames, **zero /about body frames exported**.
+- `frontend/design/screenshots/` contains 3 PNGs, all Footer-related.
+- `docs/designs/K-022-about-structure.md` line 7: `pencil-frame: 35VCj (About /about K-017 v2)` — /about Pencil SSOT is frame `35VCj` **inside `homepage-v2.pen`**, not a separate file. This frame has never been JSON/PNG exported.
+- `AboutPage.tsx` renders 8 distinct sections: DossierHeader (A-2) + 6 `SectionContainer` sections (S1 header through S6 architecture) + `<Footer />`. All body sections beyond Footer have zero Pencil JSON/PNG provenance on HEAD.
+
+---
+
+### QA Challenge #1 — AC-034-P2-AUDIT-DUMP — "every /about Pencil frame" is undefined
+**Issue:** AC line 301 says "every /about Pencil frame has a corresponding `frontend/design/specs/about-v2.frame-<id>.json`". But (a) there is no `about-v2.pen` file; the /about SSOT is frame `35VCj` living inside `homepage-v2.pen`; (b) frame `35VCj` is a single monolithic frame per K-022 design doc — there is no authoritative inventory of sub-frames per /about section. The AC filename pattern `about-v2.frame-<id>.json` presupposes a file that does not exist.
+**Risk:** Designer dumps `35VCj` as one 1000-node JSON → AC passes trivially but audit has no section granularity. Or Designer fabricates a section split and names them arbitrarily → drift diff format inconsistent across sections. Either way, Phase 2 audit output is unusable by Engineer.
+**Option A (fix):** PM rules on authoritative frame inventory BEFORE Designer dumps. Two sub-options:
+  - A1: Designer first splits `35VCj` into 7 sub-frames (one per /about section: DossierHeader, Header, Metrics, Roles, Reliability, TicketAnatomy, Architecture) inside `homepage-v2.pen`, then dumps each. AC filename pattern becomes `homepage-v2.frame-<id>.json` matching existing `86psQ`/`1BGtd` convention.
+  - A2: Dump monolithic `35VCj` + Designer produces one `docs/designs/K-034-P2-about-section-inventory.md` mapping each code section (AboutPage.tsx line N–M) to a node-ID subtree within `35VCj`. Drift list references node IDs, not frame IDs.
+**Option B (Known Gap):** "Audit only Footer frames `86psQ`+`1BGtd` (already exported); /about body sections out of scope Phase 2" → TD-K034-P2-01, explicit scope shrink. Ticket's stated deliverable "per-section Pencil JSON dump" gets retitled as "Footer-only re-parity dump".
+**Recommendation:** **Option A1** — matches established `homepage-v2.*` filename convention, gives Engineer deterministic per-section diff target, and splitting `35VCj` creates reusable Pencil SSOT for future /about tickets. A2 risks node-ID drift every time Designer edits Pencil (see Challenge #9).
+**If not ruled:** AC-034-P2-AUDIT-DUMP will FAIL at sign-off (cannot prove "every frame" without an inventory).
+
+---
+
+### QA Challenge #2 — AC-034-P2-DRIFT-LIST has no schema for diff entries
+**Issue:** AC-034-P2-DRIFT-LIST (line 304) is a stub "To be expanded at Phase 1 close". Ticket deliverable 2 says "property, expected, observed" but gives no canonical form. Without a schema, Engineer and PM cannot deterministically compare: is `fill: "#6B5F4E"` drift from CSS `rgb(107 95 78)` a drift or a representation? Is Tailwind `text-[13px]` equivalent to JSON `fontSize: 13`? Is `tracking-[2px]` equivalent to `letterSpacing: 1` (existing Footer JSON uses `letterSpacing: 1` — unit unknown, px or em?).
+**Risk:** K-024 C-1 pattern repeats — "·" vs "—" style literal-drift slipped past green tests because assertion and implementation both used wrong literal. Here, if drift diff uses eyeball color comparison, oklch-vs-hex conversion rounding (e.g. `#6B5F4E` ≈ `oklch(0.49 0.02 65)` but not byte-identical) triggers false drift flags, or false absence when Tailwind compiles to `rgb()` with 3-digit truncation.
+**Option A (fix):** PM rules on drift-diff schema before Phase 2 starts. Minimum columns: `section | property | pencil-json-path | json-raw-value | code-path (file:line) | code-raw-value | normalized-json | normalized-code | drift: yes/no | proposed-resolution`. Normalizer rules: color → `#RRGGBB` lowercase 6-digit (no alpha unless present); sizes → integer px (`fontSize: 13` matches Tailwind `text-[13px]`); letterSpacing → px (`letterSpacing: 1` = `1px`, Tailwind `tracking-[1px]`); fontWeight → numeric (`"normal"` = 400, `"bold"` = 700). Tailwind arbitrary values (`text-[13px]`, `tracking-[2px]`) preferred over named utilities to make unit explicit.
+**Option B (Known Gap):** Accept eyeball diff, log TD-K034-P2-02 "formalize drift schema in future ticket" → Phase 2 drift list remains advisory, cannot block Engineer updates.
+**Recommendation:** **Option A** — K-024/K-025 W-1 feedback loop (`feedback_refactor_ac_grep_raw_count_sanity.md`) proved that un-normalized comparison produces silent false negatives. Without a normalizer, drift list is as credible as my grandmother's cross-stitch pattern.
+**If not ruled:** AC-034-P2-DRIFT-LIST will FAIL at sign-off (untestable — no deterministic predicate).
+
+---
+
+### QA Challenge #3 — Shared component drift: NavBar + SectionContainer NOT in Phase 2 scope
+**Issue:** Phase 2 Deliverables list scopes to "per-section Pencil JSON dump" of /about frames. But AboutPage.tsx line 1 imports `UnifiedNavBar` (shared across /, /about, /business-logic) and line 2 `SectionContainer` (primitive wrapping every section). K-035 Footer drift (2026-04-22) root cause was per-route-local assertion letting cross-route DOM divergence survive; same class of bug applies to NavBar. If Phase 2 audits only /about-specific components (DossierHeader, MetricCard, RoleCard, etc.) and skips UnifiedNavBar + SectionContainer primitive styling, Pencil-vs-code drift on those shared components goes undetected on /about AND leaks to sibling routes.
+**Risk:** Phase 2 closes green, /about ships Pencil-parity perfect for body sections, but NavBar still has a 1px padding drift that Pencil already encodes correctly. Next sprint someone "fixes" NavBar and breaks /. This is exactly K-035 Footer drift repackaged.
+**Option A (fix):** Phase 2 scope explicitly INCLUDES `UnifiedNavBar` + `SectionContainer` Pencil parity on /about. Those are 2 more sub-frames in the A1 split (or 2 additional node-ID subtrees in A2). Cross-route regression spec `shared-components.spec.ts` extends to assert any NavBar drift would break all 3 NavBar-consuming routes (Option A1 in K-034 Phase 3 AC precedent — byte-identity pattern).
+**Option B (Known Gap):** "Phase 2 audits only /about-specific body components; shared chrome (NavBar, SectionContainer) audit deferred" → TD-K034-P2-03, explicit tracker. Risk acknowledged: any shared-chrome drift on /about will not be flagged.
+**Recommendation:** **Option A** — shared-component inventory check is codified behavior rule (`feedback_shared_component_inventory_check.md`, 2026-04-22), excluding NavBar from a "/about full visual audit" violates the rule. Footer is already Phase 1 so that box is ticked, but NavBar and SectionContainer remain.
+**If not ruled:** QA sign-off withheld with citation "Phase 2 shared-component inventory gate not met".
+
+---
+
+### QA Challenge #4 — Regression protection for non-/about Footer consumers absent
+**Issue:** Phase 1 unified Footer across /, /about, /business-logic. Phase 2 will likely trigger Engineer edits to Footer IF Phase 2 drift finds divergence between Footer code and Pencil `86psQ`/`1BGtd` JSON. But Phase 2 ticket deliverable 4 says only "tsc + Playwright" — which currently runs a single-viewport suite and a single `shared-components.spec.ts` snapshot set. No explicit mandate to re-run `visual-report.ts` on / and /business-logic (Phase 3 will add /diary as 4th consumer, so by end of this week, 4 routes share Footer).
+**Risk:** Phase 2 fixes a Footer drift to match Pencil (say letterSpacing 1 → 2); /about passes; / and /business-logic visual regression slip through because Playwright snapshot was regenerated not compared. K-035 2026-04-22 feedback memo explicitly mandates cross-route equivalence assertion on shared chrome.
+**Option A (fix):** Phase 2 AC adds a mandatory step: "for every Engineer code edit touching `components/shared/**`, run `shared-components.spec.ts` ALL routes + snapshot diff against baseline + visual-report on all Footer-consuming routes (`/`, `/about`, `/business-logic`). Any snapshot diff without corresponding Pencil JSON re-export is a FAIL." Extend to /diary the moment Phase 3 lands.
+**Option B (Known Gap):** Phase 2 assumes Footer is frozen per Phase 1 → Engineer MUST NOT touch `Footer.tsx` or `shared/**` during Phase 2. Any Footer drift found in Phase 2 audit is punted to Phase 4 (new ticket). Enforced by Reviewer Git Status Commit-Block Gate (K-037 F-N2 precedent).
+**Recommendation:** **Option B** — cleaner scope boundary. Phase 1 already proved Footer parity; if Phase 2 audit finds Footer drift, that's a Phase 1 regression and deserves its own ticket + BFP Round 2, not a silent fix. Also avoids the "Engineer edits shared Footer during /about audit" combinatorial explosion.
+**If not ruled:** QA will flag any Phase 2 commit touching `frontend/src/components/shared/**` as CODE-PASS / COMMIT-BLOCKED until PM rules scope expansion.
+
+---
+
+### QA Challenge #5 — `.pen` update path round-trip atomicity unspecified
+**Issue:** Phase 2 deliverable 3 says "PM ruling per drift: `.pen` update (send to Designer) vs code update (send to Engineer)". For the `.pen`-update branch: Designer edits `homepage-v2.pen` via Pencil MCP, but then needs to atomically re-export the affected frame's JSON + PNG. `feedback_designer_json_sync_hard_gate.md` (2026-04-23) mandates "same session batch_design → export JSON + PNG". But Phase 2 has N drifts potentially affecting M Pencil frames; partial re-sync (e.g. `.pen` updated + JSON updated + PNG NOT updated) is a K-035 α-premise regression waiting to happen — the spec JSON and screenshot would drift within the Designer session.
+**Risk:** Designer fixes 3 drifts in Pencil, exports JSON for 2, forgets PNG for 1 (or vice versa). Reviewer's Pencil-parity gate (Step 2 per `feedback_reviewer_pencil_parity_gate.md`) compares JSX to JSON — passes. QA's 0c frame spec + screenshot parity compares Playwright screenshot to PNG — might pass if PNG is stale matching old Pencil state. Same drift re-introduced in 4 weeks via stale PNG.
+**Option A (fix):** Phase 2 adds a hard gate: "for every `.pen`-side ruling, Designer session output must include in one batch: (a) updated `.pen` commit, (b) re-exported `specs/<frame>.json`, (c) re-captured `screenshots/<frame>.png`, (d) side-by-side PNG if the frame participates in multi-frame cross-consistency (Footer does, per K-034 Phase 1 `86psQ-vs-1BGtd-side-by-side.png`). All four in same Git commit; QA 0c rejects any commit with < 4 of 4 updated."
+**Option B (Known Gap):** Accept best-effort Designer sync; QA 0c verifies JSON+PNG but does NOT re-diff `.pen`→JSON; TD-K034-P2-04 opened for future tooling to auto-verify export freshness (e.g. `.pen` mtime vs JSON `pen-mtime-at-export` header).
+**Recommendation:** **Option A** — the JSON header already contains `pen-mtime-at-export` (verified in `86psQ.json` line 3: `"pen-mtime-at-export": "2026-04-21T19:52:16+0800"`). QA 0c can programmatically verify `pen-mtime` of file on disk ≥ JSON `pen-mtime-at-export` ≥ PNG stat.mtime (monotonic chain). Zero ambiguity, zero extra tooling, K-035 α-premise eliminated.
+**If not ruled:** QA 0c will FAIL any Phase 2 commit where Designer-side pencil-mtime chain is non-monotonic.
+
+---
+
+### QA Challenge #6 — Viewport seam: Phase 2 desktop-only = mobile drift undetected
+**Issue:** `frontend/e2e/about-v2.spec.ts` tests /about at desktop + 375px mobile viewport (grep confirms lines 44, 112, 295, 318). Pencil frame `35VCj` is a single viewport design (likely ~1440px wide). Phase 2 drift list will necessarily be desktop-only unless explicitly scoped. But /about ships to users in both viewports; silent mobile drift (Tailwind responsive utilities `md:`, `lg:` branches) is code-side-only and has no Pencil SSOT to audit against.
+**Risk:** Phase 2 closes green at desktop parity; mobile /about has a broken grid that was never part of the Pencil design. User reports "looks wrong on phone" next week; QA re-audits and finds no Pencil source of truth to compare to. Known K-027 class of bug (mobile /diary overlap).
+**Option A (fix):** Phase 2 scope explicitly DESKTOP-ONLY (single breakpoint matching Pencil `35VCj` width); mobile parity is Known Gap TD-K034-P2-05, explicit scope note in AC-034-P2-AUDIT-DUMP. Ticket receives mobile-design-exemption row in `design-exemptions.md` §2 RESPONSIVE (precedent: K-034 Phase 3 Challenge #2 → same exemption).
+**Option B (fix with expanded scope):** Designer produces a second Pencil frame `35VCj-mobile` at 375px width; Phase 2 audits both breakpoints; drift diff schema adds a `viewport` column. Doubles Phase 2 effort.
+**Recommendation:** **Option A** — matches Phase 3 Challenge #2 precedent exactly; mobile /about has no current user complaint; expanding Pencil to 2 breakpoints is Designer work outside this ticket's stated scope. Explicitly log TD-K034-P2-05 so intent is preserved.
+**If not ruled:** AC-034-P2-AUDIT-DUMP cannot pass — dumping only desktop frames while silent on mobile is a Sweep Table ❌ under QA persona.
+
+---
+
+### QA Challenge #7 — Dark mode intent silent: K-029 paper palette vs Pencil unknown
+**Issue:** K-029 (2026-04-22) moved /about card body text to paper palette (`text-ink`, `text-muted`). Pencil frame `35VCj` was authored pre-K-029 and may still encode the old dark palette, OR the K-029 fix may have been a code-only patch that never reached Pencil. Without Phase 2 explicitly ruling, drift list could either flag every card as "code drift from Pencil" (false positive, Pencil is the stale one) or silently accept current code as canonical (baking in K-029 drift permanently).
+**Risk:** Drift list has N entries saying "card body color: Pencil `#E5E5E5` vs code `#1a1814`". PM can't rule without knowing K-029 intent was retrofit-Pencil-or-not. Eight-week-old memory gap.
+**Option A (fix):** PM reads K-029 design doc + commit history, rules BEFORE drift list is authored: "K-029 palette is canonical; Pencil frame `35VCj` must be updated to match K-029 code (Designer task in Phase 2 `.pen`-side bucket)". Drift list then treats K-029-touched properties as "Pencil-side fix required, code unchanged".
+**Option B (fix, reverse):** PM rules K-029 was a temporary patch; Pencil `35VCj` is canonical; Phase 2 reverts K-029 on code side. Requires user sign-off (reverting a landed ticket).
+**Option C (Known Gap):** Out of scope Phase 2; pre-flag all K-029-touched properties as "K-029 drift — do not audit"; TD-K034-P2-06 for future resolution.
+**Recommendation:** **Option A** — K-029 landed based on user-visible quality (readability on paper bg); Pencil should chase reality, not the other way. Designer updates `35VCj` as first Phase 2 task.
+**If not ruled:** drift list author will default to "flag everything", 20+ false-positive drift entries, Phase 2 audit signal-to-noise collapses.
+
+---
+
+### QA Challenge #8 — Regression snapshot baselines: `shared-components.spec.ts-snapshots/` will drift
+**Issue:** `frontend/e2e/shared-components.spec.ts-snapshots/` currently contains 3 PNGs (`footer-about-chromium-darwin.png`, `footer-business-logic-chromium-darwin.png`, `footer-home-chromium-darwin.png`) from Phase 1. Any Phase 2 Engineer code update on Footer (if Challenge #4 Option B is rejected) OR any body-section layout change triggers Playwright snapshot mismatch on next CI run. Phase 2 ticket currently has no AC covering snapshot baseline update policy — Engineer may `--update-snapshots` silently (regenerating) or manually delete + accept, both lose regression protection.
+**Risk:** Engineer fixes 3 drifts, runs `npx playwright test --update-snapshots`, all snapshots regenerate, all tests green. New baseline now locks in the fix BUT also silently absorbs any unrelated side effect (font metric shift, hairline color change). QA 0c screenshot parity against Pencil PNG still catches Pencil-drift, but Playwright snapshot regression protection is voided for that cycle.
+**Option A (fix):** Phase 2 AC adds explicit snapshot policy: "any snapshot baseline update during Phase 2 requires (a) corresponding Pencil JSON/PNG re-export (Designer round-trip per Challenge #5), OR (b) PM-written rationale in ticket §5 recording the exact drift and why no Pencil change needed. Blanket `--update-snapshots` is prohibited; Engineer runs update per-file with git diff review before commit."
+**Option B (Known Gap):** Accept blanket snapshot regeneration; rely on Pencil PNG parity (QA 0c) as sole regression line. TD-K034-P2-07 opened for future snapshot review tooling.
+**Recommendation:** **Option A** — K-035 root cause was exactly this pattern ("route-local assertion + baseline regenerated at each green run = drift codified"). Phase 2 needs snapshot hygiene, not more snapshots.
+**If not ruled:** QA will flag any Phase 2 commit containing `--update-snapshots` in git history as CODE-PASS / COMMIT-BLOCKED pending PM rationale.
+
+---
+
+### QA Challenge #9 — Idempotency: Pencil frame node IDs not stable
+**Issue:** Phase 2 dump + drift list will reference Pencil node IDs (per `86psQ.json` structure: `"id": "hpwtD"`). But Pencil's MCP-assigned node IDs are autogenerated per insert. If Designer does ANY edit to `homepage-v2.pen` after Phase 2 dump (e.g. a Phase 3 Footer tweak), node IDs for unchanged nodes MAY or MAY NOT be stable — depends on Pencil internals (undocumented per MCP instructions). If unstable, re-running Phase 2 audit tomorrow yields JSON with different IDs, drift list references become stale, and any follow-up ticket referencing "node `hpwtD`" has no anchor.
+**Risk:** Drift list cites node IDs, PM rules resolution, Designer edits Pencil, IDs churn, next-day re-verification can't find the node. This is an idempotency test failure for the whole audit process.
+**Option A (fix):** Phase 2 drift list uses `(frame-id, node path)` tuple instead of raw node ID — e.g. `(35VCj, children[3].children[1])` or `(35VCj, name="DossierHeaderBar")`. Requires Designer to ensure every Pencil node has a stable `name` attribute (most nodes in current `86psQ.json` do — `"name": "ftR"`). Drift schema (Challenge #2) then specifies path-by-name, not path-by-ID.
+**Option B (Known Gap):** Accept node-ID instability; TD-K034-P2-08 opened; drift list is a point-in-time snapshot; any follow-up references Pencil via re-dump + manual re-match.
+**Recommendation:** **Option A** — trivial lift (Pencil nodes already have `name`), huge return (idempotency preserved across sessions). Drift schema column `pencil-json-path` uses name-based JSONPath (e.g. `$.frame.children[?(@.name=="DossierHeaderBar")].children[?(@.name=="FileNumber")].fontSize`).
+**If not ruled:** Phase 2 drift list will have 1-week shelf life; any follow-up audit must redo from scratch.
+
+---
+
+**Summary: 9 Challenges filed. All 9 require PM ruling before Designer/Architect/Engineer release.** Without rulings on #1, #2, #5, #9, Phase 2 output is mathematically not verifiable — audit will FAIL at sign-off regardless of effort invested. Challenges #3, #4, #6, #7, #8 need rulings to define scope; silent scope = QA marks Phase 2 FAIL per persona rule ("no explicit 'not testing because ___' = silent omission not acceptable").
+
+**Recommended PM ruling session scope:** answer all 9 inline in ticket §Phase 2 PM Rulings block (parallels §4.4 Phase 3 PM Rulings structure). Expected output: 9 Option picks + rationale + any TD-K034-P2-0N trackers opened. Then expand AC-034-P2-DRIFT-LIST from stub to full Given/When/Then block citing the drift schema.
+
+**What went well:** pre-consultation evidence probe caught three concrete blockers (no `about-v2.pen`; `35VCj` is unsplit monolith; JSON header `pen-mtime-at-export` already provides round-trip atomicity primitive) before drafting Challenges — grounded every Challenge in file-path evidence.
+
+**What went wrong:** N/A — Early Consultation fired at correct gate (Phase 2 open, Designer not yet released).
+
+**Next time improvement:** when PM opens a Phase with placeholder ACs flagged "to be expanded at Phase N-1 close", QA Early Consultation should fire immediately on Phase open, not wait for PM to request — placeholder ACs are by definition untestable and deserve Challenge treatment before any downstream role engages. Codify as hard rule in `qa.md` Early Consultation section.
+
+---
+
+## 2026-04-23 — K-038 /diary shared Footer (ABSORBED INTO K-034 Phase 3)
+
+**Absorption note (2026-04-23):** Per user directive, ex-K-038 scope absorbed into K-034 as Phase 3. All 9 Challenges below remain valid and binding on Phase 3 AC structure. PM has ruled the 4 Option-required Challenges per Phase 3 AC block (verbatim rulings in `docs/tickets/K-034-about-spec-audit-and-workflow-codification.md` §4.4 PM Rulings on Phase 3 QA Early Consultation):
+- Challenge #1 (loading state) → **Option A** (Footer renders during loading) — routed to AC-034-P3-DIARY-FOOTER-LOADING-VISIBLE
+- Challenge #2 (viewport seam) → **Option A** (Known Gap, log to design-exemptions.md §2 RESPONSIVE; TD-K034-P3-02 opened) — routed to AC-034-P3-VIEWPORT-SEAM-KNOWN-GAP
+- Challenge #6 (sitewide-footer /diary coverage) → **Option A** (add /diary to 4-route computed-style loop) — routed to AC-034-P3-SITEWIDE-FOOTER-4-ROUTES
+- Challenge #9 (K-017 retroactive retirement) → **Option A** (retroactive annotation for 3-ticket trail consistency) — routed to AC-034-P3-SACRED-RETIREMENT
+
+The other 5 Challenges (#3 fixture registration, #4 describe block cleanup, #5 snapshot baseline precision, #7 inventory footnote, #8 FAIL-IF-GATE-REMOVED scope) all confirmed by Phase 3 AC structure / Engineer design-doc expectations per §4.4 ruling table. QA Early Consultation now serves **K-034 Phase 3** (absorbed ex-K-038), not a standalone K-038 ticket; ticket ID K-038 file never landed on disk (reserved-but-absorbed; next new ticket = K-039).
+
+Cross-ref: `docs/tickets/K-034-about-spec-audit-and-workflow-codification.md` §Phase 3 AC block + §4.3 BQ rulings + §4.4 QA Challenge rulings.
+
+---
+
+**Ticket (historical as-filed):** `docs/tickets/K-038-diary-shared-footer-adoption.md` — /diary adopts shared Footer; retire K-017 + K-024 + K-034 P1 half Sacred; /app (K-030) preserved. **Note:** file never landed on disk; content preserved below as historical Challenge record. Ongoing ticket tracking is now K-034 Phase 3.
 
 **Scope reviewed：** ticket AC-038-P0-* + AC-038-P1-* (10 AC total); Sacred retirement table (§3 BQ-038-03); affected spec files `shared-components.spec.ts` T1/T2/T4 + `pages.spec.ts` L152–164 + `sitewide-footer.spec.ts` L3–20 header comment + `sitewide-fonts.spec.ts` L9 comment; DiaryPage.tsx current structure (3 terminal states + loading); shared Footer component (`components/shared/Footer.tsx` prop-less); K-030 `/app` isolation preserved.
 
@@ -191,6 +336,8 @@
 - **重大發現：** 無 regression-inducing Sacred conflict；K-030 `/app` isolation 完全不動、相關 spec (`app-bg-isolation.spec.ts`、`sitewide-fonts.spec.ts` L56 /app Footer removal comment) 與本 ticket 零交集。
 
 **PM ruling required：** 9 條 QA Challenge 逐條回覆（補 AC / 選 Option / 登 Known Gap）；完成後 Phase 0 design-locked sign-off 方可放行 Architect。
+
+**PM ruling landed 2026-04-23:** All 9 Challenges resolved per K-034 Phase 3 AC block absorption (see heading block at top). Challenges #1/#2/#6/#9 each ruled Option A; Challenges #3/#4/#5/#7/#8 all ACCEPT with Phase 3 AC structure carrying the binding text. Cross-ref: `docs/tickets/K-034-about-spec-audit-and-workflow-codification.md` §4.4. Phase 3 Architect release still gated behind Phase 2 close (conservative sequencing per `depends-on: [K-034-phase-2-closed]`) + Designer OPTIONAL decision on `diary-v2.pen` (BQ-034-P3-02) + PM `design-locked: true` sign-off.
 
 
 ---
