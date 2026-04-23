@@ -7,6 +7,7 @@ import DiaryLoading from '../components/diary/DiaryLoading'
 import DiaryError from '../components/diary/DiaryError'
 import DiaryEmptyState from '../components/diary/DiaryEmptyState'
 import LoadMoreButton from '../components/diary/LoadMoreButton'
+import Footer from '../components/shared/Footer'
 
 // K-024 Phase 3 — /diary full rewrite (design §6.1 / §6.9).
 // Flat timeline: DiaryHero + DiaryTimeline (ol/li + rail + markers + entries)
@@ -22,6 +23,14 @@ import LoadMoreButton from '../components/diary/LoadMoreButton'
 // Content container: max-w-[1248px] + mx-auto (AC-024-CONTENT-WIDTH) + px-6
 // sm:px-24 (mobile ≤ 640px → 24px, desktop ≥ 640px → 96px per AC-024-CONTENT-WIDTH
 // & design §6.8).
+//
+// K-034 Phase 3 (2026-04-23) — /diary adopts shared Footer.
+// <Footer /> rendered as last sibling of root <div className="min-h-screen">,
+// full-bleed (outside <main> padded ancestor), matching /about + /business-logic
+// pattern. Footer renders regardless of terminal state (loading / error / empty /
+// timeline) per AC-034-P3-DIARY-FOOTER-LOADING-VISIBLE Option A.
+// Retires: K-017 AC-017-FOOTER /diary negative, K-024 /diary no-footer Sacred,
+// K-034 Phase 1 T4 AC-034-P1-NO-FOOTER-ROUTES /diary row.
 
 export default function DiaryPage() {
   const { entries, loading, error, refetch } = useDiary()
@@ -50,6 +59,7 @@ export default function DiaryPage() {
           </>
         )}
       </main>
+      <Footer />
     </div>
   )
 }

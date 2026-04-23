@@ -153,19 +153,7 @@ test.describe('HomePage — AC-017-HOME-V2', () => {
   })
 })
 
-// ── AC-017-FOOTER (diary no-footer) ─────────────────────────────────────────
-// Given: user visits /diary
-// When:  page loads
-// Then:  no <Footer /> rendered (K-024 intentional)
-
-test.describe('DiaryPage — AC-017-FOOTER no footer', () => {
-  test('diary page has no Footer rendered', async ({ page }) => {
-    await page.goto('/diary')
-
-    await expect(page.getByText("Let's talk →", { exact: true })).toHaveCount(0)
-    await expect(page.getByText('yichen.lee.20@gmail.com', { exact: true })).toHaveCount(0)
-  })
-})
+// AC-017-FOOTER /diary negative clause retired per K-034 Phase 3 §BQ-034-P3-03 — user intent change 2026-04-23; Footer now covered by shared-components.spec.ts T1 (byte-identity 4 routes)
 
 // ── AC-023-DIARY-BULLET ──────────────────────────────────────────────────────
 // Given: user visits /

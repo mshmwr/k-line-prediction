@@ -31,9 +31,9 @@ function normalizeFooterHtml(html: string): string {
 test.describe('AC-034-P1-ROUTE-DOM-PARITY — Footer byte-identical across consuming routes', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  const consumingRoutes = ['/', '/about', '/business-logic']
+  const consumingRoutes = ['/', '/about', '/business-logic', '/diary']
 
-  test('T1 — / + /about + /business-logic Footer byte-identical outerHTML', async ({ page }) => {
+  test('T1 — / + /about + /business-logic + /diary Footer byte-identical outerHTML', async ({ page }) => {
     const footerHtmlByRoute: Record<string, string> = {}
 
     for (const route of consumingRoutes) {
@@ -96,18 +96,65 @@ test.describe('AC-034-P1-NO-ABOUT-CTA — /about has no "Let\'s talk" CTA block'
   })
 })
 
-test.describe('AC-034-P1-NO-FOOTER-ROUTES — /diary has no Footer rendered', () => {
-  test('T4 — /diary footer count 0 + Pencil canonical text absent', async ({ page }) => {
+// AC-034-P1-NO-FOOTER-ROUTES — /diary row retired 2026-04-23 by K-034 Phase 3 (absorbs ex-K-038 §3 BQ-034-P3-03).
+// User intent change: /diary now renders shared Footer per AC-034-P3-DIARY-FOOTER-RENDERS;
+// T4 block deleted per AC-034-P3-SACRED-RETIREMENT. /diary Footer coverage now in T1 byte-identity loop above.
+// /app no-footer preserved by existing app-bg-isolation.spec.ts AC-030-NO-FOOTER
+// (single source of truth per feedback_shared_component_inventory_check).
+
+test.describe('AC-034-P3-DIARY-FOOTER-LOADING-VISIBLE — /diary Footer renders during loading', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('Footer visible during /diary.json fetch delay AND after resolution', async ({ page }) => {
+    // Delay diary.json response to keep DiaryPage in loading state long enough to assert Footer.
+    // mockApis catch-all fulfills /api/** only; /diary.json is a public asset fetched relative
+    // to origin — overrideable via page.route('**/diary.json', ...).
+    let release: (() => void) | null = null
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+
     await mockApis(page)
+    await page.route('**/diary.json', async (route) => {
+      await gate
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            ticketId: 'K-034',
+            title: 'Sample entry for LOADING-VISIBLE fixture',
+            date: '2026-04-23',
+            text: 'Fixture entry asserting Footer remains rendered across loading→resolved transition.',
+          },
+        ]),
+      })
+    })
+
     await page.goto('/diary')
 
-    await expect(page.locator('footer')).toHaveCount(0)
-    await expect(
-      page.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true }),
-    ).toHaveCount(0)
+    // Assert DiaryLoading is mounted (confirming we're in the loading branch, NOT post-resolution).
+    await expect(page.locator('[data-testid="diary-loading"]')).toBeVisible()
 
-    // /app no-footer preserved by existing app-bg-isolation.spec.ts AC-030-NO-FOOTER
-    // (no duplicate assertion here — single source of truth per feedback_shared_component_inventory_check).
+    // Assert Footer visible DURING loading state (before diary.json resolves).
+    // Footer renders as sibling of <main>; DiaryLoading is inside <main>.
+    const footer = page.locator('footer').last()
+    await expect(footer).toBeVisible()
+    await expect(page.locator('footer')).toHaveCount(1)
+    await expect(
+      footer.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true }),
+    ).toBeVisible()
+
+    // Release the delay; diary.json resolves and DiaryPage transitions to timeline state.
+    release!()
+
+    // Wait for transition: DiaryLoading unmounts AND diary-entry renders (timeline branch).
+    await expect(page.locator('[data-testid="diary-loading"]')).toHaveCount(0)
+    await expect(page.locator('[data-testid="diary-entry"]').first()).toBeVisible()
+
+    // Assert Footer STILL visible after resolution (post-loading terminal state).
+    await expect(page.locator('footer')).toHaveCount(1)
+    await expect(footer).toBeVisible()
   })
 })
 
@@ -119,7 +166,7 @@ test.describe('AC-034-P1-NO-FOOTER-ROUTES — /diary has no Footer rendered', ()
 test.describe('AC-034-P1 — Footer toMatchSnapshot() baselines per route', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  for (const route of ['/', '/about', '/business-logic']) {
+  for (const route of ['/', '/about', '/business-logic', '/diary']) {
     test(`Footer snapshot on ${route}`, async ({ page }) => {
       await mockApis(page)
       await page.goto(route)

@@ -1,11 +1,14 @@
 import { test, expect } from '@playwright/test'
 import { mockApis } from './_fixtures/mock-apis.ts'
 
-// ── AC-021-FOOTER (post-K-034 Phase 1 prop-less unification) ────────────────
-// Given: user visits /, /business-logic
+// ── AC-021-FOOTER + AC-034-P3-SITEWIDE-FOOTER-4-ROUTES ──────────────────────
+// Given: user visits /, /about, /business-logic, /diary
 // When:  page is rendered
 // Then:  <Footer /> 單行資訊列顯示 `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`
 // And:   字級 11px、顏色 #6B5F4E (text-muted)、top border
+//
+// K-034 Phase 3 (2026-04-23): AC-034-P3-SITEWIDE-FOOTER-4-ROUTES — /diary 加入 4-route loop,
+// 共用 Footer 覆蓋 /、/about、/business-logic、/diary 四路由。Challenge #6 ruling Option A.
 //
 // K-034 Phase 1 (2026-04-23): Footer variant prop 全數退役；/、/business-logic、/about
 // 三路由共用同一份 prop-less Footer；舊的 variant="home"/"about" 語義不再適用。
@@ -39,20 +42,18 @@ async function expectSharedFooterVisible(page: import('@playwright/test').Page) 
   expect(parseFloat(borderTopWidth)).toBeGreaterThan(0)
 }
 
-test.describe('AC-021-FOOTER — shared Footer per route', () => {
+test.describe('AC-021-FOOTER + AC-034-P3-SITEWIDE-FOOTER-4-ROUTES — shared Footer per route', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('/ — shared Footer shows with 11px muted + border-top', async ({ page }) => {
-    await mockApis(page)
-    await page.goto('/')
-    await expectSharedFooterVisible(page)
-  })
-
-  test('/business-logic (PasswordForm state) — shared Footer shows with 11px muted + border-top', async ({ page }) => {
-    await mockApis(page)
-    await page.goto('/business-logic')
-    await expectSharedFooterVisible(page)
-  })
+  // 4-route loop per AC-034-P3-SITEWIDE-FOOTER-4-ROUTES (Challenge #6 Option A).
+  // Each iteration is an independent `test()` — 4 independent assertions, cannot be merged.
+  for (const route of ['/', '/about', '/business-logic', '/diary']) {
+    test(`${route} — shared Footer shows with 11px muted + border-top`, async ({ page }) => {
+      await mockApis(page)
+      await page.goto(route)
+      await expectSharedFooterVisible(page)
+    })
+  }
 
   test('/business-logic (logged-in state) — shared Footer still shows', async ({ page }) => {
     // mockApis 內建 LIFO ordering（_fixtures/mock-apis.ts）；具體 route 於此後註冊。

@@ -12,10 +12,10 @@
  *   - `/`               (HomePage.tsx)
  *   - `/business-logic` (BusinessLogicPage.tsx)
  *   - `/about`          (AboutPage.tsx)
+ *   - `/diary`          (DiaryPage.tsx) — K-034 Phase 3 (2026-04-23); retires K-017/K-024/K-034-P1-T4 /diary no-footer Sacred clauses
  *
  * NOT rendered on:
- *   - `/diary` (K-024 no-footer decision; intentional)
- *   - `/app`   (K-030 isolation; intentional)
+ *   - `/app`   (K-030 isolation; intentional — Pencil-exempt per design-exemptions.md §1)
  *
  * Pencil source of truth:
  *   - frontend/design/specs/homepage-v2.frame-86psQ.json  (/about consumer)
