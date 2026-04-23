@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-040",
+    "title": "Sitewide UI polish batch — Bodoni to Geist Mono reset plus 8 polish items",
+    "date": "2026-04-23",
+    "text": "Sitewide font reset retiring Bodoni Moda and Newsreader to a single Geist Mono family with italic OFF across all routes (13 font-display tsx sites, 4 inline Bodoni sites, 1 Konva timelinePrimitives.ts DOM token literal, tailwind.config.js display/italic keys, and an index.css body default rule) paired with 8 UI polish items (Home desktop padding parity with /about and /diary, Diary footer-area vertical spacing tightening, Diary mobile timeline rail restoration, /about 3x protocol links now open in new tab with noopener/noreferrer and working GitHub blob anchors, homepage-v2.pen GA disclosure backfill, and Hero mobile vertical rhythm opened between BuiltByAIBanner/H1/subtitle) plus a Bug Found Protocol W-1/W-2/W-3 token semantic cleanup (zero runtime behavior change); 114 passed / 1 skipped / 0 failed, Sacred AC-034-P1 Footer byte-identity plus AC-038 NavBar plus AC-040 sitewide mono all GREEN, and TD-001 spun off for ga-spa-pageview.spec.ts isolation drift (pre-existing, not a K-040 regression)."
+  },
+  {
     "ticketId": "K-037",
     "title": "Favicon wiring and Web App Manifest",
     "date": "2026-04-23",
