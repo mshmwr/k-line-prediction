@@ -37,10 +37,7 @@ export default function ProjectLogicSection() {
       </div>
 
       {/* Subtitle */}
-      <p
-        className="text-[15px] italic leading-relaxed text-[#1A1814]"
-        style={{ fontFamily: '"Newsreader", serif' }}
-      >
+      <p className="text-[14px] leading-relaxed text-[#1A1814]">
         — The engine scans historical K-line data to find windows that resemble the current formation, then shows you the price action that followed.
       </p>
 
@@ -62,17 +59,11 @@ export default function ProjectLogicSection() {
             </div>
             {/* Card body */}
             <div className="p-5 flex flex-col gap-3">
-              <h3
-                className="text-[24px] italic font-bold text-[#1A1814]"
-                style={{ fontFamily: '"Bodoni Moda", serif' }}
-              >
+              <h3 className="text-[20px] font-bold text-[#1A1814]">
                 {s.title}
               </h3>
               <div className="w-10 h-px bg-charcoal" />
-              <p
-                className="text-[13px] italic leading-[1.55] text-[#1A1814]"
-                style={{ fontFamily: '"Newsreader", serif' }}
-              >
+              <p className="text-[12px] leading-[1.55] text-[#1A1814]">
                 {s.description}
               </p>
             </div>

@@ -25,7 +25,7 @@ import PillarCard from './PillarCard'
 export default function ReliabilityPillarsSection() {
   return (
     <div className="space-y-6">
-      <h2 className="font-display font-bold italic text-ink text-[30px] leading-[1.2]">
+      <h2 className="font-bold text-ink text-[22px] leading-[1.2]">
         How AI Stays Reliable
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px]">
@@ -35,7 +35,7 @@ export default function ReliabilityPillarsSection() {
           body={
             <p>
               File-based memory system indexed in{' '}
-              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded not-italic">
+              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded">
                 MEMORY.md
               </code>{' '}
               survives every session; past mistakes, preferences, and project state persist
@@ -44,7 +44,7 @@ export default function ReliabilityPillarsSection() {
           }
           anchorQuote={'Every "stop doing X" becomes a memory entry — corrections outlive the session.'}
           linkText="→ Per-role Retrospective Log protocol"
-          docsHref="/docs/ai-collab-protocols.md#per-role-retrospective-log"
+          docsHref="https://github.com/mshmwr/k-line-prediction/blob/main/docs/ai-collab-protocols.md#per-role-retrospective-log"
         />
 
         <PillarCard
@@ -53,7 +53,7 @@ export default function ReliabilityPillarsSection() {
           body={
             <p>
               Each role appends to{' '}
-              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded not-italic">
+              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded">
                 docs/retrospectives/&lt;role&gt;.md
               </code>{' '}
               after every ticket; the PM aggregates cross-role patterns. Bug Found Protocol
@@ -62,7 +62,7 @@ export default function ReliabilityPillarsSection() {
           }
           anchorQuote="No memory write = the bug is not closed."
           linkText="→ Bug Found Protocol"
-          docsHref="/docs/ai-collab-protocols.md#bug-found-protocol"
+          docsHref="https://github.com/mshmwr/k-line-prediction/blob/main/docs/ai-collab-protocols.md#bug-found-protocol"
         />
 
         <PillarCard
@@ -72,7 +72,7 @@ export default function ReliabilityPillarsSection() {
             <p>
               PM / Architect / Engineer / Reviewer / QA / Designer are separate agents with
               spec&apos;d responsibilities. Handoffs produce artifacts that{' '}
-              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded not-italic">
+              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded">
                 ./scripts/audit-ticket.sh K-XXX
               </code>{' '}
               can verify end-to-end.
@@ -80,7 +80,7 @@ export default function ReliabilityPillarsSection() {
           }
           anchorQuote="No artifact = no handoff."
           linkText="→ Role Flow"
-          docsHref="/docs/ai-collab-protocols.md#role-flow"
+          docsHref="https://github.com/mshmwr/k-line-prediction/blob/main/docs/ai-collab-protocols.md#role-flow"
         />
       </div>
     </div>

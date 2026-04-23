@@ -22,9 +22,9 @@
           "nodeId": "wiDSi/2iyC8/g2RUM",
           "text": "Dev Diary",
           "font": {
-            "family": "Bodoni Moda",
-            "style": "italic",
-            "size": 64,
+            "family": "Geist Mono",
+            "style": "normal",
+            "size": 52,
             "weight": 700,
             "lineHeight": 1.05
           },
@@ -44,9 +44,9 @@
           "nodeId": "wiDSi/2iyC8/PKZXk",
           "text": "Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.",
           "font": {
-            "family": "Newsreader",
-            "style": "italic",
-            "size": 17,
+            "family": "Geist Mono",
+            "style": "normal",
+            "size": 15,
             "weight": "normal",
             "lineHeight": 1.55
           },
@@ -80,9 +80,9 @@
           "textPattern": "K-XXX — <title>",
           "textDelimiter": "em-dash (U+2014, with single-space on each side)",
           "font": {
-            "family": "Bodoni Moda",
-            "style": "italic",
-            "size": 18,
+            "family": "Geist Mono",
+            "style": "normal",
+            "size": 16,
             "weight": 700
           },
           "color": "#1A1814",
@@ -121,9 +121,9 @@
           "role": "entry-body",
           "nodeId": "wiDSi/CGijt/e{N}body",
           "font": {
-            "family": "Newsreader",
-            "style": "italic",
-            "size": 18,
+            "family": "Geist Mono",
+            "style": "normal",
+            "size": 15,
             "weight": "normal",
             "lineHeight": 1.55
           },
@@ -182,9 +182,9 @@
           "textPattern": "K-XXX — <title>",
           "textDelimiter": "em-dash (U+2014, single-space each side)",
           "font": {
-            "family": "Bodoni Moda",
-            "style": "italic",
-            "size": 18,
+            "family": "Geist Mono",
+            "style": "normal",
+            "size": 16,
             "weight": 700
           },
           "color": "#1A1814",
@@ -215,9 +215,9 @@
           "role": "entry-body",
           "nodeId": "4CsvQ/gaIjh/N0WWY/hE{N}body",
           "font": {
-            "family": "Newsreader",
-            "style": "italic",
-            "size": 18,
+            "family": "Geist Mono",
+            "style": "normal",
+            "size": 15,
             "weight": "normal",
             "lineHeight": 1.55
           },

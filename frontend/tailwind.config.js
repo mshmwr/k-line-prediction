@@ -11,8 +11,6 @@ export default {
         muted: '#6B5F4E',
       },
       fontFamily: {
-        display: ['"Bodoni Moda"', 'serif'],
-        italic: ['"Newsreader"', 'serif'],
         mono: ['"Geist Mono"', 'monospace'],
       },
     },

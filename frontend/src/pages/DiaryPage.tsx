@@ -39,7 +39,7 @@ export default function DiaryPage() {
   return (
     <div className="min-h-screen">
       <UnifiedNavBar />
-      <main className="px-6 sm:px-24 pb-24 mx-auto max-w-[1248px]" data-testid="diary-main">
+      <main className="px-6 sm:px-24 pb-12 mx-auto max-w-[1248px]" data-testid="diary-main">
         <DiaryHero />
 
         {loading && <DiaryLoading />}

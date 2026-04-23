@@ -4,7 +4,7 @@
 export default function DiaryEmptyState() {
   return (
     <div data-testid="diary-empty" className="py-16">
-      <p className="font-['Newsreader'] italic text-[17px] text-[#1A1814]">
+      <p className="text-[15px] text-[#1A1814]">
         No entries yet. Check back soon.
       </p>
     </div>

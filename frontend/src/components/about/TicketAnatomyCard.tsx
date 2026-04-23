@@ -43,8 +43,8 @@ export default function TicketAnatomyCard({
         {id}
       </span>
       <div className="flex flex-col flex-1 gap-[12px] pt-[18px]">
-        <span className="font-italic italic text-[13px] text-muted">Case Nº {caseNo}</span>
-        <h3 className="font-display font-bold italic text-ink text-[26px] leading-[1.15]">
+        <span className="text-[11px] text-muted">Case Nº {caseNo}</span>
+        <h3 className="font-bold text-ink text-[20px] leading-[1.15]">
           {title}
         </h3>
         <div className="w-[40px] h-px bg-charcoal" />
@@ -53,7 +53,7 @@ export default function TicketAnatomyCard({
             <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">
               OUTCOME
             </span>
-            <p className="font-italic italic text-ink text-[13px] leading-[1.55] mt-1">
+            <p className="text-ink text-[12px] leading-[1.55] mt-1">
               {outcome}
             </p>
           </div>
@@ -61,7 +61,7 @@ export default function TicketAnatomyCard({
             <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">
               LEARNING
             </span>
-            <p className="font-italic italic text-brick text-[13px] leading-[1.55] mt-1">
+            <p className="text-brick text-[12px] leading-[1.55] mt-1">
               {learning}
             </p>
           </div>

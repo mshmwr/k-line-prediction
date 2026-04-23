@@ -54,7 +54,7 @@ export default function ArchPillarBlock({
         cardPaddingSize="md"
       />
       <div className="flex flex-col flex-1 gap-[14px] pt-[18px]">
-        <h3 className="font-display font-bold italic text-ink text-[24px] leading-[1.15]">
+        <h3 className="font-bold text-ink text-[20px] leading-[1.15]">
           {title}
         </h3>
         <div className="w-[40px] h-px bg-charcoal" />
@@ -64,7 +64,7 @@ export default function ArchPillarBlock({
               const valueClass =
                 field.valueFont === 'mono'
                   ? 'font-mono text-ink text-[12px] leading-[1.5]'
-                  : 'font-italic italic text-ink text-[14px] leading-[1.6]'
+                  : 'text-ink text-[12px] leading-[1.6]'
               return (
                 <div key={`${field.label}-${i}`}>
                   <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">
@@ -81,7 +81,7 @@ export default function ArchPillarBlock({
                     key={row.layerLabel}
                     className="flex items-start gap-[10px] text-muted text-[13px] leading-[1.55]"
                   >
-                    <span className="font-display font-bold text-brick text-[22px] leading-none shrink-0">
+                    <span className="font-bold text-brick text-[22px] leading-none shrink-0">
                       {row.no}
                     </span>
                     <div className="flex flex-col gap-[3px]">
@@ -91,7 +91,7 @@ export default function ArchPillarBlock({
                       >
                         {row.layerLabel}
                       </span>
-                      <span className="font-italic italic text-[13px] leading-[1.55]">
+                      <span className="text-[12px] leading-[1.55]">
                         {row.detail}
                       </span>
                     </div>

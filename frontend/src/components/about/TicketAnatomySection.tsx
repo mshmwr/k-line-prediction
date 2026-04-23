@@ -55,7 +55,7 @@ export default function TicketAnatomySection() {
   return (
     <div>
       <p
-        className="font-italic italic text-[15px] text-ink leading-[1.6] mb-6"
+        className="text-[14px] text-ink leading-[1.6] mb-6"
         data-section-subtitle
       >
         — Anatomy of a ticket. Three cases, each filed in full with outcome and learning.

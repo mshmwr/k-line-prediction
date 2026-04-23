@@ -54,18 +54,20 @@ export default function PillarCard({
     <CardShell padding="lg" className="flex flex-col overflow-hidden">
       <FileNoBar fileNo={fileNo} label="PROTOCOL" cardPaddingSize="lg" />
       <div className="flex flex-col flex-1 gap-[14px] pt-[18px]">
-        <h3 className="font-display font-bold italic text-ink text-[26px] leading-[1.15]">
+        <h3 className="font-bold text-ink text-[20px] leading-[1.15]">
           {title}
         </h3>
         <div className="w-[40px] h-px bg-charcoal" />
-        <div className="font-italic italic text-ink text-[14px] leading-[1.6]">{body}</div>
+        <div className="text-ink text-[12px] leading-[1.6]">{body}</div>
         <blockquote className="border-l-[3px] border-brick pl-[14px]">
-          <p className="font-display font-bold italic text-brick text-[14px] leading-[1.55]">
+          <p className="font-bold text-brick text-[12px] leading-[1.55]">
             {anchorQuote}
           </p>
         </blockquote>
         <a
           href={docsHref}
+          target="_blank"
+          rel="noopener noreferrer"
           className="font-mono text-ink text-[11px] tracking-[1px] hover:text-brick"
         >
           {linkText}

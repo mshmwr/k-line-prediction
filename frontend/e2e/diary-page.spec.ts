@@ -457,11 +457,19 @@ test.describe('DiaryPage — AC-024-ENTRY-LAYOUT', () => {
           : '400' // "normal" / "lighter" / others default to 400 for body text
     await expect(bodyEl).toHaveCSS('font-weight', expectedWeight)
     // line-height in Pencil is a unitless multiplier (1.55) → browsers compute
-    // it as `lineHeight × fontSize` px (1.55 × 18 = 27.9px). Assert against
-    // that computed form, not the raw multiplier. toFixed(1) drops the JS
-    // floating-point residue (1.55*18 = 27.900000000000002 in IEEE-754).
-    const expectedLineHeight = (bodyFont.lineHeight * bodyFont.size).toFixed(1)
-    await expect(bodyEl).toHaveCSS('line-height', `${expectedLineHeight}px`)
+    // it as `lineHeight × fontSize` px. K-024: 1.55 × 18 = 27.9px (IEEE-754
+    // residue 27.900000000000002 → .toFixed(1) = "27.9"). K-040: body size
+    // flipped 18→15, 1.55 × 15 = 23.25 exact (no residue) — browser returns
+    // "23.25px" literal. Normalise via computed-style roundtrip so either
+    // integer or 2-decimal forms match without hand-picking toFixed precision.
+    const computedLineHeight = await bodyEl.evaluate(
+      (el) => getComputedStyle(el as HTMLElement).lineHeight,
+    )
+    const expectedRaw = bodyFont.lineHeight * bodyFont.size
+    // Browser emits shortest roundtrip representation (e.g. "23.25px" or
+    // "27.9px"). Parse computed, assert equivalence within 0.01px.
+    const computedPx = parseFloat(computedLineHeight)
+    expect(Math.abs(computedPx - expectedRaw)).toBeLessThan(0.01)
   })
 })
 

@@ -25,7 +25,7 @@ export default function DiaryEntryV2({ entry }: DiaryEntryV2Props) {
       data-testid="diary-entry"
     >
       <DiaryMarker />
-      <h2 className="font-['Bodoni_Moda'] italic font-bold text-[16px] sm:text-[18px] text-[#1A1814]">
+      <h2 className="font-bold text-[14px] sm:text-[16px] text-[#1A1814]">
         {title}
       </h2>
       <time
@@ -36,7 +36,7 @@ export default function DiaryEntryV2({ entry }: DiaryEntryV2Props) {
       >
         {entry.date}
       </time>
-      <p className="font-['Newsreader'] italic text-[16px] sm:text-[18px] text-[#2A2520] leading-[1.55] mt-2 break-words">
+      <p className="text-[13px] sm:text-[15px] text-[#2A2520] leading-[1.55] mt-2 break-words">
         {entry.text}
       </p>
     </article>

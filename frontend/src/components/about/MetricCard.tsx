@@ -32,28 +32,28 @@ export default function MetricCard({
   note,
   redacted,
 }: MetricCardProps) {
-  const titleSizeClass = bigNumber ? 'text-[22px]' : 'text-[28px]'
+  const titleSizeClass = bigNumber ? 'text-[18px]' : 'text-[22px]'
   return (
     <CardShell padding="md" className="flex flex-col min-h-[280px] overflow-hidden">
       <FileNoBar fileNo={fileNo} cardPaddingSize="md" />
       <div className="flex flex-col flex-1 gap-[10px] pt-[18px]">
         {redacted && <RedactionBar width={redacted.width} />}
         {bigNumber && (
-          <span className="font-display font-bold text-ink text-[76px] leading-none">
+          <span className="font-bold text-ink text-[64px] leading-none">
             {bigNumber}
           </span>
         )}
         <h3
-          className={`font-display font-bold italic text-ink ${titleSizeClass} leading-[1.15]`}
+          className={`font-bold text-ink ${titleSizeClass} leading-[1.15]`}
         >
           {title}
         </h3>
         {subtext && (
-          <p className="font-italic italic text-ink text-[13px] leading-[1.5]">{subtext}</p>
+          <p className="text-ink text-[12px] leading-[1.5]">{subtext}</p>
         )}
         <div className="flex-1" />
         {note && (
-          <p className="font-italic italic text-muted text-[11px] leading-[1.5]">{note}</p>
+          <p className="text-muted text-[11px] leading-[1.5]">{note}</p>
         )}
       </div>
     </CardShell>

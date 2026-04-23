@@ -54,7 +54,7 @@ export default function DevDiarySection({ entries, loading, error }: DevDiarySec
       </div>
 
       {/* Section intro */}
-      <p className="font-['Newsreader'] text-[15px] italic text-[#1A1814] leading-relaxed mb-8">
+      <p className="text-[14px] text-[#1A1814] leading-relaxed mb-8">
         — A running log of decisions, fixes, and lessons from building this system.
       </p>
 
@@ -118,21 +118,21 @@ export default function DevDiarySection({ entries, loading, error }: DevDiarySec
                   data-testid="diary-marker"
                 />
 
-                <p className="font-['Bodoni_Moda'] text-[18px] italic font-bold text-[#1A1814] leading-tight">
+                <p className="text-[16px] font-bold text-[#1A1814] leading-tight">
                   {e.ticketId ? `${e.ticketId} — ${e.title}` : e.title}
                 </p>
                 <span className="font-mono text-[12px] text-[#6B5F4E] tracking-wide block mt-0.5">
                   {e.date}
                 </span>
-                <p className="font-['Newsreader'] text-[18px] italic text-[#2A2520] leading-[1.55] mt-1 break-words">
+                <p className="text-[15px] text-[#2A2520] leading-[1.55] mt-1 break-words">
                   {e.text}
                 </p>
               </div>
             ))}
           </div>
 
-          {/* diaryViewAllRow */}
-          <div className="flex justify-end w-full">
+          {/* diaryViewAllRow — K-040 Item 4: 40px top margin per Designer memo (frame yg0qF padding-top). */}
+          <div className="flex justify-end w-full mt-10">
             <Link
               to="/diary"
               className="font-mono text-[12px] font-bold text-[#9C4A3B] tracking-wide hover:underline"

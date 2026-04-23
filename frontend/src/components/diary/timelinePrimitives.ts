@@ -27,9 +27,9 @@ export const MARKER = {
 
 export const ENTRY_TYPE = {
   title: {
-    font: 'Bodoni Moda, serif',
-    style: 'italic',
-    size: 18,
+    font: 'Geist Mono, ui-monospace, monospace',
+    style: 'normal',
+    size: 16,
     weight: 700,
     color: '#1A1814',
   },
@@ -40,9 +40,9 @@ export const ENTRY_TYPE = {
     letterSpacing: 1,
   },
   body: {
-    font: 'Newsreader, serif',
-    style: 'italic',
-    size: 18,
+    font: 'Geist Mono, ui-monospace, monospace',
+    style: 'normal',
+    size: 15,
     lineHeight: 1.55,
     color: '#2A2520',
   },

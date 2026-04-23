@@ -4,6 +4,6 @@
 
 @layer base {
   body {
-    @apply bg-paper text-ink;
+    @apply bg-paper text-ink font-mono;
   }
 }

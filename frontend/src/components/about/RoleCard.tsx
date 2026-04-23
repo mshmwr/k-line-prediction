@@ -24,21 +24,21 @@ interface RoleCardProps {
 }
 
 export default function RoleCard({ fileNo, role, owns, artefact }: RoleCardProps) {
-  const roleSizeClass = role.length <= 2 ? 'text-[36px]' : 'text-[32px]'
+  const roleSizeClass = role.length <= 2 ? 'text-[26px]' : 'text-[22px]'
 
   return (
     <CardShell padding="md" className="flex flex-col min-h-[320px] overflow-hidden">
       <FileNoBar fileNo={fileNo} label="PERSONNEL" cardPaddingSize="md" />
       <article data-role={role} className="flex flex-col flex-1 gap-[14px] pt-[18px]">
         <h3
-          className={`font-display font-bold italic text-brick ${roleSizeClass} leading-none`}
+          className={`font-bold text-brick ${roleSizeClass} leading-none`}
         >
           {role}
         </h3>
         <div className="w-[40px] h-px bg-charcoal" />
         <div>
           <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">OWNS</span>
-          <p className="font-italic italic text-ink text-[14px] leading-[1.5] mt-1">{owns}</p>
+          <p className="text-ink text-[12px] leading-[1.5] mt-1">{owns}</p>
         </div>
         <div>
           <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">ARTEFACT</span>

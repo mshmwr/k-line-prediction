@@ -16,7 +16,7 @@ export default function ProjectArchitectureSection() {
   return (
     <div>
       <p
-        className="font-italic italic text-[15px] text-ink leading-[1.6] mb-6"
+        className="text-[14px] text-ink leading-[1.6] mb-6"
         data-section-subtitle
       >
         — How the codebase stays legible for a solo operator + AI agents.

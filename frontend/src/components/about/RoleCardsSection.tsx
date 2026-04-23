@@ -54,7 +54,7 @@ export default function RoleCardsSection() {
   return (
     <div>
       <p
-        className="font-italic italic text-[15px] text-ink leading-[1.6] mb-6"
+        className="text-[14px] text-ink leading-[1.6] mb-6"
         data-section-subtitle
       >
         — Each role a separate agent with spec&apos;d responsibilities. Every handoff produces a verifiable artefact.

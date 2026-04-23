@@ -12,15 +12,15 @@
 export default function PageHeaderSection() {
   return (
     <div className="py-20 flex flex-col gap-[18px]">
-      <h1 className="font-display font-bold italic text-[64px] leading-[1.05] text-ink">
+      <h1 className="font-bold text-[52px] leading-[1.05] text-ink">
         <span className="block">One operator, orchestrating AI</span>
         <span className="block text-brick">agents end-to-end —</span>
       </h1>
       <div className="h-px bg-charcoal w-full" />
-      <p className="font-italic italic text-[18px] text-ink leading-[1.5]">
+      <p className="text-[16px] text-ink leading-[1.5]">
         PM, architect, engineer, reviewer, QA, designer.
       </p>
-      <p className="font-display font-bold italic text-[22px] text-ink leading-[1.4]">
+      <p className="font-bold text-[18px] text-ink leading-[1.4]">
         Every feature ships with a doc trail.
       </p>
     </div>
