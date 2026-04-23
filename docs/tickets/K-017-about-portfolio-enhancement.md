@@ -291,6 +291,8 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 **Then** 頁面底部**不顯示** Footer 組件（設計稿無此 section）
 **And** Playwright 斷言確認頁面底部無 FooterCtaSection 也無 HomeFooterBar
 
+> **Retired 2026-04-23 by K-034 Phase 3 (absorbs ex-K-038 §3 BQ-034-P3-03)** — user intent change: /diary now renders shared Footer per AC-034-P3-DIARY-FOOTER-RENDERS. AC text body preserved as historical record.
+
 ---
 
 ### AC-017-AUDIT：audit-ticket.sh 可執行並輸出 A–G checklist `[K-017]`

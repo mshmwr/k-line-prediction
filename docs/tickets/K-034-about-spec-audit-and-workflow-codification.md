@@ -273,10 +273,12 @@ QA retrospective `docs/retrospectives/qa.md 2026-04-23 — K-034 Phase 0 Early C
 - **And** no `data-testid="cta-email"` / `cta-github` / `cta-linkedin` element exists in DOM
 - **And** no `<a href="mailto:yichen.lee.20@gmail.com">` or `https://github.com/mshmwr/k-line-prediction` A-7-styled link remains
 
-#### AC-034-P1-NO-FOOTER-ROUTES — /diary and /app unchanged
-- **Given** dev-server at `/diary` and `/app`
-- **When** pages load
-- **Then** no `<footer>` element (K-024 no-footer / K-030 isolation preserved)
+#### AC-034-P1-NO-FOOTER-ROUTES — /app unchanged
+- **Given** dev-server at `/app`
+- **When** page loads
+- **Then** no `<footer>` element (K-030 isolation preserved)
+
+> **Retired 2026-04-23 by K-034 Phase 3 (absorbs ex-K-038 §3 BQ-034-P3-03)** — /diary portion only; /app row PRESERVED per K-030 AC-030-NO-FOOTER (distinct rationale). User intent change: /diary now renders shared Footer per AC-034-P3-DIARY-FOOTER-RENDERS. AC text body preserved as historical record.
 
 #### AC-034-P1-FAIL-IF-GATE-REMOVED — Spec FAILs if CTA branch re-introduced
 - **Given** Phase 1 deploy
@@ -1169,3 +1171,33 @@ Full review artifacts: see session transcript / `docs/retrospectives/reviewer.md
 - **Snapshot policy compliance:** Footer `toHaveScreenshot({ maxDiffPixelRatio: 0.02 })` tolerance per BQ-034-P2-ENG-01 Option A ruling; source-invariant shared Footer preserves K-035 α-premise regression tripwire (Option B baseline regen explicitly rejected).
 - **/about visual parity:** confirmed — dev-server visual + prod-bundle probe show FileNoBar primitive adopted across MetricCard / RoleCard / PillarCard / TicketAnatomyCard / ArchPillarBlock (per §6.2); Pencil JSON frames `BF4Xe.m*Top / 8mqwX.r*Top / UXy2o.p*Top / EBC1e.t*Top / JFizO.arch*Top` rendered as declared.
 - **Status:** Live
+
+## §4.9 Phase 3 Code Review — PM Rulings (2026-04-23)
+
+Two-layer Code Review complete at HEAD `dc172ff`. Step 1 (breadth) 3 Important + 5 Minor; Step 2 (depth) CODE-PASS + 1 Info. **Zero Fix-Now findings.**
+
+| ID | Verdict | Action | Owner |
+|---|---|---|---|
+| B-I1 | TD | **TD-K034-P3-01**: `shared-components.spec.ts:112` — replace `let release: (()=>void)\|null = null` + `release!()` with `let release!: () => void`; pure TS hardening | PM (log) |
+| B-I2 | TD | **TD-K034-P3-02**: `shared-components.spec.ts:105` — rename describe "renders during loading" → "through loading → resolution transition" OR split into 2 `test()`s; clarity | PM (log) |
+| B-I3 | TD | **TD-K034-P3-03**: `shared-components.spec.ts:141-143` — collapse `.last()` + `toHaveCount(1)` redundancy into single `const footer = page.locator('footer')`; vestigial locator | PM (log) |
+| B-M1 | Log-Only | 5-line T4 retirement tombstone (L99-103) is deliberate grep-discoverability per Sacred-retirement pattern — not defect | N/A |
+| B-M2 | Log-Only | `DiaryPage.tsx` + `Footer.tsx` JSDoc Sacred-retirement overlap acceptable; drift watch only | N/A |
+| B-M3 | TD | **TD-K034-P3-04**: `sitewide-footer.spec.ts:49` — reword "cannot be merged" → "each route gets its own test() call, not consolidated into one iterating test" per `feedback_pm_ac_visual_intent` quantification wording | PM (log) |
+| B-M4 | TD | **TD-K034-P3-05**: `shared-components.spec.ts:125` — type mock fixture against `DiaryEntry` interface (`import type { DiaryEntry } from '@/...'`) for schema-drift guard; structurally covers D-I1 root cause | PM (log) |
+| B-M5 | Log-Only | `pages.spec.ts:156` single-line tombstone vs `// ── AC ── ` HR pattern cosmetic inconsistency; log only | N/A |
+| D-I1 | Log-Only | Engineer retro already codifies "read `public/*.json` schema before writing `page.route` mock" lesson; single occurrence, no recurring pattern — per `feedback_retrospective_codify_behavior` promote only on 2nd; B-M4 TD structurally addresses via typed fixture | N/A |
+
+**Rationale summary:**
+- No AC blocker, no Pencil parity divergence, no runtime bug across all 9 findings.
+- Hardening suggestions (B-I1/2/3) → TD queue, not Fix-Now per `feedback_rule_strength_tiers` (default Log-Only/TD for no-functional-impact suggestions).
+- Self-learning (D-I1) → retro channel sufficient; B-M4 typed fixture is the structural prevention.
+- TDs TD-K034-P3-01..05 to be tracked in dashboard TD section; batch-addressable in future spec sweep.
+
+**Verdict:** **RELEASE-QA** — all Phase 3 CODE-PASS findings ruled; no Engineer fix-forward required.
+
+### §4.10 Phase 3 QA Release Handoff (2026-04-23)
+
+Handoff check: qa-early-consultation = `docs/retrospectives/qa.md 2026-04-23 K-034-P3` → OK; visual-delta = yes, design-locked = true → OK; worktree = Phase 3 grandfathered to main per §4.5 ruling → OK.
+
+Released to QA for full E2E regression + /diary Footer adoption AC verification (AC-034-P3-DIARY-FOOTER-ADOPTION + Sacred regression sweep: K-030 AC-030-NO-FOOTER on `/app`, K-017/022/035 shared Footer parity across `/`, `/about`, `/diary`).

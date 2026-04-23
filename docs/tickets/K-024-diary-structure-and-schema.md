@@ -409,6 +409,7 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 
 **Sacred assertions**（不得動；斷言 FAIL = 本票違反）：
 - K-017 `NavBar` order + Footer 可見性（`/diary` 無 Footer 負斷言，見 AC-017-FOOTER）
+> **Retired 2026-04-23 by K-034 Phase 3 (absorbs ex-K-038 §3 BQ-034-P3-03)** — user intent change: /diary now renders shared Footer per AC-034-P3-DIARY-FOOTER-RENDERS. AC text body preserved as historical record.
 - K-017 `AC-017-HOME-V2` 的 Homepage sections DOM order + bullet marker 可見性
 - K-023 `<DevDiarySection>` Homepage 渲染 3 條 diary marker（20×14 / `rgb(156, 74, 59)` / `borderRadius 0`）
 - K-021 `/about` readability token (`ink` / `paper` / `brick-dark`) 斷言

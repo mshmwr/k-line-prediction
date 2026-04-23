@@ -53,6 +53,7 @@
 | TD-K034-P2-15 | Footer per-route snapshot tolerance 審視（`/about` 3% drift 吸收；下一次 Footer 編輯後考慮 per-route baselines with tighter 0.5% tolerance） | K-034 Phase 2 §4.8 C-2 | 中 | 2026-04-23 |
 | TD-K034-P2-16 | S4 h2 "How AI Stays Reliable" computed-style E2E：加 `getComputedStyle` fontSize=30px + fontFamily contains Bodoni Moda 檢查 | K-034 Phase 2 §4.8 I-4 | 低 | 2026-04-23 |
 | TD-K034-P2-17 | K-029 `ticket-anatomy-id-badge` 測試 target 語意 retro 交叉註：badge 現位於 FileNoBar trailing slot 內，斷言仍經 sr-only span 有效 | K-034 Phase 2 §4.8 M-1 | 低 | 2026-04-23 |
+| TD-K034-P3-02 | /diary Footer viewport-padding seam at 640–768px not covered by E2E; trigger: user-reported visible regression in 640–768px window — if reported, add `.spec` with 3-viewport baseline (640/720/768). Scope: single snapshot comparison per breakpoint, tolerance 0.5% per K-034 Phase 2 snapshot precedent. | K-034 Phase 3 Challenge #2 | 低 | 2026-04-23 |
 
 ---
 

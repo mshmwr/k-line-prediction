@@ -19,6 +19,25 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-23 — K-034 Phase 3 regression (/diary adopts shared Footer, absorbs ex-K-038)
+
+**Verdict:** RELEASE-PM
+
+**What went well:**
+- Full Playwright suite 253 passed / 1 pre-existing K-032 fail (AC-020-BEACON-SPA unchanged) / 1 skipped — no new failures, no regression in previously-green tests.
+- 4-route Footer snapshot baselines (`footer-{home,about,business-logic,diary}-chromium-darwin.png`) all PASS; new `/diary` baseline committed as untracked file ready for next commit.
+- Sacred K-030 AC-030-NO-FOOTER (`app-bg-isolation.spec.ts:70`) untouched, PASS — `/app` isolation unchanged.
+- Retirement annotations verified in both source tickets: K-017 line 294 + K-024 line 412 carry `> Retired 2026-04-23 by K-034 Phase 3` blockquote with AC text preserved as historical record.
+- Engineer FAIL-IF-GATE-REMOVED dry-run (Challenge #8 compliance) recorded in `docs/retrospectives/engineer.md` lines 23–27: 3 expected FAILs enumerated (T1 /diary, LOADING-VISIBLE, snapshot /diary) with exact timeout symptom strings; `app-bg-isolation.spec.ts + pages.spec.ts` 39/39 green proves cross-contamination sweep.
+- TD-K034-P3-02 viewport seam gap logged in `docs/tech-debt.md:56` with explicit trigger condition (user-reported 640–768px regression).
+
+**What went wrong:**
+- Nothing regressed this round. One minor observation: `visual-report` test harness still prints `WARNING: TICKET_ID not set` (K-UNKNOWN-visual-report.html) when PASS suite invoked without env var — out of scope for Phase 3 but worth a future harness cleanup.
+
+**Next time improvement:**
+- When QA regression is invoked without an explicit TICKET_ID env var (because Reviewer ran full suite as part of depth pass), set `TICKET_ID=K-XXX` before re-running `visual-report.ts` so the generated HTML file is named correctly — applies to all future regression rounds.
+
+
 ## 2026-04-23 — K-034 Phase 2 sign-off regression (Engineer fix-forward complete)
 
 **做得好：**

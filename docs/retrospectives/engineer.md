@@ -16,6 +16,24 @@
 
 ---
 
+## 2026-04-23 — K-034 Phase 3 (/diary adopts shared Footer, absorbs ex-K-038)
+
+**做得好：**
+- 設計文件 §5 File Change List 11 列逐列執行，未漏；每次 Edit 後立即對照下一列。
+- **FAIL-IF-GATE-REMOVED dry-run (Challenge #8 compliance)**：revert method (b)（`{false && <Footer />}` block-out JSX line，保留 import，tsc exit 0）後在 `shared-components.spec.ts` 跑出 **3 expected FAILs**：
+  - T1 byte-identity `/diary` — `Timed out 5000ms waiting for locator('footer').last()` (expected=1 footer outerHTML, received=0 on /diary branch)
+  - AC-034-P3-DIARY-FOOTER-LOADING-VISIBLE — `Timed out 5000ms waiting for locator('footer').last()` (expected `expect(footer).toBeVisible()`, received never-visible)
+  - Snapshot `footer-diary-chromium-darwin.png` — `Timed out 5000ms waiting for locator('footer').last()` (expected footer element for screenshot, received missing)
+  - Cross-contamination check on `/app`: `app-bg-isolation.spec.ts` + `pages.spec.ts` full green (39 passed) — removing /diary Footer did NOT affect /app isolation Sacred.
+- **Binding constraints (prompt)** 全部遵守：`app-bg-isolation.spec.ts` git diff 0 lines；HEAD L109-110 delegate comment preserved；沒加 T4a block。
+- DiaryLoading 的 `data-testid="diary-loading"` 先驗 `toBeVisible()` 確認真的在 loading 分支（避免 test 綠但實際已 resolved 的 false-positive）。
+
+**沒做好：**
+- 首次 LOADING-VISIBLE 測試 payload 用了錯 schema（`{ date, title, slug, body }`）— 實際 diary.json schema 是 `{ ticketId, title, date, text }`（zod `DiaryJsonSchema` 驗證）。第一次跑測試 FAIL timeout on `diary-entry`，因為 zod parse throw → error 分支而非 timeline。修正 fixture payload 後通過。根因：沒在寫 fixture 前先 Read `frontend/src/types/diary.ts` 或 `frontend/public/diary.json` sample。
+
+**下次改善：**
+- 凡是寫 `page.route('**/*.json', ...)` mock 的 fixture，**先 Read public/ 實際檔案前 10 行** 或 `src/types/` zod schema 確認欄位名稱，再寫 payload。不憑記憶猜 schema。
+
 ## 2026-04-23 — K-034 Phase 2 Engineer Fix-Forward (§4.8 Code Review rulings)
 
 **做得好：**
