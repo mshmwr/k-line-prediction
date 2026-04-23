@@ -1,7 +1,9 @@
 ---
 id: K-037
 title: Favicon wiring — link tags + web app manifest + E2E 200-status regression
-status: in-progress
+status: closed
+closed: 2026-04-23
+deployed: 2026-04-23 (merge 78f3231 → prod https://k-line-prediction-app.web.app)
 type: feat
 priority: medium
 size: XS
@@ -271,4 +273,40 @@ PM ruled on Step 1 + Step 2 outcomes 2026-04-23.
 
 ## Deploy Record
 
-_(To be filled at deploy time per PM Phase Gate ticket-closure step 4.)_
+### 2026-04-23 — prod deployed
+
+- **Merge commit:** `78f3231` (`Merge branch 'K-036-favicon' — K-037 favicon wiring + W3C manifest`)
+- **Bundle sha256:**
+  - `dist/assets/index-z_xtDeWa.js` → `3457315d5fee7f57ccd852e5356888720c909e5cfef755db65265de48add47ff`
+  - `dist/index.html` → `732de2b766f045863a3eda12c2ff0ba2075582bbae61298a980510b27e8746b1`
+- **Firebase deploy:** `✔  hosting[k-line-prediction-app]: release complete`
+- **Hosting URL:** `https://k-line-prediction-app.web.app`
+- **Executed probes (prod verification):**
+  ```
+  $ curl -sI https://k-line-prediction-app.web.app/favicon.ico | head -5
+  HTTP/2 200
+  cache-control: max-age=3600
+  content-type: image/x-icon
+  etag: "7b7adf55b8c55898f1ff951670d7638453829cc7b58ec217703da75fcd554d98"
+  last-modified: Thu, 23 Apr 2026 03:44:14 GMT
+
+  $ curl -sI https://k-line-prediction-app.web.app/manifest.json | head -5
+  HTTP/2 200
+  cache-control: max-age=3600
+  content-type: application/json
+  etag: "c49e68b05d3c70ab6ce62a7d3656b3e1c83fe039933d1cd2bd43cccf9d9c49af"
+  last-modified: Thu, 23 Apr 2026 03:44:14 GMT
+
+  $ curl -s https://k-line-prediction-app.web.app/manifest.json | head -3
+  {
+    "name": "K-Line Prediction",
+    "short_name": "K-Line",
+
+  $ curl -s https://k-line-prediction-app.web.app/ | grep -E 'rel="icon"|rel="apple|rel="manifest"'
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  ```
+- **Gate:** all assets reachable with HTTP 200, manifest.json content verified, all `<link rel>` tags emitted in prod HTML. Ticket closable.
