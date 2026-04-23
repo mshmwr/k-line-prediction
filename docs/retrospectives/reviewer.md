@@ -1,3 +1,26 @@
+## 2026-04-23 — K-040 (sitewide UI polish batch — Step 2 depth review; 3 Warnings, 0 Critical)
+
+**What went well:**
+1. Raw-count monitor table (K-025 W-1 gate) caught the pre=1 degenerate-proxy edge case for `"Bodoni Moda"` string literal grep, properly documented as borderline with adjacent gates covering.
+2. Pencil parity spot-check on `homepage-v2.frame-4CsvQ.json` vs `HeroSection.tsx` verified 4 font-token fields match node-by-node (size/weight/letterSpacing/color) — confirmed gate works for mono-token migration tickets.
+3. Commit-scope verification on 338e670 (scoped snapshot regen) — `git show --stat` returned exactly 1 PNG, confirming Engineer obeyed BQ-040-SNAPSHOT Option A scope.
+4. Sacred AC-034-P1-ROUTE-DOM-PARITY verified independently: T1 byte-identity assertion intact + all 4 per-route baselines present + Footer.tsx unchanged.
+
+**What went wrong:**
+1. Design doc + ticket §1 contain a path-pointer mismatch (`frontend/src/utils/timelinePrimitives.ts` vs actual `frontend/src/components/diary/timelinePrimitives.ts`). Architect §9 self-diff was supposed to catch this but verified row counts only, not path strings. This should have been caught at Architect stage.
+2. `valueFont: 'italic' | 'mono'` prop enum in ArchPillarBlock survived AC-040 italic-retire because design doc §3 File Change Manifest enumerated class-level strips only, not prop-name / JSDoc descriptor sweeps. Pre-Design Audit §6 didn't audit prop enums. This is a structural design-doc gap for "token retire" refactors.
+3. JSDoc comment sweep missed — 14+ `/about` component JSDoc headers still describe Bodoni Moda / Newsreader voice. Not a code-level issue, but Pencil-SSOT documentation pointers that now mislead future readers. No existing Reviewer gate forced a JSDoc grep for retired tokens.
+
+**Next time improvement:**
+For any "token retire" refactor ticket (font/color/spacing token deletion), Reviewer Step 2 MUST add a widened grep scan beyond class names — include:
+- Prop enum values referencing the retired term (`valueFont: 'italic'`, `fontWeight: 'bold'`, etc.)
+- JSDoc headers mentioning the retired term outside `// K-NNN retired` context comments
+- Design doc + ticket path pointer cross-check (path strings must Read-verify, not just grep-verify)
+
+Flag any unscoped hit as Warning. Architect pre-design audit should include a "prop-name + JSDoc + path-pointer audit" row alongside the existing file grep rows. Codified as hard checklist item in reviewer.md §Review Checklist.
+
+---
+
 ## 2026-04-23 — K-034 Phase 2 (/about audit — Step 2 depth review; 3 Critical + 4 Important surfaced)
 
 **What went well:** Step 2 depth gates fired as designed on 4 of 5 axes:

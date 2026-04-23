@@ -16,6 +16,19 @@
 
 ---
 
+## 2026-04-23 — K-040 Phase 3 Code Review BFP (token-retire widened sweep gap)
+
+**What went wrong:** 交付 commit 82d9bb9 / 4bcaf84 前 pre-commit sweep 只跑三層 grep：(a) Tailwind class 用法（`font-display` = 0）、(b) inline string literal（`"Bodoni Moda"` / `font-['Bodoni_Moda']` = 0）、(c) DOM token literal（`timelinePrimitives.ts:30` = 0）。Reviewer Step 1 + Step 2 抓到三類沒掃的殘留：
+- **W-1** `frontend/src/components/about/ArchPillarBlock.tsx:24-25` prop enum `valueFont: 'italic' | 'mono'`，Bodoni retire 後字面值 `'italic'` switch 分支已不 output italic（只剩 `text-ink text-[12px] leading-[1.6]`）；3 個 call sites `ProjectArchitectureSection.tsx:35,42,57` 仍傳 `'italic'`。TypeScript 無法擋（字面值合法），功能正確但命名撒謊 = dead-code smell。
+- **W-2** 8 檔 `about/*` JSDoc header / block comment 描述仍寫 "Bodoni Moda" / "Newsreader italic" / 舊 px 尺寸（ArchPillarBlock / PageHeaderSection / MetricCard / RoleCardsSection / TicketAnatomyCard / RoleCard / PillarCard / ReliabilityPillarsSection），但實作已 reset 成 Geist Mono — stale 文件誤導未來讀者。
+- **W-3** design doc / ticket §1 歷史版本路徑指標 typo（`frontend/src/utils/timelinePrimitives.ts` vs 實際 `frontend/src/components/diary/timelinePrimitives.ts`），Engineer 沒在交付前 Read-verify 每條 design doc cited path string。
+
+**Root cause:** 現有 `feedback_engineer_design_doc_checklist_gate.md` 涵蓋 design doc Before/After + 檔案異動清單逐列勾選，但「token retire 類 ticket」的 pre-commit sweep 需要更廣語意範圍 —— JSDoc / 註解內的 token 名稱、TypeScript enum literal 語義、doc comment 內 path pointer 都在 design doc checklist 之外，屬於 class-name grep 打不到的盲區。Reviewer 端已有 `feedback_reviewer_token_retire_widened_grep.md`（Step 2 widened grep 規則）抓到這三項，但 Engineer 端沒有對等的 pre-commit gate，所以問題要跑到 Review 才被發現 —— 這本身就是 Engineer 早抓責任的失敗。
+
+**Next time improvement:** 新增 Engineer persona hard-gate `Step 0d — Token Semantic Sweep Gate`，觸發條件為 ticket scope 含 token retire / sitewide reset / naming rename / fontFamily key removal 等 refactor 軸。4-sub-grep 必全跑出 0 殘留才能 handoff：(a) JSDoc / block comment 內 retired token 名稱；(b) TypeScript enum literal 語義是否與新 token set 一致；(c) design doc / ticket 內 file path string 必 Read-verify 實際存在；(d) visual-spec.json / design doc 殘留 token 描述。跑不出 0 count 或發現 stale 文件 → 修或 BQ 回 PM 不 handoff。已 Edit `~/.claude/agents/engineer.md` 插入 Step 0d，新建 memory `feedback_engineer_token_retire_widened_sweep.md` link 回 reviewer 版避免解釋重複。
+
+---
+
 ## 2026-04-23 — K-040 (sitewide UI polish batch — Bodoni→Geist Mono + 5 polish items)
 
 **做得好：**
