@@ -369,6 +369,26 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ---
 
+### K-037 — Favicon wiring（link tags + web app manifest + E2E 200-status regression）
+
+- **Status:** ready / type: feat / priority: medium / size: XS
+- **Ticket:** [docs/tickets/K-037-favicon-wiring.md](docs/tickets/K-037-favicon-wiring.md)
+- **Branch:** `K-036-favicon`（squashed with K-036 per user ruling 2026-04-23）
+- ~~**Blocked-by-policy:** K-034 Q3 ordering rule — K-036 and later tickets blocked until K-034 closed; K-037 inherits via K-036 dependency.~~ **Block lifted by user 2026-04-23** — K-036 already shipped (commits `891fcfb` + `ea973c9`) so Q3 policy objective already failed; K-037 is grandfathered as the K-036 wiring sibling; K-034 Q1/Q5/Q6 new workflow applies only to K-034 Phase 1+ truly-new UI tickets. See K-037 ticket §Override Rationale.
+- **摘要：** K-036 產出 7 個 favicon 檔案但沒接到網頁上。K-037 補 6 個 `<link>` tag 進 `frontend/index.html`、新建 `frontend/public/manifest.json`、加 Playwright E2E 斷 8 個路徑（7 favicons + manifest）於 `vite preview` 回 200，並人工目視 Chrome/Firefox/Safari tab icon 對齊 K-036 Pencil 設計稿。不含 asset 重新產圖、light/dark variant、PWA install。
+
+**AC 一覽：**
+
+- **AC-037-LINK-TAGS-PRESENT** — `<head>` 於 built production bundle 下含 6 個 `<link>` tag（favicon.ico / 16/32/48 PNG / apple-touch-icon / manifest），exact href match。
+- **AC-037-ASSETS-200-OK** — `vite preview` 下 8 個資源路徑（7 favicons + manifest.json）Playwright `page.request.get` 皆回 200，body 非空，每個資源獨立 test case 不合併。
+- **AC-037-MANIFEST-VALID** — `manifest.json` 解析為合法 JSON；`icons[]` 至少含 192×192 + 512×512 兩項，`src` 對齊 K-036 檔名。
+- **AC-037-MANIFEST-MIME-ACCEPTABLE** — `Content-Type` ∈ { `application/manifest+json`, `application/json`, `application/json; charset=utf-8` }；若 Architect 要鎖 W3C canonical 則加 Firebase `headers` rule（實作註記，非 AC 緊縮）。
+- **AC-037-TAB-ICON-VISIBLE** — 人工目視 Chrome / Firefox / Safari on macOS tab icon 顯示 K-036 Pencil 圖案；PM 關票前 side-by-side 比對 Pencil `get_screenshot`。Known Gap：mobile Safari iOS / Android Chrome 真機不在票內驗證。
+
+完整 Given/When/Then/And 見 [K-037](docs/tickets/K-037-favicon-wiring.md)。
+
+---
+
 <!-- K-024 closed 2026-04-22 → see §4 Closed Tickets -->
 
 ---

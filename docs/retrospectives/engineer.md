@@ -16,6 +16,19 @@
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Engineer 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
+## 2026-04-23 — K-037 Favicon wiring + W3C Web App Manifest + E2E regression
+
+**What went well:**
+- Brief §5 authorized `playwright.config.ts` edit up-front ("Either add a per-spec `test.use({ baseURL: ... })` + `playwright.config.ts` `webServer.command` runs `npm run build && vite preview --port 4173`, or use existing config pattern") — no BQ needed despite the file being outside §2 frozen 4-file scope. Saved one round-trip. Chose the additive variant (new `favicon-preview` project + second `webServer` entry + `testIgnore` on default project) over modifying the shared dev-server webServer; net blast radius on the 256 other specs = zero (verified by full-suite run: 256 pass / 1 skip / 2 pre-existing red, identical to baseline).
+- 16 test cases green first run on `vite preview` (ports 4173, strictPort) against built bundle, covering 8 independent asset HTTP 200 cases + 6 independent `<link>` tag attribute-exact selectors + 1 manifest schema + 1 Content-Type accept-list. `page.locator('link[rel="icon"][type="image/png"][sizes="48x48"][href="/favicon-48x48.png"]')` style attribute-chained selectors from §3 Q1 verbatim made the 6 LINK-TAGS tests trivially unambiguous — no selector fragility.
+- Spec's Content-Type assertion preemptively normalized case + whitespace (`toLowerCase().replace(/;\s*/g, '; ')`) before `toContain` against the 3-item accept-list — guards against Firebase-prod variance (`application/json;charset=UTF-8` without space, upper-case) even though `vite preview` happened to emit the canonical `application/json; charset=utf-8`.
+
+**What went wrong:**
+- Initial instinct on Playwright webServer was to modify the single existing `webServer` block to run `npm run build && npx vite preview`, which would have forced every existing spec to wait 30-60s for a build on every local run and broken the `npm run dev` HMR workflow. Caught during planning before editing; switched to array-form `webServer` with a second entry only used by `favicon-preview` project. Would have been a real regression if committed — no test would have caught it beyond "CI got slower by a minute".
+
+**Next time improvement:**
+- When a brief explicitly authorizes editing a file outside the frozen scope (as §5 did for `playwright.config.ts`), call it out verbatim in the per-ticket Retrospective so Code Reviewer does not flag it as a scope violation. Done here. Codified as a general pattern: **when scope grant is inline in a §5-style implementation contract, re-quote the grant in the Retrospective §Scope discipline note**.
+
 ## 2026-04-22 — K-025 UnifiedNavBar hex→token + navbar.spec.ts dual-rail assertions
 
 **What went well:**
