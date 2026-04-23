@@ -67,10 +67,8 @@ export default function AboutPage() {
         <ProjectArchitectureSection />
       </SectionContainer>
 
-      {/* S7 — Footer variant="about" (shared sitewide) */}
-      <SectionContainer id="footer-cta" width="wide">
-        <Footer variant="about" />
-      </SectionContainer>
+      {/* S7 — Footer (shared sitewide; K-034 Phase 1 unified) */}
+      <Footer />
     </div>
   )
 }

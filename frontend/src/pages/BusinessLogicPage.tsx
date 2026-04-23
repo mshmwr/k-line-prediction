@@ -114,7 +114,7 @@ export default function BusinessLogicPage() {
         <BusinessLogicContent markdown={content} />
       )}
       </div>
-      <Footer variant="home" />
+      <Footer />
     </div>
   )
 }

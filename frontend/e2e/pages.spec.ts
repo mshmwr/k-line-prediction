@@ -68,11 +68,8 @@ test.describe('AboutPage — AC-ABOUT-1 (K-017)', () => {
     await expect(page.getByText('Role Agents', { exact: true })).toBeVisible()
   })
 
-  test('Footer CTA visible on /about', async ({ page }) => {
-    await page.goto('/about')
-
-    await expect(page.getByText("Let's talk →", { exact: true })).toBeVisible()
-  })
+  // `Footer CTA visible on /about` test deleted per K-034 §PM ruling on BQ-034-P1-01
+  // Sacred retired per §1.4 Pencil SSOT verdict — /about Footer now has no "Let's talk →" string.
 })
 
 // ── AC-DIARY-1 (K-024 rewrite) ──────────────────────────────────────────────

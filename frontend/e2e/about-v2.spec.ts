@@ -256,28 +256,10 @@ test.describe('AC-022-LAYER-LABEL — LAYER 1/2/3 pillar labels', () => {
   })
 })
 
-// ── AC-022-FOOTER-REGRESSION ──────────────────────────────────────────────────
-// Given: K-017 AC-017-FOOTER was PASS
-// When:  K-022 implementation complete
-// Then:  all K-017 footer assertions still PASS
-
-test.describe('AC-022-FOOTER-REGRESSION — Footer CTA K-017 regression', () => {
-  test("Let's talk → still visible", async ({ page }) => {
-    await page.goto('/about')
-    await expect(page.getByText("Let's talk →", { exact: true })).toBeVisible()
-  })
-
-  test('email link still visible', async ({ page }) => {
-    await page.goto('/about')
-    const emailLink = page.locator('a[href="mailto:yichen.lee.20@gmail.com"]')
-    await expect(emailLink).toBeVisible()
-  })
-
-  test('Or see the source: still visible', async ({ page }) => {
-    await page.goto('/about')
-    await expect(page.getByText('Or see the source:', { exact: true })).toBeVisible()
-  })
-})
+// AC-022-FOOTER-REGRESSION deleted per K-034 §PM ruling on BQ-034-P1-01 — Sacred retired per §1.4 Pencil SSOT verdict
+// The K-022 A-7 italic+underline styling plus `Let's talk →` / `Or see the source:` strings on /about
+// are retired because Pencil frames 86psQ + 1BGtd show plain-text inline Footer with no anchors.
+// Footer content is now validated by shared-components.spec.ts AC-034-P1-ROUTE-DOM-PARITY (byte-identical).
 
 // ── AC-022-ANNOTATION ─────────────────────────────────────────────────────────
 // Given: user visits /about
@@ -374,24 +356,30 @@ test.describe('AC-031-SECTION-ABSENT — Built by AI showcase section removed fr
 // ── AC-031-LAYOUT-CONTINUITY ──────────────────────────────────────────────────
 // Given: user is on /about after S7 removal
 // When:  page renders
-// Then:  #architecture is immediately followed by #footer-cta (no banner-showcase between)
+// Then:  #architecture is immediately followed by Footer (no banner-showcase between)
+//
+// DOM-target update per K-034 Phase 1 §4.3 — the <SectionContainer id="footer-cta">
+// wrapper was removed so /about Footer renders as a full-bleed sibling matching
+// / + /business-logic layout (Pencil frames 86psQ + 1BGtd). The K-031 behavioral
+// invariant (no banner-showcase between architecture and Footer) is preserved;
+// the target element changes from `#footer-cta` div to `<footer>` element.
 
-test.describe('AC-031-LAYOUT-CONTINUITY — FooterCta immediately follows architecture', () => {
-  test('#architecture nextElementSibling is #footer-cta and banner-showcase absent', async ({ page }) => {
+test.describe('AC-031-LAYOUT-CONTINUITY — Footer immediately follows architecture', () => {
+  test('#architecture nextElementSibling is <footer> and banner-showcase absent', async ({ page }) => {
     await page.goto('/about')
 
     // Both neighbours present and visible
     await expect(page.locator('#architecture')).toBeVisible()
-    await expect(page.locator('#footer-cta')).toBeVisible()
+    await expect(page.locator('footer').last()).toBeVisible()
 
     // Banner-showcase does not exist between them (or anywhere)
     await expect(page.locator('#banner-showcase')).toHaveCount(0)
 
-    // DOM-order adjacency: architecture's nextElementSibling is footer-cta
-    const nextSiblingId = await page.evaluate(
-      () => document.getElementById('architecture')?.nextElementSibling?.id ?? null
+    // DOM-order adjacency: architecture's nextElementSibling is the <footer> tag
+    const nextSiblingTag = await page.evaluate(
+      () => document.getElementById('architecture')?.nextElementSibling?.tagName?.toLowerCase() ?? null
     )
-    expect(nextSiblingId).toBe('footer-cta')
+    expect(nextSiblingTag).toBe('footer')
   })
 })
 

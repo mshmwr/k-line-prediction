@@ -303,47 +303,10 @@ test.describe('AC-017-BANNER — Homepage BuiltByAIBanner', () => {
   })
 })
 
-// ── AC-017-FOOTER ─────────────────────────────────────────────────────────────
-// Given: user visits /about
-// When:  page scrolls to footer
-// Then:  Let's talk, email, GitHub, LinkedIn all correct
-
-test.describe('AC-017-FOOTER — Footer CTA on /about', () => {
-  test("Let's talk heading visible", async ({ page }) => {
-    await page.goto('/about')
-    await expect(page.getByText("Let's talk →", { exact: true })).toBeVisible()
-  })
-
-  test('email link has correct href with mailto prefix', async ({ page }) => {
-    await page.goto('/about')
-    const emailLink = page.locator('a[href="mailto:yichen.lee.20@gmail.com"]')
-    await expect(emailLink).toBeVisible()
-    await expect(emailLink).toHaveAttribute('href', 'mailto:yichen.lee.20@gmail.com')
-  })
-
-  test('Or see the source label visible', async ({ page }) => {
-    await page.goto('/about')
-    await expect(page.getByText('Or see the source:', { exact: true })).toBeVisible()
-  })
-
-  test('GitHub link: correct href + target=_blank + rel=noopener noreferrer', async ({ page }) => {
-    await page.goto('/about')
-    const githubLink = page.locator('a[href="https://github.com/mshmwr/k-line-prediction"]')
-    await expect(githubLink).toBeVisible()
-    await expect(githubLink).toHaveAttribute('href', 'https://github.com/mshmwr/k-line-prediction')
-    await expect(githubLink).toHaveAttribute('target', '_blank')
-    await expect(githubLink).toHaveAttribute('rel', 'noopener noreferrer')
-  })
-
-  test('LinkedIn link: correct href + target=_blank + rel=noopener noreferrer', async ({ page }) => {
-    await page.goto('/about')
-    const linkedinLink = page.locator('a[href="https://linkedin.com/in/yichenlee-career"]')
-    await expect(linkedinLink).toBeVisible()
-    await expect(linkedinLink).toHaveAttribute('href', 'https://linkedin.com/in/yichenlee-career')
-    await expect(linkedinLink).toHaveAttribute('target', '_blank')
-    await expect(linkedinLink).toHaveAttribute('rel', 'noopener noreferrer')
-  })
-})
+// AC-017-FOOTER deleted per K-034 §PM ruling on BQ-034-P1-01 — Sacred retired per §1.4 Pencil SSOT verdict
+// Pencil frames 86psQ + 1BGtd contain no <a> anchors on /about Footer; the K-017 email/GitHub/LinkedIn
+// href+target+rel assertions (5 tests) and `Let's talk →` / `Or see the source:` string literals are retired.
+// Footer content is now validated by shared-components.spec.ts AC-034-P1-ROUTE-DOM-PARITY (byte-identical).
 
 // ── AC-017-BUILD ─────────────────────────────────────────────────────────────
 // Given: frontend has been built (prebuild copied ai-collab-protocols.md to public/docs/)

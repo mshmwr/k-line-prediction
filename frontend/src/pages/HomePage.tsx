@@ -22,7 +22,7 @@ export default function HomePage() {
           error={error}
         />
       </div>
-      <Footer variant="home" />
+      <Footer />
     </div>
   )
 }

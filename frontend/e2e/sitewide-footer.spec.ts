@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test'
 import { mockApis } from './_fixtures/mock-apis.ts'
 
-// ── AC-021-FOOTER (post-K-035 unification) ──────────────────────────────────
+// ── AC-021-FOOTER (post-K-034 Phase 1 prop-less unification) ────────────────
 // Given: user visits /, /business-logic
 // When:  page is rendered
-// Then:  <Footer variant="home" /> 單行資訊列顯示 `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`
+// Then:  <Footer /> 單行資訊列顯示 `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`
 // And:   字級 11px、顏色 #6B5F4E (text-muted)、top border
 //
-// K-035 (2026-04-22): /about 原本的 separate-footer Sacred 已正式 retire，
-// /about 現在也渲染共用 Footer（variant="about"）。舊的 `/about boundary` describe
-// block（pre-K-035 drift-preservation）刪除；/about DOM 斷言改由
-// frontend/e2e/shared-components.spec.ts AC-035-CROSS-PAGE-SPEC 負責。
-// 詳見 docs/designs/K-035-shared-component-migration.md §6 EDIT #9。
+// K-034 Phase 1 (2026-04-23): Footer variant prop 全數退役；/、/business-logic、/about
+// 三路由共用同一份 prop-less Footer；舊的 variant="home"/"about" 語義不再適用。
+// K-035 (2026-04-22): /about 原本的 separate-footer Sacred 已 retire，納入共用 Footer。
+// /about DOM 斷言改由 frontend/e2e/shared-components.spec.ts（K-034 Phase 1 rewrite）
+// 以 byte-identical outerHTML + PNG snapshot 承擔。
 //
 // 註（K-030）：/app 於 K-030 撤除 Footer；/app footer-absent 斷言移至
 // frontend/e2e/app-bg-isolation.spec.ts（AC-030-NO-FOOTER）。
@@ -20,7 +20,7 @@ import { mockApis } from './_fixtures/mock-apis.ts'
 
 const FOOTER_TEXT = 'yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn'
 
-async function expectFooterHomeVariantVisible(page: import('@playwright/test').Page) {
+async function expectSharedFooterVisible(page: import('@playwright/test').Page) {
   const footerText = page.getByText(FOOTER_TEXT, { exact: true })
   await expect(footerText).toBeVisible()
 
@@ -39,22 +39,22 @@ async function expectFooterHomeVariantVisible(page: import('@playwright/test').P
   expect(parseFloat(borderTopWidth)).toBeGreaterThan(0)
 }
 
-test.describe('AC-021-FOOTER — Footer variant="home" per route', () => {
+test.describe('AC-021-FOOTER — shared Footer per route', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('/ — Footer variant="home" shows with 11px muted + border-top', async ({ page }) => {
+  test('/ — shared Footer shows with 11px muted + border-top', async ({ page }) => {
     await mockApis(page)
     await page.goto('/')
-    await expectFooterHomeVariantVisible(page)
+    await expectSharedFooterVisible(page)
   })
 
-  test('/business-logic (PasswordForm state) — Footer variant="home" shows with 11px muted + border-top', async ({ page }) => {
+  test('/business-logic (PasswordForm state) — shared Footer shows with 11px muted + border-top', async ({ page }) => {
     await mockApis(page)
     await page.goto('/business-logic')
-    await expectFooterHomeVariantVisible(page)
+    await expectSharedFooterVisible(page)
   })
 
-  test('/business-logic (logged-in state) — Footer variant="home" still shows', async ({ page }) => {
+  test('/business-logic (logged-in state) — shared Footer still shows', async ({ page }) => {
     // mockApis 內建 LIFO ordering（_fixtures/mock-apis.ts）；具體 route 於此後註冊。
     await mockApis(page)
 
@@ -82,6 +82,6 @@ test.describe('AC-021-FOOTER — Footer variant="home" per route', () => {
     await page.getByRole('button', { name: 'Submit' }).click()
     await expect(page.getByText('Strategy')).toBeVisible({ timeout: 5000 })
 
-    await expectFooterHomeVariantVisible(page)
+    await expectSharedFooterVisible(page)
   })
 })

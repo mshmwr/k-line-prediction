@@ -115,48 +115,9 @@ test.describe('AC-018-CLICK — CTA click events fired', () => {
     })
   })
 
-  test('email CTA fires cta_click with label "contact_email"', async ({ page }) => {
-    await page.goto('/about')
-    // Prevent navigation away from the page (mailto: triggers OS handler)
-    await page.evaluate(() => {
-      document.addEventListener('click', (e) => e.preventDefault(), true)
-    })
-    await page.locator('[data-testid="cta-email"]').click()
-    const dataLayer = await page.evaluate(() => window.dataLayer)
-    const clickEntry = (dataLayer as unknown[][]).find(
-      (entry) => (entry as IArguments)[1] === 'cta_click'
-    )
-    expect(clickEntry).toBeDefined()
-    expect(clickEntry![2]).toMatchObject({ label: 'contact_email' })
-    expect((clickEntry![2] as Record<string, unknown>).page_location).toBeDefined()
-    expect((clickEntry![2] as Record<string, unknown>).page_location).toBe('/about')
-  })
-
-  test('GitHub CTA fires cta_click with label "github_link"', async ({ page }) => {
-    await page.goto('/about')
-    await page.locator('[data-testid="cta-github"]').click()
-    const dataLayer = await page.evaluate(() => window.dataLayer)
-    const clickEntry = (dataLayer as unknown[][]).find(
-      (entry) => (entry as IArguments)[1] === 'cta_click'
-    )
-    expect(clickEntry).toBeDefined()
-    expect(clickEntry![2]).toMatchObject({ label: 'github_link' })
-    expect((clickEntry![2] as Record<string, unknown>).page_location).toBeDefined()
-    expect((clickEntry![2] as Record<string, unknown>).page_location).toBe('/about')
-  })
-
-  test('LinkedIn CTA fires cta_click with label "linkedin_link"', async ({ page }) => {
-    await page.goto('/about')
-    await page.locator('[data-testid="cta-linkedin"]').click()
-    const dataLayer = await page.evaluate(() => window.dataLayer)
-    const clickEntry = (dataLayer as unknown[][]).find(
-      (entry) => (entry as IArguments)[1] === 'cta_click'
-    )
-    expect(clickEntry).toBeDefined()
-    expect(clickEntry![2]).toMatchObject({ label: 'linkedin_link' })
-    expect((clickEntry![2] as Record<string, unknown>).page_location).toBeDefined()
-    expect((clickEntry![2] as Record<string, unknown>).page_location).toBe('/about')
-  })
+  // The three /about-scoped CTA click tests (contact_email / github_link / linkedin_link)
+  // deleted per K-034 §PM ruling on BQ-034-P1-01 — Sacred retired per §1.4 Pencil SSOT verdict.
+  // /about Footer now renders plain text (no <a> anchors), so no CTA click events fire there.
 
   test('BuiltByAIBanner fires cta_click with label "banner_about"', async ({ page }) => {
     await page.goto('/')
@@ -209,7 +170,7 @@ test.describe('AC-018-PRIVACY — no PII in GA4 config', () => {
 })
 
 // ── AC-018-PRIVACY-POLICY ─────────────────────────────────────────────────────
-// Given: user visits any page with Footer variant="about"
+// Given: user visits any page rendering the shared Footer (K-034 Phase 1 prop-less)
 // When:  page loads
 // Then:  Google Analytics disclosure text is visible in the footer
 
