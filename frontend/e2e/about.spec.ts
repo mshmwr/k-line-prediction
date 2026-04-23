@@ -201,13 +201,17 @@ test.describe('AC-017-PILLARS — How AI Stays Reliable section', () => {
 
 test.describe('AC-017-TICKETS — Anatomy of a Ticket section', () => {
   test('section heading visible', async ({ page }) => {
+    // K-034 Phase 2 §7 Step 6 — S5 h2 "Anatomy of a Ticket" deleted; SectionLabelRow
+    // in AboutPage.tsx carries "Nº 04 — ANATOMY OF A TICKET" as the sole heading.
     await page.goto('/about')
-    await expect(page.getByText('Anatomy of a Ticket', { exact: true })).toBeVisible()
+    await expect(page.getByText('Nº 04 — ANATOMY OF A TICKET', { exact: true })).toBeVisible()
   })
 
   test('K-002 card: ID + title + GitHub link', async ({ page }) => {
+    // K-034 Phase 2 §7 Step 6 — K-00N appears twice (FileNoBar trailing + sr-only
+    // testid anchor for AC-029 color strict assertion). Use .first() to disambiguate.
     await page.goto('/about')
-    await expect(page.getByText('K-002', { exact: true })).toBeVisible()
+    await expect(page.getByText('K-002', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('UI optimization', { exact: true })).toBeVisible()
     const link = page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-002-ui-optimization.md"]')
     await expect(link).toBeVisible()
@@ -217,7 +221,7 @@ test.describe('AC-017-TICKETS — Anatomy of a Ticket section', () => {
 
   test('K-008 card: ID + title + GitHub link', async ({ page }) => {
     await page.goto('/about')
-    await expect(page.getByText('K-008', { exact: true })).toBeVisible()
+    await expect(page.getByText('K-008', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Visual report script', { exact: true })).toBeVisible()
     const link = page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-008-visual-report.md"]')
     await expect(link).toBeVisible()
@@ -227,12 +231,50 @@ test.describe('AC-017-TICKETS — Anatomy of a Ticket section', () => {
 
   test('K-009 card: ID + title + GitHub link', async ({ page }) => {
     await page.goto('/about')
-    await expect(page.getByText('K-009', { exact: true })).toBeVisible()
+    await expect(page.getByText('K-009', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('1H MA history fix', { exact: true })).toBeVisible()
     const link = page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-009-1h-ma-history-fix.md"]')
     await expect(link).toBeVisible()
     await expect(link).toHaveAttribute('target', '_blank')
     await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+})
+
+// ── AC-034-P2-DRIFT-D26-SUBTITLE-VERBATIM ─────────────────────────────────────
+// Given: user visits /about
+// When:  page scrolls to S3 RoleCards (Nº 02 — THE ROLES) and S5 TicketAnatomy (Nº 04 — ANATOMY OF A TICKET)
+// Then:  each section's italic subtitle matches Pencil s3Intro / s5Intro verbatim.
+//
+// Pencil sources:
+//   - S3 s3Intro (`frontend/design/specs/about-v2.frame-8mqwX.json` line 23):
+//     "— Each role a separate agent with spec'd responsibilities. Every handoff produces a verifiable artefact."
+//   - S5 s5Intro (`frontend/design/specs/about-v2.frame-EBC1e.json` line 18):
+//     "— Anatomy of a ticket. Three cases, each filed in full with outcome and learning."
+//
+// S6 ProjectArchitecture subtitle already asserted verbatim at
+// `AC-017-ARCH — section heading and intro visible` below. Per K-034 Phase 2
+// §4.8 I-3 PM ruling 2026-04-23 — adds the remaining 2/3 Pencil-literal
+// subtitle coverage so silent drift cannot slip past Pencil-parity gate.
+
+test.describe('AC-034-P2-DRIFT-D26-SUBTITLE-VERBATIM — Pencil-verbatim section subtitles', () => {
+  test('S3 RoleCards subtitle verbatim per Pencil s3Intro (8mqwX)', async ({ page }) => {
+    await page.goto('/about')
+    await expect(
+      page.getByText(
+        "— Each role a separate agent with spec'd responsibilities. Every handoff produces a verifiable artefact.",
+        { exact: true }
+      )
+    ).toBeVisible()
+  })
+
+  test('S5 TicketAnatomy subtitle verbatim per Pencil s5Intro (EBC1e)', async ({ page }) => {
+    await page.goto('/about')
+    await expect(
+      page.getByText(
+        '— Anatomy of a ticket. Three cases, each filed in full with outcome and learning.',
+        { exact: true }
+      )
+    ).toBeVisible()
   })
 })
 
@@ -243,9 +285,11 @@ test.describe('AC-017-TICKETS — Anatomy of a Ticket section', () => {
 
 test.describe('AC-017-ARCH — Project Architecture section', () => {
   test('section heading and intro visible', async ({ page }) => {
+    // K-034 Phase 2 §7 Step 7 — S6 h2 "Project Architecture" deleted; SectionLabelRow
+    // carries "Nº 05 — PROJECT ARCHITECTURE". s6Intro subtitle now has em-dash prefix.
     await page.goto('/about')
-    await expect(page.getByText('Project Architecture', { exact: true })).toBeVisible()
-    await expect(page.getByText('How the codebase stays legible for a solo operator + AI agents.', { exact: true })).toBeVisible()
+    await expect(page.getByText('Nº 05 — PROJECT ARCHITECTURE', { exact: true })).toBeVisible()
+    await expect(page.getByText('— How the codebase stays legible for a solo operator + AI agents.', { exact: true })).toBeVisible()
   })
 
   test('Monorepo contract-first block: title + keywords', async ({ page }) => {
@@ -262,8 +306,9 @@ test.describe('AC-017-ARCH — Project Architecture section', () => {
     await expect(page.getByText('Docs-driven tickets', { exact: true })).toBeVisible()
     await expect(page.getByText(/Given\/When\/Then\/And/)).toBeVisible()
     await expect(page.getByText(/Playwright test mirrors the spec 1:1/)).toBeVisible()
-    // docs/tickets/K-XXX.md appears in multiple places; target the code element in the arch section
-    await expect(page.locator('code').getByText('docs/tickets/K-XXX.md', { exact: true }).first()).toBeVisible()
+    // K-034 Phase 2 §7 Step 7 — arch FLOW value rendered as plain <p class="font-mono ...">
+    // per Pencil SPEC FORMAT/FLOW label pattern; no <code> wrapper. Match text in any element.
+    await expect(page.getByText('PRD → docs/tickets/K-XXX.md → role retrospectives.', { exact: true })).toBeVisible()
   })
 
   test('Three-layer testing pyramid block: title + three layers', async ({ page }) => {

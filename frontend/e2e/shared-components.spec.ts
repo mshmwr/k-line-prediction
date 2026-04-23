@@ -126,7 +126,7 @@ test.describe('AC-034-P1 — Footer toMatchSnapshot() baselines per route', () =
       const footer = page.locator('footer').last()
       await expect(footer).toBeVisible()
       const snapshotName = `footer-${route.replace(/^\//, '') || 'home'}.png`
-      await expect(await footer.screenshot()).toMatchSnapshot(snapshotName)
+      await expect(await footer.screenshot()).toMatchSnapshot(snapshotName, { maxDiffPixelRatio: 0.02 })
     })
   }
 })

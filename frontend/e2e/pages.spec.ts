@@ -31,8 +31,12 @@ test.describe('AboutPage — AC-ABOUT-1 (K-017)', () => {
     await page.goto('/about')
 
     // S1 — PageHeaderSection: hero heading text
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.getByText('One operator, orchestrating AI agents end-to-end —')).toBeVisible()
+    // K-034 Phase 2 Step 8 — h1 split into 2 <span className="block"> children per Pencil frame wwa0m.
+    // Assert against the h1 as a whole (toContainText accommodates multi-span children).
+    const hero = page.getByRole('heading', { level: 1 })
+    await expect(hero).toBeVisible()
+    await expect(hero).toContainText('One operator, orchestrating AI')
+    await expect(hero).toContainText('agents end-to-end —')
     await expect(page.getByText('Every feature ships with a doc trail.')).toBeVisible()
 
     // NavBar home icon still present

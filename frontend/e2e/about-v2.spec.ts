@@ -53,26 +53,9 @@ test.describe('AC-022-SECTION-LABEL — Section labels + hairline', () => {
   }
 })
 
-// ── AC-022-DOSSIER-HEADER ─────────────────────────────────────────────────────
-// Given: user visits /about
-// When:  page loads
-// Then:  dossier header bar visible with FILE Nº text + bg-charcoal
-
-test.describe('AC-022-DOSSIER-HEADER — Dossier header bar', () => {
-  test('dossier header bar exists and contains FILE Nº', async ({ page }) => {
-    await page.goto('/about')
-    const header = page.locator('[data-testid="dossier-header"]')
-    await expect(header).toBeVisible()
-    await expect(header).toContainText('FILE Nº')
-  })
-
-  test('dossier header background is bg-charcoal (#2A2520)', async ({ page }) => {
-    await page.goto('/about')
-    const header = page.locator('[data-testid="dossier-header"]')
-    const bg = await header.evaluate(el => getComputedStyle(el).backgroundColor)
-    expect(bg).toBe('rgb(42, 37, 32)') // #2A2520
-  })
-})
+// AC-022-DOSSIER-HEADER retired per K-034 §5 drift D-1 — Pencil SSOT has no DossierHeader frame; component deleted.
+// The FILE Nº motif is now carried by FileNoBar inside MetricCard/RoleCard/PillarCard/TicketAnatomyCard/ArchPillarBlock
+// and covered by AC-022-HERO-TWO-LINE + AC-022-LAYER-LABEL (rewritten to FILE Nº · PROTOCOL).
 
 // ── AC-022-HERO-TWO-LINE ──────────────────────────────────────────────────────
 // Given: user visits /about
@@ -125,12 +108,17 @@ test.describe('AC-022-HERO-TWO-LINE — Hero two-line structure', () => {
 // Given: user visits /about
 // When:  page scrolls to Metrics/Roles/Pillars/Tickets/Architecture
 // Then:  5 italic subtitles (Newsreader italic) exist
+// NOTE (K-034 Phase 2 §4.8 M-3): S4 h2 "How AI Stays Reliable" is text-content asserted only
+// (no computed-style fontSize/fontFamily check); TD-K034-P2-16 tracks adding Bodoni 30px verification.
 
 test.describe('AC-022-SUBTITLE — Section italic subtitles', () => {
-  test('5 data-section-subtitle elements exist', async ({ page }) => {
+  test('3 data-section-subtitle elements exist', async ({ page }) => {
+    // K-034 Phase 2 §7 Step 3/5 — S2 MetricsStripSection + S4 ReliabilityPillarsSection
+    // no longer carry data-section-subtitle (Pencil BF4Xe has no intro; Pencil UXy2o
+    // uses h2 "How AI Stays Reliable" instead). Remaining: S3 RoleCards + S5 TicketAnatomy + S6 ProjectArchitecture.
     await page.goto('/about')
     const subtitles = page.locator('[data-section-subtitle]')
-    await expect(subtitles).toHaveCount(5)
+    await expect(subtitles).toHaveCount(3)
   })
 
   test('first subtitle fontFamily contains Newsreader and is italic', async ({ page }) => {
@@ -197,28 +185,9 @@ test.describe('AC-022-OWNS-ARTEFACT-LABEL — OWNS / ARTEFACT labels', () => {
   }
 })
 
-// ── AC-022-LINK-STYLE ─────────────────────────────────────────────────────────
-// Given: user visits /about
-// When:  any link on page
-// Then:  at least one <a> has Newsreader italic + underline
-
-test.describe('AC-022-LINK-STYLE — Newsreader italic + underline links', () => {
-  test('at least one link uses Newsreader italic + underline', async ({ page }) => {
-    await page.goto('/about')
-    const links = page.locator('a')
-    let found = false
-    for (const link of await links.all()) {
-      const ff = await link.evaluate(el => getComputedStyle(el).fontFamily)
-      const style = await link.evaluate(el => getComputedStyle(el).fontStyle)
-      const deco = await link.evaluate(el => getComputedStyle(el).textDecoration)
-      if (ff.includes('Newsreader') && style === 'italic' && deco.includes('underline')) {
-        found = true
-        break
-      }
-    }
-    expect(found).toBe(true)
-  })
-})
+// AC-022-LINK-STYLE retired per K-034 §5 drift D-11/D-14 — Pencil SSOT shows pillar/ticket
+// links as Geist Mono 11 ink (no italic, no underline). The A-7 Newsreader italic + underline
+// pattern was a K-022 Sacred rule superseded by Pencil frames UXy2o.p*Link + EBC1e.t*Link.
 
 // ── AC-022-CASE-FILE-HEADER ───────────────────────────────────────────────────
 // Given: user visits /about
@@ -235,24 +204,95 @@ test.describe('AC-022-CASE-FILE-HEADER — Ticket section label format', () => {
 // ── AC-022-LAYER-LABEL ────────────────────────────────────────────────────────
 // Given: user visits /about
 // When:  page scrolls to "How AI Stays Reliable"
-// Then:  LAYER 1/2/3 labels visible (Geist Mono 10px, BQ-022-02 PM 裁決)
+// Then:  FILE Nº 01 · PROTOCOL / Nº 02 / Nº 03 labels visible (Geist Mono 10px)
+// K-022 AC-022-LAYER-LABEL Sacred retired per K-034 §5 drift D-10 — Pencil SSOT now
+// specifies FILE Nº · PROTOCOL pattern unified with card FILE Nº motif.
 
-test.describe('AC-022-LAYER-LABEL — LAYER 1/2/3 pillar labels', () => {
-  test('LAYER 1, LAYER 2, LAYER 3 all visible (exact)', async ({ page }) => {
+test.describe('AC-022-LAYER-LABEL — FILE Nº · PROTOCOL pillar labels', () => {
+  test('FILE Nº 01/02/03 · PROTOCOL all visible (exact)', async ({ page }) => {
     await page.goto('/about')
-    const layerLabels = ['LAYER 1', 'LAYER 2', 'LAYER 3'] as const
+    const layerLabels = [
+      'FILE Nº 01 · PROTOCOL',
+      'FILE Nº 02 · PROTOCOL',
+      'FILE Nº 03 · PROTOCOL',
+    ] as const
     for (const label of layerLabels) {
       await expect(page.getByText(label, { exact: true })).toBeVisible()
     }
   })
 
-  test('LAYER 1 label fontFamily contains Geist Mono and fontSize is 10px', async ({ page }) => {
+  test('FILE Nº 01 · PROTOCOL label fontFamily contains Geist Mono and fontSize is 10px', async ({ page }) => {
     await page.goto('/about')
-    const layerEl = page.getByText('LAYER 1', { exact: true })
+    const layerEl = page.getByText('FILE Nº 01 · PROTOCOL', { exact: true })
     const ff = await layerEl.evaluate(el => getComputedStyle(el).fontFamily)
     expect(ff).toContain('Geist Mono')
     const fs = await layerEl.evaluate(el => getComputedStyle(el).fontSize)
     expect(fs).toBe('10px')
+  })
+})
+
+// ── AC-034-P2-FILENOBAR-VARIANTS ──────────────────────────────────────────────
+// Given: user visits /about
+// When:  page renders the 5 card consumers of FileNoBar primitive
+// Then:  each consumer displays its Pencil-literal FILE Nº / LAYER Nº label variant:
+//        - MetricCard → bare `FILE Nº 0N` (no suffix, Pencil BF4Xe m*Lbl)
+//        - RoleCard → `FILE Nº 0N · PERSONNEL` (Pencil 8mqwX r*Top)
+//        - TicketAnatomyCard → `FILE Nº 0N · CASE FILE` (Pencil EBC1e t*TopL)
+//        - ArchPillarBlock → `LAYER Nº 0N · BACKBONE / DISCIPLINE / ASSURANCE` (Pencil JFizO arch*Top)
+//        Closes gap where only PROTOCOL variant had Pencil-literal E2E assertion
+//        (per K-034 Phase 2 §4.8 I-1 PM ruling 2026-04-23 — prevents silent drift
+//        on any one card-shell motif; refactor-AC-grep raw-count sanity per
+//        `feedback_refactor_ac_grep_raw_count_sanity.md`).
+
+test.describe('AC-034-P2-FILENOBAR-VARIANTS — FileNoBar Pencil-literal label per consumer', () => {
+  test('MetricCard: bare `FILE Nº 01..04` visible with no suffix label (BF4Xe m*Lbl)', async ({ page }) => {
+    await page.goto('/about')
+    // Scope to FileNoBar data-testid to exclude PillarCard `FILE Nº 01 · PROTOCOL`
+    // which would otherwise match `FILE Nº 01` exact via ancestor text.
+    const bareBars = page
+      .locator('[data-testid="file-no-bar"]')
+      .filter({ hasText: /^FILE Nº 0\d$/ })
+    await expect(bareBars).toHaveCount(4)
+    // Verify each numeric slot shows up exactly once as a bare bar.
+    for (const n of [1, 2, 3, 4]) {
+      const padded = String(n).padStart(2, '0')
+      const bareN = page
+        .locator('[data-testid="file-no-bar"]')
+        .filter({ hasText: new RegExp(`^FILE Nº ${padded}$`) })
+      await expect(bareN).toHaveCount(1)
+    }
+  })
+
+  test('RoleCard: `FILE Nº 01 · PERSONNEL` through `FILE Nº 06 · PERSONNEL` all visible (exact)', async ({ page }) => {
+    await page.goto('/about')
+    for (const n of [1, 2, 3, 4, 5, 6]) {
+      const padded = String(n).padStart(2, '0')
+      await expect(
+        page.getByText(`FILE Nº ${padded} · PERSONNEL`, { exact: true })
+      ).toBeVisible()
+    }
+  })
+
+  test('TicketAnatomyCard: `FILE Nº 01 · CASE FILE` through `FILE Nº 03 · CASE FILE` all visible (exact)', async ({ page }) => {
+    await page.goto('/about')
+    for (const n of [1, 2, 3]) {
+      const padded = String(n).padStart(2, '0')
+      await expect(
+        page.getByText(`FILE Nº ${padded} · CASE FILE`, { exact: true })
+      ).toBeVisible()
+    }
+  })
+
+  test('ArchPillarBlock: `LAYER Nº 01 · BACKBONE` / `LAYER Nº 02 · DISCIPLINE` / `LAYER Nº 03 · ASSURANCE` visible (exact)', async ({ page }) => {
+    await page.goto('/about')
+    const layerLabels = [
+      'LAYER Nº 01 · BACKBONE',
+      'LAYER Nº 02 · DISCIPLINE',
+      'LAYER Nº 03 · ASSURANCE',
+    ] as const
+    for (const label of layerLabels) {
+      await expect(page.getByText(label, { exact: true })).toBeVisible()
+    }
   })
 })
 
@@ -261,34 +301,8 @@ test.describe('AC-022-LAYER-LABEL — LAYER 1/2/3 pillar labels', () => {
 // are retired because Pencil frames 86psQ + 1BGtd show plain-text inline Footer with no anchors.
 // Footer content is now validated by shared-components.spec.ts AC-034-P1-ROUTE-DOM-PARITY (byte-identical).
 
-// ── AC-022-ANNOTATION ─────────────────────────────────────────────────────────
-// Given: user visits /about
-// When:  page scrolls to Role Cards
-// Then:  at least one BEHAVIOUR or POSITION annotation visible (Geist Mono 9-10px text-muted)
-
-test.describe('AC-022-ANNOTATION — Role Card marginalia annotations', () => {
-  test('at least one data-annotation element exists', async ({ page }) => {
-    await page.goto('/about')
-    const annotations = page.locator('[data-annotation]')
-    const count = await annotations.count()
-    expect(count).toBeGreaterThanOrEqual(1)
-  })
-
-  test('BEHAVIOUR or POSITION text visible (exact)', async ({ page }) => {
-    await page.goto('/about')
-    const behav = page.getByText('BEHAVIOUR', { exact: true })
-    const pos = page.getByText('POSITION', { exact: true })
-    const total = (await behav.count()) + (await pos.count())
-    expect(total).toBeGreaterThanOrEqual(1)
-  })
-
-  test('annotation fontSize is 9px or 10px', async ({ page }) => {
-    await page.goto('/about')
-    const el = page.locator('[data-annotation]').first()
-    const fs = await el.evaluate(e => getComputedStyle(e).fontSize)
-    expect(['9px', '10px']).toContain(fs)
-  })
-})
+// AC-022-ANNOTATION retired per K-034 §5 drift D-4 — POSITION/BEHAVIOUR marginalia removed;
+// Pencil SSOT 8mqwX has no such labels. Role cards now carry FILE Nº 0N · PERSONNEL via FileNoBar.
 
 // ── AC-022-ROLE-GRID-HEIGHT ───────────────────────────────────────────────────
 // Given: user visits /about
@@ -480,6 +494,7 @@ test.describe('AC-029-TICKET-BODY-TEXT — TicketAnatomyCard paper palette text'
     }
   })
 
+  // ticket-anatomy-id-badge target shifted to FileNoBar trailing slot post-K-034 Phase 2; assertion still valid via DOM lookup (sr-only span preserves strict charcoal color per AC-029; K-034 Phase 2 §4.8 M-1; TD-K034-P2-17).
   test('ticket ID badge on all 3 cards is strict text-charcoal rgb(42, 37, 32) and not purple-400', async ({ page }) => {
     await page.goto('/about')
     const badges = page.getByTestId('ticket-anatomy-id-badge')

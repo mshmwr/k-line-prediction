@@ -2,8 +2,23 @@ import TicketAnatomyCard from './TicketAnatomyCard'
 
 const GITHUB_BASE = 'https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets'
 
+/**
+ * S5 — TicketAnatomySection (K-034 Phase 2 §7 Step 6 — D-14/D-15/D-26/D-27)
+ * Used on: /about
+ *
+ * Pencil frame EBC1e — 3 ticket cards (K-002 / K-008 / K-009).
+ * Section has NO internal h2 (SectionLabelRow "Nº 04 — ANATOMY OF A TICKET" owns the
+ * heading per AboutPage.tsx); subtitle is Pencil s5Intro literal.
+ *
+ * TICKETS data mirrors Pencil t{1..3} outcome/learning content (editorial phrasing
+ * preserved from prior revision to avoid truncating technical detail; Pencil versions
+ * are shorter narrative summaries — body text is legal to enhance beyond Pencil prose
+ * per Phase 2 design doc §8 content-authorship note).
+ */
 const TICKETS = [
   {
+    fileNo: 1,
+    caseNo: '01',
     id: 'K-002' as const,
     title: 'UI optimization',
     outcome:
@@ -13,6 +28,8 @@ const TICKETS = [
     githubHref: `${GITHUB_BASE}/K-002-ui-optimization.md`,
   },
   {
+    fileNo: 2,
+    caseNo: '02',
     id: 'K-008' as const,
     title: 'Visual report script',
     outcome:
@@ -22,6 +39,8 @@ const TICKETS = [
     githubHref: `${GITHUB_BASE}/K-008-visual-report.md`,
   },
   {
+    fileNo: 3,
+    caseNo: '03',
     id: 'K-009' as const,
     title: '1H MA history fix',
     outcome:
@@ -32,23 +51,16 @@ const TICKETS = [
   },
 ]
 
-/**
- * S5 — TicketAnatomySection (AC-017-TICKETS, AC-022-CASE-FILE-HEADER)
- * K-002 / K-008 / K-009 ticket anatomy trio.
- * A-4: italic subtitle
- * A-8: section label "Nº 04 — ANATOMY OF A TICKET" is rendered by AboutPage SectionLabelRow (BQ-022-01)
- */
 export default function TicketAnatomySection() {
   return (
     <div>
-      <h2 className="font-mono font-bold text-ink text-2xl mb-2">Anatomy of a Ticket</h2>
       <p
-        className="font-italic italic text-[15px] text-ink leading-relaxed mb-6"
+        className="font-italic italic text-[15px] text-ink leading-[1.6] mb-6"
         data-section-subtitle
       >
-        Three tickets that shaped how this project works — and the rules each one created.
+        — Anatomy of a ticket. Three cases, each filed in full with outcome and learning.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px]">
         {TICKETS.map(ticket => (
           <TicketAnatomyCard key={ticket.id} {...ticket} />
         ))}

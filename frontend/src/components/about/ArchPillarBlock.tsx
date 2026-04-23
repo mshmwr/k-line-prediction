@@ -1,33 +1,107 @@
-import type { ReactNode } from 'react'
 import CardShell from '../primitives/CardShell'
+import FileNoBar from './FileNoBar'
 
-interface TestingLayer {
-  layer: 'Unit' | 'Integration' | 'E2E'
-  detail: string
+/**
+ * ArchPillarBlock (K-034 Phase 2 §7 Step 7 — D-16/D-17/D-18)
+ * Used on: /about (ProjectArchitectureSection)
+ *
+ * Pencil frame JFizO.arch_* — dark LAYER Nº 0N · <CATEGORY> bar + body:
+ *   - Bodoni Moda italic 700 24 ink title (lh 1.15)
+ *   - 40px × 1px charcoal rule
+ *   - For arch1/arch2: label/value rows (Geist Mono 10 muted uppercase label +
+ *     Newsreader italic 14 ink body, or Geist Mono 12 ink for file-path bodies)
+ *   - For arch3: testingPyramid rows with Bodoni 22 brick Nº + label + detail
+ *
+ * Testid preservation (AC-029-ARCH-BODY-TEXT contract):
+ *   - `arch-pillar-body` × 3 — body wrapper per pillar (color-inheriting allow-list).
+ *   - `arch-pillar-layer` × 3 — only on pyramid LABEL spans in arch3 (Unit/Integration/E2E);
+ *     parent <li> color strict muted, span color strict ink.
+ */
+interface LabelValueField {
+  type: 'labelValue'
+  label: string
+  value: string
+  /** value font family: 'italic' = Newsreader italic ink, 'mono' = Geist Mono 12 ink */
+  valueFont?: 'italic' | 'mono'
 }
+
+interface PyramidField {
+  type: 'pyramid'
+  rows: { no: string; layerLabel: 'UNIT' | 'INTEGRATION' | 'E2E'; detail: string }[]
+}
+
+type ArchField = LabelValueField | PyramidField
 
 interface ArchPillarBlockProps {
-  title: 'Monorepo, contract-first' | 'Docs-driven tickets' | 'Three-layer testing pyramid'
-  body: ReactNode
-  testingPyramid?: TestingLayer[]
+  layerNo: number
+  category: 'BACKBONE' | 'DISCIPLINE' | 'ASSURANCE'
+  title: string
+  fields: ArchField[]
 }
 
-export default function ArchPillarBlock({ title, body, testingPyramid }: ArchPillarBlockProps) {
+export default function ArchPillarBlock({
+  layerNo,
+  category,
+  title,
+  fields,
+}: ArchPillarBlockProps) {
   return (
-    <CardShell padding="md">
-      <h3 className="font-mono font-bold text-ink text-sm mb-3">{title}</h3>
-      <div data-testid="arch-pillar-body" className="text-muted text-xs leading-relaxed mb-3">{body}</div>
-      {testingPyramid && (
-        <ul className="space-y-1 mt-2">
-          {testingPyramid.map(({ layer, detail }) => (
-            <li key={layer} className="text-xs text-muted">
-              <span data-testid="arch-pillar-layer" className="text-ink font-mono">{layer}</span>
-              {' — '}
-              {detail}
-            </li>
-          ))}
-        </ul>
-      )}
+    <CardShell padding="md" className="flex flex-col overflow-hidden">
+      <FileNoBar
+        fileNo={layerNo}
+        prefix="LAYER Nº"
+        label={category}
+        cardPaddingSize="md"
+      />
+      <div className="flex flex-col flex-1 gap-[14px] pt-[18px]">
+        <h3 className="font-display font-bold italic text-ink text-[24px] leading-[1.15]">
+          {title}
+        </h3>
+        <div className="w-[40px] h-px bg-charcoal" />
+        <div data-testid="arch-pillar-body" className="flex flex-col gap-[14px] text-ink">
+          {fields.map((field, i) => {
+            if (field.type === 'labelValue') {
+              const valueClass =
+                field.valueFont === 'mono'
+                  ? 'font-mono text-ink text-[12px] leading-[1.5]'
+                  : 'font-italic italic text-ink text-[14px] leading-[1.6]'
+              return (
+                <div key={`${field.label}-${i}`}>
+                  <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">
+                    {field.label}
+                  </span>
+                  <p className={`${valueClass} mt-1`}>{field.value}</p>
+                </div>
+              )
+            }
+            return (
+              <ul key={`pyramid-${i}`} className="flex flex-col gap-[12px]">
+                {field.rows.map(row => (
+                  <li
+                    key={row.layerLabel}
+                    className="flex items-start gap-[10px] text-muted text-[13px] leading-[1.55]"
+                  >
+                    <span className="font-display font-bold text-brick text-[22px] leading-none shrink-0">
+                      {row.no}
+                    </span>
+                    <div className="flex flex-col gap-[3px]">
+                      <span
+                        data-testid="arch-pillar-layer"
+                        className="font-mono text-ink text-[10px] uppercase tracking-[2px]"
+                      >
+                        {row.layerLabel}
+                      </span>
+                      <span className="font-italic italic text-[13px] leading-[1.55]">
+                        {row.detail}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )
+          })}
+        </div>
+      </div>
     </CardShell>
   )
 }

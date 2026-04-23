@@ -1,56 +1,85 @@
 import PillarCard from './PillarCard'
 
 /**
- * S4 — ReliabilityPillarsSection (AC-017-PILLARS, AC-022-LAYER-LABEL)
- * 3 pillars: Persistent Memory / Structured Reflection / Role Agents
- * A-9: each pillar has LAYER 1/2/3 prefix label (BQ-022-02 PM 裁決)
- * A-4: italic subtitle
+ * S4 — ReliabilityPillarsSection (K-034 Phase 2 §7 Step 5 — D-9..D-13)
+ * Used on: /about
+ *
+ * Pencil frame UXy2o — 3 pillars (Persistent Memory / Structured Reflection / Role Agents).
+ * Section has NO internal section-subtitle (Pencil s4Intro renders as h2 "How AI Stays
+ * Reliable", Bodoni Moda italic 700 30px).
+ *
+ * Body text is Pencil-VERBATIM from `frontend/design/specs/about-v2.frame-UXy2o.json`
+ * `pillar_{1,2,3}.p*BodyText.content` — including the p3 sentence
+ * "Handoffs produce artifacts that ./scripts/audit-ticket.sh K-XXX can verify
+ * end-to-end." which was verified on 2026-04-23 at JSON line 75 during the
+ * K-034 Phase 2 §4.8 C-1b ruling reversal (initial Reviewer finding REVERSED →
+ * ACCEPT: sentence IS Pencil SSOT, no Engineer action needed).
+ *
+ * The only editorial layer added on top of Pencil-verbatim text is inline `<code>`
+ * monospace markup on file-path tokens (`MEMORY.md`, `docs/retrospectives/<role>.md`,
+ * `./scripts/audit-ticket.sh K-XXX`) per `docs/designs/design-exemptions.md` §2
+ * INHERITED-editorial row (PillarCard; C-1a ruling). Copy is unchanged; only
+ * inline typographic markup is applied to restore file-path semantics that
+ * Pencil's flat-text encoding cannot carry.
  */
 export default function ReliabilityPillarsSection() {
   return (
     <div className="space-y-6">
-      <h2 className="font-mono font-bold text-ink text-2xl mb-2">How AI Stays Reliable</h2>
-      <p
-        className="font-italic italic text-[15px] text-ink leading-relaxed mb-6"
-        data-section-subtitle
-      >
-        Three structural layers that prevent AI agents from drifting over time.
-      </p>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <h2 className="font-display font-bold italic text-ink text-[30px] leading-[1.2]">
+        How AI Stays Reliable
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px]">
         <PillarCard
-          layerLabel="LAYER 1"
+          fileNo={1}
           title="Persistent Memory"
           body={
             <p>
-              File-based memory system indexed in <code className="text-muted bg-ink/5 px-1 rounded text-xs">MEMORY.md</code> survives every session; past mistakes, preferences, and project state persist cross-conversation.
+              File-based memory system indexed in{' '}
+              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded not-italic">
+                MEMORY.md
+              </code>{' '}
+              survives every session; past mistakes, preferences, and project state persist
+              cross-conversation.
             </p>
           }
-          anchorQuote='Every "stop doing X" becomes a memory entry — corrections outlive the session.'
+          anchorQuote={'Every "stop doing X" becomes a memory entry — corrections outlive the session.'}
+          linkText="→ Per-role Retrospective Log protocol"
           docsHref="/docs/ai-collab-protocols.md#per-role-retrospective-log"
         />
 
         <PillarCard
-          layerLabel="LAYER 2"
+          fileNo={2}
           title="Structured Reflection"
           body={
             <p>
-              Each role appends to <code className="text-muted bg-ink/5 px-1 rounded text-xs">docs/retrospectives/&lt;role&gt;.md</code> after every ticket; the PM aggregates cross-role patterns. Bug Found Protocol gates fixes behind mandatory reflection + memory write.
+              Each role appends to{' '}
+              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded not-italic">
+                docs/retrospectives/&lt;role&gt;.md
+              </code>{' '}
+              after every ticket; the PM aggregates cross-role patterns. Bug Found Protocol
+              gates fixes behind mandatory reflection + memory write.
             </p>
           }
           anchorQuote="No memory write = the bug is not closed."
+          linkText="→ Bug Found Protocol"
           docsHref="/docs/ai-collab-protocols.md#bug-found-protocol"
         />
 
         <PillarCard
-          layerLabel="LAYER 3"
+          fileNo={3}
           title="Role Agents"
           body={
             <p>
-              PM / Architect / Engineer / Reviewer / QA / Designer are separate agents with spec'd responsibilities. Handoffs produce artifacts that <code className="text-muted bg-ink/5 px-1 rounded text-xs">./scripts/audit-ticket.sh K-XXX</code> can verify end-to-end.
+              PM / Architect / Engineer / Reviewer / QA / Designer are separate agents with
+              spec&apos;d responsibilities. Handoffs produce artifacts that{' '}
+              <code className="font-mono text-[13px] bg-ink/5 px-1 rounded not-italic">
+                ./scripts/audit-ticket.sh K-XXX
+              </code>{' '}
+              can verify end-to-end.
             </p>
           }
           anchorQuote="No artifact = no handoff."
+          linkText="→ Role Flow"
           docsHref="/docs/ai-collab-protocols.md#role-flow"
         />
       </div>

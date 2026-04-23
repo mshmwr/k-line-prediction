@@ -1,67 +1,49 @@
 import CardShell from '../primitives/CardShell'
-import RedactionBar from './RedactionBar'
+import FileNoBar from './FileNoBar'
 
+/**
+ * RoleCard (K-034 Phase 2 §7 Step 4 — D-4/D-5/D-6/D-7/D-8)
+ * Used on: /about (RoleCardsSection)
+ *
+ * Pencil frame 8mqwX.role_* — dark FILE Nº 0N · PERSONNEL top bar + body:
+ *   - Bodoni Moda italic 700 role name in brick; size 36 for 2-char roles (PM/QA), 32 otherwise
+ *   - 40px × 1px charcoal rule
+ *   - OWNS label (Geist Mono 10 muted letterSpacing 2 uppercase)
+ *   - owns text (Newsreader italic 14 ink lh 1.5)
+ *   - ARTEFACT label (same style as OWNS)
+ *   - artefact text (Geist Mono 12 ink lh 1.5 — NOT italic, NOT muted)
+ *
+ * D-5: ROLE_ANNOTATIONS + `annotation` prop removed.
+ * D-8: `redactArtefact` prop removed (Reviewer no longer redacted per PM ruling).
+ */
 interface RoleCardProps {
+  fileNo: number
   role: 'PM' | 'Architect' | 'Engineer' | 'Reviewer' | 'QA' | 'Designer'
   owns: string
   artefact: string
-  borderColorClass?: string
-  annotation?: string   // A-11: marginalia annotation (BEHAVIOUR / POSITION / etc.)
-  redactArtefact?: boolean  // A-5: redact artefact field
 }
 
-/**
- * A-8 role → annotation mapping (design-driven marginalia)
- */
-const ROLE_ANNOTATIONS: Record<string, string> = {
-  PM: 'POSITION',
-  Architect: 'POSITION',
-  Engineer: 'BEHAVIOUR',
-  Reviewer: 'BEHAVIOUR',
-  QA: 'BEHAVIOUR',
-  Designer: 'BEHAVIOUR',
-}
-
-export default function RoleCard({ role, owns, artefact, borderColorClass, annotation, redactArtefact = false }: RoleCardProps) {
-  const roleAnnotation = annotation ?? ROLE_ANNOTATIONS[role]
+export default function RoleCard({ fileNo, role, owns, artefact }: RoleCardProps) {
+  const roleSizeClass = role.length <= 2 ? 'text-[36px]' : 'text-[32px]'
 
   return (
-    <CardShell borderColorClass={borderColorClass ?? 'border-ink/20'} padding="md" className="flex flex-col min-h-[320px]">
-      <article data-role={role} className="flex flex-col flex-1">
-        {/* A-3 / §2.8: Role name Bodoni Moda 36px italic 700 text-brick */}
-        <h3 className="font-display font-bold italic text-[36px] text-brick leading-none mb-3">{role}</h3>
-
-        <div className="space-y-3 text-sm flex-1">
-          <div>
-            {/* A-6: OWNS label — Geist Mono 10px text-muted uppercase tracking-[2px] */}
-            <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">OWNS</span>
-            <p className="text-ink text-sm mt-0.5 leading-snug">{owns}</p>
-          </div>
-          <div>
-            {/* A-6: ARTEFACT label — Geist Mono 10px text-muted uppercase tracking-[2px] */}
-            <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">ARTEFACT</span>
-            {redactArtefact ? (
-              <div className="mt-1">
-                <RedactionBar width="w-[140px]" />
-                <span className="sr-only">{artefact}</span>
-              </div>
-            ) : (
-              <p className="text-muted mt-0.5 font-mono text-xs leading-snug">{artefact}</p>
-            )}
-          </div>
+    <CardShell padding="md" className="flex flex-col min-h-[320px] overflow-hidden">
+      <FileNoBar fileNo={fileNo} label="PERSONNEL" cardPaddingSize="md" />
+      <article data-role={role} className="flex flex-col flex-1 gap-[14px] pt-[18px]">
+        <h3
+          className={`font-display font-bold italic text-brick ${roleSizeClass} leading-none`}
+        >
+          {role}
+        </h3>
+        <div className="w-[40px] h-px bg-charcoal" />
+        <div>
+          <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">OWNS</span>
+          <p className="font-italic italic text-ink text-[14px] leading-[1.5] mt-1">{owns}</p>
         </div>
-
-        {/* A-11: marginalia annotation — Geist Mono 9px text-muted */}
-        {roleAnnotation && (
-          <div className="mt-3 pt-2 border-t border-ink/10">
-            <span
-              data-annotation
-              className="font-mono text-[9px] text-muted uppercase tracking-[2px]"
-            >
-              {roleAnnotation}
-            </span>
-          </div>
-        )}
+        <div>
+          <span className="font-mono text-[10px] text-muted uppercase tracking-[2px]">ARTEFACT</span>
+          <p className="font-mono text-ink text-[12px] leading-[1.5] mt-1">{artefact}</p>
+        </div>
       </article>
     </CardShell>
   )

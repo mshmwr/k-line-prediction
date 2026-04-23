@@ -1,27 +1,26 @@
 /**
- * S1 — PageHeaderSection
- * One operator declaration (AC-017-HEADER, AC-022-HERO-TWO-LINE)
+ * S1 — PageHeaderSection (K-034 Phase 2 §7 Step 8 — D-19/D-20/D-21)
+ * Used on: /about
  *
- * A-3 Hero 兩行結構（Pencil frame 35VCj §2.7）：
- * - 主句：Bodoni Moda 64px italic 700（兩段）
- *   - 第一段 text-ink
- *   - 第二段（"agents end-to-end —"）text-brick（BQ-022-03 PM 裁決）
- * - 角色列：Newsreader 18px italic（gNx84）
- * - tagline：Bodoni Moda 22px italic 700（TQmUG）
- * - 分隔線：1px bg-charcoal（qFnDN）
+ * Pencil frame wwa0m — titleColumn gap 18, left-aligned, full-width 1px charcoal divider
+ * sitting between hero sentence (2 spans) and roleLine (Newsreader italic 18). Tagline
+ * is Bodoni Moda italic 700 22 at bottom. Entire block left-aligned (no text-center).
+ *
+ * Hero h1 has two <span className="block"> children so each line wraps independently and
+ * preserves line-height 1.05 per Pencil (ttl1/ttl2).
  */
 export default function PageHeaderSection() {
   return (
-    <div className="py-20 text-center">
-      <h1 className="font-display font-bold italic text-[64px] leading-tight text-ink mb-2">
-        One operator, orchestrating AI{' '}
-        <span className="text-brick">agents end-to-end —</span>
+    <div className="py-20 flex flex-col gap-[18px]">
+      <h1 className="font-display font-bold italic text-[64px] leading-[1.05] text-ink">
+        <span className="block">One operator, orchestrating AI</span>
+        <span className="block text-brick">agents end-to-end —</span>
       </h1>
-      <p className="font-italic italic text-[18px] text-ink leading-relaxed mb-6">
+      <div className="h-px bg-charcoal w-full" />
+      <p className="font-italic italic text-[18px] text-ink leading-[1.5]">
         PM, architect, engineer, reviewer, QA, designer.
       </p>
-      <div className="h-px bg-charcoal max-w-sm mx-auto mb-6" />
-      <p className="font-display font-bold italic text-[22px] text-ink">
+      <p className="font-display font-bold italic text-[22px] text-ink leading-[1.4]">
         Every feature ships with a doc trail.
       </p>
     </div>

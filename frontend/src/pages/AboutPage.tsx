@@ -1,6 +1,5 @@
 import UnifiedNavBar from '../components/UnifiedNavBar'
 import SectionContainer from '../components/primitives/SectionContainer'
-import DossierHeader from '../components/about/DossierHeader'
 import PageHeaderSection from '../components/about/PageHeaderSection'
 import MetricsStripSection from '../components/about/MetricsStripSection'
 import RoleCardsSection from '../components/about/RoleCardsSection'
@@ -28,9 +27,6 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen">
       <UnifiedNavBar />
-
-      {/* A-2 — Dossier Header Bar */}
-      <DossierHeader />
 
       {/* S1 — PageHeaderSection (no section label per design — Hero is above-the-fold) */}
       <SectionContainer id="header" width="narrow">
