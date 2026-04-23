@@ -112,7 +112,9 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 
 ---
 
-### AC-021-FONTS：三字型系統載入並註冊 Tailwind fontFamily `[K-021]`
+### ~~AC-021-FONTS：三字型系統載入並註冊 Tailwind fontFamily `[K-021]`~~ **RETIRED 2026-04-23 by K-040 sitewide font reset**
+
+> **Retired 2026-04-23 by K-040 (AC-040-SITEWIDE-FONT-MONO).** The entire three-font taxonomy is inverted: `fontFamily.display` (Bodoni Moda) + `fontFamily.italic` (Newsreader) keys removed from `tailwind.config.js`; only `fontFamily.mono` (Geist Mono) remains as the sitewide default. `index.css @layer base` adds `body { @apply font-mono ... }` so default typography inherits mono rather than browser serif. Consequently, `sitewide-fonts.spec.ts` entire describe block premise inverts — the original spec asserted `font-display` → Bodoni Moda (the new code path would assert `font-mono` → Geist Mono, and the `font-display` class no longer exists). Engineer rewrites the 4 E2E spec blocks identified by QA-040-Q1 as part of AC-040-SITEWIDE-FONT-MONO implementation (this is the largest of the 4 stale specs — whole describe block premise inverts). AC text body preserved below as historical record.
 
 **Given** 使用者訪問任一頁面
 **When** 頁面載入完成

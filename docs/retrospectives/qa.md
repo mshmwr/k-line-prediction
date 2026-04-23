@@ -19,6 +19,14 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-23 — K-040 QA Early Consultation (sitewide typography)
+
+**What went well:** Designer's 36-row per-site calibration table + AC-040-SITEWIDE-FONT-MONO 4× raw-count gates (font-display pre=13, Bodoni-inline pre=4, `'Bodoni Moda'` string pre=1, tailwind keys pre=2) already anticipated most sitewide-font-swap risks; QA additions were edge-case tightening (stale Bodoni/Newsreader spec assertions, no cross-viewport matrix, no unit test on `timelinePrimitives.ENTRY_TYPE`), not foundational gaps.
+
+**What went wrong:** Ticket ACs targeted only *source-side* grep + 4 representative-page Playwright assertions; **`timelinePrimitives.ts:30` is NOT Konva** (as stated in both ticket §1 and AC `And` clause) — it's a shared token-literal consumed DOM-side by `DiaryEntryV2` (via `diary-page.spec.ts` T-E6, which asserts `font-family` against `titleFont.family = "Bodoni Moda"` loaded from `visual-spec.json`). That means changing the literal without also updating `docs/designs/K-024-visual-spec.json` will break `diary-page.spec.ts:419` with a Playwright FAIL — the AC grep gate alone doesn't catch this. `about-v2.spec.ts:66-83,124-130` still assert `Bodoni Moda` + `Newsreader italic` on /about h1 + subtitle — these will all FAIL post-implementation and must be rewritten by Engineer as part of AC-040-SITEWIDE-FONT-MONO, not treated as regression. `sitewide-fonts.spec.ts` AC-021-FONTS must be rewritten in full (current spec's whole premise inverts under K-040). None of these stale-assertion sites are enumerated in the ticket's raw-count gates.
+
+**Next time improvement:** for any sitewide typography/palette change that retires a design token, QA Early Consultation must enumerate ALL existing E2E assertions that reference the retiring token (grep `Bodoni\|Newsreader\|italic\|font-display` across `frontend/e2e/*.spec.ts`) before release, and flag each as (a) must-rewrite, (b) must-delete, or (c) unaffected — raw-count grep on `frontend/src/` misses regression tests asserting the retired value. Also: shared token-literal files (`*Primitives.ts`, `*tokens.ts`) feeding both DOM and potential Canvas consumers must be audited for both surfaces; AC text calling such a file "Konva literal" when it's actually a DOM token creates false confidence in pixel-diff / source-grep gates.
+
 ## 2026-04-23 — K-034 Phase 3 regression (/diary adopts shared Footer, absorbs ex-K-038)
 
 **Verdict:** RELEASE-PM

@@ -166,7 +166,9 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 
 ---
 
-### AC-017-HEADER：PageHeaderSection 呈現 One operator 聲明 `[K-017]`
+### ~~AC-017-HEADER：PageHeaderSection 呈現 One operator 聲明 `[K-017]`~~ **RETIRED 2026-04-23 by K-040 sitewide font reset**
+
+> **Retired 2026-04-23 by K-040 (AC-040-SITEWIDE-FONT-MONO).** User scope-expansion ruling 2026-04-23 inverted the sitewide typography taxonomy — Bodoni Moda + italic retired; Geist Mono monospace voice with italic OFF becomes the sitewide default. The AC-017-HEADER block referenced display-font + italic hero voice semantics (via `about.spec.ts:43-56` comment referencing Bodoni italic). Under K-040, the PageHeader h1 renders in Geist Mono at Designer-calibrated 52px, italic OFF (per `docs/designs/K-040-designer-decision-memo.md` `about-v2.frame-wwa0m` sub-nodes `nolk3`/`02p72`). Engineer rewrites the 4 E2E spec blocks identified by QA-040-Q1 as part of AC-040-SITEWIDE-FONT-MONO implementation, NOT as regression. Text-content contract (hero text + 6-role comma list + tail sentence + `{ exact: true }`) preserved — only the font/italic axis is inverted. AC text body preserved below as historical record.
 
 **Given** 使用者訪問 `/about`
 **When** 頁面載入完成

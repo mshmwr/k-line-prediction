@@ -113,7 +113,9 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 
 ---
 
-### AC-022-HERO-TWO-LINE：Hero 分兩行視覺 `[K-022]`
+### ~~AC-022-HERO-TWO-LINE：Hero 分兩行視覺 `[K-022]`~~ **RETIRED 2026-04-23 by K-040 sitewide font reset**
+
+> **Retired 2026-04-23 by K-040 (AC-040-SITEWIDE-FONT-MONO).** The Bodoni-Moda-display + Bodoni-Moda-italic typographic voice is retired sitewide; About PageHeader Hero renders in Geist Mono at Designer-calibrated 52px, italic OFF (per `docs/designs/K-040-designer-decision-memo.md` `about-v2.frame-wwa0m` sub-nodes `nolk3` (line 1) / `02p72` (line 2)). The two-line visual break + main/tail spacing contract is preserved (structural layout unchanged); only the font family + italic axis inverts. Engineer rewrites the corresponding `about-v2.spec.ts:66-83` assertion block (Bodoni Moda + italic → Geist Mono + style=normal) as part of AC-040-SITEWIDE-FONT-MONO implementation, NOT as regression. AC text body preserved below as historical record.
 
 **Given** 使用者訪問 `/about`
 **When** 頁面載入完成
@@ -124,7 +126,9 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 
 ---
 
-### AC-022-SUBTITLE：每個 section 有 italic 副標 `[K-022]`
+### ~~AC-022-SUBTITLE：每個 section 有 italic 副標 `[K-022]`~~ **RETIRED 2026-04-23 by K-040 sitewide font reset**
+
+> **Retired 2026-04-23 by K-040 (AC-040-SITEWIDE-FONT-MONO).** The Newsreader italic subtitle voice is retired sitewide; 5 About section subtitles render in Geist Mono with `font-style: normal` per Designer decision memo. The structural contract ("each section has a subtitle line under its main title") is preserved; only the font family + italic axis inverts. Engineer rewrites the corresponding `about-v2.spec.ts:114-131` assertion block (3× Newsreader italic computed-style assertions → Geist Mono + style=normal) as part of AC-040-SITEWIDE-FONT-MONO implementation, NOT as regression. Note: K-034 Phase 2 `AC-034-P2-DRIFT-D26-SUBTITLE-VERBATIM` text-content assertions (verbatim subtitle strings) remain in force — K-040 inverts only the font axis, not the text content. AC text body preserved below as historical record.
 
 **Given** 使用者訪問 `/about`
 **When** 頁面滾動至 Metrics / Roles / Pillars / Tickets / Architecture 任一 section
