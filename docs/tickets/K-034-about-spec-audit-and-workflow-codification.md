@@ -2,12 +2,17 @@
 id: K-034
 title: /about spec audit + sitewide design-workflow codification (absorbs K-035 footer-drift hotfix + BFP Round 2; Phase 3 absorbs ex-K-038 /diary Footer adoption per user directive 2026-04-23)
 status: open
-phase: 0
+phase: 3
 type: fix + process
 priority: high
 visual-delta: yes
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-23 K-038-absorbed-to-K-034-P3
 design-locked: false
+phase-1-status: closed
+phase-1-deploy-sha256: 3457315d5fee7f57ccd852e5356888720c909e5cfef755db65265de48add47ff
+phase-2-status: closed
+phase-2-deploy-sha256: dacced7c34c01cb12c69578534babfde2dd0aadde8b4fe7db770dc48a764e959
+phase-2-deployed-at: 2026-04-23T08:32:16Z
 created: 2026-04-23
 depends-on: [K-034-phase-2-closed]
 supersedes: K-037 (would-be /about footer re-hotfix, absorbed into Phase 1)
@@ -1048,3 +1053,52 @@ Full review artifacts: see session transcript / `docs/retrospectives/reviewer.md
   #       shared Footer uses "Contact:" per Pencil SSOT homepage-v2.pen 86psQ)
   ```
 - **Deploy timestamp:** 2026-04-23 (Asia/Taipei)
+
+### Phase 2 — 2026-04-23 16:32:16 (Asia/Taipei)
+
+- **Deploy date:** 2026-04-23 16:32:16 (Asia/Taipei) — UTC 2026-04-23T08:32:16Z
+- **Git SHA (inner K-Line-Prediction):**
+  - `e8f6c65` feat(K-034 Phase 2): /about audit + 24 drift fixes + FileNoBar primitive
+  - `d100dc1` chore(K-034 Phase 2): Designer Pencil SSOT artifacts — /about scope
+  - `19f7cb4` docs(K-034 Phase 2): close — design doc + 27-row drift audit + 6 retros
+- **Git SHA (outer Diary mirror):** 3 mirror commits landed (chore(K-Line): mirror K-034 Phase 2 …)
+- **Hosting URL:** https://k-line-prediction-app.web.app
+- **HTTP status:** `/about` → 200 (verified via `curl -s -o /dev/null -w "%{http_code}"`)
+- **Bundle path:** `frontend/dist/assets/index-B8mfrsV-.js` (177,261 bytes)
+- **Bundle sha256 (local == prod, identical):** `dacced7c34c01cb12c69578534babfde2dd0aadde8b4fe7db770dc48a764e959`
+- **Build telemetry:** `vite build` — 2,100 modules transformed in 2.38s
+- **Deploy telemetry:** `firebase deploy --only hosting` — 16 files uploaded, version finalized, release complete
+- **Probe — AC-034-P2-DEPLOY verification (executed at close, output pasted):**
+  ```bash
+  # (1) prod /about HTTP status + bundle path resolution
+  curl -s -o /dev/null -w "%{http_code}" https://k-line-prediction-app.web.app/about
+  # → 200
+  curl -s https://k-line-prediction-app.web.app/about \
+    | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js' | head -1
+  # → assets/index-B8mfrsV-.js
+
+  # (2) bundle sha256 parity (local dist == prod CDN)
+  shasum -a 256 frontend/dist/assets/index-B8mfrsV-.js
+  # → dacced7c34c01cb12c69578534babfde2dd0aadde8b4fe7db770dc48a764e959
+  curl -s https://k-line-prediction-app.web.app/assets/index-B8mfrsV-.js | shasum -a 256
+  # → dacced7c34c01cb12c69578534babfde2dd0aadde8b4fe7db770dc48a764e959
+
+  # (3) ticket-specific identifier — K-034 Phase 2 new FileNoBar primitive
+  python3 -c "import re; d=open('/tmp/k034-p2-bundle.js','rb').read();
+              print('file-no-bar testid:', len(re.findall(rb'file-no-bar', d)));
+              print('FILE Nº literal:',    len(re.findall(rb'FILE N\xc2\xba', d)));
+              print('LAYER Nº literal:',   len(re.findall(rb'LAYER N\xc2\xba', d)))"
+  # → file-no-bar testid: 1
+  # → FILE Nº literal: 1
+  # → LAYER Nº literal: 1
+
+  # (4) negative probe — K-035 α-premise "Let's talk" CTA stays absent (Phase 1 hotfix still holds)
+  grep -c "Let's talk" /tmp/k034-p2-bundle.js
+  # → 0
+  grep -c "yichen.lee.20@gmail.com" /tmp/k034-p2-bundle.js
+  # → 1 (shared Footer one-liner per Pencil SSOT preserved)
+  ```
+- **QA verdict summary:** 251 passed / 1 pre-existing K-032 GA gap (not Phase 2 scope) / 1 skipped; all 7 audit tasks PASS; 1 new Minor TD-K034-P2-18 (MetricCard m1/m4 note typography drift) logged as non-blocker per PM ruling.
+- **Snapshot policy compliance:** Footer `toHaveScreenshot({ maxDiffPixelRatio: 0.02 })` tolerance per BQ-034-P2-ENG-01 Option A ruling; source-invariant shared Footer preserves K-035 α-premise regression tripwire (Option B baseline regen explicitly rejected).
+- **/about visual parity:** confirmed — dev-server visual + prod-bundle probe show FileNoBar primitive adopted across MetricCard / RoleCard / PillarCard / TicketAnatomyCard / ArchPillarBlock (per §6.2); Pencil JSON frames `BF4Xe.m*Top / 8mqwX.r*Top / UXy2o.p*Top / EBC1e.t*Top / JFizO.arch*Top` rendered as declared.
+- **Status:** Live
