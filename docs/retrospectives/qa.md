@@ -19,6 +19,14 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-23 — K-034 Phase 1 QA sign-off gap — TD-K030-03 recurrence
+
+**沒做好：** 兩層失誤：(a) K-034 Phase 1 QA sign-off 未以 `TICKET_ID=K-034` 前綴執行 `visual-report.ts`，直接跑 `npx playwright test visual-report.ts`，落入 TD-K030-03 已知 fallback 分支，寫出 `K-UNKNOWN-visual-report.html`；(b) 寫出後 QA 未察覺檔名不符，未依 persona §Sign-off step 1 硬規則（`K-UNKNOWN output = failure, must re-run`）重跑。Persona 規則明文存在，Phase 1 QA run 靜默 bypass；兩次同類汙染（K-030 一次、K-034 Phase 1 一次）= TD-K030-03 recurrence count 2。
+
+**下次改善：** (1) Persona §Sign-off stage step 2 後新增 post-step filename verification 硬 gate —— `ls docs/reports/K-${TICKET_ID}-visual-report.html` 必成功 AND `ls docs/reports/K-UNKNOWN-visual-report.html` 必失敗；任一違反 = sign-off BLOCKED，須清除 K-UNKNOWN 汙染後以正確 TICKET_ID 重跑 step 1。Pre-step 指示不足（已證明兩次 bypass），需 post-step 主動驗證。(2) TD-K030-03 優先級 中 → 高（recurrence count 2 觸發 escalation），下次 visual-report tooling 調整時必處理 throw-on-missing-TICKET_ID（根因修復）。本 session 已在 persona 硬 gate 層補 compensating control，但 tooling 層 fix 仍是正解。
+
+---
+
 
 ## 2026-04-23 — K-034 Phase 0 (BFP Round 2 for K-035 α-premise failure)
 

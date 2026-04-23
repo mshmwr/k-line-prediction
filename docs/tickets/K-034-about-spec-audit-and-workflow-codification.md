@@ -442,6 +442,14 @@ Full review artifacts: see session transcript / `docs/retrospectives/reviewer.md
 
 **Binding action:** K-031 selector change stands. Architect persona addendum scope expanded to cover DOM-id adjacency specs.
 
+### QA (2026-04-23, Phase 1 retroactive sign-off artifact fix)
+
+**Regression tests that were insufficient:** `visual-report.ts` lacks a fail-fast on missing `TICKET_ID` (TD-K030-03 still open — same fallback path that produced `K-UNKNOWN-visual-report.html` on K-030). QA persona §Sign-off stage step 1 hard-step warning (`K-UNKNOWN output = failure, must re-run`) was bypassed silently by the Phase 1 sign-off run. The persona rule existed only as pre-step instruction; no post-step verification enforced it.
+
+**Edge cases not covered:** N/A — Phase 1 structural coverage (shared-components.spec.ts + sitewide-footer.spec.ts + sitewide-fonts.spec.ts route DOM parity) was adequate. The gap was **sign-off artifact delivery**, not regression coverage. No behavioral test was missed; the visual report HTML simply landed under the wrong filename and went unnoticed.
+
+**Next time improvement:** (1) Bump TD-K030-03 priority 中 → 高 and move into next-in-queue for tooling fix (throw on missing `TICKET_ID` in `visual-report.ts`). (2) Add post-step filename verification gate to `qa.md` §Sign-off stage — `ls docs/reports/K-${TICKET_ID}-visual-report.html` must succeed AND `ls docs/reports/K-UNKNOWN-visual-report.html` must fail; either violation = sign-off BLOCKED. Codified in persona as hard step this session per `feedback_retrospective_codify_behavior`.
+
 ## Deploy Record
 
 ### Phase 1 — 2026-04-23

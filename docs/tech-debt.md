@@ -39,7 +39,7 @@
 | TD-K022-02 | `SectionLabel` 殭屍 colorMap（purple/cyan/pink/white）保留向後相容，K-026 確認 AppPage 也不用後一次清除 | K-022 Breadth Review I-3 | 低 | 2026-04-21 → K-026 後清理 |
 | TD-K030-01 | `AppPage` interaction regression E2E coverage 缺（PredictButton sticky 定位、OHLC edit 互動未有 Playwright 斷言）| K-030 Code Review I-1 | 低 | 2026-04-21 |
 | TD-K030-02 | `UnifiedNavBar` `renderLink` 本地 type alias 結構為 `typeof TEXT_LINKS[number]` 子集，應改用 `typeof` 派生型別避免 drift | K-030 Code Review M-3 | 低 | 2026-04-21 |
-| TD-K030-03 | `visual-report.ts` 未帶 `TICKET_ID` env var 時應 throw 而非 fallback `K-UNKNOWN`，避免 full Playwright suite 靜默汙染 `docs/reports/` | K-030 QA retro | 中 | 2026-04-21 |
+| TD-K030-03 | `visual-report.ts` 未帶 `TICKET_ID` env var 時應 throw 而非 fallback `K-UNKNOWN`，避免 full Playwright suite 靜默汙染 `docs/reports/` | K-030 QA retro + K-034 Phase 1 QA retro (recurrence) | 高 | 2026-04-23 |
 | TD-K030-04 | `frontend/public/diary.json` K-021/K-022/K-023 遺留繁中條目違反 `feedback_diary_json_english` 英文硬規則 | K-030 QA retro | 中 | 2026-04-21 |
 | TD-K029-01 | `about-v2.spec.ts` L474 / L487 Outcome / Learning label Playwright selector 使用 `locator('span', { hasText: 'Outcome' })` / `hasText: 'Learning'`；label copy 當下鎖定安全，但未來 data 彈性可能造成 sibling `<p>` 誤命中 | K-029 Reviewer Step 2 W-1 + QA sign-off | 低 | 2026-04-22 |
 | TD-K025-01 | Tailwind refactor AC grep pattern 對非 opacity-modifier utilities 為 degenerate proxy（`color:#hex` 只 match `/60` 等 alpha 變體，非 opacity 改用 `rgb(R G B / var(...))` 形式） | K-025 Reviewer W-1 | 中 | 2026-04-22 |
@@ -529,7 +529,10 @@ K-030 Engineer 交付後 Vitest 36 tests pass，但都只驗 render（`@testing-
 
 **建議解法：** `frontend/e2e/visual-report.ts` 頂層（Playwright test discover 階段外，以符合 `feedback_test_module_toplevel_pure` — 搬進 `test.beforeAll` 或 config setup）讀 `process.env.TICKET_ID`；未提供時直接 `throw new Error('TICKET_ID env var required for visual-report.ts')`；刪除 `K-UNKNOWN` fallback。
 
-**排期觸發條件：** 下次 visual-report tooling 調整或 CI 加入 visual-report job 時一併處理。
+**Recurrence log:**
+- 2026-04-23 K-034 Phase 1 QA sign-off produced second `K-UNKNOWN-visual-report.html` pollution file despite `qa.md` persona §Sign-off stage step 1 warning (`K-UNKNOWN output = failure, must re-run`). Priority bumped 中 → 高 (recurrence count = 2). Post-step filename verification gate added to `qa.md` §Sign-off stage step 2a as compensating control, but the tooling-level fix (throw on missing `TICKET_ID` in `visual-report.ts`) remains the correct root-cause solution.
+
+**排期觸發條件：** 下次 visual-report tooling 調整或 CI 加入 visual-report job 時一併處理。recurrence count = 2 觸發 escalation，下次碰到 visual-report 相關 work 即順手 close，不再 defer。
 
 ---
 
