@@ -60,26 +60,30 @@ test.describe('AC-022-SECTION-LABEL — Section labels + hairline', () => {
 // ── AC-022-HERO-TWO-LINE ──────────────────────────────────────────────────────
 // Given: user visits /about
 // When:  page loads
-// Then:  Hero main sentence Bodoni Moda italic + tagline Bodoni Moda italic
+// Then:  Hero main sentence + tagline render in Geist Mono (sitewide reset,
+//        K-040 AC-040-SITEWIDE-FONT-MONO). K-022 Bodoni italic voice retired
+//        2026-04-23; text-content + two-line layout contract preserved.
 
 test.describe('AC-022-HERO-TWO-LINE — Hero two-line structure', () => {
-  test('h1 contains main sentence with Bodoni Moda fontFamily', async ({ page }) => {
+  test('h1 contains main sentence with Geist Mono fontFamily (K-040 sitewide reset)', async ({ page }) => {
     await page.goto('/about')
     const h1 = page.getByRole('heading', { level: 1 })
     await expect(h1).toBeVisible()
     await expect(h1).toContainText('One operator, orchestrating AI')
     const mainFF = await h1.evaluate(el => getComputedStyle(el).fontFamily)
-    expect(mainFF).toContain('Bodoni Moda')
+    expect(mainFF).toMatch(/Geist Mono|ui-monospace/)
+    const mainStyle = await h1.evaluate(el => getComputedStyle(el).fontStyle)
+    expect(mainStyle).toBe('normal')
   })
 
-  test('tagline "Every feature ships with a doc trail." Bodoni Moda italic', async ({ page }) => {
+  test('tagline "Every feature ships with a doc trail." Geist Mono style=normal (K-040 sitewide reset)', async ({ page }) => {
     await page.goto('/about')
     const tagline = page.getByText('Every feature ships with a doc trail.', { exact: true })
     await expect(tagline).toBeVisible()
     const tagFF = await tagline.evaluate(el => getComputedStyle(el).fontFamily)
-    expect(tagFF).toContain('Bodoni Moda')
+    expect(tagFF).toMatch(/Geist Mono|ui-monospace/)
     const tagStyle = await tagline.evaluate(el => getComputedStyle(el).fontStyle)
-    expect(tagStyle).toBe('italic')
+    expect(tagStyle).toBe('normal')
   })
 
   test('brick accent on "agents end-to-end —" span', async ({ page }) => {
@@ -107,9 +111,10 @@ test.describe('AC-022-HERO-TWO-LINE — Hero two-line structure', () => {
 // ── AC-022-SUBTITLE ───────────────────────────────────────────────────────────
 // Given: user visits /about
 // When:  page scrolls to Metrics/Roles/Pillars/Tickets/Architecture
-// Then:  5 italic subtitles (Newsreader italic) exist
-// NOTE (K-034 Phase 2 §4.8 M-3): S4 h2 "How AI Stays Reliable" is text-content asserted only
-// (no computed-style fontSize/fontFamily check); TD-K034-P2-16 tracks adding Bodoni 30px verification.
+// Then:  3 section subtitles render in Geist Mono (sitewide reset,
+//        K-040 AC-040-SITEWIDE-FONT-MONO). K-022 Newsreader italic voice
+//        retired 2026-04-23; text-content + presence contract preserved
+//        (K-034 DRIFT-D26-SUBTITLE-VERBATIM still in force).
 
 test.describe('AC-022-SUBTITLE — Section italic subtitles', () => {
   test('3 data-section-subtitle elements exist', async ({ page }) => {
@@ -121,13 +126,13 @@ test.describe('AC-022-SUBTITLE — Section italic subtitles', () => {
     await expect(subtitles).toHaveCount(3)
   })
 
-  test('first subtitle fontFamily contains Newsreader and is italic', async ({ page }) => {
+  test('first subtitle fontFamily Geist Mono + style=normal (K-040 sitewide reset)', async ({ page }) => {
     await page.goto('/about')
     const firstSubtitle = page.locator('[data-section-subtitle]').first()
     const ff = await firstSubtitle.evaluate(el => getComputedStyle(el).fontFamily)
-    expect(ff).toContain('Newsreader')
+    expect(ff).toMatch(/Geist Mono|ui-monospace/)
     const style = await firstSubtitle.evaluate(el => getComputedStyle(el).fontStyle)
-    expect(style).toBe('italic')
+    expect(style).toBe('normal')
   })
 })
 

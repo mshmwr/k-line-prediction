@@ -89,7 +89,7 @@ export default function BusinessLogicPage() {
     <div className="min-h-screen flex flex-col">
       <UnifiedNavBar />
       <div className="flex flex-col items-center justify-center flex-1 px-6 py-16">
-      <h1 className="text-3xl font-mono font-bold mb-2">Business Logic</h1>
+      <h1 className="text-[36px] font-mono font-bold mb-2">Business Logic</h1>
       <p className="text-muted text-sm mb-10 text-center max-w-sm">
         This section is password-protected. It contains proprietary trading logic.
       </p>

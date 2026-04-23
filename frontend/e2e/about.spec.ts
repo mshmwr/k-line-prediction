@@ -40,15 +40,17 @@ test.describe('AC-017-HEADER — PageHeaderSection one-operator declaration', ()
   test('full hero text visible with correct role names and casing', async ({ page }) => {
     await page.goto('/about')
 
-    // h1 heading contains the main operator declaration (A-3: Bodoni Moda italic)
+    // h1 heading contains the main operator declaration (K-040 sitewide reset:
+    // Geist Mono 52px style=normal; K-017 Bodoni italic voice retired 2026-04-23).
     const h1 = page.getByRole('heading', { level: 1 })
     await expect(h1).toBeVisible()
     await expect(h1).toContainText('One operator, orchestrating AI')
     // agents end-to-end is a span inside h1 (accent color text-brick)
     await expect(h1).toContainText('agents end-to-end —')
 
-    // A-3: "PM, architect..." moved to separate p element (Newsreader italic, below h1)
-    // The intent of AC-017-HEADER is all role names are visible on the page
+    // K-040 sitewide reset: "PM, architect..." role line renders in Geist Mono
+    // style=normal (was Newsreader italic pre-K-040). Text-content contract +
+    // { exact: true } preserved per K-017 retire-in-place note.
     await expect(page.getByText('PM, architect, engineer, reviewer, QA, designer.', { exact: true })).toBeVisible()
 
     // Closing sentence is in a separate element (p or span), not crammed on same line
@@ -161,9 +163,11 @@ test.describe('AC-017-PILLARS — How AI Stays Reliable section', () => {
     await expect(page.getByText(/cross-conversation/)).toBeVisible()
     // Anchor blockquote
     await expect(page.getByText('Every "stop doing X" becomes a memory entry — corrections outlive the session.')).toBeVisible()
-    // Inline link to docs
-    const link = page.locator('a[href="/docs/ai-collab-protocols.md#per-role-retrospective-log"]')
+    // K-040 Item 11 BQ-040-04 Option A — docsHref rewritten from site-relative to GitHub blob URL
+    const link = page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/ai-collab-protocols.md#per-role-retrospective-log"]')
     await expect(link).toBeVisible()
+    await expect(link).toHaveAttribute('target', '_blank')
+    await expect(link).toHaveAttribute('rel', /noopener/)
   })
 
   test('Structured Reflection pillar: keywords + anchor quote + link', async ({ page }) => {
@@ -175,9 +179,11 @@ test.describe('AC-017-PILLARS — How AI Stays Reliable section', () => {
     await expect(page.getByText(/Bug Found Protocol gates fixes behind mandatory reflection/)).toBeVisible()
     // Anchor blockquote
     await expect(page.getByText('No memory write = the bug is not closed.', { exact: true })).toBeVisible()
-    // Inline link
-    const link = page.locator('a[href="/docs/ai-collab-protocols.md#bug-found-protocol"]')
+    // K-040 Item 11 BQ-040-04 Option A — docsHref rewritten from site-relative to GitHub blob URL
+    const link = page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/ai-collab-protocols.md#bug-found-protocol"]')
     await expect(link).toBeVisible()
+    await expect(link).toHaveAttribute('target', '_blank')
+    await expect(link).toHaveAttribute('rel', /noopener/)
   })
 
   test('Role Agents pillar: keywords + anchor quote + link', async ({ page }) => {
@@ -188,9 +194,11 @@ test.describe('AC-017-PILLARS — How AI Stays Reliable section', () => {
     await expect(page.getByText(/audit-ticket\.sh K-XXX/)).toBeVisible()
     // Anchor blockquote
     await expect(page.getByText('No artifact = no handoff.', { exact: true })).toBeVisible()
-    // Inline link
-    const link = page.locator('a[href="/docs/ai-collab-protocols.md#role-flow"]')
+    // K-040 Item 11 BQ-040-04 Option A — docsHref rewritten from site-relative to GitHub blob URL
+    const link = page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/ai-collab-protocols.md#role-flow"]')
     await expect(link).toBeVisible()
+    await expect(link).toHaveAttribute('target', '_blank')
+    await expect(link).toHaveAttribute('rel', /noopener/)
   })
 })
 

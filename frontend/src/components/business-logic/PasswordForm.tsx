@@ -21,7 +21,7 @@ export default function PasswordForm({ onSubmit, isLoading, expiredMessage }: Pa
           {expiredMessage}
         </p>
       )}
-      <label className="text-muted text-sm font-mono">Password</label>
+      <label className="text-muted text-[18px] font-mono font-bold">Password</label>
       <input
         type="password"
         value={password}
