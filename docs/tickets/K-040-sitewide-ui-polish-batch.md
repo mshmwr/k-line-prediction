@@ -261,7 +261,20 @@ Designer is first because `visual-delta: yes` on 7 of 8 items. Engineer may be d
 
 ## 6. Retrospective
 
-(Populated post-close.)
+### Engineer
+
+**AC judgments that were wrong:**
+
+- `AC-040-SITEWIDE-FONT-MONO` T-E6 assertion in `diary-page.spec.ts:419-464` used `.toFixed(1)` on computed lineHeight (unitless-lineHeight × fontSize pattern per `feedback_numeric_tohavecss_traps.md`). Body font size 18→15 shift changed expected `1.55 × 15 = 23.25` but `.toFixed(1)` → `"23.3"` while browser emits literal `"23.25px"`. Persona guidance flagged the exact pattern; I missed it on first pass. Fix: swap to `parseFloat` + `Math.abs(diff) < 0.01` tolerance.
+
+**Edge cases not anticipated:**
+
+- HomePage.tsx container shape — before Item 3, `/` was the only route with Footer nested inside `max-w-[1248px]` wrapper; the 3 other routes have Footer outside max-w. Item 3 AC (desktop padding parity) was interpreted as a padding-only change, but achieving `/diary`-style padding parity at 1248px max-w while keeping Footer nested meant Footer width continued to lag the other routes. Only caught when `shared-components.spec.ts:182` Footer-home snapshot failed with 1088×87 vs 1280×87; root-cause analysis surfaced that Item 3 carried an implicit structural refactor, not just a padding tweak. Lesson: page-level container restructures have cascading effects on Footer width; Architect Route Impact Table should have flagged "`/` Footer width drift" as a secondary consequence alongside the primary padding change.
+- Designer memo late-discovered BL `DYAX8` (48→36) + `AvEbq` (22→18 bold). My first-pass implementation missed these because the initial ticket-scope enumeration focused on Home/About/Diary; Designer's 36-row table included BL which I under-weighted because BL is pre-auth gate (low traffic). Lesson: memo row count > perceived page importance when planning site-crawl order.
+
+**Next time improvement:**
+
+- For any page-level container restructure (even when framed as "padding tweak"): capture Footer bounding-box width at each breakpoint before + after + compare all routes' Footer widths pairwise; flag divergence > 32px (1 Tailwind `sm:px-*` unit) as an Architect BQ before committing. This would have forced the HomePage full-bleed refactor to be a consciously-designed change, not a post-hoc snapshot-failure fix. Codified into `feedback_engineer_page_container_footer_width_parity.md` (to be authored same delivery round).
 
 ---
 
@@ -451,4 +464,50 @@ Engineer rewrites the 4 corresponding E2E spec blocks (`about-v2.spec.ts:66-83`,
 **Frontmatter verification:** `qa-early-consultation: docs/retrospectives/qa.md 2026-04-23 K-040-early-consultation` — confirmed present (line 11 at open of §0).
 
 **Handoff check:** `qa-early-consultation = docs/retrospectives/qa.md 2026-04-23 K-040-early-consultation, visual-delta = yes, design-locked = true → OK for Architect release (or Phase-2-skip direct to Engineer per §4 role sequencing).`
+
+### 2026-04-23 — Engineer delivery (2 commits landed, 1 open BQ)
+
+**Commit 1:** `4bcaf84 feat(K-040): sitewide Bodoni → Geist Mono typography reset + polish Items 2/3/4/11/14` — 23 files. Covers Items 1/2/3/4/11/14 source edits (tailwind.config.js + index.css + 13 `font-display` strips + 4 inline Bodoni strips + timelinePrimitives.ts + K-024-visual-spec.json atomic + 36-row memo size calibration + DiaryPage `pb-24→pb-12` + DevDiarySection `mt-10` + HeroSection mobile `mt-6 sm:mt-0` + PillarCard `target="_blank"` + 3× GitHub blob URL rewrite + 3× `<code class="not-italic">` strip + diary-page.spec.ts T-E6 lineHeight rewrite).
+
+**Commit 2:** `82d9bb9 feat(K-040): BL gate size calibration + HomePage full-bleed Footer refactor + E2E Sacred block rewrites` — 6 files. Covers Designer memo late-discovered BL/label sizes (`DYAX8` 48→36 + `AvEbq` 22→18 bold), HomePage.tsx container refactor (full-bleed Footer parity), and all 4 Sacred E2E spec block rewrites per QA-040-Q1 (about-v2.spec.ts AC-022 blocks + about.spec.ts AC-017 + sitewide-fonts.spec.ts full rewrite with 5 new T-AC040-H1-* / T-AC040-CODE-NOT-ITALIC IDs).
+
+**Raw-count post-gates (all 5 = 0, re-verified post-Commit 2):**
+
+| Gate | Pre | Post | Command |
+|------|-----|------|---------|
+| `font-display` class | 13 | 0 | `grep -rnE "\bfont-display\b" frontend/src/ --include='*.tsx'` |
+| Bodoni inline style | 4 | 0 | `grep -rnE "font-\[.Bodoni_Moda.\]\|fontFamily.*Bodoni" frontend/src/` |
+| Bodoni literal | 1 | 0 | `grep -rnE "'Bodoni Moda'\|\"Bodoni Moda\"" frontend/src/` |
+| tailwind.config.js keys | 2 | 0 | `grep -nE "display:\|italic:" frontend/tailwind.config.js` |
+| visual-spec.json Bodoni/Newsreader/italic | 8 | 0 | `grep -nE '"Bodoni Moda"\|"Newsreader"' docs/designs/K-024-visual-spec.json` |
+
+**Full Playwright suite:** 258 passed / 1 skipped / 2 failed.
+
+- **Failure 1 — K-040 Item 3 snapshot drift (expected, BQ-040-SNAPSHOT below):** `shared-components.spec.ts:182 Footer snapshot on /` baseline = 1088×87; post-refactor actual = 1280×87. Byte-identity T1 (`AC-034-P1-ROUTE-DOM-PARITY`) still PASS — Footer `outerHTML` preserved exactly; only Footer's rendered pixel width changed because HomePage container refactor moved Footer from inside the `max-w-[1248px]` wrapper to outside (matches /about /diary /business-logic pattern). Cross-route Footer pixel parity is now **stronger** than before (all 4 routes render Footer at viewport width instead of /home being uniquely clipped).
+- **Failure 2 — Unrelated pre-existing:** `ga-spa-pageview.spec.ts:142 AC-020-BEACON-SPA` — K-020 partial delivery (see `docs/retrospectives/engineer.md` 2026-04-22 K-020 entry). Not a K-040 regression; `useGAPageview` manual `gtag('event','page_view')` under `send_page_view: false` does not emit `/g/collect` beacon on SPA navigation. Tracked in K-032 (not this ticket's scope).
+
+**16-viewport visual sweep (QA-040-Q3 gate, all 16 PASS):**
+
+| Viewport | `/` | `/about` | `/diary` | `/business-logic` |
+|----------|-----|----------|----------|-------------------|
+| 375×812 | body/h1/footer Geist Mono ✓, footer 375×119 (wrapped) ✓ | body/h1/footer Geist Mono ✓, footer 375×119 ✓ | body/h1/footer Geist Mono ✓, footer 375×119 ✓ | body/h1/footer Geist Mono ✓, footer 375×119 ✓ |
+| 640×900 | body/h1/footer Geist Mono ✓, footer 640×86 (single-row) ✓ | body/h1/footer Geist Mono ✓, footer 640×86 ✓ | body/h1/footer Geist Mono ✓, footer 640×86 ✓ | body/h1/footer Geist Mono ✓, footer 640×86 ✓ |
+| 1280×800 | body/h1/footer Geist Mono ✓, footer 1280×86 ✓ | body/h1/footer Geist Mono ✓, footer 1280×86 ✓ | body/h1/footer Geist Mono ✓, footer 1280×86 ✓ | body/h1/footer Geist Mono ✓, footer 1280×86 ✓ |
+| 1920×1080 | body/h1/footer Geist Mono ✓, footer 1920×86 ✓ | body/h1/footer Geist Mono ✓, footer 1920×86 ✓ | body/h1/footer Geist Mono ✓, footer 1920×86 ✓ | body/h1/footer Geist Mono ✓, footer 1920×86 ✓ |
+
+Every cell verified: `bodyFF` = `"Geist Mono", monospace`, `h1FF` = `"Geist Mono", monospace`, `h1Style` = `normal`, `footerFF` = `"Geist Mono", monospace`. PNG artifacts captured under `/tmp/K-040-sweep/<route>-<vp>.png` (16 PNGs; discarded locally post-verification — not committed). Mobile 375w footer wraps to 2-row layout yielding 119px height; all other breakpoints single-row at 86px. **Home footer width at 1280w/1920w now matches /about /diary /business-logic exactly** (validates Item 3 structural parity).
+
+**BQ-040-SNAPSHOT (Engineer → PM, blocks ticket close):**
+
+| Question | Detail |
+|----------|--------|
+| Context | K-040 Item 3 refactored `HomePage.tsx` container from `<div className="min-h-screen pt-8 pb-8 ... max-w-[1248px]">` (Footer nested inside) to full-bleed outer `<div className="min-h-screen">` hosting Footer at viewport width, with `max-w-[1248px]` scoped to inner content wrapper. Rationale: brings `/` into structural parity with /about /diary /business-logic (all of which render Footer outside max-w container). Before: `/` uniquely clipped Footer to 1088px inner width. After: `/` renders Footer at 1280px viewport width like all other routes. |
+| Sacred integrity | `AC-034-P1-ROUTE-DOM-PARITY` T1 (byte-identity) PASS — Footer `outerHTML` character-for-character identical across all 4 routes (including `/`). Only the Footer's rendered pixel width changed; the DOM/text/font/class/structure is unchanged. |
+| Consequence | `shared-components.spec.ts:182 Footer snapshot on /` baseline image `footer-home-chromium-darwin.png` (1088×87) no longer matches runtime (1280×87). Baseline is stale. |
+| Option A — regenerate snapshot | Run `npx playwright test shared-components.spec.ts --update-snapshots --grep "Footer snapshot on /"` (scoped to the 1 failing snapshot, NOT blanket). Commit the new PNG in a separate "chore(K-040): regen /home Footer snapshot after Item 3 full-bleed refactor" commit. Rationale: the baseline captured pre-refactor clipped state that was itself the bug Item 3 fixed. New baseline captures the target design. **Engineer recommends Option A** — rationale: full-bleed Footer at 1280w is the design intent (matches other routes), K-034 Sacred byte-identity still holds, snapshot is a pixel proxy for byte-identity which remains green. |
+| Option B — revert Item 3 structural refactor | Restore `HomePage.tsx` to prior nested-container shape so Footer re-clips to 1088px inner width. Preserves old snapshot baseline. **Not recommended** — reinstates the exact cross-route Footer pixel inconsistency that Item 3 was scoped to fix. Would require re-opening AC-040-HOME-DESKTOP-PADDING Item 3 because desktop padding alignment is now intertwined with Footer width. |
+| Option C — keep snapshot red, accept partial | Mark K-040 `status: partial`, close Items 1/2/4/11/14, spin off Item 3 into a separate ticket with Footer baseline regen scheduled. **Not recommended** — Item 3 structural fix is landed and tested green (visual sweep 16/16 PASS); only the snapshot baseline lags. Partial-close would introduce unnecessary coordination overhead. |
+| Engineer decision | None — PM rules Option A vs B vs C. If Option A: Engineer executes `--update-snapshots` (scoped) + separate commit + ticket §8 appends regen rationale. If Option B: Engineer reverts HomePage.tsx + re-runs grep gates + sweep. If Option C: Engineer marks ticket partial + spins off Item 3 sub-ticket. |
+
+**Open ticket status:** `status: open` (blocked on BQ-040-SNAPSHOT). All other ACs green. Engineer retrospective populated in §6 Retrospective + `docs/retrospectives/engineer.md` prepended.
 

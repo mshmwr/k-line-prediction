@@ -16,6 +16,34 @@
 
 ---
 
+## 2026-04-23 — K-040 (sitewide UI polish batch — Bodoni→Geist Mono + 5 polish items)
+
+**做得好：**
+
+- **42-site Bodoni → Geist Mono 全站 reset** 按 Designer 36-row memo 1-to-1 鏡射完成；5 條 raw-count grep 閘門同 commit 驗證 pre={13,4,1,2,8} → post={0,0,0,0,0} 全零。沒有自作主張（遵 `feedback_engineer_design_spec_read_gate.md`）。
+- **timelinePrimitives.ts + K-024-visual-spec.json atomic edit gate** 嚴守：Commit 1 diff 同時包含 `'Bodoni Moda, serif'` → `'Geist Mono, ui-monospace, monospace'` (timelinePrimitives.ts:30) 與 JSON 8 個欄位翻轉；`diary-page.spec.ts:419-464` T-E6 同 commit 內 rewrite `.toFixed(1)` → `parseFloat + Math.abs() < 0.01` 容忍帶，承接 body size 18→15 的精度 shift。
+- **16-viewport visual sweep 全綠 (4 viewport × 4 route)**：body/h1/footer computed fontFamily 全為 `"Geist Mono", monospace`，h1 fontStyle 全 `normal`；sweep 附在 §8 Release Status 表。
+- **Sacred byte-identity 守住**：HomePage.tsx Item 3 結構性重構（Footer 移出 `max-w-[1248px]` 內層）後 `AC-034-P1-ROUTE-DOM-PARITY` T1 全綠 — Footer outerHTML 跨 4 route 字元級相同，僅 render 時 Footer 像素寬度從 1088 → 1280 對齊其餘路由。
+- **QA-040-Q1 四條 stale Sacred E2E block rewrite** 全數鏡射新文字契約完成（about-v2 AC-022-HERO-TWO-LINE + AC-022-SUBTITLE、about AC-017-HEADER、sitewide-fonts AC-021-FONTS），5 個新測試 ID（T-AC040-H1-{HOME,ABOUT,DIARY,BL} + T-AC040-CODE-NOT-ITALIC）全綠。
+- **Worktree `node_modules/.vite` 手動 invalidate + dev server pkill + fresh start** 依 persona K-030 retro 規矩執行，避開 Vite transform cache 殘留坑。
+
+**沒做好：**
+
+- **`.toFixed(1)` 精度坑**：T-E6 body size 18→15 後 `1.55 × 15 = 23.25` 但 `.toFixed(1)` → `"23.3"` 而 browser 發 `"23.25px"`；persona memory `feedback_numeric_tohavecss_traps.md` 已明載此 trap 卻首 pass 仍寫成 `.toFixed(1) + toHaveCSS` → Playwright 直接掛。Root cause：依賴記憶而非每次開 persona 規則對照實際 raw `getComputedStyle` 值。
+- **HomePage Item 3 結構性重構未在設計時揭露**：原 AC 文字僅敘述「padding narrow 對齊 /diary」，但 `/` 是唯一把 Footer 包在 `max-w-[1248px]` 內層的頁面 — 要達成 padding parity 時 Footer 寬度必落後；首 commit 完成後才被 `shared-components.spec.ts:182` Footer snapshot FAIL 逼出結構性副作用（1088→1280）。Route Impact Table 應早列「`/` Footer 寬度 drift」為次要後果，不等 snapshot 掛才重構。
+- **Designer memo BL 兩列（DYAX8 48→36、AvEbq 22→18 bold）首 commit 漏做**：初 pass 把注意力放在 Home/About/Diary 三頁；BL 是 pre-auth gate 被認為「低流量」就排在後面才發現；Commit 2 補回。Memo row 數 > 主觀頁面重要性評估。
+
+**下次改善：**
+
+- **任何頁面級 container 重構（即使包裝成「padding 調整」）commit 前必 capture 所有 route Footer `getBoundingClientRect().width` 在各 breakpoint 的前後對照表**；發現單一 route 與其他 route footer width 偏離 > 32px（1 Tailwind `sm:px-*` 單位）→ 主動回報 Architect BQ，不等 snapshot 失敗才發現結構副作用。將本條 codify 為 `feedback_engineer_page_container_footer_width_parity.md`（本 round 同 commit 補）+ Edit persona Step 4 加入「頁面 container 重構必做 Footer 寬度 pairwise diff」硬 gate。
+- **`feedback_numeric_tohavecss_traps.md` 的 4 類 trap（IEEE-754 residue / unitless lineHeight × fontSize / Tailwind tracking-wide 0.025em≠1px / Tailwind leading-*）** 在每次寫 Playwright font assertion 前強制開檔對照；把 trap 清單以 inline comment 寫在 assertion 上方才能 commit。
+
+**下次改善 codify 路徑**（per `feedback_retrospective_codify_behavior.md`）：
+
+- persona `~/.claude/agents/engineer.md` §Frontend Implementation Order 加入 Step 4a「頁面 container 重構 Footer 寬度 pairwise diff gate」。
+
+---
+
 ## 2026-04-23 — K-034 Phase 3 (/diary adopts shared Footer, absorbs ex-K-038)
 
 **做得好：**
