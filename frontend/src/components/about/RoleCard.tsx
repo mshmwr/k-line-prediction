@@ -6,15 +6,16 @@ import FileNoBar from './FileNoBar'
  * Used on: /about (RoleCardsSection)
  *
  * Pencil frame 8mqwX.role_* — dark FILE Nº 0N · PERSONNEL top bar + body:
- *   - Bodoni Moda italic 700 role name in brick; size 36 for 2-char roles (PM/QA), 32 otherwise
+ *   - bold role name in brick; size 26 for 2-char roles (PM/QA), 22 otherwise
  *   - 40px × 1px charcoal rule
  *   - OWNS label (Geist Mono 10 muted letterSpacing 2 uppercase)
- *   - owns text (Newsreader italic 14 ink lh 1.5)
+ *   - owns text (12 ink lh 1.5, inherits Geist Mono)
  *   - ARTEFACT label (same style as OWNS)
- *   - artefact text (Geist Mono 12 ink lh 1.5 — NOT italic, NOT muted)
+ *   - artefact text (Geist Mono 12 ink lh 1.5)
  *
  * D-5: ROLE_ANNOTATIONS + `annotation` prop removed.
  * D-8: `redactArtefact` prop removed (Reviewer no longer redacted per PM ruling).
+ * K-040: typeface retired; all fonts inherit Geist Mono from body.
  */
 interface RoleCardProps {
   fileNo: number

@@ -3,8 +3,9 @@
  * Used on: /about
  *
  * Pencil frame wwa0m — titleColumn gap 18, left-aligned, full-width 1px charcoal divider
- * sitting between hero sentence (2 spans) and roleLine (Newsreader italic 18). Tagline
- * is Bodoni Moda italic 700 22 at bottom. Entire block left-aligned (no text-center).
+ * sitting between hero sentence (2 spans) and roleLine (16 ink). Tagline
+ * is bold 18 ink at bottom. Entire block left-aligned (no text-center).
+ * (K-040 typeface retire — site-wide Geist Mono reset; fonts now inherit from body.)
  *
  * Hero h1 has two <span className="block"> children so each line wraps independently and
  * preserves line-height 1.05 per Pencil (ttl1/ttl2).

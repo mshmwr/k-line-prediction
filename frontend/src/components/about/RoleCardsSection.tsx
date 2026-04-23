@@ -6,7 +6,7 @@ import RoleCard from './RoleCard'
  *
  * Pencil frame 8mqwX — 6 role cards (PM/Architect/Engineer/Reviewer/QA/Designer).
  * Section has NO internal h2 (SectionLabelRow "Nº 02 — THE ROLES" owns the heading
- * per AboutPage.tsx); subtitle is Pencil s3Intro literal (Newsreader italic 15 ink).
+ * per AboutPage.tsx); subtitle is Pencil s3Intro literal (15 ink, inherits Geist Mono).
  *
  * ROLES data mirrors Pencil 8mqwX.r{1..6} verbatim. Reviewer ARTEFACT is unredacted
  * per PM ruling (Pencil shows plain text).

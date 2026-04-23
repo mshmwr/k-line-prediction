@@ -7,8 +7,9 @@ import FileNoBar from './FileNoBar'
  * Used on: /about (TicketAnatomySection)
  *
  * Pencil frame EBC1e.ticket_* — dark FILE Nº 0N · CASE FILE bar with trailing K-00N;
- * body with Case Nº prefix, Bodoni 26 italic title, 40px charcoal rule, OUTCOME label,
- * Newsreader italic 13 outcome, LEARNING label, brick learning body, GitHub link.
+ * body with Case Nº prefix, bold 20 title, 40px charcoal rule, OUTCOME label,
+ * 12 ink outcome, LEARNING label, 12 brick learning body, GitHub link.
+ * (K-040 typeface retire — fonts inherit Geist Mono from body.)
  *
  * Testid preservation (AC-029 compatibility contract per Phase 2 design doc):
  *   - `ticket-anatomy-id-badge` — sr-only span styled `text-charcoal` keeps the K-029

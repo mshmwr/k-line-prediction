@@ -7,13 +7,14 @@ import FileNoBar from './FileNoBar'
  * Used on: /about (ReliabilityPillarsSection)
  *
  * Pencil frame UXy2o.pillar_* — dark FILE Nº 0N · PROTOCOL top bar + body:
- *   - Bodoni Moda italic 700 26px ink title (lh 1.15)
+ *   - bold 20 ink title (lh 1.15)
  *   - 40px × 1px charcoal rule
- *   - Newsreader italic 14 ink body (lh 1.6)
- *   - border-l-[3px] brick quote (Bodoni italic 700 14 brick, padding-l 14)
- *   - Geist Mono 11 ink link (no italic, no underline; letterSpacing 1)
+ *   - 12 ink body (lh 1.6)
+ *   - border-l-[3px] brick quote (bold 12 brick, padding-l 14)
+ *   - Geist Mono 11 ink link (no underline; letterSpacing 1)
  *
  * D-13: `layerLabel` prop removed (FileNoBar prefix="FILE Nº" + label="PROTOCOL").
+ * K-040: typeface retired; all fonts inherit Geist Mono from body.
  *
  * Editorial markup exemption (K-034 Phase 2 §4.8 C-1a ruling, PM 2026-04-23):
  *   Consumer (`ReliabilityPillarsSection.tsx`) wraps file-path tokens

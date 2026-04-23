@@ -3,12 +3,12 @@ import FileNoBar from './FileNoBar'
 import RedactionBar from './RedactionBar'
 
 /**
- * MetricCard (K-034 Phase 2 §7 Step 3 — D-2/D-3/D-7)
+ * MetricCard (K-034 Phase 2 §7 Step 3 — D-2/D-3/D-7; K-040 typeface retire)
  * Used on: /about (MetricsStripSection)
  *
  * Pencil frame BF4Xe.m{1..4}_* — dark FILE Nº top bar + body with optional redaction bar,
- * optional big Bodoni 76 number, Bodoni italic title (22 for number-cards / 28 for text-cards),
- * optional Newsreader italic subtext, Newsreader italic note.
+ * optional big 64 bold ink number, bold title (18 for number-cards / 22 for text-cards),
+ * optional 12 ink subtext, optional 11 muted note. Fonts inherit Geist Mono from body.
  *
  * m2 "First-pass Review Rate" renders redaction bar AND visible subtext+note simultaneously
  * (D-3 — redaction is aesthetic motif; text stays readable, no sr-only).
@@ -16,7 +16,7 @@ import RedactionBar from './RedactionBar'
 interface MetricCardProps {
   fileNo: number
   title: string
-  /** Optional big Bodoni number (m1 = "17", m4 = "3"); m2/m3 omit. */
+  /** Optional big bold ink number (m1 = "17", m4 = "3"); m2/m3 omit. */
   bigNumber?: string
   subtext?: string
   note?: string

@@ -7,7 +7,7 @@
 4. Sacred AC-034-P1-ROUTE-DOM-PARITY verified independently: T1 byte-identity assertion intact + all 4 per-route baselines present + Footer.tsx unchanged.
 
 **What went wrong:**
-1. Design doc + ticket §1 contain a path-pointer mismatch (`frontend/src/utils/timelinePrimitives.ts` vs actual `frontend/src/components/diary/timelinePrimitives.ts`). Architect §9 self-diff was supposed to catch this but verified row counts only, not path strings. This should have been caught at Architect stage.
+1. Design doc + ticket §1 contain a path-pointer mismatch (typo directory `frontend/src/utils/` under filename `timelinePrimitives.ts` vs actual `frontend/src/components/diary/timelinePrimitives.ts`). Architect §9 self-diff was supposed to catch this but verified row counts only, not path strings. This should have been caught at Architect stage.
 2. `valueFont: 'italic' | 'mono'` prop enum in ArchPillarBlock survived AC-040 italic-retire because design doc §3 File Change Manifest enumerated class-level strips only, not prop-name / JSDoc descriptor sweeps. Pre-Design Audit §6 didn't audit prop enums. This is a structural design-doc gap for "token retire" refactors.
 3. JSDoc comment sweep missed — 14+ `/about` component JSDoc headers still describe Bodoni Moda / Newsreader voice. Not a code-level issue, but Pencil-SSOT documentation pointers that now mislead future readers. No existing Reviewer gate forced a JSDoc grep for retired tokens.
 

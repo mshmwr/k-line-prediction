@@ -32,14 +32,14 @@ export default function ProjectArchitectureSection() {
               label: 'BOUNDARY',
               value:
                 'Frontend (React/TypeScript) and backend (FastAPI/Python) live in one repo.',
-              valueFont: 'italic',
+              valueFont: 'body',
             },
             {
               type: 'labelValue',
               label: 'CONTRACT',
               value:
                 'Every cross-layer change starts with a written API contract mapping snake_case (backend) ↔ camelCase (frontend) — parallel agents implement against it.',
-              valueFont: 'italic',
+              valueFont: 'body',
             },
           ]}
         />
@@ -54,7 +54,7 @@ export default function ProjectArchitectureSection() {
               label: 'SPEC FORMAT',
               value:
                 'Acceptance Criteria are written in Behavior-Driven Development (BDD) style — Given/When/Then/And scenarios — so every Playwright test mirrors the spec 1:1.',
-              valueFont: 'italic',
+              valueFont: 'body',
             },
             {
               type: 'labelValue',

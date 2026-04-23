@@ -2,15 +2,15 @@ import CardShell from '../primitives/CardShell'
 import FileNoBar from './FileNoBar'
 
 /**
- * ArchPillarBlock (K-034 Phase 2 §7 Step 7 — D-16/D-17/D-18)
+ * ArchPillarBlock (K-034 Phase 2 §7 Step 7 — D-16/D-17/D-18; K-040 typeface retire)
  * Used on: /about (ProjectArchitectureSection)
  *
  * Pencil frame JFizO.arch_* — dark LAYER Nº 0N · <CATEGORY> bar + body:
- *   - Bodoni Moda italic 700 24 ink title (lh 1.15)
+ *   - bold 20 ink title (lh 1.15)
  *   - 40px × 1px charcoal rule
  *   - For arch1/arch2: label/value rows (Geist Mono 10 muted uppercase label +
- *     Newsreader italic 14 ink body, or Geist Mono 12 ink for file-path bodies)
- *   - For arch3: testingPyramid rows with Bodoni 22 brick Nº + label + detail
+ *     Geist Mono 12 ink body, or Geist Mono 12 ink for file-path bodies)
+ *   - For arch3: testingPyramid rows with 22 brick Nº + label + detail
  *
  * Testid preservation (AC-029-ARCH-BODY-TEXT contract):
  *   - `arch-pillar-body` × 3 — body wrapper per pillar (color-inheriting allow-list).
@@ -21,8 +21,8 @@ interface LabelValueField {
   type: 'labelValue'
   label: string
   value: string
-  /** value font family: 'italic' = Newsreader italic ink, 'mono' = Geist Mono 12 ink */
-  valueFont?: 'italic' | 'mono'
+  /** value font family: 'body' = Geist Mono 12 ink body, 'mono' = Geist Mono 12 ink file-path */
+  valueFont?: 'body' | 'mono'
 }
 
 interface PyramidField {

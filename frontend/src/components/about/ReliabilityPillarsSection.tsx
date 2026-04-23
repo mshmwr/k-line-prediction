@@ -6,7 +6,7 @@ import PillarCard from './PillarCard'
  *
  * Pencil frame UXy2o — 3 pillars (Persistent Memory / Structured Reflection / Role Agents).
  * Section has NO internal section-subtitle (Pencil s4Intro renders as h2 "How AI Stays
- * Reliable", Bodoni Moda italic 700 30px).
+ * Reliable", bold 22 ink; inherits Geist Mono per K-040 typeface retire).
  *
  * Body text is Pencil-VERBATIM from `frontend/design/specs/about-v2.frame-UXy2o.json`
  * `pillar_{1,2,3}.p*BodyText.content` — including the p3 sentence
