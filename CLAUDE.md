@@ -36,6 +36,17 @@ PM (define req) → Architect (design) → Engineer (implement) → Code Reviewe
 - Regression: run full Playwright E2E suite, confirm new features didn't break existing
 - All tests pass before releasing to PM
 
+### Worktree Isolation (mandatory for every ticket, 2026-04-23)
+
+Every ticket (K-XXX) must be worked in its own worktree under `.claude/worktrees/K-XXX-<slug>/` — main branch never receives WIP commits (code or docs).
+
+- **Creation gate:** PM creates worktree at ticket open, before first Architect release. See `~/.claude/agents/pm.md` §Session Handoff Verification §Worktree isolation pre-flight for the full checklist.
+- **Naming:** `.claude/worktrees/K-XXX-<kebab-slug>` + branch `K-XXX-<kebab-slug>` (slug = ticket title, lowercase kebab-case, ≤4 words).
+- **Scope:** all roles (Architect / Engineer / Designer / Reviewer / QA) operate inside the worktree absolute path; ticket docs, PRD edits, retrospectives, diary.json updates — all through worktree.
+- **Docs-only tickets:** still require worktree. PRD / dashboard / retro edits are WIP until the ticket closes.
+- **Merge-back:** `/commit-diary` Step 8 auto-rebases onto latest main + FF-merges after ticket close. Do not manually commit to main during ticket work.
+- **Violation marker:** `git status` on main repo root showing ticket-scoped modified files = worktree gate bypass; PM must halt, migrate changes into worktree, reset main before continuing.
+
 ### Per-Role Retrospective Logs (enabled from K-008)
 
 Each role agent must **prepend** one entry (newest first) to `docs/retrospectives/<role>.md` before declaring task complete:
