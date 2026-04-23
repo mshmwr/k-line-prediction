@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-04-23 — K-040 Item 1 sitewide typography reset 設計
+
+**做得好：** Designer memo 的 36-row per-site calibration table + QA-040 Early Consultation 的 6 個 Q 都已被 PM 落地進 AC，Route Impact Table 建立 5 routes × 多 component 時幾乎所有資料都有單一來源可引用，不用自己在 Pencil 或 Figma 再判斷；Pre-Design Audit 對 4 個 "pre-existing" shared component mono 斷言都用 `git show HEAD:<path>` 實證通過，沒有憑印象代入。
+
+**沒做好：** Ticket §2 AC And-clause 8 的 grep pre-count "1" for `"Bodoni Moda"` string literal 在 §6 Pre-Design Audit 階段發現可能 under-count — `timelinePrimitives.ts:30` 的 `'Bodoni Moda, serif'` 會被 ticket 的 grep pattern 命中但 ticket 只寫 "1"。第一時間沒有直接寫 BQ 給 PM，而是在 §6 以「⚠ clarifying observation」形式記下，讓 Engineer impl 時 re-grep 對帳，等於把 PM 的判斷踢給 Engineer；這不符合「Architect surface ambiguity for PM ruling」的 Scope Question Pause Rule。
+
+**下次改善：** 當發現 ticket AC hard-coded 數字與自己 grep 不一致（即使可能只是 counting 定義問題），立刻寫 §0 Scope Question 回 PM，不要用 "Engineer 到時會 re-grep" 自我合理化。將這條 codify 進 `senior-architect.md` §Scope Question Pause Rule 的觸發條件：「AC 硬編碼數字 ≠ 自驗 grep 數字」也屬於 scope inconsistency 必須 pause 的 case。
+
+---
+
 ## 2026-04-23 — K-034 Phase 3 — /diary shared Footer adoption design doc
 
 **做得好：**
