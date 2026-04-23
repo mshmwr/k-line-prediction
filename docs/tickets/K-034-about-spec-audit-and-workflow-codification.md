@@ -680,7 +680,7 @@ Before authoring new Phase 2 drift AC, cross-checked against:
 - **When** Playwright loads the route and asserts `<footer>` count
 - **Then** `locator('footer').count() === 0` (no Footer DOM, per K-030 AC-030-NO-FOOTER Sacred)
 - **And** `app-bg-isolation.spec.ts` and `sitewide-fonts.spec.ts` L56 `/app` Footer removal comment remain unchanged (zero edits to these files in Phase 3)
-- **And** `shared-components.spec.ts` T4a `/app — no Footer` assertion preserved (distinct from retired T4 `/diary — no Footer`)
+- **And** `/app` no-Footer Sacred preservation is asserted by **`app-bg-isolation.spec.ts` `AC-030-NO-FOOTER — /app page has no Footer` describe block** (L70-L99 at HEAD) — this file is the SSOT for `/app` no-Footer coverage per `feedback_shared_component_inventory_check` single-source-of-truth principle; `shared-components.spec.ts` explicitly delegates to it via L109-110 inline comment (HEAD). **Preservation predicate = zero Edits to `app-bg-isolation.spec.ts` AC-030-NO-FOOTER block this Phase.** (Aligned with BQ-034-P3-04 ruling §4.6, 2026-04-23 — supersedes earlier wording that referenced `shared-components.spec.ts` T4a; T4a never existed in HEAD, the reference was AC-text drift.)
 
 #### AC-034-P3-INVENTORY-UPDATED — shared-components-inventory.md Footer row adds /diary with BQ-034-P3-01 footnote
 - **Given** `docs/designs/shared-components-inventory.md`
@@ -781,6 +781,29 @@ QA Early Consultation ran on the ex-K-038 scope (now Phase 3) — see `docs/retr
 
 **Handoff check: qa-early-consultation = `docs/retrospectives/qa.md 2026-04-23 K-038-absorbed-to-K-034-P3` (9 QA Challenges all ruled) → OK**
 **Handoff check: visual-delta = `yes`, design-locked = `true` → OK**
+
+### §4.6 PM Ruling on BQ-034-P3-04 — T4a `/app` no-Footer assertion SSOT (2026-04-23)
+
+**BQ raised by Architect** (inline in design doc §7.1 + §8.1): AC-034-P3-PREVIOUS-SACRED-PRESERVED (L683) cites `shared-components.spec.ts` T4a `/app — no Footer` assertion as "preserved," but HEAD `shared-components.spec.ts` L99-112 contains only T4 (`/diary` — to be retired this Phase) — there is no T4a block. L109-110 inline comment explicitly delegates `/app` no-Footer coverage to `app-bg-isolation.spec.ts` AC-030-NO-FOOTER (single source of truth per `feedback_shared_component_inventory_check`).
+
+**PM arbitration (multi-dimensional scoring + red-team self-check per `pm.md §Arbitration Rules`):**
+
+| Candidate | SSOT / duplication | Existing codebase evidence | AC text faithfulness | Implementation cost | Maintenance burden | Architect recommendation fit | Total |
+|-----------|--------------------|----------------------------|----------------------|--------------------|--------------------|------------------------------|-------|
+| (a) Interpret via `app-bg-isolation.spec.ts` AC-030-NO-FOOTER | 2 (SSOT preserved) | 2 (L109-110 HEAD delegate comment + `app-bg-isolation.spec.ts:L70` `AC-030-NO-FOOTER` describe block + L75-99 `<footer>` count 0 + semantic-role absent assertions) | 1 (AC wording refers to T4a — needs cross-ref Edit for clarity) | 2 (zero code change) | 2 (single place to maintain) | 2 (matches Architect Rec) | **11/12** |
+| (b) Engineer adds new T4a inline in `shared-components.spec.ts` | 0 (SSOT violated — duplicates AC-030-NO-FOOTER assertion) | 0 (directly contradicts L109-110 delegate comment) | 2 (verbatim AC faithful) | 1 (~5 LOC new test) | 0 (two-place maintenance) | 0 (contradicts Architect Rec) | **3/12** |
+| (c) PM Edits AC L683 to remove T4a reference entirely | 2 (SSOT preserved) | 2 | 0 (loses Sacred-preservation intent; no SSOT pointer) | 2 | 2 | 1 (partial) | **9/12** |
+
+**Red-team self-check:**
+- **Engineer audience challenge:** "Opening AC L683 I see literal `T4a` text but `shared-components.spec.ts` has no T4a — I'll be confused." → Counter: Option (a) rewrites the AC's `And` line with explicit SSOT cross-reference pointer, removing the confusion.
+- **Reviewer audience challenge:** "Editing AC of a Sacred-preservation line = modifying a Sacred — PM authority?" → Counter: the ruling **preserves** the Sacred intent (`/app` has no Footer) verbatim; only the SSOT pointer is clarified. Falls under `feedback_pm_ac_sacred_cross_check.md` Option (a) (rewrite for alignment; add dated note), NOT Sacred retirement. K-030 `AC-030-NO-FOOTER` itself is untouched.
+- **Devil's-advocate 3-months-later:** "Someone refactors `app-bg-isolation.spec.ts` and deletes `AC-030-NO-FOOTER` block — `/app` Sacred has no guard." → Counter: same risk applies to Option (b) in 2 places (doubled risk); mitigation is ticket §4.6 + AC cross-ref pinning the SSOT location so future grep for `AC-030-NO-FOOTER` surfaces both references (`app-bg-isolation.spec.ts:L70` + K-034 AC L683).
+
+**Verdict: Option (a), score 11/12.** `app-bg-isolation.spec.ts` AC-030-NO-FOOTER is the SSOT for `/app` no-Footer Sacred preservation; `shared-components.spec.ts` delegates per inline L109-110 comment. Adding a duplicate T4a would violate `feedback_shared_component_inventory_check` single-source-of-truth principle and contradict the explicit HEAD delegate comment.
+
+**Biggest unresolved risk:** future refactor of `app-bg-isolation.spec.ts` accidentally dropping the AC-030-NO-FOOTER describe block; mitigation = ticket §4.6 + AC L683 cross-ref pinning SSOT location.
+
+**Binding consequence:** AC-034-P3-PREVIOUS-SACRED-PRESERVED last `And` line is Edited this commit to reference `app-bg-isolation.spec.ts` AC-030-NO-FOOTER as SSOT. Engineer Phase 3 implementation **does NOT add** a T4a block to `shared-components.spec.ts`; Engineer **verifies** that `app-bg-isolation.spec.ts` AC-030-NO-FOOTER remains unchanged post-implementation (zero edits to that file is the preservation predicate).
 
 ### Phase 3+ — as uncovered in Phase 2 or Phase 3 close.
 

@@ -18,6 +18,24 @@
 
 ---
 
+## 2026-04-23 — K-034 Phase 3 — /diary shared Footer adoption design doc
+
+**做得好：**
+- §1 Pre-Design Audit 用 `git show HEAD:<path>` + Read 組合驗 11 個 source file 當前狀態（DiaryPage / Footer / 3 spec files / 3 ticket files / 2 doc files / architecture.md），truth table 每列都對應到後續 §5 File Change List 的具體 L<n> 行號；符合 persona §Pre-Design Dry-Run Proof 硬 gate。§1.3 Pre-existing claims cited 3 條（Footer prop-less / DiaryPage root wrapper full-bleed / HomePage ancestor padding INHERITED）每條都附 `git show HEAD:<path>:L<n>` 引用，無 bare Read 依賴。
+- §3.1 DiaryPage Footer placement 三選項對照表（A 根 div sibling / B main 內 / C per-branch）用 5 維度 scoring 全部壓倒性 A > B > C，Option A 明確對應 AC 原文 "last sibling under the page root"，沒有 post-hoc tiebreaker。§3.2 sitewide-footer.spec.ts 重構也跑 α vs β 對照，Option α 直接對應 AC 原文 "route loop"。
+- §7.1 Known Gap BQ-034-P3-04（`shared-components.spec.ts` T4a `/app — no Footer` HEAD 不存在但 AC 引用）主動發現並 flag 給 PM，附三個 option 沒有自行代決 — 符合 persona §Scope Question Pause Rule + `feedback_ticket_ac_pm_only.md`。設計文件其他內容繼續 deliver 因 BQ-034-P3-04 非 blocker（不影響其他 6 AC 實作）。
+- §13 §API 不變性 dual-axis：wire-level `git diff main -- backend/ frontend/src/types.ts frontend/src/types/diary.ts` = 0 diff，加 frontend observable 4-row class（full-set / subset / empty / boundary）全行為等價且 Footer 為 additive；符合 `feedback_architect_pre_design_audit_dry_run.md` K-013 雙軸硬 gate。
+- architecture.md 3 處結構性 Edit（Frontend Routing `/diary` 列 / Footer 放置策略 `/diary` cell / Shared Components 邊界 Footer 列）+ Changelog prepend + frontmatter `updated:` 4 處同 commit；Self-Diff Verification `grep "Footer\|/diary"` 掃 23 hits 全部 classified（current-state 編輯一致、historical Changelog 保留、Directory Structure L180 歷史 comment 不改），符合 persona §Same-File Cross-Table Sweep + §Pre-Write Name-Reference Sweep。
+
+**沒做好：**
+- §7.1 Known Gap BQ-034-P3-04 雖正確 flag 給 PM，但理想上應該在 §0 Scope Questions 就提出 — persona §Scope Question Pause Rule 要求「發現 AC vs 程式碼矛盾即停」。本次在 §7.1 才 surface 的原因是 pre-design audit §1.1 只 grep 了現有 spec files 的結構位置，沒有 cross-check AC 引用的每一個 test id / describe name 是否都在對應 spec file HEAD 存在。結果是 design doc 已 deliver 但 BQ 待 PM 裁決；若 §0 就發現，可能可以在 same session 等 PM ruling 後直接修齊，省一 round trip。
+- §10 Architect self-diff 聲稱 `shared-components-inventory.md` 無需 Edit 因「已於 ex-K-038 PM phase 預先編輯完成」— 這個斷言是基於單次 Read 驗證（第 27 行有 `/diary` + footnote、36 行 `/diary` bullet struck-through），但沒 `git show HEAD` 明確驗證該 Edit 已進入 HEAD 而非 WIP。實際已 verified（inventory.md 是 HEAD 檔，單 Read 即真相），但 persona §Pre-Design Audit 要求「對 pre-existing 斷言必 `git show HEAD:<path>:L<n>`」；這裡屬於窄邊界案例（inventory 非被引用為 pre-existing 行為，而是被斷言為「已預先編輯」），不在硬 gate 範圍但值得記錄。
+
+**下次改善：**
+- §0 Scope Questions / Pre-Design Audit 擴大範圍：當 ticket AC 引用具體 test id（T1 / T4 / T4a 等）、describe name、spec file 內的具體 LN 時，pre-design audit §1.1 truth table 必須每個引用都 `grep -n "<test-id>" <spec-file>` 驗存在，缺一即列 §0 Scope Question。此次若有這條 rule，BQ-034-P3-04（T4a 不存在）會在 §0 而非 §7.1 surface，節省一 round。Action：`senior-architect.md` §Pre-Design Dry-Run Proof 追加第 4 條 Gate「AC-referenced test-id verification: every test id / describe name cited in ticket AC must be grep-verified in its claimed spec file at HEAD; absent ones surface as §0 Scope Question, not §Boundary Pre-emption Known Gap」。
+
+---
+
 ## 2026-04-23 — K-034 Phase 2 — /about full Pencil SSOT audit design doc
 
 **做得好：**
