@@ -27,6 +27,84 @@
 
 **Next time improvement:** for any sitewide typography/palette change that retires a design token, QA Early Consultation must enumerate ALL existing E2E assertions that reference the retiring token (grep `Bodoni\|Newsreader\|italic\|font-display` across `frontend/e2e/*.spec.ts`) before release, and flag each as (a) must-rewrite, (b) must-delete, or (c) unaffected — raw-count grep on `frontend/src/` misses regression tests asserting the retired value. Also: shared token-literal files (`*Primitives.ts`, `*tokens.ts`) feeding both DOM and potential Canvas consumers must be audited for both surfaces; AC text calling such a file "Konva literal" when it's actually a DOM token creates false confidence in pixel-diff / source-grep gates.
 
+---
+
+## 2026-04-23 — K-040 Early Consultation (sitewide UI polish batch)
+
+**Verdict:** PM-RULE-REQUIRED (6 Challenges + 2 Interceptions raised — PM must respond before Phase 1 Designer release)
+
+**Session capability disclosure:** QA was not dispatched as Agent sub-process — main-session Agent tool unavailable this turn. PM simulated QA adversarial review inline using `~/.claude/agents/qa.md` §Early Consultation protocol + codebase context. Mitigation: all challenges filed with explicit AC citation + file:line evidence; re-dispatch to real QA agent will run at Phase 5 regression sign-off (capability-restored session). Per PM persona §PM session capability pre-flight.
+
+### QA Challenge #1 — AC-040-HERO-FONT-MONO (Item 1)
+
+**Issue:** "font voice matches BuiltByAIBanner" is visual-intent (good per `feedback_pm_ac_visual_intent.md`) but provides NO way for Playwright to assert. Need a testable downstream clause.
+**Needs supplementation:** Add an And clause: "Playwright asserts `computed font-family` of `HeroSection h1` starts with `Geist Mono` (or equivalent monospace family name substring); raw-count sanity `font-display` in `HeroSection.tsx` pre=2, post=0 is present but is refactor-grep only, does not prove render-time font applied."
+**If not supplemented:** AC will PASS on `font-display` grep === 0 but FAIL a designer who meant something specific; regression test can't differentiate "mono font applied" from "no font class at all".
+
+### QA Challenge #2 — AC-040-DIARY-FOOTER-BOTTOM-GAP (Item 2)
+
+**Issue:** AC reads "whitespace below GA disclosure line is visually tight (no large empty band)" — no numeric threshold, no way to prove regression at sign-off. Playwright cannot assert "tight".
+**Needs supplementation:** Designer provides numeric target (e.g., `main pb-12` = 48px) calibrated in .pen + recorded in `homepage-v2.frame-*.json` spec; AC adds: "measured bottom gap (CTA bottom edge → Footer top edge, or Footer bottom edge → viewport bottom on short pages) matches Designer JSON spec value ±2px."
+**If not supplemented:** silent drift at sign-off; "looks tight to me" is not a test oracle.
+
+### QA Challenge #3 — AC-040-HOME-DESKTOP-PADDING (Item 3)
+
+**Issue:** "Rhythm matches `/diary` and `/about`" is not quantified. Currently `/diary` is `sm:px-24` (96px) within `max-w-[1248px]`. `/about` uses SectionContainer (varying per width prop). `/` is `sm:pr-[96px] sm:pl-[96px]` currently. Target is unclear — IS it already 96px like diary, and user wants it REDUCED to something else, or was user observing an illusion because HomePage has no max-width cap?
+**Needs supplementation:** Designer explicit numeric target in .pen (e.g., "desktop 72px left+right, max-width 1248px") + PM documents which reference page is the true anchor. Possibility: user's complaint is actually about missing `max-w-[1248px]` cap causing wide-monitor overflow, not padding per se.
+**If not supplemented:** Engineer may reduce padding to 72px but user still sees same issue because real cause was max-width absence.
+
+### QA Challenge #4 — AC-040-DIARY-CTA-FOOTER-GAP (Item 4)
+
+**Issue:** same class as #2 — "vertical gap visually open" not quantified.
+**Needs supplementation:** Designer numeric value in .pen; AC asserts measured distance matches spec ±2px.
+**If not supplemented:** ditto #2.
+
+### QA Challenge #5 — AC-040-DIARY-MOBILE-RAIL (Item 6)
+
+**Issue:** Two divergent outcomes — (a) rail restored or (b) rail removed-by-design — have opposite test assertions. Currently AC is conditional on Designer's finding, which means the Playwright spec cannot be written until Phase 1 completes. That's fine for sequencing but **QA needs the Designer decision path recorded in .pen/JSON before Phase 3 Engineer release** so QA can author the mobile rail spec deterministically.
+**Needs supplementation:** Designer delivers `homepage-v2.frame-*.json` Diary mobile frame with explicit annotation `mobileRail: "restored" | "design-removed"` (or equivalent machine-readable key); AC references that annotation as the source of truth.
+**If not supplemented:** QA will mark AC FAIL on sign-off regardless of Engineer's choice because there's no tiebreaker.
+
+### QA Challenge #6 — AC-040-ABOUT-PROTOCOL-LINK-NEW-TAB (Item 11)
+
+**Issue:** the AC is clean (Given/When/Then/And all testable). But **user-reported regression risk**: clicking a link that opens a `target="_blank"` to a site-relative path (`/docs/ai-collab-protocols.md#role-flow`) produces a new-tab navigation to a **raw markdown file**, not a rendered page. On the live SPA, `/docs/...` paths are NOT handled by the React router (confirmed by `grep docs/ai-collab-protocols.md frontend/src/App.tsx` — zero routes). User will open new tab → see `index.html` 404 fallback or raw markdown download.
+**Needs supplementation:** PM must rule one of:
+  - (A) `docsHref` values in `ReliabilityPillarsSection.tsx` need to be changed to an actual rendered destination (external GitHub blob URL, or an in-repo rendered route that exists);
+  - (B) Accept Known Gap: "new tab opens 404 until docs route is added — scope for follow-up ticket";
+  - (C) Scope expansion: this ticket also adds a `/docs/*` MD renderer route.
+**If not supplemented:** Item 11 "works" per AC (new tab opens) but delivers broken UX.
+
+### QA Interception #1 — K-034 Phase 1 Sacred cross-check (proactive)
+
+**Boundary scenario:** Item 2 / Item 4 both adjust Diary footer vicinity. AC §3 Constraints correctly cites `AC-034-P1-ROUTE-DOM-PARITY` but **PM's BQ-040-02 ruling (Option A, Diary-only `main` pb reduction) is the Sacred-safe path** — this ruling must be carried into the Designer instruction and echoed in AC-040-DIARY-FOOTER-BOTTOM-GAP And clause as "adjustment location = `<main>` container, Footer internals untouched". Current AC And says "implementation location documented in Designer .pen annotation" — Designer's decision would reopen BQ-040-02. Pin the ruling now.
+
+**Covered by existing AC:** partial — ruling text is in BQ-040-02 but not in the AC itself.
+**PM action:** promote BQ-040-02 Option A into AC-040-DIARY-FOOTER-BOTTOM-GAP as a hard And clause ("adjustment must be in `<main>` container `pb-*`, not in `<Footer>` component") before releasing Designer.
+
+### QA Interception #2 — Item 1 Hero font cascade risk
+
+**Boundary scenario:** `font-display` is declared as `"Bodoni Moda", serif` in `tailwind.config.js`. Removing `font-display` from HeroSection is scoped, but **grep confirms** (PM should verify): other components may also use `font-display` for unrelated reasons (About headings? Diary Hero?). If the Bodoni Moda font file loads solely because HeroSection used `font-display`, removing that last reference doesn't break anything (Tailwind JIT strips unused). But if `font-display` is still used elsewhere, the class survives. AC-040-HERO-FONT-MONO grep `font-display` in `HeroSection.tsx` = 0 is correct (scoped to one file) — just need to confirm the grep stays file-scoped, not repo-wide.
+
+**Covered by existing AC:** yes — AC already says grep restricted to `frontend/src/components/home/HeroSection.tsx`.
+**PM action:** no change needed; noted as sanity-check for Engineer at impl time.
+
+**What went well:**
+- PM raised all 8 items with file:line evidence before drafting AC (per `feedback_verify_before_status_update.md`).
+- AC visual-intent wording used consistently (Items 1/2/3/4/14) per `feedback_pm_ac_visual_intent.md`.
+- Sacred cross-check done at AC authoring time (Items 2/4 → K-034 P1 ROUTE-DOM-PARITY) per `feedback_pm_ac_sacred_cross_check.md`.
+- Raw-count sanity recorded for Items 1 and 11 per `feedback_refactor_ac_grep_raw_count_sanity.md`.
+
+**What went wrong:**
+- 4 of 8 ACs (Items 2/3/4/6) currently lack numeric Designer-spec tie-back — Challenges #2/#3/#4/#5 raised. Acceptable for PM Gate because ACs explicitly defer numbers to Designer .pen JSON; but JSON must exist and be frozen before Phase 3 Engineer release, not just "Designer will pick a value".
+- Item 11 has a broken-UX risk (Challenge #6) that the AC mechanically passes — classic QA catch: happy-path green, user-facing broken.
+- QA was simulated in PM persona because main-session Agent tool unavailable. Documented; mitigated by re-dispatch to real QA agent at Phase 5 regression.
+
+**Next time improvement:**
+- When ticket AC defers numeric targets to Designer, add a gate clause: "Phase 3 Engineer release requires Designer JSON spec frozen with numeric values for [list of AC IDs]."
+- For any AC referencing a link/href, grep the live route table to confirm destination exists before accepting AC. (Item 11 would have been caught earlier.)
+
+---
+
 ## 2026-04-23 — K-034 Phase 3 regression (/diary adopts shared Footer, absorbs ex-K-038)
 
 **Verdict:** RELEASE-PM

@@ -508,6 +508,43 @@ Every cell verified: `bodyFF` = `"Geist Mono", monospace`, `h1FF` = `"Geist Mono
 | Option B — revert Item 3 structural refactor | Restore `HomePage.tsx` to prior nested-container shape so Footer re-clips to 1088px inner width. Preserves old snapshot baseline. **Not recommended** — reinstates the exact cross-route Footer pixel inconsistency that Item 3 was scoped to fix. Would require re-opening AC-040-HOME-DESKTOP-PADDING Item 3 because desktop padding alignment is now intertwined with Footer width. |
 | Option C — keep snapshot red, accept partial | Mark K-040 `status: partial`, close Items 1/2/4/11/14, spin off Item 3 into a separate ticket with Footer baseline regen scheduled. **Not recommended** — Item 3 structural fix is landed and tested green (visual sweep 16/16 PASS); only the snapshot baseline lags. Partial-close would introduce unnecessary coordination overhead. |
 | Engineer decision | None — PM rules Option A vs B vs C. If Option A: Engineer executes `--update-snapshots` (scoped) + separate commit + ticket §8 appends regen rationale. If Option B: Engineer reverts HomePage.tsx + re-runs grep gates + sweep. If Option C: Engineer marks ticket partial + spins off Item 3 sub-ticket. |
+| PM ruling (2026-04-23) | **Option A — scoped snapshot regeneration.** Rationale: OLD baseline captured pre-Item-3 bug (home-unique 1088px Footer clip); NEW baseline captures design intent (all 4 routes identical 1280px viewport width). Sacred byte-identity PASS preserved. QA-040-Q4 per-route regen permitted with PM rationale (this block). Engineer executes `--update-snapshots` scoped to the 1 failing snapshot + separate commit. Do NOT blanket regen other snapshots. |
 
-**Open ticket status:** `status: open` (blocked on BQ-040-SNAPSHOT). All other ACs green. Engineer retrospective populated in §6 Retrospective + `docs/retrospectives/engineer.md` prepended.
+### 2026-04-23 — PM ruling BQ-040-SNAPSHOT: Option A
+
+**Directive to Engineer:**
+1. Run `npx playwright test frontend/e2e/shared-components.spec.ts --update-snapshots --grep "Footer snapshot on /"` (scoped to 1 snapshot)
+2. Verify only `frontend/e2e/shared-components.spec.ts-snapshots/footer-home-chromium-darwin.png` was regenerated (git diff --stat)
+3. Commit: `chore(K-040): regen /home Footer snapshot after Item 3 full-bleed refactor` with rationale citing this PM ruling
+4. Run full Playwright suite — confirm now 259 passed / 1 skipped / 1 failed (remaining failure = pre-existing K-020, not K-040)
+5. Report regen diff to main session
+
+**Post-regen gates:**
+- All K-040 AC hard gates green (raw-count, 16-viewport, sitewide font)
+- Snapshot green
+- Ticket status flips to ready for Code Review (Step 1 superpowers breadth + Step 2 reviewer.md depth)
+
+**Open ticket status:** `status: open` (PM ruled Option A, awaiting Engineer scoped regen). All other ACs green. Engineer retrospective populated in §6 Retrospective + `docs/retrospectives/engineer.md` prepended.
+
+### 2026-04-23 — Engineer executed BQ-040-SNAPSHOT Option A
+
+**Scoped regen:**
+- Grep pattern `"Footer snapshot on /$"` verified via `--list` → matches exactly 1 test (`Footer snapshot on /`, not /about//business-logic//diary).
+- `npx playwright test shared-components.spec.ts --grep "Footer snapshot on /$" --update-snapshots` executed — 1 passed (new baseline written).
+- `git diff --name-only` post-regen: only `frontend/e2e/shared-components.spec.ts-snapshots/footer-home-chromium-darwin.png` changed. Other 3 route baselines untouched.
+
+**Full-suite verification:**
+- Re-run `npx playwright test` → **259 passed / 1 skipped / 1 failed** matches PM-predicted target.
+- Remaining failure: `ga-spa-pageview.spec.ts:142 AC-020-BEACON-SPA` — pre-existing K-020 regression tracked in K-032, not K-040 scope.
+- T-L1 `diary-loading visible` flakiness observed on one run (passed on isolation + second full-suite run 259/1/1) — intermittent race, not K-040-induced.
+
+**Commit:** `338e670 chore(K-040): regen /home Footer snapshot after Item 3 full-bleed refactor` (1 file, PNG rewrite 99%).
+
+**Post-regen gates (all PASS):**
+- Sacred `AC-034-P1-ROUTE-DOM-PARITY` T1 byte-identity: still green (Footer outerHTML char-for-char equal across 4 routes — snapshot regen only touches pixel-bounding-box, not DOM shape).
+- Raw-count gates: all 0 (enforced since 82d9bb9).
+- 16-viewport visual sweep: unchanged (not re-run, no code change since prior sweep).
+- Sitewide font AC: enforced by earlier commits.
+
+**Next step:** ticket ready for Code Review (Step 1 `superpowers:requesting-code-review` breadth + Step 2 `Agent(reviewer.md)` depth merge → PM rulings → QA regression → PM close).
 
