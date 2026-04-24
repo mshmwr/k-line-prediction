@@ -3,8 +3,11 @@ ticket: K-044
 title: README showcase rewrite — agent team primary identity + v2 before/after screenshots
 type: docs
 priority: medium
-status: open
+status: closed
 created: 2026-04-24
+closed: 2026-04-24
+closed-commit: 837b037
+closed-merge-datetime: 2026-04-24T19:26:04+08:00
 owner: PM
 visual-delta: none
 content-delta: yes
