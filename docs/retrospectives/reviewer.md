@@ -1,6 +1,6 @@
 ## 2026-04-24 — K-046 (comment out upload DB write + example CSV download)
 
-**What went well:** Architect's §1.3 truth-table (6 cases × 11 columns) made the Behavior Diff table trivially transcribable at Reviewer Step 2 — just verified each row against the OLD git show and NEW code. The reversibility guard test (AC-046-QA-2) genuinely has 5 independent failing dimensions (added_count / bar_count / mtime / len / id), not a degenerate tautology. Engineer's `added_count_local` rename with `noqa: F841` preserves K-047 revert intent legibly.
+**What went well:** Architect's §1.3 truth-table (6 cases × 11 columns) made the Behavior Diff table trivially transcribable at Reviewer Step 2 — just verified each row against the OLD git show and NEW code. The reversibility guard test (AC-046-QA-2) genuinely has 5 independent failing dimensions (added_count / bar_count / mtime / len / id), not a degenerate tautology. Engineer's `added_count_local` rename with `noqa: F841` preserves K-048 revert intent legibly.
 
 **What went wrong:** First Playwright run showed 2 failures (T2 content-length 1408 instead of 646, T1 flake-adjacent) — initially concerning, but second run was 3/3 in 2.0s, confirming Vite dev-server cold-start gzip-encoding quirk, not K-046 regression. The spec's conditional content-length assertion (only check header if present, body length is primary) is the right defense.
 

@@ -33,7 +33,7 @@ main.py:17  HISTORY_1H_PATH = ...                     # constant
 main.py:18  HISTORY_1D_PATH = ...                     # constant
 main.py:30  _history_1h: list = _load_or_mock(...)    # boot-time load (unaffected)
 main.py:31  _history_1d: list = _load_or_mock(...)    # boot-time load (unaffected)
-main.py:56  def _save_history_csv(...)                # helper def (unused after K-046 — retained for K-047)
+main.py:56  def _save_history_csv(...)                # helper def (unused after K-046 — retained for K-048)
 main.py:134 history_info — '1H': info(_history_1h, HISTORY_1H_PATH)   # read
 main.py:135 history_info — '1D': info(_history_1d, HISTORY_1D_PATH)   # read
 main.py:141 global _history_1h, _history_1d           # upload handler (mutation scope)
@@ -116,11 +116,11 @@ Under NEW, all cases land on the gray informational branch. No TypeScript error 
 
 | Option | Description | Trade-off | Adoption scenario |
 |--------|-------------|-----------|--------------------|
-| **A. Comment-out write block only (recommended, matches PM ruling BQ-46D)** | Wrap lines 162-167 (`if added_count > 0: ... _history_* = merged`) in `#` comments + add `TODO(K-047)` marker. Adjust payload so `bar_count = len(existing)`, `latest = existing[-1]['date'] if existing else None`, `added_count = 0` — honest observable DB state. | Local diff ≤ 20 lines. Endpoint still parses CSV (upload → predict flow still round-trips). Easy K-047 revert. Payload needed a minor semantic shift (bar_count/latest drawn from `existing` not `merged`) — a deliberate honesty change, NOT a schema change. | Public deployment defense while retaining upload UX; pairs with K-047 scraper. |
-| **B. Full handler commented, return 501** | Comment entire handler body, raise `HTTPException(501, detail='Upload temporarily disabled; scheduled scraper lands K-047')`. | Most defensive — zero parse cost. Breaks the upload → round-trip flow required by AC-046-EXAMPLE-3 (user cannot demo upload). Requires frontend error handling change (currently treats non-200 as error toast, which would show the 501 detail verbatim as error). | Emergency if uploads are causing crashes or must be sealed off entirely. |
+| **A. Comment-out write block only (recommended, matches PM ruling BQ-46D)** | Wrap lines 162-167 (`if added_count > 0: ... _history_* = merged`) in `#` comments + add `TODO(K-048)` marker. Adjust payload so `bar_count = len(existing)`, `latest = existing[-1]['date'] if existing else None`, `added_count = 0` — honest observable DB state. | Local diff ≤ 20 lines. Endpoint still parses CSV (upload → predict flow still round-trips). Easy K-048 revert. Payload needed a minor semantic shift (bar_count/latest drawn from `existing` not `merged`) — a deliberate honesty change, NOT a schema change. | Public deployment defense while retaining upload UX; pairs with K-048 scraper. |
+| **B. Full handler commented, return 501** | Comment entire handler body, raise `HTTPException(501, detail='Upload temporarily disabled; scheduled scraper lands K-048')`. | Most defensive — zero parse cost. Breaks the upload → round-trip flow required by AC-046-EXAMPLE-3 (user cannot demo upload). Requires frontend error handling change (currently treats non-200 as error toast, which would show the 501 detail verbatim as error). | Emergency if uploads are causing crashes or must be sealed off entirely. |
 | **C. Gate by env var `UPLOAD_WRITE_ENABLED=false`** | Add boolean env var read at startup; branch inside handler; default false on production. | Most flexible (can toggle write on dev without code change). Adds 1 new config knob to manage across Cloud Run + local + test environments; 12fa-style env sprawl. Env-var misconfig on prod re-enables write invisibly. | Multi-environment with dev wanting the write path. |
 
-**Recommendation: A.** Matches PM ruling BQ-46D verbatim; minimal diff; upload UX preserved for demo round-trip; payload-honesty semantic reflects true DB state; K-047 revert is a 6-line `#` strip. Options B and C were considered and rejected per PM's "暫時先註解" (temporarily comment) phrasing — not "disable" or "gate".
+**Recommendation: A.** Matches PM ruling BQ-46D verbatim; minimal diff; upload UX preserved for demo round-trip; payload-honesty semantic reflects true DB state; K-048 revert is a 6-line `#` strip. Options B and C were considered and rejected per PM's "暫時先註解" (temporarily comment) phrasing — not "disable" or "gate".
 
 ---
 
@@ -128,12 +128,12 @@ Under NEW, all cases land on the gray informational branch. No TypeScript error 
 
 | # | File (absolute path from repo root) | Type | Responsibility |
 |---|---------------------------------------|------|----------------|
-| 1 | `backend/main.py` | modify | Comment out write block lines 162-167; adjust payload (lines 170-176) to read from `existing` not `merged`; add `TODO(K-047)` marker |
+| 1 | `backend/main.py` | modify | Comment out write block lines 162-167; adjust payload (lines 170-176) to read from `existing` not `merged`; add `TODO(K-048)` marker |
 | 2 | `frontend/src/AppPage.tsx` | modify | Add `Download example CSV` anchor (1 element, ~5 lines) in History Reference block, always-visible inline style |
 | 3 | `frontend/public/examples/ETHUSDT_1h_test.csv` | pre-existing (no Edit) | Verify byte-identity with `history_database/Binance_ETHUSDT_1h_test.csv` (646B); Engineer runs `diff -q` before commit, does NOT re-copy |
 | 4 | `backend/tests/test_main.py` | modify | Update 4 existing upload tests with `mtime_ns` + `id()` + length invariants (AC-046-COMMENT-1/-2); add new AC-046-QA-2 strictly-later test; add new AC-046-QA-4 example-CSV round-trip test |
 | 5 | `frontend/e2e/K-046-example-upload.spec.ts` | new | Playwright spec per AC-046-QA-3 (3 test cases: link-rendered / asset-fetch-200-646B / mocked-upload-round-trip) |
-| 6 | `agent-context/architecture.md` | modify | Update `## API Endpoints` → `### POST /api/upload-history` section: strike "自動合併去重後寫入 history_database" → "parse + return observable DB state; write path commented 2026-04-24 per K-046 pending K-047 auto-scraper"; add Changelog entry |
+| 6 | `agent-context/architecture.md` | modify | Update `## API Endpoints` → `### POST /api/upload-history` section: strike "自動合併去重後寫入 history_database" → "parse + return observable DB state; write path commented 2026-04-24 per K-046 pending K-048 auto-scraper"; add Changelog entry |
 
 ---
 
@@ -206,7 +206,7 @@ Not applicable. This ticket does not change route navigation behavior (no new li
    merged = _merge_bars(existing, new_bars)            # KEEP (still a local — useful for future re-enable)
    added_count = len(merged) - original_count         # KEEP (informational local)
 
-   # TODO(K-047): re-enable upload-driven DB write once auto-scraper lands.
+   # TODO(K-048): re-enable upload-driven DB write once auto-scraper lands.
    # Commented-out 2026-04-24 per K-046 to prevent anonymous public writes
    # to authoritative history DB. Restore by uncommenting the block below.
    # if added_count > 0:
@@ -263,7 +263,7 @@ Not applicable. This ticket does not change route navigation behavior (no new li
 
 10. **Edit `agent-context/architecture.md:245-251`** — update the `### POST /api/upload-history` section:
     - Strike `上傳 CSV 歷史資料，自動合併去重後寫入 history_database/`
-    - Replace with: `上傳 CSV 歷史資料，解析後回傳 observable DB state。Write path commented-out 2026-04-24 (K-046) pending K-047 auto-scraper — parse + response payload 仍正常，但不觸寫 history_database/；response 中 bar_count 與 latest 反映 existing authoritative state，added_count 永遠 0。支援三種 CSV 格式不變。`
+    - Replace with: `上傳 CSV 歷史資料，解析後回傳 observable DB state。Write path commented-out 2026-04-24 (K-046) pending K-048 auto-scraper — parse + response payload 仍正常，但不觸寫 history_database/；response 中 bar_count 與 latest 反映 existing authoritative state，added_count 永遠 0。支援三種 CSV 格式不變。`
     - Update `Response：` line to note `added_count` always 0
     - Add `## Changelog` entry (newest first) — see §8 entry
 11. PM Phase Gate: AC-046-COMMENT-1..4 + EXAMPLE-1..3 + REGRESSION-SACRED + QA-2/-3/-4 + DOCS all PASS → close + deploy.
@@ -276,7 +276,7 @@ Not applicable. This ticket does not change route navigation behavior (no new li
 
 **K-013 cross-layer stats contract** — `backend/tests/fixtures/stats_contract_cases.json` validates via `test_predictor.py::test_stats_contract`. No change to `compute_stats()` path; no change to predictor logic; fixture fully decoupled from upload handler. AC-046-REGRESSION-SACRED pins all 3 contract cases PASS.
 
-**TD-003 (upload handler concurrency risk)** — becomes moot post-K-046 because there is no write path to race on. See ticket §Known Gaps GAP-1. Revisit at K-047 design.
+**TD-003 (upload handler concurrency risk)** — becomes moot post-K-046 because there is no write path to race on. See ticket §Known Gaps GAP-1. Revisit at K-048 design.
 
 **Sacred cross-check (grep sweep):**
 
@@ -302,7 +302,7 @@ Replace lines 245-251 (the `### POST /api/upload-history` block) with the update
 ### 8.2 Changelog entry (prepend newest-first to `## Changelog`)
 
 ```
-- 2026-04-24 (Architect, K-046) — `/api/upload-history` write path commented-out pending K-047 auto-scraper; endpoint still parses CSV and returns 200 with payload reflecting authoritative (non-mutated) DB state: `bar_count = len(existing)`, `latest = existing[-1]['date'] if existing else None`, `added_count = 0` (always). No schema/field rename. Frontend `AppPage.tsx` gains `Download example CSV →` anchor linking `/examples/ETHUSDT_1h_test.csv` (646B, copy of `history_database/Binance_ETHUSDT_1h_test.csv` with `Binance_` prefix stripped; served from `frontend/public/examples/`). Sacred K-009 1H→1D MA99 + K-013 stats contract preserved. TD-003 concurrency risk moot post-K-046. ticket: K-046.
+- 2026-04-24 (Architect, K-046) — `/api/upload-history` write path commented-out pending K-048 auto-scraper; endpoint still parses CSV and returns 200 with payload reflecting authoritative (non-mutated) DB state: `bar_count = len(existing)`, `latest = existing[-1]['date'] if existing else None`, `added_count = 0` (always). No schema/field rename. Frontend `AppPage.tsx` gains `Download example CSV →` anchor linking `/examples/ETHUSDT_1h_test.csv` (646B, copy of `history_database/Binance_ETHUSDT_1h_test.csv` with `Binance_` prefix stripped; served from `frontend/public/examples/`). Sacred K-009 1H→1D MA99 + K-013 stats contract preserved. TD-003 concurrency risk moot post-K-046. ticket: K-046.
 ```
 
 ### 8.3 Self-Diff Verification (K-021 Round 2/3)
@@ -312,7 +312,7 @@ Replace lines 245-251 (the `### POST /api/upload-history` block) with the update
 |------|----------------------|-----------|
 | `### POST /api/upload-history` description sentence | "上傳 CSV 歷史資料，自動合併去重後寫入 history_database/" | "上傳 CSV 歷史資料，解析後回傳 observable DB state。Write path commented-out 2026-04-24 (K-046)..." |
 | Response line | `{ filename, latest, bar_count, added_count, timeframe }` | same schema + note `added_count` always 0 post-K-046 |
-| TD-003 risk note | "用 module globals 做 read-merge-write-swap" | add line: "post-K-046 write path commented → race surface removed until K-047" |
+| TD-003 risk note | "用 module globals 做 read-merge-write-swap" | add line: "post-K-046 write path commented → race surface removed until K-048" |
 
 **Same-File Cross-Table Sweep:** `grep -n 'upload-history\|_history_1h\|_history_1d' agent-context/architecture.md` — confirmed only the `### POST /api/upload-history` section describes the endpoint; no redundant tables. `updated:` frontmatter bumped to 2026-04-24 (K-046 Architect …) following existing line-5 narrative style.
 
@@ -352,7 +352,7 @@ Replace lines 245-251 (the `### POST /api/upload-history` block) with the update
 | Max payload (large CSV) | ✓ | No parse-size limit in current code; K-046 does not change this. `len(merged) - len(existing)` still computed as local; memory footprint same as pre-K-046 since merge still runs (just not persisted). Known Gap: no new limit. |
 | 400/422 error responses | ✓ | Unchanged — 422 for empty parse per existing handler; 400 via FastAPI validator on missing `file` param |
 | 500 / crash | ✓ | Disk-write errors no longer reachable (write path commented); parse errors still caught via `try/except UnicodeDecodeError` and 422-path |
-| Concurrent POSTs | Known Gap (GAP-1) | PM-acknowledged moot post-K-046; revisit K-047 |
+| Concurrent POSTs | Known Gap (GAP-1) | PM-acknowledged moot post-K-046; revisit K-048 |
 | First-boot mock fallback (N = 0, `_history_1h` is mock) | ✓ | Case E of truth table — `existing[-1]['date']` on empty list guarded by `existing[-1]['date'] if existing else None` |
 | 1D filename heuristic false-positive | Known Gap (ticket §Out-of-scope) | PM-acknowledged — `'1d' in filename_lower` substring collision can route to 1D; with write commented, worst case is a wrong `timeframe` in response; tracked as tech debt |
 | CDN 404 race | Known Gap (GAP-2) | PM-acknowledged ops-time |
@@ -378,7 +378,7 @@ Replace lines 245-251 (the `### POST /api/upload-history` block) with the update
 
 - **Gap:** no AC exercises concurrent POSTs against `/api/upload-history`.
 - **Reason acceptable:** FastAPI `TestClient` single-request; concurrent repro needs real uvicorn + `asyncio.gather`. Post-K-046 no write path = no race surface.
-- **PM acknowledgment:** moot for K-046; revisit at K-047 design.
+- **PM acknowledgment:** moot for K-046; revisit at K-048 design.
 
 ### GAP-2 — Firebase Hosting first-deploy 404 race for `/examples/*.csv`
 

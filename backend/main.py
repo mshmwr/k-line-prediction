@@ -157,9 +157,9 @@ async def upload_history_file(file: UploadFile = File(...)):
 
     original_count = len(existing)
     merged = _merge_bars(existing, new_bars)
-    added_count_local = len(merged) - original_count  # noqa: F841 — retained for K-047 revert
+    added_count_local = len(merged) - original_count  # noqa: F841 — retained for K-048 revert
 
-    # TODO(K-047): re-enable upload-driven DB write once auto-scraper lands.
+    # TODO(K-048): re-enable upload-driven DB write once auto-scraper lands.
     # Commented-out 2026-04-24 per K-046 to prevent anonymous public writes
     # to authoritative history DB. Restore by uncommenting the block below.
     # if added_count_local > 0:

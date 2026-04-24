@@ -1,5 +1,5 @@
 ---
-id: K-047
+id: K-048
 title: Auto scraper for authoritative K-line history DB
 status: backlog
 created: 2026-04-24
