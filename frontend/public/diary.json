@@ -1,84 +1,96 @@
 [
   {
+    "ticketId": "K-041",
+    "title": "/diary mobile rail and marker restore via shared-component mobileVisible prop",
+    "date": "2026-04-24",
+    "text": "K-041 closed — /diary mobile rail and marker restored via shared DiaryRail/DiaryMarker components with mobileVisible + borderRadius + topInset props; Homepage K-023/K-028 Sacred invariants preserved via explicit prop overrides."
+  },
+  {
+    "ticketId": "K-039",
+    "title": "Split SSOT for /about role cards",
+    "date": "2026-04-24",
+    "text": "Split the role-card source of truth into two layers — Pencil owns visual, content/roles.json owns runtime text — with a sync generator and pre-commit hook that kill README/protocol doc drift without needing a Designer session."
+  },
+  {
     "ticketId": "K-040",
     "title": "Sitewide UI polish batch — Bodoni to Geist Mono reset plus 8 polish items",
     "date": "2026-04-23",
-    "text": "Sitewide font reset retiring Bodoni Moda and Newsreader to a single Geist Mono family with italic OFF across all routes (13 font-display tsx sites, 4 inline Bodoni sites, 1 Konva timelinePrimitives.ts DOM token literal, tailwind.config.js display/italic keys, and an index.css body default rule) paired with 8 UI polish items (Home desktop padding parity with /about and /diary, Diary footer-area vertical spacing tightening, Diary mobile timeline rail restoration, /about 3x protocol links now open in new tab with noopener/noreferrer and working GitHub blob anchors, homepage-v2.pen GA disclosure backfill, and Hero mobile vertical rhythm opened between BuiltByAIBanner/H1/subtitle) plus a Bug Found Protocol W-1/W-2/W-3 token semantic cleanup (zero runtime behavior change); 114 passed / 1 skipped / 0 failed, Sacred AC-034-P1 Footer byte-identity plus AC-038 NavBar plus AC-040 sitewide mono all GREEN, and TD-001 spun off for ga-spa-pageview.spec.ts isolation drift (pre-existing, not a K-040 regression)."
+    "text": "Sitewide font reset from Bodoni Moda / Newsreader to a single Geist Mono family with italic OFF across all routes, bundled with 8 UI polish items (Home padding parity, Diary footer spacing and mobile rail restore, /about protocol links open-in-new-tab, Hero mobile rhythm, Pencil GA backfill) and W-1/W-2/W-3 token semantic cleanup with zero runtime behavior change."
   },
   {
     "ticketId": "K-037",
     "title": "Favicon wiring and Web App Manifest",
     "date": "2026-04-23",
-    "text": "Wired the seven K-036 favicon assets into frontend/index.html via six rel=icon/apple-touch-icon/manifest link tags plus a meta theme-color (paper token #F4EFE5), added a minimal W3C Web App Manifest (frontend/public/manifest.json, display=browser, 192+512 icon entries, name K-Line Prediction), added a 16-case Playwright regression spec (favicon-assets.spec.ts) asserting asset 200 status + non-empty body + individual link tag attributes + manifest schema + Content-Type accept-list across a dedicated favicon-preview project running on vite preview port 4173, and accepted default Vite/Firebase JSON MIME per AC-037-MANIFEST-MIME-ACCEPTABLE with no firebase.json change."
+    "text": "Wired the K-036 favicon assets and a minimal Web App Manifest into the HTML head, with a regression spec guarding asset availability and link-tag integrity."
   },
   {
     "ticketId": "K-034",
-    "title": "About Footer Pencil-SSOT unification and variant prop retirement",
+    "title": "About footer Pencil-SSOT unification",
     "date": "2026-04-23",
-    "text": "Retired FooterProps.variant and collapsed Footer.tsx to a single Pencil-literal inline one-liner (Geist Mono 11px tracking 1px U+00B7 middle-dot delimiter) matching homepage-v2.pen frames 86psQ and 1BGtd byte-identically; updated three call sites (HomePage, AboutPage, BusinessLogicPage) to prop-less Footer and removed the SectionContainer footer-cta wrapper on AboutPage; rewrote shared-components.spec.ts with four byte-identical outerHTML assertions plus three toMatchSnapshot baselines; retired twelve /about-scoped Sacred tests across four spec files (AC-017-FOOTER 5 tests, AC-022-FOOTER-REGRESSION 3 tests, pages.spec.ts Footer CTA 1 test, AC-018-CLICK /about-scoped 3 tests) per PM ruling BQ-034-P1-01 Option A; 235 passed with 1 skipped plus 1 pre-existing K-020 regression-guard red preserved; tsc exit 0; AC-034-P1-FAIL-IF-GATE-REMOVED dry-run proved gate fires (6 FAILs when variant branch re-added)."
+    "text": "Retired the Footer variant prop and collapsed the component to the single Pencil-literal one-liner, so homepage, /about, and /business-logic now render byte-identical footers from one source."
   },
   {
     "ticketId": "K-036",
     "title": "Favicon design and rasterization",
     "date": "2026-04-22",
-    "text": "Designed K-036 favicon as a 4-candle chart (green spine + ascending green/red/green triplet with rounded corners) overlaid with two smooth moving-average curves (purple slow and amber fast) crossing in a golden-cross pattern on a transparent 512x512 canvas; rasterized to seven common formats (favicon.ico multi-size 16/32/48 bundle, favicon-16x16/32x32/48x48.png, apple-touch-icon.png 180x180, android-chrome-192x192.png, android-chrome-512x512.png) in frontend/public/; <link rel=icon> wiring into index.html deferred to a follow-up ticket to keep this ticket scope focused on design plus asset generation."
+    "text": "Designed a 4-candle golden-cross favicon with dual moving-average curves and rasterized it to the seven standard web and mobile formats."
   },
   {
     "ticketId": "K-025",
-    "title": "UnifiedNavBar hex-to-token refactor with navbar.spec dual-rail upgrade",
+    "title": "NavBar hex-to-token refactor",
     "date": "2026-04-22",
-    "text": "Migrated UnifiedNavBar seven hex literals to K-021 tokens (text-ink / text-brick-dark / bg-paper / border-ink) with zero visual change; upgraded navbar.spec.ts by replacing five brittle class-name regex assertions with dual-rail attribute (aria-current) plus computed color (toHaveCSS rgb/rgba) assertions; added missing coverage on desktop inactive links and /business-logic no-active-link verification; 192 passed / 1 skipped / 0 failed, tsc exit 0; W-1 grep-pattern degeneracy accepted as TD-K025-01 and codified into reviewer.md + qa.md persona hard gates."
+    "text": "Migrated UnifiedNavBar's hex literals to design-system tokens and upgraded navbar specs from brittle class-name regex to aria-current plus computed-color assertions."
   },
   {
     "ticketId": "K-029",
-    "title": "About page ArchPillarBlock and TicketAnatomyCard paper palette migration",
+    "title": "About paper palette migration",
     "date": "2026-04-22",
-    "text": "Migrated /about ArchPillarBlock and TicketAnatomyCard dark-theme gray/purple text to paper palette tokens (text-ink / text-charcoal / text-muted); 7 class sites migrated, 4 data-testid attributes injected for stable selectors; 21 new Playwright color assertions added to about-v2.spec.ts; 197 passed / 1 skipped / 0 failed; tsc exit 0."
+    "text": "Migrated the /about ArchPillarBlock and TicketAnatomyCard from dark-theme colors to the paper palette tokens, with added Playwright color-regression coverage."
   },
   {
     "ticketId": "K-020",
-    "title": "GA4 SPA pageview E2E hardening and HTTP beacon regression guard",
+    "title": "GA4 SPA pageview hardening",
     "date": "2026-04-22",
-    "text": "Added 9 Playwright tests covering SPA link-click pageview, /g/collect HTTP beacon payload (v=2, tid, en=page_view, dl path-key), initial-load beacon count, and negative guards for query/hash/same-route navigations; 8 green merged as K-018-class regression guard and 1 intentionally red (AC-020-BEACON-SPA) retained as K-033 tracker after Engineer dry-run proved production useGAPageview drops gtag('event','page_view') under send_page_view:false; follow-ups K-032 (page_location full URL) + K-033 (canonical GA4 SPA gtag pattern) logged with triple anti-decay guard."
+    "text": "Added Playwright coverage for SPA pageviews and the underlying HTTP beacon payload, logging follow-up tickets for a residual send-page-view gap."
   },
   {
     "ticketId": "K-031",
-    "title": "Remove Built by AI showcase section from /about",
+    "title": "Remove Built by AI showcase from /about",
     "date": "2026-04-21",
-    "text": "Removed the explanatory Built by AI showcase section (S7) from /about by deleting BuiltByAIShowcaseSection.tsx, dropping its import and SectionContainer block from AboutPage.tsx, and renumbering the Footer CTA comment from S8 to S7; the homepage BuiltByAIBanner was untouched, two new AC-031 Playwright tests covered section-absent and layout-continuity, 171 passed and tsc exited 0."
+    "text": "Removed the explanatory Built-by-AI showcase section from /about; the homepage banner stays."
   },
   {
     "title": "README Future Enhancements roadmap",
     "date": "2026-04-21",
-    "text": "Grouped open tickets (K-018, K-013, K-012, K-028~031) into three recruiter-facing categories — Design System Completion, Analytics Integration, Architecture Refinement — to surface roadmap thinking alongside shipped features."
+    "text": "Grouped open tickets into three recruiter-facing categories — Design System, Analytics, Architecture — to surface roadmap thinking alongside shipped features."
   },
   {
     "ticketId": "K-023",
     "title": "Homepage structure alignment v2",
     "date": "2026-04-21",
-    "text": "Closed three visual detail alignments: rectangular brick-dark diary markers (20x14px, #9C4A3B), a STEP header bar for flow cards with charcoal background and paper text in Geist Mono 10px, and body padding of 72px top and 96px right/bottom/left on desktop plus 32px/24px on mobile, with per-section padding removed to prevent double stacking; scope items A-4 and A-5 were dropped after Pencil design confirmation, Code Review rulings F1 through F7 split into five fix-now and two tech-debt, and 174 Playwright tests passed."
+    "text": "Closed the remaining homepage v2 visual alignments: rectangular diary markers, STEP header bars on flow cards, and body padding aligned with the Pencil spec."
   },
   {
     "ticketId": "K-022",
-    "title": "About page structure detail alignment v2",
+    "title": "About structure alignment v2",
     "date": "2026-04-21",
-    "text": "Aligned /about to design v2 across twelve AC items including DossierHeader bar, SectionLabelRow hairline, Hero two-line heading pairing Bodoni Moda and italic tagline, five section italic subtitles, RedactionBar, Role Card OWNS/ARTEFACT labels in Geist Mono, Newsreader italic links, CASE FILE header, LAYER 1/2/3 prefix, role annotations BEHAVIOUR and POSITION, Role Card 3x2 grid with fixed height, and shared primitives migration to the paper palette; 164 Playwright passed and one skipped, cleared on the first full-flow pass."
+    "text": "Aligned /about to design v2 across twelve items (DossierHeader, SectionLabelRow, Hero pairing, Role Card labels, CASE FILE / LAYER headers) and migrated shared primitives to the paper palette."
   },
   {
     "ticketId": "K-021",
     "title": "Sitewide design system baseline",
     "date": "2026-04-20",
-    "text": "Shipped the paper palette (paper/ink tokens) across all five routes, brought Bodoni Moda plus Newsreader plus Geist Mono online as the three-font system, migrated the NavBar to paper colors and reordered its items, and extended HomeFooterBar to /app and /business-logic; four rounds of rework covered initial design, subcomponent dark-class cleanup, architecture.md cross-table drift, and a /about text-white readability fix, landing 115 Playwright passed and one skipped and unblocking K-022/K-023/K-024."
+    "text": "Shipped the sitewide paper palette and three-font system, migrated the NavBar, and extended HomeFooterBar across every route — unblocking the /about and homepage v2 tickets."
   },
   {
     "ticketId": "K-008",
     "title": "Automated visual report script",
     "date": "2026-04-18",
-    "text": "Added visual-report.ts to auto-screenshot four routes into an HTML report, split playwright.config per-project testMatch so E2E and the report run in isolation, absorbed four Reviewer Warnings in-ticket (module-level side effect, scoped state, TICKET_ID whitelist, HTML gitignore), and cleared tsc, Vitest 36, and Playwright 45 all green."
+    "text": "Added a visual-report script that auto-screenshots every route into an HTML report, with Playwright config split so the report and E2E suite run in isolation."
   },
   {
     "title": "Early project phases and deployment setup",
     "date": "2026-04-16",
-    "text": "Foundational phases: stood up FastAPI + React monorepo with JWT-protected business-logic endpoint, BrowserRouter SPA with five routes, and four base pages with a shared component library (useAsyncState, LoadingSpinner, ErrorMessage). Shipped 1H/1D forecast UI with unified UTC+0 timestamps, MA99 Pearson trend filter, early MA99 pre-compute hook for snappier UX, and per-match trend labels. Deployed backend to Cloud Run (multi-stage Docker) and frontend to Firebase Hosting via VITE_API_BASE_URL. Codex Review follow-up closed K-009 (1H predict MA history bug), K-010 (Vitest testid regression), and K-011 (LoadingSpinner label prop). Later, a shared UnifiedNavBar unified headers across all five routes."
+    "text": "Stood up the FastAPI + React monorepo with a JWT-protected business-logic endpoint and a five-route SPA, shipped the 1H/1D forecast UI with MA99 trend filter, and deployed to Cloud Run plus Firebase Hosting."
   }
 ]

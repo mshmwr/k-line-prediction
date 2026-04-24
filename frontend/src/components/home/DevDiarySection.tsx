@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom'
 import type { DiaryEntry } from '../../types/diary'
 import LoadingSpinner from '../common/LoadingSpinner'
 import ErrorMessage from '../common/ErrorMessage'
-import { RAIL, MARKER } from '../diary/timelinePrimitives'
+import DiaryRail from '../diary/DiaryRail'
+import DiaryMarker from '../diary/DiaryMarker'
 
 interface DevDiarySectionProps {
   entries: DiaryEntry[]
@@ -19,21 +20,11 @@ interface DevDiarySectionProps {
 // - Sacred testids preserved: diary-entries / diary-rail / diary-entry-wrapper
 //   / diary-marker.
 //
-// K-023 Sacred exception (design §0.2 bullet 1):
-//   Homepage marker MUST render borderRadius: 0 (K-023 AC-023-DIARY-BULLET /
-//   AC-028-MARKER-COORD-INTEGRITY assert `borderRadius === '0px'`). This
-//   conflicts with visual-spec cornerRadius:6, so DevDiarySection keeps its
-//   marker inline rather than importing the shared <DiaryMarker /> component
-//   (which renders radius:6 for /diary). timelinePrimitives.MARKER constants
-//   still feed color / size / position — only cornerRadius diverges.
-//   The same rationale extends to rail: K-028 locks top:40 bottom:40 and
-//   always-visible on mobile; DiaryRail hides on <sm, so DevDiarySection
-//   keeps rail inline too. See design §9.1 + §0.2 for the contract.
-//
-// Marker top:8 carries over from pre-K-024 inline render (K-023 Sacred
-// coordinate, verified by AC-028-MARKER-COORD-INTEGRITY). Not changed to
-// MARKER.topInset (10) because that would shift the marker 2px downward on
-// Homepage — a non-design-doc-ordained visual change.
+// K-041 — inline rail/marker consolidated into shared <DiaryRail /> +
+// <DiaryMarker /> components. Homepage's Sacred divergences are passed as
+// props: rail `mobileVisible` (K-028), marker `mobileVisible` + `borderRadius={0}`
+// (K-023 AC-023-DIARY-BULLET) + `topInset={8}` (K-028 AC-028-MARKER-COORD-INTEGRITY).
+// The 1-entry hide-rail boundary stays at consumer (`entries.length >= 2`).
 
 const HOMEPAGE_MARKER_TOP_INSET = 8 // K-023 Sacred, not MARKER.topInset (10)
 
@@ -73,27 +64,7 @@ export default function DevDiarySection({ entries, loading, error }: DevDiarySec
             className="relative flex flex-col gap-5 mb-8"
             data-testid="diary-entries"
           >
-            {/* Vertical rail — spans from first marker center (top:40) to last
-                marker center (bottom:40). With 1 entry the inset math yields
-                invisible/negative height, so we hide the rail entirely
-                (design §4.3.1). Kept inline (not <DiaryRail />) to preserve
-                K-028 always-visible-on-mobile behavior. Values from RAIL const
-                (timelinePrimitives.ts) — shared with /diary for cross-frame
-                consistency. */}
-            {entries.length >= 2 && (
-              <div
-                className="absolute"
-                style={{
-                  width: RAIL.width,
-                  backgroundColor: RAIL.color,
-                  left: RAIL.xOffset,
-                  top: RAIL.topInset,
-                  bottom: RAIL.bottomInset,
-                }}
-                aria-hidden="true"
-                data-testid="diary-rail"
-              />
-            )}
+            {entries.length >= 2 && <DiaryRail mobileVisible />}
 
             {entries.map((e) => (
               <div
@@ -101,21 +72,10 @@ export default function DevDiarySection({ entries, loading, error }: DevDiarySec
                 className="relative pl-[92px] min-h-[48px]"
                 data-testid="diary-entry-wrapper"
               >
-                {/* Marker — K-023 AC-023-DIARY-BULLET Sacred: 20x14 brick-dark,
-                    borderRadius 0 (NOT MARKER.cornerRadius=6). Kept inline to
-                    enforce radius:0 which differs from /diary's DiaryMarker. */}
-                <div
-                  className="absolute"
-                  style={{
-                    width: MARKER.width,
-                    height: MARKER.height,
-                    backgroundColor: MARKER.color,
-                    left: MARKER.leftInset,
-                    top: HOMEPAGE_MARKER_TOP_INSET,
-                    // borderRadius intentionally omitted → 0 (K-023 Sacred)
-                  }}
-                  aria-hidden="true"
-                  data-testid="diary-marker"
+                <DiaryMarker
+                  mobileVisible
+                  borderRadius={0}
+                  topInset={HOMEPAGE_MARKER_TOP_INSET}
                 />
 
                 <p className="text-[16px] font-bold text-[#1A1814] leading-tight">

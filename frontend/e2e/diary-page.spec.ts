@@ -577,27 +577,27 @@ test.describe('DiaryPage — AC-024-CONTENT-WIDTH', () => {
     expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.innerWidth)
   })
 
-  test('T-C6: 390px mobile — DiaryMarker + DiaryRail computed display:none on /diary', async ({ page }) => {
-    // I-1 + I-2 (R2 fix-bundle 2026-04-22): DiaryMarker + DiaryRail both carry
-    // `hidden sm:block` (Tailwind ≥640px breakpoint). toHaveCount alone would
-    // pass even if the elements were display:none — assert computed display
-    // directly so a future regression (e.g., someone dropping `hidden` from
-    // the className) is caught by the spec.
+  test('T-C6: 390px mobile — DiaryMarker + DiaryRail computed display !== none on /diary (K-041)', async ({ page }) => {
+    // K-041 — AC-024-CONTENT-WIDTH rewrite: /diary mobile rail/marker visible.
+    // DiaryRail + DiaryMarker accept `mobileVisible` prop; DiaryTimeline +
+    // DiaryEntryV2 pass `mobileVisible` so /diary mobile breakpoint renders
+    // rail + marker. Asserting `not.toHaveCSS('display', 'none')` so a
+    // future regression (someone dropping `mobileVisible` prop, or flipping
+    // default back) is caught.
     //
-    // /diary markers hide on mobile by design (§6.8). Homepage rail remains
-    // visible on mobile (K-028 Sacred, asymmetric) — verified separately in
-    // diary-homepage.spec.ts; not checked here.
+    // Homepage always visible on mobile via same prop (K-028 Sacred preserved
+    // in diary-homepage.spec.ts — orthogonal).
     await page.setViewportSize({ width: 390, height: 844 })
     const fixture = await loadFixture('diary-five.json')
     await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
     await page.goto('/diary')
 
     const markers = page.locator('[data-testid="diary-marker"]')
-    await expect(markers).toHaveCount(5) // still in DOM, just hidden
-    await expect(markers.first()).toHaveCSS('display', 'none')
+    await expect(markers).toHaveCount(5)
+    await expect(markers.first()).not.toHaveCSS('display', 'none')
 
     const railEl = page.locator('[data-testid="diary-rail"]')
-    await expect(railEl).toHaveCSS('display', 'none')
+    await expect(railEl).not.toHaveCSS('display', 'none')
   })
 })
 

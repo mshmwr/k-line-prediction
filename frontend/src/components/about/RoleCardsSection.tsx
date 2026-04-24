@@ -1,4 +1,5 @@
 import RoleCard from './RoleCard'
+import { ROLES } from './roles'
 
 /**
  * S3 — RoleCardsSection (K-034 Phase 2 §7 Step 4 — D-4/D-5/D-6/D-7/D-8)
@@ -8,48 +9,10 @@ import RoleCard from './RoleCard'
  * Section has NO internal h2 (SectionLabelRow "Nº 02 — THE ROLES" owns the heading
  * per AboutPage.tsx); subtitle is Pencil s3Intro literal (15 ink, inherits Geist Mono).
  *
- * ROLES data mirrors Pencil 8mqwX.r{1..6} verbatim. Reviewer ARTEFACT is unredacted
- * per PM ruling (Pencil shows plain text).
+ * K-039 split-SSOT: runtime text (role/owns/artefact) now lives in the pure-data
+ * module `./roles.ts` (TEXT SSOT); Pencil frame retains VISUAL SSOT over font /
+ * size / color / layout (see ticket K-039 §5 AC-039-P3-SACRED-SPLIT).
  */
-const ROLES = [
-  {
-    fileNo: 1,
-    role: 'PM' as const,
-    owns: 'Requirements, AC, Phase Gates',
-    artefact: 'PRD.md, docs/tickets/K-XXX.md',
-  },
-  {
-    fileNo: 2,
-    role: 'Architect' as const,
-    owns: 'System design, cross-layer contracts',
-    artefact: 'docs/designs/K-XXX-*.md',
-  },
-  {
-    fileNo: 3,
-    role: 'Engineer' as const,
-    owns: 'Implementation, stable checkpoints',
-    artefact: 'commits + ticket retrospective',
-  },
-  {
-    fileNo: 4,
-    role: 'Reviewer' as const,
-    owns: 'Code review, Bug Found Protocol',
-    artefact: 'Review report + Reviewer 反省',
-  },
-  {
-    fileNo: 5,
-    role: 'QA' as const,
-    owns: 'Regression, E2E, visual report',
-    artefact: 'Playwright results + docs/reports/*.html',
-  },
-  {
-    fileNo: 6,
-    role: 'Designer' as const,
-    owns: 'Pencil MCP, flow diagrams',
-    artefact: '.pen file + get_screenshot output',
-  },
-]
-
 export default function RoleCardsSection() {
   return (
     <div>

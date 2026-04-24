@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# K-039 Phase 2 — sync-role-docs pre-commit gate.
+#
+# Blocks commit when content/roles.json, README.md marker block, or
+# docs/ai-collab-protocols.md marker block have drifted from the
+# canonical generator output.
+#
+# Activation (one-time, per clone):
+#   git config core.hooksPath .githooks
+#
+# Bypass (not recommended; breaks content SSOT invariant):
+#   git commit --no-verify
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+GENERATOR="$REPO_ROOT/scripts/sync-role-docs.mjs"
+
+if [ ! -f "$GENERATOR" ]; then
+  # Generator not present on this branch (e.g. pre-K-039 history) — skip gate.
+  exit 0
+fi
+
+# Fast exit: only run the check if any of the SSOT-bound paths are staged.
+if ! git diff --cached --name-only | grep -qE '^(content/roles\.json|README\.md|docs/ai-collab-protocols\.md)$'; then
+  exit 0
+fi
+
+if ! node "$GENERATOR" --check; then
+  cat <<'MSG' >&2
+
+✗ sync-role-docs pre-commit gate: role-table drift detected.
+
+  The downstream tables (README.md / docs/ai-collab-protocols.md) are
+  out of sync with the SSOT at content/roles.json. Regenerate:
+
+    node scripts/sync-role-docs.mjs
+    git add README.md docs/ai-collab-protocols.md
+    git commit --amend --no-edit   # or continue with a fresh commit
+
+MSG
+  exit 1
+fi
+
+exit 0

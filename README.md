@@ -24,14 +24,16 @@ flowchart LR
     Architect --> Engineer --> Reviewer["Code Reviewer"] --> QA --> PM
 ```
 
-| Role | Responsibilities | Verifiable Output |
-|------|-----------------|-------------------|
-| **PM** | Write PRD, define AC (Given/When/Then/And), Phase Gate decisions | `PRD.md`, `docs/tickets/K-XXX.md` |
-| **Designer** | Pencil MCP design — wireframes and visual specs before architecture | `.pen` file + screenshot output |
-| **Architect** | System design, API contracts, cross-layer decisions | `docs/designs/K-XXX-*.md` |
-| **Engineer** | Incremental implementation, one stable unit at a time | commits + ticket retrospective |
-| **Reviewer** | Breadth scan (security/correctness/style) + AC alignment | Review report + Reviewer retrospective |
-| **QA** | Full Playwright E2E regression + visual screenshot report | `docs/reports/K-XXX-visual-report.html` |
+<!-- ROLES:start -->
+| Role | Owns | Artefact |
+|---|---|---|
+| PM | Requirements, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
+| Architect | System design, cross-layer contracts | docs/designs/K-XXX-*.md |
+| Engineer | Implementation, stable checkpoints | commits + ticket retrospective |
+| Reviewer | Code review, Bug Found Protocol | Review report + Reviewer 反省 |
+| QA | Regression, E2E, visual report | Playwright results + docs/reports/*.html |
+| Designer | Pencil MCP, flow diagrams | .pen file + get_screenshot output |
+<!-- ROLES:end -->
 
 ### Verifiability — No Artifact, No Handoff
 

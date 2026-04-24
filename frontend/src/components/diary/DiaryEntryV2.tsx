@@ -9,9 +9,10 @@ import DiaryMarker from './DiaryMarker'
 //   - <time> entry-date
 //   - <p> entry-body
 //
-// Mobile (<sm): marker hidden (via DiaryMarker's hidden sm:block), paddingLeft
-// collapses to 0. Desktop: pl-[92px] aligns text past the rail (x=29) + marker
-// (x=20, width=20) + breathing room.
+// K-041 — marker visible on mobile (via DiaryMarker `mobileVisible`);
+// paddingLeft pl-[92px] at all viewports to align text past rail (x=29) +
+// marker (x=20, width=20) + breathing room. Supersedes K-024 §6.8 mobile
+// pl-0 / hidden-marker rule (see PRD L786 AC-024-CONTENT-WIDTH rewrite).
 
 interface DiaryEntryV2Props {
   entry: DiaryEntry
@@ -21,10 +22,10 @@ export default function DiaryEntryV2({ entry }: DiaryEntryV2Props) {
   const title = entry.ticketId ? `${entry.ticketId} — ${entry.title}` : entry.title
   return (
     <article
-      className="relative pl-0 sm:pl-[92px] min-h-[48px]"
+      className="relative pl-[92px] min-h-[48px]"
       data-testid="diary-entry"
     >
-      <DiaryMarker />
+      <DiaryMarker mobileVisible />
       <h2 className="font-bold text-[14px] sm:text-[16px] text-[#1A1814]">
         {title}
       </h2>

@@ -16,6 +16,40 @@
 
 ---
 
+## 2026-04-24 — K-039 Phase 2 + Phase 3 close (generator + hook + persona codify)
+
+**做得好：** Phase 2 generator (`scripts/sync-role-docs.mjs`) 設計為冪等（clean tree 跑 write mode 零 diff）+ `--check` 模式獨立 exit code，讓 pre-commit hook 能 fast-exit（只在 SSOT-bound path staged 時才 invoke generator），避免 docs-only commit 被 hook 卡住。遇到首輪 `--check` 撞 separator 差異（`|------|------|----------|` vs generator canonical `|---|---|---|`）時，沒有硬改 generator 去兼容兩種 separator（那會留 permanent 2-path 分支），而是跑 write mode 一次 canonical 化再獨立 commit，保留 audit trail。Phase 3 persona edit 三檔（pm / engineer / designer）同 session 改完，每檔依 role 語氣落地 — PM 擴原 §visual-delta gate 為雙軸 gate + handoff line；Engineer 加 Step 0e 獨立 section + Step 0c 加註記；Designer 在 Frame Artifact Export 下加 frozen-at-session section + pre-batch_design grep re-sync 規則。不是複製同一段貼三次，每檔都對應該 role 的 trigger point。AC-039-P2-DOGFOOD-FLIP 完整跑：flip JSON → `--check` 紅 → hook 擋 commit → regenerate → green → revert，全程零 Designer session。
+
+**沒做好：** `git config core.hooksPath .githooks` 自動啟用被權限系統擋（unauthorized persistence / agent-enabled hook installation），沒有預期到這個 guardrail。根因：hook 類改動跨「repo 設定」而非「repo 內容」，我直覺當成純 local config 修改，沒考慮 agent 環境的 persistence 限制。補救是在 hook 檔頭寫 activation 步驟 + 在 commit message 註明 per-clone 手動指令，但如果一開始就知道，會先把 activation 指令寫進 ticket §Release Status 而不是卡到被擋才補。
+
+**下次改善：** 牽涉 `git config` / `git hooks` / shell rc / cron 等「持久化外於 repo」的動作時，commit 前先確認：(a) 這個動作是不是 per-clone 一次性，如果是 → 預設寫進文件而非自動執行；(b) 即使自動執行合法，也要在 ticket §Release Status 留一行 manual fallback 指令供 human 讀票後啟用。落為 engineer persona 對應 hook / git config / shell rc / cron 類改動的硬 step，或補進 `feedback_external_service_bug_diagnosis.md` 類 memory（尚未落地，留下次遇到再決）。
+
+---
+
+## 2026-04-24 — K-039 Phase 1.5 (SSOT format neutralization — TS → JSON at content/roles.json)
+
+**做得好：** 用戶 BQ 提出「SSOT 應為語言中性」後，直接做出最小 surface 的遷移：content/roles.json 新增於 repo 根（與 docs/、frontend/、backend/ 平行），原 roles.ts 保留為薄 type wrapper（RoleEntry + re-export），React runtime 的 import path 完全不變（`./roles`），避免觸動 RoleCardsSection.tsx。遇到 Playwright 1.32 Node-ESM loader 不收 `with { type: 'json' }` import attribute 時，沒有升級 Playwright 或硬塞 Vite plugin（那會把 tool-chain 複雜度往下游推），而是讓 spec 端改走 fs.readFileSync 直讀 JSON — 把「React 能 render JSON」的綁定留給既有 about.spec 的 rendered-DOM 斷言（AC-017-ROLES / AC-022-ROLE-GRID-HEIGHT / AC-034-P2-FILENOBAR-VARIANTS），三條斷言本來就在跑、本來就 green，等於零新增覆蓋缺口。FAIL-IF-GATE-REMOVED 在新 JSON path 上重跑一次（drift 2 fail / revert 4 pass）證明遷移後的監控力與 Phase 1 原 TS 版完全對等。Vite `server.fs.allow: ['..']` 一行配置解決跨目錄 import 權限，沒有搬目錄結構。
+
+**沒做好：** 第一次直接用現代 `with { type: 'json' }` 語法，tsc 5.4 + Node 20.20 都支援，就假設 Playwright 1.32 內部 loader 也支援 — 忽略了 Playwright 的 test loader 與 Node 原生 ESM loader 不是同一個東西。第一次跑 spec 才 surface parse error，浪費一個 round。根因：跨工具 ESM feature 支援度沒有「tsc 過 = 所有執行端過」的遞移性，import attribute 這種 parser-level feature 要逐工具驗證。
+
+**下次改善：** 引入任何 stage-3 以後的 ECMAScript/TS 語法（import attributes、decorator、`using` 宣告等）時，commit 前明列「此語法在哪些 loader 跑過」的 evidence table（tsc ✓ / Vite dev ✓ / Vite build ✓ / Playwright ✓ / Node native ✓），缺哪個就先查工具版本支援度，不要 tsc 綠就提交。對齊既有的 `feedback_engineer_latest_branch.md` + `feedback_engineer_design_spec_read_gate.md` 的「多面向驗證」紀律。codify 為個人 note 待下次遇到升級類 ticket 時落 persona。
+
+## 2026-04-24 — K-039 Phase 1 (split-SSOT for /about RoleCards — drift repair + sync markers + regression spec)
+
+**做得好：**
+- **AC-039-P1-FAIL-IF-GATE-REMOVED dry-run in one shot** — edited README.md inside markers (`Requirements` → `Reqs`), re-ran `npx playwright test roles-doc-sync.spec.ts`, captured red on AC-039-P1-README-SYNCED with precise Jest-style diff pinpointing the 1-row drift (other 5 rows + count + canon + protocols all stayed green → scoping is correct). Reverted, re-ran, 4/4 back to green. Evidence transcript captured verbatim into ticket §8 per `feedback_engineer_concurrency_gate_fail_dry_run.md` pattern.
+- **E2E grep before edit performed** — `grep -rn "RoleCardsSection\|ROLES" frontend/e2e/` before any Edit surfaced `about.spec.ts:90-143` as the 18-assertion consumer; confirmed my TSX refactor is import-only (zero runtime change) so those assertions remain green. Verified at full-suite run (about.spec.ts tests PASS).
+- **Pure-data module discipline held** — `roles.ts` has zero React imports, only `export type RoleKey | RoleEntry` + `export const ROLES: readonly RoleEntry[]`. Consumers documented in file-header docstring (`RoleCardsSection.tsx`, `roles-doc-sync.spec.ts`, future Phase 2 generator) per shared-component-inventory convention.
+
+**沒做好：**
+- **First spec run failed with `Cannot find module '../src/components/about/roles'`** — tsc green + vitest/typescript bundler moduleResolution allowed bare-module import to typecheck, but Playwright's Node-ESM loader at runtime doesn't auto-resolve `.ts`. Fix: add `.ts` extension, matching existing e2e convention (`./_fixtures/mock-apis.ts`). Root cause: I didn't grep existing e2e imports for `from '\.\./` to pick up the extension convention before writing the new spec; relied on tsc green as sufficient.
+- **Ticket AC literal vs HEAD shape drift not caught at pre-implementation** — AC-039-P1-EXTRACT-ROLES-MODULE names fields `role/owns/artefact/redactArtefact` but K-034 Phase 2 replaced `redactArtefact` with `fileNo`. PM dispatch instruction pre-ruled HEAD-truth so I didn't block, but I should have surfaced this as an observation at the start (not at retrospective) so PM sees the AC-vs-HEAD drift earlier. Now logged as BQ in §9.
+- **AC-039-P1-NO-OTHER-CONTENT-TOUCHED final `grep == 2` clause is unsatisfiable** — literal shell grep counts prose references in the ticket doc + string literals in the Playwright spec itself. Intent (2 marker-carrying files) is satisfied but the AC wording needs a narrower predicate (e.g. `grep -lE "^<!-- ROLES:(start|end) -->$"`). Logged as BQ in §9 for PM to tighten in Phase 2 or meta-amend.
+
+**下次改善：**
+- **Before any cross-dir e2e import (e2e → src/**), grep `frontend/e2e/` for the existing `from '../` convention and copy the extension style literally** — do not assume tsc green = Playwright loader green. Engineer persona already warns about Playwright JSON loader vs tsc (§Playwright JSON import rule); this `.ts`-extension case is a sibling gotcha in the same family. Will add a short cross-reference line to the persona in next batch.
+- **Pre-implementation AC-vs-HEAD diff scan for refactor tickets** — when a ticket body enumerates "fields `X, Y, Z`" and the ticket has `depends-on` or `related` K-IDs that recently changed the component, `git show <K-related>:<file>` + compare before first Edit; if field set drifted, raise as BQ at start (1-line note), not at retrospective. Applies to ticket-type `refactor` + `process` both. The PM dispatch pre-ruled this particular case, but the rule applies to future tickets where PM may not pre-rule.
+
 ## 2026-04-23 — K-040 Phase 3 Code Review BFP W-1+W-2+W-3 fix commit (Step 0d gate enforced)
 
 **做得好：**

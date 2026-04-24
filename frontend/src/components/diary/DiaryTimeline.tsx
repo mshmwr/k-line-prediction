@@ -19,7 +19,7 @@ export default function DiaryTimeline({ entries }: DiaryTimelineProps) {
       role="list"
       className="list-none p-0 m-0 relative flex flex-col gap-8 sm:gap-10"
     >
-      <DiaryRail />
+      <DiaryRail mobileVisible />
       {entries.map((e) => (
         <li
           key={`${e.ticketId ?? 'no-id'}-${e.date}-${e.title}`}

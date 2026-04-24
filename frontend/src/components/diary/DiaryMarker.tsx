@@ -1,33 +1,37 @@
 import { MARKER } from './timelinePrimitives'
 
-// K-024 Phase 3 — /diary-only marker primitive (design §6.3 / §6.5).
-// 20×14 brick-dark rectangle, cornerRadius 6 (per visual-spec.json wiDSi
-// marker shape).
-//
-// NOTE — K-023 Sacred exception on Homepage:
-// Homepage's DevDiarySection renders its marker INLINE (not via this component)
-// because AC-023-DIARY-BULLET / AC-028-MARKER-COORD-INTEGRITY lock the Homepage
-// marker at `borderRadius: 0px` (pages.spec.ts L203 / L410), which conflicts
-// with visual-spec `cornerRadius: 6`. Design §0.2 bullet (1) explicitly holds
-// Homepage radius 0 as a pre-existing invariant, overriding §9.1's
-// "both frames import <DiaryMarker />" dedup recommendation.
-// DiaryMarker is therefore scoped to /diary only; DevDiarySection keeps its
-// inline marker preserving the Sacred shape. timelinePrimitives.ts remains
-// the shared values SSOT for color/size/position (both consumers read it).
+// K-024 Phase 3 — timeline marker primitive (design §6.3 / §6.5).
+// K-041 — unified with Homepage via props. Defaults match /diary values
+// (cornerRadius 6, topInset 10); Homepage passes `borderRadius={0}` +
+// `topInset={8}` to preserve K-023 AC-023-DIARY-BULLET (`borderRadius: 0px`)
+// and K-028 AC-028-MARKER-COORD-INTEGRITY (`top: 8px`) Sacred invariants.
+// `mobileVisible` default `false` preserves K-024 §6.8 hide-on-<sm; both
+// consumers pass `true` after K-041 AC rewrite.
 
-export default function DiaryMarker() {
+interface DiaryMarkerProps {
+  mobileVisible?: boolean
+  borderRadius?: number
+  topInset?: number
+}
+
+export default function DiaryMarker({
+  mobileVisible = false,
+  borderRadius = MARKER.cornerRadius,
+  topInset = MARKER.topInset,
+}: DiaryMarkerProps) {
+  const visibilityClass = mobileVisible ? 'block' : 'hidden sm:block'
   return (
     <div
       aria-hidden="true"
       data-testid="diary-marker"
-      className="hidden sm:block absolute"
+      className={`${visibilityClass} absolute`}
       style={{
         width: MARKER.width,
         height: MARKER.height,
-        borderRadius: MARKER.cornerRadius,
+        borderRadius,
         backgroundColor: MARKER.color,
         left: MARKER.leftInset,
-        top: MARKER.topInset,
+        top: topInset,
       }}
     />
   )
