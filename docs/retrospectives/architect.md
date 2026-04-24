@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-04-24 — K-049 Public-surface plumbing (architect brief, all-phases design)
+
+**做得好：** §1 Pre-Design Audit 對 PM handoff 提到的 4 個檔案全跑 `git show 1090e63:<path>`，立刻發現 PM brief 寫的 `backend/app/main.py` 路徑實際上在 `1090e63` 不存在 — 正確路徑是 `backend/main.py`。若沒跑 base-commit dry-run，設計文件 §6.2 request-flow 會引用錯路徑，Engineer 實作時才撞 fatal error。同時 §F 的 Bodoni usage grep 確認 `frontend/src` + `tailwind.config.js` 零 consumer，為 AC-049-BODONI-1 safe-to-remove 主張提供 empirical evidence，不是印象。§0 BQ-049-ARCH-01 主動抓出 PM handoff brief 把 sitemap 第 5 路由寫成 `/examples`（不存在）vs ticket AC-049-SITEMAP-1 寫 `/business-logic`（存在），依 `feedback_ticket_ac_pm_only.md` 不自改 AC，flag 回 PM 作 BQ，設計以 ticket AC 為 SSOT 繼續。§7.4 Firebase Hosting file-serving vs rewrite 優先順序採 empirical baseline（backed by Firebase docs' documented priority）+ Engineer post-deploy curl-probe guard，而非硬性加 rewrite exclusion — 把「可能多餘」的 config 收縮到 Known Gap + deployment-time verification，避免 K-021-style silent config bloat。
+
+**沒做好：** §7.3 CSP policy string 寫成「draft — Engineer 實作 verbatim」但 script-src 清單是 best-guess（GA + googletagmanager 必須；但 `'unsafe-inline'` 對 Vite 產出的 inline bootstrap script 是否必要沒實測驗證）。真實做法應該是：產出 Phase 2a 第一版 build 後，檢查 `frontend/dist/index.html` 產出的 inline script / style tags，逐項決定 CSP directive，再把 policy 寫死。現在推給 Engineer 的 §16 risk 2 「deploy 後看 violation，tighten 再 redeploy」實際上是把 CSP 的 first-pass design work 外包給 deploy-loop — 與 §Boundary Pre-emption 要求的「設計階段補完 boundary」原則有 tension。第二版設計 iteration 應該在 Phase 2a commit 前先本地 `npm run build` + grep `dist/index.html` 的 inline script hash 需求，把 CSP 鎖到可通過 headless Chromium 的最小集。
+
+**下次改善：** CSP 類 config 的設計文件不應該標 "draft, Engineer verbatim"；應在設計階段走 (1) `npm run build` → (2) `grep -oE 'on[a-z]+="' dist/index.html` + `grep -oE '<script[^>]*>' dist/index.html` 列出所有 inline handler / script → (3) 以這些 findings 撰寫最小 CSP policy，設計文件給 Engineer 的是「已驗過 headless Chromium zero-violation」的完成版。將此步驟追加進 persona `senior-architect.md` 的 Firebase Hosting / CSP 類 ticket pre-design checklist（位置：§Boundary Pre-emption 或新增 §Deploy Config Design Protocol 子節），避免下次同類 ticket 又把 first-pass CSP tuning 推給 deploy-loop。
+
+---
+
 ## 2026-04-24 — K-046 Phase 2 UI restructure + CORS env fix
 
 **做得好：** §3 handler-removal ruling 沒停在「dead-code 砍就對了」— 先跑 `grep -n "uploadError\|setUploadError" /tmp/AppPage-4c873b3.tsx` 確認 5 hit 全在 HISTORY-ONLY 範圍（L143/299/310/452/455），zero crossover with `handleOfficialFilesUpload`，才敢下 REMOVE；把這個 scope-critical 驗證寫進 §3.1 表格，reviewer/engineer 讀到就能自己 replay。§10.3 Pre-Design Audit 發現 `handleHistoryUpload` L309 `setHistoryInfo(data)` 是 post-upload refresh 路徑，REMOVE 後 only `useEffect` initial fetch 會設 `historyInfo` — 同 §10.3 note 段落明寫這個行為差異 + AC-046-PHASE2-HISTORY-INFO-RENDERS 只斷言 initial fetch path，K-048 再補 post-upload refresh，讓 Engineer/Reviewer 不會誤判 regression。§10.5 主動 flag 既有 `K-046-example-upload.spec.ts:81` `page.locator('label', { hasText: 'Upload History CSV' })` 為 stale anchor，給 Engineer 具體 T1/T2 updating + T3 removal 指令，避免 Phase 2b 才現場發現 test 紅。
