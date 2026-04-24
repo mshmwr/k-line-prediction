@@ -16,6 +16,23 @@
 
 ---
 
+## 2026-04-25 — K-049 Phase 3 — React.lazy route split + Suspense + GA pageview lazy hardening
+
+**做得好：**
+- **Architect Claim E 的 pre-existing 斷言有做 code-level dry-run 驗證** — 不是盲接「useGAPageview 靜態 PAGE_TITLES map 是 anti-race anchor 無需改動」的宣稱，而是 git show base:useGAPageview.ts + Read PAGE_TITLES 定義，確認 map key 是 location.pathname（同步可得）而非 React state / async import，才採信 AC-049-GA-LAZY-1 「無需代碼改動，只需驗證」的 routing。對應 `feedback_architect_pre_design_audit_dry_run.md` 的精神從 Architect 端延伸到 Engineer pre-impl 端。
+- **Phase 3 新增測試與修改分類明確：** RouteSuspense 新增 component 走 §Shared-Component Inventory Scan（0 peer hit → 安全建立），兩個 spec edit 都歸類為「pure selector / wait-predicate upgrade」（assertion content 未變、僅 wait predicate 精確化），而非 assertion content change — 依 persona §Test Change Escalation edit directly 不需 PM ruling。
+
+**沒做好：**
+- **Pre-impl 沒預料到 `page.goto` + `evaluateAll` 組合在 lazy boundary 下的 race：** `page.goto('/about')` 過去足以讓 AboutPage 渲染（因為在 initial bundle），Phase 3 後 goto 只等 HTML shell，AboutPage chunk 仍在載入，此時 `page.locator('#header, ...').evaluateAll(...)` 直接回空陣列 —— Playwright locator 的 auto-wait 只對 *action / single-node assertion* 生效，`evaluateAll` 不等。結果 `ga-spa-pageview.spec.ts BuiltByAIBanner CTA` (dataLayer wait 太早) + `about-layout.spec.ts T1` (DOM 空陣列) 兩個 spec 都在 full suite 跑時才暴露。Pre-impl 只列了 Architect brief 提到的 spec 影響面，沒對 `e2e/**` 做 `grep 'evaluateAll\|waitForFunction'` 盤點「lazy-boundary 下可能失效的 snapshot-型斷言」。
+- **第一輪 full-suite 只跑 `ga-spa-pageview.spec.ts`，沒跑整個 chromium** — 誤以為 GA spec 通過就代表 Phase 3 無 regression，實際上 `about-layout.spec.ts` 的 T1 失敗要到第二輪全量才現形。應該在 Phase 3 commit 前 *先* 跑全量 chromium（至少跑完所有 `about*.spec.ts` + `pages.spec.ts`），再聚焦 debug 指定 spec。
+
+**下次改善：**
+- Engineer persona / `references/engineer-gates.md` 應增一條「Lazy-boundary snapshot race 預檢」gate：當 ticket scope 含 `React.lazy` / `<Suspense>` / route-level code-split 變更，commit 前 `grep -rn 'evaluateAll\|waitForFunction' frontend/e2e/` 盤點所有「snapshot-型」斷言，逐一評估是否需要在 helper 前加 `locator.waitFor({ state: 'attached' })` 閘。這不是 selector 升級層級，而是「新增 lazy boundary 會讓哪些既有測試從 auto-wait 失去庇護」的結構性 pre-check。
+- Commit 前的 Playwright 驗證順序：當 ticket 碰 routing / initial bundle / chunk split 類改動，**第一輪就跑 `npx playwright test --project=chromium`** 全量，而不是先跑 scope 認定的 spec 再跑全量。全站路由改動默認全量 first。
+- 本輪發現後在 `about-layout.spec.ts::sectionBoxes` helper 內加兩條 `locator.waitFor({ state: 'attached', timeout: 10_000 })`（首 + 末 section）作為結構性閘，保護未來 append-to-list 類改動不會再踩同類坑。此修復模式值得在 Engineer retro memory 中記一筆：`evaluateAll` / `$$eval` / batch DOM snapshot 前必加 waitFor，不能相信 Playwright auto-wait。
+
+---
+
 ## 2026-04-24 — K-046 Phase 2b — UI restructure + fixture refresh + parseOfficialCsvFile export
 
 **做得好：**
