@@ -15,6 +15,23 @@
 - 倒序（最新在上）
 
 
+## 2026-04-24 — K-049 QA regression-pass sign-off (post-Code-Review, pre-deploy)
+
+**What went well:**
+- Baseline byte-identity verification without `git stash`: AC-024-LEGACY-MERGE Vitest failure + AC-020-BEACON-SPA Playwright failure both proven pre-existing via `git show 1090e63:<file>` + cp-swap spec restore — K-049 commit range never touched diary.json / diary.legacy-merge.test.ts / analytics.ts / useGAPageview.ts / Footer.tsx / AppPage.tsx, so failure signatures guaranteed identical to base.
+- Anchor-audit confirmed PM/Architect scope split holds: 2 in-tree ACs (AC-049-SUSPENSE-1 at `ga-spa-pageview.spec.ts:80,126` + AC-049-GA-LAZY-1 covered by same lazy-boundary probe) have regression spec coverage; 8 deploy-time ACs (PROBE-1 / PWA-1 / BODONI-1 / ROBOTS-1 / SITEMAP-1 / CSP-REPORT-1 / DEPLOY-ORDER-1 / DEPLOY-ENVGUARD-1 / CACHE-1) correctly have zero in-tree Playwright anchors — they belong to deploy-smoke cookbook, not E2E.
+- Sacred regression byte-identity pass across all 4 items (K-037 favicon 6 link tags, K-034-P1 Footer.tsx, K-030 AppPage.tsx, K-024 diary.json) + spot-run 18/18 pass on shared-components + app-bg-isolation specs — K-049 refactor did not regress any locked-in invariant.
+
+**What went wrong:**
+- Initial `git stash` path for baseline verify was denied by global Destructive Op Safety rule (tree clean except `?? node_modules`; no prior explicit user approval for stashing). Had to pivot to `git show <base>:<file>` + `diff` + cp-swap spec — correct outcome but cost ~2 turns of planning.
+- `src/components/Footer.tsx` first-guess path was wrong (actual: `src/components/shared/Footer.tsx`) — should have `find`/`grep` located path before issuing diff, not default to top-level `components/`.
+
+**Next time improvement:**
+- For any pre-existing-failure baseline-verify on a clean tree: default to `git show <base>:<path>` + `diff -q` against current path, cp-swap only when runtime-side proof is required (e.g. spec vs runtime code). Skip `git stash` entirely when tree is clean — no upside, only policy risk.
+- Before issuing `git show <base>:<relpath>` or `diff` against repo paths, run a 1-line `find <root> -name "<basename>*"` locate pass to get exact path — avoids "No such file or directory" mid-verify.
+- Deploy-smoke cookbook pattern (303-line `docs/reports/K-XXX-deploy-smoke.md` with curl/python/xmllint per deploy-time AC) should be auto-generated when ≥3 ACs are deploy-time-only — codify in QA persona as a trigger heuristic.
+
+
 ## 2026-04-24 — K-049 QA Early Consultation (public-surface plumbing, pre-Architect)
 
 **What went well:** Pre-design adversarial pass surfaced 8 edge gaps across deploy-env-var loss path, CSP report-only silent-drop, Cloud Run rewrite + CORS ordering, Firebase rewrite first-match, React.lazy GA pageview race, Suspense fallback E2E flake risk, `/assets/**` immutable mis-scope, and manifest PWA drift — all pinned to observable `curl` / Playwright assertions so PM can paste AC verbatim.
