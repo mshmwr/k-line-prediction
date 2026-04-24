@@ -15,12 +15,6 @@
 - 倒序（最新在上）
 
 
-## 2026-04-24 — K-049 QA Early Consultation (public-surface plumbing, pre-Architect)
-
-**What went well:** Pre-design adversarial pass surfaced 8 edge gaps across deploy-env-var loss path, CSP report-only silent-drop, Cloud Run rewrite + CORS ordering, Firebase rewrite first-match, React.lazy GA pageview race, Suspense fallback E2E flake risk, `/assets/**` immutable mis-scope, and manifest PWA drift — all pinned to observable `curl` / Playwright assertions so PM can paste AC verbatim.
-**What went wrong:** N/A — consultation is pre-implementation; findings surfaced before AC freeze.
-**Next time improvement:** For ops/config tickets (firebase.json / hosting / headers), add a mandatory "deployed-bundle probe AC" pattern — every claim about shipped bundle content (env-var baked, meta present, header present) must have a `curl -sI` or `curl -s ... | grep` AC citing the exact production URL, not just a local-build assertion.
-
 ## 2026-04-24 — K-046 Phase 2b QA full regression sign-off (post-Code-Review pass 2)
 
 **What went well:**
