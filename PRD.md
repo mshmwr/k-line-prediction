@@ -783,7 +783,7 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - **AC-024-TIMELINE-STRUCTURE** — 無 accordion；左側 rail + 磚紅矩形 marker，尺寸/顏色依 `docs/designs/K-024-visual-spec.json` wiDSi 對應 role。
 - **AC-024-ENTRY-LAYOUT** — entry-title / entry-date / entry-body 字型/字級/letterSpacing/行高/顏色依 visual-spec role（Playwright 斷言 import JSON）；`ticketId` 存在時 title 為 `K-XXX — <title>` em-dash（U+2014）格式，不得使用 middle-dot 或 hyphen。
 - **AC-024-PAGE-HERO** — 大標 `Dev Diary`（hero-title role）+ 1px 分隔線 + italic 副標 `Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.`（hero-subtitle role）。
-- **AC-024-CONTENT-WIDTH** — desktop maxWidth 1248px；mobile rail/marker `display: none`，entry 三層文字單欄折行。
+- **AC-024-CONTENT-WIDTH** — desktop maxWidth 1248px；mobile rail/marker 可見（K-041 override K-024 §6.8 design-removed 意圖，回注使用者決議）；DiaryRail + DiaryMarker 組件須支援 `mobileVisible` prop 讓 `/diary` 與 Homepage 共用同一組件（消除 K-024 Phase 3 當時雙 render-path 分裂）；entry 三層文字 mobile 保持 `pl-[92px]` 縮排讓 marker 與 rail 視覺對齊。
 - **AC-024-LOADING-ERROR-PRESERVED** — Loading / Error UX 沿用既有機制；refetch 期間 button disabled + 錯誤訊息保留。
 - **AC-024-PM-PERSONA-SYNC** — PM persona 「K-023 上線後生效」字串於本票關閉時改為「K-024 上線後生效」（audit-personas 早期已 sync，DoD 檢核 grep 已 `[x]`）。
 - **AC-024-REGRESSION** — K-017 + K-021 + K-023 + K-028 所有 Sacred 斷言（NavBar / body paper palette / 三字型 / Homepage marker `borderRadius:0`+`top:8` / DevDiary heading + 3-marker + 0-entry `diary-entry-wrapper`）全綠；QA Phase 3 sign-off PASS。
