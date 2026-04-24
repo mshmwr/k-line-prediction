@@ -46,6 +46,25 @@
 - For comment-out / refactor-reversibility tickets, QA must mandate **at least one test that would fail if the commented block were uncommented** (this is the dual of "fail-if-gate-removed" — here "fail-if-gate-restored"). Update QA persona `## Test Scope › Boundary Sweep` with a "reversibility assertion" row for future comment-out tickets.
 - Upload round-trip E2E spec is now a hard request for K-046 Phase 2 — added to supplemental ACs (AC-046-QA-3).
 
+
+## 2026-04-24 — K-047 Early Consultation (Favicon Twin Pulse v1 Redesign)
+
+**Tier:** real qa (visual/layout per `feedback_qa_early_proxy_tier.md`)
+**Verdict:** CHANGE-REQUESTED (5 blocker-class gaps, 7 edge cases raised, 6 new AC proposed, 2 REGRESSION additions)
+
+**做得好：**
+- 抓出 ticket Solution spec vs PM 對話 context 的色值矛盾（ticket: `#22C55E`/`#EF4444` 透明底無外框 vs 對話: `#EC4899`/`#10B981` 黑底圓角 20%）— 若未釐清 Designer Phase 1 會做錯方向，產出要重工；以 ticket 正文為 SSOT 並在 Findings 要求 PM 明確裁決。
+- 發現 AC-047-16PX-LEGIBILITY 驗證條件「人眼目視兩根 bar 分離」無硬數字 — 主觀判斷無法進 sign-off gate；提議 gap≥1px + 對比度 ≥ 4.5:1 (WCAG AA) 量化。
+- 抓出 `theme_color: "#F4EFE5"` 米黃底背景 context — Solution spec 要求透明底純色塊，在淺色分頁上紅(`#EF4444` vs `#F4EFE5`)/綠(`#22C55E` vs `#F4EFE5`) 邊緣對比可能不足；目前無 AC 覆蓋淺色分頁情境。
+- 提醒 AC-047-WIRE-UNCHANGED 的 `wc -l == 6` 已驗過現況 index.html 正好 6 行（grep 結果：4 icon links + 1 apple-touch + 1 manifest），但沒有人在寫 AC 時驗證 baseline — 硬編 6 沒 raw-count sanity 呼應 K-025 feedback。
+
+**沒做好：**
+- （這是 Early Consultation，Final QA 尚未執行，故無 final-stage 事後 gap。）
+
+**下次改善：**
+- 針對「favicon/icon 類小尺寸 raster 資產」類 ticket，未來 Early Consultation 預設包含：(1) 硬數字 legibility 門檻（gap px、對比度 WCAG ratio）；(2) 全 browser matrix × 淺/深色主題；(3) Retina @2x 驗證；(4) 每個 raster 檔 sha256 對 HEAD diff 證明已 regen。把本次 checklist 轉為 `feedback_qa_favicon_raster_early_consultation_template.md`（K-048 後複用，省重推）。
+
+
 ## 2026-04-24 — K-045 Early Consultation (desktop layout consistency /about vs / vs /diary)
 
 **做得好：**
