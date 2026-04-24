@@ -12,12 +12,12 @@
 
 <table>
 <tr>
-<td><img src="./docs/images/readme/homepage-v1-80e12d7.png" width="360" height="225" alt="Homepage before the redesign (pre-K-017): basic single-column layout, no design system." /></td>
-<td><img src="./docs/images/readme/homepage-v2-058699b.png" width="360" height="225" alt="Homepage after the redesign (K-017 v2): sitewide design system, typography tokens, polished hero." /></td>
+<td width="360"><img src="./docs/images/readme/homepage-v1-80e12d7.png" width="360" alt="Homepage before the redesign (pre-K-017): basic single-column layout, no design system." /></td>
+<td width="360"><img src="./docs/images/readme/homepage-v2-058699b.png" width="360" alt="Homepage after the redesign (K-017 v2): sitewide design system, typography tokens, polished hero." /></td>
 </tr>
 <tr>
-<td><strong>Before</strong> — basic single-column layout, no design system.</td>
-<td><strong>After</strong> — sitewide design system, typography tokens, polished hero.</td>
+<td width="360"><strong>Before</strong> — basic single-column layout, no design system.</td>
+<td width="360"><strong>After</strong> — sitewide design system, typography tokens, polished hero.</td>
 </tr>
 </table>
 
