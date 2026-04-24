@@ -99,24 +99,24 @@ test.describe('AC-017-ROLES — Role Cards 6 × 3 assertions', () => {
     await page.goto('/about')
     const article = page.locator('[data-role="PM"]')
     await expect(article.getByText('PM', { exact: true })).toBeVisible()
-    await expect(article.getByText('Requirements, AC, Phase Gates', { exact: true })).toBeVisible()
-    await expect(article.getByText('PRD.md, docs/tickets/K-XXX.md', { exact: true })).toBeVisible()
+    await expect(article.getByText('Requirements, AC, phase gating', { exact: true })).toBeVisible()
+    await expect(article.getByText('PRD + ticket + retrospective', { exact: true })).toBeVisible()
   })
 
   test('Architect card: role + owns + artefact', async ({ page }) => {
     await page.goto('/about')
     const article = page.locator('[data-role="Architect"]')
     await expect(article.getByText('Architect', { exact: true })).toBeVisible()
-    await expect(article.getByText('System design, cross-layer contracts', { exact: true })).toBeVisible()
-    await expect(article.getByText('docs/designs/K-XXX-*.md', { exact: true })).toBeVisible()
+    await expect(article.getByText('Design, API contract, component tree', { exact: true })).toBeVisible()
+    await expect(article.getByText('Design doc + retrospective', { exact: true })).toBeVisible()
   })
 
   test('Engineer card: role + owns + artefact', async ({ page }) => {
     await page.goto('/about')
     const article = page.locator('[data-role="Engineer"]')
     await expect(article.getByText('Engineer', { exact: true })).toBeVisible()
-    await expect(article.getByText('Implementation, stable checkpoints', { exact: true })).toBeVisible()
-    await expect(article.getByText('commits + ticket retrospective', { exact: true })).toBeVisible()
+    await expect(article.getByText('Implementation', { exact: true })).toBeVisible()
+    await expect(article.getByText('Code + retrospective', { exact: true })).toBeVisible()
   })
 
   test('Reviewer card: role + owns + artefact', async ({ page }) => {
@@ -124,7 +124,7 @@ test.describe('AC-017-ROLES — Role Cards 6 × 3 assertions', () => {
     const article = page.locator('[data-role="Reviewer"]')
     await expect(article.getByText('Reviewer', { exact: true })).toBeVisible()
     await expect(article.getByText('Code review, Bug Found Protocol', { exact: true })).toBeVisible()
-    await expect(article.getByText('Review report + Reviewer 反省', { exact: true })).toBeVisible()
+    await expect(article.getByText('Review report + retrospective', { exact: true })).toBeVisible()
   })
 
   test('QA card: role + owns + artefact', async ({ page }) => {
@@ -132,15 +132,15 @@ test.describe('AC-017-ROLES — Role Cards 6 × 3 assertions', () => {
     const article = page.locator('[data-role="QA"]')
     await expect(article.getByText('QA', { exact: true })).toBeVisible()
     await expect(article.getByText('Regression, E2E, visual report', { exact: true })).toBeVisible()
-    await expect(article.getByText('Playwright results + docs/reports/*.html', { exact: true })).toBeVisible()
+    await expect(article.getByText('QA report + retrospective', { exact: true })).toBeVisible()
   })
 
   test('Designer card: role + owns + artefact', async ({ page }) => {
     await page.goto('/about')
     const article = page.locator('[data-role="Designer"]')
     await expect(article.getByText('Designer', { exact: true })).toBeVisible()
-    await expect(article.getByText('Pencil MCP, flow diagrams', { exact: true })).toBeVisible()
-    await expect(article.getByText('.pen file + get_screenshot output', { exact: true })).toBeVisible()
+    await expect(article.getByText('Pencil design source of truth', { exact: true })).toBeVisible()
+    await expect(article.getByText('.pen file + JSON/PNG spec + retrospective', { exact: true })).toBeVisible()
   })
 })
 

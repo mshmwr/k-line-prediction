@@ -35,7 +35,15 @@
 **沒做好：** Ticket §4 AC-045-K031-ADJACENCY-PRESERVED 引用 `about.spec.ts:386-403` 但實際檔名是 `about-v2.spec.ts:387-404`（檔案不存在 + 行號都 off-by-1）。grep 確認後依 `feedback_ticket_ac_pm_only.md` 禁止自改 ticket AC，以 BQ-045-ARCH-01 flag 進 §10 等 PM 裁決；但第一稿 §2.1 component tree 寫到一半才意識到 K-031 adjacency 與 outer-wrapper pattern 衝突，算是「設計稿自己到寫 §2 時才撞到 Sacred」的 reactive 發現，不是 §0 階段主動辨識。如果 Pre-Design Audit §0.4 把所有 regression-class Sacred 列成 DOM-shape assertion 表（selector + expected ancestor chain），第一時間就會看出 outer wrapper 不可用，不會先寫 naïve draft 再回頭推倒。
 
 **下次改善：** Pre-Design Audit §0 新增強制子項 **§0.4a DOM-shape Sacred Assertion Catalogue** — 逐條列出本 ticket regression-class Sacred 對應的 DOM structural assertion（selector + ancestor chain + sibling adjacency），在 §2 Component Tree 之前先建完目錄；§2 每一版草稿 Component Tree 必須對這份目錄做「每條 assertion 是否仍成立」的 truth-table 自驗，才能進入 §3。將此 codify 進 `senior-architect.md` §Pre-Design Dry-Run Proof 的 Gate 2 延伸條款。
+---
 
+## 2026-04-24 — K-044 README showcase rewrite 設計（PM scoped re-dispatch）
+
+**做得好：** Challenge C3 feasibility pre-check 在 PM 的 scoped re-dispatch 這次又重跑一遍 — 用 `git stash` 保存 WIP、`git checkout 80e12d7 -- frontend/`、full `npm install`（no pre-existing node_modules，126 packages）、`nohup npm run dev`、`curl` 觀察 `<body class="bg-gray-950">` + Google Fonts `IBM+Plex+Mono` 雙訊號確認 pre-K-021 狀態、kill pid、`git restore --source=HEAD --staged --worktree frontend/` + `git stash pop` 完整還原。不是靠上一 session 的記憶或 design doc §1 的紀錄就默認通過 — PM 的 C3 gate 是硬 gate，每次召喚都要自己跑。Self-Diff Gate 也嚴格跑了 — `git diff --stat` 拿到權威 `32 insertions, 1 deletion = net +31 lines` 跟我拆解的 Patch 1 (+10) + Patch 2 (+19) + Changelog (+2) + frontmatter (0) = +31 ✓ 對齊，不是憑設計文件描述就當成完成。frontmatter `updated:` 也同 commit 往前推（2026-04-23 K-040 → 2026-04-24 K-044 + K-040 降為前置 context），不漏 sync rule。
+
+**沒做好：** 第一版 migration plan 直覺是「5 個 block 全部搬進 architecture.md」，後來在 cross-check 時才發現 4/5 已經被 architecture.md 既有段落完整覆蓋（Tech Stack、Frontend Routing、API Endpoints、Data Flow call-chain、Consensus Stats SSOT），只有 Deployment Architecture 是真 gap。如果沒有跑 `grep -n '^## ' agent-context/architecture.md` 對 README section list 的 diff，設計文件會讓 Engineer 重複寫同樣的內容進 architecture.md，造成 K-034/K-039 lesson 最怕的 duplicate-ownership drift。這個 pass 1 miss 不是技術錯誤，是工序沒排對 — 應該「先 audit 再寫 plan」。
+
+**下次改善：** docs-migration 類 ticket 的設計文件寫 migration plan 之前，必跑一次「目標 doc `grep -n '^## '` vs source doc section list」的 diff — 把重疊的部分先標 `already-covered` 再決定哪些是 gap 要 patch。codify 進 senior-architect.md 的 §Architecture Doc Sync Rule 附近：docs-migration ticket 強制要在設計文件 §N 出示 coverage-audit table，不能只寫「移到 X」。本 session 已在 K-044 設計文件 §3.1 + §10.7 用 8-row coverage-audit table 落地這個規範（雖然 memory/persona edit 超出 worktree 範圍、需等 meta-edit session 才能同步）。
 ---
 
 ## 2026-04-23 — K-040 Item 1 sitewide typography reset 設計

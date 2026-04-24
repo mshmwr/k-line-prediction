@@ -20,12 +20,12 @@ This document describes the structured protocols used to build the K-Line Predic
 <!-- ROLES:start -->
 | Role | Owns | Artefact |
 |---|---|---|
-| PM | Requirements, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
-| Architect | System design, cross-layer contracts | docs/designs/K-XXX-*.md |
-| Engineer | Implementation, stable checkpoints | commits + ticket retrospective |
-| Reviewer | Code review, Bug Found Protocol | Review report + Reviewer 反省 |
-| QA | Regression, E2E, visual report | Playwright results + docs/reports/*.html |
-| Designer | Pencil MCP, flow diagrams | .pen file + get_screenshot output |
+| PM | Requirements, AC, phase gating | PRD + ticket + retrospective |
+| Architect | Design, API contract, component tree | Design doc + retrospective |
+| Engineer | Implementation | Code + retrospective |
+| Reviewer | Code review, Bug Found Protocol | Review report + retrospective |
+| QA | Regression, E2E, visual report | QA report + retrospective |
+| Designer | Pencil design source of truth | .pen file + JSON/PNG spec + retrospective |
 <!-- ROLES:end -->
 
 ### Handoff Sequence
@@ -69,6 +69,31 @@ A bug caused 1H predictions to use incorrect MA history data. The Engineer wrote
 ### Example — K-008 W4: env var as tainted source
 
 During visual report script development, `process.env.TICKET_ID` was passed directly into a `path.join(OUTPUT_DIR, 'K-${TICKET_ID}-visual-report.html')` call without validation. Reviewer flagged it as a path traversal sink. The root cause: the Engineer treated env vars as "trusted developer input" rather than applying the correct rule — *sanitize by sink, not by source*. After Bug Found Protocol, the rule was written into memory and codified into Engineer persona behavior.
+
+---
+
+## Content-Alignment Gate {#content-alignment-gate}
+
+### When it fires
+
+Any ticket with `content-delta: yes` whose affected file is user-voice — README, portfolio copy, CV, `/about` page text, release notes, diary entries — passes through this gate before Engineer is dispatched.
+
+### The gate
+
+After Architect returns the design doc, Product Manager surfaces the verbatim content proposal to the operator and pauses. No Engineer spawn until the operator explicitly aligns on:
+
+1. Section order
+2. Every rewritten paragraph of two or more sentences (verbatim, not summary)
+3. Image / embed markup as rendered
+4. Any list add / remove / reorder decisions
+
+### Exempt
+
+Internal engineering documents: `agent-context/*.md`, `docs/designs/*.md`, role personas, ticket AC, retrospectives, architecture specs, test fixtures, code comments. These are engineering artefacts, not user voice.
+
+### Origin
+
+Added during K-044 after the first draft of the README was about to be sent to Engineer without operator review. See [docs/retrospectives/pm.md](./retrospectives/pm.md) 2026-04-24 K-044 entry.
 
 ---
 
