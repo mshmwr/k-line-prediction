@@ -19,6 +19,14 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-24 — K-041 Phase 4 Full E2E Regression (QA sign-off)
+
+**What went well:** Full suite (255 tests) ran once, 253 passed + 1 pre-existing flake + 1 skipped — Sacred K-023/K-028 Homepage marker tests (pages.spec.ts AC-023-DIARY-BULLET borderRadius 0px, AC-028-MARKER-COORD-INTEGRITY width=20 height=14) all green, confirming DiaryMarker prop unification preserved Homepage contract. Flipped T-C6 /diary mobile rail/marker display assertions now pass.
+
+**What went wrong:** Ran `npx playwright test --reporter=line` without TICKET_ID, producing K-UNKNOWN-visual-report.html pollution (persona step 1 pre-warning bypassed, TD-K030-03 Round-N recurrence). Post-step 2a verification caught it; deleted pollution + re-ran with TICKET_ID=K-041. Root cause: full-suite command fires visual-report.ts as part of `[visual-report]` project and the persona step-1 pre-warn only binds when visual-report is invoked standalone.
+
+**Next time improvement:** Before any `npx playwright test` command without test-file filter (i.e. full-suite run), prepend `TICKET_ID=K-XXX` env var — full-suite config contains visual-report project, so TICKET_ID is mandatory for BOTH standalone visual-report.ts runs AND full-suite runs. Codify into qa.md persona step 1: expand from "visual-report.ts standalone" to "any command that resolves the [visual-report] project, including full-suite".
+
 ## 2026-04-24 — K-041 QA Early Consultation (PM proxy tier — @qa-proxy)
 
 **Role:** PM proxy (not spawned QA agent). Invoked under user-approved `b + 不 deploy + 開工` directive (2026-04-24). Tier rationale: narrow scope (4 source files + 1 spec flip), Sacred invariants pre-locked in ticket table, no new runtime/schema introduced — layout class present but restoration-only (Homepage behavior already in production). FAIL-ONCE rule: any adversarial question below surfacing uncodified behavior or missing assertion forces escalation to real QA spawn.

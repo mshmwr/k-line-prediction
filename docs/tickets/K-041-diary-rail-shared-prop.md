@@ -1,7 +1,9 @@
 ---
 id: K-041
 title: /diary mobile rail/marker restore via shared-component mobileVisible prop
-status: in-progress
+status: closed
+closed: 2026-04-24
+deploy: deferred-per-user-directive-2026-04-24
 type: bug-fix + refactor
 priority: medium
 size: S
@@ -131,4 +133,18 @@ Mixed commit class → strictest gate (full: tsc + Vitest + Playwright subset).
 
 ## Retrospective
 
-_(to fill after close)_
+**What went well:** Pure-refactor execution stayed strictly inside the OLD vs NEW behavior-diff truth table as written in §Behavior-Diff. Single Engineer commit `0955813` landed all 5 source edits + spec flip with zero scope creep; Reviewer Step 1 breadth + Step 2 depth both PASS on first pass with the Homepage ≥640px & <640px rows verified equivalent via 12-attribute DOM diff against OLD (`c6c1aa2:DevDiarySection.tsx`) inline render. Sacred invariants — K-023 `borderRadius: 0`, `top: 8px`, K-028 `mobile rail always-visible` — all traceable end-to-end from `DevDiarySection` explicit prop pass (`<DiaryMarker borderRadius={0} topInset={HOMEPAGE_MARKER_TOP_INSET}/>` + `<DiaryRail mobileVisible/>`) through default overrides to DOM, verified by existing `pages.spec.ts` Homepage assertions staying green. QA full regression 253/255 with 1 pre-existing K-020 flake documented + 1 skipped. PM-proxy QA Early Consultation tier fit correctly: scope narrow (4 src files + 1 spec flip), Sacred table pre-locked in ticket, no new runtime/schema surface → 5 adversarial questions all PASS without fail-once escalation.
+
+**What went wrong:** AC-041-SHARED-COMPONENT-UNIFIED relies on structural grep proof (Engineer confirms "inline render text-string absent from DevDiarySection source") without a behavioral test that Homepage `borderRadius={0}` prop actually reaches the rendered DOM via the shared component code path (vs. accidental equivalence with prior inline render). The existing Homepage `pages.spec.ts` `toHaveCSS('border-radius', '0px')` assertion would pass on either render path — it doesn't distinguish prop-plumbed vs. hard-coded. Filed as TD-K041-01. Separately, depth review surfaced that K-028 Sacred "Homepage mobile rail always-visible" has no direct <640px viewport assertion in the suite — `pages.spec.ts` default viewport is desktop-scope; a silent regression (shared component default flip + missing Homepage `mobileVisible` prop pass) would not be caught. Not K-041-introduced — pre-existing gap surfaced by depth review on this ticket. Filed as TD-K041-03.
+
+**Next time improvement:** (1) When refactoring inline-render → shared-component with Sacred invariants expressed as props, Reviewer depth pass should require at least one behavioral test that specifically asserts the prop-plumbed DOM value differs from the default (e.g., explicitly pass `borderRadius=99` in a test fixture and assert `99px` renders, proving the prop path is live). This distinguishes "prop works" from "coincidentally still correct because default was never changed". (2) When ticket touches Sacred cross-viewport behavior (K-028 mobile always-visible), Reviewer depth should grep e2e/ for `viewport.*640\|setViewportSize` adjacent to the Sacred testid — missing viewport-specific assertion = surface as TD even if not regression-introducing (matches Reviewer retro codification proposal). Both items routed to TD rather than blocking K-041 close; TD-K041-01 and TD-K041-03 filed in `docs/tech-debt.md`.
+
+---
+
+### Deploy Record
+
+**Deploy status:** Deferred per user directive 2026-04-24 (explicit `不 deploy` instruction at ticket close). Ticket closes without Firebase deploy this session; production `/diary` mobile rail/marker continues to match last-deployed bundle (K-034 Phase 3 sha256 `6300e44a`) until a future deploy window includes K-041 changes.
+
+**Merge status at close:** Branch `K-041-diary-rail-shared-prop` (commits `1f1bc0c` docs + `0955813` feat) fast-forward merged into `main` after all Phase 5 docs committed — recorded in PM-dashboard.md + session summary.
+
+**Trigger condition for next deploy:** next scheduled deploy window folds K-041 commits along with any other accumulated `main` work; no K-041-specific Deploy Record required at that time because deploy scope will be tracked under the deploying ticket's record.
