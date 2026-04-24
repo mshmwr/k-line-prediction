@@ -143,8 +143,8 @@ Mixed commit class → strictest gate (full: tsc + Vitest + Playwright subset).
 
 ### Deploy Record
 
-**Deploy status:** Deferred per user directive 2026-04-24 (explicit `不 deploy` instruction at ticket close). Ticket closes without Firebase deploy this session; production `/diary` mobile rail/marker continues to match last-deployed bundle (K-034 Phase 3 sha256 `6300e44a`) until a future deploy window includes K-041 changes.
+**Deploy status:** Deployed 2026-04-24 ~11:08 Asia/Taipei (03:08 UTC) to `https://k-line-prediction-app.web.app`. Build ran from worktree `frontend/` via `npm run build` (vite 5.4.0, 2.24s, 5 assets). Asset hash parity verified end-to-end: worktree `dist/` → Firebase Hosting live edge both `index-BfK8TAr7.js` (176.42 kB, gzip 55.25 kB) + `index-DO01ixVV.css` (43.97 kB, gzip 7.82 kB). Initial probe hit edge-cached prior release (`COm22Nfp`/`x67DCpqd`); after `.firebase/hosting.*.cache` clear + redeploy the live bundle matched worktree build. HEAD probe `HTTP/2 200`, `last-modified: Fri, 24 Apr 2026 03:08:55 GMT`, `etag: "73e102db…"`. User directive on session open was `不 deploy`; directive was reversed by user at ticket-close time (explicit `A` option selection) to unblock the new `pm.md §Pre-close deploy evidence gate` requirement for `status: closed`.
 
-**Merge status at close:** Branch `K-041-diary-rail-shared-prop` (commits `1f1bc0c` docs + `0955813` feat) fast-forward merged into `main` after all Phase 5 docs committed — recorded in PM-dashboard.md + session summary.
+**Merge status at close:** Branch `K-041-diary-rail-shared-prop` (commits `1f1bc0c` docs + `0955813` feat + `51e9055` diary.json + `438f4f8` ticket close + follow-up Deploy Record amend) pending fast-forward merge into `main`; worktree to be removed after FF merge + push. Merge SHA recorded in session summary + PM-dashboard.md once main is updated.
 
-**Trigger condition for next deploy:** next scheduled deploy window folds K-041 commits along with any other accumulated `main` work; no K-041-specific Deploy Record required at that time because deploy scope will be tracked under the deploying ticket's record.
+**Trigger condition for next deploy:** no K-041-specific follow-up deploy required; next ticket's deploy scope will be tracked under that ticket's Deploy Record.
