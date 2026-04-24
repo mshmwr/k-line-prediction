@@ -130,7 +130,12 @@ Must run before deploy:
    ```bash
    git branch --no-merged main | grep -E "^\s*K-[0-9]+" || echo "OK: all ticket branches merged"
    ```
-   Any K-XXX branch listed → merge (FF rebase) into main first. Deploy from main without this check can overwrite a previously-deployed ticket's bundle (incident: K-041 self-overwrite 2026-04-24).
+   Any K-XXX branch listed → rebase onto main then FF-merge into main first:
+   ```bash
+   git checkout <K-XXX-branch> && git rebase main
+   git checkout main && git merge --ff-only <K-XXX-branch>
+   ```
+   Plain `git merge --ff-only` without the rebase step fails when main has advanced since the branch point (multi-ticket interleave is the common case). Deploy from main without this gate can overwrite a previously-deployed ticket's bundle (incident: K-041 self-overwrite 2026-04-24).
 2. **Scan all relative API paths** — confirm all HTTP clients (`fetch`, `axios`, etc.) use `API_BASE` prefix:
    ```bash
    grep -r "'/api/" src/
