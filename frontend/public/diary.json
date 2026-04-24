@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-045",
+    "title": "Desktop layout consistency across /about, /, /diary",
+    "date": "2026-04-24",
+    "text": "Aligned desktop layouts of /about, /, and /diary by retiring the legacy SectionContainer primitive and rewriting /about with per-section max-w-[1248px] px-6 sm:px-24 containers plus margin-based vertical rhythm, preserving K-031 DOM adjacency and K-034 Footer byte-identity Sacred invariants with Footer width Δ=0 across routes at 1280px."
+  },
+  {
     "ticketId": "K-042",
     "title": "PageHero shared component — responsive mobile type scale unifies Home/About/Diary H1",
     "date": "2026-04-24",
