@@ -270,6 +270,26 @@ Designer is first because `visual-delta: yes` on 7 of 8 items. Engineer may be d
 
 **QA-flagged pre-existing flake (NOT a K-040 regression):** `frontend/e2e/ga-spa-pageview.spec.ts` — 9 test failures (SPA-NAV ×2, BEACON ×4, NEG ×3). QA verified pristine reproduction via `git checkout 66d9573` baseline → pre-existing. Provisional root cause: spec assumes Playwright isolated `webServer` but breaks when run against shared `npm run dev`. Engineer under-reported scale at BFP (claimed 1 flake; actual 9-test describe() collapse). **Filed as TD-001** (see `docs/tickets/TD-001-ga-spa-pageview-isolation.md`) — scope = isolated webServer config fix; NOT a K-040 blocker.
 
+### 2026-04-23 — Post-close BQ-040-03 resolution + TD filing
+
+**Trigger:** BQ-040-03 (`/diary` mobile rail drift vs intentional removal) was deferred to Designer Phase 1 at K-040 release time; Designer verdict landed after K-040 had already been marked `closed` + deployed at SHA `a092598`. Post-close BQ — not a reopen trigger.
+
+**Designer verdict (2026-04-23):** **(b) design-removed** per 4 converging evidence sources — Pencil `.pen` has no mobile frame, K-024 §6.8 L784–786 explicitly locks `hidden sm:block`, E2E T-C6 asserts `display:none` at 390px, runtime `DiaryRail.tsx:15` + `DiaryMarker` match. Designer annotated SSOT `docs/designs/K-024-visual-spec.json` with `"mobileRail": "design-removed"` + rationale and filed `docs/designs/K-040-sitewide-ui-polish-batch/diary-mobile-rail-decision.md` decision memo. Item 6 closed as no-op on path (b) of AC-040-DIARY-MOBILE-RAIL.
+
+**User ruling (2026-04-23):** **Override Designer (b).** Mobile rail + marker must be restored on `/diary`. K-024 §6.8 original rationale ("1px rail clashes with marker in 24px padding; marker becomes orphan dot") is a real visual problem that Designer is now required to solve (reduce rail width, shift x, change color, or alternative primitive) — not silently revert to desktop spec which would recreate the clash.
+
+**Not actioned immediately per user directive:** logged as **TD-002** (`docs/tickets/TD-002-diary-mobile-rail-restore.md`) — priority medium, status open. K-040 remains `closed` — not reopened. Designer decision memo preserved for audit trail; TD-002 will prepend it with "SUPERSEDED by TD-002" header when scheduled.
+
+**Artifacts of this resolution turn (staged in K-040 worktree at close time, committed in this docs-only commit):**
+- `docs/designs/K-024-visual-spec.json` — Designer annotations on `rail` + `marker` roles (`mobileRail: "design-removed"` + rationale, `mobileMarker: "design-removed"` + rationale). Flip target for TD-002.
+- `docs/designs/K-040-sitewide-ui-polish-batch/diary-mobile-rail-decision.md` — Designer's (b) verdict memo. Marked for TD-002 supersession at schedule time.
+- `docs/retrospectives/designer.md` — Designer 2026-04-23 BQ-040-03 retro entry (triangulated evidence ruling + "post-close retro BQ" workflow improvement proposal).
+- `docs/tickets/TD-002-diary-mobile-rail-restore.md` — TD file with 5 draft AC blocks, user override context, K-024 §6.8 visual-clash constraint.
+
+**What went wrong (PM):** K-040 was marked `closed` at SHA `4d978c8` (then `a092598` after BFP) with AC-040-DIARY-MOBILE-RAIL accepted on BQ-deferred-to-Designer grounds, but Designer had not yet ruled when close happened. Close checklist did not require per-AC `resolved / deferred-to-TD / open` annotation. Designer BQ verdict arrived post-close, and required a post-close docs-only resolution + TD filing turn (this one) to reconcile. Structural gap: PM Phase Gate had no "all BQs ruled before close" hard check. Codify: PM close checklist must iterate every open BQ at close time and require each to be ruled + marked before flipping ticket to `closed` — see PM retro entry for codification target.
+
+**Why not reopen K-040:** reopening would re-trigger QA regression (114 tests), deploy pipeline, PM-dashboard migration, and invite scope creep (user override for mobile rail + Designer visual-clash redesign = multi-role effort best held as its own TD). User directive was explicit: not immediate, TD track, K-040 stays closed. TD-002 carries the override cleanly without disturbing K-040's deployed artifact.
+
 ### Engineer
 
 **AC judgments that were wrong:**

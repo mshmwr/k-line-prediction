@@ -14,6 +14,14 @@
 
 - 倒序（最新在上）
 
+## 2026-04-23 — BQ-040-03 /diary Mobile Rail Decision (post-close)
+
+**What went well:** Triangulated three independent evidence sources before ruling — (a) Pencil .pen file (no mobile frame exists), (b) K-024 design doc §6.8 L784–786 explicit rail-hidden entry + rationale text, (c) runtime `DiaryRail.tsx:5` comment + `:15 hidden sm:block` class + E2E T-C6 `display:none` assertion — and they all agreed. Touched-frames set stayed at ∅ (read-only + doc annotation only), so correctly skipped JSON/PNG re-export per §Frame Artifact Export scope rule. Annotated SSOT (`K-024-visual-spec.json`) with `mobileRail: "design-removed"` + rationale so the next audit pass cannot re-mis-classify as drift.
+
+**What went wrong:** BQ-040-03 is a **post-close BQ** — K-040 ticket merged at SHA 4d978c8 before Item 6 was actually verified. Root cause upstream (PM/Reviewer), not Designer — but Designer could have flagged during Item 6 scope review that AC-040-DIARY-MOBILE-RAIL had no "verify rail exists in Pencil at mobile viewport" step in the closure checklist. Persona currently has no "post-close retro BQ" workflow; I improvised an annotation + memo approach which is fine for this case, but the pattern may recur.
+
+**Next time improvement:** When an AC reads "confirm design intent" (not "implement X"), Designer retro on that item must verify one of three end-states BEFORE ticket close: (a) intent confirmed + annotated in visual-spec.json, (b) intent revised + Pencil mutation done + JSON/PNG exported, (c) blocker raised to PM. Silent AC close without one of these three = drift risk. Codify: add a row to §Ask vs Act Decision Table — "AC asks Designer to confirm intent" → verify triangulated evidence (Pencil + design doc + runtime + E2E) → annotate visual-spec.json before declaring AC complete.
+
 ## 2026-04-23 — K-040 Sitewide Typography Reset (Item 1 scope expansion)
 
 **What went wrong:** Initial K-040 Phase 1 Designer pass scoped Item 1 to Homepage Hero H1 only (3 text nodes: `rXURl`, `2bQtY`, `PrI8l`) even though the ticket title reads "Sitewide font reset (Bodoni→Geist Mono)" and AC-040-SITEWIDE-FONT-MONO explicitly enumerates "all routes, all components". I read "Hero H1" in the BQ-040-01 ruling as authoritative and let it replace the sitewide intent. After user flagged "this is supposed to be sitewide, you only did Hero", I had to run a second-round cross-frame font-token audit via `batch_get` on all 4 page frames + 6 About sub-frames, enumerated 42 distinct Bodoni/Newsreader/italic text sites, and applied 8 `batch_design` calls (~70 node updates) to finish what should have been Round 1. Wasted one whole session round + forced user to do QA against partial output.

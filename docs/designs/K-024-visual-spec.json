@@ -61,7 +61,9 @@
             "height": 624,
             "x": 29,
             "y": 40
-          }
+          },
+          "mobileRail": "design-removed",
+          "mobileRailRationale": "BQ-040-03 (2026-04-23): Pencil homepage-v2.pen contains no <640px mobile frame; design doc K-024 §6.8 L784 explicitly locks rail hidden on mobile (`hidden sm:block`) — 1px rail in 24px left padding clashes with marker visually, marker alone conveys timeline. Runtime `DiaryRail.tsx:15 className=\"hidden sm:block absolute\"` is correct impl of design intent, NOT drift. E2E T-C6 (diary-page.spec.ts) asserts computed `display:none` at 390px viewport."
         },
         {
           "role": "marker",
@@ -72,7 +74,9 @@
             "size": [20, 14],
             "position": [20, 10]
           },
-          "note": "Per-entry marker; absolute-positioned inside each e{N} entry frame at x=20 y=10 relative to the entry."
+          "note": "Per-entry marker; absolute-positioned inside each e{N} entry frame at x=20 y=10 relative to the entry.",
+          "mobileMarker": "design-removed",
+          "mobileMarkerRationale": "BQ-040-03 (2026-04-23): paired with rail hide per K-024 §6.8 L785 — rail's visual anchor gone → marker becomes orphan dot; cleaner to drop both on mobile. Runtime `DiaryMarker` `hidden sm:block` is correct."
         },
         {
           "role": "entry-title",
