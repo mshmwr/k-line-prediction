@@ -51,8 +51,14 @@ export default defineConfig({
       // K-037: build + preview for favicon asset spec. Must rebuild before
       // preview so `public/manifest.json` + favicon PNG/ICO assets are copied
       // into `dist/`. See docs/engineering/K-037-engineer-brief.md §5.
+      // K-049 Phase 2a: `npm run build` now calls prebuild → validate-env.mjs
+      // which requires VITE_GA_MEASUREMENT_ID matching G-[A-Z0-9]{10,};
+      // supply a fixture ID to satisfy the guard under test builds.
       command: 'npm run build && npx vite preview --port 4173 --strictPort',
       url: 'http://localhost:4173',
+      env: {
+        VITE_GA_MEASUREMENT_ID: 'G-TESTID0000',
+      },
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },

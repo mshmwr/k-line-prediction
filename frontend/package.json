@@ -10,7 +10,7 @@
   "scripts": {
     "pretest": "node ./scripts/patch-vitest-node16.mjs",
     "dev": "vite",
-    "prebuild": "SRC=$(cd .. && pwd)/docs/ai-collab-protocols.md && test -f \"$SRC\" || { echo \"prebuild error: missing $SRC\"; exit 1; } && mkdir -p public/docs && cp \"$SRC\" public/docs/",
+    "prebuild": "SRC=$(cd .. && pwd)/docs/ai-collab-protocols.md && test -f \"$SRC\" || { echo \"prebuild error: missing $SRC\"; exit 1; } && mkdir -p public/docs && cp \"$SRC\" public/docs/ && node scripts/validate-env.mjs && node scripts/generate-sitemap.mjs",
     "build": "tsc && vite build",
     "test": "vitest run",
     "test:watch": "node ./scripts/patch-vitest-node16.mjs && vitest",
