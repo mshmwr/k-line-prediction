@@ -10,7 +10,7 @@ size: small
 visual-delta: none
 content-delta: yes
 design-locked: N/A
-qa-early-consultation: pending — scheduled for this session before Architect release
+qa-early-consultation: docs/retrospectives/qa.md 2026-04-24 K-046
 dependencies: []
 sacred-regression: [K-009 MA99 1H→1D history path, K-013 stats contract cross-layer]
 ---
@@ -41,6 +41,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 - Reshaping response payload schema (no rename `added_count` → `parsed_bar_count`; see BQ-46D)
 - Building K-047 scheduled scraper
 - Adding auth to any endpoint
+- Filename heuristic robustness — K-046 does not fix the `'1d' in name` substring collision bug (e.g. a filename like `ETHUSDT_1h_mar1d.csv` still routes to the 1D branch). With the write block commented out the downside is limited to a wrong `timeframe` field in the response payload; actual DB is untouched. Tracked as future tech debt, not a K-046 regression surface.
 
 **Affected files (expected):**
 - `backend/main.py` — lines 162-167 (write block comment-out) + 1-line comment at line 158 marking the gap
@@ -73,7 +74,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 - **Given:** the client POSTs a valid CSV containing M parseable bars to `/api/upload-history`
 - **When:** the response body is parsed by the frontend
 - **Then:** the JSON response schema is unchanged from pre-K-046: `{ filename, latest, bar_count, added_count, timeframe }`
-- **And:** `filename` is the authoritative target history filename (`Binance_ETHUSDT_1h.csv` or `Binance_ETHUSDT_d.csv`) for frontend display continuity
+- **And:** response still carries this `filename` field unchanged for schema stability; current frontend ignores it (`AppPage.tsx:306` reads `file.name` from the user-selected File object) but future consumers MAY use it
 - **And:** `latest` is the latest timestamp from the existing authoritative `_history_*` (NOT from the merged list, because no merge-assignment happens) — i.e. `existing[-1]['date']` in the handler's local scope
 - **And:** `bar_count` is `len(existing)` (the authoritative DB bar count) — NOT `len(merged)`, because `merged` is no longer persisted anywhere
 - **And:** `added_count` is always `0` regardless of upload contents (because no bars are added to state)
@@ -124,6 +125,37 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 - **And:** `/api/merge-and-compute-ma99` response (K-009 / K-013 behavior, in-memory ephemeral merge path lines 252-254) is byte-identical to pre-K-046
 - **And:** `backend/tests/fixtures/stats_contract_cases.json` (K-013 cross-layer contract) still validates with `test_predictor.py::test_stats_contract` — all existing cases PASS
 - **And:** `/api/example` endpoint returns bit-identical JSON before and after any number of `/api/upload-history` POSTs (implied invariant from AC-046-COMMENT-1: DB unchanged ⇒ /api/example output unchanged)
+
+### AC-046-QA-2 — Reversibility invariant (fail-if-write-block-restored)
+
+- **Given:** a fresh `_history_1h` with N ≥ 1 bars and `HISTORY_1H_PATH` pointed at `tmp_path` with a known `mtime_ns` captured pre-request
+- **When:** the client POSTs a valid 1H CSV containing M ≥ 1 bars whose timestamps are **strictly later** than any bar in `_history_1h` (so `_merge_bars(existing, new_bars)` would produce `len(merged) == N + M` if the write block were active)
+- **Then:** the HTTP response is `200 OK`
+- **And:** `response.json()["added_count"] == 0` (honest reporting per AC-046-COMMENT-3, NOT M)
+- **And:** `len(main._history_1h) == N` (unchanged — the module-level list has zero delta even though merged would have produced N+M)
+- **And:** `os.stat(HISTORY_1H_PATH).st_mtime_ns == pre_mtime_ns` (file not written)
+- **Why:** only this test fails if a future edit accidentally uncomments the K-046 write block. The pre-K-046 merge dedup test (`test_upload_duplicate_bars_added_count_zero`) passes even before K-046 lands, so it has zero monitoring power for the comment-out invariant. This AC is the reversibility guard.
+
+### AC-046-QA-3 — Playwright E2E round-trip for example download link
+
+- **Given:** a Playwright session on `/app` with backend mocked — `POST /api/upload-history` returns `{ filename: "ETHUSDT_1h_test.csv", latest: null, bar_count: 1000, added_count: 0, timeframe: "1H" }`
+- **When:** the page first renders
+- **Then:** a visible anchor element with text matching `/Download example/i` is rendered
+- **And:** that anchor's `href` attribute equals `/examples/ETHUSDT_1h_test.csv` AND `download` attribute equals `ETHUSDT_1h_test.csv`
+- **And:** a `request.get('/examples/ETHUSDT_1h_test.csv')` issued from the Playwright page context returns HTTP 200 with `Content-Length` 646 (byte count parity with `frontend/public/examples/ETHUSDT_1h_test.csv`)
+- **And:** using `setInputFiles()` to upload that same CSV back via the Upload History CSV input triggers the mocked `POST /api/upload-history` call, and the response handler renders the toast copy matching `/資料已是最新/`
+- **New spec file:** `frontend/e2e/K-046-example-upload.spec.ts`
+- **Notes on assertion shape (see Known Gap GAP-3):** `getAttribute('download')` asserts the HTML attribute value, not the filesystem filename — sufficient for Playwright Chromium; Safari/Firefox filesystem-filename parity is NOT in scope
+
+### AC-046-QA-4 — Backend CSV format round-trip test
+
+- **Given:** `backend/tests/test_main.py` reads the raw bytes of `frontend/public/examples/ETHUSDT_1h_test.csv` from disk (path resolved relative to repo root)
+- **When:** those bytes are POSTed to `/api/upload-history` as a multipart upload with filename `ETHUSDT_1h_test.csv`
+- **Then:** `response.status_code == 200`
+- **And:** `response.json()["timeframe"] == "1H"` (no 1D misdetection from the `1h` substring)
+- **And:** `response.json()["added_count"] == 0` (K-046 invariant)
+- **And:** the handler's internal parse succeeds with ≥ 5 OHLCV bars extracted from the CSV body (header row + 5 data rows per the 646-byte fixture)
+- **Why:** catches future edits to the example CSV fixture (accidental CRLF line endings, BOM prefix, column reorder, header drift) that would silently break the user-visible round-trip flow asserted by AC-046-EXAMPLE-3. Decouples "file shipped in /public" from "file is a valid backend-parseable CSV".
 
 ### AC-046-DOCS — architecture.md reflects the comment-out
 
@@ -247,6 +279,28 @@ Verdict: (α) always-visible inline link, copy `Don't have a CSV? Download examp
 
 **Retired by K-046:** none — no prior Sacred clause locked `/api/upload-history` write behavior.
 
+## Known Gaps
+
+PM-acknowledged coverage limits on K-046. Each gap was surfaced by QA Early Consultation and explicitly ruled acceptable — documented here so downstream reviewers do not misread them as regression misses.
+
+### GAP-1 — Concurrency / race-condition testing for upload handler
+
+- **Gap:** no AC exercises concurrent POSTs against `/api/upload-history` (e.g. two uploads in flight while the module-level `_history_1h` list is being read/written elsewhere)
+- **Reason ruled acceptable:** FastAPI `TestClient` is single-request by design; concurrent repro would need `asyncio.gather` + a real uvicorn instance. Moreover, post-K-046 the write block is commented out, so the only remaining module-state touchpoints on this handler are reads against a list that startup-loads and never mutates within this handler — there is no race surface to test. If K-047 re-enables the write path, concurrency coverage becomes a hard gate at that point.
+- **PM acknowledgment:** moot for K-046; revisit at K-047 Architect design phase.
+
+### GAP-2 — Firebase Hosting first-deploy 404 race for `/examples/*.csv`
+
+- **Gap:** AC-046-EXAMPLE-2 asserts a 200 response for `GET /examples/ETHUSDT_1h_test.csv`, but CDN propagation after a fresh `firebase deploy` can create a ~100ms window where `index.html` is already serving the new bundle while the new `/examples/` asset is still propagating, producing a transient 404 for users who happen to click the link in that window.
+- **Reason ruled acceptable:** no deterministic Playwright repro without a real deploy; the window is ops-time not build-time. A local `firebase serve` or mocked fetch cannot reproduce the CDN layer behavior.
+- **PM acknowledgment:** ops-time risk, not build-time; monitor manually on deploy day. If it recurs post-K-046 landing, track as a deploy-sequencing tech debt ticket.
+
+### GAP-3 — Cross-browser `download` attribute behavior for same-origin hrefs
+
+- **Gap:** AC-046-EXAMPLE-2 asserts the `download="ETHUSDT_1h_test.csv"` attribute value on the anchor element, not the filename that actually hits the user's filesystem after clicking. Safari and Firefox have historically been inconsistent about honoring `download="..."` on same-origin links vs triggering in-page display.
+- **Reason ruled acceptable:** Playwright default project is Chromium, which honors `download=` reliably. Attribute-level assertion is the strongest decoupled proof that the frontend intent is correct; OS-filesystem-level assertion would require adding WebKit + Firefox projects to `playwright.config.ts`, which is a significant scope expansion beyond K-046.
+- **PM acknowledgment:** attribute-level assertion sufficient for K-046 scope; no new Playwright projects added. Cross-browser download verification remains manual QA on deploy day.
+
 ## Release Status
 
 - 2026-04-24 — K-046 opened (original scope: remove DB write path; 7 ACs)
@@ -254,6 +308,7 @@ Verdict: (α) always-visible inline link, copy `Don't have a CSV? Download examp
 - 2026-04-24 — **Scope revision by user**: `/api/upload-history` kept (comment-out write block only) + add example CSV download on `/app` + example filename drops `Binance_` prefix
 - 2026-04-24 — PM rewrote PRD: 8 ACs (4 COMMENT + 3 EXAMPLE + 1 REGRESSION + 1 DOCS), 3 BQ rulings (BQ-46D/E/F all PM-decided), 3-Phase plan
 - 2026-04-24 — **ready for QA Early Consultation** → main session to spawn real qa sub-agent → PM ingests feedback → ticket AC supplemented if needed → Architect release
+- 2026-04-24 — **QA Early Consultation complete (real qa sub-agent):** verdict READY, no Sacred conflicts (K-009 + K-013 both verified preserved). PM ingested 5 supplemental recommendations + 3 Known Gaps. Applied to ticket: wording fix on AC-046-COMMENT-3 bullet 2 (response `filename` field is consumer-agnostic, frontend reads `file.name` not `uploadResult.filename`); 3 new ACs appended (AC-046-QA-2 reversibility / AC-046-QA-3 Playwright round-trip / AC-046-QA-4 backend CSV format round-trip); Out-of-scope gains 1 bullet for filename-heuristic tech debt; new §Known Gaps section documents 3 PM-acknowledged coverage limits (concurrency moot, CDN propagation ops-time, cross-browser download attribute-level). AC count: 8 → 11. Ticket ready for Architect release.
 
 ## Retrospective
 

@@ -14,6 +14,25 @@
 
 - 倒序（最新在上）
 
+
+## 2026-04-24 — K-046 QA Early Consultation (surgical comment-out + example CSV download)
+
+**What went well:**
+- Confirmed byte-parity (`diff` clean, both 646 bytes) between `history_database/Binance_ETHUSDT_1h_test.csv` and `frontend/public/examples/ETHUSDT_1h_test.csv` before AC-046-EXAMPLE-2 lands — AC wording can assert byte-identical without risk.
+- Caught that PM's AC-046-COMMENT-3 claim "`filename` is the authoritative target history filename … for frontend display continuity" is inaccurate — `AppPage.tsx:306` uses `file.name` (user's upload filename) not `uploadResult.filename`. Response field is unused by the one frontend consumer; AC wording should not overstate the semantic.
+- Verified `grep -rn "/api/upload-history" frontend/e2e/` returns **zero hits** — no existing Playwright spec depends on upload response shape, so the `bar_count` + `latest` semantic flip (post-merge → existing-only) has no E2E regression surface. Removes a false worry.
+- Verified filename 1D-detection truth table: `ETHUSDT_1h_test.csv` (Binance_ prefix dropped) still evaluates `is_1d == False` — AC-046-EXAMPLE-3 round-trip safe. `ETHUSDT_1d.csv` still `is_1d == True` — no regression.
+
+**What went wrong:**
+- Initial ticket draft had AC-046-COMMENT-3 spec the `filename` field's purpose ("for frontend display continuity") without grepping how `uploadResult.filename` is actually consumed by `AppPage.tsx`. The claim did not match code. QA caught it in Early Consultation, but PM should have grepped before writing the AC.
+- Ticket Phase Plan §Phase 1 bullet 2 lists backend test invariants (mtime, module state identity) but does not mandate an assertion that `added_count == 0` **even when uploaded bars are genuinely new** (novel timestamps not in existing). Without this assertion, a future re-uncomment of the write block would not fail the test — the invariant is observationally weak for refactor-reversibility.
+- Playwright coverage gap: no existing spec covers upload round-trip, and PRD §Test Coverage Plan defers E2E creation to "if QA requests". QA requests explicitly — round-trip spec needed so Phase 2 frontend link is tested end-to-end, not just href-attribute asserted.
+
+**Next time improvement:**
+- Before Write on ticket AC text that references a backend→frontend field flow, PM must `grep -rn <field_name>` in the frontend layer and confirm consumer behavior matches AC wording. Add this to `feedback_pm_ac_sacred_cross_check.md` companion check.
+- For comment-out / refactor-reversibility tickets, QA must mandate **at least one test that would fail if the commented block were uncommented** (this is the dual of "fail-if-gate-removed" — here "fail-if-gate-restored"). Update QA persona `## Test Scope › Boundary Sweep` with a "reversibility assertion" row for future comment-out tickets.
+- Upload round-trip E2E spec is now a hard request for K-046 Phase 2 — added to supplemental ACs (AC-046-QA-3).
+
 ## 2026-04-24 — K-045 Early Consultation (desktop layout consistency /about vs / vs /diary)
 
 **做得好：**
