@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-04-24 — K-044 BFP: mechanical ruleset application (post-commit audit revealed 9 ruleset violations)
+
+**沒做好：** First-pass README (commit 4a36485) shipped with 9 post-commit violations against `CommonKnowledge/readme-writing-ruleset.md`: (1) fabricated "Over six weeks" timeline — actual 24 days; (2) "Thirty tickets" — actual 40 K-XXX files (Specific Identifier Rule violated twice same sentence); (3) 3 broken-href badges (Stack `()`, Last Deploy `()`, Live Demo alone — misread ruleset §Recommended structure item 3 "3 types of badges" as literal 3 badges, discarding K-040's 4 tech-stack badge row); (4) `./LICENSE` link to non-existent file; (5) 5 internal-only doc links from portfolio README (CLAUDE.md ×2, agent-context/architecture.md ×3) — ruleset §Scope explicitly excludes architecture specs; (6) Chinese `反省` literal × 6 in English README ROLES table (SSOT regenerated verbatim); (7) mermaid Designer arrow reversed (Designer → Engineer/Reviewer instead of PM -.->|on-demand| Designer -.-> Architect per project convention); (8) "Sacred marker block" internal jargon without external recognition; (9) hero image with no explicit Live-Demo CTA (user-flagged: "如果使用者找不到怎麼辦"). Root cause: treated `rewrite` scope as whole-replace instead of audit-existing-then-surgical — no `git show 058699b:README.md` before draft, no 9-item pre-commit checklist run, no cross-check of factual claims against `ls docs/tickets/K-*.md | wc -l` or git log date math.
+
+**下次改善：** Add Engineer pre-commit rule for any ticket with scope-verb `rewrite` / `refresh` / `overhaul` on an existing user-voice file: (a) `git show <base>:<file>` must run before first Edit — output used as delta baseline, not blank slate; (b) every numeric claim in the draft (count, duration, date span) requires a same-response tool call (`ls | wc -l`, `git log --format=%ad`) pasted as evidence row in PR description; (c) broken-link pre-commit sweep: grep all `](./FILE)` / `](URL)` in the draft, run `ls FILE` or curl-head URL, any miss blocks commit; (d) if ruleset cites "3 types of X", read the cited-type list and verify the existing file's coverage before deleting — ruleset enumeration ≠ literal count; (e) if source file had Chinese content inside a marker block regenerated from SSOT, grep `[一-鿿]` on the regenerated output before commit. Codify into `~/.claude/agents/engineer.md` §Rewrite-Scope Pre-Flight.
+
+---
+
 ## 2026-04-24 — K-044 README showcase rewrite (agent-team identity + v2 before/after)
 
 **做得好：** Hit hard stop when `roles-doc-sync.spec.ts` showed README ROLES table drift from `content/roles.json` SSOT — escalated to PM (main session) instead of silently editing README to match SSOT or reverse-editing SSOT. User ruled Option A (update SSOT, cascade to README + ai-collab-protocols + /about TSX), which preserved the already-user-aligned verbatim text as the single source.

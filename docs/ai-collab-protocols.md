@@ -20,12 +20,12 @@ This document describes the structured protocols used to build the K-Line Predic
 <!-- ROLES:start -->
 | Role | Owns | Artefact |
 |---|---|---|
-| PM | Requirements, AC, phase gating | PRD + ticket + 反省 |
-| Architect | Design, API contract, component tree | Design doc + 反省 |
-| Engineer | Implementation | Code + 反省 |
-| Reviewer | Code review, Bug Found Protocol | Review report + 反省 |
-| QA | Regression, E2E, visual report | QA report + 反省 |
-| Designer | Pencil design source of truth | .pen file + JSON/PNG spec + 反省 |
+| PM | Requirements, AC, phase gating | PRD + ticket + retrospective |
+| Architect | Design, API contract, component tree | Design doc + retrospective |
+| Engineer | Implementation | Code + retrospective |
+| Reviewer | Code review, Bug Found Protocol | Review report + retrospective |
+| QA | Regression, E2E, visual report | QA report + retrospective |
+| Designer | Pencil design source of truth | .pen file + JSON/PNG spec + retrospective |
 <!-- ROLES:end -->
 
 ### Handoff Sequence

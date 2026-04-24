@@ -3,36 +3,36 @@
     "fileNo": 1,
     "role": "PM",
     "owns": "Requirements, AC, phase gating",
-    "artefact": "PRD + ticket + 反省"
+    "artefact": "PRD + ticket + retrospective"
   },
   {
     "fileNo": 2,
     "role": "Architect",
     "owns": "Design, API contract, component tree",
-    "artefact": "Design doc + 反省"
+    "artefact": "Design doc + retrospective"
   },
   {
     "fileNo": 3,
     "role": "Engineer",
     "owns": "Implementation",
-    "artefact": "Code + 反省"
+    "artefact": "Code + retrospective"
   },
   {
     "fileNo": 4,
     "role": "Reviewer",
     "owns": "Code review, Bug Found Protocol",
-    "artefact": "Review report + 反省"
+    "artefact": "Review report + retrospective"
   },
   {
     "fileNo": 5,
     "role": "QA",
     "owns": "Regression, E2E, visual report",
-    "artefact": "QA report + 反省"
+    "artefact": "QA report + retrospective"
   },
   {
     "fileNo": 6,
     "role": "Designer",
     "owns": "Pencil design source of truth",
-    "artefact": ".pen file + JSON/PNG spec + 反省"
+    "artefact": ".pen file + JSON/PNG spec + retrospective"
   }
 ]
