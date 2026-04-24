@@ -16,6 +16,16 @@
 
 ---
 
+## 2026-04-24 — K-044 README showcase rewrite (agent-team identity + v2 before/after)
+
+**做得好：** Hit hard stop when `roles-doc-sync.spec.ts` showed README ROLES table drift from `content/roles.json` SSOT — escalated to PM (main session) instead of silently editing README to match SSOT or reverse-editing SSOT. User ruled Option A (update SSOT, cascade to README + ai-collab-protocols + /about TSX), which preserved the already-user-aligned verbatim text as the single source.
+
+**沒做好：** Drafted the README ROLES table text verbatim during Engineer dispatch without first reading `content/roles.json` — Content-Alignment Gate in PM dispatched with "README verbatim LOCKED" language, but the 6-row table inside that verbatim was not yet cross-checked against K-039 SSOT. Blocker was caught by the pre-commit Playwright gate, not by Engineer self-check. Also: 6 hardcoded role-card assertions in `about.spec.ts` were not flagged by PM/Architect dispatch as downstream SSOT consumers — full Playwright run was the only thing that surfaced them.
+
+**下次改善：** Add Engineer pre-draft rule for K-039 content tables: before drafting ANY copy that will render inside a `<!-- ROLES:start -->` / content-SSOT marker block, Read the corresponding `content/*.json` FIRST and mirror verbatim (or raise BQ to PM if SSOT text is stale). Also add pre-commit grep for SSOT text drift: `for row in content/roles.json; grep e2e/ for old owns+artefact literal strings`. Codify: any `content/*.json` Edit must trigger a same-commit `grep -rnE '<old-row-text>' e2e/` sweep and update spec literals before running Playwright.
+
+---
+
 ## 2026-04-24 — K-042 PageHero shared-component extraction (mobile overflow bugfix)
 
 **做得好：** Grep `getByRole('heading', { name: 'Predict the next move' ... })` E2E pattern before semantic change (2 h1 → 1 h1 + 2 spans) — caught 3 breaking specs (pages.spec.ts, sitewide-fonts.spec.ts ×2) and repaired them same commit.

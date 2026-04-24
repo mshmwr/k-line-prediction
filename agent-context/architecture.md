@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-23 (K-040 Item 1 Architect — sitewide typography reset design landed; Bodoni Moda + Newsreader italic → Geist Mono italic OFF sitewide; tailwind.config.js fontFamily.display/italic 鍵退役待 Engineer 交付同 commit 落地；body @apply font-mono；18 tsx edit sites + timelinePrimitives + K-024 visual-spec.json 原子同 commit；4 stale Sacred E2E block rewrite + 5 new test IDs；Footer + UnifiedNavBar + FileNoBar + SectionHeader K-034 Sacred + already-mono 無異動；/app K-030 isolation screenshot parity 硬 gate. 前置：K-034 Phase 3 Architect — /diary shared Footer adoption design landed; K-017 AC-017-FOOTER /diary neg + K-024 /diary no-footer Sacred + K-034 Phase 1 T4 AC-034-P1-NO-FOOTER-ROUTES /diary row 三條全退役；/app K-030 isolation preserved 不動；TD-K034-P3-02 opened 640–768px Footer viewport seam as Known Gap; shared Footer 消費路由 3 → 4；design doc [K-034-phase3-diary-footer-adoption.md](../docs/designs/K-034-phase3-diary-footer-adoption.md). 前置：K-034 Phase 2 Architect — /about full visual audit design landed; 27 drifts remediation plan; FileNoBar primitive added; DossierHeader retirement; architecture.md synced in-session. K-037 closed — favicon wiring + manifest. K-034 Phase 1 Engineer implementation still pending PM ruling on BQ-034-P1-01.)
+updated: 2026-04-24 (K-044 Architect — README showcase rewrite docs-migration design landed; new `## Deployment Architecture` section sourced from ex-README L147–156 + CLAUDE.md Deploy Checklist cross-ref; `## Data Flow` top gains 5-step user-narrative prose intro sourced from ex-README L84–89; frontmatter `updated:` bumped this commit per self-diff gate. 前置：2026-04-23 K-040 Item 1 Architect — sitewide typography reset design landed; Bodoni Moda + Newsreader italic → Geist Mono italic OFF sitewide; tailwind.config.js fontFamily.display/italic 鍵退役待 Engineer 交付同 commit 落地；body @apply font-mono；18 tsx edit sites + timelinePrimitives + K-024 visual-spec.json 原子同 commit；4 stale Sacred E2E block rewrite + 5 new test IDs；Footer + UnifiedNavBar + FileNoBar + SectionHeader K-034 Sacred + already-mono 無異動；/app K-030 isolation screenshot parity 硬 gate. 前置：K-034 Phase 3 Architect — /diary shared Footer adoption design landed; K-017 AC-017-FOOTER /diary neg + K-024 /diary no-footer Sacred + K-034 Phase 1 T4 AC-034-P1-NO-FOOTER-ROUTES /diary row 三條全退役；/app K-030 isolation preserved 不動；TD-K034-P3-02 opened 640–768px Footer viewport seam as Known Gap; shared Footer 消費路由 3 → 4；design doc [K-034-phase3-diary-footer-adoption.md](../docs/designs/K-034-phase3-diary-footer-adoption.md). 前置：K-034 Phase 2 Architect — /about full visual audit design landed; 27 drifts remediation plan; FileNoBar primitive added; DossierHeader retirement; architecture.md synced in-session. K-037 closed — favicon wiring + manifest. K-034 Phase 1 Engineer implementation still pending PM ruling on BQ-034-P1-01.)
 ---
 
 ## Summary
@@ -322,6 +322,16 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 ## Data Flow
 
+**The prediction pipeline (user-facing summary):**
+
+1. User uploads recent OHLC data (CSV / JSON / manual entry / example).
+2. Backend computes candlestick shape features (body%, wick%, return%).
+3. Historical similar segments are filtered using MA99 trend direction as a gate (direction mismatch excluded).
+4. A projected 72-hour price path is computed (median OHLC across matched segments).
+5. Win rate, highest/lowest extremes, and per-day statistics are displayed.
+
+**Call-chain detail (below).**
+
 ```
 使用者輸入 OHLC（編輯表格 / CSV upload / JSON import / example）
   → OHLCEditor (前端)
@@ -528,6 +538,25 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 ---
 
+## Deployment Architecture
+
+```
+Browser
+  ├── Firebase Hosting  ← SPA static assets (frontend/dist/)
+  │     rewrites: ** → /index.html    (BrowserRouter fallback)
+  └── Google Cloud Run  ← Docker container
+        Two-stage build: Node 20 builds frontend → Python 3.11 serves
+        ENV: BUSINESS_LOGIC_PASSWORD, JWT_SECRET, PORT
+```
+
+**Hosting split rationale:** SPA static assets on Firebase Hosting (global CDN, zero cold-start); FastAPI backend on Cloud Run (containerized, scales to zero). SPA fallback `rewrites: ** → /index.html` routes unknown URLs to the BrowserRouter; `/api/*` calls hit Cloud Run directly via `VITE_API_BASE` build-time env var.
+
+**Deploy gate:** see `CLAUDE.md § Deploy Checklist` — (1) all ticket branches rebased+merged into main, (2) relative-path API client grep, (3) `npm run build` from `frontend/`, (4) `firebase deploy --only hosting` from project root.
+
+**Two-stage Dockerfile:** Node 20 build stage emits `frontend/dist/`; Python 3.11 runtime stage serves both static assets (via FastAPI SPA fallback route) and `/api/*` endpoints. See `Dockerfile` at project root.
+
+---
+
 ## QA Artifacts
 
 **目的：** QA 完成回歸測試後，需產出視覺化報告給 PM / 使用者檢視 UI 現況。
@@ -648,6 +677,8 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 ---
 
 ## Changelog
+
+- **2026-04-24** (Architect, K-044 — README showcase rewrite) — added `## Deployment Architecture` section (Firebase Hosting + Cloud Run topology, sourced from ex-README L147–156 + CLAUDE.md Deploy Checklist cross-reference); `## Data Flow` gains 5-step user-narrative prose intro (sourced from ex-README L84–89). README.md in the same commit drops the L80–156 prediction-detail block + trims L227–257 to one line per top-level directory. K-039 ROLES marker block + `audit-ticket.sh` invocation line remain in README. No API / schema / component / route change.
 
 - **2026-04-23**（Architect, K-040 Item 1 sitewide typography reset 設計）— Item 1 AC-040-SITEWIDE-FONT-MONO 設計文件完成：`tailwind.config.js` `fontFamily.display` + `fontFamily.italic` 兩 key 退役（僅保留 `mono`），Tailwind JIT 對未來 `font-display`/`font-italic` class 視為 unknown、silent-fail-safe；`frontend/src/index.css` `@layer base body` `@apply` 串加入 `font-mono`（body default Serif → Mono）；18 個 tsx 編輯站點（HeroSection ×3 / ProjectLogicSection ×4 / DevDiarySection ×3 / PageHeaderSection ×2 / MetricCard ×2 / RoleCard ×1 / PillarCard ×2 / ReliabilityPillarsSection h2+3 `not-italic` strip / TicketAnatomyCard ×1 / ArchPillarBlock ×2 / DiaryEntryV2 ×2 / DiaryHero ×2 / DiaryEmptyState ×1）移除 `font-display` / inline `font-['Bodoni_Moda']` / inline `style fontFamily` + 移除 `italic` class co-occurrence；per-site font-size 1:1 mirror Designer memo 36-row calibration table（Geist Mono glyph 視覺重於 Bodoni italic，比例 0.69–1.0 保留階層不 wrap）。`timelinePrimitives.ts` ENTRY_TYPE.title + ENTRY_TYPE.body font+style 4 欄位 + `docs/designs/K-024-visual-spec.json` 6 family + 3 italic-style + 3 size 欄位**原子同 commit** 改（AC And-clause 7 硬 gate，`diary-page.spec.ts:418/426/437/481/495` T-E6 + T-P1 oracle 一致性）。4 stale Sacred E2E block rewrite（`about-v2.spec.ts:66-83` AC-022-HERO-TWO-LINE + `about-v2.spec.ts:114-131` AC-022-SUBTITLE + `about.spec.ts:43-56` AC-017-HEADER + `sitewide-fonts.spec.ts:18-33` AC-021-FONTS Bodoni 斷言）— assertion 倒置為 Geist Mono + normal，text-content 契約保留；+5 新 test ID（T-AC040-H1-HOME/-ABOUT/-DIARY/-BL + T-AC040-CODE-NOT-ITALIC）。Route Impact Table 涵蓋 5 路由（/ / /about / /business-logic / /diary / /app）；/app K-030 isolation screenshot baseline + post-change pixel-identity 硬 gate；Footer + UnifiedNavBar + FileNoBar + SectionHeader 4 shared component `git show HEAD` 驗證 already mono，no-op；K-034 Phase 1 `AC-034-P1-ROUTE-DOM-PARITY` Footer byte-identity 保留。0 API / 0 prop interface change（§4 verified）。Pencil SSOT = `K-040-designer-decision-memo.md` 36-row calibration table（design-locked: true）+ 13 frame JSON spec + `side-by-side-typography-K040.png` 4-route composite。AC And-clause 8 grep raw-count sanity（pre 13/4/1/2/~8 → post 0/0/0/0/0）+ 4-viewport × 4-route 16 組合視覺 sweep + `shared-components.spec.ts` Footer snapshot no-diff = Engineer 交付 gate。設計文件：[K-040-sitewide-typography-reset.md](../docs/designs/K-040-sitewide-typography-reset.md)。L486-488 fontFamily table + L498 body `@apply` snippet 編輯延 Engineer 交付時同 commit（避免 state-vs-disk drift，per `feedback_architect_must_update_arch_doc.md` 預防性標注）。未改 code（Architect 僅設計）。
 

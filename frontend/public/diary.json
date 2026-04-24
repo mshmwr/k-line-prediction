@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-044",
+    "title": "README showcase rewrite — agent team primary identity plus v2 before/after",
+    "date": "2026-04-24",
+    "text": "Rewrote the top-level README to lead with the six-agent harness (PM / Architect / Engineer / Reviewer / QA / Designer) and v1/v2 homepage screenshots, demoted K-line prediction to supporting scope, added a Content-Alignment Gate to ai-collab-protocols, migrated prediction architecture content into agent-context/architecture.md, and cascaded the K-039 roles SSOT update through README plus protocol doc plus /about role cards."
+  },
+  {
     "ticketId": "K-042",
     "title": "PageHero shared component — responsive mobile type scale unifies Home/About/Diary H1",
     "date": "2026-04-24",

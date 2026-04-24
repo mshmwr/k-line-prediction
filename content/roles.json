@@ -2,37 +2,37 @@
   {
     "fileNo": 1,
     "role": "PM",
-    "owns": "Requirements, AC, Phase Gates",
-    "artefact": "PRD.md, docs/tickets/K-XXX.md"
+    "owns": "Requirements, AC, phase gating",
+    "artefact": "PRD + ticket + 反省"
   },
   {
     "fileNo": 2,
     "role": "Architect",
-    "owns": "System design, cross-layer contracts",
-    "artefact": "docs/designs/K-XXX-*.md"
+    "owns": "Design, API contract, component tree",
+    "artefact": "Design doc + 反省"
   },
   {
     "fileNo": 3,
     "role": "Engineer",
-    "owns": "Implementation, stable checkpoints",
-    "artefact": "commits + ticket retrospective"
+    "owns": "Implementation",
+    "artefact": "Code + 反省"
   },
   {
     "fileNo": 4,
     "role": "Reviewer",
     "owns": "Code review, Bug Found Protocol",
-    "artefact": "Review report + Reviewer 反省"
+    "artefact": "Review report + 反省"
   },
   {
     "fileNo": 5,
     "role": "QA",
     "owns": "Regression, E2E, visual report",
-    "artefact": "Playwright results + docs/reports/*.html"
+    "artefact": "QA report + 反省"
   },
   {
     "fileNo": 6,
     "role": "Designer",
-    "owns": "Pencil MCP, flow diagrams",
-    "artefact": ".pen file + get_screenshot output"
+    "owns": "Pencil design source of truth",
+    "artefact": ".pen file + JSON/PNG spec + 反省"
   }
 ]

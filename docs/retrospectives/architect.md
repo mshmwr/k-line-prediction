@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-04-24 — K-044 README showcase rewrite 設計（PM scoped re-dispatch）
+
+**做得好：** Challenge C3 feasibility pre-check 在 PM 的 scoped re-dispatch 這次又重跑一遍 — 用 `git stash` 保存 WIP、`git checkout 80e12d7 -- frontend/`、full `npm install`（no pre-existing node_modules，126 packages）、`nohup npm run dev`、`curl` 觀察 `<body class="bg-gray-950">` + Google Fonts `IBM+Plex+Mono` 雙訊號確認 pre-K-021 狀態、kill pid、`git restore --source=HEAD --staged --worktree frontend/` + `git stash pop` 完整還原。不是靠上一 session 的記憶或 design doc §1 的紀錄就默認通過 — PM 的 C3 gate 是硬 gate，每次召喚都要自己跑。Self-Diff Gate 也嚴格跑了 — `git diff --stat` 拿到權威 `32 insertions, 1 deletion = net +31 lines` 跟我拆解的 Patch 1 (+10) + Patch 2 (+19) + Changelog (+2) + frontmatter (0) = +31 ✓ 對齊，不是憑設計文件描述就當成完成。frontmatter `updated:` 也同 commit 往前推（2026-04-23 K-040 → 2026-04-24 K-044 + K-040 降為前置 context），不漏 sync rule。
+
+**沒做好：** 第一版 migration plan 直覺是「5 個 block 全部搬進 architecture.md」，後來在 cross-check 時才發現 4/5 已經被 architecture.md 既有段落完整覆蓋（Tech Stack、Frontend Routing、API Endpoints、Data Flow call-chain、Consensus Stats SSOT），只有 Deployment Architecture 是真 gap。如果沒有跑 `grep -n '^## ' agent-context/architecture.md` 對 README section list 的 diff，設計文件會讓 Engineer 重複寫同樣的內容進 architecture.md，造成 K-034/K-039 lesson 最怕的 duplicate-ownership drift。這個 pass 1 miss 不是技術錯誤，是工序沒排對 — 應該「先 audit 再寫 plan」。
+
+**下次改善：** docs-migration 類 ticket 的設計文件寫 migration plan 之前，必跑一次「目標 doc `grep -n '^## '` vs source doc section list」的 diff — 把重疊的部分先標 `already-covered` 再決定哪些是 gap 要 patch。codify 進 senior-architect.md 的 §Architecture Doc Sync Rule 附近：docs-migration ticket 強制要在設計文件 §N 出示 coverage-audit table，不能只寫「移到 X」。本 session 已在 K-044 設計文件 §3.1 + §10.7 用 8-row coverage-audit table 落地這個規範（雖然 memory/persona edit 超出 worktree 範圍、需等 meta-edit session 才能同步）。
+
+---
+
 ## 2026-04-23 — K-040 Item 1 sitewide typography reset 設計
 
 **做得好：** Designer memo 的 36-row per-site calibration table + QA-040 Early Consultation 的 6 個 Q 都已被 PM 落地進 AC，Route Impact Table 建立 5 routes × 多 component 時幾乎所有資料都有單一來源可引用，不用自己在 Pencil 或 Figma 再判斷；Pre-Design Audit 對 4 個 "pre-existing" shared component mono 斷言都用 `git show HEAD:<path>` 實證通過，沒有憑印象代入。
