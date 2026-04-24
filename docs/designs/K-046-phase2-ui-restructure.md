@@ -622,3 +622,43 @@ Sanity: 3 pre-existing K-046 Phase 1 Playwright cases (T1 / T2 / T3) — T1 + T2
 **Which decisions needed revision:** Initially considered Option B (extract `parseOfficialCsvFile` to `utils/`) but AC text verbatim locks import path to `AppPage.tsx`; flipped to Option A same response with verification.
 
 **Next time improvement:** When AC text pins an import path, list that constraint at the top of the "three options" table so option elimination is visible before scoring, not after.
+
+---
+
+## 16 Reviewer Step 2 Findings — 2026-04-24
+
+**Verdict:** **PASS** (0 Critical / 0 Warning / 1 Note).
+
+Verification performed:
+
+| Gate | Result |
+|------|--------|
+| `git status --short` runtime scope | clean (only `frontend/node_modules` untracked, excluded) |
+| `npx tsc --noEmit` | exit 0 |
+| Vitest `parseOfficialCsvFile.test.ts` | 1/1 PASS (4ms) |
+| Playwright `K-046-example-upload.spec.ts` | **8/8 PASS** (T1-T8, 4.6s) |
+| Full pytest `backend/tests/` | 70/70 PASS |
+| Sacred K-009 (`_history_1d` L31) | untouched (backend code diff = ∅; only env var) |
+| Sacred K-013 (stats contract fixture) | untouched |
+| Handler-removal raw-count (base `4c873b3` → HEAD) | 19 → **0** hits for `handleHistoryUpload \| lastHistoryUpload \| uploadError \| uploadLoading \| 上傳中 \| Upload History CSV` — confirms §3 REMOVE ruling honored verbatim |
+| Testid naming match §5 | `official-input-section` / `history-reference-section` / `official-input-expected-format` all present in JSX verbatim |
+| AC count cross-check (§15) | 6 ACs declared; 8 Playwright tests (T1-T8: 2 updated + 6 new matching 2+1+1+1+1) + 1 Vitest + 2 manual probes = 11 test cases for 6 ACs, mapping sound |
+| Behavior Diff — `parseOfficialCsvFile` export | `git show 4c873b3:AppPage.tsx` shows `function parseOfficialCsvFile(...)`; HEAD shows `export function parseOfficialCsvFile(...)` at same L48. Signature / body / single in-file caller (L265 `handleOfficialFilesUpload`) all identical. Return diff = ∅. Equivalence verified. |
+| Refactor AC grep raw-count sanity (K-025 W-1) | Handler tokens pre-count = 19 (non-degenerate, would fail if Engineer forgot removal); post = 0 (honored). Not a `pre=0` degenerate proxy. |
+| Shared-component inventory (§7) | `grep "import.*components" frontend/src/AppPage.tsx` hits 6 shared comps (OHLCEditor, TopBar, PredictButton, MatchList, StatsPanel, MainChart); none touched by Phase 2 edits (L356-402 region is pure inline JSX). Structural Chrome Duplication Scan N/A — `/app` exempt per design-exemptions.md §1 K-030. |
+| Pencil parity gate | N/A — `/app` listed in `docs/designs/design-exemptions.md` §1 Route exemption (K-030) |
+| Test vs Production Consistency (K-010) | Phase 1 T3 mocked-upload round-trip removed per §10.5; superseded by AC-046-PHASE2-UI-UPLOAD-HIDDEN (T5) which asserts negative. No stale assertion contradicting production. |
+| Engineer-flagged pytest `646 → 3926` | **Confirmed pure constant upgrade.** Assertion semantics preserved (`fixture-size-matches-expected`); only the expected value co-evolved with the fixture refresh. Non-scope expansion; code-directly-edit class. |
+
+**Finding N-1 (Note, non-blocking):**
+- `data-testid="official-input-section"` at `frontend/src/AppPage.tsx:356` is added per design doc §5 but is not referenced by any current Playwright case. The nested `official-input-expected-format` (L377) is the one T3/T8 actually anchor on. Classification: future-proofing scaffolding, zero runtime cost, future K-048 re-enablement or `/app` structural test could use it. No action required; optional TD if PM wants hygiene cleanup.
+
+**Pre-existing failure (not blocking, confirmed Engineer classification):**
+- `frontend/src/__tests__/diary.legacy-merge.test.ts` word-count 33 < 50 from commit `f24b9d7` "data(diary): rewrite all entries as short summaries". Reproduced independently; outside Phase 2 file change manifest; not a K-046 regression.
+
+**Rulings requested from PM:**
+1. N-1 (unused `official-input-section` testid) — accept as future-proofing (recommended) or remove for hygiene? No Critical/Warning → default accept.
+2. Engineer's pytest `646 → 3926` classification as "pure constant upgrade" — confirm as directly-editable (Reviewer concurs — assertion semantics unchanged, equivalence-preserving).
+3. Pre-existing `diary.legacy-merge.test.ts` failure — confirm as out-of-scope Tech Debt for a future diary content/data ticket (not K-046).
+
+**Reviewer verdict: APPROVED FOR MERGE** — zero Critical, zero Warning, zero commit-block. Merge-ready once PM rules on the 3 items above.

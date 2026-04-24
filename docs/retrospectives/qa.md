@@ -15,6 +15,20 @@
 - 倒序（最新在上）
 
 
+## 2026-04-24 — K-046 Phase 2b QA full regression sign-off (post-Code-Review pass 2)
+
+**What went well:**
+- Full-suite Playwright 14 failures identified as pre-existing via base-main HEAD (`d923ed3`) replay — same 14 specs fail on base (9 `ga-spa-pageview.spec.ts` + 1 `ga-tracking.spec.ts AC-018-INSTALL` + 4 `pages.spec.ts AC-023-DIARY-BULLET/AC-028-MARKER-COORD-INTEGRITY`). K-046 scope diff against main covers only `AppPage.tsx` + `parseOfficialCsvFile.test.ts` + `K-046-example-upload.spec.ts` + `ETHUSDT_1h_test.csv` + backend `test_main.py` + docs — none of the 14 failing specs exercise files touched by K-046, so zero regression authority.
+- Dev-server visual verification script (mock `/api/history-info` + 4 assertions) confirmed all 4 Phase 2 UI state markers green: Upload History CSV count=0, History Reference filename rendered (loading count=0 — Phase 1 B3 bug gone), Download link in `official-input-expected-format` scope=1, stray link in `history-reference-section`=0.
+
+**What went wrong:**
+- T4 (`AC-046-PHASE2-UI-LINK-MOVED case B` — link NOT inside `history-reference-section`) in isolation does NOT fail-on-revert because the base (pre-K-046) HEAD has zero `data-testid` markers, so the scoped locator returns count=0 on both current and reverted states. T4 is a complementary drift-prevention guard, not a revert-sensitive assertion. Revert-sensitivity for AC-046-PHASE2-UI-LINK-MOVED is adequately carried by T3 (positive scope assertion) + T8 (computed style of scoped link). No ticket-level gap — just a test taxonomy note.
+
+**Next time improvement:**
+- For multi-case AC coverage (T3 + T4 + T8 all target one AC), document in the spec header which case is the positive assertion (fail-on-revert) vs which is the drift guard (insensitive to revert, sensitive to future rename). Engineer / Reviewer currently self-classify during Step 2 depth review; making it explicit in the spec JSDoc removes the mental step at QA sign-off.
+
+
+
 ## 2026-04-24 — K-046 Phase 2 QA Early Consultation — QA proxy by PM
 
 **Tier classification (per `feedback_qa_early_proxy_tier.md`):**
