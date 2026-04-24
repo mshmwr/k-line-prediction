@@ -429,6 +429,13 @@ export default function AppPage() {
                 }}
               />
             </label>
+            <a
+              href="/examples/ETHUSDT_1h_test.csv"
+              download="ETHUSDT_1h_test.csv"
+              className="text-[10px] text-gray-500 hover:text-blue-400"
+            >
+              Don't have a CSV? Download example →
+            </a>
             {lastHistoryUpload && (
               <div className={`flex items-start gap-1.5 rounded border px-2 py-1.5 text-[11px] ${lastHistoryUpload.addedCount === 0 ? 'border-gray-700 bg-gray-800/40 text-gray-400' : 'border-green-800 bg-green-950/40 text-green-400'}`}>
                 <span className="mt-px shrink-0">{lastHistoryUpload.addedCount === 0 ? '–' : '✓'}</span>
