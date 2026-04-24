@@ -13,12 +13,37 @@
 ```
 
 - 倒序（最新在上）
+
+## 2026-04-24 — K-045 Early Consultation (desktop layout consistency /about vs / vs /diary)
+
+**做得好：**
+- 針對 PM 初稿 §4 seed 邊界（640px、1248 hero、SectionLabelRow 位置、FileNoBar、grid flip）逐條展開成 10 個具體 Challenge；每個 Challenge 附建議 AC 草稿 + 驗證路徑 + Sacred cross-check 結果。
+- 主動抓出兩個 scope gap：(a) C-2 section-to-section vertical gap 不在 §2 scope（SectionContainer `py-16` 會貢獻 inter-section rhythm，只改 width 不改 py 會視覺仍不一致），(b) C-6 K-031 adjacency Sacred（`about-architecture-sibling.spec.ts` 硬斷 `#architecture.nextElementSibling === <footer>`）會被 body-wrapper pattern 破壞。兩者若到 Engineer 階段才發現會退回 Architect。
+- 發現 C-3 BQ-045-03：Pencil wwa0m 無 maxWidth constraint，K-022 legacy narrow=768 無 Sacred 鎖，建議依 Pencil SSOT 選 1248 — 把需要 PM ruling 的設計決策明確標出。
+
+**沒做好：**
+- Challenge 編號使用 C-N 而非 QA-045-CN，與 PM AC ID 前綴不一致（AC-045-XXX）；混用可能造成 Engineer 引用混淆。
+- C-9/C-10 標 N/A 後仍留在列表，沒有直接刪除 — PM 讀時需多 parse 兩條才知道不需 ruling。
+
+**下次改善：**
+- Challenge ID 統一前綴 `QA-<ticket>-CN` 格式；N/A 條目合併成一行單獨段落列出（「Out-of-concern items: C-9, C-10」）避免 PM 誤判需 ruling。
+
 - 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 QA 反省並存，不互相取代
 - 啟用日：2026-04-18（K-008 起）
 
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-24 — K-045 QA Early Consultation (real QA spawn, pre-Architect)
+
+**Tier:** runtime code (frontend Tailwind class refactor on /about) — `feedback_qa_early_proxy_tier.md` enforces real QA spawn. Invoked before Architect release per ticket §5 BLOCK gate; pm proxy explicitly NOT authorized.
+
+**What went well:** Caught 3 Challenges not in PM's seed list — C-2 SectionContainer `py-16`/`py-12` vs Pencil `gap:72` structural mismatch (not a pure container-width migration — section-to-section vertical rhythm also needs reworking); C-3 Pencil `wwa0m` (S1 Hero) carries no per-line max-width constraint so migrating hero to full 1248 is actually Pencil-compliant (flips BQ-045-02 narrow-variant assumption); C-6 `about.spec.ts` Footer DOM-order assertion `#architecture.nextElementSibling === footer` requires Footer to remain full-bleed sibling of root `<div className="min-h-screen">` — any refactor that wraps sections in a new `max-w-[1248px]` outer wrapper MUST NOT swallow Footer or nextElementSibling breaks. 4 spec files grep'd byte-by-byte before writing each Challenge.
+
+**What went wrong:** Could not execute mandatory task step 0c (frame spec JSON + Playwright screenshot parity gate) because this is a pre-Architect consultation, not post-implementation sign-off — the flow has no running dev server to screenshot. Early Consultation persona does not currently define which QA mandatory steps are suspended at this stage. Discovered mid-task.
+
+**Next time improvement:** Edit `~/.claude/agents/qa.md` §Early Consultation to add explicit "suspended steps for pre-implementation mode": steps 0c (Pencil screenshot parity), 1 (visual-report.ts run), 2/2a (filename verify), 3 (PM notify of visual report) do NOT apply to Early Consultation; only apply to post-Code-Review sign-off. Step 0a (visual-spec.json read) + 0b (Pencil spec JSON read) DO apply to Early Consultation for any Pencil-backed ticket — K-045 has Pencil frames 35VCj / 4CsvQ / wiDSi as dependencies, all three were read verbatim before challenges were filed. Codify the tier-specific step applicability so future Early Consultations don't rediscover this case-by-case.
+
 ## 2026-04-24 — K-041 Phase 4 Full E2E Regression (QA sign-off)
 
 **What went well:** Full suite (255 tests) ran once, 253 passed + 1 pre-existing flake + 1 skipped — Sacred K-023/K-028 Homepage marker tests (pages.spec.ts AC-023-DIARY-BULLET borderRadius 0px, AC-028-MARKER-COORD-INTEGRITY width=20 height=14) all green, confirming DiaryMarker prop unification preserved Homepage contract. Flipped T-C6 /diary mobile rail/marker display assertions now pass.
