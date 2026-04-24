@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-046",
+    "title": "Neutralize upload-history write path + example CSV download",
+    "date": "2026-04-24",
+    "text": "Commented out the disk-save and global-mutate block inside POST /api/upload-history so visitors can no longer pollute the demo database, and added an always-visible example CSV download link beneath the uploader; response schema preserved, semantics flip to pre-upload state (added_count:0, bar_count:len(existing)). Reversible for K-047 authenticated auto-scraper, Sacred K-009 and K-013 invariants preserved."
+  },
+  {
     "ticketId": "K-045",
     "title": "Desktop layout consistency across /about, /, /diary",
     "date": "2026-04-24",
