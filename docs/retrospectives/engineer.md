@@ -16,6 +16,14 @@
 
 ---
 
+## 2026-04-24 — K-039 Phase 1.5 (SSOT format neutralization — TS → JSON at content/roles.json)
+
+**做得好：** 用戶 BQ 提出「SSOT 應為語言中性」後，直接做出最小 surface 的遷移：content/roles.json 新增於 repo 根（與 docs/、frontend/、backend/ 平行），原 roles.ts 保留為薄 type wrapper（RoleEntry + re-export），React runtime 的 import path 完全不變（`./roles`），避免觸動 RoleCardsSection.tsx。遇到 Playwright 1.32 Node-ESM loader 不收 `with { type: 'json' }` import attribute 時，沒有升級 Playwright 或硬塞 Vite plugin（那會把 tool-chain 複雜度往下游推），而是讓 spec 端改走 fs.readFileSync 直讀 JSON — 把「React 能 render JSON」的綁定留給既有 about.spec 的 rendered-DOM 斷言（AC-017-ROLES / AC-022-ROLE-GRID-HEIGHT / AC-034-P2-FILENOBAR-VARIANTS），三條斷言本來就在跑、本來就 green，等於零新增覆蓋缺口。FAIL-IF-GATE-REMOVED 在新 JSON path 上重跑一次（drift 2 fail / revert 4 pass）證明遷移後的監控力與 Phase 1 原 TS 版完全對等。Vite `server.fs.allow: ['..']` 一行配置解決跨目錄 import 權限，沒有搬目錄結構。
+
+**沒做好：** 第一次直接用現代 `with { type: 'json' }` 語法，tsc 5.4 + Node 20.20 都支援，就假設 Playwright 1.32 內部 loader 也支援 — 忽略了 Playwright 的 test loader 與 Node 原生 ESM loader 不是同一個東西。第一次跑 spec 才 surface parse error，浪費一個 round。根因：跨工具 ESM feature 支援度沒有「tsc 過 = 所有執行端過」的遞移性，import attribute 這種 parser-level feature 要逐工具驗證。
+
+**下次改善：** 引入任何 stage-3 以後的 ECMAScript/TS 語法（import attributes、decorator、`using` 宣告等）時，commit 前明列「此語法在哪些 loader 跑過」的 evidence table（tsc ✓ / Vite dev ✓ / Vite build ✓ / Playwright ✓ / Node native ✓），缺哪個就先查工具版本支援度，不要 tsc 綠就提交。對齊既有的 `feedback_engineer_latest_branch.md` + `feedback_engineer_design_spec_read_gate.md` 的「多面向驗證」紀律。codify 為個人 note 待下次遇到升級類 ticket 時落 persona。
+
 ## 2026-04-24 — K-039 Phase 1 (split-SSOT for /about RoleCards — drift repair + sync markers + regression spec)
 
 **做得好：**
