@@ -112,12 +112,12 @@ Desktop viewport rendering of `/about`, `/`, `/diary` is visually inconsistent; 
 
 ### AC-045-K031-ADJACENCY-PRESERVED — K-031 Sacred `#architecture → <footer>` adjacency not broken `[K-045]`
 
-**Given** K-031 Sacred `AC-031-ARCHITECTURE-FOOTER-ADJACENCY` (`about.spec.ts:386-403`) asserts `document.getElementById('architecture').nextElementSibling.tagName.toLowerCase() === 'footer'`
+**Given** K-031 Sacred `AC-031-LAYOUT-CONTINUITY` (`about-v2.spec.ts:386-403`) asserts `document.getElementById('architecture').nextElementSibling.tagName.toLowerCase() === 'footer'`
 **When** user visits `/about` after this ticket's migration lands
 **Then** the DOM structure preserves: `#architecture` element's next DOM sibling is the `<footer>` element (no wrapper inserted between them)
 **And** the AboutPage root `<div>`'s last element child is `<footer>` (no `<div id="banner-showcase">` or other wrapper inserted as last child)
 **And** implementation MUST use pattern where each section carries its own container classes (either inline `max-w-[1248px] px-6 sm:px-24` on each section element, OR each section wrapped individually) — MUST NOT wrap all 6 body sections inside a single parent wrapper `<div>` that would break `#architecture.nextElementSibling === <footer>`
-**And** Playwright asserts the K-031 existing adjacency spec still PASSes after migration (`about.spec.ts:386-403` runs unchanged)
+**And** Playwright asserts the K-031 existing adjacency spec still PASSes after migration (`about-v2.spec.ts:386-403` runs unchanged)
 
 ### AC-045-SM-BOUNDARY — exact 640px breakpoint transition correctness `[K-045]`
 
@@ -158,7 +158,7 @@ Desktop viewport rendering of `/about`, `/`, `/diary` is visually inconsistent; 
 
 ### §4a Architect Constraint (MUST be honoured in design doc + implementation)
 
-**MUST honour pattern A: per-section container classes.** Each of the 6 body sections on `/about` carries its own container classes (`max-w-[1248px] px-6 sm:px-24 mx-auto` either inline on each `<section>` or via SectionContainer's updated variant). The AboutPage root `<div>` retains each section as a direct child element (no body-wrapper div inserted between root and sections). Reason: AC-045-K031-ADJACENCY-PRESERVED + K-031 Sacred `about-architecture-sibling.spec.ts:386-403` assert `#architecture.nextElementSibling === <footer>`; a body-wrapper pattern B (`<div class="max-w-[1248px]"><section id="architecture">…</section></div><footer>`) would place `#architecture` as a child of the wrapper, making its `nextElementSibling` null and breaking the Sacred assertion.
+**MUST honour pattern A: per-section container classes.** Each of the 6 body sections on `/about` carries its own container classes (`max-w-[1248px] px-6 sm:px-24 mx-auto` either inline on each `<section>` or via SectionContainer's updated variant). The AboutPage root `<div>` retains each section as a direct child element (no body-wrapper div inserted between root and sections). Reason: AC-045-K031-ADJACENCY-PRESERVED + K-031 Sacred `about-v2.spec.ts:386-403` assert `#architecture.nextElementSibling === <footer>`; a body-wrapper pattern B (`<div class="max-w-[1248px]"><section id="architecture">…</section></div><footer>`) would place `#architecture` as a child of the wrapper, making its `nextElementSibling` null and breaking the Sacred assertion.
 
 **If Architect believes pattern B is necessary** (e.g., for simplicity / CSS optimisation): do NOT implement it silently. File a BQ `BQ-045-ARCH-NN` to PM with (a) justification, (b) proposed update to AC-031, (c) regression plan for dependent tests. PM arbitrates; user notified. Current baseline forbids pattern B.
 
@@ -167,26 +167,72 @@ Desktop viewport rendering of `/about`, `/`, `/diary` is visually inconsistent; 
 - Per-section `py-*` audit: current SectionContainer `py-16` (128px per section × 6 = 768px stacked) does NOT align with Pencil `gap:72`; design doc must enumerate new vertical rhythm mechanism (consumer `flex flex-col gap-6 sm:gap-[72px]` OR per-section `margin-top`) and reconcile with existing `AC-028-SECTION-SPACING` pattern on Home
 - Existing SectionContainer `divider` prop (border-b border-muted/40): design doc must state whether hairline is preserved (likely yes per K-022 AC-022-SECTION-LABEL `And`-clause) and how the new layout encodes it
 
-## §5 Release Status (pre-flight)
+## §5 Release Status
+
+### §5.1 Architect delivery (completed 2026-04-24)
+
+Architect sub-agent returned `docs/designs/K-045-design.md` (635 LOC). Key outputs:
+
+- **BQ-045-02 verdict:** Option α (remove `SectionContainer.tsx`, inline per-section container classes on each `<section>`) — justified via 12-dimension comparison matrix in §1.1. Single consumer + byte-identity target + `py-16` strip required under β anyway + reduces Sacred surface.
+- **Container pattern:** Option C (per-section self-contained container classes; NO body or inner wrapper around the 6 sections). §2.2 captured the near-miss where the initial tree used Home's body+inner-wrapper pattern (broke K-031 `#architecture.nextElementSibling === <footer>`) and revised to per-section root-child tree per ticket §4a Architect Constraint.
+- **Vertical rhythm:** margin-top-based (not `flex gap`, because consumer-flex wrapper would break K-031 adjacency). S1 `pt-8 sm:pt-[72px]`; S2–S6 each `mt-6 sm:mt-[72px]`; S6 adds `mb-8 sm:mb-[96px]`. Mirrors Pencil `Y80Iv padding:[72,96,96,96] gap:72` verbatim at desktop.
+- **New Playwright assertions:** T1–T19 (19 test IDs) mapped across 7 new AC blocks + existing K-031 spec covers T12/T13.
+- **Sacred regression matrix:** 14 clauses cross-checked in design §9; K-031 is primary risk, explicitly mitigated by §2.3 per-section root-child tree.
+- **File change list:** AboutPage.tsx MODIFY, SectionContainer.tsx DELETE, SectionLabelRow.tsx ADD, PageHeaderSection.tsx MODIFY (drop `py-20`), about-layout.spec.ts ADD, shared-components.spec.ts EXTEND, architecture.md EDIT.
+
+### §5.2 BQ Closure Log (PM iteration before Architect release)
+
+| BQ | Status | Resolution pointer |
+|----|--------|--------------------|
+| BQ-045-01 | RESOLVED | ticket §3 (Pencil SSOT + HomePage/DiaryPage baseline) |
+| BQ-045-02 | RESOLVED | design doc §1.2 Option α verdict |
+| BQ-045-03 | RESOLVED | ticket frontmatter `visual-delta: none` + design doc §0.4 Gate 3 |
+| BQ-045-04 | RESOLVED | ticket §2 out-of-scope enumeration |
+| BQ-045-05 | RESOLVED | ticket §3 Option A (Pencil-compliant 1248 for hero) |
+| BQ-045-ARCH-01 | RESOLVED | PM-corrected ticket §4 + §4a spec filename (`about.spec.ts` → `about-v2.spec.ts`) in this session |
+
+All BQs RESOLVED; no OPEN / DEFERRED-TO-TD. Closure count: **6 RESOLVED, 0 DEFERRED, 0 OPEN**.
+
+TD-K045-01 (`PageContainer` primitive extraction for future Home/Diary/About parity) — optional follow-up flagged by Architect in design §5.1; PM decision: **not filed as TD ticket this session** (trigger condition is "Diary gains inner flex wrapper"; no current need; revisit if K-046+ refactors Diary body).
+
+### §5.3 Handoff check (Engineer release)
 
 ```
 Handoff check:
   worktree=.claude/worktrees/K-045-desktop-layout-consistency (existing),
-  qa-early-consultation=docs/retrospectives/qa.md 2026-04-24 K-045 (OK — 10 Challenges, 7 → AC, 0 Known Gap, 2 N/A, 1 → BQ-045-05 ruled),
-  ac-sacred-cross-check=✓ no conflict (AC-045-REGRESSION enumerates K-017/022/024/028/031/034/040 Sacreds preserved; AC-045-K031-ADJACENCY-PRESERVED explicitly protects K-031 Sacred from pattern B; K-022 hero AC already RETIRED, no conflict with BQ-045-05),
-  shared-component-inventory=complete (NavBar + Footer + BuiltByAIBanner enumerated §2),
-  route-impact-table=N/A (ticket scoped to /about page-level container; no global CSS / shared primitive exposed to other routes — SectionContainer used only by /about, decision per BQ-045-02),
-  visual-delta=none,
+  qa-early-consultation=docs/retrospectives/qa.md 2026-04-24 K-045 (OK — real QA spawn, 10 Challenges, 7 → AC, 0 Known Gap, 2 N/A, 1 → BQ-045-05 ruled),
+  ac-sacred-cross-check=✓ no conflict (AC-045-REGRESSION enumerates K-017/022/024/028/031/034/040 Sacreds preserved; AC-045-K031-ADJACENCY-PRESERVED explicitly protects K-031 Sacred via §2.3 per-section root-child tree; K-022 AC-022-HERO-TWO-LINE RETIRED 2026-04-23 by K-040, no conflict with BQ-045-05),
+  shared-component-inventory=complete (NavBar + Footer + BuiltByAIBanner + SectionContainer + SectionLabelRow + PageHeaderSection + 5 page-specific sections enumerated in design §5; §5.1 cross-page duplicate audit; §5.2 target-route consumer scan all aligned),
+  route-impact-table=N/A — reason: ticket scoped to /about page-level only; SectionContainer has 1 consumer (/about) per design §5; no global CSS / sitewide token / shared primitive broadcast change,
+  visual-delta=none (aligning to existing Pencil SSOT frames 35VCj + 4CsvQ + wiDSi per K-040 Designer Decision Memo §Item 3),
   content-delta=none,
-  design-locked=N/A
-  → OK (ready to release Architect for BQ-045-02 verdict + Phase plan)
+  design-locked=N/A (aligning to existing Pencil SOT; no new design),
+  visual-spec=fresh (docs/designs/K-024-visual-spec.json diary SSOT referenced for cross-page parity target 1248+96; no new JSON needed per frontmatter),
+  design-doc=docs/designs/K-045-design.md (verified, 635 LOC, 10 sections + §X Consolidated Delivery Gate Summary = OK)
+  → OK — Engineer release for Phase 1 (SectionContainer retirement + AboutPage container rewrite)
 ```
 
-**Architect release pointer:** next step is main session calling Architect sub-agent with this ticket + §4a constraint. Architect's Phase-0 must return (a) BQ-045-02 verdict with comparison table, (b) design doc for per-section container + vertical rhythm, (c) file-level pseudo-diff for AboutPage.tsx + SectionContainer.tsx (or its removal), (d) impact notes on existing `about.spec.ts` + `pages.spec.ts` coverage, (e) confirmation that pattern A (per-section container) is honoured per AC-045-K031-ADJACENCY-PRESERVED.
+### §5.4 Engineer release pointer
+
+Engineer starts with **Phase 1** per design doc §8:
+
+1. Add `frontend/src/components/about/SectionLabelRow.tsx` (extract from AboutPage inline; 14 LOC, `{ label: string }` prop).
+2. Edit `frontend/src/pages/AboutPage.tsx` per design §2.3 tree (6 `<section>` as direct children of root `<div className="min-h-screen">`).
+3. Delete `frontend/src/components/primitives/SectionContainer.tsx`.
+4. Edit `frontend/src/components/about/PageHeaderSection.tsx` — drop outer `py-20` (vertical rhythm now owned by S1 `<section>` `pt-8 sm:pt-[72px]`).
+
+**Phase 1 commit gate (before Phase 2):**
+- `npx tsc --noEmit` exit 0.
+- Subset Playwright: `about-v2.spec.ts` + `shared-components.spec.ts` + `sitewide-footer.spec.ts` all green (proves K-031 adjacency + K-034 Phase 1 Footer byte-identity preserved).
+- `grep -rn 'SectionContainer' frontend/src/` returns **0 results** (primitive fully retired).
+
+Phase 2 = visual eyeball verification (375 / 640 / 1280 / 1440).  
+Phase 3 = E2E spec authoring (T1–T19 in new `about-layout.spec.ts` + AC-045-FOOTER-WIDTH-PARITY in `shared-components.spec.ts`); full suite regression gate.  
+Phase 4 = Docs sync (architecture.md 8 cells per design §X.3) + retrospectives.
 
 ## §6 Next Gate
 
-Architect release for Phase plan → Engineer implementation (worktree `.claude/worktrees/K-045-desktop-layout-consistency/`) → Reviewer (superpowers breadth + reviewer.md depth) → QA regression → PM Phase Gate close → deploy.
+Engineer Phase 1 implementation → Phase 1 commit gate → Phase 2 visual eyeball → Phase 3 E2E specs + full suite → Phase 4 architecture.md + retrospectives → Code Reviewer (superpowers breadth + reviewer.md depth) → QA regression → PM Phase Gate close → deploy (per K-Line Deploy Checklist 4 steps).
 
 ## §7 Deploy Record
 
