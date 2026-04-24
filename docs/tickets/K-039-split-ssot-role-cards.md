@@ -496,6 +496,47 @@ Ran `node scripts/sync-role-docs.mjs` → wrote both README.md and docs/ai-colla
 - 2026-04-24 (Engineer, Phase 3 complete — persona codification + memory + Sacred annotation): **Memory** — `~/.claude/projects/-Users-yclee-Diary/memory/feedback_content_ssot_split.md` NEW (63 lines); MEMORY.md index pointer inserted near K-034 D-4 related cluster (line 155, total 163/200). **Personas** — `~/.claude/agents/pm.md`: §visual-delta gate extended to §visual-delta + content-delta gate (text-only path defines Engineer-only flow without `design-locked`; format constraints `role` ≤1 word / `owns` ≤6 words / `artefact` ≤8 words; handoff verification line extended with `content-delta` field); `~/.claude/agents/engineer.md`: Step 0c expanded to note Pencil text = frozen-at-session snapshot when ticket is content-delta: yes; NEW Step 0e — Text SSOT Consult Gate covering `content/*.json` read flow, generator invocation, pre-commit hook check, format-constraint reclassification; frontend implementation order bullet 1 extended with Step 0e trigger; `~/.claude/agents/designer.md`: NEW section "Text fields are frozen-at-session snapshots" under Frame Artifact Export (Pencil visual SSOT vs `content/*.json` text SSOT delimiter; pre-batch_design re-sync gate to grep runtime JSON before editing Pencil text nodes; format constraint → BQ path). **K-034 D-4 split annotation** — drift row D-4 appended with "K-039 SPLIT (2026-04-24)" explanatory clause documenting D-4a (visual) + D-4b (text) decomposition and pointer to `feedback_content_ssot_split.md`. **Verification** — all three personas grep for `content-delta` / `content/*.json` / `split-SSOT` / `Step 0e` / `frozen-at-session` returns landed hard-step anchors (PM: L206 gate header + L214 text-only path + L224 handoff verification line; Engineer: L104 Step 0e header + L106 trigger + L193 frontend impl order; Designer: L235 K-039 section + L241 pre-batch_design re-sync + L244 Designer-not-invoked clause).
 - 2026-04-24 (PM, ticket close — all phases): **K-039 CLOSED.** Phase 1 (content-drift repair + markers + regression spec) + Phase 1.5 (language-neutral JSON SSOT migration per user BQ) + Phase 2 (generator + pre-commit hook + dogfood verification) + Phase 3 (persona codification + memory + Sacred D-4 split) all complete. Commit series: f1953af → d6194b8 → b6b9e28 → e482549 → 1f52f80 → ba63e36 (worktree) + Phase 3 persona/memory commits in claude-config repo + Phase 3 docs commit in worktree. No open BQs; Reviewer O-1 deferred-to-Phase-3 now landed in pm.md post-rebase handling via the `content-delta` + split-SSOT rule codification. Worktree `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/.claude/worktrees/K-039-split-ssot-role-cards` ready for `/commit-diary` merge-back rebase + FF-merge onto main.
 
+### Deploy Record
+
+**Deploy date:** 2026-04-24 10:42 (Asia/Taipei)
+**Git SHA at deploy:** `8fa9769fa5b4e52b22f6a7e0d1fcf6a3cab73c8f` (main HEAD post-FF-merge from K-039 worktree branch)
+**Hosting URL:** https://k-line-prediction-app.web.app
+**Bundle hash:** `assets/index-COm22Nfp.js`
+**Verification probe (executed, not just recorded):**
+```
+$ curl -s https://k-line-prediction-app.web.app/assets/index-COm22Nfp.js | grep -c "Phase Gates\|stable checkpoints\|Audit comments"
+1
+$ curl -s https://k-line-prediction-app.web.app/assets/index-COm22Nfp.js | grep -o "Phase Gates[^\"]*" | head -1
+Phase Gates
+$ curl -s https://k-line-prediction-app.web.app/assets/index-COm22Nfp.js | grep -o "stable checkpoints[^\"]*" | head -1
+stable checkpoints
+```
+Probe matches — K-039 role content (`Phase Gates` from PM `owns`; `stable checkpoints` from Engineer `owns`) served on CDN from `content/roles.json` via TSX wrapper re-export.
+
+**Status:** Live
+
+**Worktree merge-back:** `git merge --ff-only K-039-split-ssot-role-cards` onto main HEAD `c6c1aa2` → main advanced to `8fa9769` (FF, no merge commit).
+
+**Pre-deploy gate (all green):**
+- `grep "/api/" src/` → 3 matches, all in `__tests__/AppPage.test.tsx` `stringContaining(...)` assertions (test fixtures, not runtime HTTP clients) → pass.
+- `npx tsc --noEmit` → exit 0.
+- `npm run build` → `vite v5.4.0 building for production... ✓ 2102 modules transformed. ✓ built in 2.37s` (dist/assets total 681.25 kB, 16 files).
+
+**`firebase deploy --only hosting`:** 3 new files uploaded, release finalized.
+
+**BFP (Bug Found Protocol — deploy step omitted at close):**
+1. Root cause: PM close-gate at `~/.claude/agents/pm.md` L303 had the Deploy bullet as a checkbox but did not force inline compliance-evidence output before writing `CLOSED`; PM bypassed silently at K-039 §9 L497. User 1-word BFP `Deploy了嗎` caught it post-close.
+2. Codification (same session as this BFP): `~/.claude/agents/pm.md` adds new hard step `Pre-close deploy evidence gate` — PM must output a 3-line evidence block (runtime-scope trigger / Deploy Record line-range / executed probe + output) before `CLOSED` is permitted. "Deferred to `/commit-diary` merge-back" is treated as `OPEN` deploy gate = close refused.
+3. Memory `feedback_deploy_after_release.md` appended with K-039 enforcement note + frontmatter `codified-into: ~/.claude/agents/pm.md#pre-close-deploy-evidence-gate` + `retire-eligible: true`.
+4. Retrospective entry prepended to `docs/retrospectives/pm.md` (newest first) documenting gap + fix.
+
+**Pre-close deploy evidence gate (dogfood for the rule just written):**
+```
+Runtime-scope triggered: YES (content/roles.json NEW, RoleCardsSection.tsx M, roles.ts NEW, vite.config.ts M, roles-doc-sync.spec.ts NEW, scripts/sync-role-docs.mjs NEW, .githooks/pre-commit NEW)
+Deploy Record block present in ticket §9: this block (after L497)
+Live hosting probe: `curl … | grep "Phase Gates\|stable checkpoints"` → `1` (Phase Gates + stable checkpoints substrings both found in bundle)
+```
+
 ### Phase-by-phase role dispatch plan
 
 | Phase | Primary role | Architect? | Designer? | QA? |

@@ -2,6 +2,17 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-24 — K-039 post-close Deploy gap BFP (Bug Found Protocol)
+
+**What went wrong:** PM declared K-039 CLOSED at §9 L497 without executing `firebase deploy` or writing a Deploy Record block. Runtime scope of K-039 (`content/roles.json` new + `RoleCardsSection.tsx` wrapper change + `scripts/sync-role-docs.mjs` new + pre-commit hook new) unambiguously matches the Deploy Checklist trigger in `K-Line-Prediction/CLAUDE.md` + the hard rule in `feedback_deploy_after_release.md`: *"每個版本發布後必須 deploy + 寫 Deploy Record；deploy 跑完 + ticket 附 Deploy Record block 才能 close；物理 exit 0 ≠ 完成."* PM close gate walked past both. User caught it post-close with one word: `Deploy了嗎`.
+
+**Root cause:** PM close-gate checklist at `~/.claude/agents/pm.md` `Close & Retrospective` step lists "close ticket + retrospective entries" but does NOT enumerate Deploy Record as a mandatory field for runtime-scope tickets. The rule exists in memory (`feedback_deploy_after_release.md`) but does not fire at close time because it is not a hard step in the persona. Pre-compaction scorecard audit of pm.md returned 16/16 NA=1 [OK] — the scorecard did not cover "close-gate deploy verification" because the persona had no such step to score. Blind spot.
+
+**Next time improvement:**
+1. **PM close gate hard step — Deploy Record + hosting URL verification (mandatory before declaring CLOSED).** For any ticket whose commits touch `frontend/src/**` / `frontend/public/**` / `backend/**` / build config (package.json, vite.config, tsconfig), PM MUST verify `firebase deploy --only hosting` executed + hosting URL reachable + Deploy Record block present in ticket §9 before writing the CLOSED line. Docs-only tickets are exempt. Land as explicit numbered step in `~/.claude/agents/pm.md` Close section.
+2. **Memory update:** `feedback_deploy_after_release.md` `**How to apply:**` must cite the PM close-gate position (not just "each release"). Add frontmatter `codified-into` pointer to pm.md close-gate once step is landed.
+3. **Pair with BFP discipline:** per `feedback_bug_found_protocol_sequence.md` four-step sequence — this retro entry + pm.md Edit + user confirmation (implicit via directive "做完回報") + memory cross-link constitute the BFP; only after all four does the fix (the deploy itself) count as protocol-compliant.
+
 ## 2026-04-24 — K-039 Phase 2 + Phase 3 close (generator + persona codify)
 
 **What went well:** Phase 2 + Phase 3 ran in one continuous auto-mode session after user directive `接著做，全部做完`. The split-SSOT rule landed across three personas in role-appropriate voices rather than copy-paste — PM gate owns the discriminator (visual-delta vs content-delta + handoff verification line), Engineer owns Step 0e text SSOT consult gate with format constraints + dogfood pre-commit protocol, Designer owns the frozen-at-session text clarification + pre-batch_design re-sync rule. Three hard-step anchors verified via grep before commit: `Step 0e` / `content-delta` / `frozen-at-session` all land as numbered steps or marked gates, not descriptive prose. Dogfood evidence (Phase 2 DRIFT → FAIL → REGENERATE → PASS cycle) captured inline in ticket §8 — the rule does not just claim monitoring power, it demonstrates it. `feedback_content_ssot_split.md` frontmatter carries `retire-eligible: true` + `codified-into` pointing at 3 persona anchors, enabling next-cycle promote-and-retire per the new memory authoring protocol.
