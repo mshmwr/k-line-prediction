@@ -1,11 +1,14 @@
 ---
 id: K-045
 title: Desktop layout consistency across /about, /, /diary — align /about to 1248px content width + 96px horizontal padding per Pencil SSOT
-status: open
+status: closed
 owner: pm
 priority: high
 type: refactor
 created: 2026-04-24
+closed: 2026-04-24
+deployed: 2026-04-24
+deployed-commit: 1011711
 visual-delta: none
 content-delta: none
 design-locked: N/A — reason: aligning to existing Pencil SSOT (frames `35VCj` /about + `4CsvQ` / home + `wiDSi` /diary — all 1440 canvas, 1248 content, 96px horizontal padding). No new design needed; K-040 Designer Decision Memo §Item 3 already confirmed Pencil SOT for all 4 routes.
@@ -253,13 +256,49 @@ Phase 2 = visual eyeball verification (375 / 640 / 1280 / 1440).
 Phase 3 = E2E spec authoring (T1–T19 in new `about-layout.spec.ts` + AC-045-FOOTER-WIDTH-PARITY in `shared-components.spec.ts`); full suite regression gate.  
 Phase 4 = Docs sync (architecture.md 8 cells per design §X.3) + retrospectives.
 
+### §5.5 Close verdict (PM 2026-04-24)
+
+```
+Handoff check (close):
+  ac-sign-off=✓ all 8 AC + AC-045-REGRESSION green (Engineer Phase 3 + QA Step 2),
+  code-review=docs/reviews/K-045-review.md (CODE-PASS MERGE-READY; 0 Critical / 1 Warning accept-as-is / 2 Nit no-action),
+  qa-regression=docs/retrospectives/qa.md 2026-04-24 K-045 Full Regression (282 pass / 1 pre-existing flake AC-020-BEACON-SPA / 1 skipped; 19/19 K-045 tests PASS),
+  bq-closure=[9 resolved] [0 deferred→TD] [0 open] (6 application + 3 review),
+  engineer-visual-change-scan=no new literals (all px trace to Pencil SSOT K-040 Item 3 + K-024 visual-spec.json — no follow-up),
+  merge=ef3519d → 1011711 FF (main-repo, K-045-desktop-layout-consistency branch),
+  deploy=https://k-line-prediction-app.web.app (commit 1011711, live bundle index-ZYe3mYa7.js probe: 3 × max-w-[1248px] = expected post-K-045 count),
+  retrospective=ticket §8 Engineer + PM Summary + docs/retrospectives/pm.md K-045 (prepended)
+  → CLOSED
+```
+
 ## §6 Next Gate
 
 Engineer Phase 1 implementation → Phase 1 commit gate → Phase 2 visual eyeball → Phase 3 E2E specs + full suite → Phase 4 architecture.md + retrospectives → **Code Reviewer (COMPLETE 2026-04-24 — CODE-PASS, MERGE-READY; 0 Critical / 1 Warning accept-as-is / 2 Nit no-action; see §5.2a + §5.2b)** → **QA regression (RELEASED 2026-04-24 — full Playwright suite, Sacred cross-route parity, AC-020-BEACON-SPA pre-existing flake acknowledged)** → PM Phase Gate close → deploy (per K-Line Deploy Checklist 4 steps).
 
 ## §7 Deploy Record
 
-(Pending ticket close.)
+| Field | Value |
+|---|---|
+| Deploy date | 2026-04-24 |
+| Deployed commit | `1011711861291b0a9609a0e0b00d29a0974f1854` |
+| Main HEAD before | `ef3519d` |
+| Main HEAD after | `1011711` |
+| Build output | 16 files / dist (2103 modules transformed, 2.17s, vite exit 0) |
+| Hosting URL | https://k-line-prediction-app.web.app |
+| Firebase project | k-line-prediction |
+| Hosting site | k-line-prediction-app |
+| Release status | complete |
+| Pre-deploy unmerged K-XXX | K-043 listed by `git branch --no-merged main` — docs-stub only (Designer-owned spec-backfill follow-up for K-042), not previously deployed, no self-overwrite risk per K-041 2026-04-24 incident class; justification logged, gate advanced |
+| Deploy Checklist steps passed | (1) main sync FF-merge K-045 → main (ef3519d → 1011711) / (2) API path scan clean (`grep "/api/" frontend/src/` → only `AppPage.test.tsx` string-literal assertions, no bare fetch) / (3) `npm run build` exit 0 / (4) `firebase deploy --only hosting` complete |
+
+**Verification probe (executed at close, 2026-04-24):**
+```
+$ curl -s https://k-line-prediction-app.web.app/ | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js' | head -1
+assets/index-ZYe3mYa7.js
+$ curl -s https://k-line-prediction-app.web.app/assets/index-ZYe3mYa7.js | grep -oE 'max-w-\[1248px\]' | wc -l
+3
+```
+3 × `max-w-[1248px]` in live bundle = expected (Home + About + Diary all use the canonical baseContainer). Probe target is the K-045 Phase 1 `baseContainer` pattern which replaced `max-w-5xl` (1024px) inline on `/about`; pre-K-045 grep count across `AboutPage.tsx + HomePage.tsx + DiaryPage.tsx` was 2 (Home + Diary only); post-K-045 count is 3 (About joined). Live shows post-K-045 count → deploy artifact matches `commit 1011711`. Full cross-route pairwise regression was executed by QA Step 2 (Playwright full suite, 19/19 K-045 tests PASS + Sacred cross-check green) on the same commit before deploy.
 
 ## §8 Retrospective
 
@@ -275,3 +314,22 @@ Engineer Phase 1 implementation → Phase 1 commit gate → Phase 2 visual eyeba
 - Snapshot baseline changes after layout refactor get a 3-line commit message block: (1) DOM byte-identity still asserted by <testname>, (2) pixel diff root cause is <X>, (3) old baseline also fails / does-not-fail on HEAD <sha>. This preempts Reviewer Git Status Commit-Block Gate re-question. Codified in `feedback_engineer_behavior_diff_pure_refactor.md` parallel: extend to cover snapshot-specific refactors.
 - Phase 0 pwd check is mandated by §Step 0 but I only caught the wrong-cwd after the first Bash call errored. Add a literal TodoWrite item "pwd = worktree root?" before any Read/Bash in Phase 0 so compact-recovery forces the check. Engineer persona §Step 0 already requires this; enforcement gap is in my session startup not the persona text.
 - Invariant proofs belong in spec-file header comments, not commit messages. T19 Δ=0 is the inevitable outcome of Option C root-child pattern (Footer width = viewport width regardless of route), not a fixture coincidence. Future layout-pattern specs should name the invariant + cite the architectural cause in the `describe` block comment.
+
+### PM Summary
+
+**Cross-role recurring issues:**
+
+| Issue | Responsible Role | Action | Update Location |
+|---|---|---|---|
+| Ticket stub referenced `about.spec.ts` when the actual spec is `about-v2.spec.ts` → BQ-045-ARCH-01 surfaced at Architect design time | PM (ticket authoring) | PM personally Edited ticket §4 + §4a + AC-045-K031-ADJACENCY-PRESERVED per AC Sole-Authorship rule; Architect did NOT self-edit (correct handoff discipline). Improvement codified: at ticket authoring, spec filename references must be `grep -rn` verified against `frontend/e2e/` before the ticket stub is committed | docs/retrospectives/pm.md K-045 (top entry) |
+| Engineer Phase 1 caused Footer pixel-snapshot drift on `/about` + `/diary` that was NOT flagged in Architect §9 Regression Risk Matrix (DOM byte-identity was held, but page-height shrink 3790→3263 cascaded into subpixel anti-alias shift at Footer render band) | Architect (design doc regression matrix) | Future layout-refactor design docs must list "pixel-snapshot baselines for cross-route shared components" as a distinct regression class separate from DOM byte-identity. Low-frequency pattern — adding to Architect persona as soft note, pending second occurrence for hard gate | docs/retrospectives/architect.md 2026-04-24 K-045 |
+| AC-020-BEACON-SPA full-suite flake surfaced during Phase 3 run; Engineer mistook it for K-045 regression until 10-minute bisect via `git checkout 00f8ac6` | Engineer + (latent) PM | PM did not pre-enumerate known pre-existing flaky specs in §5.4 Engineer release pointer. Improvement: when closing a ticket whose §8 Retrospective identifies a pre-existing flake, PM adds a one-liner to `agent-context/known-flakes.md` (new file) so next ticket's Engineer persona §Step 0 can read it before attributing failures | (pending — flagged here, not filed this session; second-occurrence trigger for `agent-context/known-flakes.md` creation) |
+
+**Process improvement decisions:**
+
+| Issue | Responsible Role | Action | Update Location |
+|---|---|---|---|
+| Main-session PM without `Agent` tool could not spawn independent QA re-verification of shared-components spec impact; relied on Architect §0 A14 truth-table + prior QA Early Consultation retro | PM session capability | Pre-flight disclosed at Turn 1 per `feedback_pm_session_capability_preflight`; persisted-artifact substitute acceptable for this specific ticket (visual-delta=none, scope narrow, Sacred cross-check explicit). Documented in `docs/retrospectives/pm.md` K-045 as "next time improvement #2" (soft note, not hard gate yet) | docs/retrospectives/pm.md K-045 entry |
+| Engineer-made visual-change scan at close time (per `feedback_engineer_visual_change_pm_designer_followup.md`) | PM close gate | Scanned `git diff ef3519d..1011711 -- frontend/src/` for `text-[Npx]` / `gap-[Npx]` / `sm:` additions. All discovered literals (1248 / 96 / 72 / 24 / 18 / 13) are Pencil-locked SSOT values from K-040 Designer Decision Memo §Item 3 + K-024 visual-spec.json — NOT Engineer-introduced magic numbers. Ticket is baseline-alignment refactor (visual-delta=none correctly declared). No Designer backfill follow-up required | Close scorecard line: `Engineer-made visual change scan: no new literals; all px values trace to Pencil SSOT (K-040 Item 3 + K-024 visual-spec.json) → no follow-up ticket` |
+| BQ Closure iteration | PM close gate | 6 application BQs (01–05 + ARCH-01) all RESOLVED; 3 review findings (W-1 + N-1 + N-2) all RESOLVED accept-as-is / no-action per §5.2b. TD-K045-01 (`PageContainer` primitive extraction) explicitly NOT filed this session — trigger "Diary gains inner flex wrapper" not met | `BQ closure: [9 resolved] [0 deferred→TD] [0 open]` |
+
