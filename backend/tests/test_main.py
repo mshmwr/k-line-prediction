@@ -1,4 +1,6 @@
+import os
 import sys
+from pathlib import Path
 from fastapi.testclient import TestClient
 
 
@@ -31,8 +33,27 @@ STANDARD_1H_CSV = (
 
 
 def test_upload_1h_csv_happy_path(make_client, monkeypatch, tmp_path):
+    """AC-TEST-UPLOAD-1 / AC-046-COMMENT-1/-2/-3: 1H happy path with K-046 invariants.
+
+    Post-K-046: write block commented, so on-disk file + in-memory state must be
+    byte-identical pre/post request. Response reads `existing` not `merged`.
+    """
     client = make_client()
-    monkeypatch.setattr("main.HISTORY_1H_PATH", tmp_path / "Binance_ETHUSDT_1h.csv")
+    import main
+
+    history_file = tmp_path / "Binance_ETHUSDT_1h.csv"
+    # Seed a known on-disk file so mtime_ns is meaningful
+    history_file.write_text(
+        "date,open,high,low,close\n"
+        "2020-01-01 00:00,1000.0,1100.0,950.0,1050.0\n"
+    )
+    monkeypatch.setattr("main.HISTORY_1H_PATH", history_file)
+
+    pre_mtime_ns = history_file.stat().st_mtime_ns
+    pre_size = history_file.stat().st_size
+    pre_bytes = history_file.read_bytes()
+    pre_len = len(main._history_1h)
+    pre_id = id(main._history_1h)
 
     response = client.post(
         "/api/upload-history",
@@ -40,9 +61,19 @@ def test_upload_1h_csv_happy_path(make_client, monkeypatch, tmp_path):
     )
     assert response.status_code == 200
     body = response.json()
+    # Schema preserved
+    assert set(body.keys()) == {"filename", "latest", "bar_count", "added_count", "timeframe"}
     assert body["timeframe"] == "1H"
-    assert body["added_count"] > 0
-    assert body["bar_count"] >= 2
+    # K-046 honest semantics
+    assert body["added_count"] == 0
+    assert body["bar_count"] == pre_len
+    # AC-046-COMMENT-1 file invariant
+    assert history_file.stat().st_mtime_ns == pre_mtime_ns
+    assert history_file.stat().st_size == pre_size
+    assert history_file.read_bytes() == pre_bytes
+    # AC-046-COMMENT-2 in-memory state invariant
+    assert len(main._history_1h) == pre_len
+    assert id(main._history_1h) == pre_id
 
 
 # ---------------------------------------------------------------------------
@@ -57,8 +88,22 @@ STANDARD_1D_CSV = (
 
 
 def test_upload_1d_filename_detection(make_client, monkeypatch, tmp_path):
+    """AC-TEST-UPLOAD-2 / AC-046-COMMENT-1/-2: 1D filename routing with K-046 invariants."""
     client = make_client()
-    monkeypatch.setattr("main.HISTORY_1D_PATH", tmp_path / "Binance_ETHUSDT_d.csv")
+    import main
+
+    history_file = tmp_path / "Binance_ETHUSDT_d.csv"
+    history_file.write_text(
+        "date,open,high,low,close\n"
+        "2020-01-01,1000.0,1100.0,950.0,1050.0\n"
+    )
+    monkeypatch.setattr("main.HISTORY_1D_PATH", history_file)
+
+    pre_mtime_ns = history_file.stat().st_mtime_ns
+    pre_size = history_file.stat().st_size
+    pre_bytes = history_file.read_bytes()
+    pre_len_1d = len(main._history_1d)
+    pre_id_1d = id(main._history_1d)
 
     response = client.post(
         "/api/upload-history",
@@ -67,6 +112,14 @@ def test_upload_1d_filename_detection(make_client, monkeypatch, tmp_path):
     assert response.status_code == 200
     body = response.json()
     assert body["timeframe"] == "1D"
+    # K-046 invariants on 1D branch
+    assert body["added_count"] == 0
+    assert body["bar_count"] == pre_len_1d
+    assert history_file.stat().st_mtime_ns == pre_mtime_ns
+    assert history_file.stat().st_size == pre_size
+    assert history_file.read_bytes() == pre_bytes
+    assert len(main._history_1d) == pre_len_1d
+    assert id(main._history_1d) == pre_id_1d
 
 
 # ---------------------------------------------------------------------------
@@ -87,8 +140,25 @@ def test_upload_empty_file_returns_422(make_client):
 # ---------------------------------------------------------------------------
 
 def test_upload_duplicate_bars_added_count_zero(make_client, monkeypatch, tmp_path):
+    """AC-TEST-UPLOAD-4 / AC-046-COMMENT-1/-2: duplicate upload K-046 invariants.
+
+    Note: before K-046, added_count was 0 because _merge_bars dedup kept the same
+    bars. Post-K-046 it is 0 unconditionally. Augment with mtime + len + id.
+    """
     client = make_client()
-    monkeypatch.setattr("main.HISTORY_1H_PATH", tmp_path / "Binance_ETHUSDT_1h.csv")
+    import main
+
+    history_file = tmp_path / "Binance_ETHUSDT_1h.csv"
+    history_file.write_text(
+        "date,open,high,low,close\n"
+        "2020-01-01 00:00,1000.0,1100.0,950.0,1050.0\n"
+    )
+    monkeypatch.setattr("main.HISTORY_1H_PATH", history_file)
+
+    pre_mtime_ns = history_file.stat().st_mtime_ns
+    pre_bytes = history_file.read_bytes()
+    pre_len = len(main._history_1h)
+    pre_id = id(main._history_1h)
 
     client.post(
         "/api/upload-history",
@@ -100,6 +170,118 @@ def test_upload_duplicate_bars_added_count_zero(make_client, monkeypatch, tmp_pa
     )
     assert response.status_code == 200
     assert response.json()["added_count"] == 0
+    # K-046 invariants
+    assert history_file.stat().st_mtime_ns == pre_mtime_ns
+    assert history_file.read_bytes() == pre_bytes
+    assert len(main._history_1h) == pre_len
+    assert id(main._history_1h) == pre_id
+
+
+# ---------------------------------------------------------------------------
+# AC-046-QA-2: reversibility guard — strictly-later bars must NOT mutate state
+# (This test FAILS if the K-046 write block is ever accidentally uncommented)
+# ---------------------------------------------------------------------------
+
+STRICTLY_LATER_1H_CSV = (
+    "date,open,high,low,close\n"
+    "2099-12-30 22:00,9000.0,9100.0,8950.0,9050.0\n"
+    "2099-12-30 23:00,9050.0,9150.0,9000.0,9100.0\n"
+    "2099-12-31 00:00,9100.0,9200.0,9050.0,9150.0\n"
+)
+
+
+def test_upload_strictly_later_bars_no_mutation(make_client, monkeypatch, tmp_path):
+    """AC-046-QA-2 reversibility guard.
+
+    Given N existing bars + CSV with M strictly-later bars (timestamps > all
+    existing). If the write block were active, merged would have N+M entries
+    and disk would be rewritten. Post-K-046: added_count == 0, state + disk
+    byte-identical.
+    """
+    client = make_client()
+    import main
+
+    history_file = tmp_path / "Binance_ETHUSDT_1h.csv"
+    history_file.write_text(
+        "date,open,high,low,close\n"
+        "2020-01-01 00:00,1000.0,1100.0,950.0,1050.0\n"
+    )
+    monkeypatch.setattr("main.HISTORY_1H_PATH", history_file)
+
+    pre_mtime_ns = history_file.stat().st_mtime_ns
+    pre_bytes = history_file.read_bytes()
+    pre_len = len(main._history_1h)
+    pre_id = id(main._history_1h)
+    # Sanity: every uploaded timestamp must be strictly later than max existing
+    max_existing = max(b["date"] for b in main._history_1h)
+    assert max_existing < "2099-12-30"
+
+    response = client.post(
+        "/api/upload-history",
+        files={
+            "file": (
+                "Binance_ETHUSDT_1h.csv",
+                STRICTLY_LATER_1H_CSV.encode(),
+                "text/csv",
+            )
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["added_count"] == 0  # honest reporting — NOT 3
+    assert body["bar_count"] == pre_len  # reads existing, NOT merged (which would be pre_len+3)
+    # File + module state untouched
+    assert history_file.stat().st_mtime_ns == pre_mtime_ns
+    assert history_file.read_bytes() == pre_bytes
+    assert len(main._history_1h) == pre_len
+    assert id(main._history_1h) == pre_id
+
+
+# ---------------------------------------------------------------------------
+# AC-046-QA-4: example CSV fixture round-trip
+# ---------------------------------------------------------------------------
+
+def test_upload_example_csv_fixture_round_trip(make_client, monkeypatch, tmp_path):
+    """AC-046-QA-4: the example CSV shipped at frontend/public/examples/
+    must parse successfully through /api/upload-history (catches BOM/CRLF/
+    column-reorder drift on the static asset).
+    """
+    client = make_client()
+    import main
+
+    # Resolve relative to this test file: backend/tests/test_main.py → repo root
+    example_path = (
+        Path(__file__).resolve().parent.parent.parent
+        / "frontend"
+        / "public"
+        / "examples"
+        / "ETHUSDT_1h_test.csv"
+    )
+    assert example_path.exists(), f"example fixture missing: {example_path}"
+    example_bytes = example_path.read_bytes()
+    assert len(example_bytes) == 646, f"expected 646B fixture, got {len(example_bytes)}B"
+
+    history_file = tmp_path / "Binance_ETHUSDT_1h.csv"
+    history_file.write_text(
+        "date,open,high,low,close\n"
+        "2020-01-01 00:00,1000.0,1100.0,950.0,1050.0\n"
+    )
+    monkeypatch.setattr("main.HISTORY_1H_PATH", history_file)
+    pre_mtime_ns = history_file.stat().st_mtime_ns
+
+    response = client.post(
+        "/api/upload-history",
+        files={"file": ("ETHUSDT_1h_test.csv", example_bytes, "text/csv")},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["timeframe"] == "1H"  # not 1D — `1h` substring wins
+    assert body["added_count"] == 0
+    # Parse succeeded with ≥5 OHLCV bars (verify directly via helper)
+    parsed = main._parse_csv_history_from_text(example_bytes.decode("utf-8"))
+    assert len(parsed) >= 5
+    # File untouched (K-046 invariant)
+    assert history_file.stat().st_mtime_ns == pre_mtime_ns
 
 
 # ---------------------------------------------------------------------------

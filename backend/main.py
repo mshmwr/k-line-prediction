@@ -157,21 +157,24 @@ async def upload_history_file(file: UploadFile = File(...)):
 
     original_count = len(existing)
     merged = _merge_bars(existing, new_bars)
-    added_count = len(merged) - original_count
+    added_count_local = len(merged) - original_count  # noqa: F841 — retained for K-047 revert
 
-    if added_count > 0:
-        _save_history_csv(merged, target_path)
-        if is_1d:
-            _history_1d = merged
-        else:
-            _history_1h = merged
+    # TODO(K-047): re-enable upload-driven DB write once auto-scraper lands.
+    # Commented-out 2026-04-24 per K-046 to prevent anonymous public writes
+    # to authoritative history DB. Restore by uncommenting the block below.
+    # if added_count_local > 0:
+    #     _save_history_csv(merged, target_path)
+    #     if is_1d:
+    #         _history_1d = merged
+    #     else:
+    #         _history_1h = merged
 
-    latest = merged[-1]['date'] if merged else None
+    latest = existing[-1]['date'] if existing else None
     return {
         'filename': target_path.name,
         'latest': latest,
-        'bar_count': len(merged),
-        'added_count': added_count,
+        'bar_count': len(existing),
+        'added_count': 0,
         'timeframe': '1D' if is_1d else '1H',
     }
 
