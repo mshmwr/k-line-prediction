@@ -259,7 +259,10 @@ def test_upload_example_csv_fixture_round_trip(make_client, monkeypatch, tmp_pat
     )
     assert example_path.exists(), f"example fixture missing: {example_path}"
     example_bytes = example_path.read_bytes()
-    assert len(example_bytes) == 646, f"expected 646B fixture, got {len(example_bytes)}B"
+    # K-046 Phase 2: fixture refreshed to 24-row 12-col Binance raw klines
+    # (headerless, microseconds Unix timestamps). Old 7-line / 646B fixture
+    # failed parseOfficialCsvFile with OFFICIAL_ROW_COUNT=24 (see ticket B2).
+    assert len(example_bytes) == 3926, f"expected 3926B fixture, got {len(example_bytes)}B"
 
     history_file = tmp_path / "Binance_ETHUSDT_1h.csv"
     history_file.write_text(
