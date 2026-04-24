@@ -1,6 +1,6 @@
 # K-Line Prediction
 
-**Harness engineering for AI coding agents — six agents, one human operator, 40+ shipped tickets. Public persona excerpts in [`docs/agents/`](./docs/agents/).**
+**Harness engineering for AI coding agents — six agents, one human operator, 40+ shipped tickets. Ten representative rules with their originating bugs in [`docs/agents-ruleset-highlights.md`](./docs/agents-ruleset-highlights.md).**
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://k-line-prediction-app.web.app)
 [![Frontend](https://img.shields.io/badge/Frontend-TypeScript%20%2B%20React%20%2B%20Vite-3178C6?logo=typescript)](https://vitejs.dev/)
@@ -23,7 +23,7 @@
 
 *Captured at SHA [`80e12d7`](https://github.com/mshmwr/K-Line-Prediction/commit/80e12d7) (v1) and [`058699b`](https://github.com/mshmwr/K-Line-Prediction/commit/058699b) (v2) on 2026-04-24, viewport 1440×900, scroll position 0.*
 
-One human operator redesigned and shipped a 5-page portfolio site using a team of six AI agents — Product Manager, Architect, Engineer, Reviewer, QA, Designer — coordinated by per-role personas whose rules were each written after a specific ticket incident. 40+ tickets were driven through the pipeline. The output: a redesigned, deployed site; a ruleset where each rule names the bug it was written to prevent; and this README, which itself triggered a new rule before shipping. Public excerpts of each persona live in [`docs/agents/`](./docs/agents/); full personas live in private Claude Code config.
+One human operator redesigned and shipped a 5-page portfolio site using a team of six AI agents — Product Manager, Architect, Engineer, Reviewer, QA, Designer — coordinated by per-role personas whose rules were each written after a specific ticket incident. 40+ tickets were driven through the pipeline. The output: a redesigned, deployed site; a ruleset where each rule names the bug it was written to prevent; and this README, which itself triggered a new rule before shipping. Ten representative rules with their originating bugs are listed in [`docs/agents-ruleset-highlights.md`](./docs/agents-ruleset-highlights.md); full personas live in private Claude Code config.
 
 **Stack:** React + TypeScript, FastAPI + Python, Playwright + Vitest, Firebase Hosting + Cloud Run.
 
@@ -76,7 +76,7 @@ Beyond serving as a portfolio, the deployed site predicts short-term ETH/USDT pr
 
 ## Further reading
 
-- [docs/agents/](./docs/agents/) — abridged persona excerpts (6 roles, 5–6 rules each, originating ticket cited per rule)
+- [docs/agents-ruleset-highlights.md](./docs/agents-ruleset-highlights.md) — ten representative rules, each tagged with owning role and originating ticket
 - [docs/ai-collab-protocols.md](./docs/ai-collab-protocols.md) — role pipeline, Bug Found Protocol, Content-Alignment Gate
 - [docs/tickets/](./docs/tickets/) — 40+ tickets with PRD, AC, and retrospectives
 - [docs/retrospectives/](./docs/retrospectives/) — per-role cumulative learning log
