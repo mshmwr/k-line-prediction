@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-041",
+    "title": "/diary mobile rail and marker restore via shared-component mobileVisible prop",
+    "date": "2026-04-24",
+    "text": "K-041 closed — /diary mobile rail and marker restored via shared DiaryRail/DiaryMarker components with mobileVisible + borderRadius + topInset props; Homepage K-023/K-028 Sacred invariants preserved via explicit prop overrides."
+  },
+  {
     "ticketId": "K-039",
     "title": "Split SSOT for /about role cards",
     "date": "2026-04-24",
