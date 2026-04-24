@@ -126,14 +126,19 @@ Update steps:
 
 Must run before deploy:
 
-1. **Scan all relative API paths** — confirm all HTTP clients (`fetch`, `axios`, etc.) use `API_BASE` prefix:
+1. **Verify main is synced with all ticket branches** — main must contain every deployed-but-unmerged ticket before any new deploy:
+   ```bash
+   git branch --no-merged main | grep -E "^\s*K-[0-9]+" || echo "OK: all ticket branches merged"
+   ```
+   Any K-XXX branch listed → merge (FF rebase) into main first. Deploy from main without this check can overwrite a previously-deployed ticket's bundle (incident: K-041 self-overwrite 2026-04-24).
+2. **Scan all relative API paths** — confirm all HTTP clients (`fetch`, `axios`, etc.) use `API_BASE` prefix:
    ```bash
    grep -r "'/api/" src/
    grep -r '"/api/' src/
    ```
    Any bare relative path → fix before build
-2. **build** — `npm run build` (in `frontend/` directory)
-3. **deploy** — `firebase deploy --only hosting` (in project root)
+3. **build** — `npm run build` (in `frontend/` directory)
+4. **deploy** — `firebase deploy --only hosting` (in project root)
 
 ## Frontend Page Implementation Checklist
 
