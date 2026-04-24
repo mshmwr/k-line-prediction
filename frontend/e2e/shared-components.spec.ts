@@ -177,3 +177,68 @@ test.describe('AC-034-P1 — Footer toMatchSnapshot() baselines per route', () =
     })
   }
 })
+
+// ── AC-045-FOOTER-WIDTH-PARITY ────────────────────────────────────────────────
+// K-045 (2026-04-24) — Footer full-bleed preserved across /about container migration
+// + cross-route pairwise width diff ≤ 2px regression gate (mirrors K-040 pairwise rule).
+// Given: K-034 Phase 1 Sacred + K-040 Footer pairwise width ≤2px.
+// When:  /about container migration lands (SectionContainer retired, per-section
+//        inline max-w-[1248px]).
+// Then:  Footer element is NOT a descendant of the 1248 wrapper (must remain root
+//        sibling, full-bleed at viewport width); width parity across 3 routes ≤ 2px.
+
+test.describe('AC-045-FOOTER-WIDTH-PARITY — Footer full-bleed + cross-route pairwise diff', () => {
+  const pairwiseRoutes = ['/', '/about', '/diary'] as const
+
+  test('T18 — Footer is NOT descendant of max-w-[1248px] wrapper on /about (full-bleed)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/about')
+    const footer = page.locator('footer').last()
+    await expect(footer).toBeVisible()
+
+    // Footer width MUST equal viewport width (not capped at 1248)
+    const measure = await footer.evaluate(el => {
+      const r = el.getBoundingClientRect()
+      // Walk up ancestors — Footer MUST NOT have an ancestor with a max-w-[1248px] computed max-width
+      let ancestor: HTMLElement | null = el.parentElement
+      let hasCappedAncestor = false
+      while (ancestor) {
+        const s = window.getComputedStyle(ancestor)
+        // computed max-width of 1248 (or 1232, etc. near-range) = capped ancestor
+        if (s.maxWidth && s.maxWidth !== 'none' && s.maxWidth !== '100%') {
+          const maxW = parseFloat(s.maxWidth)
+          if (!Number.isNaN(maxW) && maxW > 0 && maxW <= 1300) {
+            hasCappedAncestor = true
+            break
+          }
+        }
+        ancestor = ancestor.parentElement
+      }
+      return { width: r.width, hasCappedAncestor }
+    })
+    expect(measure.hasCappedAncestor, 'Footer must NOT be descendant of max-w-[1248px] wrapper').toBe(false)
+    expect(measure.width).toBeGreaterThanOrEqual(1278)
+    expect(measure.width).toBeLessThanOrEqual(1282)
+  })
+
+  for (const vp of [
+    { w: 1280, h: 800, label: '1280×800' },
+    { w: 1440, h: 900, label: '1440×900' },
+    { w: 375, h: 667, label: '375×667' },
+  ] as const) {
+    test(`T19 — @${vp.label}: Footer width pairwise diff across ${pairwiseRoutes.join(', ')} ≤ 2px`, async ({ page }) => {
+      await page.setViewportSize({ width: vp.w, height: vp.h })
+      const widths: Record<string, number> = {}
+      for (const route of pairwiseRoutes) {
+        await mockApis(page)
+        await page.goto(route)
+        const footer = page.locator('footer').last()
+        await expect(footer).toBeVisible()
+        widths[route] = await footer.evaluate(el => el.getBoundingClientRect().width)
+      }
+      const values = Object.values(widths)
+      const maxDiff = Math.max(...values) - Math.min(...values)
+      expect(maxDiff, `Footer pairwise widths @${vp.label}: ${JSON.stringify(widths)}`).toBeLessThanOrEqual(2)
+    })
+  }
+})
