@@ -16,6 +16,16 @@
 
 ---
 
+## 2026-04-24 — K-039 Phase 2 + Phase 3 close (generator + hook + persona codify)
+
+**做得好：** Phase 2 generator (`scripts/sync-role-docs.mjs`) 設計為冪等（clean tree 跑 write mode 零 diff）+ `--check` 模式獨立 exit code，讓 pre-commit hook 能 fast-exit（只在 SSOT-bound path staged 時才 invoke generator），避免 docs-only commit 被 hook 卡住。遇到首輪 `--check` 撞 separator 差異（`|------|------|----------|` vs generator canonical `|---|---|---|`）時，沒有硬改 generator 去兼容兩種 separator（那會留 permanent 2-path 分支），而是跑 write mode 一次 canonical 化再獨立 commit，保留 audit trail。Phase 3 persona edit 三檔（pm / engineer / designer）同 session 改完，每檔依 role 語氣落地 — PM 擴原 §visual-delta gate 為雙軸 gate + handoff line；Engineer 加 Step 0e 獨立 section + Step 0c 加註記；Designer 在 Frame Artifact Export 下加 frozen-at-session section + pre-batch_design grep re-sync 規則。不是複製同一段貼三次，每檔都對應該 role 的 trigger point。AC-039-P2-DOGFOOD-FLIP 完整跑：flip JSON → `--check` 紅 → hook 擋 commit → regenerate → green → revert，全程零 Designer session。
+
+**沒做好：** `git config core.hooksPath .githooks` 自動啟用被權限系統擋（unauthorized persistence / agent-enabled hook installation），沒有預期到這個 guardrail。根因：hook 類改動跨「repo 設定」而非「repo 內容」，我直覺當成純 local config 修改，沒考慮 agent 環境的 persistence 限制。補救是在 hook 檔頭寫 activation 步驟 + 在 commit message 註明 per-clone 手動指令，但如果一開始就知道，會先把 activation 指令寫進 ticket §Release Status 而不是卡到被擋才補。
+
+**下次改善：** 牽涉 `git config` / `git hooks` / shell rc / cron 等「持久化外於 repo」的動作時，commit 前先確認：(a) 這個動作是不是 per-clone 一次性，如果是 → 預設寫進文件而非自動執行；(b) 即使自動執行合法，也要在 ticket §Release Status 留一行 manual fallback 指令供 human 讀票後啟用。落為 engineer persona 對應 hook / git config / shell rc / cron 類改動的硬 step，或補進 `feedback_external_service_bug_diagnosis.md` 類 memory（尚未落地，留下次遇到再決）。
+
+---
+
 ## 2026-04-24 — K-039 Phase 1.5 (SSOT format neutralization — TS → JSON at content/roles.json)
 
 **做得好：** 用戶 BQ 提出「SSOT 應為語言中性」後，直接做出最小 surface 的遷移：content/roles.json 新增於 repo 根（與 docs/、frontend/、backend/ 平行），原 roles.ts 保留為薄 type wrapper（RoleEntry + re-export），React runtime 的 import path 完全不變（`./roles`），避免觸動 RoleCardsSection.tsx。遇到 Playwright 1.32 Node-ESM loader 不收 `with { type: 'json' }` import attribute 時，沒有升級 Playwright 或硬塞 Vite plugin（那會把 tool-chain 複雜度往下游推），而是讓 spec 端改走 fs.readFileSync 直讀 JSON — 把「React 能 render JSON」的綁定留給既有 about.spec 的 rendered-DOM 斷言（AC-017-ROLES / AC-022-ROLE-GRID-HEIGHT / AC-034-P2-FILENOBAR-VARIANTS），三條斷言本來就在跑、本來就 green，等於零新增覆蓋缺口。FAIL-IF-GATE-REMOVED 在新 JSON path 上重跑一次（drift 2 fail / revert 4 pass）證明遷移後的監控力與 Phase 1 原 TS 版完全對等。Vite `server.fs.allow: ['..']` 一行配置解決跨目錄 import 權限，沒有搬目錄結構。

@@ -14,6 +14,14 @@
 
 - 倒序（最新在上）
 
+## 2026-04-24 — K-039 Phase 3（split-SSOT 規則落地 designer.md）
+
+**做得好：** 本 ticket 最終 content-delta: yes / visual-delta: none 全程 **未召喚 Designer**，符合 split-SSOT pattern 預期 — Phase 3 codification 把這個規則同時寫進 pm.md / engineer.md / designer.md 三支 persona，Designer 本人這端在 `~/.claude/agents/designer.md §Frame Artifact Export` 新增 "Text fields are frozen-at-session snapshots (K-039 2026-04-24 split-SSOT)" 子節，明確宣告 Pencil 的 content 節點（如 RoleCard 的 `r*Role` / `r*Owns` / `r*Art`）只是「上一次 Designer session 當下凍結的文字」，**runtime SSOT 是 `content/roles.json`**，非 Pencil — 下次 Designer 被召喚時 Step 0 有 `grep content/*.json <field-name>` re-sync gate 先看文字真相再動 Pencil，不會再把過期 `.pen` 當文字權威。
+**沒做好：** K-039 整張票 Designer 沒被召喚（by design），所以本次沒有實地執行新 gate 的機會 — 規則等於「用例未跑過」就 landed，下個觸發 `visual-delta: yes` **且** 有 text node 的 Designer ticket（Hero slogan / PillarCard / TicketAnatomyCard / metric 標籤等）才會第一次實測 grep `content/*.json` 與 batch_design 前後節點 re-sync 順序是否真的卡住 creative extension。規則本身未被壓力測試是本輪盲點。
+**下次改善：** 下次 Designer dispatch 若 ticket 涉及任何帶文字的 frame（含 slogan / tagline / card label / section title），**Step 0 強制**先 `ls content/` + `grep -l <text>` 找出對應 JSON，Read 完 JSON 再 batch_design — 若 Pencil 節點 content 與 JSON 不一致，**停下回報 PM 走 BQ**，不 silently 以 Pencil 覆蓋 JSON、也不 silently 以 JSON 覆蓋 Pencil；同時 self-prompt 一句「若這支 ticket frontmatter 是 content-delta: yes / visual-delta: none，我根本不該被召喚 — 是 PM 分派錯誤，先回報、再確認是否真要開 Designer session」。對應 memory：`feedback_content_ssot_split.md`；persona 落地點：`~/.claude/agents/designer.md §Frame Artifact Export §Text fields are frozen-at-session snapshots`。
+
+---
+
 ## 2026-04-23 — K-034 Phase 3 BQ-034-P3-02（/diary Footer SSOT 裁決）
 
 **做得好：** 先跑 Pencil MCP `batch_get` 對 `86psQ` + `1BGtd` 的完整節點樹，確認兩 frame 內容 byte-identical（同 content / fontFamily / fontSize / fontWeight / fill / letterSpacing / padding / stroke），再交叉核對 on-disk JSON spec 的 mtime（2026-04-21 match live `.pen`），有 evidence 才裁決 Option B，不憑印象跳結論。

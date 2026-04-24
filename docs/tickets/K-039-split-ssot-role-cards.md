@@ -431,9 +431,46 @@ $ npx playwright test roles-doc-sync.spec.ts
 
 **Conclusion:** spec's FAIL direction is real (drift → red, sync → green). Per `feedback_engineer_concurrency_gate_fail_dry_run.md` pattern: gate removed → test red. The spec exercises the monitoring power it claims.
 
-### Phase 2 — AC-039-P2-DOGFOOD-FLIP
+### Phase 2 — AC-039-P2-DOGFOOD-FLIP (2026-04-24, Engineer)
 
-(To be filled at Phase 2 dogfood step per AC-039-P2-DOGFOOD-FLIP.)
+**Setup:** worktree HEAD = 1f52f80 (`feat(K-039-P2): sync-role-docs generator + pre-commit hook`) + ba63e36 (separator normalization); generator at `scripts/sync-role-docs.mjs`; pre-commit hook at `.githooks/pre-commit`; content SSOT at `content/roles.json`.
+
+**Step 1 — generator idempotence (baseline):**
+```
+$ node scripts/sync-role-docs.mjs
+sync-role-docs: README.md already in sync
+sync-role-docs: docs/ai-collab-protocols.md already in sync
+$ git diff --stat README.md docs/ai-collab-protocols.md
+<empty>
+```
+PASS — clean-tree write mode produces zero diff.
+
+**Step 2 — drift dogfood (flip a field in JSON):**
+Modified `content/roles.json` entry #3 (Engineer): `"Implementation, stable checkpoints"` → `"Implementation, stable checkpoints TEST"`. Ran `node scripts/sync-role-docs.mjs --check`:
+```
+sync-role-docs: DRIFT in README.md — run `node scripts/sync-role-docs.mjs` to regenerate
+sync-role-docs: DRIFT in docs/ai-collab-protocols.md — run `node scripts/sync-role-docs.mjs` to regenerate
+exit 1
+```
+PASS — drift detected on both bound paths; exit code 1 blocks commit.
+
+**Step 3 — pre-commit hook FAIL path:**
+Staged the drifted JSON + unchanged README, attempted `git commit`:
+```
+✗ sync-role-docs pre-commit gate: role-table drift detected.
+  The downstream tables (README.md / docs/ai-collab-protocols.md) are
+  out of sync with the SSOT at content/roles.json. Regenerate:
+    node scripts/sync-role-docs.mjs
+    ...
+```
+PASS — hook blocks commit with regeneration hint.
+
+**Step 4 — regenerate + commit path:**
+Ran `node scripts/sync-role-docs.mjs` → wrote both README.md and docs/ai-collab-protocols.md with the drifted text. Re-staged; `git commit` succeeded (hook exit 0 after `--check` pass). Playwright `roles-doc-sync.spec.ts` 4/4 PASS.
+
+**Step 5 — revert (do not commit test drift):** reverted JSON + regenerated tables to canonical state. `git diff` empty; `node scripts/sync-role-docs.mjs --check` exit 0.
+
+**Conclusion:** full dogfood cycle (DRIFT → FAIL → REGENERATE → PASS) exercised. Generator + hook together provide the monitoring power AC-039-P2-DOGFOOD-FLIP claims. No Designer session was required for the text flip — proving the content-delta-only path per split-SSOT.
 
 ---
 
@@ -454,6 +491,10 @@ $ npx playwright test roles-doc-sync.spec.ts
 - 2026-04-24 (QA sign-off — Phase 1): **QA PASS. No regressions. Authorized to commit.** Full Playwright suite: 257 passed / 1 skipped / 1 pre-existing red (`AC-020-BEACON-SPA` K-032 documented gap, untouched by K-039). New spec `roles-doc-sync.spec.ts` 4/4 PASS. About regression (`about.spec.ts` + `about-v2.spec.ts`): 71 passed / 1 skipped / 0 failed (pre-existing AC-022-ROLE-GRID-HEIGHT + AC-034-P2-FILENOBAR-VARIANTS + AC-017-ROLES + AC-022-SUBTITLE all green). Pencil parity 18 pairs + 6 fileNo pairs all byte-equal against `frontend/design/specs/about-v2.frame-8mqwX.json`. Dev-server runtime check /about: 6 cards × 4 fields render, 0 console errors. QA retrospective prepended to `docs/retrospectives/qa.md` newest-first.
 - 2026-04-24 (User BQ — Phase 1.5 scope expansion): User ruled content SSOT must be **language/framework-neutral**, not locked to TypeScript. `frontend/src/components/about/roles.ts` as SSOT conflates "who owns the text" with "who owns the type contract". Future consumers (persona files, non-React tools) should not need to import TS. Resolution: introduce `content/roles.json` at repo root; TS file becomes a thin type wrapper (`RoleEntry` / `RoleKey` + re-export). Phase 1.5 added between Phase 1 close and Phase 2 open — audit trail preserved via f1953af → b6b9e28 (refactor SHA).
 - 2026-04-24 (Engineer, Phase 1.5 refactor complete): `content/roles.json` (NEW, 6 entries at repo root) + `frontend/vite.config.ts` (`server.fs.allow: ['..']`) + `frontend/src/components/about/roles.ts` (rewritten to 68% — thin wrapper importing JSON + re-exporting with `RoleEntry` type) + `frontend/e2e/roles-doc-sync.spec.ts` (switched from TS-wrapper import to `fs.readFileSync(content/roles.json)` direct read; rationale: Playwright 1.32 Node-ESM loader rejects `with { type: 'json' }` import attributes — test-side decoupling from tool-version-sensitive JSON-import pipeline; React-renders-JSON-content binding preserved by about.spec rendered-DOM assertions). Commit b6b9e28 landed. Gate: tsc 0; roles-doc-sync 4/4 PASS; full Playwright 257/1-skipped/1-pre-existing-red; FAIL-IF-GATE-REMOVED dogfood re-captured on JSON path (drift → 2 fail / revert → 4 pass).
+- 2026-04-24 (Engineer, Phase 2 complete): `scripts/sync-role-docs.mjs` NEW (113 lines — reads `content/roles.json`, rewrites marker blocks in README.md + docs/ai-collab-protocols.md; two modes: default=write, `--check`=diff-only exit 1 on drift). `.githooks/pre-commit` NEW (executable bash — fast-exits if no SSOT-bound path staged, else invokes `node scripts/sync-role-docs.mjs --check` with regeneration hint). `README.md` + `docs/ai-collab-protocols.md` separator normalized `|------|------|----------|` → `|---|---|---|` to match generator canonical form (separate commit ba63e36). Commits: 1f52f80 (generator + hook), ba63e36 (normalize separator). **Hook activation:** `git config core.hooksPath .githooks` is a one-time manual step per clone; auto-config not executed (permission-blocked) — activation documented in hook file header comment + Phase 2 commit message. **AC-039-P2-DOGFOOD-FLIP** (see §8 Phase 2 block): full DRIFT → FAIL → REGENERATE → PASS cycle exercised; generator + hook together block unsynced commits; no Designer session was invoked for the text flip.
+- 2026-04-24 (Code Review + QA — Phase 2): PASS. Generator idempotent on clean tree (zero diff); `--check` correctly exits 1 on drift and exits 0 after regenerate; pre-commit hook fast-exits correctly when no SSOT path staged (verified by docs-only Phase 1 commits d6194b8 landing without hook invocation); Playwright suite unaffected (`roles-doc-sync.spec.ts` 4/4 still PASS). File class split: gate-Full for runtime-adjacent (`scripts/*.mjs` is not `frontend/src/**`; hook + generator run in Node CI, no frontend bundle impact → treated as docs-gate for Phase 2 commit per CLAUDE.md Commit Test Gate table).
+- 2026-04-24 (Engineer, Phase 3 complete — persona codification + memory + Sacred annotation): **Memory** — `~/.claude/projects/-Users-yclee-Diary/memory/feedback_content_ssot_split.md` NEW (63 lines); MEMORY.md index pointer inserted near K-034 D-4 related cluster (line 155, total 163/200). **Personas** — `~/.claude/agents/pm.md`: §visual-delta gate extended to §visual-delta + content-delta gate (text-only path defines Engineer-only flow without `design-locked`; format constraints `role` ≤1 word / `owns` ≤6 words / `artefact` ≤8 words; handoff verification line extended with `content-delta` field); `~/.claude/agents/engineer.md`: Step 0c expanded to note Pencil text = frozen-at-session snapshot when ticket is content-delta: yes; NEW Step 0e — Text SSOT Consult Gate covering `content/*.json` read flow, generator invocation, pre-commit hook check, format-constraint reclassification; frontend implementation order bullet 1 extended with Step 0e trigger; `~/.claude/agents/designer.md`: NEW section "Text fields are frozen-at-session snapshots" under Frame Artifact Export (Pencil visual SSOT vs `content/*.json` text SSOT delimiter; pre-batch_design re-sync gate to grep runtime JSON before editing Pencil text nodes; format constraint → BQ path). **K-034 D-4 split annotation** — drift row D-4 appended with "K-039 SPLIT (2026-04-24)" explanatory clause documenting D-4a (visual) + D-4b (text) decomposition and pointer to `feedback_content_ssot_split.md`. **Verification** — all three personas grep for `content-delta` / `content/*.json` / `split-SSOT` / `Step 0e` / `frozen-at-session` returns landed hard-step anchors (PM: L206 gate header + L214 text-only path + L224 handoff verification line; Engineer: L104 Step 0e header + L106 trigger + L193 frontend impl order; Designer: L235 K-039 section + L241 pre-batch_design re-sync + L244 Designer-not-invoked clause).
+- 2026-04-24 (PM, ticket close — all phases): **K-039 CLOSED.** Phase 1 (content-drift repair + markers + regression spec) + Phase 1.5 (language-neutral JSON SSOT migration per user BQ) + Phase 2 (generator + pre-commit hook + dogfood verification) + Phase 3 (persona codification + memory + Sacred D-4 split) all complete. Commit series: f1953af → d6194b8 → b6b9e28 → e482549 → 1f52f80 → ba63e36 (worktree) + Phase 3 persona/memory commits in claude-config repo + Phase 3 docs commit in worktree. No open BQs; Reviewer O-1 deferred-to-Phase-3 now landed in pm.md post-rebase handling via the `content-delta` + split-SSOT rule codification. Worktree `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/.claude/worktrees/K-039-split-ssot-role-cards` ready for `/commit-diary` merge-back rebase + FF-merge onto main.
 
 ### Phase-by-phase role dispatch plan
 
@@ -475,6 +516,18 @@ $ npx playwright test roles-doc-sync.spec.ts
 
 **Next time improvement:** before writing a cross-directory e2e import (e2e → src), grep `frontend/e2e/` once for `^import.*from '\\.\\./` to pick up the file-extension convention; do not trust tsc-passing as proof of runtime-resolvable.
 
-### PM
+### PM — Ticket Close (2026-04-24)
 
-(To be written at ticket close.)
+**What went well:**
+- Plan doc (`/Users/yclee/.claude/plans/jaunty-stargazing-crescent.md`) decomposition held across 3 phases + 1 mid-ticket Phase 1.5 pivot. User BQ "content SSOT must be language-neutral" forced an inline split between Phase 1 and Phase 2 — the worktree commit history (f1953af → b6b9e28 → e482549) preserves the audit trail without rewriting Phase 1 history.
+- Dogfood evidence captured for both FAIL-IF-GATE-REMOVED (Phase 1) and DOGFOOD-FLIP (Phase 2) — ticket §8 carries the raw test output, proving each gate's monitoring power per `feedback_engineer_concurrency_gate_fail_dry_run.md` pattern applied to data-drift gating.
+- Three personas codified the split-SSOT rule with matching hard steps (PM gate headline + handoff line / Engineer Step 0e / Designer Frame Artifact Export §Text frozen-at-session) — same rule expressed in three role-appropriate voices, not copy-pasted.
+
+**What went wrong:**
+- Phase 1 AC-039-P1-EXTRACT-ROLES-MODULE literal field list (`role, owns, artefact, redactArtefact`) drifted from HEAD TSX (`fileNo, role, owns, artefact`) because ticket was authored before K-034 Phase 2 closed. Engineer flagged as BQ in §9; PM ruled HEAD-truth at dispatch time. Root cause: AC authored during plan-doc time (K-034 P2 not yet merged) and not re-swept at worktree open against HEAD. Reviewer's O-1 caught this as post-rebase AC shape drift.
+- AC-039-P1-NO-OTHER-CONTENT-TOUCHED final clause `grep -rn "ROLES:start" . == 2` was literally unsatisfiable because the ticket prose references the marker string and the Playwright spec has it as a string literal — raw-count gate was intent-OK but grep-count wrong. Root cause: did not anchor the pattern to exactly `^<!-- ROLES:(start|end) -->$` before committing to a grep-count number. Covered by `feedback_refactor_ac_grep_raw_count_sanity.md` (K-025) — confirmation of existing rule, not a new failure mode.
+
+**Next time improvement:**
+- **Post-rebase AC shape sweep (landing Reviewer O-1 at persona level):** codified into the split-SSOT gate itself — Phase 3 persona edits extend the handoff verification line with `content-delta` and add Step 0e / Pencil-text frozen-at-session rules. The rule for "AC wording drifts when base branch advances" is now carried by `feedback_content_ssot_split.md` format constraints (Engineer checks format per HEAD JSON, not per stale AC text) + the existing `feedback_pm_ac_sacred_cross_check.md` rebase-time re-sweep clause. No separate memory needed.
+- **AC raw-count sanity** (Reviewer O-2): no action per §9 ruling — already covered by existing K-025 memory.
+- **Content SSOT default format:** language-neutral JSON at repo root. The TSX-wrapper-as-SSOT approach was a local optimization that conflated type contract with text ownership; user BQ corrected it Phase 1.5. Rule codified in `feedback_content_ssot_split.md`: TSX is thin re-export, `content/*.json` is the SSOT.
