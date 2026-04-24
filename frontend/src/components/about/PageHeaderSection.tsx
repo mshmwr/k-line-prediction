@@ -9,12 +9,16 @@
  *
  * Hero h1 has two <span className="block"> children so each line wraps independently and
  * preserves line-height 1.05 per Pencil (ttl1/ttl2).
+ *
+ * K-045 (2026-04-24) — dropped outer `py-20`. Vertical rhythm now owned by the
+ * parent <section id="header"> wrapper (pt-8 sm:pt-[72px]) per AboutPage.tsx
+ * Option C per-section container pattern. Inner gap-[18px] unchanged.
  */
 import PageHero from '../shared/PageHero'
 
 export default function PageHeaderSection() {
   return (
-    <div className="py-20 flex flex-col gap-[18px]">
+    <div className="flex flex-col gap-[18px]">
       <PageHero
         desktopSize={52}
         lines={[
