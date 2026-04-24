@@ -4,6 +4,7 @@ WORKDIR /frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ .
+COPY docs/ai-collab-protocols.md /docs/ai-collab-protocols.md
 RUN npm run build
 
 # Stage 2: Python backend + serve static
