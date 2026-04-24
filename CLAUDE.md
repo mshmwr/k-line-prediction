@@ -46,6 +46,7 @@ Every ticket (K-XXX) must be worked in its own worktree under `.claude/worktrees
 - **Docs-only tickets:** still require worktree. PRD / dashboard / retro edits are WIP until the ticket closes.
 - **Merge-back:** `/commit-diary` Step 8 auto-rebases onto latest main + FF-merges after ticket close. Do not manually commit to main during ticket work.
 - **Violation marker:** `git status` on main repo root showing ticket-scoped modified files = worktree gate bypass; PM must halt, migrate changes into worktree, reset main before continuing.
+- **Main direct-commit exception (meta edits only):** retrospective-driven rule / memory / persona edits to `CLAUDE.md`, `~/.claude/agents/*.md`, or `~/.claude/projects/*/memory/*.md` may commit directly to main without a ticket worktree. Pre-flight gate: run `git worktree list` before the edit — if any active K-XXX worktree exists, check whether the edit could affect that ticket's in-flight work; affected → defer until ticket closes or route through a separate worktree; not affected → direct commit OK. Applies to meta edits only; ticket code/docs still follow the rule above.
 
 ### Per-Role Retrospective Logs (enabled from K-008)
 
