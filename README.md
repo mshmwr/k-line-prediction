@@ -10,12 +10,10 @@
 
 ## Before & After
 
-**→ Try it live: [k-line-prediction-app.web.app](https://k-line-prediction-app.web.app)**
-
 <table>
 <tr>
-<td><img src="./docs/images/readme/homepage-v1-80e12d7.png" width="360" alt="Homepage before the redesign (pre-K-017): basic single-column layout, no design system." /></td>
-<td><img src="./docs/images/readme/homepage-v2-058699b.png" width="360" alt="Homepage after the redesign (K-017 v2): sitewide design system, typography tokens, polished hero." /></td>
+<td><img src="./docs/images/readme/homepage-v1-80e12d7.png" width="360" height="225" alt="Homepage before the redesign (pre-K-017): basic single-column layout, no design system." /></td>
+<td><img src="./docs/images/readme/homepage-v2-058699b.png" width="360" height="225" alt="Homepage after the redesign (K-017 v2): sitewide design system, typography tokens, polished hero." /></td>
 </tr>
 <tr>
 <td><strong>Before</strong> — basic single-column layout, no design system.</td>
