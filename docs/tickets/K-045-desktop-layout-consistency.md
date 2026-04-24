@@ -195,6 +195,29 @@ All BQs RESOLVED; no OPEN / DEFERRED-TO-TD. Closure count: **6 RESOLVED, 0 DEFER
 
 TD-K045-01 (`PageContainer` primitive extraction for future Home/Diary/About parity) — optional follow-up flagged by Architect in design §5.1; PM decision: **not filed as TD ticket this session** (trigger condition is "Diary gains inner flex wrapper"; no current need; revisit if K-046+ refactors Diary body).
 
+### §5.2a Code Review delivery (completed 2026-04-24)
+
+Code Reviewer (Step 2 depth pass, subsumes Step 1 breadth) returned `docs/reviews/K-045-review.md`. Verdict: **CODE-PASS, MERGE-READY**.
+
+- Track A (AC T1–T19): 19/19 PASS — 15 in `about-layout.spec.ts` + 4 parametric in `shared-components.spec.ts` (T19 × 3 viewports); all assertions mirror Pencil SSOT numerics with correct FAIL direction; no hardcoded sleeps; `{ exact: true }` honoured.
+- Track B (pure-refactor behavior diff): OLD vs NEW truth table (Hero + Body S2–S6 + Root-level DOM); 0 unaccounted divergences; every delta cell maps to an AC or Pencil SOT target.
+- Track C (Sacred 14+ clauses): all preserved; K-031 `#architecture.nextElementSibling === <footer>` confirmed green under Option C per-section root-child pattern.
+- Step 1 breadth: commit hygiene clean (3 commits single-purpose), tsc exit 0, subset Playwright green, token-retire 4-sub-grep all 0 residues in runtime scope, git status clean (only `node_modules` untracked).
+
+Findings: **0 Critical, 1 Warning, 2 Nit** — see §5.2b.
+
+### §5.2b Review Rulings (PM 2026-04-24)
+
+| Finding | Type | Reviewer suggestion | PM ruling | Rationale |
+|---|---|---|---|---|
+| **W-1** — T8 mobile non-overlap assertion `tgBox.y >= h1.bottom - 1` allows 0-gap collapse | Warning (low) | accept-as-is (or TD-K045-02 tighten) | **RESOLVED — accept-as-is** | visual-delta=none; mobile hero rhythm has no Pencil SOT (Pencil 1440 canvas only); desktop T5–T7 locks high-traffic viewport; AC text literal compliant; Engineer can tighten if regression surfaces. No TD filed. |
+| **N-1** — T10 `.first()` implicit single-label assumption at `about-layout.spec.ts:178` | Nit | no-action | **RESOLVED — no-action** | current SectionLabelRow renders exactly one `data-testid="section-label"` per section; parent ID scoping is correct; latent fragility noted for future designers, no action needed today. |
+| **N-2** — T19 Δ=0 is structural invariant under Option C root-child, not fixture coincidence | Nit | no-action (Engineer retro §8 already loaded) | **RESOLVED — no-action** | Engineer retrospective §8 bullet 3 "Invariant proofs belong in spec-file header comments" already documents the cause; cumulative learning captured; not a Sacred violation; no code change required. Future layout-pattern specs expected to inline invariant comments per Engineer "next time improvement" §8. |
+
+**Closure count:** 3 RESOLVED, 0 DEFERRED-TO-TD, 0 OPEN. No Bug Found Protocol 4-step trigger (0 Critical; Warning + Nit = simple PM ruling).
+
+**BQ Closure iteration (`feedback_pm_close_bq_iteration.md`):** `[3 resolved] [0 deferred→TD] [0 open]` — close gate satisfiable at Phase Gate close.
+
 ### §5.3 Handoff check (Engineer release)
 
 ```
@@ -232,7 +255,7 @@ Phase 4 = Docs sync (architecture.md 8 cells per design §X.3) + retrospectives.
 
 ## §6 Next Gate
 
-Engineer Phase 1 implementation → Phase 1 commit gate → Phase 2 visual eyeball → Phase 3 E2E specs + full suite → Phase 4 architecture.md + retrospectives → Code Reviewer (superpowers breadth + reviewer.md depth) → QA regression → PM Phase Gate close → deploy (per K-Line Deploy Checklist 4 steps).
+Engineer Phase 1 implementation → Phase 1 commit gate → Phase 2 visual eyeball → Phase 3 E2E specs + full suite → Phase 4 architecture.md + retrospectives → **Code Reviewer (COMPLETE 2026-04-24 — CODE-PASS, MERGE-READY; 0 Critical / 1 Warning accept-as-is / 2 Nit no-action; see §5.2a + §5.2b)** → **QA regression (RELEASED 2026-04-24 — full Playwright suite, Sacred cross-route parity, AC-020-BEACON-SPA pre-existing flake acknowledged)** → PM Phase Gate close → deploy (per K-Line Deploy Checklist 4 steps).
 
 ## §7 Deploy Record
 
