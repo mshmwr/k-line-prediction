@@ -48,6 +48,15 @@ Every ticket (K-XXX) must be worked in its own worktree under `.claude/worktrees
 - **Violation marker:** `git status` on main repo root showing ticket-scoped modified files = worktree gate bypass; PM must halt, migrate changes into worktree, reset main before continuing.
 - **Main direct-commit exception (meta edits only):** retrospective-driven rule / memory / persona edits to `CLAUDE.md`, `~/.claude/agents/*.md`, or `~/.claude/projects/*/memory/*.md` may commit directly to main without a ticket worktree. Pre-flight gate: run `git worktree list` before the edit — if any active K-XXX worktree exists, check whether the edit could affect that ticket's in-flight work; affected → defer until ticket closes or route through a separate worktree; not affected → direct commit OK. Applies to meta edits only; ticket code/docs still follow the rule above.
 
+### Pre-Worktree Sync Gate (mandatory for every new worktree)
+
+Before `git worktree add` for any new ticket:
+
+1. `git fetch origin main`
+2. `git push origin main` — probe for divergence / protection issues
+3. If push fails → `git branch backup/main-before-<ticket>-<timestamp> main && git pull --rebase origin main && git push origin main` (resolve simple conflicts in place; halt for complex)
+4. Only after local main == remote main: `git worktree add .claude/worktrees/K-XXX-<slug> -b K-XXX-<slug> main`
+
 ### Per-Role Retrospective Logs (enabled from K-008)
 
 Each role agent must **prepend** one entry (newest first) to `docs/retrospectives/<role>.md` before declaring task complete:
