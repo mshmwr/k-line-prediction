@@ -16,6 +16,21 @@
 
 ---
 
+## 2026-04-24 — K-046 Phase 2b — UI restructure + fixture refresh + parseOfficialCsvFile export
+
+**做得好：**
+- **B4 fail-if-gate-removed dry-run 依 persona `feedback_engineer_concurrency_gate_fail_dry_run.md`（延伸到 fixture-guarded parse-layer AC）執行** — `parseOfficialCsvFile.test.ts` PASS 後把 fixture truncate 到 10 rows，重跑測試 → FAIL on `ETHUSDT_1h_test.csv: expected 24 rows, got 10.`（parser-level `OFFICIAL_ROW_COUNT` throw），再復原 24-row 3926B 原狀 PASS。證明 assertion 有 monitoring 力；若 B2 bug 再犯（fixture 破損 / 行數錯），此測試會紅。
+- **Pure-Refactor Behavior Diff for `parseOfficialCsvFile` export：** `L48 function → export function` 是 equivalence-only 改動。簽名 / body / 呼叫者 ( `handleOfficialFilesUpload` L268) 完全不變；Vitest 對 committed 24-row fixture 呼叫 `parseOfficialCsvFile(text, 'ETHUSDT_1h_test.csv')` 回 `rows.length === 24` + each row schema 正確 — 與 internal call 內部觀察到的行為一致。OLD vs NEW 行為差 = ∅。
+
+**沒做好：** full pytest 跑完撞 1 fail：`test_upload_example_csv_fixture_round_trip` 硬編 `assert len(example_bytes) == 646`。這是 Phase 1 AC-046-QA-4 的 byte-count 硬編，fixture 從 646B → 3926B 後必然紅。Architect design doc §10.5 只列了 Playwright T3 的 supersession，沒列對應 backend pytest test 的 byte-count 更新，Engineer 沒在 pre-impl 階段 grep `646` across backend/ 盤點附帶影響。Ticket Phase 2 gate line 570 寫「pytest 70/70 still passes (no backend code change, just re-run)」— 作者假設不需改，但 fixture byte-count 變了是不可避免的 cross-file 影響。更新 `646 → 3926` + 加 K-046 Phase 2 註解後復綠；assertion 意義（「fixture 存在於預期 size」）不變，屬「pure selector / syntax upgrade」類 edit directly（非 assertion semantics change → 無需 PM 升級）。
+
+**下次改善：**
+- fixture / 共用常數 / API schema 變更時，pre-impl 盤點指令增一條：`grep -rn "<OLD_CONSTANT>" backend/ frontend/src/ frontend/e2e/ frontend/public/` — 找出所有硬編該常數的文件，同 commit 一起改，避免 Phase 1 留下的 hard-coded byte-count 在 Phase 2 變成 false-positive regression。
+- Architect design doc 若列了 frontend spec 的 supersession 條目（如 T3 removed），Engineer 需在 pre-impl 階段 grep `backend/tests/` 檢查是否有 backend pytest 鏡像測試（本 case：`test_upload_example_csv_fixture_round_trip` 即 pytest 版 AC-046-QA-4），把它也加入 affected-file 清單或回 Architect 補登。
+- 另確認的 pre-existing 測試失敗：`frontend/src/__tests__/diary.legacy-merge.test.ts` word-count 33 < 50 — root cause commit `f24b9d7` "data(diary): rewrite all entries as short summaries"，非 K-046 Phase 2 regression。K-046 Phase 2b 不修（不在 ticket scope），但在交付報告中 flag 給 PM 以免誤判。
+
+---
+
 ## 2026-04-24 — K-046 comment out upload-history write + add example CSV download
 
 **做得好：** AC-046-QA-2 reversibility dry-run 按 `feedback_engineer_concurrency_gate_fail_dry_run.md` 執行 — 暫時把 write block 重新 uncomment 跑 `test_upload_strictly_later_bars_no_mutation`，確認在 mtime_ns 層失敗（`1777018279835857474 != 1777018278297934393`），證明斷言有實際 monitoring 力，再 re-comment 確認 PASS。此斷言若省略「寫 block 暫時恢復」這步就會變成永恆成立的空話（K-046 的 write block 一旦被無意識 uncomment，沒有這個測試就沒有守門人）。

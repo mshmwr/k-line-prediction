@@ -13,7 +13,7 @@ size: small
 visual-delta: yes
 content-delta: yes
 design-locked: N/A
-qa-early-consultation: docs/retrospectives/qa.md 2026-04-24 K-046
+qa-early-consultation: docs/retrospectives/qa.md 2026-04-24 K-046 Phase 2 (QA proxy by PM, 5 challenges)
 dependencies: []
 sacred-regression: [K-009 MA99 1H→1D history path, K-013 stats contract cross-layer]
 ---
@@ -371,7 +371,23 @@ Ruled 2026-04-24 after ingesting Reviewer Step 1 breadth + Step 2 depth + QA reg
 
 ## Retrospective
 
-### Engineer (2026-04-24)
+### Engineer (2026-04-24) — Phase 2b
+
+**AC judgments that were wrong:** 無 — 6 Phase 2 AC 解讀 + 3 Architect ruling（REMOVE / export-add / 3 testid）全按 design §2–§5 落地，Vitest + Playwright + pytest 全綠後未發現 AC 誤判。
+
+**Edge cases not anticipated:** `backend/tests/test_main.py::test_upload_example_csv_fixture_round_trip` 硬編 `assert len(example_bytes) == 646`。Fixture 從 646B refresh 到 3926B 後（Action 2）必然紅 — 這是 Phase 1 AC-046-QA-4 的 pytest 鏡像，ticket §Phase 2 Scope 沒列、design doc §10.5 只列了 Playwright T3 但沒列其 pytest 對映。Pre-impl 階段未 grep `646` across backend/，Action 2 (cp fixture) 完成後才在 pytest gate 被捕。更新 `646 → 3926` + K-046 Phase 2 註解後綠；assertion 意義不變（"fixture exists at expected size"），屬 pure constant-upgrade，Edit directly 不回 PM 升級。
+
+**Next time improvement:** Fixture / 共用常數變更前，pre-impl 盤點步加一條 grep：`grep -rn "<OLD_BYTES>" backend/ frontend/src/ frontend/e2e/`，把所有硬編該 byte-count 的 test 一起盤入 affected-file 清單。已寫入 `docs/retrospectives/engineer.md 2026-04-24 K-046 Phase 2b` cumulative log。
+
+**Pre-existing non-K-046 failure flagged for PM:** Vitest `frontend/src/__tests__/diary.legacy-merge.test.ts > legacy entry text word count is within 50–100` expects ≥50 words, 實際 33。Root cause commit `f24b9d7` "data(diary): rewrite all entries as short summaries" (非 K-046 Phase 2)。不在本票 scope，不修。
+
+**B4 fail-if-gate-removed dry-run recorded:** Vitest `parseOfficialCsvFile.test.ts` PASS → fixture truncate to 10 rows → test FAIL on `expected 24 rows, got 10.` (parser `OFFICIAL_ROW_COUNT` throw) → fixture restored to 24-row 3926B → PASS. Monitor signal confirmed.
+
+**Pure-Refactor Behavior Diff (`parseOfficialCsvFile` export-add):** L48 `function → export function`，signature / body / call-site L268 `handleOfficialFilesUpload` 完全不變。Vitest 呼叫 exported symbol 對 24-row fixture 回 `rows.length === 24` + 每 row `time/open/high/low/close` schema 正確 — 與 internal call 觀察值一致。OLD vs NEW 行為差 = ∅。
+
+---
+
+### Engineer (2026-04-24) — Phase 1
 
 **AC judgments that were wrong:** T3 E2E 首次用 `page.locator('input[type="file"]')` 撞 strict-mode（`/app` 有 2 個 file input：multi-select OHLC + History CSV）。重新讀 JSX 後改用 label 容器限定才通過 — AC-046-QA-3 的 setInputFiles 動作需要精確 selector，第一版沒考量頁面整體有多個同類 input。
 
@@ -416,4 +432,195 @@ Ticket reached ready-to-deploy state 2026-04-24 after Reviewer two-layer PASS + 
 - `34570a3 fix(K-046): .dockerignore — allow stats_contract_cases.json through` — per-file exception so the fixture survives context upload while `backend/tests/` exclusion stays.
 
 **Cross-ticket note:** K-046 deploy was the first backend deploy since K-017; K-018~K-045 were all frontend-only. If any K-018~K-045 ticket required a Cloud Run revision and was presumed "deployed via merge", revisit — none could have actually deployed without the three followup commits above.
+
+---
+
+## Phase 2 Scope + AC
+
+Phase 1 shipped to prod 2026-04-24 (commit `34570a3`). Post-deploy user inspection surfaced 3 live bugs + 1 AC methodology gap. Ticket was reopened (`status: reopened`, `priority: high`, `visual-delta: yes`) to land Phase 2 fixes through the full formal pipeline (PM → Architect → Engineer → Reviewer → QA) because the skipped-workflow at Phase 1 AC authoring is itself part of how B2/B3/B4 escaped detection.
+
+### Phase 2 — Bug Context
+
+**B1 — CORS blocked browser-origin calls to Cloud Run backend.** Cloud Run revision `k-line-backend-00003-qdx` (Phase 1 deploy) was deployed without `CORS_ORIGINS` env var matching `https://k-line-prediction-app.web.app`. Browser fetch from the deployed frontend to `/api/history-info` returned CORS error; `historyInfo` state stayed at initial value, rendering "Loading…" forever. Does not repro in `firebase serve` (same-origin) or pytest (no browser preflight). Pre-existing config gap — not K-046 Phase 1 code regression — but Phase 1 close-gate missed it because Deploy Record probe used `curl` (no Origin header, no preflight).
+
+**B2 — Example CSV fixture is `history_database/Binance_ETHUSDT_1h_test.csv` (5-row legacy fixture with CryptoDataDownload provenance row + `1h` timeframe in filename but actual content is *daily* OHLCV rows) and parses to an exception via `parseOfficialCsvFile` (`OFFICIAL_ROW_COUNT` enforced).** The download-link affordance lands, but clicking → downloading → re-uploading crashes the upload flow with `expected N rows, got 5`. Phase 1 AC-046-EXAMPLE-3 did a round-trip through `/api/upload-history`, which is *now a neutralized endpoint* (Phase 1 comment-out) — it returns 200 with `added_count: 0` regardless of parse result because the response is computed from authoritative `existing` state, NOT from the uploaded bytes. This gives the AC zero discriminatory power (B4 below).
+
+**B3 — Current UI position of `Download example` link is inside `HISTORY REFERENCE` section (around lines 432-438), below the `Upload History CSV` button.** User intent was for the link to guide new visitors through *official OHLC multi-file upload* (the primary happy path), not the history reference auxiliary panel. Current placement buries it behind a scroll + gates its semantic meaning behind the wrong upload affordance.
+
+**B4 — AC methodology gap.** When an endpoint is *neutralized* (commented-out), its observable response (schema, status, `added_count`) loses discriminatory power. ACs for the commented-path ticket must exercise the *parse layer* (unit test against `parseOfficialCsvFile`) or a layer strictly upstream of the commented code, not the neutralized endpoint. Phase 1 AC-046-EXAMPLE-3 + AC-046-QA-4 both round-tripped the fixture through `/api/upload-history` and got green tests despite the fixture being a parse-exception. Every commented-path ticket going forward must replace endpoint-round-trip ACs with parse-layer unit tests.
+
+### Phase 2 — Scope (7 actions, locked by user 2026-04-24)
+
+#### Action 1 — CORS env var fix (addresses B1)
+
+- Main session runs: `gcloud run services update k-line-backend --region asia-east1 --update-env-vars CORS_ORIGINS=https://k-line-prediction-app.web.app`
+- No image rebuild. Triggers a new Cloud Run revision in ~30s. Response + behavior identical to pre-K-046; only the `CORS_ORIGINS` env var is added/updated.
+
+#### Action 2 — Regenerate example CSV fixture (addresses B2)
+
+- Source: `/Users/yclee/Desktop/ETHUSDT-1h-2026-04-08.csv` (24 rows, 12-col Binance raw klines, microseconds Unix timestamps, headerless). Verified by main session as compatible with `parseOfficialCsvFile` at `frontend/src/AppPage.tsx:48` (takes cols 0..4, `OFFICIAL_ROW_COUNT` = 24).
+- Action: `cp /Users/yclee/Desktop/ETHUSDT-1h-2026-04-08.csv frontend/public/examples/ETHUSDT_1h_test.csv`
+- Filename stays `ETHUSDT_1h_test.csv` (download link already points here; don't rename).
+
+#### Action 3 — UI restructure in `frontend/src/AppPage.tsx` (addresses B3)
+
+**Move** the `Download example` link from the current HISTORY REFERENCE position (lines 432-438, currently `text-[10px] text-gray-500 hover:text-blue-400`, copy `Don't have a CSV? Download example →`) INTO the OFFICIAL INPUT section's "Expected format" card (current structure around lines 396-405, wrapping the "多檔合併 · 每檔 24 × 1H bars · UTC+0" text).
+
+**Placement detail:** inline below (or after) the "多檔合併 · 每檔 24 × 1H bars · UTC+0" text, minimum font-size `text-xs` (12px), contrast at least `text-gray-400`. Engineer picks the exact flex/block placement that preserves visual balance of the 2-col grid — BUT the link MUST live inside the Expected format card's DOM scope (i.e. Playwright `locator('[data-testid="official-input-expected-format"]').getByText(/Download example/i)` must match; `.historyReference` scope match must be empty).
+
+**Remove** the Upload History CSV button (the `<label>` wrapping `<input type="file">` at lines 415-431). Per user Q1 ruling (option b): preserve HISTORY REFERENCE wrapper div + section label ("History Reference") + the `historyInfo` filename display block (lines 408-414). Only the `<label>` + its `<input>` go away.
+
+**Architect to rule with K-048 reversibility principle:** the `handleHistoryUpload` function + `lastHistoryUpload` / `uploadError` / `uploadLoading` React state hooks are called only from the removed upload input. Two options — (A) remove handler + all 4 state hooks (clean scope, aligned with Phase 1 BQ-046-D's "commented for reversibility" semantic for backend but *surgically remove* for frontend), (B) comment out handler call sites + preserve state hooks (symmetric with BQ-046-D). PM defers exact choice to Architect design (scoped to K-048 re-enablement path).
+
+#### Action 4 — Phase 2 ACs
+
+All six ACs below REPLACE Phase 1's AC-046-EXAMPLE-3 + AC-046-QA-4 for all test purposes going forward. Phase 1 ACs remain in `## Acceptance Criteria` above for historical trace; new Phase 2 ACs take precedence at Phase 2 sign-off.
+
+##### AC-046-PHASE2-CORS — Backend browser-origin CORS passes
+
+- **Given:** Cloud Run revision post-Action-1 env update is live serving 100% traffic
+- **When:** a browser request from origin `https://k-line-prediction-app.web.app` issues `GET https://k-line-backend-841575332599.asia-east1.run.app/api/history-info` with `Origin` header set
+- **Then:** HTTP response is `200 OK`
+- **And:** response header `access-control-allow-origin` equals `https://k-line-prediction-app.web.app` (exact match, not wildcard `*`)
+- **And:** the deployed frontend at `https://k-line-prediction-app.web.app/app` renders the HISTORY REFERENCE panel's `historyInfo` block with an actual filename (e.g. `Binance_ETHUSDT_1h.csv（最新：…）`), NOT the initial `Loading…` placeholder
+- **Verification method:** `curl -H "Origin: https://k-line-prediction-app.web.app" -I <cloud-run-url>/api/history-info` manually after Action 1 + browser DevTools Network tab smoke on deployed `/app`
+
+##### AC-046-PHASE2-EXAMPLE-PARSE — Example CSV parses cleanly to 24 OHLCRow entries
+
+- **Given:** `frontend/public/examples/ETHUSDT_1h_test.csv` has been refreshed per Action 2 (24-row 12-col Binance raw klines, microseconds timestamp, headerless)
+- **When:** a Vitest unit test reads the raw bytes of that file via `fs.readFileSync` and passes them + filename `"ETHUSDT_1h_test.csv"` to `parseOfficialCsvFile()` imported from `frontend/src/AppPage.tsx`
+- **Then:** the function returns an array of length exactly `24`
+- **And:** each element of the returned array is a valid `OHLCRow` (keys `time` / `open` / `high` / `low` / `close`; `time` is a non-empty string; `open` / `high` / `low` / `close` are finite-number-parseable strings)
+- **And:** no exception is thrown during parse
+- **Why parse-layer not endpoint-layer:** B4 — `/api/upload-history` is post-K-046 neutralized; its response has zero discriminatory power against a broken fixture. The unit test exercises the layer strictly upstream of the neutralized endpoint, giving real monitoring signal.
+- **New test file:** Architect to rule on path — suggested `frontend/src/AppPage.parseOfficialCsv.test.ts` or similar co-located spec. Engineer `export`s `parseOfficialCsvFile` from `AppPage.tsx` if not already exported.
+
+##### AC-046-PHASE2-UI-LINK-MOVED — Download example link inside OFFICIAL INPUT scope, NOT HISTORY REFERENCE scope
+
+- **Given:** `/app` rendered in the deployed frontend (or `firebase serve` local)
+- **When:** Playwright locates the anchor element with accessible text matching `/Download example/i`
+- **Then:** the matched element's DOM ancestry includes the OFFICIAL INPUT section container (`[data-testid="official-input-section"]` — Engineer adds testid if not present, OR Playwright uses a text-anchored locator chain: `page.getByText("Expected format").locator('xpath=ancestor::*[...]').getByText(/Download example/i)`)
+- **And:** the matched element's DOM ancestry does NOT include the HISTORY REFERENCE section (Playwright assertion: `page.locator('[data-testid="history-reference-section"]').getByText(/Download example/i)` resolves to 0 matches)
+- **And:** the anchor retains `href="/examples/ETHUSDT_1h_test.csv"` and `download="ETHUSDT_1h_test.csv"` attributes
+- **And:** rendered font-size is at least 12px (`text-xs` or larger) — inspected via `window.getComputedStyle(anchor).fontSize` ≥ 12, not just className regex match
+- **And:** rendered color contrast is at least `text-gray-400` equivalent (`rgb(156, 163, 175)` or lighter) — again via computed style
+- **Parallel Given quantification:** this AC requires **2 independent Playwright cases**: (case A) link-is-inside-official-input; (case B) link-is-not-inside-history-reference. Do not merge.
+
+##### AC-046-PHASE2-UI-UPLOAD-HIDDEN — Upload History CSV input removed from HISTORY REFERENCE scope
+
+- **Given:** `/app` rendered
+- **When:** Playwright queries `[data-testid="history-reference-section"] input[type="file"][accept*=".csv"]`
+- **Then:** the query resolves to 0 matches
+- **And:** no rendered text matching `/Upload History CSV/i` exists anywhere on `/app` (the removed `<label>` caption)
+- **And:** no rendered text matching `/上傳中/` or `/uploadLoading/` state UI is reachable (uploadLoading branch is either dead-code-removed per Architect ruling or commented)
+
+##### AC-046-PHASE2-HISTORY-LABEL-KEPT — "History Reference" section label preserved
+
+- **Given:** `/app` rendered
+- **When:** Playwright queries for text `"History Reference"` (exact, case-sensitive)
+- **Then:** exactly 1 visible element matches
+- **And:** that element is inside the HISTORY REFERENCE wrapper div (`[data-testid="history-reference-section"]` — Engineer adds testid)
+
+##### AC-046-PHASE2-HISTORY-INFO-RENDERS — historyInfo block renders filename after CORS fix
+
+- **Given:** `/app` rendered with Playwright intercepting `GET /api/history-info` and returning `{ "1H": { filename: "Binance_ETHUSDT_1h.csv", latest: "2026-04-08 23:00", bar_count: 73990 }, "1D": { ... } }` (mocked)
+- **When:** the page completes initial fetch cycle
+- **Then:** the historyInfo block inside HISTORY REFERENCE renders text matching `/Binance_ETHUSDT_1h\.csv/`
+- **And:** the text `"Loading…"` is NOT visible (stuck-loading state cleared)
+- **Notes:** this AC has no end-to-end CORS coverage — it only verifies the frontend render path once a 200 response lands. Real CORS header validation is covered by AC-046-PHASE2-CORS via manual curl + browser smoke on deploy day.
+
+#### Action 5 — Codify B4 as review reflex (META — deferred to session wrap-up)
+
+File: `~/.claude/projects/-Users-yclee-Diary/memory/feedback_refactor_ac_grep_raw_count_sanity.md`
+
+Add "neutralize-masked invariant" sub-case to the existing "pre=0 degenerate proxy" rule: when a code path is commented out (neutralized), ACs that assert on observable endpoint behavior (response schema, `added_count`, HTTP 200, etc.) lose discriminatory power because the response is computed from upstream-of-comment state, not from the ticket's code change. ACs for commented-path tickets MUST exercise the parse layer / unit layer / layer strictly upstream of the neutralized code — not the neutralized endpoint layer.
+
+This is a META edit to `~/.claude/` — per `~/.claude/CLAUDE.md §Worktree Isolation §Main direct-commit exception`, meta edits commit directly to main (NOT this worktree). Track as "deferred to session wrap-up / retrospect". Phase 2 close-gate does NOT depend on this Action landing — it is a separate commit on main with subject `chore(claude-config): codify B4 neutralize-masked invariant`.
+
+#### Action 6 — Codify "plan-before-act" user feedback (META — deferred to session wrap-up)
+
+User verbatim 2026-04-24: "動手前沒有跟我講清楚，你打算怎麼改". Main session ran Phase 2 deploy/fix actions before laying out the plan. Even in auto mode, for incident fixes (prod state visible to user, user-visible changes to deployed surface), a plan-review checkpoint is mandatory.
+
+Evaluate during retrospect: does existing `feedback_discuss_before_edit_ambiguous.md` cover this (it covers "multiple implementation directions" ambiguity), or is this a new shape (incident fix = prod state already broken, user wants review even when fix direction is clear)? Lean toward new file `feedback_plan_before_act_on_incident.md` if no existing file covers the "incident fix plan-review" shape. Retrospect will decide.
+
+Also META, deferred. Phase 2 close-gate independent.
+
+#### Action 7 — Phase 2 deploy
+
+**Frontend:** `npm run build` (from worktree `frontend/`) + `firebase deploy --only hosting` (from worktree root). Deploy is FF-merge of Phase 2 commits into main first, then deploy from main per K-041 self-overwrite prevention (K-Line `CLAUDE.md §Deploy Checklist §Step 1`).
+
+**Backend:** env var update only per Action 1. NO `gcloud run deploy`, NO image rebuild, NO Dockerfile touch.
+
+**Phase 2 Deploy Record** appended to ticket under a new `## Phase 2 Deploy Record` heading (preserves Phase 1 Deploy Record block above — do not edit or overwrite Phase 1 record).
+
+**Verification probe for Phase 2 Deploy Record (per `~/.claude/agents/pm.md §Deploy Record executed-probe rule`):**
+
+| Probe | Expected |
+|---|---|
+| `curl -H "Origin: https://k-line-prediction-app.web.app" -I <cloud-run-url>/api/history-info \| grep -i access-control-allow-origin` | returns header line with exact origin match |
+| `curl https://k-line-prediction-app.web.app/assets/index-<NEW-hash>.js \| grep -o 'Expected format' \| head -1` | returns 1 match (link moved into Expected format scope) |
+| `curl https://k-line-prediction-app.web.app/assets/index-<NEW-hash>.js \| grep -o 'Upload History CSV' \| wc -l` | returns 0 (upload button removed) |
+| `curl https://k-line-prediction-app.web.app/examples/ETHUSDT_1h_test.csv \| wc -l` | returns 24 (refreshed fixture) |
+
+### Phase 2 Phase Plan
+
+#### Phase 2a — Architect design (this session's next step)
+
+Architect ingests the 7 actions + 6 ACs + UI restructure BQ (handler removal vs comment-out), produces `docs/designs/K-046-phase2-ui-restructure.md` covering:
+- OLD vs NEW truth table for each AC (before/after DOM state)
+- Component tree diff for OFFICIAL INPUT section + HISTORY REFERENCE section
+- Ruling on `handleHistoryUpload` + 4 state hooks (remove vs comment-out) with K-048 reversibility reasoning
+- Test plan: Vitest file path + Playwright spec location (new or extend existing `frontend/e2e/K-046-example-upload.spec.ts`)
+- Shared Component Inventory: none (inline `<a>` + inline `<div>` structure, same as Phase 1)
+- Route Impact Table: `/app` only
+- Sacred preservation: K-009 + K-013 untouched (backend unchanged by frontend restructure + env-var-only update)
+
+#### Phase 2b — Engineer implementation
+
+- Action 2 (CSV refresh)
+- Action 3 (UI restructure per Architect ruling on handler removal)
+- AC-046-PHASE2-EXAMPLE-PARSE Vitest spec
+- AC-046-PHASE2-UI-* Playwright specs (extend `K-046-example-upload.spec.ts` or new file per Architect)
+- Data-testid additions: `history-reference-section`, `official-input-section` (or similar; Architect to finalize names)
+
+**Gate:** `npx tsc --noEmit` exit 0 · Vitest `AC-046-PHASE2-EXAMPLE-PARSE` passes · Playwright K-046 spec 6/6+ passes (existing 3 + new 3+) · pytest 70/70 still passes (no backend code change, just re-run)
+
+#### Phase 2c — Code Review (two-layer)
+
+- Step 1: `superpowers:code-reviewer` breadth pass
+- Step 2: `Agent(reviewer.md)` depth pass — specifically verifies handler-removal vs comment-out ruling matches Architect design, and that Behavior Diff truth table explicitly covers "what an old-link click used to do vs now does" + "what upload-button click used to trigger vs now cannot trigger"
+
+#### Phase 2d — QA regression
+
+- Full Playwright suite (expect same 282 pre-existing passes + new K-046 Phase 2 tests)
+- Manual deploy-day CORS smoke (browser DevTools Network tab against live `/api/history-info`)
+- Real-file CORS probe: `curl -H "Origin: …" -I …/api/history-info`
+
+#### Phase 2e — PM close + deploy
+
+- Action 1 (Cloud Run env update) — runs before Action 7 frontend deploy
+- Action 7 (frontend build + FF-merge to main + firebase deploy)
+- Phase 2 Deploy Record block appended
+- PM close with Deploy Record 4-probe executed-output pasted (`access-control-allow-origin` header, bundle `Expected format` match, bundle `Upload History CSV` absence, CSV 24-line count)
+- Actions 5 + 6 (META) committed directly to main separately
+
+### Phase 2 Known Gaps (PM-ruled acceptable)
+
+Carried forward from Phase 1 §Known Gaps (GAP-1 concurrency moot, GAP-2 CDN propagation window, GAP-3 cross-browser download attribute) — all three still apply to Phase 2 unchanged.
+
+**New Phase-2-specific gap:**
+
+#### GAP-4 — CORS header validation via Playwright mock has zero coverage
+
+- **Gap:** AC-046-PHASE2-HISTORY-INFO-RENDERS uses Playwright with `/api/history-info` mocked to return 200. The mock bypasses the browser preflight check entirely. Playwright cannot directly assert on actual CORS header values on the live Cloud Run endpoint without a `page.request.fetch()` with Origin header, which is still not a real browser preflight.
+- **Reason ruled acceptable:** real CORS preflight behavior is only observable via a real browser against a real remote origin. Manual deploy-day smoke (browser DevTools) + pre-deploy `curl -H "Origin:" -I` are the practical substitutes. Playwright's built-in `request` fixture doesn't trigger CORS preflight (server-side request library).
+- **PM acknowledgment:** ops-time verification only; AC-046-PHASE2-CORS is worded to require manual smoke. Not a Phase 2 blocker.
+
+### Phase 2 Release Status
+
+- 2026-04-24 — Phase 1 closed + prod-deployed (commit `34570a3`)
+- 2026-04-24 — user post-deploy inspection surfaced B1/B2/B3/B4; ticket reopened
+- 2026-04-24 — PM Phase 2 scope locked with user (7 actions, 6 ACs); BQs self-resolved per 4-source priority
+- 2026-04-24 — **QA Early Consultation (PM proxy tier)** complete — see `docs/retrospectives/qa.md 2026-04-24 K-046 Phase 2` entry; tier classification + adversarial cases + fail-once escalation rule applied
+- 2026-04-24 — **Ready for Architect release** → Phase 2a
 

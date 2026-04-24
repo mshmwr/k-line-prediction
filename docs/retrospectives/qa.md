@@ -15,6 +15,33 @@
 - 倒序（最新在上）
 
 
+## 2026-04-24 — K-046 Phase 2 QA Early Consultation — QA proxy by PM
+
+**Tier classification (per `feedback_qa_early_proxy_tier.md`):**
+
+Phase 2 scope = CORS env var update (no image rebuild) + static CSV asset swap (verified-compatible source) + frontend DOM restructure on dev-tool `/app` route (no Pencil frame per K-021 §2) + one Vitest unit test for `parseOfficialCsvFile` + Playwright assertion rewrites. No new runtime schema, no cross-layer refactor, no migration, no behavior-preserving hook extraction, no layout-primitives change. `visual-delta: yes` on `/app` is strictly text-only layout move (no typography scale, no color token, no shared primitive). Tier = **PM proxy permitted** (not runtime refactor / not schema / not cross-layer / not layout-or-typography on user-voice route).
+
+**Role-switch tag:** QA proxy by PM (not `QA reviewed`).
+
+**Adversarial cases surfaced (PM-proxy, ≥3 required):**
+
+1. **Playwright mock CORS mismatch with live CORS:** AC-046-PHASE2-HISTORY-INFO-RENDERS asserts the `historyInfo` block renders after a mocked 200 response. In real browser against real Cloud Run, even post-Action-1 env update, CORS preflight could still fail if `CORS_ORIGINS` env var carries trailing whitespace, wrong scheme (http vs https), or if the Cloud Run revision with new env var has NOT fully propagated to 100% traffic at the probe moment. Mock path gives zero coverage of real preflight. **Mitigation:** AC-046-PHASE2-CORS explicitly requires manual `curl -H "Origin:" -I` + browser DevTools smoke on deploy day; Phase 2 Deploy Record probe table includes the header-line check with expected exact-match string. Captured as GAP-4.
+
+2. **`parseOfficialCsvFile` import path coupling:** AC-046-PHASE2-EXAMPLE-PARSE requires the Vitest spec to import `parseOfficialCsvFile` from `AppPage.tsx`. Currently the function is module-internal (not exported). If Engineer adds `export` to make the unit test work but Architect didn't flag this as a design change, the function becomes part of `AppPage.tsx` public API surface — a minor but trackable scope expansion. Alternative: Vitest uses `vite-node` / dynamic import to reach internal symbols, but that's non-idiomatic. **Mitigation:** Architect design doc §Test Plan MUST explicitly rule on export-or-extract decision and justify; Engineer follows ruling. If "extract to own module" is chosen, AC count doesn't change but file inventory grows by 1. PM pre-emptively flags this as an Architect ruling item, not a BQ-to-user.
+
+3. **UI-LINK-MOVED assertion over-specifies on testids that don't yet exist:** AC-046-PHASE2-UI-LINK-MOVED uses `[data-testid="official-input-section"]` and `[data-testid="history-reference-section"]` in its Playwright assertions. `grep -rn 'data-testid="official-input-section"' frontend/src/` returns zero matches today — the testids do NOT yet exist. Writing an AC against non-existent selectors = vacuously passing AC per `feedback_pm_visual_verification.md` testid existence rule. **Mitigation:** AC-046-PHASE2-UI-LINK-MOVED explicitly names "Engineer adds testid if not present, OR Playwright uses text-anchored locator chain". Architect design doc must rule on which path (testid-first preferred for clarity); Engineer adds testids as part of Action 3 with the UI restructure. AC cannot sign off on Phase 2d until the testids exist AND the assertions resolve non-vacuously.
+
+4. **`ETHUSDT-1h-2026-04-08.csv` source vs shipped asset drift:** Action 2 copies from `/Users/yclee/Desktop/…` (user's local machine), not from a repo-checked-in source. If Desktop file is modified/deleted between PM AC authoring and Engineer Phase 2b execution, the shipped asset differs from what PM verified. **Mitigation:** Action 2 is "cp then commit into worktree immediately"; post-commit the worktree's `frontend/public/examples/ETHUSDT_1h_test.csv` is the SSOT. AC-046-PHASE2-EXAMPLE-PARSE reads `frontend/public/examples/ETHUSDT_1h_test.csv` (the committed repo path), NOT `~/Desktop/…`. Engineer commits the CSV copy as an atomic step with the UI changes. PM does not treat Desktop file as long-lived source.
+
+5. **B2 re-occurrence via a future Engineer swapping the fixture:** if post-K-046 someone swaps `frontend/public/examples/ETHUSDT_1h_test.csv` with a CSV that has different row count (e.g. 100 rows) or different column order, AC-046-PHASE2-EXAMPLE-PARSE as written fails (expects exactly 24). Is this the right guard? **Analysis:** yes — `parseOfficialCsvFile` itself enforces `OFFICIAL_ROW_COUNT` = 24, so a future fixture mismatch is exactly the failure mode this AC must catch. If Engineer later wants to change `OFFICIAL_ROW_COUNT` or support variable-length example fixtures, that is a separate PRD change. Current AC correctly couples to the parser contract.
+
+**Fail-once escalation rule:** if any Phase 2c Reviewer / Phase 2d QA stage finds a boundary the PM proxy missed (e.g. a CORS header edge case, a Playwright mock leak, a handler-removal regression in K-048 reversibility), the next same-class ticket (docs-only / content-delta / non-runtime UI restructure) MUST force a real `qa` sub-agent spawn instead of PM proxy.
+
+**Sacred cross-check (K-009 + K-013):** Phase 2 does NOT touch `backend/main.py` code, only Cloud Run env var. K-009 `ma_history=_history_1d` at `main.py:297` untouched. K-013 `stats_contract_cases.json` handler + test paths untouched. Frontend restructure confined to `/app`'s OHLC upload + History Reference sidebar panel; no impact on `/api/predict` response parsing or `query_ma99_*` fields. No conflict.
+
+**Verdict:** READY for Architect release. PM proxy has surfaced 5 adversarial items, all with documented mitigations or ruled-to-Architect items. If any item recurs at Reviewer/QA stage, fail-once rule forces real-qa escalation on next same-class ticket.
+
+
 ## 2026-04-24 — K-046 QA regression sign-off (post-Code-Review)
 
 **What went well:**

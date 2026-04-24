@@ -45,7 +45,7 @@ function parseExchangeTimestamp(rawValue: string): string {
   return `${year}-${month}-${day} ${hour}:${minute}`
 }
 
-function parseOfficialCsvFile(text: string, filename: string): OHLCRow[] {
+export function parseOfficialCsvFile(text: string, filename: string): OHLCRow[] {
   const lines = text.split('\n').map(line => line.trim()).filter(Boolean)
   if (!lines.length) throw new Error(`${filename}: CSV is empty.`)
 
@@ -139,9 +139,6 @@ export default function AppPage() {
   const [sourcePath, setSourcePath] = useState('No file uploaded yet.')
   const [maLoading, setMaLoading] = useState(false)
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null)
-  const [lastHistoryUpload, setLastHistoryUpload] = useState<{ filename: string; latest: string | null; barCount: number; addedCount: number } | null>(null)
-  const [uploadError, setUploadError] = useState<string | null>(null)
-  const [uploadLoading, setUploadLoading] = useState(false)
   const { predict, computeMa99, loading, error: predictionError } = usePrediction()
 
   useEffect(() => {
@@ -294,23 +291,6 @@ export default function AppPage() {
     }).catch(err => setLoadError((err as Error).message))
   }
 
-  function handleHistoryUpload(file: File) {
-    setLastHistoryUpload(null)
-    setUploadError(null)
-    setUploadLoading(true)
-    const formData = new FormData()
-    formData.append('file', file)
-    fetch(`${API_BASE}/api/upload-history`, { method: 'POST', body: formData })
-      .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(new Error(d.detail ?? 'Upload failed'))))
-      .then(uploadResult => {
-        setLastHistoryUpload({ filename: file.name, latest: uploadResult.latest ?? null, barCount: uploadResult.bar_count ?? 0, addedCount: uploadResult.added_count ?? 0 })
-        return fetch(`${API_BASE}/api/history-info`).then(r => r.json())
-      })
-      .then(data => setHistoryInfo(data))
-      .catch(err => setUploadError((err as Error).message))
-      .finally(() => setUploadLoading(false))
-  }
-
   function handleCellChange(rowIdx: number, field: keyof OHLCRow, value: string) {
     setOhlcData(prev => prev.map((row, index) => index === rowIdx ? { ...row, [field]: value } : row))
   }
@@ -373,7 +353,7 @@ export default function AppPage() {
       )}
       <div className="flex flex-1 gap-4 px-4 pb-4 pt-3 min-h-0">
         <div className="w-80 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2 pb-20">
-          <div className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
+          <div data-testid="official-input-section" className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
             <div className="text-xs uppercase tracking-wider text-gray-400">Official Input</div>
             <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300">
               <div className="text-gray-500">Source file</div>
@@ -394,9 +374,16 @@ export default function AppPage() {
               />
             </label>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
+              <div data-testid="official-input-expected-format" className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
                 <div className="text-gray-500">Expected format</div>
                 <div className="mt-1 text-gray-200">多檔合併 · 每檔 24 × 1H bars · UTC+0</div>
+                <a
+                  href="/examples/ETHUSDT_1h_test.csv"
+                  download="ETHUSDT_1h_test.csv"
+                  className="mt-1 inline-block text-xs text-gray-400 hover:text-blue-400"
+                >
+                  Don't have a CSV? Download example →
+                </a>
               </div>
               <div className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
                 <div className="text-gray-500">Displayed timezone</div>
@@ -405,56 +392,13 @@ export default function AppPage() {
             </div>
           </div>
 
-          <div className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
+          <div data-testid="history-reference-section" className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
             <div className="text-xs uppercase tracking-wider text-gray-400">History Reference</div>
             <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">
               {historyInfo
                 ? `${historyInfo['1H'].filename}（最新：${historyInfo['1H'].latest ?? 'N/A'} UTC+0）`
                 : 'Loading...'}
             </div>
-            <label className={`flex items-center justify-center rounded border border-dashed px-3 py-3 text-center text-xs transition-colors ${uploadLoading ? 'cursor-not-allowed border-gray-700 text-gray-500' : 'cursor-pointer border-gray-600 text-gray-300 hover:border-blue-400 hover:text-white'}`}>
-              <span className="flex flex-col items-center gap-0.5">
-                <span>{uploadLoading ? '上傳中…' : 'Upload History CSV'}</span>
-                {!uploadLoading && <span className="text-[10px] text-gray-500">時間欄位須為 UTC+0</span>}
-              </span>
-              <input
-                type="file"
-                accept=".csv,text/csv"
-                className="hidden"
-                disabled={uploadLoading}
-                onChange={event => {
-                  const file = event.target.files?.[0]
-                  if (file) handleHistoryUpload(file)
-                  event.currentTarget.value = ''
-                }}
-              />
-            </label>
-            <a
-              href="/examples/ETHUSDT_1h_test.csv"
-              download="ETHUSDT_1h_test.csv"
-              className="text-[10px] text-gray-500 hover:text-blue-400"
-            >
-              Don't have a CSV? Download example →
-            </a>
-            {lastHistoryUpload && (
-              <div className={`flex items-start gap-1.5 rounded border px-2 py-1.5 text-[11px] ${lastHistoryUpload.addedCount === 0 ? 'border-gray-700 bg-gray-800/40 text-gray-400' : 'border-green-800 bg-green-950/40 text-green-400'}`}>
-                <span className="mt-px shrink-0">{lastHistoryUpload.addedCount === 0 ? '–' : '✓'}</span>
-                <div className="min-w-0">
-                  <div className="break-all font-mono">{lastHistoryUpload.filename}</div>
-                  <div className={`mt-0.5 ${lastHistoryUpload.addedCount === 0 ? 'text-gray-500' : 'text-green-600'}`}>
-                    {lastHistoryUpload.addedCount === 0
-                      ? `資料已是最新，無需更新（共 ${lastHistoryUpload.barCount} bars）`
-                      : `新增 ${lastHistoryUpload.addedCount} bars · 共 ${lastHistoryUpload.barCount} bars · 最新 ${lastHistoryUpload.latest ?? 'N/A'} UTC+0`}
-                  </div>
-                </div>
-              </div>
-            )}
-            {uploadError && (
-              <div className="flex items-start gap-1.5 rounded border border-red-800 bg-red-950/40 px-2 py-1.5 text-[11px] text-red-400">
-                <span className="mt-px shrink-0">✗</span>
-                <div className="min-w-0 break-all">{uploadError}</div>
-              </div>
-            )}
           </div>
 
           <OHLCEditor rows={ohlcData} timeframe={'1H'} onChange={handleCellChange} />

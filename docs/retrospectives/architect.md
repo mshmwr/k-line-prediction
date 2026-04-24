@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-04-24 — K-046 Phase 2 UI restructure + CORS env fix
+
+**做得好：** §3 handler-removal ruling 沒停在「dead-code 砍就對了」— 先跑 `grep -n "uploadError\|setUploadError" /tmp/AppPage-4c873b3.tsx` 確認 5 hit 全在 HISTORY-ONLY 範圍（L143/299/310/452/455），zero crossover with `handleOfficialFilesUpload`，才敢下 REMOVE；把這個 scope-critical 驗證寫進 §3.1 表格，reviewer/engineer 讀到就能自己 replay。§10.3 Pre-Design Audit 發現 `handleHistoryUpload` L309 `setHistoryInfo(data)` 是 post-upload refresh 路徑，REMOVE 後 only `useEffect` initial fetch 會設 `historyInfo` — 同 §10.3 note 段落明寫這個行為差異 + AC-046-PHASE2-HISTORY-INFO-RENDERS 只斷言 initial fetch path，K-048 再補 post-upload refresh，讓 Engineer/Reviewer 不會誤判 regression。§10.5 主動 flag 既有 `K-046-example-upload.spec.ts:81` `page.locator('label', { hasText: 'Upload History CSV' })` 為 stale anchor，給 Engineer 具體 T1/T2 updating + T3 removal 指令，避免 Phase 2b 才現場發現 test 紅。
+
+**做不好：** §4 `parseOfficialCsvFile` export decision 初版誤列 Option B（extract to `utils/parseOfficialCsvFile.ts`）為 tied 推薦；回讀 AC-046-PHASE2-EXAMPLE-PARSE 原文「imported from `frontend/src/AppPage.tsx`」才發現 AC text 已 lock import path，Option B 需改 AC（Architect 不得改 AC），自動 disqualified。這個 constraint 應在「三選項列出」時就寫在頂部，不是 scoring 完才補。
+
+**下次改善：** options 表在推薦前先列 "binding constraints from AC text / PM ruling" 一列，把 AC-locked 路徑顯性化，避免 tied scoring 後才剔除。已回寫單票 Retrospective 對應行。
+
+---
+
 ## 2026-04-24 — K-046 Comment-out upload write path + example CSV download
 
 **做得好：** Pre-Design Audit §1.3 畫 6-row × 11-column OLD vs NEW truth table（full-overlap / strictly-later / partial-overlap / empty / first-boot / 1D-filename）逐格 dry-run，Case E（first-boot mock fallback, N=0）直接點出 `existing[-1]['date']` 會 IndexError，於 §6 Phase 1 implementation order 明寫 `existing[-1]['date'] if existing else None` guard — 在設計階段把 boundary hole 補上，不留給 Engineer 撞。§6 Phase 2 step 6 placement 檢查時發現 `<label>` 包 `<input type="file">`，若把新 anchor 插到 `<label>` 裡面會讓 click 觸發 file picker 而非 navigation — 明寫「anchor must be sibling, not child, of `<label>`」硬 gate。Sacred cross-check 7-pattern grep sweep（token-selector 4 + DOM-adjacency 3）全跑，確認 0 collision with K-046 scope。§API 不變性 dual-axis（wire schema 0 diff + frontend observable per-case diff 表）齊備；ticket §Test Coverage Plan 宣告「最少 2 pytest + 3 Playwright」vs §9 delivered 6 pytest + 3 Playwright 對齊。
