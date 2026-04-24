@@ -34,6 +34,17 @@ export default defineConfig({
           ) {
             return 'vendor-react'
           }
+          // K-049 Phase 3: route-level chunking. Vite auto-splits lazy()
+          // imports, but an explicit page-file branch guarantees a distinct
+          // chunk per top-level route (AC-049-SUSPENSE-1: dist/assets/*.js
+          // count ≥ 6 = 5 routes + vendor).
+          if (
+            id.includes('/frontend/src/pages/') ||
+            id.includes('/frontend/src/AppPage.tsx')
+          ) {
+            const match = id.match(/\/(HomePage|AppPage|AboutPage|DiaryPage|BusinessLogicPage)\.tsx/)
+            if (match) return `page-${match[1].toLowerCase()}`
+          }
         },
       },
     },
