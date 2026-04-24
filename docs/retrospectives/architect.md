@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-04-24 — K-045 Desktop layout consistency
+
+**做得好：** Pre-Design Audit 階段完整執行 Gate 1 file-truth-table（15 rows with `git show ef3519d:<path>` logs）+ Gate 2 Cartesian product 18-row current-vs-target dry-run + Gate 3 §API 不變性 dual-axis（wire-level 0 diff + frontend observable delta table）；K-031 Sacred `#architecture.nextElementSibling === <footer>` 在 §2.1 naïve component tree draft（沿用 HomePage body+inner-flex-wrapper pattern）寫完後立刻以 DOM adjacency dry-run 自檢出 risk，改走 Option C（per-section self-contained container classes + margin-top rhythm）而非 body wrapper，保住 Sacred。BQ-045-02 Architect ruling 用 12-dim 決策矩陣而非印象給出 Option α（remove SectionContainer），ticket 明確標為 Architect-ruled 不上 PM。
+
+**沒做好：** Ticket §4 AC-045-K031-ADJACENCY-PRESERVED 引用 `about.spec.ts:386-403` 但實際檔名是 `about-v2.spec.ts:387-404`（檔案不存在 + 行號都 off-by-1）。grep 確認後依 `feedback_ticket_ac_pm_only.md` 禁止自改 ticket AC，以 BQ-045-ARCH-01 flag 進 §10 等 PM 裁決；但第一稿 §2.1 component tree 寫到一半才意識到 K-031 adjacency 與 outer-wrapper pattern 衝突，算是「設計稿自己到寫 §2 時才撞到 Sacred」的 reactive 發現，不是 §0 階段主動辨識。如果 Pre-Design Audit §0.4 把所有 regression-class Sacred 列成 DOM-shape assertion 表（selector + expected ancestor chain），第一時間就會看出 outer wrapper 不可用，不會先寫 naïve draft 再回頭推倒。
+
+**下次改善：** Pre-Design Audit §0 新增強制子項 **§0.4a DOM-shape Sacred Assertion Catalogue** — 逐條列出本 ticket regression-class Sacred 對應的 DOM structural assertion（selector + ancestor chain + sibling adjacency），在 §2 Component Tree 之前先建完目錄；§2 每一版草稿 Component Tree 必須對這份目錄做「每條 assertion 是否仍成立」的 truth-table 自驗，才能進入 §3。將此 codify 進 `senior-architect.md` §Pre-Design Dry-Run Proof 的 Gate 2 延伸條款。
+
+---
+
 ## 2026-04-23 — K-040 Item 1 sitewide typography reset 設計
 
 **做得好：** Designer memo 的 36-row per-site calibration table + QA-040 Early Consultation 的 6 個 Q 都已被 PM 落地進 AC，Route Impact Table 建立 5 routes × 多 component 時幾乎所有資料都有單一來源可引用，不用自己在 Pencil 或 Figma 再判斷；Pre-Design Audit 對 4 個 "pre-existing" shared component mono 斷言都用 `git show HEAD:<path>` 實證通過，沒有憑印象代入。
