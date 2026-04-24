@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-04-24 — K-046 Comment-out upload write path + example CSV download
+
+**做得好：** Pre-Design Audit §1.3 畫 6-row × 11-column OLD vs NEW truth table（full-overlap / strictly-later / partial-overlap / empty / first-boot / 1D-filename）逐格 dry-run，Case E（first-boot mock fallback, N=0）直接點出 `existing[-1]['date']` 會 IndexError，於 §6 Phase 1 implementation order 明寫 `existing[-1]['date'] if existing else None` guard — 在設計階段把 boundary hole 補上，不留給 Engineer 撞。§6 Phase 2 step 6 placement 檢查時發現 `<label>` 包 `<input type="file">`，若把新 anchor 插到 `<label>` 裡面會讓 click 觸發 file picker 而非 navigation — 明寫「anchor must be sibling, not child, of `<label>`」硬 gate。Sacred cross-check 7-pattern grep sweep（token-selector 4 + DOM-adjacency 3）全跑，確認 0 collision with K-046 scope。§API 不變性 dual-axis（wire schema 0 diff + frontend observable per-case diff 表）齊備；ticket §Test Coverage Plan 宣告「最少 2 pytest + 3 Playwright」vs §9 delivered 6 pytest + 3 Playwright 對齊。
+
+**做不好：** §5 Shared Component Inventory 最初差點直接寫「無」一字帶過；被 §§ consolidated-delivery-gate mental-check 拉回後才補上 `grep -rn 'Download example' frontend/src/` + `grep -rn 'text-\[10px\] text-gray-500'` 兩行 audit evidence。Inventory = none 不代表 audit = skip；即使結論是 none，證據必須在場。
+
+**下次改善：** single-component-add ticket（scope 僅「新增一個 page-specific DOM element」）的 Shared Component Inventory 仍需執行實際 grep sweep 並把 0-hit pattern 列出；將此步驟納入 persona §Cross-Page Duplicate Audit 的觸發條件 — 不只「新組件 / 新 section / 新頁面」，也包含「新單一元素 JSX 加入現有 page」。已於此 retro 末尾 codify 到 persona 路徑（memory 規則：`feedback_shared_component_inventory_check.md` 已涵蓋，本次確認實戰觸發條件不僅限 component 級，元素級亦適用）。
+
+---
+
 ## 2026-04-24 — K-045 Desktop layout consistency
 
 **做得好：** Pre-Design Audit 階段完整執行 Gate 1 file-truth-table（15 rows with `git show ef3519d:<path>` logs）+ Gate 2 Cartesian product 18-row current-vs-target dry-run + Gate 3 §API 不變性 dual-axis（wire-level 0 diff + frontend observable delta table）；K-031 Sacred `#architecture.nextElementSibling === <footer>` 在 §2.1 naïve component tree draft（沿用 HomePage body+inner-flex-wrapper pattern）寫完後立刻以 DOM adjacency dry-run 自檢出 risk，改走 Option C（per-section self-contained container classes + margin-top rhythm）而非 body wrapper，保住 Sacred。BQ-045-02 Architect ruling 用 12-dim 決策矩陣而非印象給出 Option α（remove SectionContainer），ticket 明確標為 Architect-ruled 不上 PM。
