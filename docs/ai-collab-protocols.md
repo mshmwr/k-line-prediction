@@ -19,7 +19,7 @@ This document describes the structured protocols used to build the K-Line Predic
 
 <!-- ROLES:start -->
 | Role | Owns | Artefact |
-|------|------|----------|
+|---|---|---|
 | PM | Requirements, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
 | Architect | System design, cross-layer contracts | docs/designs/K-XXX-*.md |
 | Engineer | Implementation, stable checkpoints | commits + ticket retrospective |
