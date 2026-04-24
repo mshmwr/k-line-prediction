@@ -1,230 +1,259 @@
 ---
 id: K-046
-title: Remove DB write from /api/upload-history endpoint
+title: Comment out upload-history DB write + add example CSV download
 status: open
 created: 2026-04-24
+revised: 2026-04-24
 type: refactor
 priority: medium
 size: small
 visual-delta: none
 content-delta: yes
 design-locked: N/A
-qa-early-consultation: docs/retrospectives/qa.md 2026-04-24 K-046
+qa-early-consultation: pending — scheduled for this session before Architect release
 dependencies: []
 sacred-regression: [K-009 MA99 1H→1D history path, K-013 stats contract cross-layer]
 ---
 
 ## Summary
 
-Change `/api/upload-history` so it no longer persists uploaded CSV bars into the on-disk authoritative history database (`history_database/Binance_ETHUSDT_1h.csv` / `_d.csv`) and no longer mutates the in-memory `_history_1h` / `_history_1d` module state. The endpoint keeps accepting CSV uploads, but the parsed bars become ephemeral per-request input used for pattern-matching context only; the authoritative DB stays read-only from the user-facing API.
+Two coordinated changes to `/api/upload-history` flow so the public deployment cannot have its authoritative history DB poisoned by anonymous CSV uploads, while keeping the `/app` demo experience intact for first-time visitors:
 
-**Why:** Public deployment has no auth. Anyone hitting `/api/upload-history` can overwrite or append to the global history DB, which poisons every subsequent `/api/predict` / `/api/example` / `/api/history-info` response for every visitor. The fix is to retire the write path entirely. Future authoritative DB refreshes will be done by a scheduled scraper (K-047, separate ticket).
+1. **Backend write-path comment-out** — the write-side-effect inside `upload_history_file()` (`_save_history_csv()` + `_history_1h` / `_history_1d` module-level assignments) is wrapped in a commented block. Endpoint still returns 200, CSV is still parsed, response still carries bar counts for the frontend toast — but the on-disk authoritative DB (`history_database/Binance_ETHUSDT_1h.csv` / `_d.csv`) and the in-memory module state stay untouched. Future auto-scraper (K-047) will replace the re-enabled write path.
+2. **Frontend example CSV download** — `/app` renders a `Download example CSV` link in the upload region so visitors without their own CSV can experience the full upload → predict flow. File is served as a static asset from `frontend/public/examples/ETHUSDT_1h_test.csv` (Firebase Hosting), filename drops the `Binance_` prefix.
 
-**Paired with:** K-047 (Auto scraper for authoritative K-line history DB) — replaces the upload-as-maintenance mental model with scheduled-pull-from-exchange. K-047 is backlog; K-046 lands first and is independently valuable (stops DB-poisoning risk immediately).
+**Why (scope pivot from original K-046 plan):** user ruling 2026-04-24 — "不用拿掉 `/api/upload-history` api，只需要暫時先註解這個功能就好了" + "附上一個 example csv 的 link text，可以用你之前使用的測試檔案" + "檔名把 `Binance_` 拿掉". Original K-046 (remove DB write path, rename response schema, rewrite 4+2 backend tests, reshape frontend state) = large-scope refactor. Revised K-046 = surgical defensive comment + small demo affordance. Reversibility matters — K-047 auto-scraper will decide whether to re-enable or permanently excise.
+
+**Paired with:** K-047 (Auto scraper for authoritative K-line history DB) — replaces upload-as-DB-maintenance with scheduled scraper-pull. K-047 stub reserved in repo (`docs/tickets/K-047-*.md`), no implementation yet. K-046 lands first and is independently valuable (stops DB-poisoning risk immediately).
 
 ## Scope
 
 **In scope:**
-- `backend/main.py` — remove `_save_history_csv()` call + `_history_1h` / `_history_1d` global mutation inside `upload_history_file()` handler (lines 162-167)
-- `backend/main.py` — revisit `upload_history_file()` response payload semantics (`added_count` is now always 0; decide rename vs keep)
-- `frontend/src/AppPage.tsx` — update the upload-result toast copy to reflect new semantics ("analysed N bars" vs "added N bars")
-- `backend/tests/test_main.py` — rewrite 4 existing upload tests (AC-TEST-UPLOAD-1..4) to assert no-write behavior; add 2 new tests for mtime + in-memory state invariants
-- Docs: `agent-context/architecture.md` — note the endpoint semantics change in the current-state block
+- `backend/main.py` — wrap `_save_history_csv()` call + `_history_1h` / `_history_1d` mutation (lines 162-167) in a commented `#` block with `TODO(K-047)` marker; parse path + response payload unchanged (response still returns `added_count: 0` always because no merge happens from a frontend observer's view — but `bar_count` reflects parsed-upload count, not authoritative DB count; see BQ-46D for full semantics ruling)
+- `frontend/public/examples/ETHUSDT_1h_test.csv` — new static asset (copied from `history_database/Binance_ETHUSDT_1h_test.csv`, filename with `Binance_` prefix stripped)
+- `frontend/src/AppPage.tsx` — add `Download example CSV` link below (or adjacent to) the Upload History CSV label, always visible (not empty-state gated), with `download="ETHUSDT_1h_test.csv"` attribute pointing at `/examples/ETHUSDT_1h_test.csv`
+- `backend/tests/test_main.py` — update 4 existing upload tests (AC-TEST-UPLOAD-1..4) for new invariants (mtime unchanged, `_history_1h` length unchanged); no test-rewrite scope beyond invariant change
+- `agent-context/architecture.md` — 1-line note that `/api/upload-history` is temporarily commented-write pending K-047
 
 **Out of scope (explicit):**
-- Removing the `/api/upload-history` endpoint or the frontend upload UI (both stay — upload CSV is still used as **query input** for pattern matching downstream; only the DB-write side effect is removed)
-- `_merge_bars()` helper (still used in-memory by `/api/predict` and `/api/merge-and-compute-ma99` — those already correctly in-memory-only per line 252 / 278 comments)
-- Building the scheduled scraper (K-047, separate ticket)
-- Adding auth to any endpoint (the point of K-046 is that removing mutation makes auth unnecessary)
+- Removing `/api/upload-history` endpoint or the frontend upload UI (both stay)
+- `_merge_bars()` helper (still used by `/api/predict` and `/api/merge-and-compute-ma99` in-memory paths — unchanged)
+- Reshaping response payload schema (no rename `added_count` → `parsed_bar_count`; see BQ-46D)
+- Building K-047 scheduled scraper
+- Adding auth to any endpoint
 
 **Affected files (expected):**
-- `backend/main.py` — lines 139-176 (`upload_history_file` handler body)
-- `backend/tests/test_main.py` — AC-TEST-UPLOAD-1/2/3/4 rewrite + new RO-5/RO-6
-- `frontend/src/AppPage.tsx` — lines 297-312 (handler) + lines 432-444 (result toast copy)
-- `agent-context/architecture.md` — updated block (single-line summary)
+- `backend/main.py` — lines 162-167 (write block comment-out) + 1-line comment at line 158 marking the gap
+- `frontend/public/examples/ETHUSDT_1h_test.csv` — new file (~646 bytes)
+- `frontend/src/AppPage.tsx` — lines 414-444 region (insert example download link)
+- `backend/tests/test_main.py` — AC-TEST-UPLOAD-1..4 invariant updates
+- `agent-context/architecture.md` — 1-line entry
 
 ## Acceptance Criteria
 
-### AC-046-RO-1 — Upload does not mutate on-disk history file
+### AC-046-COMMENT-1 — Upload does not mutate on-disk history file
 
-- **Given:** the backend server has booted with `HISTORY_1H_PATH` pointing at a real CSV file with a known `mtime` and `size`
+- **Given:** the backend server has booted with `HISTORY_1H_PATH` pointing at a real CSV file with a known `mtime_ns` and `size`
 - **When:** a client POSTs a valid 1H CSV (with bars whose timestamps are newer than anything in the history file) to `/api/upload-history`
 - **Then:** the HTTP response is `200 OK`
 - **And:** after the request completes, `os.stat(HISTORY_1H_PATH).st_mtime_ns` and `st_size` are byte-identical to the pre-request snapshot
 - **And:** reading `HISTORY_1H_PATH` back produces content byte-identical to the pre-request file content
+- **And:** the same invariant holds for `HISTORY_1D_PATH` when the uploaded file is a 1D CSV (triggered by `1d` / `_d_` / `_d.csv` in filename)
 
-### AC-046-RO-2 — Upload does not mutate in-memory history state
+### AC-046-COMMENT-2 — Upload does not mutate in-memory history state
 
 - **Given:** the FastAPI app's module-level `_history_1h` list has N entries before the request
 - **When:** a client POSTs a CSV containing M bars (with M ≥ 1 new timestamps not already in `_history_1h`) to `/api/upload-history`
-- **Then:** after the request completes, `len(main._history_1h) == N` (no delta)
-- **And:** `main._history_1h` is the same list object identity as before the request (no reassignment)
+- **Then:** after the request completes, `len(main._history_1h) == N` (zero delta, NOT N+M)
+- **And:** `main._history_1h` is the same Python list object identity as before the request (no reassignment happened — `id(main._history_1h)` unchanged)
 - **And:** the same invariant holds for `_history_1d` when the uploaded file is a 1D CSV
 
-### AC-046-RO-3 — /api/example reflects only the authoritative DB after uploads
+### AC-046-COMMENT-3 — Response payload remains meaningful for frontend
 
-- **Given:** `HISTORY_1H_PATH` exists with K rows
-- **When:** a client performs an upload POST to `/api/upload-history` (file parses successfully) followed by GET `/api/example?n=5&timeframe=1H`
-- **Then:** `/api/example` returns the same 5 rows it would have returned without the intervening upload (bit-identical JSON body)
-- **And:** repeating the upload N times (same or different CSV payloads) does not change the `/api/example` response
+- **Given:** the client POSTs a valid CSV containing M parseable bars to `/api/upload-history`
+- **When:** the response body is parsed by the frontend
+- **Then:** the JSON response schema is unchanged from pre-K-046: `{ filename, latest, bar_count, added_count, timeframe }`
+- **And:** `filename` is the authoritative target history filename (`Binance_ETHUSDT_1h.csv` or `Binance_ETHUSDT_d.csv`) for frontend display continuity
+- **And:** `latest` is the latest timestamp from the existing authoritative `_history_*` (NOT from the merged list, because no merge-assignment happens) — i.e. `existing[-1]['date']` in the handler's local scope
+- **And:** `bar_count` is `len(existing)` (the authoritative DB bar count) — NOT `len(merged)`, because `merged` is no longer persisted anywhere
+- **And:** `added_count` is always `0` regardless of upload contents (because no bars are added to state)
+- **And:** `timeframe` is `'1H'` or `'1D'` per filename heuristic (unchanged)
+- **And:** the existing frontend `lastHistoryUpload` state shape (`AppPage.tsx:306`) reading `added_count` + `bar_count` continues to render without TypeScript error or runtime crash
 
-### AC-046-RO-4 — Frontend /app upload → match → projection flow still works end-to-end
+### AC-046-COMMENT-4 — Response semantics toast remains correct with `added_count === 0`
 
-- **Given:** the user is on `/app` and the upload UI is rendered
-- **When:** the user uploads a valid History CSV, then clicks Predict on their input OHLC
-- **Then:** the upload result toast renders without error (new copy per AC-046-COPY-1 below)
-- **And:** `/api/predict` returns matches successfully (the upload's ephemeral in-memory merge for pattern-matching context still works via the `/api/predict` handler's own in-memory merge at `backend/main.py:277-278`)
-- **And:** no Playwright spec in `frontend/e2e/*.spec.ts` regresses (full suite continues to pass at pre-K-046 pass count)
+- **Given:** the user uploads any valid CSV via the `/app` Upload History CSV UI
+- **When:** the upload succeeds
+- **Then:** the existing conditional branch at `AppPage.tsx:438-440` renders the already-there "資料已是最新，無需更新（共 N bars）" copy (because `addedCount === 0` is always true post-K-046)
+- **And:** the toast border/background uses the already-there informational gray-border variant (`border-gray-700 bg-gray-800/40 text-gray-400`), not the green success variant — existing conditional is correct for K-046 semantics without edit
+- **And:** no Chinese copy change is required in this ticket (frontend stays as-is; only the comment-out + example-link changes land)
 
-### AC-046-RO-5 — Response payload renamed to reflect new semantics
+### AC-046-EXAMPLE-1 — Frontend /app shows Download example CSV link near upload UI
 
-- **Given:** the client POSTs a valid CSV to `/api/upload-history`
-- **When:** the response body is parsed
-- **Then:** the JSON contains `parsed_bar_count` (int, = the number of bars successfully parsed from the upload) instead of `added_count`
-- **And:** the JSON contains `history_bar_count` (int, = authoritative `HISTORY_*_PATH` row count, read from disk at request time — not affected by the upload) instead of the prior `bar_count` which conflated merged-and-persisted count
-- **And:** the JSON still contains `filename` (target history filename, for display), `latest` (latest timestamp in the authoritative DB, not the upload), `timeframe` (`'1H'` | `'1D'`)
-- **And:** no `added_count` field is present in the response
+- **Given:** the user navigates to `/app` for the first time (no prior upload state)
+- **When:** the page renders the sidebar History Reference section (`AppPage.tsx:408-431` region)
+- **Then:** immediately below the Upload History CSV `<label>` (lines 415-430) or adjacent to the existing "時間欄位須為 UTC+0" hint, there is a visible anchor element with text `Don't have a CSV? Download example →`
+- **And:** the anchor's `href` is `/examples/ETHUSDT_1h_test.csv` (repo-root relative, served via Firebase Hosting static assets)
+- **And:** the anchor carries a `download="ETHUSDT_1h_test.csv"` attribute (HTML5 force-download hint)
+- **And:** the anchor uses the existing small-text inline style (`text-[10px]` or `text-[11px]` + `text-gray-500` for label, with `text-blue-400 hover:text-blue-300` or equivalent link color for the clickable word `Download example`) — must be visually subordinate to the Upload label, not dominate
+- **And:** the link is always rendered (not empty-state-gated, not hidden after upload)
 
-### AC-046-COPY-1 — Frontend upload toast copy reflects analyse-only semantics
+### AC-046-EXAMPLE-2 — Clicking the link downloads ETHUSDT_1h_test.csv
 
-- **Given:** the user uploads a valid CSV via the `/app` upload UI
-- **When:** the upload returns successfully
-- **Then:** the result toast renders text like `Parsed N bars from <filename> · authoritative DB has M bars · latest <timestamp> UTC+0` (English, font-mono, consistent with existing `/app` toast style)
-- **And:** the toast does NOT say "added N bars" or "資料已是最新" (old Chinese copy bound to old semantics)
-- **And:** the visual style of the toast (border/background/icon) matches the existing "informational" variant (gray-border, not green-success), because no DB update happened
+- **Given:** the user is on `/app` with the Download example CSV link rendered
+- **When:** the user clicks the link
+- **Then:** the browser initiates a download of a file literally named `ETHUSDT_1h_test.csv` (no `Binance_` prefix anywhere in the downloaded filename)
+- **And:** the downloaded file byte content matches `frontend/public/examples/ETHUSDT_1h_test.csv` (which is a verbatim copy of `history_database/Binance_ETHUSDT_1h_test.csv` as of K-046 landing — 646 bytes, 7 lines)
+- **And:** the file opens as a valid CSV parseable by `_parse_csv_history_from_text()` (header row on line 2 after the `https://www.CryptoDataDownload.com` provenance row, OHLCV rows following, UTC+0 timestamps)
 
-### AC-046-REGRESSION-SACRED — Downstream endpoints unaffected
+### AC-046-EXAMPLE-3 — Example CSV round-trips through upload → predict flow
 
-- **Given:** the K-009 AC-009-1H-MA99-FROM-1D invariant holds (1H predict path uses `_history_1d` for MA99)
+- **Given:** the user has downloaded `ETHUSDT_1h_test.csv` via the example link
+- **When:** the user immediately re-uploads that same file via the Upload History CSV button (unchanged bytes)
+- **Then:** the upload returns `200 OK`
+- **And:** the frontend toast renders the existing "資料已是最新，無需更新" informational copy (per AC-046-COMMENT-4)
+- **And:** the on-disk authoritative DB and in-memory state remain unchanged (per AC-046-COMMENT-1, -2)
+- **And:** subsequent `/api/predict` calls in the same session succeed (the example's 5 bars are insufficient for full 24-bar query, but the ticket's AC is "parseable round-trip without error", not "produces a match"; the user's separate CSV is expected for real prediction)
+
+### AC-046-REGRESSION-SACRED — K-009 + K-013 invariants preserved
+
+- **Given:** K-009 AC-009-1H-MA99-FROM-1D locks `/api/predict` 1H path using `_history_1d` for MA99 (line 296 `ma_history=_history_1d`)
 - **When:** K-046 refactor lands
-- **Then:** `/api/predict` 1H response's `query_ma99_1h` is computed identically to pre-K-046 (same fixture, same output)
-- **And:** `/api/predict` 1D response's `query_ma99_1d` is computed identically to pre-K-046
-- **And:** `/api/merge-and-compute-ma99` response (K-009 / K-013 behavior) is identical to pre-K-046 (in-memory ephemeral merge path on lines 252-254 unchanged)
-- **And:** `backend/tests/fixtures/stats_contract_cases.json` (K-013 cross-layer contract) still validates with `test_predictor.py::test_stats_contract` all 3 cases PASS
+- **Then:** `/api/predict` 1H response's `query_ma99_1h` is byte-identical to pre-K-046 for the same fixture input
+- **And:** `/api/predict` 1D response's `query_ma99_1d` is byte-identical to pre-K-046
+- **And:** `/api/merge-and-compute-ma99` response (K-009 / K-013 behavior, in-memory ephemeral merge path lines 252-254) is byte-identical to pre-K-046
+- **And:** `backend/tests/fixtures/stats_contract_cases.json` (K-013 cross-layer contract) still validates with `test_predictor.py::test_stats_contract` — all existing cases PASS
+- **And:** `/api/example` endpoint returns bit-identical JSON before and after any number of `/api/upload-history` POSTs (implied invariant from AC-046-COMMENT-1: DB unchanged ⇒ /api/example output unchanged)
 
-### AC-046-DOCS — architecture.md reflects the change
+### AC-046-DOCS — architecture.md reflects the comment-out
 
 - **Given:** K-046 lands
 - **When:** reader opens `agent-context/architecture.md` current-state block
-- **Then:** there is an English note describing `/api/upload-history` as read-only (no DB write) with a pointer to K-046 + forward pointer to K-047
+- **Then:** a 1-line English note describes `/api/upload-history` as "write-disabled (commented-out pending K-047 auto-scraper)" with a K-046 pointer
 - **And:** the line is added via Architect's Step "每次任務結束前必同步 architecture.md" path, not by Engineer
 
 ## Phase Plan
 
-### Phase 1 — Backend refactor + test rewrite
+### Phase 1 — Backend comment-out + test invariant update
 
-- Engineer removes `_save_history_csv(merged, target_path)` + both `_history_1h = merged` / `_history_1d = merged` assignments inside `upload_history_file()`
-- Engineer reshapes response payload per AC-046-RO-5: `parsed_bar_count` + `history_bar_count` + `filename` + `latest` + `timeframe`; `added_count` field REMOVED
-- Engineer keeps `_parse_csv_history_from_text()` and `_merge_bars()` helpers (still used by `/api/predict` in-memory merge path — do not delete)
-- `_save_history_csv()` helper becomes orphaned after this refactor; Engineer decides: delete now (simpler) or keep for K-047 reuse (future scheduled scraper will also write to disk). **PM ruling:** delete now. K-047 will reintroduce its own write path with a different call-site shape (scheduled job context, not request handler). Dead code invites confusion.
-- Engineer rewrites `backend/tests/test_main.py` AC-TEST-UPLOAD-1..4 to:
-  - UPLOAD-1 (1H happy path) → assert `parsed_bar_count == N`, `os.stat` `mtime_ns` invariant, `main._history_1h` length invariant, response schema per AC-046-RO-5
-  - UPLOAD-2 (1D filename detection) → same invariants on `_history_1d` + `HISTORY_1D_PATH`
-  - UPLOAD-3 (empty file 422) → unchanged (422 response still applies)
-  - UPLOAD-4 (duplicate bars) → previously asserted `added_count == 0`; now obsolete, rewrite to assert `parsed_bar_count == N` (still informative) + same-file mtime invariant
-- Engineer adds 2 new tests:
-  - UPLOAD-RO-5 (`/api/example` stability) → per AC-046-RO-3
-  - UPLOAD-RO-6 (new payload schema) → per AC-046-RO-5, asserts field names + absence of `added_count`
-- Gate: `python3 -m pytest backend/tests/` all pass
-- Gate: `python3 -m py_compile backend/main.py` exit 0
+- Engineer wraps `backend/main.py:162-167` (the `if added_count > 0:` block that calls `_save_history_csv()` and assigns `_history_1d` / `_history_1h`) in a multi-line comment, preserving the logic verbatim behind `#` for easy K-047 uncomment
+  - Add a leading comment line above the block:
+    ```python
+    # TODO(K-047): re-enable upload-driven DB write once auto-scraper lands.
+    # Commented-out 2026-04-24 per K-046 to prevent anonymous public writes to authoritative history DB.
+    ```
+  - The `merged = _merge_bars(existing, new_bars)` and `added_count = len(merged) - original_count` computations on lines 159-160 can stay active (they're local variables; no side effect) — but reading them into the response payload needs adjustment per AC-046-COMMENT-3
+  - Adjust response payload (lines 170-176) so that the observable semantics match AC-046-COMMENT-3: `filename` = `target_path.name`, `latest` = `existing[-1]['date'] if existing else None` (from authoritative, not merged), `bar_count` = `len(existing)`, `added_count` = `0` (hardcoded), `timeframe` unchanged. This keeps the schema shape stable for the frontend while honestly reporting DB-observable state.
+- Engineer updates `backend/tests/test_main.py` AC-TEST-UPLOAD-1..4:
+  - UPLOAD-1 (1H happy path) → add assertion: `os.stat(HISTORY_1H_PATH).st_mtime_ns == pre_mtime_ns` + `len(main._history_1h) == pre_len`
+  - UPLOAD-2 (1D filename detection) → add same invariants on `HISTORY_1D_PATH` + `_history_1d`
+  - UPLOAD-3 (empty file → 422) → unchanged (error path still applies)
+  - UPLOAD-4 (duplicate bars) → previously asserted `added_count == 0` and `bar_count == N`; under K-046 the assertion `added_count == 0` stays true trivially; also add `mtime` invariant
+  - Optionally add one new test UPLOAD-RO-5 asserting `added_count === 0` regardless of payload novelty (explicit K-046 invariant) — Engineer ruling based on coverage judgment
+- **Gate:** `python3 -m pytest backend/tests/` all pass (counts match pre-K-046 baseline ± new UPLOAD-RO-5 if added)
+- **Gate:** `python3 -m py_compile backend/main.py` exit 0
 
-### Phase 2 — Frontend copy + schema sync
+### Phase 2 — Frontend example CSV asset + download link
 
-- Engineer updates `HistoryUpload` state shape in `AppPage.tsx:142` from `{ filename, latest, barCount, addedCount }` → `{ filename, latest, historyBarCount, parsedBarCount }`
-- Engineer updates the fetch handler `handleHistoryUpload` (lines 297-312) to read `parsed_bar_count` / `history_bar_count` from the response
-- Engineer rewrites the toast copy block (lines 432-444) per AC-046-COPY-1: English, no conditional success-vs-noop styling (always informational gray border since no DB mutation ever happens), copy pattern `Parsed N bars from <filename> · authoritative DB has M bars · latest <ts> UTC+0`
-- Gate: `npx tsc --noEmit` exit 0
-- Gate: Playwright suite full pass (match pre-K-046 pass count)
+- Engineer confirms `frontend/public/examples/ETHUSDT_1h_test.csv` exists (already landed by PM in this ticket commit — verify byte-identical to `history_database/Binance_ETHUSDT_1h_test.csv`)
+- Engineer inserts the Download example CSV link into `AppPage.tsx` near line 418 (adjacent to the existing "時間欄位須為 UTC+0" hint) — render pattern:
+  ```tsx
+  <a
+    href="/examples/ETHUSDT_1h_test.csv"
+    download="ETHUSDT_1h_test.csv"
+    className="text-[10px] text-gray-500 hover:text-blue-400"
+  >
+    Don't have a CSV? Download example →
+  </a>
+  ```
+  Placement detail: render as a sibling `<span>`/`<a>` immediately after the UTC+0 hint inside the same flex-column label content block, OR as a sibling element directly below the `<label>` — Engineer picks based on visual balance, but link must always be visible (not hidden by upload state).
+- **Gate:** `npx tsc --noEmit` exit 0
+- **Gate:** Playwright full suite pass at pre-K-046 baseline (no new spec required — example link covered by AC Playwright assertion added in Phase 2 if QA requests; otherwise manual dev-server visual check per `/playwright` convention)
 
-### Phase 3 — Architecture.md sync + close
+### Phase 3 — Architecture.md sync + Phase Gate close
 
-- Architect appends 1-line entry to `agent-context/architecture.md` current-state block describing the endpoint semantics change + K-047 forward pointer
-- PM Phase Gate verifies: AC-046-RO-1..5 + AC-046-COPY-1 + AC-046-REGRESSION-SACRED + AC-046-DOCS all PASS; Deploy Record written; close commit
+- Architect appends 1-line entry to `agent-context/architecture.md` current-state block: `/api/upload-history — upload-driven DB write commented out 2026-04-24 per K-046 (security: prevent anonymous writes to authoritative history DB); K-047 auto-scraper will replace write path on schedule. Endpoint still parses uploaded CSV and returns 200 with observable (non-mutated) DB state in response payload.`
+- PM Phase Gate verifies: AC-046-COMMENT-1..4 + AC-046-EXAMPLE-1..3 + AC-046-REGRESSION-SACRED + AC-046-DOCS all PASS; Deploy Record block written; close commit
 
 ## Blocking Questions — PM Rulings
 
-### BQ-046-A — Endpoint name: keep `/api/upload-history` or rename?
+### BQ-046-D — Scope of comment-out: full handler body (return 501) vs write block only
 
-**Options raised:**
-- (a) Keep `/api/upload-history` — zero frontend churn, URL already deployed
-- (b) Rename to `/api/analyze-kline` or `/api/parse-kline` — URL matches new semantics
-- (c) Introduce new name + leave old as alias — cost of both
+**Options raised (this session):**
+- **(X)** Full handler body commented → endpoint returns 501 Not Implemented. Most defensive: zero parse cost, zero response surface, frontend upload UI must be visibly disabled or it will error-toast on every click.
+- **(Y)** Comment only the write block (lines 162-167); parse + response still run; `added_count` always 0, `bar_count` reflects authoritative DB.
 
-**PM ruling: (a) keep `/api/upload-history`.**
+**PM ruling: (Y).**
 
 **Rationale per 4-source priority (per `feedback_pm_self_decide_bq.md`):**
-1. Pencil `.pen` design — no frame covers this API endpoint (backend route). No signal.
-2. Ticket text — user's verbatim scope was "把上傳時會更新後端資料庫的功能改掉" (remove the DB-write side effect), not "rename the endpoint." No signal toward rename.
-3. Memory rules — `feedback_engineer_no_scope_downgrade.md` + `feedback_readme_plain_language.md` both lean "minimize incidental churn"; rename would balloon diff + invalidate `/api/upload-history` grep-history in retrospectives/tickets without behavior value.
-4. Codebase evidence — URL is hit from exactly 1 frontend site (`AppPage.tsx:303`) and 4 backend test cases. Rename cost is low but non-zero; benefit is cosmetic (URL describing what it does). Rename value recovers only if frontend copy can't make new semantics clear — and it can (BQ-046-C ruling).
+1. Pencil `.pen` design — no frame covers backend API behavior. No signal.
+2. Ticket text — user's verbatim 2026-04-24 scope: "不用拿掉 /api/upload-history api, 只需要暫時先註解這個功能就好了" — "暫時" (temporarily) + "先" (for now) → reversible surgical comment, not endpoint disabling. Plus the Download example CSV AC requires user round-trip through upload → this is impossible if upload endpoint returns 501. Both together point unambiguously to (Y).
+3. Memory — `feedback_engineer_no_scope_downgrade.md` (minimize unintended diff), `feedback_playwright_mock_realism.md` (preserve frontend observable contract to avoid silent downstream breaks). Both lean (Y).
+4. Codebase — `/api/predict` and `/api/merge-and-compute-ma99` still use `_merge_bars()` in-memory (lines 252, 278). Upload's parse path stays useful + aligns with the in-memory merge pattern. (Y) keeps the conceptual surface consistent.
 
-Priority 2 wins (ticket text explicit about surgical removal, not rename). Keep the name.
+Verdict: (Y). Comment out lines 162-167 write block only; parse + response payload preserved; response payload adjusted so `latest` + `bar_count` honestly reflect authoritative DB state (not ghost-merged state).
 
-### BQ-046-B — Response payload shape: `added_count`, `parsed_bar_count`, both, or minimal?
-
-**Options raised:**
-- (α) Keep `added_count`, always 0 — frontend change = cosmetic only
-- (β) Replace with `parsed_bar_count` (N bars successfully parsed from upload) — informative
-- (γ) Return only HTTP 200 + empty body — minimal
-- (δ) `parsed_bar_count` + `history_bar_count` + `filename` + `latest` + `timeframe` — full informational payload
-
-**PM ruling: (δ).**
-
-**Rationale per 4-source priority:**
-1. Pencil — no signal (backend contract).
-2. Ticket text — user's guidance `Response payload（added_count 語義）對 frontend 仍 meaningful 或已調整` explicitly asks for a meaningful payload, not silent removal. Eliminates (α) + (γ).
-3. Memory — `feedback_playwright_mock_realism.md` ("absent field = undefined = runtime crash TS alone can't catch") + K-028 Sacred testid discipline argue for explicit schema, not shape-shifting. Leans toward full explicit payload (δ) over minimal (β).
-4. Codebase — existing frontend state shape already reads 4 fields (`filename` / `latest` / `bar_count` / `added_count`, `AppPage.tsx:306`). A 4-field replacement keeps cognitive load constant. (δ) delivers the parallel 4-field shape, just with renamed semantics.
-
-Verdict: (δ). Frontend toast can render "Parsed N bars · DB has M bars · latest <ts>" which is meaningful and actionable. `history_bar_count` and `latest` come from the current on-disk DB state (unaffected by this upload), which is also informational for the user.
-
-### BQ-046-C — Frontend copy: explain "analysis only, not stored"?
+### BQ-046-E — Example CSV artifact location
 
 **Options raised:**
-- (i) Ship only a toast copy change, no explanatory banner
-- (ii) Toast copy change + small "Upload is analysed, not saved" inline hint near the file-picker
-- (iii) Large warning block at top of `/app`
+- **(A)** Copy CSV to `frontend/public/examples/ETHUSDT_1h_test.csv` — Firebase Hosting serves it as a static asset. Zero backend roundtrip.
+- **(B)** New `/api/example-download` FastAPI endpoint that streams the file from `history_database/Binance_ETHUSDT_1h_test.csv` — requires backend dispatch; lets backend control filename on the fly.
 
-**PM ruling: (ii).**
+**PM ruling: (A).**
 
 **Rationale per 4-source priority:**
-1. Pencil — no `/app` Pencil frame per K-021 §2 (route is dev-tool, not design-reviewed). No signal.
-2. Ticket text — user framed this as "frontend `/app` 是否需要調整 copy 說明『Your upload is used for analysis only, not stored』" — explicitly suggests user-facing clarification. Eliminates (i).
-3. Memory — `feedback_readme_plain_language.md` (plain language, no jargon). `feedback_options_with_recommendation.md` (explicit recommendations). Both lean toward concise inline hint, not prominent warning. Eliminates (iii) — oversized banner misleads that there's a security concern on the user's end; the real concern was on the server operator's end and is fixed by the refactor itself.
-4. Codebase — existing upload affordance at `AppPage.tsx:415-428` is a small dashed-border button with `"時間欄位須為 UTC+0"` secondary hint inline — exact pattern for adding one more subtext line.
+1. Pencil — no signal.
+2. Ticket text — user: "可以用你之前使用的測試檔案, 給使用者參考" + "檔名把 Binance_ 拿掉". A simple copy + rename satisfies both exactly, no backend dependency.
+3. Memory — `feedback_api_path_scan_all_clients.md` implies we already audit `/api/` paths carefully; adding a new endpoint multiplies deploy dependencies with no gain. `feedback_firebase_hosting_public_dir.md` already establishes `frontend/public/` as the correct serve location.
+4. Codebase — `frontend/public/` already serves `diary.json` (runtime fetch) + `manifest.json` + favicons. `examples/` is a conventional subdirectory. Firebase Hosting `public` dir already points at `frontend/dist` (which Vite populates from `public/`), so the artifact ships with every deploy.
 
-Verdict: (ii). Add one line of secondary hint near the button: `Uploads are analysed for this session only — the authoritative history DB is read-only.` Size/style matches the existing `"時間欄位須為 UTC+0"` hint.
+Verdict: (A). File landed at `frontend/public/examples/ETHUSDT_1h_test.csv`, served from `https://<host>/examples/ETHUSDT_1h_test.csv`. File size is 646 bytes (7 lines — CryptoDataDownload provenance row + 1 CSV header + 5 OHLCV rows), small enough to keep as-is without truncation.
 
-**Copy detail for Engineer (AC-046-COPY-1 extension):** render the analyse-only hint as a `<span class="text-[10px] text-gray-500">` sibling inside the `<label>` wrapper, below or adjacent to the existing UTC+0 hint. One line of English. No icon, no color accent.
+### BQ-046-F — Download link copy + placement
+
+**Options raised:**
+- Placement: (α) sibling span under Upload History CSV label, always visible ←→ (β) empty-state-gated section (only shown before first upload) ←→ (γ) dedicated sidebar block.
+- Copy: `Don't have a CSV? Download example →` vs `Download example CSV` vs `Try with example data →`.
+
+**PM ruling: (α) always visible + copy `Don't have a CSV? Download example →`.**
+
+**Rationale per 4-source priority:**
+1. Pencil — no `/app` frame per K-021 §2 (route is dev-tool, not design-reviewed). No signal.
+2. Ticket text — user: "empty-state 時最顯眼、upload 後仍保留連結" → always visible, not hidden by upload state. Direct match with (α). Plus user's phrasing "link text" signals compact inline text, not banner/block, eliminating (γ).
+3. Memory — `feedback_readme_plain_language.md` (plain language, no jargon). `Don't have a CSV? Download example →` is plain + invitational; `Download example CSV` is terse but less contextual for first-time visitors.
+4. Codebase — `AppPage.tsx:418` already has pattern `<span class="text-[10px] text-gray-500">時間欄位須為 UTC+0</span>` — identical style for the new link, one line of text, no iconography.
+
+Verdict: (α) always-visible inline link, copy `Don't have a CSV? Download example →`, style `text-[10px] text-gray-500 hover:text-blue-400`, rendered immediately after the UTC+0 hint. No empty-state gating.
 
 ## Test Coverage Plan
 
-Test case counting per `feedback_pm_all_phases_before_engineer.md` and parallel-Given quantification rule:
-
 **Backend (pytest):**
-- 4 rewritten AC-TEST-UPLOAD-1..4 + 2 new UPLOAD-RO-5/6 = 6 tests
-- Each asserts an independent invariant (mtime, module state, response schema, /api/example stability). Not merge-able into single test.
+- 4 updated AC-TEST-UPLOAD-1..4 tests + optional UPLOAD-RO-5 = 4–5 tests
+- Each asserts an independent invariant (mtime_ns, module state length + identity, response schema, parse still succeeds). Parallel Given: AC-046-COMMENT-1 covers 1H + 1D timeframes × mtime invariant × length invariant = 4 independent assertions inside 2 test functions (one per timeframe). **Minimum 2 independent Playwright/pytest cases required** (1H path + 1D path); do not merge into one parameterized function that hides per-path failure.
 
 **Frontend (Playwright):**
-- No new Playwright spec required (upload UI not part of any Playwright E2E currently — verified via `grep -rln "upload\|Upload" frontend/e2e/` returning only `ma99-chart.spec.ts` with unrelated match). Existing `/app` spec (if any) will naturally cover the toast copy via regression.
-- tsc + full e2e regression expected to continue at pre-K-046 baseline pass count.
+- AC-046-EXAMPLE-1 + EXAMPLE-2 + EXAMPLE-3 — if QA Early Consultation calls for new E2E spec, cover: (a) link is visible on `/app` initial render with correct `href` + `download` attributes; (b) clicking link initiates download (check `getAttribute('download')` rather than trigger download + inspect filesystem — Playwright-friendly); (c) optional: upload → toast copy assertion is covered by existing frontend state, no new spec needed unless QA requests.
+- Parallel Given: AC-046-EXAMPLE-1..3 are 3 independent assertions (link rendered / filename + href correct / round-trip upload succeeds) → **3 independent test cases** if QA requests coverage.
 
 **Cross-layer fixture:**
-- K-013 `stats_contract_cases.json` must still validate (AC-046-REGRESSION-SACRED)
+- K-013 `stats_contract_cases.json` validation must still pass (AC-046-REGRESSION-SACRED)
 
 ## Sacred Invariants
 
 **Preserved:**
 - K-009 AC-009-1H-MA99-FROM-1D — `/api/predict` 1H path uses `_history_1d` for MA99 (line 296 `ma_history=_history_1d`), unchanged by K-046
 - K-013 cross-layer stats contract — `stats_contract_cases.json` validation path unchanged
-- `/api/predict` in-memory ephemeral merge (line 278) — unchanged; this is the actual path pattern-matching uses
+- `/api/predict` in-memory ephemeral merge (line 278) — unchanged; this is the actual path pattern-matching uses, independent of upload-handler write status
 
 **Retired by K-046:** none — no prior Sacred clause locked `/api/upload-history` write behavior.
 
 ## Release Status
 
-- 2026-04-24 open — PM drafted PRD + 7 ACs + 3 BQ rulings + Phase 1/2/3 plan
-- Next gate: QA Early Consultation → PM Handoff check → Architect release
+- 2026-04-24 — K-046 opened (original scope: remove DB write path; 7 ACs)
+- 2026-04-24 — PM halt: upper session lacked Agent tool, QA Early Consultation could not real-spawn
+- 2026-04-24 — **Scope revision by user**: `/api/upload-history` kept (comment-out write block only) + add example CSV download on `/app` + example filename drops `Binance_` prefix
+- 2026-04-24 — PM rewrote PRD: 8 ACs (4 COMMENT + 3 EXAMPLE + 1 REGRESSION + 1 DOCS), 3 BQ rulings (BQ-46D/E/F all PM-decided), 3-Phase plan
+- 2026-04-24 — **ready for QA Early Consultation** → main session to spawn real qa sub-agent → PM ingests feedback → ticket AC supplemented if needed → Architect release
 
 ## Retrospective
 
