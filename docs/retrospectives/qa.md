@@ -15,6 +15,19 @@
 - 倒序（最新在上）
 
 
+## 2026-04-24 — K-046 QA regression sign-off (post-Code-Review)
+
+**What went well:**
+- Caught the `K-UNKNOWN-visual-report.html` persona Step 2a pollution on first Playwright pass (visual-report.ts was swept in as part of the full suite run without `TICKET_ID`), deleted the stale file and re-ran with `TICKET_ID=K-046`; post-step `ls` verification confirmed `K-046-visual-report.html` exists + `K-UNKNOWN-*` absent, closing TD-K030-03-class regression risk same session.
+- Prod-endpoint smoke test with real uvicorn + real 3.5MB authoritative history file (`Binance_ETHUSDT_1h.csv`, 73990 bars) confirmed mtime_ns + size + md5 byte-identical across upload; gives confidence beyond tmp_path pytest fixtures that the comment-out also holds against the real on-disk DB.
+
+**What went wrong:**
+- None K-046-specific. Two pre-existing Playwright failures (`ga-spa-pageview.spec.ts::AC-020-BEACON-SPA` + `shared-components.spec.ts::Footer snapshot on /diary`) were inherited from pre-K-046 HEAD (K-045 Architect retro already logged `AC-020-BEACON-SPA` as pre-existing flaky; Footer /diary drift baseline-vs-actual is K-045 subpixel anti-alias recorded in architecture.md line 245). Neither spec file was touched by K-046.
+
+**Next time improvement:**
+- Persona Step 1 already mandates `TICKET_ID=K-XXX npx playwright test visual-report.ts`, but `npx playwright test` without args sweeps `visual-report.ts` into the full suite and produces `K-UNKNOWN-*.html` as a side effect. Add a persona-level reminder: **when running full-suite regression (not just screenshot step), pre-set `TICKET_ID` in env or explicitly `--grep-invert visual-report` to prevent pollution**. Root-cause fix (throw on missing TICKET_ID in `visual-report.ts`) is the TD-K030-03 engineering path; this is the QA workaround until that lands.
+
+
 ## 2026-04-24 — K-046 QA Early Consultation (surgical comment-out + example CSV download)
 
 **What went well:**

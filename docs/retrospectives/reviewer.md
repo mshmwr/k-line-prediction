@@ -1,3 +1,12 @@
+## 2026-04-24 — K-046 (comment out upload DB write + example CSV download)
+
+**What went well:** Architect's §1.3 truth-table (6 cases × 11 columns) made the Behavior Diff table trivially transcribable at Reviewer Step 2 — just verified each row against the OLD git show and NEW code. The reversibility guard test (AC-046-QA-2) genuinely has 5 independent failing dimensions (added_count / bar_count / mtime / len / id), not a degenerate tautology. Engineer's `added_count_local` rename with `noqa: F841` preserves K-047 revert intent legibly.
+
+**What went wrong:** First Playwright run showed 2 failures (T2 content-length 1408 instead of 646, T1 flake-adjacent) — initially concerning, but second run was 3/3 in 2.0s, confirming Vite dev-server cold-start gzip-encoding quirk, not K-046 regression. The spec's conditional content-length assertion (only check header if present, body length is primary) is the right defense.
+
+**Next time improvement:** when reviewing a ticket with Playwright asset-fetch assertions against Vite dev-server static files, run the spec twice — first run may show Vite cold-start Content-Length header drift from chunked/gzip; stable value only appears on warm cache. Codify as Reviewer depth-gate: "Playwright asset-fetch regression → 2 consecutive passes required before MERGE verdict." This prevents false-positive Critical findings on infra flake.
+
+
 ## 2026-04-24 — K-045 (/about desktop layout consistency — Step 2 depth review; CODE-PASS, 0 Critical / 1 Warning / 2 Nit)
 
 **What went well:** OLD vs NEW behavior-diff truth table built from `git show ef3519d:*` produced a full accounting — every OLD≠NEW cell mapped to either a K-045 AC (width 1024→1248, padding 24→96 desktop, gap 128→72) or a Pencil SSOT target (Y80Iv [72,96,96,96] gap:72, b6TgM no maxWidth cap). Zero unaccounted divergence. Pattern A compliance verified independently: ran `about-v2.spec.ts:441` K-031 adjacency spec live, confirmed `nextElementSibling='footer'` post-refactor — the design's Option C per-section root-child tree survives the Sacred that would have broken under a naïve body-wrapper mirror of HomePage.tsx. Widened token-retire sweep (4 sub-scans: SectionContainer / max-w-{3,5}xl / py-{16,20} / docs) returned 0 runtime residues — Engineer retirement was clean. Footer pairwise T19 Δ=0 identified as structural invariant, not fixture coincidence (root-child pattern makes Footer.width = viewport.width); noted inline so future readers don't loosen the tolerance.

@@ -309,6 +309,62 @@ PM-acknowledged coverage limits on K-046. Each gap was surfaced by QA Early Cons
 - 2026-04-24 — PM rewrote PRD: 8 ACs (4 COMMENT + 3 EXAMPLE + 1 REGRESSION + 1 DOCS), 3 BQ rulings (BQ-46D/E/F all PM-decided), 3-Phase plan
 - 2026-04-24 — **ready for QA Early Consultation** → main session to spawn real qa sub-agent → PM ingests feedback → ticket AC supplemented if needed → Architect release
 - 2026-04-24 — **QA Early Consultation complete (real qa sub-agent):** verdict READY, no Sacred conflicts (K-009 + K-013 both verified preserved). PM ingested 5 supplemental recommendations + 3 Known Gaps. Applied to ticket: wording fix on AC-046-COMMENT-3 bullet 2 (response `filename` field is consumer-agnostic, frontend reads `file.name` not `uploadResult.filename`); 3 new ACs appended (AC-046-QA-2 reversibility / AC-046-QA-3 Playwright round-trip / AC-046-QA-4 backend CSV format round-trip); Out-of-scope gains 1 bullet for filename-heuristic tech debt; new §Known Gaps section documents 3 PM-acknowledged coverage limits (concurrency moot, CDN propagation ops-time, cross-browser download attribute-level). AC count: 8 → 11. Ticket ready for Architect release.
+- 2026-04-24 — **Architect design complete:** `docs/designs/K-046-comment-out-upload-write.md` landed; Option A (write-block-only comment-out) recommended matching BQ-46D; OLD vs NEW 6-row truth table; Route Impact = `/app` only; Shared Component Inventory = none (inline `<a>`); Sacred preservation K-009 + K-013 + TD-003 moot-pending-K-047 all documented; architecture.md Phase 3 sync plan included.
+- 2026-04-24 — **Engineer Phase 1–3 landed:** commits `40e1e48` (backend comment-out + test invariants) + `922bfa2` (frontend example CSV link + E2E spec). Pre-commit gates: `python3 -m py_compile backend/main.py` exit 0; pytest 70/70 including 2 new tests (AC-046-QA-2 strictly-later reversibility + AC-046-QA-4 example CSV round-trip); `npx tsc --noEmit` exit 0; `frontend/e2e/K-046-example-upload.spec.ts` 3/3 green.
+- 2026-04-24 — **Code Review two-layer PASS:** Step 1 `superpowers:code-reviewer` breadth: 0 Critical / 0 Important / 5 Minor. Step 2 `Agent(reviewer.md)` depth: READY TO MERGE — Behavior Diff truth table every OLD→NEW delta AC-pinned; 12/12 AC impl+test matrix complete; Sacred K-009 + K-013 preserved (verified via `git show 0ec215e:backend/main.py` dry-run); Git Status Commit-Block Gate PASS (no runtime-scope dirty at PASS time). 5 Minor findings re-classified by Reviewer as accept-as-is after depth analysis.
+- 2026-04-24 — **QA regression sign-off (real qa sub-agent):** pytest 70/70 + Playwright full suite 284/284 baseline (2 pre-existing failures inherited from pre-K-046 HEAD per K-045 architect retro: `ga-spa-pageview.spec.ts::AC-020-BEACON-SPA` + `shared-components.spec.ts::Footer snapshot on /diary` subpixel drift; both confirmed K-045-class, NOT K-046-caused) + tsc exit 0. Prod-endpoint smoke test against real uvicorn + 3.5MB authoritative history file (`Binance_ETHUSDT_1h.csv`, 73990 bars) — `mtime_ns` + `size` + md5 byte-identical pre/post upload, confirming comment-out also holds on real on-disk DB beyond tmp_path fixture coverage. `TICKET_ID=K-046` prepended on full-suite command per K-041 retro learning, post-step verification confirmed `K-046-visual-report.html` exists + `K-UNKNOWN-*.html` absent.
+- 2026-04-24 — **PM ruled on 3 post-review items** (see §PM Rulings below); ticket moves to **ready-to-deploy** state. Deploy (`firebase deploy --only hosting` per K-Line `CLAUDE.md §Deploy Checklist`) gated by main session + user confirmation; Deploy Record remains PENDING until post-deploy.
+
+## PM Rulings (Post-Review)
+
+Ruled 2026-04-24 after ingesting Reviewer Step 1 breadth + Step 2 depth + QA regression sign-off. Each ruling cites the 4-source priority per `feedback_pm_self_decide_bq.md`.
+
+### 1. 5 Minor findings (M-1..M-5) — accept-as-is, NO Tech Debt entry
+
+- **Items:**
+  - **M-1** `added_count_local` local-var rename (backend/main.py in comment-out block)
+  - **M-2** lexicographic `max_existing` sanity note in merge helper
+  - **M-3** conditional `Content-Length` assertion phrasing in K-046 E2E
+  - **M-4** `>= 5` fixture bar-count lower bound asymmetry with example CSV's exactly-5 rows
+  - **M-5** tab-order a11y sequence for new anchor element
+
+- **Ruling:** **Accept-as-is, no TD entry, no catch-all log.**
+
+- **4-source priority walk:**
+  1. Pencil — no frame covers backend internal naming / E2E assertion phrasing / a11y tab-order detail at this granularity. No signal.
+  2. Ticket text — all 5 items are outside PRD AC scope (AC-046-COMMENT-1..4 + AC-046-EXAMPLE-1..3 + AC-046-REGRESSION-SACRED + AC-046-QA-2..4 + AC-046-DOCS all PASS per Code Reviewer + QA). None of M-1..M-5 falls under an AC violation. No signal toward Fix-Now.
+  3. Memory — `feedback_measure_before_restructure.md` (quantify bottleneck before structural change); `feedback_retrospective_honesty.md` (no fabricated tracking); `feedback_pm_close_bq_iteration.md` (`DEFERRED-TO-TD-XXX` label requires the TD file to exist at close, and the TD must carry a scoped problem — catch-all "Minor accept log" TD is exactly the paperwork-only anti-pattern the rule guards against). Reviewer already re-classified all 5 as accept-as-is after depth analysis — creating a single catch-all TD entry would add a SOR with no owner, no scheduled remediation, no recurring signal, and no behavior change trigger. All 3 memory sources align: accept-as-is without TD.
+  4. Codebase — M-1..M-5 are style/phrasing preferences at local-variable / assertion-shape / a11y-detail scope. No existing file convention is violated; no cross-file consistency contract is broken; no future-maintenance footgun is created (`added_count_local` rename, `Content-Length` phrasing are within normal Python / Playwright idiom range).
+
+- **Verdict rationale:** Reviewer's depth re-classification is the authoritative ruling on these 5 items; PM endorses accept-as-is. Logging rationale inline in this section (not as TD) so future audit trail reads "5 Minor items ruled at 2026-04-24 close, reasoning here" rather than "5 Minor items → TD-K046-01 catch-all → unresolved forever". If any of M-1..M-5 recurs in a future ticket's review, that second-occurrence becomes the trigger to file a real TD at that point.
+
+### 2. GAP-1 (concurrency surface for `/api/upload-history`) — RESOLVED, tracker = K-047 Architect design phase (existing persisted artifact, no new TD)
+
+- **Context:** PRD §Known Gaps GAP-1 documents that no AC exercises concurrent POSTs against `/api/upload-history`; FastAPI `TestClient` is single-request by design; concurrent repro would need `asyncio.gather` + real uvicorn. Post-K-046 write block is commented, so the race surface on the upload handler is removed until K-047 re-enables the write path. Design doc `docs/designs/K-046-comment-out-upload-write.md §7 Sacred Preservation Notes` L279 explicitly states: "TD-003 (upload handler concurrency risk) — becomes moot post-K-046 because there is no write path to race on. See ticket §Known Gaps GAP-1. Revisit at K-047 design." `agent-context/architecture.md` L252 has a parallel annotation.
+
+- **Ruling:** **RESOLVED — tracker = K-047 Architect design phase**; NO new TD opened.
+
+- **4-source priority walk:**
+  1. Pencil — no signal for backend concurrency design.
+  2. Ticket text — K-046 PRD §Known Gaps GAP-1 already names "K-047 Architect design phase" as the resurfacing moment; design doc §7 re-iterates; architecture.md L252 cross-links. Three persisted SORs already point at K-047 as the tracker.
+  3. Memory — `feedback_pm_close_bq_iteration.md` requires at-close each BQ is RESOLVED / DEFERRED-TO-TD-XXX / OPEN. "DEFERRED-TO-TD" requires the TD ticket to exist AND carry a scoped problem. Opening a new TD now for "revisit concurrency at K-047" would create a fourth SOR duplicating the existing K-047-design-phase pointer, with no additional signal — identical anti-pattern to Ruling #1. `feedback_dual_repo_mirror_gap_detection.md` / `feedback_retrospective_honesty.md` collectively point toward: one issue, one tracker (not three, not four).
+  4. Codebase — K-047 ticket stub is already reserved in repo (`docs/tickets/K-047-*.md` per Release Status 2026-04-24 opening entry). Architect on K-047 will encounter `# TODO(K-047)` markers at `backend/main.py:162-167` when uncommenting; those markers plus the three existing SORs force the concurrency question to surface at K-047 design time. No additional tracker needed.
+
+- **Verdict rationale:** GAP-1 is **RESOLVED (pointer persisted)** per `feedback_pm_close_bq_iteration.md` §RESOLVED label — the pointer to K-047 Architect design phase exists in 3 locations (ticket §Known Gaps + design doc §7 + architecture.md L252) and the `TODO(K-047)` source-level marker guarantees the K-047 Architect session will surface the concurrency concern. Not OPEN (no work owed here), not DEFERRED-TO-TD (the existing K-047 ticket IS the tracker, a duplicate TD would dilute signal).
+
+### 3. TD-003 moot window — keep TD-003 listed with "moot until K-047" annotation; do NOT close
+
+- **Context:** `agent-context/architecture.md` L252 currently reads "用 module globals（`_history_1h` / `_history_1d`）做 read-merge-write-swap，無同步機制，併發上傳可能遺失 bars。**Post-K-046 write path 註解後 race surface 移除**，直到 K-047 重啟 write path 再回到此風險面；revisit 於 K-047 Architect design phase." L393 tech-debt row still lists TD-003 as open.
+
+- **Ruling:** **Keep TD-003 listed (not closed) with the existing moot-until-K-047 annotation.**
+
+- **4-source priority walk:**
+  1. Pencil — no signal.
+  2. Ticket text — TD-003 defines the race risk against module-global mutation. K-046 removed the *write path* that triggers the mutation, but did NOT remove `_history_1h` / `_history_1d` as module globals, did NOT add `asyncio.Lock`, did NOT extract a `history_repository.py`. The underlying design problem (race-prone module globals) is still present in the code; only the specific write entry-point is commented. When K-047 re-enables an auto-scraper-driven write path, the race surface returns — possibly worse, because a scheduled scraper + concurrent `/api/predict` reads hit the same unsynchronized module globals.
+  3. Memory — `feedback_retrospective_honesty.md` (no premature celebration); `feedback_pm_close_bq_iteration.md` (a TD with a still-valid underlying design problem stays open even when the acute trigger path is temporarily disabled). Closing TD-003 now would claim "resolved" on a problem that is only dormant; worse, if K-047 Architect doesn't re-read TD-003 (because it's closed), the race re-surfaces silently in production.
+  4. Codebase — `backend/main.py` still carries module-level `_history_1h: list[dict] = []` + `_history_1d: list[dict] = []` + the commented-out `_history_*_= merged` assignment lines. The race primitive is unchanged; only the specific mutation call site is disabled. `/api/predict` + `/api/merge-and-compute-ma99` still *read* these globals concurrently with other handlers.
+
+- **Verdict rationale:** TD-003 remains a valid open tech-debt entry describing the module-global-mutation race pattern. The L252 moot annotation + the "revisit於 K-047" pointer accurately capture the current state (race trigger path commented, race primitive still present). Closing TD-003 would mis-represent K-046's scope — K-046 is a *defensive comment-out*, not a *concurrency fix*. K-047 Architect design MUST re-read TD-003 before re-enabling any write path; keeping TD-003 open is what forces that read.
 
 ## Retrospective
 
@@ -319,4 +375,37 @@ PM-acknowledged coverage limits on K-046. Each gap was surfaced by QA Early Cons
 **Edge cases not anticipated:** Vitest `diary.legacy-merge.test.ts` 在 HEAD 就已失敗（legacy text word count < 50），與 K-046 scope 無關，但 full-gate 跑 Vitest 時會觸發；已 stash 後確認同失敗，非本票責任。
 
 **Next time improvement:** Edit page 級檔前先 `grep 'input\[type="file"\]' <target-file>` 盤點同類 DOM，避免 E2E 階段才被 Playwright strict-mode 提醒。
+
+## Ready-to-Deploy Block
+
+Ticket reached ready-to-deploy state 2026-04-24 after Reviewer two-layer PASS + QA regression sign-off + PM rulings on 3 post-review items (see §PM Rulings above). Deploy execution (`firebase deploy --only hosting` per `K-Line-Prediction/CLAUDE.md §Deploy Checklist`) is gated by the main session + user confirmation — PM sub-agent session does NOT run deploy.
+
+**Pre-deploy gate evidence captured at ready-to-deploy time:**
+
+- Engineer commits: `40e1e48` (backend comment-out + test invariants) + `922bfa2` (frontend example CSV link + E2E spec) + `2ef3188` (Engineer retrospective docs-only)
+- Worktree HEAD at ready-to-deploy: will be recorded at deploy time by main session
+- py_compile: exit 0 on `backend/main.py`
+- pytest: 70/70 including 2 new AC-046-QA-2 reversibility + AC-046-QA-4 example CSV round-trip
+- tsc: exit 0
+- Playwright K-046 spec: 3/3 (`frontend/e2e/K-046-example-upload.spec.ts`)
+- Playwright full regression: 284/284 baseline (2 pre-existing non-K-046 failures documented in Release Status + QA retrospective 2026-04-24 K-046 entry)
+- Prod-endpoint smoke: real uvicorn + 3.5MB authoritative history (73990 bars) — mtime_ns + size + md5 byte-identical pre/post upload (comment-out verified beyond tmp_path fixture scope)
+- Sacred cross-check: K-009 `ma_history=_history_1d` (main.py:297) untouched; K-013 `stats_contract_cases.json` handler non-overlapping; verified via `git show 0ec215e:backend/main.py` dry-run per Reviewer depth pass
+
+**Status remains `open` until Deploy Record is filled post-deploy by main session.** The project convention (per K-045) writes `status: closed` + `deployed: YYYY-MM-DD` + `deployed-commit: <SHA>` atomically at Deploy Record completion time. Leaving `status: open` here signals "ready-to-deploy, not yet deployed".
+
+## Deploy Record
+
+- firebase hosting: **PENDING** (main session gates user confirmation)
+- cloud run: **PENDING** (main session gates user confirmation; K-046 is frontend + backend — `/api/upload-history` behavior change lives in `backend/main.py`, so Cloud Run deploy is required in addition to Firebase Hosting)
+- prod smoke: **PENDING** post-deploy
+
+Placeholder only — actual deploy date / Git SHA at deploy / hosting bundle hash / Cloud Run revision / verification probe output / release status will be filled by main session after successful `firebase deploy --only hosting` + `gcloud run deploy` (if applicable) per `K-Line-Prediction/CLAUDE.md §Deploy Checklist`.
+
+**Verification probe plan (to be executed post-deploy by main session):**
+
+- **Frontend (Firebase Hosting):** `curl -s https://k-line-prediction-app.web.app/assets/index-<hash>.js | grep -oE 'Download example' | wc -l` → expect `1` (K-046 anchor text landed); `curl -sI https://k-line-prediction-app.web.app/examples/ETHUSDT_1h_test.csv` → expect HTTP 200 + Content-Length 646 (example CSV static asset served)
+- **Backend (Cloud Run):** `curl -X POST https://<cloud-run-url>/api/upload-history -F 'file=@frontend/public/examples/ETHUSDT_1h_test.csv'` → expect HTTP 200 + response `{ "added_count": 0, "timeframe": "1H" }` (K-046 invariant: added_count always 0 post-K-046); pre/post `curl <cloud-run-url>/api/example` byte-identical (implied DB-unchanged invariant from AC-046-COMMENT-1)
+
+Both probes name K-046-specific identifiers (`Download example` anchor text + `/examples/ETHUSDT_1h_test.csv` asset path + `added_count: 0` invariant) per `~/.claude/agents/pm.md §Deploy Record` executed-probe rule; generic 200-response probes are NOT sufficient.
 
