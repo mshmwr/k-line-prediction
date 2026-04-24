@@ -312,4 +312,11 @@ PM-acknowledged coverage limits on K-046. Each gap was surfaced by QA Early Cons
 
 ## Retrospective
 
-_(filled at close)_
+### Engineer (2026-04-24)
+
+**AC judgments that were wrong:** T3 E2E 首次用 `page.locator('input[type="file"]')` 撞 strict-mode（`/app` 有 2 個 file input：multi-select OHLC + History CSV）。重新讀 JSX 後改用 label 容器限定才通過 — AC-046-QA-3 的 setInputFiles 動作需要精確 selector，第一版沒考量頁面整體有多個同類 input。
+
+**Edge cases not anticipated:** Vitest `diary.legacy-merge.test.ts` 在 HEAD 就已失敗（legacy text word count < 50），與 K-046 scope 無關，但 full-gate 跑 Vitest 時會觸發；已 stash 後確認同失敗，非本票責任。
+
+**Next time improvement:** Edit page 級檔前先 `grep 'input\[type="file"\]' <target-file>` 盤點同類 DOM，避免 E2E 階段才被 Playwright strict-mode 提醒。
+

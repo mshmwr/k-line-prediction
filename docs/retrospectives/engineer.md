@@ -16,7 +16,15 @@
 
 ---
 
-## 2026-04-24 — K-045 /about desktop layout consistency
+## 2026-04-24 — K-046 comment out upload-history write + add example CSV download
+
+**做得好：** AC-046-QA-2 reversibility dry-run 按 `feedback_engineer_concurrency_gate_fail_dry_run.md` 執行 — 暫時把 write block 重新 uncomment 跑 `test_upload_strictly_later_bars_no_mutation`，確認在 mtime_ns 層失敗（`1777018279835857474 != 1777018278297934393`），證明斷言有實際 monitoring 力，再 re-comment 確認 PASS。此斷言若省略「寫 block 暫時恢復」這步就會變成永恆成立的空話（K-046 的 write block 一旦被無意識 uncomment，沒有這個測試就沒有守門人）。
+
+**沒做好：** T3 E2E spec 首次執行撞到 `strict mode violation: locator('input[type="file"]') resolved to 2 elements`（`/app` 同時有 multi-select OHLC input 和 History CSV input），第一版 selector 不夠精確；改為 `page.locator('label', { hasText: 'Upload History CSV' }).locator('input[type="file"]')` 才通過。Pre-impl 階段只讀了 History Reference block 的 JSX，沒對整頁做 `grep 'input\[type="file"\]'` 盤點其他 input 類型。
+
+**下次改善：** Edit 前對目標 page 檔（如 `AppPage.tsx`）grep 所有同類型 DOM 元素（`input`, `button`, `a`, `label`）一次，盤點是否有多 instance 會撞 strict mode。若有 2+ instance，E2E selector 直接用容器限定（label + hasText / section-role + getByTestId），不要先寫泛 selector 才被 Playwright 提醒。
+
+
 
 **做得好：**
 - Phase 1 Footer snapshot failure 沒 blind rerun `--update-snapshots`。先 `git stash` + probe spec 分離 pre-existing flakiness（/diary baseline 在 HEAD 00f8ac6 就 fail）vs 本次造成（/about page height 3790→3263 的 subpixel anti-alias drift），再經 T1 byte-identity 驗 DOM 未變、只更新 pixel baseline。commit message 明寫 drift cause + 為何合法，為 Reviewer Git Status Commit-Block Gate 提供審查錨點。
