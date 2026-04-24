@@ -1,18 +1,23 @@
 import { RAIL } from './timelinePrimitives'
 
 // K-024 Phase 3 — shared timeline rail (design §6.3 / §6.5 / §9.1).
-// Absolute-positioned 1px vertical line inside the timeline container.
-// Hidden on mobile (<sm, 640px) per design §6.8; consumers control visibility
-// via Tailwind responsive classes only. Color / width / x-offset read from
-// timelinePrimitives.ts (derived from visual-spec.json wiDSi + N0WWY shared
-// primitive).
+// K-041 — `mobileVisible` prop consolidates Homepage + /diary into one
+// component. Default `false` preserves K-024 §6.8 hide-on-<sm; `/diary` and
+// Homepage pass `true` after K-041 AC-024-CONTENT-WIDTH rewrite. Consumer
+// controls conditional render (e.g., Homepage 1-entry boundary via
+// `entries.length >= 2 &&`); DiaryRail itself is unconditional visual.
 
-export default function DiaryRail() {
+interface DiaryRailProps {
+  mobileVisible?: boolean
+}
+
+export default function DiaryRail({ mobileVisible = false }: DiaryRailProps) {
+  const visibilityClass = mobileVisible ? 'block' : 'hidden sm:block'
   return (
     <div
       aria-hidden="true"
       data-testid="diary-rail"
-      className="hidden sm:block absolute"
+      className={`${visibilityClass} absolute`}
       style={{
         width: RAIL.width,
         backgroundColor: RAIL.color,

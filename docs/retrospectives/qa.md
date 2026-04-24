@@ -19,6 +19,36 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-24 — K-041 QA Early Consultation (PM proxy tier — @qa-proxy)
+
+**Role:** PM proxy (not spawned QA agent). Invoked under user-approved `b + 不 deploy + 開工` directive (2026-04-24). Tier rationale: narrow scope (4 source files + 1 spec flip), Sacred invariants pre-locked in ticket table, no new runtime/schema introduced — layout class present but restoration-only (Homepage behavior already in production). FAIL-ONCE rule: any adversarial question below surfacing uncodified behavior or missing assertion forces escalation to real QA spawn.
+
+**Adversarial questions (5):**
+
+**Q1 — Sacred regression: marker borderRadius**
+After `DiaryMarker` accepts `borderRadius?: number` prop defaulting to `MARKER.cornerRadius = 6`, will Homepage still render `borderRadius: 0`?
+**Answer:** Only if `DevDiarySection` explicitly passes `borderRadius={0}`. Guardrail = existing `pages.spec.ts` Homepage Sacred assertion `toHaveCSS('border-radius', '0px')` (K-023 AC-023-DIARY-BULLET / K-028 AC-028-MARKER-COORD-INTEGRITY). Regression is caught automatically by Phase 4 full regression. **PASS** (no escalation).
+
+**Q2 — Sacred regression: marker topInset**
+After `DiaryMarker` accepts `topInset?: number` prop defaulting to `MARKER.topInset = 10`, will Homepage still render `top: 8px`?
+**Answer:** Only if `DevDiarySection` explicitly passes `topInset={HOMEPAGE_MARKER_TOP_INSET}` (currently `= 8`). Guardrail = existing Homepage coord assertion (K-028 AC-028-MARKER-COORD-INTEGRITY). **PASS**.
+
+**Q3 — Rail conditional render boundary (1-entry case)**
+Homepage renders rail only when `entries.length >= 2` (design §4.3.1). /diary renders unconditionally. Shared `<DiaryRail />` must not force rail at 1-entry on Homepage.
+**Answer:** Consumer decides render — Homepage keeps `{entries.length >= 2 && <DiaryRail mobileVisible />}` guard. Sacred guardrail = `diary-homepage.spec.ts` T-H2 (0-entry hides rail) + T-H3 (1-entry hides rail). **PASS** — but Engineer MUST NOT lift conditional into DiaryRail; keep at consumer.
+
+**Q4 — Mobile padding overflow at narrowest viewport**
+`/diary` entry mobile `paddingLeft: 92px` on 390px viewport leaves 298px content width. Does text overflow horizontally?
+**Answer:** Existing T-C5 asserts no-overflow at 390px with current desktop `pl-[92px]`. After K-041 mobile also = 92px → `no-overflow` must hold at 390px. Homepage already uses same 92px padding at all viewports with no overflow. **PASS** — Engineer runs T-C5 as part of Phase 2 gate; regression if `scrollWidth > innerWidth`.
+
+**Q5 — Cross-spec hidden dependencies on OLD mobile-hidden behavior**
+Besides T-C6 (`diary-page.spec.ts:572`), any other spec asserting `/diary` mobile rail/marker `display: none`?
+**Answer:** Grep of `frontend/e2e/*.spec.ts` for rail/marker mobile assertions found: only T-C6 asserts `display: none` explicitly. T-H2/T-H3/T-H4 in `diary-homepage.spec.ts` are entry-count boundaries (0/1/2 entries), not viewport-dependent. T-T4 in `diary-page.spec.ts` is backgroundColor/dimensions, not display. **PASS** — only T-C6 needs flip.
+
+**Verdict:** ALL-5-PASS → PM proxy tier approved. Engineer released for Phase 2. No real QA spawn required pre-implementation.
+
+**Phase 4 mandatory full regression (unchanged):** post-implementation full Playwright suite + tsc must pass before PM close.
+
 ## 2026-04-24 — K-039 Phase 1 (QA sign-off)
 
 **What went well:** Pre-existing guards on role cards (`AC-017-ROLES` 6×3, `AC-022-ROLE-GRID-HEIGHT` desktop + 3 mobile breakpoints, `AC-034-P2-FILENOBAR-VARIANTS` FILE Nº 01..06 exact, `AC-034-P2-DRIFT-D26-SUBTITLE-VERBATIM` S3 subtitle) all turned green on the refactored `RoleCardsSection` + new `roles.ts` module — single-source data extraction did not drift any visual or text assertion. The new `roles-doc-sync.spec.ts` (4/4 PASS) locks the TSX-canonical text against README + docs/ai-collab-protocols.md via explicit marker blocks, establishing a regression gate that would FAIL on any future drift without needing human diff review.
