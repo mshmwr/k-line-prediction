@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-039",
+    "title": "Split SSOT for /about role cards with language-neutral JSON and doc sync generator",
+    "date": "2026-04-24",
+    "text": "Split the /about role-card SSOT into two layers: Pencil owns the visual SSOT (container geometry, typography tokens, card shape), and a new language-neutral content/roles.json at repo root owns the runtime text SSOT (six entries for PM, Architect, Engineer, Reviewer, QA, Designer); frontend/src/components/about/roles.ts became a thin TypeScript wrapper importing JSON + re-exporting with RoleEntry type; README.md and docs/ai-collab-protocols.md tables were wrapped in <!-- ROLES:start --> ... <!-- ROLES:end --> markers; shipped scripts/sync-role-docs.mjs (113 lines, two modes default=write and --check=drift-fail-exit-1) plus a .githooks/pre-commit hook that blocks unsynced commits; dogfooded a full DRIFT to FAIL to REGENERATE to PASS cycle proving the generator kills drift without needing a Designer session; codified the split into three persona files (pm.md visual-delta + content-delta gate, engineer.md Step 0e Text SSOT Consult Gate, designer.md frozen-at-session snapshot clause) plus memory feedback_content_ssot_split.md with retire-eligible and codified-into frontmatter; ticket frontmatter adds content-delta yes/none field so text-only tweaks can bypass the Designer + design-locked gate; tsc exit 0; new roles-doc-sync.spec.ts 4/4 PASS; full Playwright 257 passed with 1 skipped and 1 pre-existing K-020 red."
+  },
+  {
     "ticketId": "K-037",
     "title": "Favicon wiring and Web App Manifest",
     "date": "2026-04-23",
