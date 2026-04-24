@@ -16,6 +16,12 @@
 
 ---
 
+## 2026-04-24 — K-049 Fix-First Round
+
+Applied Reviewer Step 2 rulings: (I-1) extended `frontend/scripts/validate-env.mjs` with a production-only hard-fail on non-empty `VITE_API_BASE_URL` (post-K-049 Phase 2b CORSMiddleware removal + Firebase `/api/**` rewrite require same-origin API calls); dev/staging/test builds keep the prior regex-only behavior so local-against-Cloud-Run workflows still work. Value is redacted in CI logs (first-20 + `...` + last-4). New `frontend/src/__tests__/validate-env.test.ts` exercises `node scripts/validate-env.mjs` via `spawnSync` with a clean env for 4 cases: (a) prod + empty → exit 0, (b) prod + non-empty → exit 1 + exact-message checks + redaction-leak guard, (c) dev + non-empty → exit 0 no advisory, (d) prod + missing GA id → exit 1 (pre-existing preserved). (N-1) added `await expect(cards).toHaveCount(6)` before the `evaluateAll` at `about-v2.spec.ts:325` to auto-wait under React.lazy chunk-load latency, symmetric with the sibling gate at line 341. Empirically the test was green pre-fix on localhost sub-ms fetch, but the structural race would have been latent under higher CI latency or prod-deployed-bundle probes. **Self-check learning:** first test draft had an off-by-one assertion on the redacted URL prefix (`https://k-line-backend...` — length 21) vs the actual 20-char slice (`https://k-line-backe...`). Caught immediately by the failing test, corrected with an inline comment pinning the exact source URL + first-20 + last-4 characters so future readers can re-verify without re-counting. Confirms the "Vitest first draft fails fast on redaction assertions" pattern — don't hand-count substring lengths in the assertion, pin them against a documented byte layout.
+
+---
+
 ## 2026-04-25 — K-049 Phase 3 — React.lazy route split + Suspense + GA pageview lazy hardening
 
 **做得好：**

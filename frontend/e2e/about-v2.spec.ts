@@ -324,6 +324,7 @@ test.describe('AC-022-ROLE-GRID-HEIGHT — Role Cards grid height', () => {
   test('6 role card heights differ by ≤ 2px (desktop)', async ({ page }) => {
     await page.goto('/about')
     const cards = page.locator('[data-role]')
+    await expect(cards).toHaveCount(6)  // auto-wait + count gate before evaluateAll (K-049 N-1 — symmetric with sibling at line 341 under React.lazy chunk-load race)
     const heights = await cards.evaluateAll(els =>
       els.map(el => el.getBoundingClientRect().height)
     )
