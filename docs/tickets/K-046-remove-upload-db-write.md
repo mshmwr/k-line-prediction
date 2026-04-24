@@ -1,15 +1,16 @@
 ---
 id: K-046
-title: Comment out upload-history DB write + add example CSV download
-status: closed
+title: Comment out upload-history DB write + add example CSV download (Phase 2 — prod fix)
+status: reopened
 created: 2026-04-24
 revised: 2026-04-24
-deployed: 2026-04-24
-deployed-commit: 34570a3
+reopened: 2026-04-24
+phase-1-deployed: 2026-04-24
+phase-1-deployed-commit: 34570a3
 type: refactor
-priority: medium
+priority: high
 size: small
-visual-delta: none
+visual-delta: yes
 content-delta: yes
 design-locked: N/A
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-24 K-046
