@@ -1,6 +1,6 @@
 # K-Line Prediction
 
-**Harness engineering for AI coding agents — six agents, one human operator, 40+ shipped tickets. Ten representative rules with their originating bugs in [`docs/agents-ruleset-highlights.md`](./docs/agents-ruleset-highlights.md).**
+**Directing a team of AI coding agents to ship [a live K-line prediction web app](https://k-line-prediction-app.web.app) — six agents, one human operator, 40+ shipped tickets. Ten representative rules with their originating bugs in [`docs/agents-ruleset-highlights.md`](./docs/agents-ruleset-highlights.md).**
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://k-line-prediction-app.web.app)
 [![Frontend](https://img.shields.io/badge/Frontend-TypeScript%20%2B%20React%20%2B%20Vite-3178C6?logo=typescript)](https://vitejs.dev/)
@@ -23,7 +23,7 @@
 
 *Captured at SHA [`80e12d7`](https://github.com/mshmwr/K-Line-Prediction/commit/80e12d7) (v1) and [`058699b`](https://github.com/mshmwr/K-Line-Prediction/commit/058699b) (v2) on 2026-04-24, viewport 1440×900, scroll position 0.*
 
-One human operator redesigned and shipped a 5-page portfolio site using a team of six AI agents — Product Manager, Architect, Engineer, Reviewer, QA, Designer — coordinated by per-role personas whose rules were each written after a specific ticket incident. 40+ tickets were driven through the pipeline. The output: a redesigned, deployed site; a ruleset where each rule names the bug it was written to prevent; and this README, which itself triggered a new rule before shipping. Ten representative rules with their originating bugs are listed in [`docs/agents-ruleset-highlights.md`](./docs/agents-ruleset-highlights.md); full personas live in private Claude Code config.
+One human operator redesigned and shipped a 5-page portfolio site using a team of six AI agents — Product Manager, Architect, Engineer, Reviewer, QA, Designer — coordinated by per-role personas whose rules were each written after a specific ticket incident. 40+ tickets — each with scoped AC, design doc, implementation, review, QA pass, and retrospective — were driven through the pipeline between 2026-04-18 and 2026-04-24. The output: a redesigned, deployed site; a ruleset where each rule names the bug it was written to prevent; and this README, which itself triggered a new rule before shipping. Ten representative rules with their originating bugs are listed in [`docs/agents-ruleset-highlights.md`](./docs/agents-ruleset-highlights.md); full personas live in private Claude Code config. The product under the harness is a K-line pattern-matching tool for short-term ETH/USDT direction — a deliberately narrow testbed for the agent workflow. The same harness will drive the next iteration of the model.
 
 **Stack:** React + TypeScript, FastAPI + Python, Playwright + Vitest, Firebase Hosting + Cloud Run.
 
@@ -73,7 +73,7 @@ Each rule was written after a specific failure was observed during the build. Fi
 
 ## The K-line prediction tool
 
-Beyond serving as a portfolio, the deployed site predicts short-term ETH/USDT price direction by matching the current K-line pattern against historical patterns and reporting the consensus of the top-N nearest neighbors. This feature is the reason the codebase exists; the portfolio focus of this README is the rule system that produced the site.
+This is the testbed the harness operates on. The deployed site predicts short-term ETH/USDT price direction by matching the current K-line pattern against historical patterns and reporting the consensus of the top-N nearest neighbors.
 
 **→ Try the prediction tool: [k-line-prediction-app.web.app/app](https://k-line-prediction-app.web.app/app)**
 
