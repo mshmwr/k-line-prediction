@@ -240,4 +240,15 @@ Engineer Phase 1 implementation → Phase 1 commit gate → Phase 2 visual eyeba
 
 ## §8 Retrospective
 
-(Pending ticket close.)
+### Engineer
+
+**AC judgments that were wrong:** None. All 8 AC blocks (AC-045-CONTAINER-WIDTH / SECTION-GAP / HERO-LINE-COUNT / SECTION-LABEL-X / K031-ADJACENCY-PRESERVED / SM-BOUNDARY / FOOTER-WIDTH-PARITY / REGRESSION) mapped cleanly to helpers + assertions; `sectionBoxes()` + `evaluateAll` covered `{top/bottom/left/right/width/paddingLeft/paddingRight/maxWidth}` in one shot, no AC needed interpretive stretching.
+
+**Edge cases not anticipated:**
+- Footer snapshot baseline drift on `/about` + `/diary` after Phase 1. Root cause: /about page height shrank 3790→3263 (legitimate — K-045 removed extra vertical whitespace from SectionContainer `py-16` pairs), causing subpixel anti-alias shift at Footer's render band. DOM byte-identity preserved (T1 outerHTML cross-route all equal). Design doc §9 Regression Risk Matrix flagged K-034 Phase 1 byte-identity but did NOT warn that page-height changes could cascade into Playwright pixel-snapshot diffs. Fixed by `--update-snapshots` after validating T1 green + probe spec confirmed DOM unchanged.
+- AC-020-BEACON-SPA full-suite flakiness. Not caused by K-045 (verified by `git checkout 00f8ac6 -- AboutPage.tsx PageHeaderSection.tsx SectionContainer.tsx` rerun — same fail). K-020 close commit `cd19a75` labels this as "8/9 green" baseline. Design doc did not enumerate pre-existing flaky specs, so first failure felt like a K-045 regression.
+
+**Next time improvement:**
+- Snapshot baseline changes after layout refactor get a 3-line commit message block: (1) DOM byte-identity still asserted by <testname>, (2) pixel diff root cause is <X>, (3) old baseline also fails / does-not-fail on HEAD <sha>. This preempts Reviewer Git Status Commit-Block Gate re-question. Codified in `feedback_engineer_behavior_diff_pure_refactor.md` parallel: extend to cover snapshot-specific refactors.
+- Phase 0 pwd check is mandated by §Step 0 but I only caught the wrong-cwd after the first Bash call errored. Add a literal TodoWrite item "pwd = worktree root?" before any Read/Bash in Phase 0 so compact-recovery forces the check. Engineer persona §Step 0 already requires this; enforcement gap is in my session startup not the persona text.
+- Invariant proofs belong in spec-file header comments, not commit messages. T19 Δ=0 is the inevitable outcome of Option C root-child pattern (Footer width = viewport width regardless of route), not a fixture coincidence. Future layout-pattern specs should name the invariant + cite the architectural cause in the `describe` block comment.

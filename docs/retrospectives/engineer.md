@@ -16,6 +16,25 @@
 
 ---
 
+## 2026-04-24 — K-045 /about desktop layout consistency
+
+**做得好：**
+- Phase 1 Footer snapshot failure 沒 blind rerun `--update-snapshots`。先 `git stash` + probe spec 分離 pre-existing flakiness（/diary baseline 在 HEAD 00f8ac6 就 fail）vs 本次造成（/about page height 3790→3263 的 subpixel anti-alias drift），再經 T1 byte-identity 驗 DOM 未變、只更新 pixel baseline。commit message 明寫 drift cause + 為何合法，為 Reviewer Git Status Commit-Block Gate 提供審查錨點。
+- AC-020-BEACON-SPA 全套 regression 出現時主動回 `git checkout 00f8ac6 -- AboutPage.tsx PageHeaderSection.tsx SectionContainer.tsx` 重跑驗證 pre-existing flakiness，並翻 K-020 close commit `cd19a75` 證實原本就是 8/9 green，避免誤判為 K-045 regression 走冤路。
+- Option C 落地前先 runtime 量 Home 頁 `homepage-root` 的 `paddingTop=72, paddingLeft=96, maxWidth=1248` 做 baseline，再驗 /about S1 逐欄位匹配，確保「Home/Diary pattern 一致」不是憑感覺。
+
+**沒做好：**
+- Phase 3 Footer 寬度 T19 斷言最初以為 Δ=0px 是 fixture 湊巧，沒立刻寫成 invariant 註解；Reviewer 若追問「為何不是 ≤2px 鬆斷言？」會需要回頭解釋 K-040 pairwise rule 與 Option C root-child pattern 的因果（root 子元素寬度等同 viewport → Δ 必為 0）。下次 invariant 證明應直接寫進 spec 檔頭 comment。
+- 初始 Phase 0 pwd 錯在主 repo，靠後續 `cd <worktree-abs>` 修正。Worktree session context check 記憶已存在（`feedback_worktree_context_check.md`），但每次 compact 後仍要主動 `git worktree list` 回錨；這次沒做，靠 Bash 第一次錯了才發現。
+- `docs/retrospectives/*` 檔案放在 worktree 內，Phase 4 commit 時才想到要 prepend。如果 Phase 4 未 plan 進 commit gate 就會漏。
+
+**下次改善：**
+- **Worktree session 起點先 `git worktree list` + `cd` 到正確絕對路徑，不靠前一指令的 cwd 推論**——把它寫進 Pre-implementation Checklist Step 0。此項已於 persona §Step 0 存在，但行為未觸發；Phase 0 自檢 todo 加「pwd = worktree root?」一行，避免 compact 後漂移。
+- **Invariant 證明寫進 spec 檔頭 comment**——Footer T19 Δ=0 的 root-child pattern 因果寫進 `shared-components.spec.ts` AC-045-FOOTER-WIDTH-PARITY block 的 describe header，讓後續 Reviewer 一眼看到為何 ≤2px 是「保守界」而非「實際值」。下次 refactor 若換 layout pattern 不用重新推理。
+- **Snapshot baseline 更新三層驗證明文化**——commit message 模板加入：(1) Footer DOM byte-identity 由 T1 守護、(2) 失敗原因是 page height 改變造成的 subpixel anti-alias、(3) 舊 baseline 在 HEAD <sha> 也 fail 或不 fail 的驗證結果。這三層 Reviewer Git Status Commit-Block Gate 都會查，主動寫進 commit message 比事後被 block 快。
+
+---
+
 ## 2026-04-24 — K-042 PageHero shared-component extraction (mobile overflow bugfix)
 
 **做得好：** Grep `getByRole('heading', { name: 'Predict the next move' ... })` E2E pattern before semantic change (2 h1 → 1 h1 + 2 spans) — caught 3 breaking specs (pages.spec.ts, sitewide-fonts.spec.ts ×2) and repaired them same commit.
