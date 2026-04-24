@@ -1,9 +1,11 @@
 ---
 id: K-046
 title: Comment out upload-history DB write + add example CSV download
-status: open
+status: closed
 created: 2026-04-24
 revised: 2026-04-24
+deployed: 2026-04-24
+deployed-commit: 34570a3
 type: refactor
 priority: medium
 size: small
@@ -396,16 +398,21 @@ Ticket reached ready-to-deploy state 2026-04-24 after Reviewer two-layer PASS + 
 
 ## Deploy Record
 
-- firebase hosting: **PENDING** (main session gates user confirmation)
-- cloud run: **PENDING** (main session gates user confirmation; K-046 is frontend + backend — `/api/upload-history` behavior change lives in `backend/main.py`, so Cloud Run deploy is required in addition to Firebase Hosting)
-- prod smoke: **PENDING** post-deploy
+- **Deploy date:** 2026-04-24
+- **Git SHA at deploy:** `34570a3` (main, post-Dockerfile-followup)
+- **Firebase hosting:** `https://k-line-prediction-app.web.app` — release verified HTTP 200, bundle etag `15497ef66db4996bacf46e3035ca6c382307ed7eccf1b7c36781eca2fe11a69e`
+- **Cloud Run:** revision `k-line-backend-00003-qdx` serving 100% traffic at `https://k-line-backend-841575332599.asia-east1.run.app`
+- **Prod smoke (executed):**
+  - `GET /api/history-info` → `bar_count: 73990` (1H), `3139` (1D) pre-upload baseline ✓
+  - `POST /api/upload-history` (first call, example CSV) → `{"added_count":0,"bar_count":73990,"timeframe":"1H"}` ✓ (K-046 invariant: no write)
+  - `POST /api/upload-history` (second call, same file) → `{"added_count":0,"bar_count":73990}` ✓ (DB unchanged across repeated uploads — AC-046-COMMENT-1 proof)
+  - `GET /examples/ETHUSDT_1h_test.csv` → HTTP 200 `text/csv` ✓ (AC-046-EXAMPLE-2 static asset live)
 
-Placeholder only — actual deploy date / Git SHA at deploy / hosting bundle hash / Cloud Run revision / verification probe output / release status will be filled by main session after successful `firebase deploy --only hosting` + `gcloud run deploy` (if applicable) per `K-Line-Prediction/CLAUDE.md §Deploy Checklist`.
+**Deploy followups (merged into main during this deploy, not part of original K-046 scope):**
 
-**Verification probe plan (to be executed post-deploy by main session):**
+- `7cde452 fix(K-046): Dockerfile — COPY docs/ai-collab-protocols.md for prebuild` — fixed pre-existing latent bug introduced in K-017 (2026-04-19) that prevented Cloud Run builds since then. First Cloud Run deploy attempt on K-046 surfaced it; without fix, K-046 backend write-block neutralization would have stayed local-only.
+- `2ee20f8 fix(K-046): Dockerfile — COPY sibling dirs for tsc cross-dir imports` — K-013 stats fixture JSON + K-039 content/roles.json both live outside `frontend/` but are imported by files under `src/` that tsc processes during build.
+- `34570a3 fix(K-046): .dockerignore — allow stats_contract_cases.json through` — per-file exception so the fixture survives context upload while `backend/tests/` exclusion stays.
 
-- **Frontend (Firebase Hosting):** `curl -s https://k-line-prediction-app.web.app/assets/index-<hash>.js | grep -oE 'Download example' | wc -l` → expect `1` (K-046 anchor text landed); `curl -sI https://k-line-prediction-app.web.app/examples/ETHUSDT_1h_test.csv` → expect HTTP 200 + Content-Length 646 (example CSV static asset served)
-- **Backend (Cloud Run):** `curl -X POST https://<cloud-run-url>/api/upload-history -F 'file=@frontend/public/examples/ETHUSDT_1h_test.csv'` → expect HTTP 200 + response `{ "added_count": 0, "timeframe": "1H" }` (K-046 invariant: added_count always 0 post-K-046); pre/post `curl <cloud-run-url>/api/example` byte-identical (implied DB-unchanged invariant from AC-046-COMMENT-1)
-
-Both probes name K-046-specific identifiers (`Download example` anchor text + `/examples/ETHUSDT_1h_test.csv` asset path + `added_count: 0` invariant) per `~/.claude/agents/pm.md §Deploy Record` executed-probe rule; generic 200-response probes are NOT sufficient.
+**Cross-ticket note:** K-046 deploy was the first backend deploy since K-017; K-018~K-045 were all frontend-only. If any K-018~K-045 ticket required a Cloud Run revision and was presumed "deployed via merge", revisit — none could have actually deployed without the three followup commits above.
 
