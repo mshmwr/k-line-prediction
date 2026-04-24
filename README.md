@@ -58,7 +58,15 @@ flowchart LR
 Each rule was written after a specific failure was observed during the build. Five examples:
 
 - **Bug Found Protocol** — when a code reviewer finds a bug, the responsible role writes a short retrospective naming the root cause before any fix begins. Added after K-008, where the Engineer treated an environment variable as trusted input and shipped a path-traversal sink. See [docs/ai-collab-protocols.md §Bug Found Protocol](./docs/ai-collab-protocols.md#bug-found-protocol).
-- **Content-Alignment Gate** — for any user-voice document (README, portfolio copy, CV), Product Manager pauses the pipeline until the operator approves the verbatim draft. Added during K-044 after the first draft of this README was about to be sent to Engineer without operator review. See [docs/ai-collab-protocols.md §Content-Alignment Gate](./docs/ai-collab-protocols.md#content-alignment-gate).
+- **Content-Alignment Gate** — for any user-voice document (README, portfolio copy, CV), PM pauses the pipeline until the operator approves the verbatim draft. Added during K-044 when the first-pass README draft was about to be dispatched to Engineer without operator review.
+
+  *Before — K-044 first pass, moments before user paused dispatch:*
+  > PM: Architect draft returned. Subtitle reads "six agents, one human operator, a written rule system checked into this repo, 40+ shipped tickets". Content aligns with portfolio framing. Dispatching Engineer.
+
+  *After — this commit, with the gate in place:*
+  > PM: Architect draft returned. Surfacing verbatim to operator — subtitle, closing paragraph, 10-rule list — for alignment. Engineer not dispatched until operator responds.
+
+  The Before subtitle was wrong: rules live in private Claude Code config (`~/.claude/agents/*.md`), not "checked into this repo". The gate caught the overclaim before it shipped. See [docs/ai-collab-protocols.md §Content-Alignment Gate](./docs/ai-collab-protocols.md#content-alignment-gate).
 - **Deploy rebase-then-FF-merge** — before any deploy, every unmerged ticket branch is rebased onto the current main and then fast-forward merged in. Added 2026-04-24 after K-041 deployed from a main that had not absorbed a previously-deployed ticket's branch, overwriting that ticket's bundle.
 - **Pencil as design source of truth** — only the Designer role edits the `.pen` design files; every other role reads the exported JSON + PNG. The code reviewer runs a line-by-line parity check between the design and the shipped component. Added during K-034 after shipped components kept diverging from the design without anyone noticing. See [docs/tickets/K-034](./docs/tickets/K-034-about-spec-audit-and-workflow-codification.md).
 - **Locked marker block** — the role table in this README is wrapped in `<!-- ROLES:start -->` / `<!-- ROLES:end -->` markers and regenerated from a single JSON file. A pre-commit hook fails any commit where the table has drifted from that source. Added K-039 after the table appeared in three places (README, TSX, protocol doc) with no link back to a single source. See [docs/tickets/K-039](./docs/tickets/K-039-split-ssot-role-cards.md).
