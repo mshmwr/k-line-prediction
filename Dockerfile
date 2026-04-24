@@ -5,6 +5,8 @@ COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ .
 COPY docs/ai-collab-protocols.md /docs/ai-collab-protocols.md
+COPY backend/tests/fixtures/stats_contract_cases.json /backend/tests/fixtures/stats_contract_cases.json
+COPY content/roles.json /content/roles.json
 RUN npm run build
 
 # Stage 2: Python backend + serve static
