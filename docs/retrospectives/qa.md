@@ -34,6 +34,19 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-24 — K-045 Full Regression (QA sign-off)
+
+**What went well:**
+- Full suite 282 passed / 1 failed (AC-020-BEACON-SPA pre-existing K-020 baseline flake, verified same failure on ef3519d base per Engineer retro) / 1 skipped. All K-045 tests green: T1–T17 in `about-layout.spec.ts` (15/15) + T18 + T19×3 viewports in `shared-components.spec.ts` (4/4). TICKET_ID=K-045 prepended on full-suite command per K-041 retro learning — no K-UNKNOWN-visual-report.html pollution this run, post-step 2a filename verification passed.
+- Cross-route parity adversarial check (Playwright node script, dev server, 3 routes × 1280×800): /about + / + /diary all have containerWidth=1248, maxWidth=1248px, padL=padR=96px, footerWidth=1280 (structural Δ=0 across all 3 routes). Mobile 375×812: padL=padR=24px all 3 routes. sm breakpoint boundary: 640→96px active, 639→24px active (exactly as AC-045-SM-BOUNDARY). K-031 live DOM: #architecture.nextElementSibling === footer AND root.lastElementChild === footer. All axes matched AC numerics with zero drift — the per-section root-child pattern produces structural invariance, not fixture coincidence (confirming Reviewer N-2).
+- Note: /about container element is `<section id="header">`, /home is `<div>`, /diary is `<main>` — three different tag types but identical computed layout geometry. This validates the "per-section container classes" pattern achieves visual parity without forcing DOM-tag uniformity (which would break K-031 semantic structure).
+
+**What went wrong:**
+- No QA-observable defect. Process note: AC-020-BEACON-SPA flake is now on its 4th+ consecutive sign-off (K-039 / K-041 / K-042 / K-045), still unquarantined per K-039 retro's "known-red manifest" next-time-improvement that never got codified. Each sign-off re-derives its is-this-K-045 judgment from scratch.
+
+**Next time improvement:**
+- Implement the `docs/qa/known-reds.md` manifest proposed in K-039 retro 2026-04-24. Before declaring any full-suite run matches baseline: byte-compare failing test IDs against manifest; new red ID = hard BLOCK; missing baseline red = targeted rerun before claiming pass. File as TD-QA-KNOWN-REDS ticket at next PM session end — cross-session accumulation of "known red" in retro text without a manifest file means each QA re-checks from zero. Add to qa.md persona §Mandatory Task Completion Steps between steps 2a and 3: "2b — compare failing test IDs against `docs/qa/known-reds.md`; any new ID = BLOCK". Codifying without filing a TD = same meta-violation as K-045 itself (retrospective lesson not landed as enforcement).
+
 ## 2026-04-24 — K-045 QA Early Consultation (real QA spawn, pre-Architect)
 
 **Tier:** runtime code (frontend Tailwind class refactor on /about) — `feedback_qa_early_proxy_tier.md` enforces real QA spawn. Invoked before Architect release per ticket §5 BLOCK gate; pm proxy explicitly NOT authorized.
