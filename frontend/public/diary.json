@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-042",
+    "title": "PageHero shared component — responsive mobile type scale unifies Home/About/Diary H1",
+    "date": "2026-04-24",
+    "text": "Extracted a PageHero shared component that renders a single <h1> with per-line span blocks, enforcing a 36px mobile / per-page desktop (56px /, 52px /about + /diary) type scale so the /about mobile Hero no longer overflows on long words like 'orchestrating'; Home, About, and Diary now share one heading primitive."
+  },
+  {
     "ticketId": "K-041",
     "title": "/diary mobile rail and marker restore via shared-component mobileVisible prop",
     "date": "2026-04-24",

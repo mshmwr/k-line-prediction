@@ -1,13 +1,9 @@
-// K-024 Phase 3 — /diary page hero (design §6.1 / §6.3 / §6.5).
-// Title + divider + italic subtitle; all literal values sourced from
-// docs/designs/K-024-visual-spec.json `wiDSi` frame hero-* roles.
+import PageHero from '../shared/PageHero'
 
 export default function DiaryHero() {
   return (
     <section className="pt-16 mb-16">
-      <h1 className="font-bold text-[36px] sm:text-[52px] text-[#1A1814] leading-[1.05]">
-        Dev Diary
-      </h1>
+      <PageHero desktopSize={52} lines={[{ text: 'Dev Diary', color: 'ink' }]} />
       <hr
         role="separator"
         aria-hidden="true"

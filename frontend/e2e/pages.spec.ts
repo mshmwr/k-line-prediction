@@ -9,9 +9,11 @@ test.describe('HomePage — AC-HOME-1', () => {
   test('Hero, HOW IT WORKS, and Dev Diary headings visible', async ({ page }) => {
     await page.goto('/')
 
-    // Hero heading (v2: two separate h1 elements)
-    await expect(page.getByRole('heading', { name: 'Predict the next move', exact: true })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'before it happens —', exact: true })).toBeVisible()
+    // Hero heading (K-042 PageHero: single h1 with 2 <span className="block"> children)
+    const hero = page.getByRole('heading', { level: 1 })
+    await expect(hero).toBeVisible()
+    await expect(hero).toContainText('Predict the next move')
+    await expect(hero).toContainText('before it happens —')
 
     // HOW IT WORKS section label (inside the ProjectLogicSection logicHead)
     await expect(page.getByText('HOW IT WORKS', { exact: true })).toBeVisible()

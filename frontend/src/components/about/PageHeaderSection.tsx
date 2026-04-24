@@ -10,13 +10,18 @@
  * Hero h1 has two <span className="block"> children so each line wraps independently and
  * preserves line-height 1.05 per Pencil (ttl1/ttl2).
  */
+import PageHero from '../shared/PageHero'
+
 export default function PageHeaderSection() {
   return (
     <div className="py-20 flex flex-col gap-[18px]">
-      <h1 className="font-bold text-[52px] leading-[1.05] text-ink">
-        <span className="block">One operator, orchestrating AI</span>
-        <span className="block text-brick">agents end-to-end —</span>
-      </h1>
+      <PageHero
+        desktopSize={52}
+        lines={[
+          { text: 'One operator, orchestrating AI', color: 'ink' },
+          { text: 'agents end-to-end —', color: 'brick' },
+        ]}
+      />
       <div className="h-px bg-charcoal w-full" />
       <p className="text-[16px] text-ink leading-[1.5]">
         PM, architect, engineer, reviewer, QA, designer.

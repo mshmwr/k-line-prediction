@@ -16,6 +16,16 @@
 
 ---
 
+## 2026-04-24 — K-042 PageHero shared-component extraction (mobile overflow bugfix)
+
+**做得好：** Grep `getByRole('heading', { name: 'Predict the next move' ... })` E2E pattern before semantic change (2 h1 → 1 h1 + 2 spans) — caught 3 breaking specs (pages.spec.ts, sitewide-fonts.spec.ts ×2) and repaired them same commit.
+
+**沒做好：** K-040 originally shipped HeroSection with `text-[56px]` fixed (no responsive mobile size) and PageHeaderSection with `text-[52px]` fixed; the font-mono reset (K-040) widened mono glyphs on mobile but no one ran a 375-viewport Playwright check on long-word h1 content. DiaryHero already had `text-[36px] sm:text-[52px]` since K-024 — the correct pattern was sitting in the repo but not propagated when K-040 touched the other two hero files.
+
+**下次改善：** Add engineer.md pre-commit rule: when Edit touches any file containing `h1` with a Tailwind `text-[NNpx]` literal and no `sm:` prefix, blocker until responsive scale is applied or PM waives. Also add shared-component-inventory check: before Edit on any `*Hero*.tsx` or `*Header*.tsx`, grep all three (`home/HeroSection`, `about/PageHeaderSection`, `diary/DiaryHero`) to confirm whether extraction is possible — current K-042 proves the 3 h1 sites were already siblings visually.
+
+---
+
 ## 2026-04-24 — K-039 Phase 2 + Phase 3 close (generator + hook + persona codify)
 
 **做得好：** Phase 2 generator (`scripts/sync-role-docs.mjs`) 設計為冪等（clean tree 跑 write mode 零 diff）+ `--check` 模式獨立 exit code，讓 pre-commit hook 能 fast-exit（只在 SSOT-bound path staged 時才 invoke generator），避免 docs-only commit 被 hook 卡住。遇到首輪 `--check` 撞 separator 差異（`|------|------|----------|` vs generator canonical `|---|---|---|`）時，沒有硬改 generator 去兼容兩種 separator（那會留 permanent 2-path 分支），而是跑 write mode 一次 canonical 化再獨立 commit，保留 audit trail。Phase 3 persona edit 三檔（pm / engineer / designer）同 session 改完，每檔依 role 語氣落地 — PM 擴原 §visual-delta gate 為雙軸 gate + handoff line；Engineer 加 Step 0e 獨立 section + Step 0c 加註記；Designer 在 Frame Artifact Export 下加 frozen-at-session section + pre-batch_design grep re-sync 規則。不是複製同一段貼三次，每檔都對應該 role 的 trigger point。AC-039-P2-DOGFOOD-FLIP 完整跑：flip JSON → `--check` 紅 → hook 擋 commit → regenerate → green → revert，全程零 Designer session。
