@@ -104,7 +104,7 @@ K-034 D-4 conflates two separable concerns: **visual** (Pencil-owned) vs **textu
 - **Then** `ROLES` moves to new file `frontend/src/components/about/roles.ts`
 - **And** `roles.ts` has zero React imports (pure data module): only a `const ROLES = [...]` + `export { ROLES }` (or equivalent named export)
 - **And** `RoleCardsSection.tsx` imports `ROLES` from `./roles`
-- **And** the TSX entry shape is unchanged (6 entries; fields `role`, `owns`, `artefact`, `redactArtefact`; order PM → Architect → Engineer → Reviewer → QA → Designer as at HEAD)
+- **And** the TSX entry shape is unchanged (6 entries; fields `fileNo`, `role`, `owns`, `artefact`; order PM → Architect → Engineer → Reviewer → QA → Designer as at HEAD) — **PM patch 2026-04-24:** original AC wording listed `redactArtefact`, but K-034 Phase 2 D-5 retired that field and added `fileNo`. HEAD post-rebase onto c6c1aa2 reflects the post-K-034-P2 shape; AC wording aligned to HEAD-truth per Engineer BQ at Phase 1 handoff.
 - **And** `npx tsc --noEmit` exits 0; existing `about.spec.ts` `owns` / `artefact` assertions still pass (no runtime change)
 
 #### AC-039-P1-TSX-CANON — TSX ROLES is the canonical text source at HEAD
@@ -172,7 +172,7 @@ K-034 D-4 conflates two separable concerns: **visual** (Pencil-owned) vs **textu
 - **When** reviewed
 - **Then** only these files may change: `README.md` (table region), `docs/ai-collab-protocols.md` (table region), `frontend/e2e/roles-doc-sync.spec.ts` (new file), `frontend/src/components/about/roles.ts` (new file — AC-039-P1-EXTRACT-ROLES-MODULE), `frontend/src/components/about/RoleCardsSection.tsx` (import-only change — AC-039-P1-EXTRACT-ROLES-MODULE), `docs/tickets/K-039-split-ssot-role-cards.md` (this file, status updates)
 - **And** no CSS / Pencil `.pen` / Pencil JSON spec / other React component is touched in Phase 1
-- **And** `grep -rn "ROLES:start" .` must return exactly 2 matches (1 in README.md, 1 in protocols.md)
+- **And** `grep -rlE "^<!-- ROLES:(start|end) -->$" .` must return exactly 2 files (README.md + docs/ai-collab-protocols.md) — **PM patch 2026-04-24:** original AC used `grep -rn "ROLES:start" .` which also matches prose/string-literal references in the ticket doc and the spec file, so it could not equal 2 by construction. Narrowed to line-anchored match with `-l` (list files containing a match) per Engineer BQ; monitoring intent preserved (exactly 2 marker-carrying files).
 
 ---
 
@@ -362,6 +362,77 @@ All ACs above authored per:
 
 ## 8. Dogfood Evidence
 
+### Phase 1 — AC-039-P1-FAIL-IF-GATE-REMOVED dry-run (2026-04-24, Engineer)
+
+**Method:** temporarily edit `README.md` inside `<!-- ROLES:start --> ... <!-- ROLES:end -->`, replace PM row word `Requirements` → `Reqs`, re-run Playwright, capture FAIL, revert, re-run, capture PASS.
+
+**Step 1 — baseline PASS (synced state):**
+
+```
+$ npx playwright test roles-doc-sync.spec.ts
+  ✓  1  AC-039-P1-ROLES-COUNT-INVARIANT: ROLES.length === 6 (4ms)
+  ✓  2  AC-039-P1-TSX-CANON: every owns + artefact matches /^[^|\n`]*$/ (4ms)
+  ✓  3  AC-039-P1-README-SYNCED: marker-delimited README table matches TSX verbatim (2ms)
+  ✓  4  AC-039-P1-PROTOCOLS-SYNCED: marker-delimited protocols table matches TSX verbatim (1ms)
+  4 passed (251ms)
+```
+
+**Step 2 — introduce drift in README.md (inside markers):**
+
+```diff
+- | PM | Requirements, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
++ | PM | Reqs, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
+```
+
+**Step 3 — re-run spec → expected FAIL on AC-039-P1-README-SYNCED:**
+
+```
+$ npx playwright test roles-doc-sync.spec.ts --reporter=list
+  ✓  1  AC-039-P1-ROLES-COUNT-INVARIANT: ROLES.length === 6 (4ms)
+  ✓  2  AC-039-P1-TSX-CANON: every owns + artefact matches /^[^|\n`]*$/ (4ms)
+  ✘  3  AC-039-P1-README-SYNCED: marker-delimited README table matches TSX verbatim (5ms)
+  ✓  4  AC-039-P1-PROTOCOLS-SYNCED: marker-delimited protocols table matches TSX verbatim (5ms)
+
+  1) roles-doc-sync.spec.ts:97:3 AC-039-P1-README-SYNCED:
+    Error: README.md table rows must deep-equal ROLES projection
+    - Expected  - 1
+    + Received  + 1
+    @@ -1,9 +1,9 @@
+      Array [
+        Object {
+          "artefact": "PRD.md, docs/tickets/K-XXX.md",
+    -     "owns": "Requirements, AC, Phase Gates",
+    +     "owns": "Reqs, AC, Phase Gates",
+          "role": "PM",
+        },
+
+  1 failed, 3 passed (502ms)
+```
+
+Spec output isolated exactly the one-word drift in one row; other 5 rows unchanged so deep-equal diff pinpoints the offender. Non-README tests (count, canon regex, protocols) stayed green → drift detection is scoped to the right file.
+
+**Step 4 — revert drift:**
+
+```diff
+- | PM | Reqs, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
++ | PM | Requirements, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
+```
+
+**Step 5 — re-run spec → back to 4 PASS:**
+
+```
+$ npx playwright test roles-doc-sync.spec.ts
+  ✓  1  AC-039-P1-ROLES-COUNT-INVARIANT (4ms)
+  ✓  2  AC-039-P1-TSX-CANON (3ms)
+  ✓  3  AC-039-P1-README-SYNCED (2ms)
+  ✓  4  AC-039-P1-PROTOCOLS-SYNCED (1ms)
+  4 passed (256ms)
+```
+
+**Conclusion:** spec's FAIL direction is real (drift → red, sync → green). Per `feedback_engineer_concurrency_gate_fail_dry_run.md` pattern: gate removed → test red. The spec exercises the monitoring power it claims.
+
+### Phase 2 — AC-039-P2-DOGFOOD-FLIP
+
 (To be filled at Phase 2 dogfood step per AC-039-P2-DOGFOOD-FLIP.)
 
 ---
@@ -373,6 +444,14 @@ All ACs above authored per:
 - 2026-04-23 (PM, this turn): QA Early Consultation complete (main-session proxy, no Agent tool available; disclosure in qa.md entry). 10 Challenges raised → 10 Option A rulings → 10 AC patches landed. 0 Known Gap. 0 BQ escalated.
 - 2026-04-23 (PM, this turn): **Handoff check: qa-early-consultation = `docs/retrospectives/qa.md 2026-04-23 K-039`, visual-delta = none (design-locked N/A), content-delta = yes, worktree = `.claude/worktrees/K-039-split-ssot-role-cards` (created) → OK**
 - 2026-04-23 (PM, this turn): next-action verdict — **release Engineer directly for Phase 1** (pure find/replace + 5-line module extraction + new Playwright spec; no architectural decision warranting Architect consultation per plan §Phase Plan). Architect consultation OPTIONAL for Phase 2 (generator script), deferred — PM will re-assess at Phase 1 close based on Engineer's Phase 1 retro.
+- 2026-04-24 (Engineer, Phase 1 implementation complete): `roles.ts` extracted (pure-data module, zero React imports, `export const ROLES` + `RoleEntry` type); `RoleCardsSection.tsx` imports from `./roles`; `README.md` L27-34 table re-authored inside `<!-- ROLES:start -->` / `<!-- ROLES:end -->` with columns renamed `Role / Owns / Artefact` and row order reordered to TSX order (PM / Architect / Engineer / Reviewer / QA / Designer); `docs/ai-collab-protocols.md` L20-27 table wrapped in identical markers, Reviewer `artefact` synced `retrospective` → `反省` to match TSX. `frontend/e2e/roles-doc-sync.spec.ts` (new, 4 tests) imports `ROLES` from `../src/components/about/roles.ts` and parses both Markdown tables inside markers; deep-equals projection to ROLES. Results: **`npx tsc --noEmit` exit 0**; **roles-doc-sync spec 4/4 PASS**; **FAIL-IF-GATE-REMOVED dry-run captured** (§8 above); **full Playwright suite 257 passed / 1 pre-existing K-020 red / 1 skipped** (the red `AC-020-BEACON-SPA` is the documented K-032 production gap per Engineer retrospective 2026-04-22 — not caused by K-039; K-039 does not touch `useGAPageview` or `ga-spa-pageview.spec.ts`). Phase 1 scope check: only files in AC-039-P1-NO-OTHER-CONTENT-TOUCHED list changed (plus this ticket + engineer retro per contract). Handoff back to PM for Code Review (Step 1 superpowers + Step 2 reviewer agent); no commit yet.
+- 2026-04-24 (Engineer, retrospective BQ logged): ticket AC-039-P1-EXTRACT-ROLES-MODULE literal wording lists fields `role, owns, artefact, redactArtefact` but HEAD TSX (post K-034 Phase 2) has `fileNo` instead of `redactArtefact`. Per PM dispatch instruction, proceeded with HEAD-truth shape (`fileNo` field retained, `redactArtefact` absent). If PM intends the literal AC wording to hold, a scope addendum is needed; otherwise treat this as AC-text-vs-HEAD drift to document post-hoc.
+- 2026-04-24 (Engineer, retrospective BQ logged): AC-039-P1-NO-OTHER-CONTENT-TOUCHED final `And` clause reads `grep -rn "ROLES:start" .` must return exactly 2 matches. Literal shell grep currently returns more because (a) the ticket doc itself references the marker string in prose, (b) the Playwright spec references it as a string literal for parsing. The *intent* (exactly 2 files carrying actual marker anchors: README.md + docs/ai-collab-protocols.md) is satisfied. Suggest Phase 2 or meta-amendment: narrow the AC to `grep -lE "^<!-- ROLES:(start|end) -->$"` for a precise count, or document prose-reference exemption. Not a blocker at Phase 1 close.
+- 2026-04-24 (Code Review, Step 1 superpowers breadth + Step 2 reviewer depth — both PASS): Step 1 breadth scan 0 Critical / 0 Important / 0 Minor (APPROVED FOR MERGE pending commit). Step 2 depth review 8-axis verdict = CODE-PASS: (1) Pure-Refactor Behavior Diff verified byte-identical 6×4 table between HEAD~1 inline ROLES and new roles.ts; (2) Pencil parity gate — all 13 text nodes in frame 8mqwX match TSX verbatim, no JSON touched; (3) AC-039-P1-NO-OTHER-CONTENT-TOUCHED anchored grep raw-count sanity passes (pre=0, post=2); (4) Token-retire widened grep for `redactArtefact` — zero runtime residue (1 JSDoc historical note in RoleCard.tsx, rest in docs); (5) Playwright: new spec 4/4 PASS, about/about-v2 regression 71 passed 1 skipped 0 failed; (6) E2E spec logic self-check passes; (7) tsc exit 0; (8) Git Status Commit-Block Gate surfaces — runtime-scope dirty (expected at review time) → verdict CODE-PASS, COMMIT-BLOCKED until PM authorizes. Reviewer surfaced 2 process-level observations (O-1: post-rebase AC shape drift detected mid-ticket, both BQs PM-patched same session; O-2: grep sanity awareness, already addressed by patch).
+- 2026-04-24 (PM ruling on Reviewer O-1 post-rebase AC re-read): **Defer to Phase 3 persona codification.** Rationale: O-1 improvement is explicitly in Phase 3 scope (persona codification / `~/.claude/agents/pm.md` Session Handoff Verification edits). Reviewer recommends adding "post-rebase AC shape sweep" as PM hard step; this will be bundled with `feedback_content_ssot_split.md` + `content-delta` frontmatter codification in Phase 3. No inline persona edit in Phase 1 (keeps commit scoped to runtime + docs SSOT split; avoids persona scope creep mid-phase).
+- 2026-04-24 (PM ruling on Reviewer O-2 grep sanity awareness): **No action.** Rationale: both BQs already resolved inline via AC text patches (same-session, annotated); root cause = PM AC authoring miss, already mitigated by `feedback_refactor_ac_grep_raw_count_sanity.md` (K-025). No new rule needed; incident is a confirmation-of-existing-rule not a new failure mode.
+- 2026-04-24 (PM commit authorization — Phase 1): **Authorized.** Commit strategy per Reviewer recommendation = 2-split by File Class: (A) runtime gate-Full: `frontend/src/components/about/roles.ts` NEW + `frontend/src/components/about/RoleCardsSection.tsx` M + `frontend/e2e/roles-doc-sync.spec.ts` NEW (Full gate already verified green this session: tsc 0 + Playwright 257 passed / 1 pre-existing-red K-020 / 1 skipped); (B) docs gate-none: `README.md` M + `docs/ai-collab-protocols.md` M + `docs/tickets/K-039-split-ssot-role-cards.md` M + `docs/retrospectives/engineer.md` M + `docs/retrospectives/reviewer.md` M + `docs/retrospectives/pm.md` M + `docs/retrospectives/qa.md` M. QA sign-off required before commit-A per `feedback_qa_early_proxy_tier.md` runtime tier.
+- 2026-04-24 (QA sign-off — Phase 1): **QA PASS. No regressions. Authorized to commit.** Full Playwright suite: 257 passed / 1 skipped / 1 pre-existing red (`AC-020-BEACON-SPA` K-032 documented gap, untouched by K-039). New spec `roles-doc-sync.spec.ts` 4/4 PASS. About regression (`about.spec.ts` + `about-v2.spec.ts`): 71 passed / 1 skipped / 0 failed (pre-existing AC-022-ROLE-GRID-HEIGHT + AC-034-P2-FILENOBAR-VARIANTS + AC-017-ROLES + AC-022-SUBTITLE all green). Pencil parity 18 pairs + 6 fileNo pairs all byte-equal against `frontend/design/specs/about-v2.frame-8mqwX.json`. Dev-server runtime check /about: 6 cards × 4 fields render, 0 console errors. QA retrospective prepended to `docs/retrospectives/qa.md` newest-first.
 
 ### Phase-by-phase role dispatch plan
 
@@ -385,5 +464,15 @@ All ACs above authored per:
 ---
 
 ## 10. Retrospective
+
+### Engineer — Phase 1 (2026-04-24)
+
+**AC judgments that were wrong:** none from my side — but AC-039-P1-EXTRACT-ROLES-MODULE literal shape (`role, owns, artefact, redactArtefact`) conflicts with HEAD TSX shape (`fileNo, role, owns, artefact`). PM dispatch instruction explicitly ruled proceed with HEAD-truth; logged as BQ in §9. AC-039-P1-NO-OTHER-CONTENT-TOUCHED final clause (`grep -rn "ROLES:start" . == 2`) is literally unsatisfiable while the ticket doc references the marker string in prose and the Playwright spec references it as a string literal — intent is satisfied (2 marker-carrying *files*), logged as BQ in §9.
+
+**Edge cases not anticipated:** initial `import { ROLES } from '../src/components/about/roles'` without `.ts` extension failed at Playwright run time (`Cannot find module`) even though tsc was green. Fixed by adding explicit `.ts` extension, consistent with existing e2e convention (`./_fixtures/mock-apis.ts`). Root cause: Playwright's Node-ESM loader obeys `allowImportingTsExtensions` semantics of the `tsconfig.json`; bare-module resolution doesn't auto-resolve `.ts`. This matches the rule already in engineer persona §Playwright JSON import rule (similar category of Node-ESM loader vs tsc divergence).
+
+**Next time improvement:** before writing a cross-directory e2e import (e2e → src), grep `frontend/e2e/` once for `^import.*from '\\.\\./` to pick up the file-extension convention; do not trust tsc-passing as proof of runtime-resolvable.
+
+### PM
 
 (To be written at ticket close.)

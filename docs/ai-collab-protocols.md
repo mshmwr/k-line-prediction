@@ -17,14 +17,16 @@ This document describes the structured protocols used to build the K-Line Predic
 
 ### The 6 Roles
 
+<!-- ROLES:start -->
 | Role | Owns | Artefact |
 |------|------|----------|
 | PM | Requirements, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
 | Architect | System design, cross-layer contracts | docs/designs/K-XXX-*.md |
 | Engineer | Implementation, stable checkpoints | commits + ticket retrospective |
-| Reviewer | Code review, Bug Found Protocol | Review report + Reviewer retrospective |
+| Reviewer | Code review, Bug Found Protocol | Review report + Reviewer 反省 |
 | QA | Regression, E2E, visual report | Playwright results + docs/reports/*.html |
 | Designer | Pencil MCP, flow diagrams | .pen file + get_screenshot output |
+<!-- ROLES:end -->
 
 ### Handoff Sequence
 

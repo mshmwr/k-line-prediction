@@ -16,6 +16,24 @@
 
 ---
 
+## 2026-04-24 — K-039 Phase 1 (split-SSOT for /about RoleCards — drift repair + sync markers + regression spec)
+
+**做得好：**
+- **AC-039-P1-FAIL-IF-GATE-REMOVED dry-run in one shot** — edited README.md inside markers (`Requirements` → `Reqs`), re-ran `npx playwright test roles-doc-sync.spec.ts`, captured red on AC-039-P1-README-SYNCED with precise Jest-style diff pinpointing the 1-row drift (other 5 rows + count + canon + protocols all stayed green → scoping is correct). Reverted, re-ran, 4/4 back to green. Evidence transcript captured verbatim into ticket §8 per `feedback_engineer_concurrency_gate_fail_dry_run.md` pattern.
+- **E2E grep before edit performed** — `grep -rn "RoleCardsSection\|ROLES" frontend/e2e/` before any Edit surfaced `about.spec.ts:90-143` as the 18-assertion consumer; confirmed my TSX refactor is import-only (zero runtime change) so those assertions remain green. Verified at full-suite run (about.spec.ts tests PASS).
+- **Pure-data module discipline held** — `roles.ts` has zero React imports, only `export type RoleKey | RoleEntry` + `export const ROLES: readonly RoleEntry[]`. Consumers documented in file-header docstring (`RoleCardsSection.tsx`, `roles-doc-sync.spec.ts`, future Phase 2 generator) per shared-component-inventory convention.
+
+**沒做好：**
+- **First spec run failed with `Cannot find module '../src/components/about/roles'`** — tsc green + vitest/typescript bundler moduleResolution allowed bare-module import to typecheck, but Playwright's Node-ESM loader at runtime doesn't auto-resolve `.ts`. Fix: add `.ts` extension, matching existing e2e convention (`./_fixtures/mock-apis.ts`). Root cause: I didn't grep existing e2e imports for `from '\\.\\./` to pick up the extension convention before writing the new spec; relied on tsc green as sufficient.
+- **Ticket AC literal vs HEAD shape drift not caught at pre-implementation** — AC-039-P1-EXTRACT-ROLES-MODULE names fields `role/owns/artefact/redactArtefact` but K-034 Phase 2 replaced `redactArtefact` with `fileNo`. PM dispatch instruction pre-ruled HEAD-truth so I didn't block, but I should have surfaced this as an observation at the start (not at retrospective) so PM sees the AC-vs-HEAD drift earlier. Now logged as BQ in §9.
+- **AC-039-P1-NO-OTHER-CONTENT-TOUCHED final `grep == 2` clause is unsatisfiable** — literal shell grep counts prose references in the ticket doc + string literals in the Playwright spec itself. Intent (2 marker-carrying files) is satisfied but the AC wording needs a narrower predicate (e.g. `grep -lE "^<!-- ROLES:(start|end) -->$"`). Logged as BQ in §9 for PM to tighten in Phase 2 or meta-amend.
+
+**下次改善：**
+- **Before any cross-dir e2e import (e2e → src/**), grep `frontend/e2e/` for the existing `from '../` convention and copy the extension style literally** — do not assume tsc green = Playwright loader green. Engineer persona already warns about Playwright JSON loader vs tsc (§Playwright JSON import rule); this `.ts`-extension case is a sibling gotcha in the same family. Will add a short cross-reference line to the persona in next batch.
+- **Pre-implementation AC-vs-HEAD diff scan for refactor tickets** — when a ticket body enumerates "fields `X, Y, Z`" and the ticket has `depends-on` or `related` K-IDs that recently changed the component, `git show <K-related>:<file>` + compare before first Edit; if field set drifted, raise as BQ at start (1-line note), not at retrospective. Applies to ticket-type `refactor` + `process` both. The PM dispatch pre-ruled this particular case, but the rule applies to future tickets where PM may not pre-rule.
+
+---
+
 ## 2026-04-23 — K-034 Phase 3 (/diary adopts shared Footer, absorbs ex-K-038)
 
 **做得好：**

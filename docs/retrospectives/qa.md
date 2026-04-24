@@ -19,6 +19,14 @@
 ---
 
 <!-- 新條目從此處往上 append -->
+## 2026-04-24 — K-039 Phase 1 (QA sign-off)
+
+**What went well:** Pre-existing guards on role cards (`AC-017-ROLES` 6×3, `AC-022-ROLE-GRID-HEIGHT` desktop + 3 mobile breakpoints, `AC-034-P2-FILENOBAR-VARIANTS` FILE Nº 01..06 exact, `AC-034-P2-DRIFT-D26-SUBTITLE-VERBATIM` S3 subtitle) all turned green on the refactored `RoleCardsSection` + new `roles.ts` module — single-source data extraction did not drift any visual or text assertion. The new `roles-doc-sync.spec.ts` (4/4 PASS) locks the TSX-canonical text against README + docs/ai-collab-protocols.md via explicit marker blocks, establishing a regression gate that would FAIL on any future drift without needing human diff review.
+
+**What went wrong:** No QA-observable defect. Process-level note: the 1 pre-existing red in the full suite (`AC-020-BEACON-SPA` in `ga-spa-pageview.spec.ts`, K-032 production gap) flows through every sign-off run and risks becoming invisible baseline noise — when a new failure surfaces under similar framing, the "known red" heuristic could cause a real regression to be waved through. The categorisation is correct for K-039 (beacon file unchanged, same failure pattern, zero overlap with role-card scope) but the baseline-as-noise pattern needs an explicit quarantine mechanism.
+
+**Next time improvement:** Enforce a "known-red manifest" in QA sign-off flow: before declaring any full-suite run matches baseline, compare the failing test IDs byte-equal against `docs/qa/known-reds.md` (to be created). Any new red ID = hard BLOCK even if count matches; any baseline red disappearing = verify with targeted rerun before claiming improvement. Codify as QA persona §Mandatory Task Completion Steps hard step (add between current steps 3 and 4).
+
 ## 2026-04-23 — K-039 — QA Early Consultation (Split SSOT + README sync generator)
 
 **Disclosure (capability pre-flight, pm.md §PM session capability pre-flight):** This session has no `Agent` tool available. PM acted as main-session QA proxy; consultation was conducted by Reading `~/.claude/agents/qa.md` persona + codebase + specs + plan doc. Risk: blind spots a full QA agent with interactive boundary sweep might catch could be missed. Mitigation: (a) explicit disclosure here; (b) PM will re-invoke full QA agent for sign-off in a later turn if Agent tool becomes available; (c) QA Challenges below derived directly from `qa.md` §Boundary Condition Mandatory Sweep table applied to K-039 Phase 1/2/3 ACs + K-Line E2E spec inventory.
