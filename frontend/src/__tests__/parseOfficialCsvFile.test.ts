@@ -13,6 +13,11 @@ import { parseOfficialCsvFile } from '../AppPage'
  * not uploaded bytes). Unit-testing `parseOfficialCsvFile` is the layer
  * strictly upstream of the neutralized endpoint — see ticket B4 / Action 5
  * "neutralize-masked invariant" for methodology.
+ *
+ * Cross-reference monitor (K-046 Phase 2e Reviewer I-1): this row-count=24
+ * invariant pairs with backend/tests/test_main.py::test_upload_example_csv_fixture_round_trip
+ * (byte-count=3926 invariant). Both must stay green; either flipping red
+ * signals fixture drift that needs coordinated update on both sides.
  */
 
 describe('parseOfficialCsvFile — example CSV fixture', () => {

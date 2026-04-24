@@ -1,12 +1,17 @@
 ---
 id: K-046
 title: Comment out upload-history DB write + add example CSV download (Phase 2 — prod fix)
-status: reopened
+status: closed
 created: 2026-04-24
 revised: 2026-04-24
 reopened: 2026-04-24
+closed: 2026-04-24
 phase-1-deployed: 2026-04-24
 phase-1-deployed-commit: 34570a3
+phase-2-closed: 2026-04-24
+phase-2-deployed: 2026-04-24
+phase-2-deployed-commit: e1f3924
+cloud-run-revision: k-line-backend-00004-72b
 type: refactor
 priority: high
 size: small
@@ -85,6 +90,8 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 - **And:** the existing frontend `lastHistoryUpload` state shape (`AppPage.tsx:306`) reading `added_count` + `bar_count` continues to render without TypeScript error or runtime crash
 
 ### AC-046-COMMENT-4 — Response semantics toast remains correct with `added_count === 0`
+
+> **SUPERSEDED 2026-04-24 by AC-046-PHASE2-UI-UPLOAD-HIDDEN (Phase 2):** the Upload History CSV input + label + toast path were removed from `/app` in Phase 2. The toast branch this AC references no longer has a user-reachable trigger. AC-046-COMMENT-4 retained here for historical trace only; enforced assertion is now AC-046-PHASE2-UI-UPLOAD-HIDDEN (0 matches for upload input / `Upload History CSV` text on `/app`).
 
 - **Given:** the user uploads any valid CSV via the `/app` Upload History CSV UI
 - **When:** the upload succeeds
@@ -623,4 +630,158 @@ Carried forward from Phase 1 §Known Gaps (GAP-1 concurrency moot, GAP-2 CDN pro
 - 2026-04-24 — PM Phase 2 scope locked with user (7 actions, 6 ACs); BQs self-resolved per 4-source priority
 - 2026-04-24 — **QA Early Consultation (PM proxy tier)** complete — see `docs/retrospectives/qa.md 2026-04-24 K-046 Phase 2` entry; tier classification + adversarial cases + fail-once escalation rule applied
 - 2026-04-24 — **Ready for Architect release** → Phase 2a
+- 2026-04-24 — Architect design (Phase 2a) + Engineer implementation (Phase 2b) + Reviewer two-layer + QA regression all landed on worktree branch `K-046-remove-upload-db-write` @ `e1f3924`
+- 2026-04-24 — **Phase 2e PM close + deploy (this session):** Cloud Run env var `CORS_ORIGINS` updated (revision `k-line-backend-00004-72b`); frontend built + `firebase deploy --only hosting` complete; 4 verification probes executed with output pasted into §Phase 2 Deploy Record below; 6 PM rulings on post-review items recorded in §Phase 2 PM Rulings below.
 
+## Phase 2 PM Rulings (Post-Review, 2026-04-24)
+
+Ruled at Phase 2e close after ingesting Reviewer two-layer + QA regression + pre-close scan. Each ruling cites the 4-source priority per `feedback_pm_self_decide_bq.md`.
+
+### R1 — N-1 (unused `official-input-section` testid) — accept as future-proofing scaffolding
+
+- **Ruling:** accept-as-is, no removal, no TD.
+- **4-source walk:** (1) Pencil no signal; (2) ticket §Phase 2b Architect plan explicitly added `official-input-section` as a scope-narrowing testid (AC-046-PHASE2-UI-LINK-MOVED `page.getByText("Expected format").locator('xpath=ancestor::...')` fallback path); (3) memory `feedback_retrospective_honesty.md` — don't remove real scaffolding just because one spec used the text-anchored path; (4) codebase — testid exists on JSX, no orphan; cost of removal + potential future re-add exceeds cost of keeping.
+- **Verdict:** leave in place.
+
+### R2 — pytest `646 → 3926` byte-count upgrade — accept classification as "pure constant upgrade"
+
+- **Ruling:** accept Reviewer classification. No escalation.
+- **4-source walk:** (1)–(2) ticket §Phase 2b Engineer retro documented the pattern (pre-impl grep across `backend/` + `frontend/` for the byte-count literal); (3) memory `feedback_engineer_behavior_diff_pure_refactor.md` — constant-only edit with identical invariant semantics = pure refactor, Engineer-self-arbitrable; (4) codebase — single `assert len(example_bytes) == ...` line, both `646` and `3926` correspond to committed fixture bytes at their respective moments.
+- **Verdict:** no further action.
+
+### R3 — pre-existing `diary.legacy-merge.test.ts` failure — open TD-003
+
+- **Ruling:** TD opened at `docs/tickets/TD-003-diary-legacy-merge-word-count.md`.
+- **4-source walk:** (1) no Pencil; (2) Engineer retro (Phase 1 + 2b) flagged out-of-scope on both passes; (3) memory `feedback_pm_close_bq_iteration.md` — deferrals need a concrete TD at close, not a post-close promise; (4) codebase — root cause traced to commit `f24b9d7` "data(diary): rewrite all entries as short summaries"; requires a policy decision (a/b/c) not a quick fix.
+- **Verdict:** TD-003 filed with (a)/(b)/(c) decision tree + AC-TD003-VITEST-GREEN + AC-TD003-RATIONALE-DOCUMENTED.
+
+### R4 — I-1 (fixture byte-count duplication backend/frontend) — add cross-reference comment now
+
+- **Ruling:** inline edits applied to both test files naming each as the pair-monitor of the other.
+- **Files edited (Phase 2e):**
+  - `backend/tests/test_main.py::test_upload_example_csv_fixture_round_trip` — comment block names the frontend parse test as cross-ref pair
+  - `frontend/src/__tests__/parseOfficialCsvFile.test.ts` — JSDoc comment names the backend round-trip test as cross-ref pair
+- **4-source walk:** (1) no Pencil; (2) Reviewer minimum ask matched (I-1 requested cross-ref comment, not structural refactor); (3) memory `feedback_engineer_behavior_diff_pure_refactor.md` — comment-only edit = zero behavior change; (4) codebase — small justified edit; cost under 5 lines across 2 files; landing at close time avoids a stub TD whose single action is "add a comment".
+
+### R5 — I-2 (AC-046-COMMENT-4 supersession gap) — add 1-line note in ticket
+
+- **Ruling:** supersession annotation added above AC-046-COMMENT-4 pointing at AC-046-PHASE2-UI-UPLOAD-HIDDEN.
+- **4-source walk:** (1) no Pencil; (2) ticket §AC block needed explicit "Phase 1 AC superseded by Phase 2 AC" marker so future readers don't re-apply AC-046-COMMENT-4 as a live invariant; (3) memory `feedback_retrospective_honesty.md` — honest historical trace, not silent AC deletion; (4) codebase — toast branch + upload input both removed in Phase 2 per Engineer impl, so no enforcement target remains.
+- **Verdict:** inline doc edit applied, AC retained for trace.
+
+### R6 — I-3 (architecture.md line length) — defer as cross-ticket standard (NOT TD, subsumed under R3)
+
+- **Ruling:** no new TD; surfaces at the next architecture.md edit pass (K-048 or later).
+- **4-source walk:** (1) no Pencil; (2) Reviewer flagged as cross-ticket standards issue not K-046-specific; (3) memory `feedback_pm_close_bq_iteration.md` + `feedback_dual_repo_mirror_gap_detection.md` — one issue one tracker, don't create standards-only TDs that describe a convention; (4) codebase — architecture.md has a handful of long lines in non-K-046 sections; a standards-pass is appropriate but not K-046 scope.
+- **Verdict:** no action at K-046 close. Future architecture.md edit sessions may self-enforce line-wrap during normal edits.
+
+## Phase 2 BQ Closure Iteration
+
+Per `feedback_pm_close_bq_iteration.md`:
+
+- **BQ-046-D (Phase 1, scope of comment-out)** → RESOLVED — design doc `docs/designs/K-046-comment-out-upload-write.md §Option A` + Phase 1 backend/main.py:162-167 commented block
+- **BQ-046-E (Phase 1, example CSV artifact location)** → RESOLVED — `frontend/public/examples/ETHUSDT_1h_test.csv` live + deploy probe 4 confirms 24-line fixture
+- **BQ-046-F (Phase 1, Download link copy + placement)** → RESOLVED — Phase 2 relocated to OFFICIAL INPUT scope (superseded Phase 1 placement), verified by AC-046-PHASE2-UI-LINK-MOVED + deploy probe 2/5
+- **Phase 2 handler-removal vs comment-out (Architect ruling)** → RESOLVED — design doc `docs/designs/K-046-phase2-ui-restructure.md` Option (A) full removal; Engineer Phase 2b commit `e1f3924` removed `handleHistoryUpload` + 4 state hooks; AC-046-PHASE2-UI-UPLOAD-HIDDEN PASS
+- **GAP-1 (concurrency surface)** → RESOLVED — tracker = K-048 Architect design phase (pointer in 3 SORs: ticket §Known Gaps GAP-1, design doc §7, `agent-context/architecture.md` L252); moot post-K-046
+- **GAP-2 (CDN propagation window)** → RESOLVED-AS-ACKNOWLEDGED — ops-time risk, manual smoke on deploy day; no code fix target
+- **GAP-3 (cross-browser download attribute)** → RESOLVED-AS-ACKNOWLEDGED — Chromium coverage sufficient, attribute-level assertion final
+- **GAP-4 (CORS Playwright mock coverage)** → RESOLVED-AS-ACKNOWLEDGED — manual curl + browser smoke substitute; not a code-fix target
+- **I-1 (fixture byte-count duplication)** → RESOLVED — cross-reference comments landed this session (R4)
+- **I-2 (AC-046-COMMENT-4 supersession)** → RESOLVED — doc annotation landed this session (R5)
+- **I-3 (architecture.md line length)** → RESOLVED-AS-ACKNOWLEDGED — cross-ticket standard, no TD filed (R6)
+- **Pre-existing `diary.legacy-merge.test.ts` failure** → DEFERRED-TO-TD-003 — file at `docs/tickets/TD-003-diary-legacy-merge-word-count.md` (R3)
+
+**BQ closure summary:** [9 RESOLVED] [3 RESOLVED-AS-ACKNOWLEDGED] [1 DEFERRED-TO-TD-003] [0 OPEN]. Close-gate PASS.
+
+## Phase 2 Engineer-Made Visual Change Scan (K-043 rule)
+
+Ticket frontmatter is `visual-delta: yes` (UI restructure of `/app`), so the `feedback_engineer_visual_change_pm_designer_followup.md` automatic-follow-up-ticket rule does NOT apply (that rule triggers only on `visual-delta: none` tickets where Engineer silently introduces visual literals). For `visual-delta: yes` tickets, visual changes are in scope and covered by Phase 2 ACs (UI-LINK-MOVED, UI-UPLOAD-HIDDEN, HISTORY-LABEL-KEPT, HISTORY-INFO-RENDERS).
+
+Scan result: no follow-up Designer ticket required.
+
+## Phase 2 Deploy Record
+
+**Deploy date:** 2026-04-24 19:19:31 (Asia/Taipei)
+**Git SHA at deploy:** `e1f3924ceb3ce58ea1a7a973efb8307b0ec957ce` (worktree HEAD at deploy time; close commit added after deploy verification)
+**Hosting URL:** https://k-line-prediction-app.web.app
+**Bundle hash:** `assets/index-chsq6pnA.js` (174221 bytes; built 2026-04-24 19:18 Asia/Taipei)
+**Cloud Run:** revision `k-line-backend-00004-72b` serving 100% traffic at `https://k-line-backend-841575332599.asia-east1.run.app` (env `CORS_ORIGINS=https://k-line-prediction-app.web.app` added this deploy)
+
+**Verification probes (executed at close, outputs pasted verbatim):**
+
+1. **Probe 1 — CORS header on GET `/api/history-info` with Origin:**
+   ```
+   $ curl -s -H "Origin: https://k-line-prediction-app.web.app" -D - \
+       https://k-line-backend-841575332599.asia-east1.run.app/api/history-info -o /dev/null \
+       | grep -i "access-control-allow-origin"
+   access-control-allow-origin: https://k-line-prediction-app.web.app
+   ```
+   Expected exact-origin match ✓
+
+2. **Probe 2 — bundle contains `Expected format` (OFFICIAL INPUT scope marker):**
+   ```
+   $ curl -s https://k-line-prediction-app.web.app/assets/index-chsq6pnA.js \
+       | grep -o 'Expected format' | wc -l
+         1
+   ```
+   Expected 1 ✓
+
+3. **Probe 3 — bundle does NOT contain `Upload History CSV` (removed button caption):**
+   ```
+   $ curl -s https://k-line-prediction-app.web.app/assets/index-chsq6pnA.js \
+       | grep -o 'Upload History CSV' | wc -l
+         0
+   ```
+   Expected 0 ✓ (AC-046-PHASE2-UI-UPLOAD-HIDDEN proof)
+
+4. **Probe 4 — refreshed example CSV fixture has 24 rows:**
+   ```
+   $ curl -s https://k-line-prediction-app.web.app/examples/ETHUSDT_1h_test.csv | wc -l
+         24
+   ```
+   Expected 24 ✓
+
+5. **Probe 5 (supplemental) — `Download example` link copy present:**
+   ```
+   $ curl -s https://k-line-prediction-app.web.app/assets/index-chsq6pnA.js \
+       | grep -o 'Download example' | wc -l
+         1
+   ```
+   Expected 1 ✓ (AC-046-PHASE2-UI-LINK-MOVED proof)
+
+**Cloud Run preflight supplemental:**
+```
+$ curl -s -o /dev/null -w "%{http_code}\n" -X OPTIONS \
+    -H "Origin: https://k-line-prediction-app.web.app" \
+    -H "Access-Control-Request-Method: GET" \
+    https://k-line-backend-841575332599.asia-east1.run.app/api/history-info
+200
+```
+
+**GET /api/history-info body with Origin header (CORS AC smoke):**
+```
+{"1H":{"filename":"Binance_ETHUSDT_1h.csv","latest":"2026-04-08 23:00","bar_count":73990},"1D":{"filename":"Binance_ETHUSDT_d.csv","latest":"2026-03-27 00:00","bar_count":3139}}
+```
+Real history data returned; `"Loading…"` stuck-state no longer reachable on deployed `/app` per AC-046-PHASE2-HISTORY-INFO-RENDERS.
+
+**Status:** Live.
+
+## Phase 2 Retrospective (PM)
+
+### What went well
+
+- Phase 2 scope decomposition into 7 actions with explicit B1/B2/B3/B4 trace (each bug mapped to an action + an AC) caught the "neutralized endpoint masks fixture failure" methodology gap at AC-design time, not at Reviewer time. The B4 codification (Action 5) has downstream leverage — every future commented-path ticket inherits the "assert on parse layer not endpoint layer" guardrail.
+- Real QA regression sub-agent (not PM proxy) ran on Phase 2 despite the PM proxy tier being available for small-scope visual restructure — Phase 2 touched schema semantics (removed state hooks, removed handler), which is runtime-code tier, so the tier decision correctly called for real QA spawn. Tier rule per `feedback_qa_early_proxy_tier.md` behaved as designed.
+
+### What went wrong
+
+- AC-046-COMMENT-4 (Phase 1) was not explicitly marked superseded when Phase 2 removed the Upload History CSV input. Reviewer I-2 caught it at depth pass, but the formal procedure at AC authoring time should include "when adding a Phase-N AC that invalidates a Phase-(N-1) AC, annotate the older AC with a SUPERSEDED-BY marker in the same commit". Without the annotation, a future reader of the ticket §Acceptance Criteria block would see AC-046-COMMENT-4's "toast renders informational gray copy" and could re-introduce the upload input thinking the AC was an active invariant.
+- The CORS env var gap (B1) was a deploy-config bug, not a code bug, yet Phase 1 close-gate did not catch it. The executed Deploy Record probe used `curl` without `Origin` header, so no preflight was triggered. This is a class of bug (ops-config drift between local dev server + Firebase hosting) that pure code-level ACs cannot surface.
+
+### Next time improvement
+
+- **AC supersession annotation rule (codified):** when Phase-N AC scope invalidates a Phase-(N-1) AC, the Phase-N commit must include a `> **SUPERSEDED by AC-XXX-PHASEN-Y:**` blockquote directly above the superseded AC block. PM authoring the Phase-N AC is responsible for the annotation. Applied reactively this session for AC-046-COMMENT-4; codify prospectively in `~/.claude/agents/pm.md §AC authoring` next pm.md edit pass.
+- **CORS preflight smoke in Deploy Record probe table (codified):** any ticket whose deploy target includes a Cloud Run revision MUST include a `curl -H "Origin: <frontend-origin>" -I <backend-url>/<endpoint>` probe in the Deploy Record block, not just a bare `curl <backend-url>`. The Origin header is what triggers the preflight path. Pairs with existing `~/.claude/agents/pm.md §Verification probe layer table` — the `backend/**` API row's expected form should include this Origin variant.
+
+---
