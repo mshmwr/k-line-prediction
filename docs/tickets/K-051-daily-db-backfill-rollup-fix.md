@@ -158,6 +158,25 @@ Placeholder — to be filled by:
 - QA (post-deploy retest of the original 1H upload — confirms AC-051-01 end-to-end)
 - PM (cross-role summary + process notes on retroactive ticket workflow)
 
+### PM TD Rulings (2026-04-25)
+
+QA surfaced 5 TD candidates in the 2026-04-25 K-051 retro entry. PM rulings:
+
+- **TD-K051-02 → fix-after-merge** (rationale: backend-pytest-only contiguity gap detector. Real coverage gap — same bug class can recur silently — but does NOT block AC-051-01/03/05 deploy gates. Open as standalone backend-test ticket immediately post-K-051 merge; same motivation cluster as TD-K051-03, may bundle into one PR per PR split rules.)
+- **TD-K051-03 → fix-after-merge** (rationale: backend integration test loading real `history_database/Binance_ETHUSDT_d.csv` + committed real 24-bar 1H CSV. Highest-value coverage of the exact failure mode that triggered K-051. Not deploy-blocking; bundle with TD-K051-02 into one backend-test follow-up ticket since both share motivation "permanent regression coverage for K-051 bug class".)
+- **TD-K051-04 → fix-after-merge** (rationale: E2E spec uploading committed real 1H CSV against mocked `/api/predict`. Anchors AC-051-01 user-visible path with permanent test coverage. Different file class from -02/-03 (frontend e2e vs backend pytest) per CLAUDE.md PR split rule (b) "cross file class (runtime + docs)" → separate ticket/PR. Open as a sibling follow-up.)
+- **TD-K051-05 → fix-after-merge** (rationale: docs-only — adds worktree hydration drift policy to K-Line `CLAUDE.md` + qa.md persona. Not deploy-blocking. Bundle into a single docs-only PR per PR split rules; short ticket, low ROI to rush pre-merge.)
+- **TD-K030-03 → fix-after-merge (HIGH PRIORITY, separate ticket/PR mandatory)** (rationale: three strikes (K-030, K-034 P1, K-051) confirms persona pre/post checks insufficient — source-level hard gate is the right fix. BUT touches `frontend/scripts/visual-report.ts` (or equivalent runtime), different motivation from K-051's data + Dockerfile scope → CLAUDE.md PR split rules (b) cross file class + (c) cross deploy target force a SEPARATE ticket/PR. Visual-report is a Playwright report generator, not Cloud Run runtime, so this does NOT actually block K-051's deploy gate (AC-051-01/03/05). Classify as fix-after-merge but open the ticket the same day K-051 merges; do not let it slip a fourth time.)
+
+**Net effect on K-051 merge:** zero blockers. PR #12 (inner) + #20 (outer) cleared to merge once Code Reviewer + reviewer-depth return clean.
+
+**Follow-up tickets to open post-merge:**
+
+1. `TD-K051-coverage` (bundle TD-K051-02 + TD-K051-03; backend-test file class) — single PR
+2. `TD-K051-04-e2e` (E2E real-CSV spec; frontend e2e file class) — separate PR
+3. `TD-K051-05-hydration-policy` (docs-only; CLAUDE.md + qa.md) — single PR
+4. `TD-K030-03-source-gate` (visual-report.ts source hard-gate; high priority, three-strikes) — separate PR
+
 ### PM Summary
 
 (To be appended after Reviewer + QA close out.)
