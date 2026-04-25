@@ -2,7 +2,7 @@
 FROM node:20-alpine AS frontend-build
 WORKDIR /frontend
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm ci && npm install --no-save @rollup/rollup-linux-x64-musl@4.60.1
 COPY frontend/ .
 COPY docs/ai-collab-protocols.md /docs/ai-collab-protocols.md
 COPY backend/tests/fixtures/stats_contract_cases.json /backend/tests/fixtures/stats_contract_cases.json
