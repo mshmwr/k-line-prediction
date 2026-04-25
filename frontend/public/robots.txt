@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://k-line-prediction-app.web.app/sitemap.xml

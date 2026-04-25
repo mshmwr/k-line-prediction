@@ -4,7 +4,6 @@ import io
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.responses import FileResponse
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
@@ -31,14 +30,11 @@ _history_1h: list = _load_or_mock(HISTORY_1H_PATH)
 _history_1d: list = _load_or_mock(HISTORY_1D_PATH)
 
 app = FastAPI()
-_cors_origins = [o.strip() for o in os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(",") if o.strip()]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_cors_origins,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
+# K-049 Phase 2b: CORSMiddleware removed. Firebase Hosting now rewrites
+# /api/** to this Cloud Run service as a same-origin edge proxy, so the
+# browser never issues cross-origin requests to the backend. Dev-server
+# still talks to backend via vite.config.ts proxy (server-to-server).
 app.include_router(auth_router, prefix="/api")
 
 _dist_assets = DIST_DIR / "assets"
