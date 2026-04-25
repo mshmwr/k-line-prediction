@@ -4,41 +4,46 @@ import { mockApis } from './_fixtures/mock-apis.ts'
 // ── AC-021-FOOTER + AC-034-P3-SITEWIDE-FOOTER-4-ROUTES ──────────────────────
 // Given: user visits /, /about, /business-logic, /diary
 // When:  page is rendered
-// Then:  <Footer /> 單行資訊列顯示 `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`
-// And:   字級 11px、顏色 #6B5F4E (text-muted)、top border
+// Then:  <Footer /> shows clickable email button + GitHub + LinkedIn brand-asset SVG anchors
+// And:   font-size 11px, text-muted color (#6B5F4E) on <footer>, top border, font-mono
 //
-// K-034 Phase 3 (2026-04-23): AC-034-P3-SITEWIDE-FOOTER-4-ROUTES — /diary 加入 4-route loop,
-// 共用 Footer 覆蓋 /、/about、/business-logic、/diary 四路由。Challenge #6 ruling Option A.
+// K-050 (2026-04-25): Footer flat-text one-liner replaced with 3 brand-asset SVG anchors
+// (mail / GitHub / LinkedIn) + click-to-copy email <button>. Old plaintext line
+// `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` removed. Assertions now target
+// <footer> element directly for font/color/border + the cta-email-copy button text for
+// email visibility (see shared-components.spec.ts AC-050-* for behavior coverage).
 //
-// K-034 Phase 1 (2026-04-23): Footer variant prop 全數退役；/、/business-logic、/about
-// 三路由共用同一份 prop-less Footer；舊的 variant="home"/"about" 語義不再適用。
-// K-035 (2026-04-22): /about 原本的 separate-footer Sacred 已 retire，納入共用 Footer。
-// /about DOM 斷言改由 frontend/e2e/shared-components.spec.ts（K-034 Phase 1 rewrite）
-// 以 byte-identical outerHTML + PNG snapshot 承擔。
+// K-034 Phase 3 (2026-04-23): AC-034-P3-SITEWIDE-FOOTER-4-ROUTES — /diary 4-route loop,
+// shared Footer覆蓋 /、/about、/business-logic、/diary四路由. Challenge #6 ruling Option A.
 //
-// 註（K-030）：/app 於 K-030 撤除 Footer；/app footer-absent 斷言移至
-// frontend/e2e/app-bg-isolation.spec.ts（AC-030-NO-FOOTER）。
+// K-034 Phase 1 (2026-04-23): Footer variant prop fully retired; / + /business-logic +
+// /about share a single prop-less Footer; old variant="home"/"about" semantics no longer
+// apply. K-035 (2026-04-22): /about original separate-footer Sacred retired, merged into
+// shared Footer. /about DOM assertion delegated to shared-components.spec.ts (K-034 P1).
 //
-// LIFO ordering invariant 由 _fixtures/mock-apis.ts 內建。
-
-const FOOTER_TEXT = 'yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn'
+// Note (K-030): /app removed Footer in K-030; /app footer-absent assertion lives at
+// frontend/e2e/app-bg-isolation.spec.ts (AC-030-NO-FOOTER).
+//
+// LIFO ordering invariant from _fixtures/mock-apis.ts.
 
 async function expectSharedFooterVisible(page: import('@playwright/test').Page) {
-  const footerText = page.getByText(FOOTER_TEXT, { exact: true })
-  await expect(footerText).toBeVisible()
+  const footer = page.locator('footer').last()
+  await expect(footer).toBeVisible()
 
-  const fontSize = await footerText.evaluate(el => getComputedStyle(el).fontSize)
+  // K-050: email visible as cta-email-copy button text content (not flat text node)
+  const copyBtn = footer.locator('[data-testid="cta-email-copy"]')
+  await expect(copyBtn).toHaveText('yichen.lee.20@gmail.com')
+
+  // font-size 11px on <footer> element
+  const fontSize = await footer.evaluate(el => getComputedStyle(el).fontSize)
   expect(fontSize).toBe('11px')
 
-  const color = await footerText.evaluate(el => getComputedStyle(el).color)
+  // text-muted color #6B5F4E (rgb(107, 95, 78)) on <footer>
+  const color = await footer.evaluate(el => getComputedStyle(el).color)
   expect(color).toBe('rgb(107, 95, 78)')
 
-  // top border：span 在 <footer> 內，向上找 <footer> 驗 border-top-width
-  const borderTopWidth = await footerText.evaluate(el => {
-    const footer = el.closest('footer')
-    if (!footer) return '0px'
-    return getComputedStyle(footer).borderTopWidth
-  })
+  // top border > 0
+  const borderTopWidth = await footer.evaluate(el => getComputedStyle(el).borderTopWidth)
   expect(parseFloat(borderTopWidth)).toBeGreaterThan(0)
 }
 

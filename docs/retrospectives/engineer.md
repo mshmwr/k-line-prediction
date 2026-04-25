@@ -16,6 +16,24 @@
 
 ---
 
+## 2026-04-25 — K-050 BFP Round 2 — Footer DOM rewrite missed sibling spec grep (sitewide-footer + sitewide-fonts)
+
+**Bug:** QA full E2E reported 6 regressions in `sitewide-footer.spec.ts` (5 tests) + `sitewide-fonts.spec.ts` (1 test) on top of the BFP Round 1 commit. Both spec files assert literal flat-text `'yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn'` via `page.getByText(FOOTER_TEXT, { exact: true })` — that text node no longer exists in DOM after K-050 replaces it with structured anchors + button. Suite went 298/298 → 291/299. K-050 spec coverage (`shared-components.spec.ts` + `ga-tracking.spec.ts`) was clean; the gap was non-K-050 specs that depended on the OLD Footer text.
+
+**Why missed:**
+1. **Pre-edit `grep -r 'Footer' frontend/e2e/`** scope was incomplete. Per persona `feedback_engineer_grep_e2e_before_edit.md` ("Engineer 修改組件前 grep E2E spec"), I was supposed to grep the COMPONENT NAME — but the broken specs reference Footer indirectly via TEXT CONSTANTS (`FOOTER_TEXT = 'yichen.lee.20...'`), not via component import. Need a 2nd-axis grep on the visible TEXT being removed.
+2. **Pre-existing state assumption.** When Architect said "K-050 supersedes K-034 P1 byte-identity", I read it as "old plaintext Footer → new structured Footer; K-034 P1 spec rewrites covered by shared-components.spec.ts T1". But K-034 P1 byte-identity spec is just ONE of the specs depending on Footer text. `sitewide-footer.spec.ts` (K-021/K-034 P3 era) and `sitewide-fonts.spec.ts` (K-040/K-021 era) live at a different lineage and were NOT in the K-034 P1 spec scope.
+3. **Reviewer Step 2 also missed it.** Reviewer's "E2E spec logic self-check" only looked at K-050's own additions; did not run a "specs that REFERENCE the removed text" sweep.
+
+**Next time improvement (codified):**
+- Engineer Step 0d (already added for SVG fill-current) gets a sibling clause: when ticket REMOVES a literal text string from a shared component, mandatory pre-edit `grep -rn "<exact-text>" frontend/e2e/` + `grep -rn "<exact-text>" frontend/src/__tests__/`. Any hit outside the changed component → spec update bundled with the change in same commit.
+- Reviewer Step 2 gets a parallel sub-clause: "removed-text widened grep" — for any commit that deletes a literal string from a component file, grep the rest of `frontend/` (especially `e2e/` + `__tests__/`) for that literal; orphaned references = Critical.
+- Memory: `feedback_engineer_removed_text_grep.md` (new) + `feedback_reviewer_removed_text_grep.md` (new). Persona Edits + memory writes bundled with this BFP fix commit per Bug Found Protocol.
+
+**Fix:** updated `sitewide-footer.spec.ts` `expectSharedFooterVisible` helper + `sitewide-fonts.spec.ts` font-mono test — both now assert against `<footer>` element directly + `cta-email-copy` button text content (the new structured Footer DOM).
+
+---
+
 ## 2026-04-25 — K-050 BFP C-1 — mail.svg path-level `fill="#0F172A"` defeated `fill-current` color contract
 
 **Bug:** Reviewer Step 2 found `mail.svg` (Heroicons solid envelope upstream) has path-level `fill="#0F172A"` (slate-900). Footer brand-icon row uses `fill-current` Tailwind class to inherit `text-muted` #6B5F4E → `:hover text-ink`. Per SVG painting rules, path-level `fill="#XXXXXX"` is a presentation attribute that overrides CSS inheritance from any ancestor — mail icon painted slate-900 throughout with no hover transition. AC-050-FOOTER-LAYOUT clauses 2 + 3 (color inheritance + hover) failed silently.
