@@ -14,6 +14,24 @@
 
 - 倒序（最新在上）
 
+## 2026-04-25 — K-051 retroactive QA pass (daily DB backfill + Cloud Build rollup-musl fix)
+
+**What went well:**
+- Backend pytest (canonical repo) — 70/70 pass; K-051 daily DB invariants verified at the data layer: `Binance_ETHUSDT_d.csv` line count 3157 (3141 + 16 backfill), final row date column = `2026-04-08`, header schema unchanged (Unix,Date,Symbol,Open,High,Low,Close,Volume ETH,Volume USDT,tradecount). AC-051-02 evidentially supported.
+- Playwright full suite (canonical repo) — 295 passed / 3 failed / 1 skipped. The 3 failures (`about-layout.spec.ts:281` T14 root-child sanity, `about-v2.spec.ts:176` redaction-bar, `ga-spa-pageview.spec.ts:164` AC-020-BEACON-SPA) are all pre-existing, in K-031/K-022/K-020 territory — none touched by K-051's scope (CSV append + Dockerfile 1-line). No K-051-attributable regression.
+- AC-051-04 surgical-diff confirmed by reading PR #12 diff: exactly one logical line changed in Dockerfile, no other instructions altered.
+
+**What went wrong:**
+- **Summoned retroactively after both PRs already pushed.** AC-051-01 (deploy-side user retest) cannot be QA-gated pre-merge — it depends on Cloud Run redeploy. This violates the standard PM→Architect→Engineer→Reviewer→QA chain; retroactive ticket frontmatter acknowledges it but the process gap stands.
+- **K-051 has zero permanent regression coverage.** No backend test asserts daily DB date-column contiguity (gap detector). No backend test pins the "≥129 daily bars ending at input date" invariant for the 1H upload path against the live `history_database/Binance_ETHUSDT_d.csv` — only synthetic-history unit tests in `test_predictor.py`. No E2E uploads a real 1H CSV (e.g. the `ETHUSDT-1h-2026-04-07.csv` that triggered the bug) to assert the live `/api/predict` returns matches. The exact bug class can recur and tests will stay green.
+- **Worktree-only env drift surfaced two false positives** that wasted ~2 turns of triage: (a) Playwright webServer crashed in worktree because `node_modules/@rollup/` had only `rollup-linux-x64-gnu` (lockfile drift, missing darwin-arm64 + musl); (b) `frontend/public/examples/ETHUSDT_1h_test.csv` missing in worktree, failing `test_upload_example_csv_fixture_round_trip`. Canonical is clean for both. Worktree hydration ≠ canonical state — must run regressions in canonical when worktree shows env-class failures.
+- Initial visual-report run forgot `TICKET_ID=K-051`, produced `K-UNKNOWN-visual-report.html` pollution. Caught by persona Step 2a post-step verification, deleted, re-ran with TICKET_ID — but the trigger (TD-K030-03 root-cause fix to throw on missing TICKET_ID) is still not landed; persona instruction alone failed to prevent at first attempt. Recurrence of TD-K030-03.
+
+**Next time improvement:**
+- Open TD entries (PM ruling required): **TD-K051-02** add `tests/test_history_db_contiguity.py` asserting daily DB date column has no gap > 1 day from first row to last — runs in canonical against the actual `history_database/Binance_ETHUSDT_d.csv`, not a fixture. **TD-K051-03** add backend integration test that loads the real `history_database/Binance_ETHUSDT_d.csv` + a real 24-bar 1H CSV (committed as `backend/tests/fixtures/ETHUSDT-1h-2026-04-07-original.csv`) and asserts `find_top_matches` returns ≥1 match without raising `ma_history requires`. **TD-K051-04** add E2E spec `frontend/e2e/upload-real-1h-csv.spec.ts` that uploads a committed-in-repo small-but-real 1H CSV against a mocked `/api/predict` returning 200 + matches[], anchoring the user-visible AC-051-01 path. **TD-K051-05** worktree hydration drift — document in K-Line CLAUDE.md that QA runs regressions in canonical when worktree shows rollup/native-binary or fixture-path failures (this class is hydration drift, not regression).
+- Codify in qa.md persona: when ticket frontmatter has `retroactive: true`, QA Early Consultation degrades to "post-deploy retest plan + permanent-test gap audit" — both mandatory, both must produce TD entries to PM. Currently the persona has no retroactive-ticket protocol.
+- Hard-gate the `TICKET_ID` requirement in `visual-report.ts` source code (TD-K030-03) — persona pre/post checks have now failed at first attempt on K-030, K-034 Phase 1, and K-051. Three strikes; recommend PM rule the source-level fix as not-deferrable.
+
 
 ## 2026-04-25 — K-050 Footer social links — full regression sign-off (post BFP-R2)
 
