@@ -16,7 +16,61 @@
  * Pattern rationale: GA4 measurement IDs follow `G-[A-Z0-9]{10,}` — GA docs
  * say the suffix is 10 chars today but allow the class to grow, so we floor
  * at 10 without an upper bound.
+ *
+ * Env loading: Vite auto-loads .env files into the bundle, but the prebuild
+ * Node script runs before Vite, so we replicate Vite's mode-based loading
+ * here. Mode = NODE_ENV (defaults to 'production' when called from `npm run
+ * build`'s child process, but Vite docs use --mode; we honor both). CLI-set
+ * env vars (CI, gcloud --build-arg) win over file values.
  */
+
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const frontendRoot = resolve(__dirname, '..');
+
+function loadEnvFile(path) {
+  if (!existsSync(path)) return {};
+  const raw = readFileSync(path, 'utf8');
+  const out = {};
+  for (const line of raw.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let value = trimmed.slice(eq + 1).trim();
+    // Strip surrounding quotes if present (Vite-compatible)
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    out[key] = value;
+  }
+  return out;
+}
+
+// Opt-out: tests pass VITE_VALIDATE_ENV_SKIP_FILE_LOAD=1 to exercise pure
+// process.env semantics without .env file leakage.
+if (process.env.VITE_VALIDATE_ENV_SKIP_FILE_LOAD !== '1') {
+  const mode = process.env.NODE_ENV || 'production';
+  const envFiles = [
+    resolve(frontendRoot, '.env'),
+    resolve(frontendRoot, `.env.${mode}`),
+  ];
+  for (const file of envFiles) {
+    const loaded = loadEnvFile(file);
+    for (const [key, value] of Object.entries(loaded)) {
+      if (process.env[key] === undefined) {
+        process.env[key] = value;
+      }
+    }
+  }
+}
 
 const id = process.env.VITE_GA_MEASUREMENT_ID;
 const pattern = /^G-[A-Z0-9]{10,}$/;
