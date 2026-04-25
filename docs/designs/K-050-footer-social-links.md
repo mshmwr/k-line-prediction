@@ -195,7 +195,29 @@ Plus already-written:
 | architecture-doc-sync | ✓ (§9 Path Y minimal) |
 | self-diff | ✓ (§9 edits listed pre-commit) |
 
-## 11. Known risks / BQ to PM
+## 11. Wrap-up flow (Phase 5 → Phase 7) — NEW PR-merge protocol
+
+Per `~/.claude/CLAUDE.md` §Branch + PR Workflow (added 2026-04-25): **`main` never receives direct commits** for ticket work. K-050 follows the new merge protocol — supersedes the old `rebase + FF-merge + push main` plan from the handoff doc.
+
+| Phase | Step | Actor | Action |
+|---|---|---|---|
+| 5 | Reviewer (Step 1 + Step 2) + QA full E2E suite | sub-agents | green-light required before Phase 6 |
+| 6-a | `git push origin K-050-footer-social-links` | PM | branch lands on origin |
+| 6-b | `gh pr create --base main --head K-050-footer-social-links` | PM | open PR with body summarizing 8 ACs + Sacred cross-check + 22-file change list |
+| 6-c | **PAUSE for user review** | — | user inspects PR + approves locally |
+| 7-a | `gh pr merge --squash --delete-branch <PR#>` | PM | squash-merge to main + delete remote branch |
+| 7-b | `git checkout main && git pull origin main` (worktree main) | PM | local main = squashed origin |
+| 7-c | `git worktree remove .claude/worktrees/K-050-footer-social-links` | PM | clean worktree (branch already deleted by step 7-a) |
+| 7-d | Deploy: `npm run build` + `firebase deploy --only hosting` per `CLAUDE.md §Deploy Checklist` | user runs locally | live footer matches K-050 spec on 4 routes |
+
+**Key differences vs old flow:**
+- No FF-merge, no linear-history preservation; main gets one squash commit per ticket
+- Local main never receives direct commit (except CLAUDE.md/persona/memory meta edits per §Worktree Isolation §Main direct-commit exception)
+- 48689a7 (Phase 0-a CLAUDE.md Pre-Worktree Sync Gate) was committed direct-to-main BEFORE this rule landed; falls under meta-edit exception retroactively — no rebase needed
+
+**halt point**: Phase 6-c PAUSE is mandatory — auto mode does NOT auto-merge.
+
+## 12. Known risks / BQ to PM
 
 - **BQ-050-01 (flagged for PM)**: `visual-delta: yes` ticket normally triggers Designer Pre-design gate + `design-locked: true` sign-off. K-050 plan layers-2-only (exemption + JSON divergence); 3rd layer (Designer persona gate at `~/.claude/agents/designer.md`) deferred per handoff D-TD-K050-01. **PM to decide** whether K-050 exemption-backed divergence substitutes for design-locked sign-off in Phase 5 (recommendation: yes — exemption row + JSON `_design-divergence` is the contract, per layer-1+2 approach).
 - Snapshot baseline regeneration: K-050 legitimately invalidates 4 footer-*.png baselines. Phase 4 regen + Phase 6 commit treats new baselines as new SSOT (K-034 P1 precedent, K-045 precedent).
