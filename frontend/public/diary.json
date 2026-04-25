@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-051",
+    "title": "Daily history DB backfill + Cloud Build rollup-musl fix",
+    "date": "2026-04-26",
+    "text": "Backfilled 16 missing daily ETH/USDT bars (2026-03-20 through 2026-04-08, byte-equal verified against the Binance API on four overlap dates) so user-uploaded 1H CSVs near the present-day boundary stop tripping the 'ma_history requires at least 129 daily bars' error inside find_top_matches; same retroactive ticket also closed a Cloud Build npm bug (alpine + macOS-generated lockfile silently dropping the @rollup/rollup-linux-x64-musl binary) with a one-line surgical Dockerfile fix that pins the binary post-npm-ci, validated via local docker build --platform linux/amd64 and a clean Cloud Run deploy of revision 00006-vxr serving the new 3155-row daily DB with the original symptom CSV producing 10 matches at correlation 0.8746 and zero ma_history errors."
+  },
+  {
     "ticketId": "K-050",
     "title": "Footer social links — clickable brand-asset icons + click-to-copy email",
     "date": "2026-04-25",
