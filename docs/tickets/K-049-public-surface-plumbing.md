@@ -1,8 +1,11 @@
 ---
 id: K-049
 title: Public-surface plumbing — SEO meta / security headers / deploy env-var guard / perf polish (10-item batch from interviewer-reviewer 2026-04-24 audit)
-status: open
+status: closed
 created: 2026-04-24
+closed: 2026-04-25
+closed-commit: ebfaa16
+closed-merge-datetime: 2026-04-25T06:43:53Z
 type: refactor + ops
 priority: high
 size: large
@@ -15,6 +18,10 @@ sacred-regression: [K-037 favicon link tags, K-034-P1 Footer byte-identity, K-03
 worktree: .claude/worktrees/K-049-public-surface-plumbing
 branch: K-049-public-surface-plumbing
 base-commit: 1090e63
+phase-1-deploy-sha256: pending-record
+phase-2a-deploy-sha256: pending-record
+phase-2b-deploy-revision: k-line-backend-00005-zn4
+phase-2b-deployed-at: 2026-04-25T06:43:53Z
 ---
 
 ## Summary
@@ -170,4 +177,54 @@ Derived from QA Early Consultation (`docs/retrospectives/qa.md` 2026-04-24 K-049
 
 ---
 
-**Next action (PM):** commit K-049 stub + PRD + retro updates as docs-only checkpoint, await user direction before Architect release.
+## Deploy Record
+
+| Phase | Target | Commit | Deployed | Probe verdict |
+|-------|--------|--------|---------:|---------------|
+| Phase 1 | Firebase Hosting (head-block plumbing) | `6e57b44` (PR #1) | 2026-04-24 | PROBE-1A/B/C ✓ · PWA-1A/B ✓ · BODONI-1 ✓ |
+| Phase 2a | Firebase Hosting (config + Cloud Run rewrite) | `6e57b44` (same PR) | 2026-04-24 | ROBOTS-1A-E ✓ · SITEMAP-1 ✓ · CSP-REPORT-1A/B ✓ · CACHE-1A/B ✓ |
+| Phase 2b | Cloud Run (CORSMiddleware removal) | `ebfaa16` (PR #5 final) | 2026-04-25 06:43:53Z | DEPLOY-ORDER-1A-alt/B/C ✓ · ENVGUARD-1E ✓ (chunk-located, see TD note) |
+| Phase 3 | in-tree (SUSPENSE / GA-LAZY) | `6e57b44` | n/a | covered by Playwright (269 chromium specs green per qa.md) |
+
+**Cloud Run revision:** `k-line-backend-00005-zn4` serving 100% traffic in `asia-east1`.
+
+**Phase 2b fix-forward chain (4 follow-up PRs after PR #1 deploy hit Cloud Build):**
+
+| PR | Slug | Fix | Reason |
+|----|------|-----|--------|
+| #2 | `K-049-fix-validate-env-loader` | `validate-env.mjs` loads `.env*` files via dotenv | Vite auto-loads `.env.<mode>` but Node prebuild scripts don't — `process.env.VITE_GA_MEASUREMENT_ID` was empty |
+| #3 | `ops-npm-lockfile-v3-upgrade` | `package-lock.json` upgraded to lockfileVersion 3 | Cloud Build npm 10 rejects v1 lockfiles |
+| #4 | `K-049-fix-gcloudignore` | new `.gcloudignore` with `!.env.production` exception | gcloud auto-derives ignore from `.gitignore` which strips `.env.*` — `validate-env.mjs` couldn't read GA ID |
+| #5 | `K-049-fix-sitemap-git-fallback` | `generate-sitemap.mjs` falls back to today's UTC date when git missing | `node:20-alpine` ships without git AND `.gcloudignore` strips `.git/` for upload-size — sitemap prebuild crashed |
+
+Each fix exposed the next blocker. Local `docker build` dry-run after PR #4 caught the sitemap layer before merge — pattern codified in retrospective.
+
+## Retrospective
+
+**What went well:**
+- 10-item batch held together — 1 PRD + 1 Architect + 1 Engineer + 1 QA + 1 Reviewer instead of 10× cycles. Phase split (1 head-block / 2a config-only / 2b runtime CORS) enabled atomic same-origin migration without 24h CSP soak interlock.
+- Phase 2b deploy used Firebase rewrite + CORSMiddleware removal in one revision — cross-origin `Origin: https://example.com` probe to direct `run.app` returns no `Access-Control-Allow-Origin`, confirming CORS path is gone, while same-origin `/api/history-info` via Firebase rewrite returns 200 JSON.
+- Local `docker build` dry-run before PR #5 merge caught the alpine-no-git failure layer one step before production. New methodology candidate for any deploy-affecting PR.
+- 8 deploy-smoke probes ran in parallel batches against deployed surface; all functional ACs green.
+
+**What went wrong:**
+- 5-PR fix-forward chain (PR #1 → #2 → #3 → #4 → #5) cost ~2 hours of Cloud Build cycles. Each fix exposed the next blocker rather than batched as one PR:
+  1. `validate-env.mjs` ran at build-time but didn't load `.env*` files — Node prebuild assumption gap (Vite auto-loads, Node doesn't).
+  2. `package-lock.json` was lockfileVersion 1 — Cloud Build npm 10 fails immediately.
+  3. gcloud auto-derives `.gcloudignore` from `.gitignore` — `.env.*` stripped without warning.
+  4. `node:20-alpine` ships without git AND `.git/` was stripped for upload size — sitemap prebuild crashed in container.
+- Two of these (#3 `.gcloudignore` and #5 alpine missing git) could only be caught by local `docker build` simulating the Cloud Build path. Established the dry-run methodology mid-deploy, not before.
+- Cookbook `AC-049-DEPLOY-ENVGUARD-1` Command E (`curl /index.html | grep G-`) is wrong — Vite emits the GA ID into a lazy chunk (`page-homepage-*.js`), not the static HTML head. Probe author wrote the spec from intuition rather than verifying against actual build output. Functionally the GA ID is shipped, so the AC passes; the probe spec needs an in-tree fix (TD candidate).
+
+**Next time improvement:**
+- **Local `docker build` dry-run before merging any deploy-affecting PR** — propose adding to `CLAUDE.md` Deploy Checklist as step 0. Cost: 5-10 min local build vs. 10-15 min Cloud Build round-trip per fail-forward. ~99% of Cloud Build failures (missing tools / files stripped by `.gcloudignore` / lockfile version) reproduce locally. Script: see TD-K049-01 for `npm run dryrun:cloud-build`.
+- **Cookbook ENVGUARD-1E fix** — change probe from HTML grep to chunk grep loop. TD-K049-02 candidate (or fold into K-050 if soak window allows).
+- **Codify "alpine has no git" gotcha** — any prebuild script using `git`/`bash`/`make` must declare a `--missing-fallback` or document base-image dependency in `package.json`. Memory candidate: `feedback_cloud_build_alpine_minimal.md`.
+
+**Tech debt opened:**
+- TD-K049-01 (low) — automate deploy-smoke probes (currently 8 manual curl batches, source of probe-spec drift like ENVGUARD-1E).
+- TD-K049-02 (low) — fix ENVGUARD-1E cookbook spec (HTML grep → chunk grep).
+
+---
+
+**Next action (PM):** Phase B docs PR (this ticket close + retrospectives + outer Diary mirror) → user merge → cleanup worktree.

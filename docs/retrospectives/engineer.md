@@ -16,6 +16,22 @@
 
 ---
 
+## 2026-04-25 — K-049 Phase 2b deploy fix-forward chain (PR #2 → #3 → #4 → #5)
+
+**做得好：**
+- **每一層 fix 都鎖定 root cause，不是 symptom patch。** PR #2 修 `validate-env.mjs` 沒讀 `.env*` — 不是把 GA ID 寫死，而是用 dotenv 補上 Vite mode-aware 載入機制；PR #4 補 `.gcloudignore` — 不是 `.env.production` 移出 gitignore（會讓真正敏感的 dev/staging/test env 也跟著進 commit history），而是用 `!.env.production` 例外讓 gcloud 上傳時保留特定一支；PR #5 修 `generate-sitemap.mjs` — 不是切換 base image 加 git，而是 graceful-fallback 讓 alpine 環境也能執行（保留 git-accurate 在 local build 路徑）。
+- **PR #5 之前先跑 local `docker build` dry-run** — 把 `node:20-alpine` + `.gcloudignore` + 整套 build chain 重現在 macOS OrbStack，30 秒就抓到 `git: not found` 同樣的失敗。沒這個 dry-run 就會再多一輪 Cloud Build 等 15 分鐘。Pattern 在 PR #4 跑前已經建立（`docker build -f Dockerfile -t k-line-backend-dryrun:latest .`），PR #5 是第一個 *先 dry-run、再 push* 的 case。
+
+**沒做好：**
+- **PR #1 release 前沒做 `gcloud builds submit` dry-run。** Phase 2b 的 deploy 失敗本質是「Cloud Build 環境與本地環境不對等」— `validate-env.mjs` 在本地 `npm run build` pass（因為本地有 `.env.production`），但 Cloud Build 因 `.gitignore` → `.gcloudignore` auto-derive 把 `.env.production` 上傳前就刪掉。Architect / Reviewer / QA 都沒人在 release 前 simulate Cloud Build context。最便宜的 reproducer 是 `docker build` from clean checkout — 沒環境就會失敗。
+- **不知道 Cloud Build 用 `node:20-alpine` 直到第 5 個 PR。** Dockerfile 第一行 `FROM node:20-alpine AS frontend-build` 一直在 repo 裡，但 `generate-sitemap.mjs` 假設 `git` 可用，沒人 cross-check。Engineer 應在 prebuild 腳本加 dependency declaration（comment 或 README）說「needs git installed」，這樣 Architect 會在 design phase 抓到 `node:20-alpine` 沒 git。
+
+**下次改善：**
+- **任何修改 `Dockerfile` / `frontend/scripts/*` / `package*.json` / `.gcloudignore` / `.dockerignore` 的 PR 在 push 前先跑 `docker build` 並驗證 image build OK** — 候選名稱 `npm run dryrun:cloud-build`，封裝成 npm script 方便 reproducible。Persona 加入硬步驟：Engineer 提交 deploy-affecting PR 前必跑此 dry-run，pass 才釋出。對應 PM retro 提的 CLAUDE.md Deploy Checklist 增 step 0 — engineer.md 同步加對應 hard step。
+- **Prebuild script 上方 comment 列出 build-environment dependencies**（`requires: git, node>=20`）。下個 base image 換版時，grep 這個註記就能知道哪些 script 會壞。
+
+---
+
 ## 2026-04-24 — K-049 Fix-First Round
 
 Applied Reviewer Step 2 rulings: (I-1) extended `frontend/scripts/validate-env.mjs` with a production-only hard-fail on non-empty `VITE_API_BASE_URL` (post-K-049 Phase 2b CORSMiddleware removal + Firebase `/api/**` rewrite require same-origin API calls); dev/staging/test builds keep the prior regex-only behavior so local-against-Cloud-Run workflows still work. Value is redacted in CI logs (first-20 + `...` + last-4). New `frontend/src/__tests__/validate-env.test.ts` exercises `node scripts/validate-env.mjs` via `spawnSync` with a clean env for 4 cases: (a) prod + empty → exit 0, (b) prod + non-empty → exit 1 + exact-message checks + redaction-leak guard, (c) dev + non-empty → exit 0 no advisory, (d) prod + missing GA id → exit 1 (pre-existing preserved). (N-1) added `await expect(cards).toHaveCount(6)` before the `evaluateAll` at `about-v2.spec.ts:325` to auto-wait under React.lazy chunk-load latency, symmetric with the sibling gate at line 341. Empirically the test was green pre-fix on localhost sub-ms fetch, but the structural race would have been latent under higher CI latency or prod-deployed-bundle probes. **Self-check learning:** first test draft had an off-by-one assertion on the redacted URL prefix (`https://k-line-backend...` — length 21) vs the actual 20-char slice (`https://k-line-backe...`). Caught immediately by the failing test, corrected with an inline comment pinning the exact source URL + first-20 + last-4 characters so future readers can re-verify without re-counting. Confirms the "Vitest first draft fails fast on redaction assertions" pattern — don't hand-count substring lengths in the assertion, pin them against a documented byte layout.
