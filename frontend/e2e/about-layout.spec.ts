@@ -26,6 +26,15 @@ import { test, expect } from '@playwright/test'
 const SECTION_IDS = ['header', 'metrics', 'roles', 'pillars', 'tickets', 'architecture'] as const
 
 async function sectionBoxes(page: import('@playwright/test').Page) {
+  // K-049 Phase 3: AboutPage is now a React.lazy chunk. `page.goto('/about')`
+  // resolves when the HTML shell lands; the 6 section DOM nodes arrive only
+  // after the chunk loads and React mounts. `evaluateAll` does NOT auto-wait
+  // on its source locator, so without this gate the helper snapshots an empty
+  // DOM and T1/T3/T9/T11 collapse to `[]`. Wait for the first + last section
+  // to attach before measuring — covers both the initial chunk race and any
+  // future append-to-list structural edit.
+  await page.locator('#header').waitFor({ state: 'attached', timeout: 10_000 })
+  await page.locator('#architecture').waitFor({ state: 'attached', timeout: 10_000 })
   return page.locator('#header, #metrics, #roles, #pillars, #tickets, #architecture').evaluateAll(els =>
     els.map(el => {
       const r = el.getBoundingClientRect()

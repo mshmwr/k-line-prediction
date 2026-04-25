@@ -73,10 +73,26 @@ test.describe('AC-020-SPA-NAV — SPA Link click pushes pageview dataLayer entry
       .click()
     await page.waitForURL(ABOUT_PATH_RE)
 
-    // Wait for a NEW dataLayer entry (length strictly increases).
+    // K-049 Phase 3: wait specifically for the /about page_view entry, not any
+    // new dataLayer push — under React.lazy routes, trackCtaClick may land
+    // before the lazy chunk resolves and fires useGAPageview's page_view,
+    // so a generic `length > prevLen` predicate can snapshot prematurely.
+    // Tolerance per AC-049-SUSPENSE-1 ("{ timeout: 10000 } OR
+    // waitForLoadState('networkidle') tolerant of chunk-load latency").
     await page.waitForFunction(
-      (prevLen) => (window.dataLayer as unknown[][]).length > prevLen,
+      (prevLen) => {
+        const dl = window.dataLayer as unknown[][]
+        return dl
+          .slice(prevLen)
+          .some(
+            (entry) =>
+              (entry as IArguments)[0] === 'event' &&
+              (entry as IArguments)[1] === 'page_view' &&
+              ((entry as IArguments)[2] as { page_location?: string }).page_location === '/about',
+          )
+      },
       dataLayerBefore,
+      { timeout: 10_000 },
     )
 
     const dataLayer = await page.evaluate(() => window.dataLayer as unknown[][])
@@ -103,9 +119,26 @@ test.describe('AC-020-SPA-NAV — SPA Link click pushes pageview dataLayer entry
     await page.locator('[data-testid="built-by-ai-banner"]').click()
     await page.waitForURL(ABOUT_PATH_RE)
 
+    // K-049 Phase 3: wait specifically for the /about page_view entry, not any
+    // new dataLayer push — BuiltByAIBanner's onClick fires trackCtaClick
+    // synchronously which lands BEFORE the lazy AboutPage chunk resolves and
+    // fires useGAPageview's page_view. A generic `length > prevLen` snapshot
+    // on the cta_click push would miss the later page_view. See AC-049-
+    // SUSPENSE-1 tolerance clause.
     await page.waitForFunction(
-      (prevLen) => (window.dataLayer as unknown[][]).length > prevLen,
+      (prevLen) => {
+        const dl = window.dataLayer as unknown[][]
+        return dl
+          .slice(prevLen)
+          .some(
+            (entry) =>
+              (entry as IArguments)[0] === 'event' &&
+              (entry as IArguments)[1] === 'page_view' &&
+              ((entry as IArguments)[2] as { page_location?: string }).page_location === '/about',
+          )
+      },
       dataLayerBefore,
+      { timeout: 10_000 },
     )
 
     const dataLayer = await page.evaluate(() => window.dataLayer as unknown[][])

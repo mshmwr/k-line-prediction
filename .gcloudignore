@@ -1,0 +1,44 @@
+# .gcloudignore — overrides .gitignore for `gcloud run deploy --source .` upload.
+#
+# Without this file, gcloud auto-derives ignore rules from .gitignore which
+# excludes .env.* — that breaks the Cloud Build frontend stage because
+# validate-env.mjs (K-049 prebuild guard) reads frontend/.env.production for
+# VITE_GA_MEASUREMENT_ID before Vite runs. .gitignore correctly keeps the file
+# out of git; .gcloudignore re-includes it for Cloud Build context only.
+#
+# Mirrors .gitignore exclusions plus build-time bandwidth savers (.git,
+# .claude/worktrees), with explicit !.env.production override.
+
+# Build artifacts (never useful in build context)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+backend/.coverage
+dist/
+
+# OS noise
+.DS_Store
+
+# Local env files — re-include .env.production for validate-env.mjs
+.env
+.env.*
+!.env.example
+!.env.production
+
+# Worktrees and deploy caches
+.worktrees/
+.claude/worktrees/
+.firebase/
+
+# Generated reports
+docs/reports/*.html
+frontend/public/docs/
+
+# Git metadata (build doesn't need history)
+.git/
+.gitignore
+.dockerignore
+.gcloudignore
