@@ -3,9 +3,15 @@
   "pen-mtime-at-export": "2026-04-23T17:57:56+0800",
   "exporter-version": "1.0",
   "frame-id": "1BGtd",
-  "ticket": "K-040",
-  "visual-delta": "K-040 Item 5 — added `gaDisclosure` text node; all 4 route footer frames carry GA disclosure for K-034 P1 Sacred byte-identity parity.",
+  "ticket": "K-050",
+  "visual-delta": "K-050 — Pencil flat text node `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` becomes layout-placeholder; runtime renders 3 brand-asset SVG anchors (mail / github / linkedin) + click-to-copy email `<button>` + sr-only aria-live status. Padding / stroke / justify / align / font tokens unchanged. Runtime divergence exemption-backed via `design-exemptions.md §2 BRAND-ASSET`. K-040 `gaDisclosure` text node preserved.",
   "cross-frame-parity": ["ei7cl (diary)", "1BGtd (home)", "86psQ (about)", "2ASmw (business-logic)"],
+  "_design-divergence": {
+    "category": "BRAND-ASSET",
+    "exemption-row": "design-exemptions.md §2 — Footer.tsx BRAND-ASSET (K-050)",
+    "summary": "Pencil text node `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` (id W3zUd) is layout-placeholder. Runtime emits triad: <a mailto:> wrapping <MailIcon/>, click-to-copy <button> showing email or 'Copied!', <a target=_blank> wrapping <GithubIcon/>, <a target=_blank> wrapping <LinkedinIcon/>. Pencil padding/stroke/justify/align honored. K-040 gaDisclosure text node renders as `<p class=\"text-center mt-3\">` per existing K-018 REGULATORY exemption.",
+    "ticket": "K-050"
+  },
   "frame": {
     "alignItems": "center",
     "children": [

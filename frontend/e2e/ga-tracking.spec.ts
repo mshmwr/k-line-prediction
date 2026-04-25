@@ -115,9 +115,115 @@ test.describe('AC-018-CLICK — CTA click events fired', () => {
     })
   })
 
-  // The three /about-scoped CTA click tests (contact_email / github_link / linkedin_link)
-  // deleted per K-034 §PM ruling on BQ-034-P1-01 — Sacred retired per §1.4 Pencil SSOT verdict.
-  // /about Footer now renders plain text (no <a> anchors), so no CTA click events fire there.
+  // K-050 (2026-04-25) RESTORES the 3 /about-scoped CTA click tests (deleted at K-034 P1
+  // per BQ-034-P1-01) plus 1 cross-route sanity test. K-050 Footer renders 4 brand-asset
+  // CTAs (cta-email, cta-email-copy, cta-github, cta-linkedin); preventDefault on the
+  // <a> click prevents mailto:/target=_blank navigation from wiping dataLayer before the
+  // assertion reads it (the React onClick still fires before the default-action handler).
+
+  test('cta-email click on /about fires cta_click with label "contact_email"', async ({ page }) => {
+    await page.goto('/about')
+    await page.evaluate(() => {
+      const link = document.querySelector('[data-testid="cta-email"]')
+      link?.addEventListener('click', (e) => e.preventDefault())
+    })
+    await page.locator('[data-testid="cta-email"]').click()
+    await page.waitForFunction(() =>
+      (window.dataLayer as unknown[][]).some(
+        (entry) => (entry as IArguments)[1] === 'cta_click'
+      )
+    )
+    const dataLayer = await page.evaluate(() => window.dataLayer)
+    const clickEntry = (dataLayer as unknown[][]).find(
+      (entry) => (entry as IArguments)[1] === 'cta_click'
+    )
+    expect(clickEntry).toBeDefined()
+    expect(clickEntry![2]).toMatchObject({ label: 'contact_email', page_location: '/about' })
+  })
+
+  test('cta-email-copy click on /about fires cta_click with label "contact_email"', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await page.goto('/about')
+    await page.locator('[data-testid="cta-email-copy"]').click()
+    await page.waitForFunction(() =>
+      (window.dataLayer as unknown[][]).some(
+        (entry) => (entry as IArguments)[1] === 'cta_click'
+      )
+    )
+    const dataLayer = await page.evaluate(() => window.dataLayer)
+    const clickEntry = (dataLayer as unknown[][]).find(
+      (entry) => (entry as IArguments)[1] === 'cta_click'
+    )
+    expect(clickEntry).toBeDefined()
+    expect(clickEntry![2]).toMatchObject({ label: 'contact_email', page_location: '/about' })
+  })
+
+  test('cta-github click on /about fires cta_click with label "github_link"', async ({ page }) => {
+    await page.goto('/about')
+    await page.evaluate(() => {
+      const link = document.querySelector('[data-testid="cta-github"]')
+      link?.addEventListener('click', (e) => e.preventDefault())
+    })
+    await page.locator('[data-testid="cta-github"]').click()
+    await page.waitForFunction(() =>
+      (window.dataLayer as unknown[][]).some(
+        (entry) => (entry as IArguments)[1] === 'cta_click'
+      )
+    )
+    const dataLayer = await page.evaluate(() => window.dataLayer)
+    const clickEntry = (dataLayer as unknown[][]).find(
+      (entry) => (entry as IArguments)[1] === 'cta_click'
+    )
+    expect(clickEntry).toBeDefined()
+    expect(clickEntry![2]).toMatchObject({ label: 'github_link', page_location: '/about' })
+  })
+
+  test('cta-linkedin click on /about fires cta_click with label "linkedin_link"', async ({ page }) => {
+    await page.goto('/about')
+    await page.evaluate(() => {
+      const link = document.querySelector('[data-testid="cta-linkedin"]')
+      link?.addEventListener('click', (e) => e.preventDefault())
+    })
+    await page.locator('[data-testid="cta-linkedin"]').click()
+    await page.waitForFunction(() =>
+      (window.dataLayer as unknown[][]).some(
+        (entry) => (entry as IArguments)[1] === 'cta_click'
+      )
+    )
+    const dataLayer = await page.evaluate(() => window.dataLayer)
+    const clickEntry = (dataLayer as unknown[][]).find(
+      (entry) => (entry as IArguments)[1] === 'cta_click'
+    )
+    expect(clickEntry).toBeDefined()
+    expect(clickEntry![2]).toMatchObject({ label: 'linkedin_link', page_location: '/about' })
+  })
+
+  test('cross-route sanity — cta-github click on all 4 consuming routes fires cta_click with matching page_location', async ({ page }) => {
+    const routes = ['/', '/about', '/business-logic', '/diary'] as const
+    for (const route of routes) {
+      await page.goto(route)
+      await page.evaluate(() => {
+        const link = document.querySelector('[data-testid="cta-github"]')
+        link?.addEventListener('click', (e) => e.preventDefault())
+      })
+      await page.locator('[data-testid="cta-github"]').click()
+      await page.waitForFunction(() =>
+        (window.dataLayer as unknown[][]).some(
+          (entry) =>
+            (entry as IArguments)[1] === 'cta_click' &&
+            ((entry as IArguments)[2] as Record<string, unknown>).label === 'github_link'
+        )
+      )
+      const dataLayer = await page.evaluate(() => window.dataLayer)
+      const clickEntry = (dataLayer as unknown[][]).find(
+        (entry) =>
+          (entry as IArguments)[1] === 'cta_click' &&
+          ((entry as IArguments)[2] as Record<string, unknown>).label === 'github_link'
+      )
+      expect(clickEntry, `cta-github on ${route}`).toBeDefined()
+      expect(clickEntry![2]).toMatchObject({ label: 'github_link', page_location: route })
+    }
+  })
 
   test('BuiltByAIBanner fires cta_click with label "banner_about"', async ({ page }) => {
     await page.goto('/')
