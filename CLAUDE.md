@@ -136,6 +136,14 @@ Update steps:
 
 Must run before deploy:
 
+0. **Local docker dry-run for deploy-affecting PRs** (pre-merge gate, runs before `gh pr create`, NOT at deploy time) — any PR touching `Dockerfile`, `frontend/scripts/*.mjs`, `package.json`, `package-lock.json`, `.gcloudignore`, or `.dockerignore` must reproduce Cloud Build locally before push:
+   ```bash
+   docker build -f Dockerfile .
+   ```
+   Run from the K-Line-Prediction repo root (same context Cloud Build uses, post-`.gcloudignore` filter). Build green locally is the merge gate; build red → fix and re-dry-run, do NOT push for Cloud Build to discover the bug. PR description must include `✅ local docker build dry-run pass` line; Reviewer Step 2 blocks the PR if the line is missing. Fallback if local Docker daemon unavailable: tag PR `no-docker` and Reviewer escalates to manual Cloud Build watcher.
+
+   **Why:** K-049 Phase 2b shipped a 5-PR fix-forward chain (#1 → #2 validate-env loader → #3 lockfile v3 → #4 .gcloudignore → #5 sitemap git-fallback) because each Cloud Build error exposed the next blocker. Every blocker reproduced in `docker build .` locally — `node:20-alpine` ships without `git`, `.gcloudignore` stripped `.env.production`, lockfile v2 mismatched npm 10's v3 generation. Cloud Build round-trip ≈ 6+ min per attempt; one local `docker build` cycle (~8 min) catches all four. PR #5 was the first to actually run the dry-run pre-push and was the last fix-forward needed — direct correlation. See memory `feedback_local_docker_dry_run_before_deploy_pr.md`.
+
 1. **Verify main is synced with all ticket branches** — main must contain every deployed-but-unmerged ticket before any new deploy:
    ```bash
    git branch --no-merged main | grep -E "^\s*K-[0-9]+" || echo "OK: all ticket branches merged"
