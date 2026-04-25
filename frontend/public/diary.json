@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-050",
+    "title": "Footer social links — clickable brand-asset icons + click-to-copy email",
+    "date": "2026-04-25",
+    "text": "Restored clickable Footer UX across all four marketing routes by replacing the Pencil flat-text one-liner with three brand-asset SVG anchors (mail / GitHub / LinkedIn imported via vite-plugin-svgr) and a click-to-copy email button that writes to navigator.clipboard with a range-selection fallback, swaps the label to 'Copied!' for 1500ms, and announces the copy via a sr-only role=status aria-live=polite region; K-018 GA cta_click events are fully restored on all four routes plus a new cross-route sanity test, the Pencil SSOT flat-text frames stay as layout-placeholders backed by a new design-exemptions.md §2 BRAND-ASSET category, and the K-034 Phase 1 byte-identity Sacred plus K-045 width parity invariants are preserved by keeping a single zero-prop Footer DOM shared across the four consumer pages."
+  },
+  {
     "ticketId": "K-046",
     "title": "Neutralize upload-history write path + example CSV download",
     "date": "2026-04-24",
