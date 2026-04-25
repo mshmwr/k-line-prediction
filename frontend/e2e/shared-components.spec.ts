@@ -55,44 +55,56 @@ test.describe('AC-034-P1-ROUTE-DOM-PARITY — Footer byte-identical across consu
     }
   })
 
-  test('T2 — Footer contains only Pencil-canonical text (/ sample)', async ({ page }) => {
+  test('T2 — Footer renders K-050 brand-asset CTA triad + email button + GA disclosure (/ sample)', async ({ page }) => {
     await mockApis(page)
     await page.goto('/')
     const footer = page.locator('footer').last()
     await expect(footer).toBeVisible()
 
-    // U+00B7 MIDDLE DOT delimiter per Pencil specs/homepage-v2.frame-86psQ.json + 1BGtd.json
-    await expect(
-      footer.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true }),
-    ).toBeVisible()
+    // K-050 — brand-asset SVG anchor triad + click-to-copy email <button>
+    // Pencil flat text node `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` superseded
+    // by interactive components; runtime divergence backed by design-exemptions.md §2 BRAND-ASSET.
+    await expect(footer.locator('[data-testid="cta-email"]')).toBeVisible()
+    await expect(footer.locator('[data-testid="cta-email-copy"]')).toBeVisible()
+    await expect(footer.locator('[data-testid="cta-github"]')).toBeVisible()
+    await expect(footer.locator('[data-testid="cta-linkedin"]')).toBeVisible()
 
-    // GA disclosure
+    // Email button shows plain-text email in initial (non-copied) state
+    await expect(footer.locator('[data-testid="cta-email-copy"]')).toHaveText('yichen.lee.20@gmail.com')
+
+    // GA disclosure preserved (K-018 REGULATORY exemption)
     await expect(
       footer.getByText('This site uses Google Analytics to collect anonymous usage data.', { exact: true }),
     ).toBeVisible()
   })
 })
 
-test.describe('AC-034-P1-NO-ABOUT-CTA — /about has no "Let\'s talk" CTA block', () => {
+// K-050 (2026-04-25) INVERTS K-034-P1-NO-ABOUT-CTA — /about Footer now renders all 4
+// brand-asset CTAs (K-017 anchor partial-restore + K-018 click-to-copy full-restore).
+// Pencil flat-text framing preserved as layout-placeholder; runtime divergence backed by
+// design-exemptions.md §2 BRAND-ASSET. K-022 italic/underline label "Let's talk →" stays
+// retired (Pencil has no such label).
+test.describe('AC-050-FOOTER-LINKS-PRESENT — /about Footer renders 4 brand-asset CTAs', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  test('T3 — /about renders no CTA text + no cta-* testids + no mailto/github/linkedin anchors', async ({ page }) => {
+  test('T3 — /about renders cta-email + cta-email-copy + cta-github + cta-linkedin testids + 3 hrefs', async ({ page }) => {
     await mockApis(page)
     await page.goto('/about')
 
-    // No CTA text strings
+    // K-050 — brand-asset CTA testids count=1 each (single Footer DOM 4 routes)
+    await expect(page.locator('[data-testid="cta-email"]')).toHaveCount(1)
+    await expect(page.locator('[data-testid="cta-email-copy"]')).toHaveCount(1)
+    await expect(page.locator('[data-testid="cta-github"]')).toHaveCount(1)
+    await expect(page.locator('[data-testid="cta-linkedin"]')).toHaveCount(1)
+
+    // K-050 — anchors with explicit hrefs count=1 each (K-017 AC-017-FOOTER partial-restore)
+    await expect(page.locator('a[href="mailto:yichen.lee.20@gmail.com"]')).toHaveCount(1)
+    await expect(page.locator('a[href="https://github.com/mshmwr/k-line-prediction"]')).toHaveCount(1)
+    await expect(page.locator('a[href="https://linkedin.com/in/yichenlee-career"]')).toHaveCount(1)
+
+    // K-022 italic/underline NOT restored — "Let's talk →" + "Or see the source:" retired
     await expect(page.getByText("Let's talk →", { exact: true })).toHaveCount(0)
     await expect(page.getByText('Or see the source:', { exact: true })).toHaveCount(0)
-
-    // No cta-* testids
-    await expect(page.locator('[data-testid="cta-email"]')).toHaveCount(0)
-    await expect(page.locator('[data-testid="cta-github"]')).toHaveCount(0)
-    await expect(page.locator('[data-testid="cta-linkedin"]')).toHaveCount(0)
-
-    // No mailto / github / linkedin anchors
-    await expect(page.locator('a[href="mailto:yichen.lee.20@gmail.com"]')).toHaveCount(0)
-    await expect(page.locator('a[href="https://github.com/mshmwr/k-line-prediction"]')).toHaveCount(0)
-    await expect(page.locator('a[href="https://linkedin.com/in/yichenlee-career"]')).toHaveCount(0)
   })
 })
 
@@ -141,9 +153,9 @@ test.describe('AC-034-P3-DIARY-FOOTER-LOADING-VISIBLE — /diary Footer renders 
     const footer = page.locator('footer').last()
     await expect(footer).toBeVisible()
     await expect(page.locator('footer')).toHaveCount(1)
-    await expect(
-      footer.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true }),
-    ).toBeVisible()
+    // K-050 — assert click-to-copy email button visible (Pencil flat-text superseded;
+    // testid-based assertion is K-050 BRAND-ASSET runtime contract per AC-050-FOOTER-CTA-PRESENT)
+    await expect(footer.locator('[data-testid="cta-email-copy"]')).toBeVisible()
 
     // Release the delay; diary.json resolves and DiaryPage transitions to timeline state.
     release!()
@@ -155,6 +167,49 @@ test.describe('AC-034-P3-DIARY-FOOTER-LOADING-VISIBLE — /diary Footer renders 
     // Assert Footer STILL visible after resolution (post-loading terminal state).
     await expect(page.locator('footer')).toHaveCount(1)
     await expect(footer).toBeVisible()
+  })
+})
+
+// ── AC-050-EMAIL-COPY-BEHAVIOR ────────────────────────────────────────────────
+// K-050 (2026-04-25) — click-to-copy email <button>:
+//   1. writes EMAIL ('yichen.lee.20@gmail.com') to navigator.clipboard
+//   2. swaps button label from email → 'Copied!'
+//   3. announces 'Email address copied to clipboard' via sr-only role=status aria-live=polite
+//   4. auto-reverts button label + clears aria-live announcement after COPY_RESET_MS (1500ms in impl)
+// Permission: Playwright BrowserContext.grantPermissions(['clipboard-read', 'clipboard-write']).
+// No hardcoded sleep — Playwright auto-retry on toHaveText handles the 1500ms revert window.
+
+test.describe('AC-050-EMAIL-COPY-BEHAVIOR — click-to-copy email <button>', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('T-COPY — clipboard receives EMAIL + button text swaps + sr-only aria-live announces + auto-reverts', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await mockApis(page)
+    await page.goto('/about')
+
+    const footer = page.locator('footer').last()
+    await expect(footer).toBeVisible()
+
+    const copyBtn = footer.locator('[data-testid="cta-email-copy"]')
+    const ariaLive = footer.locator('[role="status"][aria-live="polite"]')
+
+    // Initial state — plain email label, empty aria-live region
+    await expect(copyBtn).toHaveText('yichen.lee.20@gmail.com')
+    await expect(ariaLive).toHaveText('')
+
+    await copyBtn.click()
+
+    // Clipboard contents = EMAIL
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText())
+    expect(clipboardText).toBe('yichen.lee.20@gmail.com')
+
+    // Button label swapped + aria-live announces
+    await expect(copyBtn).toHaveText('Copied!')
+    await expect(ariaLive).toHaveText('Email address copied to clipboard')
+
+    // Auto-revert after COPY_RESET_MS (1500ms in impl) — Playwright auto-retry covers the window
+    await expect(copyBtn).toHaveText('yichen.lee.20@gmail.com', { timeout: 3000 })
+    await expect(ariaLive).toHaveText('', { timeout: 3000 })
   })
 })
 
