@@ -211,6 +211,32 @@ test.describe('AC-050-EMAIL-COPY-BEHAVIOR — click-to-copy email <button>', () 
     await expect(copyBtn).toHaveText('yichen.lee.20@gmail.com', { timeout: 3000 })
     await expect(ariaLive).toHaveText('', { timeout: 3000 })
   })
+
+  test('T-COPY-RAPID — second click within revert window resets timer (useRef cleanup)', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await mockApis(page)
+    await page.goto('/about')
+
+    const footer = page.locator('footer').last()
+    const copyBtn = footer.locator('[data-testid="cta-email-copy"]')
+
+    // Click 1 — label swaps to Copied!
+    await copyBtn.click()
+    await expect(copyBtn).toHaveText('Copied!')
+
+    // Click 2 within 500ms (well inside the 1500ms revert window)
+    await page.waitForTimeout(500)
+    await copyBtn.click()
+    await expect(copyBtn).toHaveText('Copied!')
+
+    // 1200ms after click 2 (total 1700ms after click 1) — without timer-reset bug, label
+    // would have reverted at click1+1500ms=1500ms. With cleanup, it must still show Copied!
+    await page.waitForTimeout(1200)
+    await expect(copyBtn).toHaveText('Copied!')
+
+    // Eventually reverts after click2+1500ms — Playwright auto-retry covers
+    await expect(copyBtn).toHaveText('yichen.lee.20@gmail.com', { timeout: 3000 })
+  })
 })
 
 // ── AC-034-P1 Snapshot baselines (Q5a ruling — shared components get Playwright snapshots) ─

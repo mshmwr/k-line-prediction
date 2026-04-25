@@ -16,6 +16,23 @@
 
 ---
 
+## 2026-04-25 — K-050 BFP C-1 — mail.svg path-level `fill="#0F172A"` defeated `fill-current` color contract
+
+**Bug:** Reviewer Step 2 found `mail.svg` (Heroicons solid envelope upstream) has path-level `fill="#0F172A"` (slate-900). Footer brand-icon row uses `fill-current` Tailwind class to inherit `text-muted` #6B5F4E → `:hover text-ink`. Per SVG painting rules, path-level `fill="#XXXXXX"` is a presentation attribute that overrides CSS inheritance from any ancestor — mail icon painted slate-900 throughout with no hover transition. AC-050-FOOTER-LAYOUT clauses 2 + 3 (color inheritance + hover) failed silently.
+
+**Why missed:**
+1. **No SOR consult on imported SVG content.** I copy-imported the upstream Heroicons file via `curl` + commit, never `cat` / Read the file post-import. SOURCES.md note even said "monochrome (currentColor by default)" — fabricated from training assumption about Heroicons, not verified against the actual fetched bytes. Heroicons' 24x24 solid set DOES emit explicit hex fills (different from outline 24x24). Source-of-record verification missing.
+2. **Snapshot baseline self-confirmation trap.** I generated the 4 footer snapshot baselines AFTER the bug landed. Subsequent Playwright runs diff against the buggy baseline → always 0 diff. The test passes against its own regression. There was no fail-if-fixed dry-run (would have caught: change color → new snapshot → diff non-zero against buggy baseline).
+3. **`tsc` + element-presence E2E pass blind to color contract.** No assertion on `getComputedStyle(icon).fill === expected hex`. Color contract was implicit in design doc + AC text but had no executable gate.
+4. **No grep on the SVG file itself.** `feedback_engineer_design_spec_read_gate.md` covers `specs/*.json` Read-gate but did not extend to imported SVG asset content. Asset coverage gap.
+
+**Next time improvement (codified):**
+- New persona Step 0d at `~/.claude/agents/engineer.md` lines 106-118 — Brand-asset SVG `currentColor` Pre-import Audit. Triggers when ticket adds new SVG under `frontend/design/brand-assets/` AND parent JSX uses `fill-current` / `text-current`. Mandatory `grep -n 'fill="#" <svg>'`; any path-level non-`currentColor` hex hit + `fill-current` parent → rewrite to `fill="currentColor"` source-fix in same commit; SOURCES.md "Modification policy" exception clause documents the normalization; snapshot baselines generated AFTER fix only (atomic commit).
+- Memory: `feedback_engineer_svg_currentcolor_pre_import.md`.
+- Persona Edit + memory write bundled with K-050 C-1 fix commit per Bug Found Protocol §3 (memory + persona Edit hard step before re-release).
+
+---
+
 ## 2026-04-24 — K-046 Phase 2b — UI restructure + fixture refresh + parseOfficialCsvFile export
 
 **做得好：**
