@@ -18,8 +18,13 @@ function runValidateEnv(env: Record<string, string | undefined>) {
   // Start from a minimal base — do NOT inherit parent env, otherwise the
   // test runner's own NODE_ENV / VITE_* leak into the subprocess and flip
   // case semantics. Include PATH so `node` resolves.
+  // VITE_VALIDATE_ENV_SKIP_FILE_LOAD=1 disables the script's .env file
+  // loader so cases exercise pure process.env semantics — without it the
+  // worktree's frontend/.env.production would inject VITE_GA_MEASUREMENT_ID
+  // and break the "missing GA ID" case.
   const cleanEnv: Record<string, string> = {
     PATH: process.env.PATH ?? '',
+    VITE_VALIDATE_ENV_SKIP_FILE_LOAD: '1',
   }
   for (const [k, v] of Object.entries(env)) {
     if (v !== undefined) cleanEnv[k] = v
