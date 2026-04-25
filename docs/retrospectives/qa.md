@@ -15,6 +15,20 @@
 - 倒序（最新在上）
 
 
+## 2026-04-25 — K-050 Footer social links — full regression sign-off (post BFP-R2)
+
+**What went well:**
+- Round 2 full Playwright caught 6 K-050 regressions in `sitewide-footer.spec.ts` (5 tests) + `sitewide-fonts.spec.ts` (1 test) that Reviewer Step 2 missed. Failing assertion `page.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true })` was a hardcoded text constant in helper functions outside the K-050 audit lens. QA's mandate to "run the FULL suite, not just the ticket's own E2E spec" surfaced the cross-spec text-constant dependency that pre-edit component-name grep cannot reach.
+- AC-018-INSTALL gtag.js script-tag count failure (`Expected: 1, Received: 0`) was correctly diagnosed as environmental — manual dev server PID 89085/89112 was masking Playwright's own webServer config, which sets `VITE_GA_MEASUREMENT_ID='G-TESTID0000'`. Killing the manual server unblocked it without touching production code. Pre-existing TD AC-020-BEACON-SPA flake on first re-run also resolved on subsequent stable run — non-regression confirmed.
+- Final state after BFP Round 2 fix: Playwright 299/299 pass, exit 0; tsc exit 0. No remaining failures attributable to K-050 scope.
+
+**What went wrong:**
+- Round 1 sign-off was issued after only the K-050-scoped E2E spec passed. Sibling specs (`sitewide-footer.spec.ts`, `sitewide-fonts.spec.ts`) were not run as part of the initial pre-BFP audit, so the text-constant orphan references slipped through to "QA pass" before Round 2 caught them. Should have been caught at Round 1 by full-suite policy, not deferred.
+
+**Next time improvement:**
+- Codified gates already added in BFP-R2 commit set: Engineer Step 0c-bis (removed-text widened grep before commit) + Reviewer Pencil parity gate sub-clause (removed-text widened grep at Step 2). For QA: when a ticket DELETES a literal string from a shared component, full-suite Playwright is mandatory at first sign-off — partial-spec subset is not acceptable even on a "small ticket" classification, since text-constant dependencies are invisible to AC scope.
+
+
 ## 2026-04-24 — K-049 QA regression-pass sign-off (post-Code-Review, pre-deploy)
 
 **What went well:**
@@ -37,6 +51,7 @@
 **What went well:** Pre-design adversarial pass surfaced 8 edge gaps across deploy-env-var loss path, CSP report-only silent-drop, Cloud Run rewrite + CORS ordering, Firebase rewrite first-match, React.lazy GA pageview race, Suspense fallback E2E flake risk, `/assets/**` immutable mis-scope, and manifest PWA drift — all pinned to observable `curl` / Playwright assertions so PM can paste AC verbatim.
 **What went wrong:** Entry was initially written to main `docs/retrospectives/qa.md` instead of K-049 worktree — agent spawn did not verify cwd before file write. Migrated via hotfix commit (see §Retrospective below).
 **Next time improvement:** For ops/config tickets (firebase.json / hosting / headers), add a mandatory "deployed-bundle probe AC" pattern — every claim about shipped bundle content (env-var baked, meta present, header present) must have a `curl -sI` or `curl -s ... | grep` AC citing the exact production URL, not just a local-build assertion.
+
 
 ## 2026-04-24 — K-046 Phase 2b QA full regression sign-off (post-Code-Review pass 2)
 

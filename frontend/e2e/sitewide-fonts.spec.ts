@@ -55,14 +55,12 @@ test.describe('AC-021-FONTS — shared Footer font-mono renders Geist Mono', () 
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // 共用 Footer `<footer className="font-mono ...">` 的資訊列是套用 font-mono 的代表元素
-    const footerText = page.getByText(
-      'yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn',
-      { exact: true }
-    )
-    await expect(footerText).toBeVisible()
+    // K-050: shared Footer is now <footer className="font-mono ..."> wrapping cta-* anchors;
+    // assert font-mono on <footer> element directly (was inline text node pre-K-050).
+    const footer = page.locator('footer').last()
+    await expect(footer).toBeVisible()
 
-    const fontFamily = await footerText.evaluate(el => getComputedStyle(el).fontFamily)
+    const fontFamily = await footer.evaluate(el => getComputedStyle(el).fontFamily)
     expect(fontFamily).toMatch(/Geist Mono/)
   })
 })

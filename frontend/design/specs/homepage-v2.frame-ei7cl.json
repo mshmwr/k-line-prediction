@@ -2,11 +2,17 @@
   "frameId": "ei7cl",
   "frameName": "dpFooterBar",
   "parentPage": "Diary /diary (v2 Dossier) [wiDSi]",
-  "ticket": "K-040",
-  "visualDelta": "Item 5 — Added `gaDisclosure` text node matching live implementation. All 4 route footer frames (ei7cl / 1BGtd / 86psQ / 2ASmw) now carry GA disclosure line for K-034 Phase 1 Sacred byte-identity consistency.",
+  "ticket": "K-050",
+  "visualDelta": "K-050 — Pencil flat text node `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` becomes layout-placeholder; runtime renders 3 brand-asset SVG anchors (mail / github / linkedin) + click-to-copy email `<button>` + sr-only aria-live status. Padding / stroke / justify / align / font tokens unchanged. Runtime divergence exemption-backed via `design-exemptions.md §2 BRAND-ASSET`. K-040 `gaDisclosure` text node preserved.",
   "role": "footer",
   "crossFrameParity": ["ei7cl (diary)", "1BGtd (home)", "86psQ (about)", "2ASmw (business-logic)"],
-  "note": "This is the /diary route's Pencil footer frame copy. Real runtime Footer.tsx is prop-less and shared; these 4 frames document what Footer renders on each route. Adding gaDisclosure to all 4 preserves K-034 P1 Sacred AC-034-P1-ROUTE-DOM-PARITY (byte-identical Footer DOM).",
+  "note": "This is the /diary route's Pencil footer frame copy. Real runtime Footer.tsx is prop-less and shared; these 4 frames document what Footer renders on each route. K-050 supersedes K-034 P1 plain-text framing — runtime now emits brand-asset SVG anchor triad + click-to-copy button. Pencil flat-text → runtime component swap is exemption-backed (BRAND-ASSET); K-034 P1 Sacred AC-034-P1-ROUTE-DOM-PARITY still preserved (single zero-prop `<Footer/>` 4 routes).",
+  "_designDivergence": {
+    "category": "BRAND-ASSET",
+    "exemptionRow": "design-exemptions.md §2 — Footer.tsx BRAND-ASSET (K-050)",
+    "summary": "Pencil text node `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` (id tZIFA, name ctR1) is layout-placeholder. Runtime emits triad: <a mailto:> wrapping <MailIcon/>, click-to-copy <button> showing email or 'Copied!', <a target=_blank> wrapping <GithubIcon/>, <a target=_blank> wrapping <LinkedinIcon/>. Pencil padding/stroke/justify/align honored. K-040 gaDisclosure text node renders as `<p class=\"text-center mt-3\">` per existing K-018 REGULATORY exemption.",
+    "ticket": "K-050"
+  },
   "spec": {
     "type": "frame",
     "id": "ei7cl",
