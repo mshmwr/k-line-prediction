@@ -89,6 +89,14 @@ This is the testbed the harness operates on. The deployed site predicts short-te
 - [docs/tickets/](./docs/tickets/) — 40+ tickets with PRD, AC, and retrospectives
 - [docs/retrospectives/](./docs/retrospectives/) — per-role cumulative learning log
 
+## Setup
+
+```bash
+git config core.hooksPath .githooks    # one-time after clone — enables role-doc drift gate
+```
+
+The pre-commit hook regenerates `README.md` and `docs/ai-collab-protocols.md` role tables from `content/roles.json` and rejects the commit on drift. Without this config, the gate is silently inactive.
+
 ## Local dev
 
 ```bash
