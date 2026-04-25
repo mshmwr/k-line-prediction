@@ -7,6 +7,12 @@
  * for the backing page component — so deploys automatically refresh lastmod
  * when the page file changes.
  *
+ * Fallback: when git is unavailable (Cloud Build runs in node:20-alpine
+ * without git AND .gcloudignore strips .git/ to keep upload size small),
+ * emit today's UTC date for every route. Sitemap lastmod is an advisory
+ * hint to crawlers — Google does not penalize a build-date timestamp, and
+ * local builds (the Firebase deploy path) keep git-accurate per-page values.
+ *
  * NOTE: The 5-route list is also defined (at runtime) in
  * `frontend/src/hooks/useGAPageview.ts` as PAGE_TITLES. Duplicated here
  * because Node scripts can't cleanly import TS without tsx/esbuild overhead.
@@ -32,17 +38,40 @@ const ROUTES = [
   { path: '/business-logic', backing: 'frontend/src/pages/BusinessLogicPage.tsx' },
 ];
 
+function todayUTC() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+let gitAvailable = true;
+try {
+  execSync('git --version', { stdio: 'ignore' });
+} catch {
+  gitAvailable = false;
+  console.warn(
+    "[generate-sitemap] git not available — falling back to today's date for all lastmod entries (typical in Cloud Build)"
+  );
+}
+
 function lastmodFor(relPath) {
-  const out = execSync(`git log -1 --format=%cs -- ${relPath}`, {
-    cwd: repoRoot,
-    encoding: 'utf8',
-  }).trim();
-  if (!out) {
-    throw new Error(
-      `[generate-sitemap] git log returned empty for ${relPath} — file missing or never committed`
+  if (!gitAvailable) return todayUTC();
+  try {
+    const out = execSync(`git log -1 --format=%cs -- ${relPath}`, {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    }).trim();
+    if (!out) {
+      console.warn(
+        `[generate-sitemap] git log empty for ${relPath} (file uncommitted in this context) — using today`
+      );
+      return todayUTC();
+    }
+    return out;
+  } catch (err) {
+    console.warn(
+      `[generate-sitemap] git log failed for ${relPath}: ${err.message.split('\n')[0]} — using today`
     );
+    return todayUTC();
   }
-  return out;
 }
 
 const urls = ROUTES.map((r) => {
