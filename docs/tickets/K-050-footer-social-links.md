@@ -1,10 +1,13 @@
 ---
 id: K-050
 title: Footer 社群連結 — 可點擊 icon + Email 明文
-status: in-progress
+status: closed
 type: feat
 priority: medium
 created: 2026-04-25
+closed: 2026-04-25
+closed-commit: c9e9e40
+closed-merge-datetime: 2026-04-25T15:02:55+08:00
 supersedes: K-034
 visual-delta: yes
 design-locked: false
