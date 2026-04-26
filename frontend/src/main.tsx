@@ -5,6 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import RouteSuspense from './components/RouteSuspense'
 import { initGA } from './utils/analytics'
 import { useGAPageview } from './hooks/useGAPageview'
+import { ScrollToTop } from './components/ScrollToTop'
 import './index.css'
 
 // K-049 Phase 3: route-level code splitting. Each page lands in its own
@@ -30,6 +31,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <BrowserRouter>
         <GATracker />
+        <ScrollToTop />
         <Suspense fallback={<RouteSuspense />}>
           <Routes>
             <Route path="/" element={<HomePage />} />

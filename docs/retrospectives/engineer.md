@@ -16,6 +16,22 @@
 
 ---
 
+## 2026-04-26 — K-053 Scroll-to-top on route change
+
+**What went well:**
+- Pre-implementation grep sweep at Step 0 caught the `file-no-bar` testid multi-instance trap (`grep -rn 'data-testid' frontend/src/components/about/`) BEFORE writing the spec; even though I still landed `file-no-bar` in the first draft (failed assumption: the design doc didn't list a Suspense-settle anchor and I picked the first about-page testid I saw), the test failure surfaced at first Playwright run with a precise "19 elements" error, and the fix (`page.locator('section#header')` — single-instance via section `id` attribute on `AboutPage.tsx:30`) was a 2-edit one-shot. Saved a hypothetical Reviewer round-trip by catching it in Engineer's own pre-handoff Playwright pass rather than handing off broken specs.
+- Pre-handoff cross-check against canonical for both Vitest fail (`diary.legacy-merge.test.ts` 33 < 50) and 3 Playwright fails (`AC-020-BEACON-SPA` / `AC-023-DIARY-BULLET` / `AC-034-P1 Footer snapshot`) — all 4 reproduced identically in `ClaudeCodeProject/K-Line-Prediction/frontend` canonical, confirming pre-existing baseline state per K-Line CLAUDE.md §Worktree Hydration Drift Policy. Avoided false-positive regression flagging that would have stalled handoff for unrelated baseline issues.
+
+**What went wrong:**
+- First spec draft used `page.getByTestId('file-no-bar')` as the Suspense-settle anchor on `/about` without first verifying instance count. The dispatch said "use a stable /about testid" without naming one, and I should have run `grep -c 'file-no-bar'` (or just inspected the component source) BEFORE writing the assertion. Burned ~1 Playwright round-trip (~6s real time, but a Reviewer-side discovery would have been 1–2 turns of feedback overhead).
+- Did not initially anticipate that the design doc §3.3 spec contract block was a *template* needing two adjustments per the dispatch (T-K053-02 `>= 700` lower bound + Suspense `toBeVisible` waits). Re-read of the dispatch caught this BEFORE writing the file, but the design doc itself shipped a `> 0` assertion that, while correct in theory, gave no headroom margin between "anchor scrolled to ~800" and "scrolled to anything non-zero" — a future test maintainer reading only the design doc would not understand why `>= 700` is the safer assertion. Added a 2-line comment in the spec explaining the headroom rationale.
+
+**Next time improvement:**
+- **Add to Engineer Step 0 grep sweep:** when picking a Suspense-settle anchor for a Playwright spec, ALWAYS run `grep -c 'data-testid="<candidate>"' frontend/src/` first. Single-instance (`= 1`) → safe to use. Multi-instance → fall back to a section `id` selector (`page.locator('section#<id>')`) or a more specific testid. Codified into next Engineer pre-impl checklist update.
+- **Design-doc spec contract diff-against-dispatch:** when dispatch supplies adjustments to design doc canonical code blocks (e.g. "T-K053-02 assert `>= 700`, not `> 0`"), call out the diff explicitly in a 1-line spec comment so future readers see "spec adjusted from design doc per dispatch" rather than wondering about doc/code drift. Already applied here; codify habit.
+
+---
+
 ## 2026-04-26 — K-051 Phase 4 — predictor gate align + toast data-testid + UI i18n
 
 **What went well:**
