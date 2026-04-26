@@ -7,7 +7,7 @@ type: refactor
 priority: medium
 created: 2026-04-20
 source: K-021 Reviewer 合併報告 W-3（TD-K021-02）
-visual-spec: N/A — reason: zero-visual-change refactor (hex→token equivalence at rendered-color level; values sourced from K-021 homepage-v2.pen NavBar frame). 註：K-021 Q2 裁決所述「compiled CSS 相同」QA 修正為「computed color 相同，selector 名稱不同」(arbitrary-value vs named class)；故本票 AC 以 `toHaveCSS('color', ...)` + dist/assets CSS declaration grep 作為等價性證據。
+visual-spec: "N/A — reason: zero-visual-change refactor (hex→token equivalence at rendered-color level; values sourced from K-021 homepage-v2.pen NavBar frame). Note: the K-021 Q2 ruling stated 'compiled CSS identical', QA corrected this to 'computed color identical, selector name differs' (arbitrary-value vs named class); therefore this ticket's AC uses `toHaveCSS('color', ...)` + dist/assets CSS declaration grep as equivalence evidence."
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-22 K-025 — 4 recommendations integrated into AC (Q1 CSS declaration grep in AC-025-REGRESSION / Q2 aria-current + toHaveCSS 雙條件 drop class-name regex / Q3 /business-logic no-active-link assertion / blocker inactive `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` 取代寬鬆 regex)
 ---
 

@@ -13,7 +13,7 @@ visual-delta: none
 content-delta: yes
 design-locked: N/A
 qa-early-consultation: docs/retrospectives/pm.md 2026-04-24 K-044 (QA proxy by PM, 4 challenges)
-visual-spec: N/A — reason: docs-only README rewrite, no Pencil surface
+visual-spec: "N/A — reason: docs-only README rewrite, no Pencil surface"
 worktree: .claude/worktrees/K-044-readme-showcase-rewrite
 branch: K-044-readme-showcase-rewrite
 ---
