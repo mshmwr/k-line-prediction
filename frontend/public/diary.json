@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-054",
+    "title": "README cleanup + BFP narrative (translation split to K-055)",
+    "date": "2026-04-26",
+    "text": "Polished the public-facing README with four surgical edits — deleted the duplicate Stack one-liner already covered by all five badges, removed the Try-the-prediction-tool CTA while keeping the section heading + descriptive paragraph as the harness narrative anchor, redirected the retrospectives directory link to the single-entry meta-retro file whose recursive process-improvement story carries higher portfolio signal than a flat per-role list, and added a K-035 Bug Found Protocol inline excerpt mirroring the Content-Alignment Gate Before/After quote pattern; same PR also paraphrased nine residual Chinese lines across docs/designs/shared-components-inventory.md, docs/designs/K-053-scroll-to-top.md, and docs/tickets/K-051-daily-db-backfill-rollup-fix.md per the new feedback_retro_no_verbatim_user_quotes.md rule, with the original ~150-file translation cherry-pick from outer Diary codex/translate-k-line-docs-en branch deferred to fresh ticket K-055 because outer-AI translation completeness still blocks the Chinese-sweep gate."
+  },
+  {
     "ticketId": "K-053",
     "title": "Scroll-to-top on route change",
     "date": "2026-04-26",
