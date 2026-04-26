@@ -8,7 +8,7 @@ status: Phase 0 MVP — covers Footer + UnifiedNavBar + BuiltByAIBanner
 
 # Shared Chrome Components Inventory
 
-Source-of-truth for sitewide shared chrome components (Footer, NavBar, Banner 類).
+Source-of-truth for sitewide shared chrome components (Footer, NavBar, Banner, etc.).
 Any PR introducing a **new variant prop** to any component here MUST first Edit this file,
 obtain PM ruling, and cite the Pencil frame ID that proves divergence.
 

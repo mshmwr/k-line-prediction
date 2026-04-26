@@ -37,11 +37,7 @@ Diagnosis trace:
 2. To return matches for an input dated `2026-04-07`, the engine needs ≥129 trailing daily bars **ending at the input date** (per K-015 invariant). Coverage gap: 2026-03-20, 2026-03-21, 2026-03-22, 2026-03-25, and the contiguous run 2026-03-28 → 2026-04-08 (16 missing days within Binance's available window at fetch time).
 3. Without those daily bars, `find_top_matches` raises `ValueError`, surfaced to the user as the message above.
 
-**Approach pivot.** First considered: change backend logic to auto-aggregate the user-provided 1H CSV into a synthetic daily bar to fill the MA history. User explicitly redirected:
-
-> 我其實想要叫你自己去網站抓資料
-
-→ One-shot manual fetch from Binance API; refresh `Binance_ETHUSDT_d.csv` so the existing logic works unchanged. No schema change, no aggregation code path added, no new endpoints.
+**Approach pivot.** First considered: change backend logic to auto-aggregate the user-provided 1H CSV into a synthetic daily bar to fill the MA history. User overrode the auto-aggregation path and required Claude to fetch the missing daily bars directly from the Binance public API rather than synthesize them from user-supplied 1H data. → One-shot manual fetch from Binance API; refresh `Binance_ETHUSDT_d.csv` so the existing logic works unchanged. No schema change, no aggregation code path added, no new endpoints.
 
 **Secondary failure (Phase A.5 fix-forward).** After the data backfill PR merged and Cloud Run redeploy was triggered, the build failed twice with:
 
@@ -121,7 +117,7 @@ Root cause: npm bug [#4828](https://github.com/npm/cli/issues/4828) — `package
 
 ### AC-051-10 — Predictor message-vs-gate drift fix (Phase 4, user override 2026-04-26; QA-tightened B1+B2 2026-04-26)
 
-- **Given** the drift observed in Phase 3b/3c — `predictor.py:335` ValueError text claims "ma_history requires at least 129 daily bars" but the actual gate at `predictor.py:156` (`_fetch_30d_ma_series`) is `if len(combined_closes) < MA_WINDOW: return []` (= 99). User override: "兩個小坑不可以留成 TD，只要有問題能做完就當次做完" — drift must be fixed inside K-051.
+- **Given** the drift observed in Phase 3b/3c — `predictor.py:335` ValueError text claims "ma_history requires at least 129 daily bars" but the actual gate at `predictor.py:156` (`_fetch_30d_ma_series`) is `if len(combined_closes) < MA_WINDOW: return []` (= 99). User overrode the TD-deferral classification: both small drift items must be fixed inside K-051, not punted to follow-up TD.
 - **When** any caller of `_fetch_30d_ma_series` runs with a daily history shorter than `MA_TREND_WINDOW_DAYS + MA_WINDOW = 129` bars ending at the anchor date — both **query-side** at `predictor.py:332-336` (raises Sacred ValueError) AND **candidate-side** at `predictor.py:343-344` (skips candidate via `continue`)
 - **Then** the gate at `predictor.py:156` returns `[]` for both callsites in unison; query-side caller raises the exact Sacred ValueError whose message contains `"ma_history requires at least 129 daily bars ending at that date"`; candidate-side `continue`s (existing `if not candidate_30d_ma: continue` keeps working without change). Dual-tightening is intentional — both sides must agree on the 129-bar floor for trend-direction comparison reliability (QA B-Phase4-hidden-callsite gate)
 - **And** `MA_WINDOW` and `MA_TREND_WINDOW_DAYS` remain unchanged (existing 99 + 30 invariants); fix is at the gate comparison only — `if len(combined_closes) < MA_TREND_WINDOW_DAYS + MA_WINDOW: return []`
@@ -140,12 +136,12 @@ Root cause: npm bug [#4828](https://github.com/npm/cli/issues/4828) — `package
 
 ### AC-051-12 — App UI Chinese → English (Phase 4, user override 2026-04-26; QA-tightened B3+B4 2026-04-26)
 
-- **Given** the user-visible Chinese strings in the React app surface — `AppPage.tsx` (363, 379, 399), `MainChart.tsx` (264, 270), `PredictButton.tsx:16`, `pages/BusinessLogicPage.tsx:106`. User instruction: "你順便把app畫面的中文文案改成英文". Code-internal Chinese (regex patterns parsing user-pasted zh-TW timestamps in `MainChart.tsx:33-42`; JS comments in `UnifiedNavBar.tsx:7-20`; CJK regex in `__tests__/diary.english.test.ts:9-16`) is functional / non-display and stays as-is.
+- **Given** the user-visible Chinese strings in the React app surface — `AppPage.tsx` (363, 379, 399), `MainChart.tsx` (264, 270), `PredictButton.tsx:16`, `pages/BusinessLogicPage.tsx:106`. User added in-scope: translate the React app's user-visible Chinese strings to English while this ticket already touches the frontend. Code-internal Chinese (regex patterns parsing user-pasted zh-TW timestamps in `MainChart.tsx:33-42`; JS comments in `UnifiedNavBar.tsx:7-20`; CJK regex in `__tests__/diary.english.test.ts:9-16`) is functional / non-display and stays as-is.
 - **When** the affected pages render
-- **Then** all user-visible text is English; no characters in the broad CJK range used by `__tests__/diary.english.test.ts` (`[一-鿿㐀-䶿぀-ゟ゠-ヿ　-〿＀-￯]`) remain in the rendered DOM of `/app`, `/business-logic`, the chart loading state, or the Predict button title
-- **And (B4 — full-width punctuation gate)** full-width CJK punctuation (`（`/`）`/`：`/`／`/`，`/`。`/`「`/`」`/etc.) MUST be replaced with ASCII equivalents (`(`/`)`/`:`/`/`/`,`/`.`/`"`/`"`) in any translated string — the `＀-￯` block in the diary.english.test.ts CJK regex catches half-width-form (FF00–FFEF) artifacts; full-width punctuation falls inside `　-〿` — both blocks must produce zero matches across the translated surface
-- **And (B3 — test description-string gate)** Playwright `test('...')` description strings that contain Chinese (`frontend/e2e/ma99-chart.spec.ts:247` `'MainChart shows MA99 計算中 label while loading, then value after load'`) MUST also be translated; test descriptions are user-visible in Playwright HTML reports + CI logs and count as the same display surface
-- **And** Playwright spec assertions in `frontend/e2e/ma99-chart.spec.ts` (lines 188, 194, 238, 247, 268, 274) update to the new English strings — selector logic unchanged, only the asserted text changes; before-edit grep `[一-鿿㐀-䶿぀-ゟ゠-ヿ　-〿＀-￯]` over `frontend/src/` + `frontend/e2e/` must enumerate every match; post-edit re-grep must return zero matches except the deliberately-preserved code-internal regex patterns enumerated above
+- **Then** all user-visible text is English; no characters in the broad CJK range used by the regex defined at `__tests__/diary.english.test.ts:9-16` (covers CJK Unified Ideographs U+4E00–U+9FFF, CJK Extension-A, Hiragana, Katakana, CJK Symbols/Punctuation U+3000–U+303F, and Halfwidth-and-Fullwidth Forms U+FF00–U+FFEF) remain in the rendered DOM of `/app`, `/business-logic`, the chart loading state, or the Predict button title
+- **And (B4 — full-width punctuation gate)** full-width CJK punctuation (full-width parens / colon / slash / comma / period / corner-bracket quotes / etc.) MUST be replaced with ASCII equivalents (`(`/`)`/`:`/`/`/`,`/`.`/`"`/`"`) in any translated string — the Halfwidth-and-Fullwidth-Forms block (U+FF00–U+FFEF) in the diary.english.test.ts CJK regex catches halfwidth-form artifacts; full-width punctuation falls inside the CJK-Symbols-and-Punctuation block (U+3000–U+303F); both blocks must produce zero matches across the translated surface
+- **And (B3 — test description-string gate)** Playwright `test('...')` description strings that contain CJK characters (e.g. `frontend/e2e/ma99-chart.spec.ts:247`'s description embedded a Chinese 'loading' label between the MA99 anchor and the surrounding English text) MUST also be translated; test descriptions are user-visible in Playwright HTML reports + CI logs and count as the same display surface
+- **And** Playwright spec assertions in `frontend/e2e/ma99-chart.spec.ts` (lines 188, 194, 238, 247, 268, 274) update to the new English strings — selector logic unchanged, only the asserted text changes; before-edit grep using the CJK regex defined at `__tests__/diary.english.test.ts:9-16` over `frontend/src/` + `frontend/e2e/` must enumerate every match; post-edit re-grep must return zero matches except the deliberately-preserved code-internal regex patterns enumerated above
 - **And** `npx tsc --noEmit` exits 0 and the full Playwright suite passes (no string-match regressions elsewhere)
 
 ### AC-051-09 — E2E spec uploading real 1H CSV against mocked `/api/predict` (B4/B5-tightened 2026-04-26)
@@ -214,13 +210,13 @@ After all three PRs merge → K-051 status flips to `closed` (was reopened from 
 
 ### Phase 4 — In-scope TD fixes + UI i18n (user override 2026-04-26)
 
-User override 2026-04-26 reverted PM's Phase 3 close that left TD-K051-MSG-DRIFT + TD-K051-DATA-TESTID as fix-after-merge: 「兩個小坑不可以留成 TD，只要有問題能做完就當次做完」. Same user instruction added UI Chinese → English in scope: 「既然你這次有動到前端，你順便把 app 畫面的中文文案改成英文」. Single Phase 4 commit on the same `ops-daily-db-backfill` branch (PR #23 already covers all of Phase 3, Phase 4 appends).
+User override 2026-04-26 reverted PM's Phase 3 close that left TD-K051-MSG-DRIFT + TD-K051-DATA-TESTID as fix-after-merge: both small drift items must be fixed inside this ticket, not punted to follow-up TD. The same instruction added UI Chinese → English to in-scope, since this ticket already touches the frontend. Single Phase 4 commit on the same `ops-daily-db-backfill` branch (PR #23 already covers all of Phase 3, Phase 4 appends).
 
 1. **Backend gate align (AC-051-10):** `backend/predictor.py` line 156 gate `< MA_WINDOW` → `< MA_TREND_WINDOW_DAYS + MA_WINDOW`; line 335 message → f-string referencing constants. `backend/tests/test_predict_real_csv_integration.py` `SACRED_FLOOR` → 129; `bars_to_keep` → 128; drift-guard assertions updated. `pytest backend/tests/` exit 0.
 2. **Toast `data-testid` (AC-051-11):** `frontend/src/AppPage.tsx:349-353` add `data-testid="error-toast"`; `frontend/e2e/upload-real-1h-csv.spec.ts` swap chained-class selector to `getByTestId('error-toast')`. `npx playwright test upload-real-1h-csv` green.
 3. **UI i18n (AC-051-12):** translate user-visible Chinese in `AppPage.tsx` (363, 379, 399), `MainChart.tsx` (264, 270), `PredictButton.tsx:16`, `pages/BusinessLogicPage.tsx:106`. Update `frontend/e2e/ma99-chart.spec.ts` assertions (188, 194, 238, 247, 268, 274) to match new English text. `npx tsc --noEmit` exit 0; full Playwright suite passes.
 4. **Reviewer + QA real-tier:** runtime change at backend gate forces real-qa per `feedback_qa_early_proxy_tier.md`; reviewer depth + qa regression sign-off before commit.
-5. **Commit + push to PR #23 + wait for user merge approval** (per 「做完再 merge」).
+5. **Commit + push to PR #23 + wait for user merge approval** (per the standing rule: complete the work before merge, never merge mid-work).
 
 ## Risks
 
@@ -235,7 +231,7 @@ User override 2026-04-26 reverted PM's Phase 3 close that left TD-K051-MSG-DRIFT
 - **TD candidate: regenerate `package-lock.json` on Linux** — eliminates the platform-specific rollup binary entry permanently; would let future Dockerfile drop the explicit musl install. Not in scope here because it would touch the lockfile across many transitive deps and require a separate review/deploy cycle. Will open as TD-K051-01 after this ticket closes if the workaround proves brittle.
 - **TD candidate: automated daily DB refresh end-to-end** — partially covered by K-048 (auto-scraper); when K-048 ships, the manual fetch path used in Phase 1 here should be retired.
 - **Process debt: bypassed PM→Architect→Engineer chain** — by user direction this ticket is retroactive, not a precedent. Future "user uploads CSV → backend errors" repro flows should still go through QA Early Consultation + AC drafting before code lands. Note logged here so it is not lost in the retro.
-- ~~**TD-K051-MSG-DRIFT**~~ → **resolved in Phase 4 as AC-051-10** (user override 2026-04-26 「兩個小坑不可以留成 TD，只要有問題能做完就當次做完」 reverted the fix-after-merge classification; gate at `predictor.py:156` tightened to `MA_TREND_WINDOW_DAYS + MA_WINDOW = 129` matching the message text).
+- ~~**TD-K051-MSG-DRIFT**~~ → **resolved in Phase 4 as AC-051-10** (user override 2026-04-26 reverted the fix-after-merge classification: both small drift items must be fixed inside this ticket; gate at `predictor.py:156` tightened to `MA_TREND_WINDOW_DAYS + MA_WINDOW = 129` matching the message text).
 - ~~**TD-K051-DATA-TESTID**~~ → **resolved in Phase 4 as AC-051-11** (same user override; `data-testid="error-toast"` added at `AppPage.tsx:349-353`; Phase 3c spec swapped to `getByTestId`).
 
 ## Blocking Questions
@@ -271,9 +267,7 @@ QA surfaced 5 TD candidates in the 2026-04-25 K-051 retro entry. PM rulings:
 
 ### User Ruling: 2026-04-26 — Scope Revision (TD-K051-02..05 reverted to in-scope)
 
-User overturned PM's 2026-04-25 fix-after-merge rulings for TD-K051-02/03/04/05:
-
-> 為什麼你沒做完的東西還要另外開ticket處理？你應該在這個ticket範圍把它做完
+User overturned PM's 2026-04-25 fix-after-merge rulings for TD-K051-02/03/04/05: unfinished work inside a ticket's scope must close inside the same ticket, not get rebranded as a follow-up ticket.
 
 Rationale (user-validated): permanent regression coverage for the K-051 bug class (real-CSV integration test, contiguity gap detector, real-CSV E2E) is K-051's own deliverable, not "new work in a follow-up ticket". The "fix-after-merge" classification was a defer-by-rebrand of work that should have shipped with K-051's first merge. Hydration drift policy is in the same boat — it's the codified learning from K-051's worktree triage misclassifications, owned by K-051's retro.
 
