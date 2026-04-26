@@ -14,6 +14,198 @@
 
 - 倒序（最新在上）
 
+## 2026-04-26 — K-051 Phase 4 Regression Pass (RELEASE-OK verdict)
+
+**Tier:** Real-QA spawn. Phase 4 sign-off after Reviewer RELEASE-OK (0/0/2 Info, PM accept-as-is). 7-check matrix + 3 adversarial probes.
+
+**做得好：**
+- Backend pytest **79/0/0** in 40.18s — exact match to Architect §6.1 (76 baseline + 3 new boundary). New `_fetch_30d_ma_series` boundary trio (128 → []/129 → 30/130 → 30), reshaped drift-guard `SACRED_FLOOR == MA_TREND_WINDOW_DAYS + MA_WINDOW == 129`, truncated-DB Sacred negative at `bars_to_keep=128`, pre-existing `_fetch_30d_ma_series_*` family all green.
+- **Sacred substring runtime byte-identity:** subprocess eval → `'ma_history requires at least 129 daily bars ending at that date.'` — single-quoted, period-terminated, K-051 user-retest SOP grep substring bit-identical (30 + 99 = 129 interpolated).
+- `tsc --noEmit` exit 0. Targeted Playwright (ma99-chart + upload-real-1h-csv) **16/16 PASS** 10.8s — 6 i18n assertion edits + line-247 description + `getByTestId('error-toast')` swap all green first run.
+- Full Playwright **299/2/1** — 1 PASS BETTER than Engineer baseline (298/3/1). The 2 fails = documented pre-existing flakes only (`ga-spa-pageview AC-020-BEACON-SPA` + `shared-components AC-034-P1 Footer snapshot on /`); about.spec.ts:26 AC-017-NAVBAR did NOT recur, confirming Reviewer's parallel-execution flake claim. Zero new failures.
+- **Probe 6a (boundary subsumption):** synthetic `_fetch_30d_ma_series` calls with n ∈ {99,100,127,128} all returned `[]`; n=129 → 30 floats. New gate genuinely subsumes OLD 99-128 range — regression coverage extension real.
+- **Probe 6b (testid uniqueness):** `data-testid="error-toast"` = 1 source hit (AppPage.tsx:350) + 1 assertion hit (upload-real-1h-csv.spec.ts:164); zero collision with StatsPanel/MatchList/ErrorBoundary/ErrorBanner red surfaces. `AC-051-09-NO-ERROR-TOAST` green via `toHaveCount(0)`.
+- **Probe 6c (CJK enumeration):** `grep -rnP '[一-鿿㐀-䶿぀-ゟ゠-ヿ　-〿＀-￯]'` ~50 hits, every one in design doc §1.3 allow-list (MainChart.tsx:33,38 zh-TW regex; UnifiedNavBar comments; diary.english.test CJK_REGEX; K-046 Sacred; 7 spec-comment files K-021/22/40 cosmetics). Zero leak in Phase 4 scope; zero full-width punctuation per B4.
+- **Architecture.md gate:** frontmatter line 5 + Changelog line 683 both carry Phase 4 narrative. Doc-sync mandate satisfied.
+
+**沒做好：** TD-K030-03 (`visual-report.ts` throw-on-missing-TICKET_ID) still pending; lazy-eval guard held this pass (no `K-UNKNOWN-*.html` pollution), but root fix overdue. Pre-existing, not Phase 4 regression.
+
+**下次改善：** when Reviewer Info findings flag AC-text-vs-spec mismatch (F-N1: AC-051-11 says "both visible-true AND visible-false" but spec has only visible-false), QA should grep/Read verify at runtime + report `Info confirmed: <details>` in entry. Practiced this pass. Codify into `~/.claude/agents/qa.md` Mandatory Steps if K-052 surfaces second case (memory candidate `feedback_qa_verify_reviewer_info_findings.md`, low priority).
+
+**Verdict: RELEASE-OK** — 7 checks PASS, 3 probes negative, full Playwright 1 PASS better than baseline. PM cleared to ship K-051 Phase 4.
+
+## 2026-04-26 — K-051 Phase 4 Early Consultation (AC-051-10/-11/-12 pre-Architect)
+
+**Tier:** Real-QA spawn (not PM proxy). AC-051-10 changes a backend runtime gate at `predictor.py:156` (semantic threshold shift 99 → 129, message text becomes f-string) — this is exactly the runtime/schema/layout class that `feedback_qa_early_proxy_tier.md` forces real-qa for. AC-051-11 is a frontend DOM hardening; AC-051-12 is i18n that touches Playwright text-anchored assertions in 3 specs. PM proxy disallowed.
+
+**Sacred regression invariants in play:**
+- K-015 / K-051: Sacred ValueError substring `"ma_history requires at least 129 daily bars ending at that date"` — user retest SOP greps for this literal.
+- AC-051-10 retires the doc/code drift recorded in `test_predict_real_csv_integration.py` lines 33-43 + `SACRED_FLOOR = MA_WINDOW = 99`. After Phase 4, gate fires at <129, drift-comment must be deleted, `SACRED_FLOOR = 129`, `bars_to_keep = 128`.
+
+### (a) AC review findings — edge cases PM/Architect must tighten
+
+**AC-051-10 (gate align, predictor.py:156 + 335):**
+
+1. **Hidden caller of `_fetch_30d_ma_series` — line 343 inside the matching loop.** `find_top_matches` calls `_fetch_30d_ma_series` TWICE: once at line 331 (query side, `query_30d_ma`) where the empty-return raises the Sacred ValueError at line 333-336; AND at line 343 inside `for i in range(0, len(history) - n - future_n)` (candidate side, `candidate_30d_ma`) where empty-return is silently `continue`'d (line 344-345). The gate change at line 156 affects BOTH callsites. Implication: with the live DB at 3176 rows, the candidate-side gate will reject 30 more candidate windows per match attempt (those whose `idx` falls in [99, 128]) than the previous threshold did, because each window now needs 30 more prefix bars. **PM must explicitly confirm** that this candidate-side tightening is desired (it likely is — the original drift was the bug — but it shifts the match-set composition slightly). Architect must document the dual effect in the Phase 4 design doc; Engineer must NOT scope-downgrade to "only patch the query side".
+
+2. **Existing unit tests at `backend/tests/test_predictor.py:582-603` will break under the new gate.**
+   - `test_fetch_30d_ma_series_sufficient_returns_30_points` (line 582): builds 200 bars, anchors at index 150, currently returns 30 floats. Under new gate: needs `len(combined_closes) >= 129`. Anchor-150 has prefix [0..150] = 151 bars; 151 >= 129 → still passes. **OK.**
+   - `test_fetch_30d_ma_series_insufficient_prefix_returns_empty` (line 590): 50 bars, anchors at last bar. Currently returns `[]` because 50 < 99. Under new gate: 50 < 129, still returns `[]`. **OK.**
+   - **But:** there is NO existing unit test at the empirical boundary (98/99 bars, 128/129 bars). After Phase 4, the boundary shifts and the test gap is wider (no test catches a future regression that flips the gate from `< 129` back to `< 99`). **Required:** Engineer must add two boundary tests: (a) 128 bars → returns `[]`; (b) 129 bars → returns 30 floats. Both anchor at last bar. Without these, AC-051-10 has no unit-level coverage at the exact threshold AC mandates.
+   - `test_predict_endpoint_requires_valid_date_for_ma99_trend` (line 155 onward): assesses end-to-end ValueError from `/api/predict`; payload uses 20 bars with `time: ""`. Under new gate, this test is unaffected (it fails on `MIN_BARS_FOR_MA_TREND` first, line 327-328) — but Engineer must verify by re-running.
+
+3. **Message-text drift-guard test at `test_predict_real_csv_integration.py:201-206` will FAIL after Phase 4.** It currently asserts `SACRED_FLOOR == MA_WINDOW == 99`. After AC-051-10, `SACRED_FLOOR` is redefined to `MA_TREND_WINDOW_DAYS + MA_WINDOW = 129`, decoupled from `MA_WINDOW` alone. The assertion `SACRED_FLOOR == MA_WINDOW == 99` becomes false. Engineer MUST update this test in the same commit per AC text ("`SACRED_FLOOR` becomes `MA_TREND_WINDOW_DAYS + MA_WINDOW = 129`; drift-guard test asserts `SACRED_FLOOR == 129` and removes the prior 'drift between message and gate' comment"). **Verify:** also delete the explanatory paragraph at lines 33-43 that documents the drift — it is now a stale historical artifact and would mislead future readers.
+
+4. **Truncated-DB negative test `test_truncated_db_raises_sacred_value_error` (line 137-177) — bars_to_keep arithmetic.** Currently `bars_to_keep = SACRED_FLOOR - 1 = 98` to push below the empirical 99-bar gate. After AC-051-10: `bars_to_keep = SACRED_FLOOR - 1 = 128`. AC text confirms 128. **Edge case:** at exactly 128 bars, the new gate `len(combined_closes) < 129` fires → empty return → Sacred raises. At exactly 129, gate does NOT fire → matches return. The negative test pinning `128 → raise` is correct. **But:** ensure the truncated DB still has the `2026-04-07` end_date row reachable; with 128 bars going back from 2026-04-07, `end_date` of the trailing 30-day window is fine, but the live DB has 3176 rows so 128 bars back from 2026-04-07 ends around 2025-12-01 — well within the DB. Engineer must verify `_write_truncated_daily_db` arithmetic still works with the larger `bars_to_keep`.
+
+5. **History-1H `_query_ma_series` at `predictor.py:168-189` — separate ValueError raise sites.** Lines 181, 184, 188 raise three different ValueError messages, none of which contain the Sacred substring. AC-051-10 does NOT touch these and should not — they are 1H-input MA99 path, not the 30-day daily MA history path. **No action needed**, but PM must confirm scope boundary: AC-051-10 is `_fetch_30d_ma_series` only, `_query_ma_series` 1H gate is unrelated. Document this in the Phase 4 design doc to prevent Engineer from "while we're at it" expanding scope.
+
+**AC-051-11 (`data-testid="error-toast"` hardening):**
+
+6. **Single dependent spec — confirmed.** Grepping `frontend/e2e/` and `frontend/src/__tests__/` for `text-red-400.border-red-700.bg-red-950` returns only `upload-real-1h-csv.spec.ts:172`. No other spec uses the chained-class selector. **PM-actionable risk:** none on this front. Selector swap is local.
+
+7. **Other red-error UI surfaces use the same Tailwind classes individually** (StatsPanel.tsx:147,154,155 — pct text; MatchList.tsx:394 — trend arrow; ErrorBoundary.tsx:16-17 — page-level; ErrorBanner.tsx:8-9 — business-logic page). Bare `.text-red-400` would match these. The 3-class chain currently disambiguates. After adding `data-testid="error-toast"` and swapping to `getByTestId`, the chained selector is gone — but the toast bar at `AppPage.tsx:350` is still styled with the same 3 classes. **No bug**, but Engineer must NOT remove the visual classes — i.e. the AC says "add `data-testid` attribute to the wrapping `<div>`", not "refactor the toast styling". Test assertion swap is independent of styling.
+
+8. **Existing inner-text assertion `✗ {errorMessage}` (AppPage.tsx:351) is preserved per AC text** — but no spec currently asserts the `✗` glyph specifically. **Optional improvement (non-blocking):** Engineer could add `await expect(page.getByTestId('error-toast')).toContainText('✗')` to anchor the visual glyph; not required by AC but cheap.
+
+**AC-051-12 (UI Chinese → English):**
+
+9. **Six string sites confirmed correct in AC; one MISSED string** at `BusinessLogicPage.tsx:106` is mentioned, but Chinese also appears at:
+   - `frontend/src/AppPage.tsx:399` — `(最新：${historyInfo['1H'].latest ?? 'N/A'} UTC+0)` ← AC mentions line 399 ✓
+   - `frontend/src/AppPage.tsx:363` — `Upload 1H CSV（可多選）` ← AC mentions line 363 ✓
+   - `frontend/src/AppPage.tsx:379` — `多檔合併 · 每檔 24 × 1H bars · UTC+0` ← AC mentions line 379 ✓
+   - `frontend/src/components/MainChart.tsx:264` — `'MA(99) 計算中…'` ← AC mentions line 264 ✓
+   - `frontend/src/components/MainChart.tsx:270` — `⚠ MA99 資料缺失：{...} ~ {...}（歷史前置資料不足 99 根）` ← AC mentions line 270 ✓ but **note** the surrounding template-literal punctuation `：` and `（…）` are full-width CJK chars; replacement must use ASCII `:` and `(…)` to truly be English (writing "MA99 missing：..." would still leave a CJK colon in DOM).
+   - `frontend/src/components/PredictButton.tsx:16` — `'MA99 計算中，請稍候…'` ← AC mentions line 16 ✓
+   - `frontend/src/pages/BusinessLogicPage.tsx:106` — `<LoadingSpinner label="載入內容中…" />` ← AC mentions line 106 ✓
+
+   **All seven sites covered.** No site missed in the AC — verified by grepping `[一-龥]` across `frontend/src/`.
+
+10. **Code-internal Chinese explicitly out-of-scope per AC text** — confirmed: `MainChart.tsx:33-42` (regex parsing zh-TW timestamps `上午|下午`) is functional and stays; `UnifiedNavBar.tsx:7-20` JS comments stay; `__tests__/diary.english.test.ts:9-16` CJK regex stays. **PM/Architect should verify** the i18n PR description explicitly calls out these intentional exclusions to head off Reviewer false-positive comments.
+
+11. **Three E2E spec assertion sites at `ma99-chart.spec.ts` cited (188, 194, 238, 247, 268, 274) — that's six sites, not three. AC text matches the actual 6 sites (188, 194, 238, 247, 268, 274). Test name on line 247 includes Chinese in the `test(...)` description string itself: `test('MainChart shows MA99 計算中 label while loading, then value after load', ...)` — Engineer must update the test NAME too, not just the assertion. Otherwise Playwright HTML report will show mixed-language test names. **AC clarification needed:** does AC-051-12 require updating test descriptions, or only assertions? PM ruling.
+
+12. **diary.json content at `frontend/public/diary.json:6`** quotes the Sacred error string `'ma_history requires at least 129 daily bars'` in user-facing diary text. This is the AC-051-10 message AFTER alignment, so **no change needed** — but Engineer must verify the diary.json string still matches `predictor.py:335` post-edit byte-for-byte. If Engineer accidentally rewords (e.g. lowercase, extra punctuation), the diary entry becomes incorrect.
+
+13. **No unit-test or fixture file depends on Chinese strings besides `ma99-chart.spec.ts`** — verified by grep. Vitest specs at `frontend/src/__tests__/` do NOT assert any of the seven strings. `__tests__/diary.english.test.ts:9-16` uses CJK regex defensively to ENSURE no CJK leaks into diary.json — that test will continue to pass after Phase 4 (it asserts diary content is English; Phase 4 makes more strings English, not less).
+
+### (b) Tests that must run AND tests likely to break
+
+**Backend pytest (must run after Phase 4 implementation):**
+- `pytest backend/tests/test_predictor.py` — full file (76+ tests). At-risk: `test_fetch_30d_ma_series_*` family (lines 582-603) — must verify the existing 4 still pass under new gate, and Engineer ADDS the boundary pair (128 → empty, 129 → 30 floats).
+- `pytest backend/tests/test_predict_real_csv_integration.py` — all 3 tests. **Will BREAK without same-commit edits**: positive test still passes (live DB has 3176 bars >> 129); negative test breaks unless `bars_to_keep` updates 98 → 128; drift-guard test BREAKS unless `SACRED_FLOOR` redefined and assertion updated per AC-051-10.
+- `pytest backend/tests/test_history_db_contiguity.py` — 3 tests. Unrelated to Phase 4 changes; must still pass (regression sanity).
+- `pytest backend/tests/test_main.py` — `/api/predict` endpoint integration. Must verify no payload that previously returned 200 now raises Sacred (i.e. real DB still has ≥129 bars; verified — 3176).
+
+**Frontend Playwright (must run after Phase 4 implementation):**
+- `npx playwright test ma99-chart` — 6 assertion changes per AC-051-12. Will BREAK if Engineer skips any of the 6 sites.
+- `npx playwright test upload-real-1h-csv` — selector swap per AC-051-11. Will BREAK if `data-testid` not added or spec not swapped.
+- Full Playwright suite — must still show baseline 299/2/1 (the 2 documented pre-existing flakes). Any new failure = regression.
+- `npx tsc --noEmit` — translation strings should not introduce type errors; safety net.
+
+**Vitest:**
+- `frontend/src/__tests__/diary.english.test.ts` — CJK guard on diary content; unrelated, must still pass.
+
+### (c) Verdict
+
+**RELEASE-OK** for Architect to proceed to Phase 4 design — but conditional on PM ruling on the following BLOCKING items before Engineer release:
+
+- **B1 (AC-051-10):** add explicit AC clause "Engineer adds boundary unit tests at `test_predictor.py`: `test_fetch_30d_ma_series_at_floor_returns_30_points` (129 bars → 30 floats) + `test_fetch_30d_ma_series_below_floor_returns_empty` (128 bars → `[]`)". Without these, gate change has no unit-level proof at the exact threshold the AC mandates.
+- **B2 (AC-051-10):** add explicit AC clause "Engineer deletes the empirical-floor explanatory paragraph at `test_predict_real_csv_integration.py:33-43` and rewrites the SACRED_FLOOR comment to reference the post-fix `MA_TREND_WINDOW_DAYS + MA_WINDOW` sum". The current comment block becomes a misleading stale artifact.
+- **B3 (AC-051-12):** add explicit AC clause "test description names containing Chinese (e.g. `ma99-chart.spec.ts:247` `'MainChart shows MA99 計算中 label...'`) are also updated to English". Otherwise Playwright HTML report shows mixed-language names — visible inconsistency.
+- **B4 (AC-051-12):** add explicit AC clause "full-width CJK punctuation `（）：…，` adjacent to translated strings (e.g. `MainChart.tsx:270` `MA99 資料缺失：` and `（歷史前置資料不足 99 根）`) is replaced by ASCII `():,...`, not just the Chinese characters between them". Half-translated strings would still fail a `[一-龥]` post-grep.
+
+**Non-blocking notes (Engineer free to take, Reviewer free to require):**
+- N1: AC-051-11 could add `toContainText('✗')` to anchor the cross glyph alongside `getByTestId`.
+- N2: AC-051-12 could move all translated strings to a centralized `frontend/src/i18n.ts` to enable future locale switching — pure refactor, out of scope here.
+- N3: After Phase 4, regenerate the K-051 visual report only if `visual-delta` flips from `none` to something — currently `none` per ticket frontmatter, so visual-report.ts should be skipped (TD-K030-03 still pending).
+
+**Codification reminder:** if PM accepts B1-B4, AC-051-10/-12 frontmatter must update the AC text inline (PM is the only role allowed to Edit ticket AC per `feedback_ticket_ac_pm_only.md`). Architect cleared to draft Phase 4 design doc immediately after PM ruling.
+
+## 2026-04-26 — K-051 Phase 3 Regression Pass (RELEASE-OK verdict)
+
+**Tier:** Real-QA spawn (post-implementation regression). Phase 3b/3c sign-off pass after Code Reviewer RELEASE-OK (0 Critical / 4 Warning / 5 Nit). Independently re-ran full backend pytest + frontend tsc + full Playwright + targeted K-051 spec; verified DB freshness anchor + Sacred substring drift-guard + fixture strict-gate via three adversarial probes.
+
+**做得好：**
+- Backend pytest 76/76 PASS; matches Engineer's reported baseline exactly. New tests `test_history_db_contiguity.py` (3) + `test_predict_real_csv_integration.py` (3) all green; freshness floor test passing on TODAY=2026-04-26 vs last_row.date=2026-04-25 (days_behind=1, well within 7-day SLA).
+- Frontend Playwright 299/2/1 (pass/fail/skip) — exactly matches Engineer's baseline. Both failures (`ga-spa-pageview AC-020-BEACON-SPA`, `shared-components AC-034-P1 Footer snapshot on /`) are pre-existing flakes documented in CLAUDE.md; orthogonal to K-051 scope. No new failures introduced.
+- Targeted spec `upload-real-1h-csv.spec.ts` 3/3 PASS in 2.6s. AC-051-09 toast bar negative assertion uses 3-class chain `.text-red-400.border-red-700.bg-red-950` with `toHaveCount(0)` (PM-accepted deviation per TD-K051-DATA-TESTID).
+- Adversarial probe 3 (fixture strict-gate): `wc -l` = 24 lines, first 3 bytes `31 37 37` (ASCII "177...") — confirmed NO BOM (`EF BB BF`); first column starts with numeric Binance timestamp `1775520000000000` — `parseOfficialCsvFile` strict-gate (24-row + no-BOM + numeric-first-col) satisfied.
+- Adversarial probe 2 (Sacred substring): `SACRED_VALUE_ERROR_SUBSTRING` is a literal Python string `"ma_history requires at least 129 daily bars ending at that date"` (line 47 of test file), used via `re.escape()` inside `pytest.raises(ValueError, match=...)`. If a future contributor refactors `predictor.py:335` from `"129"` to f-string `f"{MA_TREND_WINDOW_DAYS + MA_WINDOW}"`, the bytes still match → test still passes (good). If they change wording (e.g. `"requires"` → `"needs"`), test fails (good). Drift-guard `test_min_daily_bars_constant_is_imported_not_magic` independently asserts `MA_WINDOW == 99 && MA_TREND_WINDOW_DAYS == 30 && MIN_DAILY_BARS == 129`.
+- Adversarial probe 1 (DB drift mock): test uses `date.today()` directly (not parameterized clock). Mocking to 2026-05-04 (8 days past last_row=2026-04-25) → `(today - last) = 9 days > FRESHNESS_FLOOR_DAYS = 7` → assertion fires with explicit message including `last_row.date` and `days_behind`. Test would catch SLA breach. Caveat: K-048 auto-scraper SLA delay >7 days = legitimate failure, not test bug — desired behavior.
+- DB tail count `wc -l` = 3176 (Engineer's reported), max date = 2026-04-25 (after sort), strictly-monotonic + gap==1 contiguity holds end-to-end.
+
+**沒做好：**
+- `K-UNKNOWN-visual-report.html` was generated during full Playwright suite (visual-report.ts spec runs unconditionally without TICKET_ID env var); pollution required manual cleanup. K-051 ticket has `visual-delta: none` — visual-report should not have been written for this ticket. TD-K030-03 hardening (throw on missing TICKET_ID in `visual-report.ts`) still pending. Persona post-step verification (step 2a) was followed — pollution detected and cleaned before sign-off — so the gate worked, but the underlying root-cause fix is overdue.
+
+**下次改善：**
+- Continue post-step `ls K-UNKNOWN-*.html 2>/dev/null` verification per persona step 2a; do not skip because "ticket is visual-delta: none".
+- For tickets with `visual-delta: none`, persona could grow an explicit pre-suite skip flag to prevent visual-report.ts from running at all. File as TD enhancement on top of TD-K030-03.
+
+**Verdict:** RELEASE-OK. PM may proceed to ticket close + Phase A wrap-up. No Critical bugs identified; the 2 frontend failures are pre-existing pre-K-051 flakes, classified per CLAUDE.md §Worktree Hydration Drift Policy adjacent rules.
+
+
+## 2026-04-26 — K-051 Phase 3 Early Consultation (AC-051-07/-08/-09 pre-Architect)
+
+**Tier:** Real-QA spawn (not PM proxy). Phase 3b adds runtime backend pytest exercising `find_top_matches` with the real daily DB (cross-layer behavior: data + algorithm). Phase 3c adds new Playwright spec exercising `OHLCEditor` upload path (frontend runtime). Both clear the `feedback_qa_early_proxy_tier.md` runtime/schema bar — PM proxy disallowed.
+
+**Sacred regression anchor:** `MA_TREND_WINDOW_DAYS (30) + MA_WINDOW (99) = 129` daily bars ending at input date (`backend/predictor.py:8,11,331-336`). The exact ValueError text K-051 surfaced: `"Unable to compute 30-day MA99 trend for {input_end_time}: ma_history requires at least 129 daily bars ending at that date."` Both the positive (≥129 → returns matches) and the negative (<129 → raises with exact substring) sides must be locked.
+
+### (a) AC review findings — edge cases PM/Architect must tighten
+
+**AC-051-07 (contiguity gap detector, ticket lines 103–109):**
+
+1. **"Gap > 1 calendar day" semantics underspecified.** Daily DB date column format is ISO `YYYY-MM-DD` (verified: header at `Binance_ETHUSDT_d.csv:2`, last row `2026-04-08`). Ticket says "no gap > 1 calendar day" — must clarify: (i) parse strategy (`datetime.strptime(row[1], "%Y-%m-%d")` → `(d2 - d1).days == 1` for every consecutive pair); (ii) timezone irrelevant since Binance daily bars are UTC-anchored ISO dates with no time component — call this out so Engineer doesn't reach for `pytz`; (iii) DB ordering: rows are descending (newest at top, `2026-04-08` row 3 → `2017-08-17` row 3157) — pair-walk must sort ascending first or compare in reverse direction, otherwise `(d2 - d1).days == -1` always. Ticket does not say which.
+2. **Duplicate / out-of-order coverage missing.** "No gap > 1" passes silently if two adjacent rows have IDENTICAL date (delta = 0 days, not > 1). A duplicate-row drift would slip through. Same for descending-then-ascending zigzag. Recommend AC adds: "no duplicate dates" + "rows sorted strictly monotonically (ascending or descending, not mixed)".
+3. **First/last row edge.** No assertion on absolute first or last date. If the DB shrinks 100 rows from the head (loses 2017-08-17 → 2017-11-25), gap detector still passes but `find_top_matches` window space shrinks. Recommend: assert `last_row.date >= TODAY - N days` where N matches the K-048 auto-scraper SLA (or hard-code a freshness floor like 7 days). Without this, AC-051-07 is a contiguity guard but not a freshness guard — and freshness was the actual K-051 bug.
+
+**AC-051-08 (real-CSV integration test, lines 111–117):**
+
+1. **DB pinning vs drift detection — ticket is silent.** Reading live `history_database/Binance_ETHUSDT_d.csv` gives drift detection (a future shrink fails the test) but breaks reproducibility (test result depends on when the DB was last refreshed). PM must rule: option A — read live DB, accept that the test is a regression-on-live invariant, and pair with AC-051-07 to catch the shrink at contiguity layer; option B — copy a frozen 200-bar slice into `backend/tests/fixtures/Binance_ETHUSDT_d_pinned_2026-04-08.csv` for reproducibility, lose drift detection. Recommend A: K-051's bug class is silent DB drift, exactly the failure mode option B hides.
+2. **K-015 sacred-regression invariant assertion missing the negative case.** AC says "returns ≥1 match without raising `ma_history requires`" (positive). Add a second test in same file that loads a DB truncated to 128 bars ending at 2026-04-07 and asserts `find_top_matches` raises `ValueError` whose message contains the exact substring `"ma_history requires at least 129 daily bars ending at that date"`. Without the negative path the K-015 invariant has no test enforcing that the error message text stays stable for telemetry / user-message stability — and the K-051 user retest SOP literally greps for that string.
+3. **Real-CSV format pin.** Ticket says "real 24-bar 1H CSV at `backend/tests/fixtures/ETHUSDT-1h-2026-04-07-original.csv` (the exact CSV that triggered K-051)". The exact CSV is lost (user uploaded once, no commit). Recommend AC clarifies: fixture is a regenerated 24-bar UTC 2026-04-07 ETHUSDT slice from Binance public klines API matching the column shape `parseOfficialCsvFile` accepts (Unix-ms timestamp first column, OHLC numerics next), with a docstring naming the regeneration command + date so future drift is auditable. "The exact CSV" is unrecoverable — don't promise it; promise an equivalent.
+
+**AC-051-09 (E2E real-CSV upload, lines 119–125):**
+
+1. **`OHLCEditor` upload path NOT directly testable from page surface.** Reviewed `frontend/src/AppPage.tsx:362–374`: file `<input>` is `className="hidden"` inside a `<label>`. Playwright can drive it via `page.locator('input[type="file"]').setInputFiles(...)` (works on hidden inputs in Playwright since v1.x). Ticket should explicitly choose `setInputFiles` to avoid Engineer reaching for label-click + fileChooser pattern (slower, more flake-prone). K-046 spec already proves the locator pattern works (`K-046-example-upload.spec.ts:97-99`).
+2. **`parseOfficialCsvFile` fragility surfaced by code reading.** `AppPage.tsx:48–82`:
+   - **No BOM strip.** A UTF-8 BOM-prefixed CSV (Excel default save) makes `cols[0]` start with `﻿`, `Number()` returns NaN → throws `"Invalid timestamp: ﻿1775606400000"`. AC-051-09 fixture must be byte-clean (no BOM); state explicitly so future fixture regen doesn't quietly break.
+   - **Strict 24-row gate (`OFFICIAL_ROW_COUNT = 24`).** Anything not exactly 24 rows throws. Fixture row count is a hard contract; AC must say "24 data lines, no header row" (the existing `ETHUSDT_1h_test.csv` is headerless per K-046 fixture refresh).
+   - **CRLF tolerated** via `line.trim()`, decimal-separator must be `.` (Number()), scientific notation accepted (Number() handles `1e3`). These three are SAFE and don't need AC text.
+   - **Header-row variation** is NOT tolerated: any non-numeric first column → throws. AC must assert fixture is headerless (matches the K-046 ETHUSDT_1h_test.csv shape).
+3. **Negative assertion + AC-051-01 cross-link.** Ticket asks for "ma_history requires… NOT shown anywhere in the DOM" — good. Add: also assert no error toast bar (`.text-red-400` red error bar at `AppPage.tsx:349-353`) is visible. The K-051 user-visible failure was the red error bar, not just a text-substring; assert the visual chrome too.
+4. **Mock realism per `feedback_playwright_mock_realism.md`.** AC says mock returns "200 with non-empty `matches[]`". Must extend: mock response MUST include `future_ohlc` array of ≥2 bars (else `computeDisplayStats` falls back silently — see `ClaudeCodeProject/CLAUDE.md` §Test Data Realism); MUST include all `PredictStats` fields (an absent field = `undefined` runtime crash). Recommend AC reuses the existing `frontend/e2e/_fixtures/mock-apis.ts` payload shape rather than hand-rolling — that fixture already meets the realism bar across 8 specs.
+
+### (b) Blocking gaps — PM must address before Architect release
+
+- **B1 (AC-051-07):** add monotonic-ordering + duplicate-date rejection + freshness-floor assertion to AC text (currently only says "no gap > 1 calendar day"). Without B1 the test passes on three failure modes K-051 itself surfaced.
+- **B2 (AC-051-08):** PM rule on DB pinning (option A live-DB drift detection vs option B frozen fixture). Recommend A. AC text must state the ruling.
+- **B3 (AC-051-08):** add second test case asserting the exact ValueError message substring on a 128-bar DB. K-015 sacred regression has no negative-case anchor today.
+- **B4 (AC-051-09):** AC must specify `setInputFiles` driver pattern, BOM-clean + headerless fixture, and explicit toast-bar negative assertion. Without B4 the spec is structurally fragile.
+- **B5 (AC-051-09):** mock-realism guard — AC must reference `_fixtures/mock-apis.ts` (or the equivalent realism contract) so Engineer doesn't paste a 1-bar future_ohlc mock that silently passes.
+
+### (c) Non-blocking refinements (Engineer / Reviewer-time enhancements)
+
+- **N1 (AC-051-07):** Engineer may parametrize `MAX_GAP_DAYS = 1` as a module constant to make the threshold tunable for non-trading-day-aware future markets. Not required by AC.
+- **N2 (AC-051-08):** Engineer may add a parametrize-mark covering 2–3 different input dates (2026-04-07, 2024-01-01, 2020-03-12 — span market regimes) to widen coverage without expanding AC. Reviewer can flag if missing.
+- **N3 (AC-051-09):** spec may add a snapshot of the rendered MatchList row count (e.g. `await expect(page.locator('[data-testid="match-row"]')).toHaveCount(10)`) for additional drift catch — not core to the bug class.
+
+### (d) Test isolation strategy — avoiding hydration-drift false positives
+
+Per K-Line `CLAUDE.md` §Worktree Hydration Drift Policy (Phase 3a, AC-051-06):
+
+- **Backend pytest (Phase 3b):** Engineer + QA both run the new tests **inside canonical `ClaudeCodeProject/K-Line-Prediction/`**, not the worktree, when classifying any failure. Worktree is fine for editing the test code, but the `history_database/Binance_ETHUSDT_d.csv` is a tracked file (3157 lines verified) so canonical and worktree should match — if they don't, hydration drift, hydrate worktree first. The new fixture `backend/tests/fixtures/ETHUSDT-1h-2026-04-07-original.csv` MUST be committed (tracked) so worktree and canonical see the same bytes.
+- **Frontend E2E (Phase 3c):** the new `frontend/e2e/upload-real-1h-csv.spec.ts` runs against Vite dev server. The `@rollup/rollup-<platform>` native binary drift surfaced in K-051 worktree QA can re-bite here. Rule: if Playwright webServer crashes citing rollup module not found, re-run in canonical first (per AC-051-06 protocol); only file as bug if canonical also fails. The new `frontend/e2e/fixtures/ETHUSDT-1h-2026-04-07.csv` must be committed under the e2e fixtures directory (NOT under `frontend/public/examples/` — that path is reserved for the K-046 example download, conflating the two would couple two ACs).
+- **Pre-existing failure baseline:** prior K-051 retro recorded 295 passed / 3 failed / 1 skipped on canonical (3 pre-existing in K-031/K-022/K-020). Phase 3c adds 1 new spec with multiple cases. Goalpost: post-3c run on canonical must be `≥296 passed, exactly 3 failed (same K-031/K-022/K-020 specs), 1 skipped` — any new failure attributable to AC-051-09 = bug, file back to Engineer. State this baseline in the AC explicitly so QA sign-off has a clear comparator.
+- **TICKET_ID hygiene:** when generating the visual report at QA sign-off time, `TICKET_ID=K-051 npx playwright test visual-report.ts` — recurrence of `K-UNKNOWN-visual-report.html` pollution would be the 4th strike on TD-K030-03. Persona Step 2a post-step `ls` verification still active; Phase 3 does NOT change visual-report.ts source. Mention in QA sign-off retro to keep TD-K030-03 priority visible.
+
+**Verdict: BLOCK — PM must address [B1, B2, B3, B4, B5] before Architect release.**
+
+Five blocking AC-text gaps span all three new ACs. None require code changes — all are AC-text tightenings PM can resolve in the ticket file in one Edit pass. Once B1–B5 land in the ticket, QA Early Consultation flips to RELEASE-OK and Architect is cleared to design Phase 3b + 3c.
+
+Non-blocking items N1–N3 are Engineer/Reviewer-time, do not gate Architect release.
+
+
 ## 2026-04-25 — K-051 retroactive QA pass (daily DB backfill + Cloud Build rollup-musl fix)
 
 **What went well:**

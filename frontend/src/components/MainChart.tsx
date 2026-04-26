@@ -261,13 +261,13 @@ export function MainChart({ userOhlc, timeframe, ma99Values, ma99Gap, maLoading,
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
           <span className="text-[#b889ff]">
             {maLoading
-              ? 'MA(99) 計算中…'
+              ? 'MA(99) computing...'
               : `MA(99) ${formatPrice([...(ma99Values ?? [])].reverse().find(v => v != null) ?? null)}`}
           </span>
         </div>
         {ma99Gap && (
           <div className="mt-1.5 rounded bg-yellow-950/60 border border-yellow-700/50 px-3 py-1 text-[11px] text-yellow-300">
-            ⚠ MA99 資料缺失：{ma99Gap.fromDate} ~ {ma99Gap.toDate}（歷史前置資料不足 99 根）
+            ⚠ MA99 data missing: {ma99Gap.fromDate} ~ {ma99Gap.toDate} (insufficient prior history, fewer than 99 bars)
           </div>
         )}
       </div>
