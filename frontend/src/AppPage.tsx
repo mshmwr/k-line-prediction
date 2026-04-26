@@ -347,7 +347,7 @@ export default function AppPage() {
     <div className="h-screen flex flex-col overflow-hidden bg-gray-950 text-gray-100">
       <TopBar rowCount={ohlcData.filter(isRowComplete).length} />
       {errorMessage && (
-        <div className="mx-4 mt-1 text-red-400 text-xs border border-red-700 rounded px-3 py-1.5 bg-red-950 flex-shrink-0">
+        <div data-testid="error-toast" className="mx-4 mt-1 text-red-400 text-xs border border-red-700 rounded px-3 py-1.5 bg-red-950 flex-shrink-0">
           ✗ {errorMessage}
         </div>
       )}
@@ -360,7 +360,7 @@ export default function AppPage() {
               <div className="mt-1 break-all font-mono text-[11px]">{sourcePath || 'No file uploaded yet.'}</div>
             </div>
             <label className="flex cursor-pointer items-center justify-center rounded border border-dashed border-gray-600 px-3 py-4 text-center text-xs text-gray-300 transition-colors hover:border-orange-400 hover:text-white">
-              Upload 1H CSV（可多選）
+              Upload 1H CSV (multi-select)
               <input
                 type="file"
                 accept=".csv,text/csv"
@@ -376,7 +376,7 @@ export default function AppPage() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div data-testid="official-input-expected-format" className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
                 <div className="text-gray-500">Expected format</div>
-                <div className="mt-1 text-gray-200">多檔合併 · 每檔 24 × 1H bars · UTC+0</div>
+                <div className="mt-1 text-gray-200">Merged multi-file · 24 x 1H bars per file · UTC+0</div>
                 <a
                   href="/examples/ETHUSDT_1h_test.csv"
                   download="ETHUSDT_1h_test.csv"
@@ -396,7 +396,7 @@ export default function AppPage() {
             <div className="text-xs uppercase tracking-wider text-gray-400">History Reference</div>
             <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">
               {historyInfo
-                ? `${historyInfo['1H'].filename}（最新：${historyInfo['1H'].latest ?? 'N/A'} UTC+0）`
+                ? `${historyInfo['1H'].filename} (latest: ${historyInfo['1H'].latest ?? 'N/A'} UTC+0)`
                 : 'Loading...'}
             </div>
           </div>

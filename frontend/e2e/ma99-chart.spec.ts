@@ -185,13 +185,13 @@ test('MainChart header shows MA99 value after prediction', async ({ page }) => {
 test('MA99 gap warning banner is absent when query_ma99_gap is null', async ({ page }) => {
   await setupAndPredict(page, MOCK_PREDICT_NO_GAP)
 
-  await expect(page.getByText(/MA99 資料缺失/)).not.toBeVisible()
+  await expect(page.getByText(/MA99 data missing/)).not.toBeVisible()
 })
 
 test('MA99 gap warning banner appears when query_ma99_gap is present', async ({ page }) => {
   await setupAndPredict(page, MOCK_PREDICT_WITH_GAP)
 
-  await expect(page.getByText(/MA99 資料缺失/)).toBeVisible({ timeout: 5000 })
+  await expect(page.getByText(/MA99 data missing/)).toBeVisible({ timeout: 5000 })
   await expect(page.getByText(/2024-01-01 ~ 2024-01-10/)).toBeVisible()
 })
 
@@ -235,7 +235,7 @@ test('predict button is disabled with maLoading tooltip while MA99 is computing'
   // Button should be disabled while MA99 is loading
   const predictBtn = page.getByRole('button', { name: /Start Prediction/ })
   await expect(predictBtn).toBeDisabled({ timeout: 3000 })
-  await expect(predictBtn).toHaveAttribute('title', 'MA99 計算中，請稍候…')
+  await expect(predictBtn).toHaveAttribute('title', 'MA99 computing, please wait...')
 
   // Unblock the MA99 response
   resolveMA99!(undefined)
@@ -244,7 +244,7 @@ test('predict button is disabled with maLoading tooltip while MA99 is computing'
   await expect(predictBtn).toBeEnabled({ timeout: 5000 })
 })
 
-test('MainChart shows MA99 計算中 label while loading, then value after load', async ({ page }) => {
+test('MainChart shows MA99 computing label while loading, then value after load', async ({ page }) => {
   let resolveMA99: ((value: unknown) => void) | null = null
   const ma99Pending = new Promise(resolve => { resolveMA99 = resolve })
 
@@ -265,13 +265,13 @@ test('MainChart shows MA99 計算中 label while loading, then value after load'
   ])
 
   // Loading label should appear
-  await expect(page.getByText('MA(99) 計算中…')).toBeVisible({ timeout: 3000 })
+  await expect(page.getByText('MA(99) computing...')).toBeVisible({ timeout: 3000 })
 
   // Unblock
   resolveMA99!(undefined)
 
   // Loading label disappears, value appears
-  await expect(page.getByText('MA(99) 計算中…')).not.toBeVisible({ timeout: 5000 })
+  await expect(page.getByText('MA(99) computing...')).not.toBeVisible({ timeout: 5000 })
   await expect(page.getByText(/MA\(99\)\s+1,897/)).toBeVisible({ timeout: 3000 })
 })
 

@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-053",
+    "title": "Scroll-to-top on route change",
+    "date": "2026-04-26",
+    "text": "Mounted a 30-LOC ScrollToTop component inside BrowserRouter (sibling-after GATracker, outside Routes/Suspense) that watches useLocation and resets window.scrollY to 0 on every pathname change while early-returning when a hash anchor is present, and disables history.scrollRestoration='manual' to eliminate the POP single-frame flicker; ships with a 102-LOC Playwright spec covering pathname-change reset, hash-anchor preservation (≥700px scroll retained), and same-route NavBar re-click no-op, plus an Engineer Pre-Implementation Design Challenge Sheet (4 items A1/C1/M1/Z1, all Architect-ACCEPT in Round 2) that absorbed every issue a depth review would have surfaced — Reviewer CODE-PASS 0/0/2 Info, QA 4/4 gates green, K-030 isolation + K-031 + K-034 Footer byte-identity + K-040 width parity all preserved."
+  },
+  {
     "ticketId": "K-051",
     "title": "Daily history DB backfill + Cloud Build rollup-musl fix",
     "date": "2026-04-26",
