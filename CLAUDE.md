@@ -57,6 +57,26 @@ Before `git worktree add` for any new ticket:
 3. If push fails → `git branch backup/main-before-<ticket>-<timestamp> main && git pull --rebase origin main && git push origin main` (resolve simple conflicts in place; halt for complex)
 4. Only after local main == remote main: `git worktree add .claude/worktrees/K-XXX-<slug> -b K-XXX-<slug> main`
 
+### Worktree Hydration Drift Policy (mandatory for QA / Engineer, added K-051 2026-04-26)
+
+Fresh worktree checkouts can be missing native binaries (`node_modules/@rollup/<platform>`) or untracked runtime fixtures that exist in canonical. **Re-run in canonical before classifying any test failure as regression** — hydration drift is not a bug.
+
+**Hydration drift symptoms (NOT regressions):**
+
+- Playwright webServer crash citing `Cannot find module '@rollup/rollup-<darwin-arm64|linux-x64-gnu|linux-x64-musl>'`
+- Backend pytest fail with `FileNotFoundError` on a fixture path that exists in canonical (e.g. `frontend/public/examples/ETHUSDT_1h_test.csv`)
+- TypeScript can't resolve `@types/*` for an installed package
+- Native binary mismatch across `darwin-arm64` vs `linux-x64-musl` checkouts
+
+**Protocol when worktree shows env-class failure:**
+
+1. `cd ClaudeCodeProject/K-Line-Prediction/` (canonical, not worktree)
+2. Run the same failing command
+3. **Canonical FAIL** → genuine regression, file to PM
+4. **Canonical PASS** → worktree hydration drift; hydrate worktree (`npm install` for native binaries, `git checkout origin/main -- <fixture>` for untracked files) and retry — do NOT file as bug
+
+**Why:** K-051 worktree QA burned ~2 turns on `rollup-linux-x64-gnu` missing + `ETHUSDT_1h_test.csv` missing — both canonical-clean. Hydration drift ≠ regression; classifying it as one wastes triage cycles. See `docs/retrospectives/qa.md` 2026-04-26 K-051 entry. Persona detail: `~/.claude/agents/qa.md` §Worktree Hydration Drift Handling.
+
 ### Per-Role Retrospective Logs (enabled from K-008)
 
 Each role agent must **prepend** one entry (newest first) to `docs/retrospectives/<role>.md` before declaring task complete:

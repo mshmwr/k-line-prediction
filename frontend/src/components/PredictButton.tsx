@@ -13,7 +13,7 @@ interface Props {
 const TOOLTIP: Record<NonNullable<DisabledReason>, string> = {
   ohlcIncomplete: 'Complete all rows',
   noSelection: 'Select at least 1 case',
-  maLoading: 'MA99 計算中，請稍候…',
+  maLoading: 'MA99 computing, please wait...',
 }
 
 export function PredictButton({ disabled, disabledReason, onClick, loading }: Props) {

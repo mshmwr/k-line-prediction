@@ -603,6 +603,55 @@ def test_fetch_30d_ma_series_empty_inputs_return_empty():
     assert _fetch_30d_ma_series("2024-01-01", []) == []
 
 
+def test_fetch_30d_ma_series_below_floor_returns_empty():
+    """
+    AC-051-10 B1 boundary unit test: at exactly MA_TREND_WINDOW_DAYS + MA_WINDOW - 1
+    = 128 bars (one short of the post-Phase-4 floor), `_fetch_30d_ma_series`
+    must return []. Pins the gate at predictor.py:156 at the closest layer.
+    """
+    from predictor import MA_TREND_WINDOW_DAYS as _TWD, MA_WINDOW as _MW
+    floor = _TWD + _MW
+    history = _make_real_date_1d_bars(floor - 1)  # 128 bars
+    result = _fetch_30d_ma_series(history[-1]['date'], history)
+    assert result == [], (
+        f"expected [] at {floor - 1} bars (one short of floor {floor}); got "
+        f"{len(result)} floats. Gate at predictor.py:156 likely regressed to "
+        "the pre-Phase-4 `< MA_WINDOW` form."
+    )
+
+
+def test_fetch_30d_ma_series_at_floor_returns_30_points():
+    """
+    AC-051-10 B1 boundary unit test: at exactly MA_TREND_WINDOW_DAYS + MA_WINDOW
+    = 129 bars, `_fetch_30d_ma_series` must return 30 floats. Pairs with
+    test_fetch_30d_ma_series_below_floor_returns_empty to lock both sides of
+    the threshold.
+    """
+    from predictor import MA_TREND_WINDOW_DAYS as _TWD, MA_WINDOW as _MW
+    floor = _TWD + _MW
+    history = _make_real_date_1d_bars(floor)  # 129 bars
+    result = _fetch_30d_ma_series(history[-1]['date'], history)
+    assert len(result) == 30, (
+        f"expected 30 MA points at floor ({floor} bars); got {len(result)}. "
+        "Gate at predictor.py:156 may be over-tight (using > instead of <) or "
+        "MA_TREND_WINDOW_DAYS may have drifted."
+    )
+    assert all(isinstance(v, float) for v in result)
+
+
+def test_fetch_30d_ma_series_above_floor_returns_30_points():
+    """
+    AC-051-10 B1 boundary unit test: at floor + 1 = 130 bars, returns 30
+    floats (a sanity check that going past the floor doesn't change shape).
+    """
+    from predictor import MA_TREND_WINDOW_DAYS as _TWD, MA_WINDOW as _MW
+    floor = _TWD + _MW
+    history = _make_real_date_1d_bars(floor + 1)  # 130 bars
+    result = _fetch_30d_ma_series(history[-1]['date'], history)
+    assert len(result) == 30
+    assert all(isinstance(v, float) for v in result)
+
+
 # -----------------------------------------------------------------------------
 # K-013 Contract tests — shared fixture between backend compute_stats and
 # frontend computeStatsFromMatches. See:
