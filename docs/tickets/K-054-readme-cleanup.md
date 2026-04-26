@@ -6,7 +6,7 @@ type: docs
 priority: medium
 created: 2026-04-26
 closed: 2026-04-26
-closed-commit: pending — squash SHA on main after PR #16 merge
+closed-commit: 1dc5892 (PR #16 squash, 2026-04-26)
 visual-delta: none
 content-delta: yes
 qa-early-consultation: N/A — scope-reduced to README 4-edit + 3-file CJK fix; no public-facing portfolio surface change beyond README structural cleanup (badge-covered Stack line removed, CTA line removed, retro link redirect, BFP excerpt added — all verified by inline grep + GitHub render)
