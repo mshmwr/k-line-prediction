@@ -1,10 +1,13 @@
 ---
 id: K-053
 title: Scroll-to-top on route change
-status: open
+status: closed
 type: feat
 priority: medium
 created: 2026-04-26
+closed: 2026-04-26
+closed-commit: f93a28b
+deploy-record: 2026-04-26 firebase hosting https://k-line-prediction-app.web.app
 visual-delta: none
 content-delta: none
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-26 K-053
