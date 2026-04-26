@@ -25,8 +25,6 @@
 
 One human operator redesigned and shipped a 5-page portfolio site using a team of six AI agents — Product Manager, Architect, Engineer, Reviewer, QA, Designer — coordinated by per-role personas whose rules were each written after a specific ticket incident. 40+ tickets — each with scoped AC, design doc, implementation, review, QA pass, and retrospective — were driven through the pipeline between 2026-04-18 and 2026-04-24. The output: a redesigned, deployed site; a ruleset where each rule names the bug it was written to prevent; and this README, which itself triggered a new rule before shipping. Ten representative rules with their originating bugs are listed in [`docs/agents-ruleset-highlights.md`](./docs/agents-ruleset-highlights.md); full personas live in private Claude Code config. The product under the harness is a K-line pattern-matching tool for short-term ETH/USDT direction — a deliberately narrow testbed for the agent workflow. The same harness will drive the next iteration of the model.
 
-**Stack:** React + TypeScript, FastAPI + Python, Playwright + Vitest, Firebase Hosting + Cloud Run.
-
 ## Role pipeline
 
 Automatic handoffs between roles; operator checkpoints are explicit and named (see Content-Alignment Gate below).
@@ -58,6 +56,11 @@ flowchart LR
 Each rule was written after a specific failure was observed during the build. Five examples:
 
 - **Bug Found Protocol** — when a code reviewer finds a bug, the responsible role writes a short retrospective naming the root cause before any fix begins. Added after K-008, where the Engineer treated an environment variable as trusted input and shipped a path-traversal sink. See [docs/ai-collab-protocols.md §Bug Found Protocol](./docs/ai-collab-protocols.md#bug-found-protocol).
+
+  *Excerpt — `docs/retrospectives/reviewer.md`, K-035 root cause:*
+  > K-017 and K-022 Step 2 reviews both passed `FooterCtaSection.tsx` even though `HomeFooterBar.tsx` already existed for `/` and `/diary`. Neither AC said "use shared Footer", so Reviewer accepted AC-pass and closed. Duplicate footer survived 6 days until the operator spotted it. Added §Structural Chrome Duplication Scan — Critical-block any duplicate `<footer>` / `<nav>` / `<header>` regardless of AC.
+
+  Each Critical / Warning the Reviewer surfaces lands here as a dated entry naming root cause + the persona-rule edit it triggered — see [`docs/retrospectives/reviewer.md`](./docs/retrospectives/reviewer.md) for the full log.
 - **Content-Alignment Gate** — for any user-voice document (README, portfolio copy, CV), PM pauses the pipeline until the operator approves the verbatim draft. Added during K-044 when the first-pass README draft was about to be dispatched to Engineer without operator review.
 
   *Before — K-044 first pass, moments before user paused dispatch:*
@@ -75,8 +78,6 @@ Each rule was written after a specific failure was observed during the build. Fi
 
 This is the testbed the harness operates on. The deployed site predicts short-term ETH/USDT price direction by matching the current K-line pattern against historical patterns and reporting the consensus of the top-N nearest neighbors.
 
-**→ Try the prediction tool: [k-line-prediction-app.web.app/app](https://k-line-prediction-app.web.app/app)**
-
 ## Future enhancements
 
 - **Backtesting** — run the prediction engine across historical windows and report hit rate by market regime. Ticket open; not yet scheduled.
@@ -87,7 +88,7 @@ This is the testbed the harness operates on. The deployed site predicts short-te
 - [docs/agents-ruleset-highlights.md](./docs/agents-ruleset-highlights.md) — ten representative rules, each tagged with owning role and originating ticket
 - [docs/ai-collab-protocols.md](./docs/ai-collab-protocols.md) — role pipeline, Bug Found Protocol, Content-Alignment Gate
 - [docs/tickets/](./docs/tickets/) — 40+ tickets with PRD, AC, and retrospectives
-- [docs/retrospectives/](./docs/retrospectives/) — per-role cumulative learning log
+- [docs/retrospectives/retrospective-meta.md](./docs/retrospectives/retrospective-meta.md) — meta-retrospectives: when an existing rule fails and triggers a structural upgrade. Mechanism active since 2026-04-23; entries are rare by design.
 
 ## Setup
 
