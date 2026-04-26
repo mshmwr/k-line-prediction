@@ -6,7 +6,7 @@ type: fix
 priority: high
 created: 2026-04-21
 closed: 2026-04-21
-qa-early-consultation: docs/retrospectives/qa.md 2026-04-21 K-028 entry (6 challenges: 4 must-add supplemented to AC, 2 declared Known Gap)
+qa-early-consultation: "docs/retrospectives/qa.md 2026-04-21 K-028 entry (6 challenges: 4 must-add supplemented to AC, 2 declared Known Gap)"
 ---
 
 ## 背景

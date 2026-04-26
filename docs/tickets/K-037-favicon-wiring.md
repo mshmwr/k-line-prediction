@@ -12,10 +12,10 @@ branch: K-036-favicon (squashed with K-036 per user ruling 2026-04-23 — same b
 visual-delta: yes — browser tab icon newly visible; reuses K-036 Pencil design (no new .pen frame, no new Designer cycle)
 design-locked: pending — K-036 `frontend/design/favicon.pen` ships the canonical artwork; PM + user will side-by-side review dev-server tab icon vs the K-036 Pencil frame before closing K-037 (no Pencil JSON/PNG export needed for a non-page favicon; see §Design artifacts below)
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-23 K-037 (inline consultation by main-session PM acting as QA channel — disclosed; Agent(qa) not available in this session. 5 Challenges raised → 4 supplemented to AC, 1 declared Known Gap — see §Release Status below)
-pencil-design-source: `frontend/design/favicon.pen` (committed on branch at 891fcfb; rasterized outputs at ea973c9)
+pencil-design-source: "`frontend/design/favicon.pen` (committed on branch at 891fcfb; rasterized outputs at ea973c9)"
 code-review-status: passed-with-commit-block (Step 1 breadth APPROVED FOR MERGE with 0 Critical / 0 Important / 6 Minor accept-as-is; Step 2 depth CODE-PASS + F-N2 Important process finding — runtime files uncommitted; full sign-off gated on Engineer commit of 5 runtime files, then PM re-verify + QA regression + deploy)
-depends-on: K-036 (favicon rasterization) — K-036 produced the 7 PNG/ICO assets currently sitting in `frontend/public/`; K-037 wires them into `index.html` + creates `manifest.json`. Must ship together (squashed on `K-036-favicon` branch).
-block-override: Yes (user decision 2026-04-23; see §Override Rationale — K-034 Q3 Block Lifted). Previously: `blocked-by-policy: K-034 Q3 ordering rule — K-036 and later tickets blocked until K-034 closed.` — LIFTED.
+depends-on: "K-036 (favicon rasterization) — K-036 produced the 7 PNG/ICO assets currently sitting in `frontend/public/`; K-037 wires them into `index.html` + creates `manifest.json`. Must ship together (squashed on `K-036-favicon` branch)."
+block-override: "Yes (user decision 2026-04-23; see §Override Rationale — K-034 Q3 Block Lifted). Previously: `blocked-by-policy: K-034 Q3 ordering rule — K-036 and later tickets blocked until K-034 closed.` — LIFTED."
 ---
 
 ## Override Rationale — K-034 Q3 Block Lifted (2026-04-23)

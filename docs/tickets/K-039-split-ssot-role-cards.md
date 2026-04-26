@@ -7,7 +7,7 @@ type: refactor + process
 priority: medium
 visual-delta: none
 content-delta: yes
-design-locked: N/A — reason: visual-delta is none (no Pencil redraw required; TSX becomes text SSOT, Pencil text fields frozen-at-session)
+design-locked: "N/A — reason: visual-delta is none (no Pencil redraw required; TSX becomes text SSOT, Pencil text fields frozen-at-session)"
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-23 K-039
 created: 2026-04-23
 depends-on: []

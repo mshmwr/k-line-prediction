@@ -11,9 +11,9 @@ deployed: 2026-04-24
 deployed-commit: 1011711
 visual-delta: none
 content-delta: none
-design-locked: N/A — reason: aligning to existing Pencil SSOT (frames `35VCj` /about + `4CsvQ` / home + `wiDSi` /diary — all 1440 canvas, 1248 content, 96px horizontal padding). No new design needed; K-040 Designer Decision Memo §Item 3 already confirmed Pencil SOT for all 4 routes.
+design-locked: "N/A — reason: aligning to existing Pencil SSOT (frames `35VCj` /about + `4CsvQ` / home + `wiDSi` /diary — all 1440 canvas, 1248 content, 96px horizontal padding). No new design needed; K-040 Designer Decision Memo §Item 3 already confirmed Pencil SOT for all 4 routes."
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-24 K-045 — real QA spawn complete, 10 Challenges raised, 7 supplemented to AC, 0 Known Gap, 2 N/A (C-9, C-10 out-of-concern), 1 surfaced as BQ-045-05 (PM-ruled Option A Pencil-compliant 1248)
-visual-spec: docs/designs/K-024-visual-spec.json (diary SSOT, referenced for cross-page parity targets: contentWidth=1248, desktopHorizontalPaddingPx=96)
+visual-spec: "docs/designs/K-024-visual-spec.json (diary SSOT, referenced for cross-page parity targets: contentWidth=1248, desktopHorizontalPaddingPx=96)"
 parent: N/A
 dependencies: K-022 (SectionContainer introduced /about), K-023 (Homepage body-padding pattern `max-w-[1248px] sm:px-24`), K-024 (Diary AC-024-CONTENT-WIDTH 1248px canonical), K-040 (Designer Decision Memo §Item 3 established 1248+96 as cross-route target)
 ---

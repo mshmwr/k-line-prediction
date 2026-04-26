@@ -8,7 +8,7 @@ type: bug-fix + refactor
 priority: medium
 size: S
 created: 2026-04-24
-qa-early-consultation: docs/retrospectives/qa.md 2026-04-24 K-041 (PM proxy tier — scope narrow: 4 files + 1 spec flip, Sacred table pre-locked)
+qa-early-consultation: "docs/retrospectives/qa.md 2026-04-24 K-041 (PM proxy tier — scope narrow: 4 files + 1 spec flip, Sacred table pre-locked)"
 triggered-by: K-040 post-close BQ-040-03 user override (2026-04-23)
 related:
   - K-023  # Sacred: Homepage marker borderRadius=0

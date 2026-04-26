@@ -164,7 +164,7 @@ The following three excerpts are selected for their concrete root cause, structu
 
 > **Source:** [docs/retrospectives/architect.md](./retrospectives/architect.md) — "K-008 W2/S3 Bug Found Protocol 反省"
 >
-> *"設計階段只列出「default glob 吃 → 加 `testIgnore`」「default glob 不吃 → 沿用」兩種分支（ticket §6.2），漏掉第三分支「default 不吃但 CLI 指檔也被擋」。根因：我把 Playwright `testMatch` 當成「只影響 default discover」的過濾器，沒去查 CLI file argument 是否也會套同一 glob；這屬於 Architect 沒把「配置行為邊界」查完整就假設分支窮舉，本質上是「沒實測就下窮舉結論」的錯誤。"*
+> *"During the design phase I enumerated only two branches — 'default glob matches → add `testIgnore`' and 'default glob does not match → reuse as-is' (ticket §6.2) — and missed the third branch: 'default does not match, but CLI-specified files are still filtered out.' Root cause: I treated Playwright `testMatch` as a filter that only affects default discovery, without checking whether CLI file arguments are subject to the same glob. This is an Architect failing to fully investigate the configuration's behavioral boundary before assuming the branch enumeration was exhaustive — fundamentally, it's the error of 'concluding exhaustiveness without empirical verification.'"*
 >
 > **Lesson codified:** Design-phase branch enumeration must use a truth table (`config × run mode = all combinations`), not imagination. "I think these are all the cases" is not sufficient. For K-008 W2, `testMatch × run mode {default, --list, file-arg, --project}` had a third branch the Architect did not enumerate. The truth table approach is now required in Architect persona.
 

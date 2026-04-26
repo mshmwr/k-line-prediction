@@ -9,7 +9,7 @@ size: large
 visual-delta: none
 content-delta: none
 design-locked: N/A
-qa-early-consultation: N/A — reason: backlog stub, not ready for release
+qa-early-consultation: "N/A — reason: backlog stub, not ready for release"
 dependencies: [K-046]
 ---
 
