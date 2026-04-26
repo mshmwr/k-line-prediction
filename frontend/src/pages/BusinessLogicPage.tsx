@@ -103,7 +103,7 @@ export default function BusinessLogicPage() {
       )}
 
       {authState === 'LOADING_CONTENT' && (
-        <LoadingSpinner label="載入內容中…" />
+        <LoadingSpinner label="Loading content..." />
       )}
 
       {authState === 'SHOW_ERROR' && (
