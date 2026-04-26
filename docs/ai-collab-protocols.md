@@ -138,9 +138,9 @@ The following three excerpts are selected for their concrete root cause, structu
 
 #### [Engineer] 2026-04-18 — K-008 W4: env var as tainted source
 
-> **Source:** [docs/retrospectives/engineer.md](./retrospectives/engineer.md) — "K-008 W1/W3/W4 Bug Found Protocol 反省"
+> **Source:** [docs/retrospectives/engineer.md](./retrospectives/engineer.md) — "K-008 W1/W3/W4 Bug Found Protocol Retrospective"
 >
-> *"W4 根因（`TICKET_ID` env var 無 whitelist，path traversal）：我把 `process.env.TICKET_ID` 視為「開發者自己打指令傳進來的 trusted 字串」，完全沒把它當作「外部輸入 → filesystem sink（`path.join` → `fs.writeFileSync`）」的 tainted source 對待。思維定勢：env var 是 dev 手打，不是網路來的 request → 不需要 validate。但 input sanitization 的判準不該是「誰打的」，而是「這個值流到哪」。"*
+> *"W4 root cause (`TICKET_ID` env var without a whitelist, path traversal): I treated `process.env.TICKET_ID` as a 'trusted string the developer typed in themselves' and did not treat it as a tainted source flowing through the chain 'external input → filesystem sink (`path.join` → `fs.writeFileSync`)'. The mental shortcut: env var is hand-typed by the developer, not a request from the network → no need to validate. But the criterion for input sanitization should not be 'who typed it' — it should be 'where this value flows to'."*
 >
 > **Lesson codified:** Sanitize by sink, not by source. Any value — regardless of origin — that flows into `fs.*` / `path.*` / `shell.*` / `URL.*` requires allow-list validation at the point of use. This rule is now in MEMORY.md and Engineer persona.
 
@@ -150,7 +150,7 @@ The following three excerpts are selected for their concrete root cause, structu
 
 #### [Engineer] 2026-04-18 — K-002: And-clause systematic omission
 
-> **Source:** [docs/retrospectives/engineer.md](./retrospectives/engineer.md) — "K-002 And-clause 系統性遺漏"
+> **Source:** [docs/retrospectives/engineer.md](./retrospectives/engineer.md) — "K-002 And-clause Systematic Omission"
 >
 > *"The And-clause for SectionHeader icons (AC-002-ICON And 3) was silently skipped during implementation because I habitually parse AC as Given/When/Then and treat And-clauses as secondary. The bug passed Engineer, Architect-review, and QA gates before Code Review caught it. From this ticket onward, every implementation starts by enumerating all Then/And clauses as a flat checklist, and every And gets a Playwright assertion."*
 >
@@ -162,7 +162,7 @@ The following three excerpts are selected for their concrete root cause, structu
 
 #### [Architect] 2026-04-18 — K-008 W2/S3: truth table discipline for config × execution timing
 
-> **Source:** [docs/retrospectives/architect.md](./retrospectives/architect.md) — "K-008 W2/S3 Bug Found Protocol 反省"
+> **Source:** [docs/retrospectives/architect.md](./retrospectives/architect.md) — "K-008 W2/S3 Bug Found Protocol Retrospective"
 >
 > *"During the design phase I enumerated only two branches — 'default glob matches → add `testIgnore`' and 'default glob does not match → reuse as-is' (ticket §6.2) — and missed the third branch: 'default does not match, but CLI-specified files are still filtered out.' Root cause: I treated Playwright `testMatch` as a filter that only affects default discovery, without checking whether CLI file arguments are subject to the same glob. This is an Architect failing to fully investigate the configuration's behavioral boundary before assuming the branch enumeration was exhaustive — fundamentally, it's the error of 'concluding exhaustiveness without empirical verification.'"*
 >
