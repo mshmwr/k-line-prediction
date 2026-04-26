@@ -153,7 +153,7 @@ def _fetch_30d_ma_series(anchor_end_time: str, ma_history_1d: list, time_index: 
     prefix_bars = ma_history_1d[prefix_start:window_start]
 
     combined_closes = _extract_closes(prefix_bars) + _extract_closes(window_bars)
-    if len(combined_closes) < MA_WINDOW:
+    if len(combined_closes) < MA_TREND_WINDOW_DAYS + MA_WINDOW:
         return []
 
     ma_full = _rolling_mean(combined_closes, MA_WINDOW)
@@ -332,7 +332,7 @@ def find_top_matches(
     if not query_30d_ma:
         raise ValueError(
             f"Unable to compute 30-day MA99 trend for {input_end_time}: "
-            "ma_history requires at least 129 daily bars ending at that date."
+            f"ma_history requires at least {MA_TREND_WINDOW_DAYS + MA_WINDOW} daily bars ending at that date."
         )
     query_direction = _classify_trend_by_pearson(query_30d_ma)
     _1d_index = _history_time_index(ma_history, '1D')
