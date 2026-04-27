@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-052",
+    "title": "Ticket-derived SSOT — site-content.json + Sacred Registry + JSON-driven frontend",
+    "date": "2026-04-27",
+    "text": "Built the ticket-corpus generator (scripts/build-ticket-derived-ssot.mjs) that reads all docs/tickets/*.md once and emits three targets: content/site-content.json (auto-filled metrics — features shipped, AC coverage, post-mortems, lessons codified — plus hand-edited stack[], processRules[], renderSlots), docs/sacred-registry.md (Sacred clause lifecycle registry tracking active/retired regression-invariant ACs with SHA-256 body hashes), and README.md STACK + NAMED-ARTEFACTS marker blocks; the direction is JSON-is-source for all three outputs. Wired MetricsStripSection.tsx and ProjectLogicSection.tsx to import from the SSOT via a new Vite alias @/content so no values are hardcoded in component files. Backfilled five closed tickets (K-021/K-031/K-035/K-040/K-046) with sacred-clauses frontmatter and produced a 7-entry registry (6 active, 1 retired) on first generation. Pre-commit hook extended to run --check on staged SSOT files, and the prebuild script regenerates the SSOT before every frontend build."
+  },
+  {
     "ticketId": "K-054",
     "title": "README cleanup + BFP narrative (translation split to K-055)",
     "date": "2026-04-26",

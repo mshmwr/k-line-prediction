@@ -1,7 +1,9 @@
 ---
 id: K-052
 title: Ticket-derived SSOT — site-content (About/Home metrics + stack) + sacred-registry
-status: open
+status: closed
+closed: 2026-04-27
+closed-commit: 5f7ceba
 type: feat
 priority: high
 created: 2026-04-26
@@ -423,3 +425,25 @@ K-052 worktree creation (`K-052-content-ssot`) and Architect dispatch happen ONL
 **Edge cases not anticipated:** Bootstrap script's multiline regex used JS-unsupported `\Z` anchor (last bullet silently dropped); position-based slicing fixed before commit. REPO_ROOT + CANONICAL_REPO_ROOT split required for worktree-vs-canonical path correctness — not anticipated before implementation.
 
 **Next time improvement:** For any generator that runs from a worktree `scripts/` directory, compute REPO_ROOT (worktree local) and CANONICAL_REPO_ROOT (via `git rev-parse --git-common-dir`) as separate variables in the first 10 lines, and log both before any file I/O. Catches worktree path traps immediately rather than mid-execution.
+
+### PM
+
+**What went well:** Single-parse generator architecture (one `parseTicketCorpus()` → 3 frozen-object writers) prevented cross-writer inconsistency without adding complexity. Chinese full-width colon regex bug (`：` U+FF1A not in `[\s—:\[]`) was surfaced immediately on the first Sacred backfill run — fix was a one-character pattern change (`(?:[^\n]*)?`) with no logic impact. 5-ticket Sacred backfill + generator regeneration completed in a single commit, making the new Sacred lifecycle machinery self-consistent from first commit. Pre-commit hook sequencing (K-052 check appended after K-039 check) means hook exits non-zero on any SSOT drift without double-scanning the ticket corpus.
+
+**What went wrong:** AC-K052-15/17 (designer.md + pm.md persona grep checks) failed during Phase 5 QA because greps ran against `~/.claude/agents/` symlink pointing to Diary main-branch files — the `config-K052-persona-patches` Diary PR had not yet merged. This was a sequencing issue, not a code bug, but it delayed QA sign-off and required a separate Diary config PR merge before the K-Line PR could close. Root cause: the ticket design assumed persona patches would land before Phase 5 dispatch; in practice, they were dispatched in the same session without the sequencing barrier being enforced up front.
+
+**Next time improvement:** When a ticket's ACs depend on config-repo persona patches, the ticket's §Phase Gate Checklist must include an explicit "Diary config PR merged and symlink resolved?" gate (verified via `grep -n <pattern> ~/.claude/agents/<file>.md`) BEFORE Phase 5 QA dispatch. The gate is trivially checkable and costs one Bash call; skipping it forces a patch-and-rerun cycle that extends the session.
+
+## Release Status
+
+- `site-content.json review: added — 5 processRules[] entries seeded via bootstrap (engineer/architect/PM workflow/Sacred-reconcile/reviewer-depth); initial schema establishes ticketAnchor + severity + weight formula for all future K-052-successor updates.`
+- Engineer-made visual change scan: MetricsStripSection.tsx and ProjectLogicSection.tsx read values from JSON SSOT (no hardcoded Tailwind px literals introduced). Vite alias `@/content` added — not a visual change.
+- BQ closure: 14 resolved (BQ 1–3 + Zone 1–2 + remaining sub-BQs per §BQ Resolution Lock-Ins table) / 0 deferred-to-TD / 0 open.
+- Sacred-registry initial dump audit: 6 active entries (K-031 / K-035×3 / K-040 / K-046) + 1 retired (K-021 retired-by K-035) = 7 total; spot-checked K-035 AC-035-FOOTER-UNIFIED body verbatim match ✓; K-040 AC-040-SITEWIDE-FONT-MONO body match ✓; K-046 AC-046-REGRESSION-SACRED body match ✓.
+- Deploy: pending — Phase B (diary.json + this ticket close) precedes deploy; Firebase Hosting deploy to run after Phase B PR merges.
+
+## Deploy Record
+
+**Deploy date:** pending Phase B PR merge
+**Git SHA at deploy:** `5f7ceba` (squash-merge SHA on main)
+**Status:** Phase B in progress

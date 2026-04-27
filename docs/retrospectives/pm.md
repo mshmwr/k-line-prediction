@@ -2,6 +2,16 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-27 — K-052 close (ticket-derived SSOT — generator + Sacred Registry + JSON-driven frontend)
+
+**What went well:** Single-parse generator architecture was the right call — the `parseTicketCorpus()` → 3-writer pattern made the Chinese full-width colon regex bug (`：` U+FF1A) immediately visible on the first Sacred backfill run, rather than hiding in an inconsistent corpus snapshot that only 1 of 3 writers saw. Pre-commit hook integration (K-052 `--check` appended after K-039 check) runs on every staged SSOT file change without needing a separate CI job. Sacred 5-ticket backfill + registry regeneration landed in a single commit with no drift on first `--check` invocation after the regex fix.
+
+**What went wrong:** AC-K052-15/17 (persona grep checks for designer.md + pm.md) failed during Phase 5 QA because the Diary `config-K052-persona-patches` PR had not yet merged — `~/.claude/agents/` symlink pointed to Diary main-branch, not the unmerged patch branch. Sequencing was correct (Diary config PR merged first, then K-Line PR), but the Phase 5 dispatch happened before the merge was confirmed, adding an unnecessary re-verify cycle.
+
+**Next time improvement:** For any ticket whose ACs include persona grep checks, add an explicit gate item to the §Phase Gate Checklist: "Diary config PR merged and live on symlink? (verify: `grep -n <pattern> ~/.claude/agents/<file>.md` → hits ✓ / 0 = BLOCK)." This is a one-Bash-call check that costs nothing and prevents the re-verify cycle.
+
+---
+
 ## 2026-04-27 — K-056 close (status flip in-progress → done) [trivial]
 
 No observation — single-line frontmatter flip + closed date for ticket close. Full PR-D retro covers the substance (next entry below). Sequence violation noted: PR opened before retro entry; appended same-PR follow-up commit per `feedback_docs_only_pr_retro_sequence.md` rather than opening a remediation PR.
