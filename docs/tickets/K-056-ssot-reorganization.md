@@ -249,6 +249,63 @@ Every line of inner CLAUDE.md (198 lines pre-PR-C) gets a destination. Zero rows
 - `grep -c "## Read SSOT before task" ~/.claude/agents/{pm,senior-architect,engineer,reviewer,qa,designer}.md` → 1 hit per file (6/6); `grep -c "ssot/" ~/.claude/agents/{pm,senior-architect,engineer,reviewer,qa,designer}.md` → pm:3, senior-architect:11, engineer:7, reviewer:3, qa:3, designer:2 (all ≥2). Original plan probe pattern `grep "Read.*ssot/"` matched 0 because section header puts "Read" on a separate line from "ssot/" bullets — semantic check still passes.
 - Layer 1b 6-scenario probe: skipped per token-cost analysis; replaced by mechanical line-mapping in this table + grep verification.
 
+## Layer 1a — Rule Inventory Table (outer ClaudeCodeProject/CLAUDE.md, PR D gate)
+
+Every line of outer `ClaudeCodeProject/CLAUDE.md` (66 lines pre-PR-D) gets a destination.
+
+| Source line range (outer CLAUDE.md) | Rule | Destination | Reason |
+|----|----|----|----|
+| L1–L5 | Title + `## Project Overview` (1 line description) | outer CLAUDE.md slim header | KEEP — preserved verbatim |
+| L7 | Pointer to `agent-context/conventions.md` | outer CLAUDE.md SSOT Routing table (rewritten) | REPLACE — table replaces flat pointer |
+| L11–L19 | `## BDD Development Workflow` (3 steps + PRD.md location) | outer `ssot/conventions.md §BDD Workflow` | MOVE — on-demand SSOT |
+| L21–L25 | `## Tech Stack` (TS/React + Python/FastAPI + naming convention) | outer `ssot/conventions.md §Tech Stack` | MOVE |
+| L27–L29 | `## Debugging Guidelines` lead bullet (snake_case ↔ camelCase) | outer `ssot/conventions.md §Debugging Guidelines` | MOVE |
+| L31–L38 | `### When to Use a Sub-Agent for Tracing` | outer `ssot/conventions.md §Debugging Guidelines § When to spawn a sub-agent for tracing` | MOVE |
+| L40–L48 | `### Parallel Agents for Cross-Layer Changes` (4-step protocol) | outer `ssot/conventions.md §Cross-Layer Changes` (also absorbs inner CLAUDE.md L114–L131 DELETE-INNER from PR C) | MERGE — inner+outer 4-step protocol consolidated |
+| L50–L54 | `## Frontend Changes` (Playwright post-edit gate) | outer `ssot/conventions.md §Frontend Changes` | MOVE |
+| L56–L61 | `## Test Data Realism` (≥2 future_ohlc + new field sync) | outer `ssot/conventions.md §Test Data Realism` | MOVE |
+| L63–L66 | `## Git Workflow` (pre-commit gate + tsc must exit 0) | outer `ssot/conventions.md §Git Workflow` | MOVE |
+
+**Plus relocations (PR D D7 file moves):**
+
+| Source file (66+123+67 lines) | Destination | Reason |
+|----|----|----|
+| `ClaudeCodeProject/agent-context/architecture.md` (123 lines, Chinese) | `ClaudeCodeProject/ssot/monorepo-overview.md` (English, TradingView row removed) | RELOCATE+TRANSLATE — frontmatter `type: reference`; per K-056 plan D6 strip TradingView mentions during file move; per global CLAUDE.md §Language rollout translate edited file to English |
+| `ClaudeCodeProject/agent-context/conventions.md` (67 lines, Chinese) | merged into `ClaudeCodeProject/ssot/conventions.md` (English, expanded) | RELOCATE+TRANSLATE+MERGE — frontmatter `type: ruleset`; merged with content extracted from outer CLAUDE.md L11–L66; English translation applied |
+| `ClaudeCodeProject/agent-context/` (directory) | DELETED after move | CLEANUP |
+
+**Verification probe outputs (run during PR D):**
+- `wc -l ClaudeCodeProject/CLAUDE.md` post-slim → 12 lines (target ≤10, accepted: 2-line overshoot is the SSOT Routing table 4-row body; substance over cosmetic).
+- `wc -l ClaudeCodeProject/ssot/conventions.md` → 127 lines (absorbs CLAUDE.md L11–L66 + agent-context/conventions.md content + Cross-Layer 4-step protocol from inner CLAUDE.md PR C deletion).
+- `wc -l ClaudeCodeProject/ssot/monorepo-overview.md` → 103 lines (was 123 lines pre-translate; condensed by removing TradingView dormant row + related historical commentary).
+- Frontmatter sanity: outer `ssot/{monorepo-overview,conventions}.md` both carry `type:` ✓.
+- `ls ClaudeCodeProject/agent-context/` → directory removed ✓.
+
+## Layer 3 — Final Regression Sweep (post-PR-D)
+
+After PR D merges into both inner + outer main:
+
+1. **Reference integrity sweep**:
+   - `grep -r "agent-context/" ClaudeCodeProject/` (excluding K-056 plan-archive + retro historical) → 0 hits expected.
+   - `grep -r "K-Line-Prediction/PRD\.md\b" .` (excluding `ssot/PRD.md`) → 0 hits expected.
+   - `grep -r "TradingView" .` (excluding K-056 ticket plan-archive + retro historical) → 0 hits expected.
+2. **Frontmatter sanity**: every `ssot/*.md` file has `type:` frontmatter (inner: 6 files; outer: 2 files).
+3. **Line count check**: `wc -l K-Line-Prediction/CLAUDE.md` = 37 (target ≤30; overshoot accepted in PR C); `wc -l ClaudeCodeProject/CLAUDE.md` = 12 (target ≤10; overshoot accepted in PR D).
+4. **Layer 1b deferred-risk validation**: scenarios #1 (cross-layer) + #4 (deploy) fired against final state; if behavior matches pre-PR baseline qualitatively (same files Read, same rules cited), Layer 1b skip is validated; if drift surfaces, codify into `feedback_ssot_restructure_skip_layer1b_risk.md`.
+
 ## Retrospective
 
-(Filled when D merges and Layer 3 regression completes.)
+### 2026-04-27 PR D close — outer ssot/ scaffold + outer CLAUDE.md slim 66→12
+
+**What went well:**
+- 4-step parallel-agent protocol consolidated in one location (outer `ssot/conventions.md §Cross-Layer Changes`) — was previously duplicated across inner CLAUDE.md L114–L131 (deleted PR C) and outer CLAUDE.md L40–L48. Now single source.
+- Layer 1a Rule Inventory Table for outer CLAUDE.md L1–L66 caught zero silent drops; every line maps to a destination.
+- agent-context/ directory fully retired across both inner (PR C) and outer (PR D); `ls ClaudeCodeProject/agent-context/` and `ls K-Line-Prediction/agent-context/` both return "No such file or directory" post-merge.
+
+**What went wrong:**
+- Outer CLAUDE.md target ≤10 lines overshot by 2 (landed at 12). Same root cause as PR C (37 vs 30 target): plan-mode line-count targets set without modeling structural floor (description + Routing table 4 rows minimum = 12 lines). Single recurring lesson: future SSOT-restructure tickets should size targets against actual structural floor before committing to a number.
+- Initial `git mv` failed because target directory `ClaudeCodeProject/ssot/` did not exist (`mkdir -p` was needed first). Trivial fix; one-time cost.
+
+**Codification plan:**
+- Single combined memory candidate (deferred to PR D close session): `feedback_ssot_restructure_line_count_floor.md` — codify "size CLAUDE.md target against structural floor (description + Tech Stack + Routing table + Behavior Triggers table + persona-overrides pointer, ~30 lines for inner / ~10–12 for outer) before committing to a numerical goal". Both PR C and PR D overshot by the same root cause; recurring → memory eligible.
+- Ticket K-056 final status → done after Layer 3 regression sweep passes.
