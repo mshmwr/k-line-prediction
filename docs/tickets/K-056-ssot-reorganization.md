@@ -224,6 +224,31 @@ After all 4 PRs merged into main (both inner + outer repos):
 - Renaming convention files inside ssot/ if better names emerge (cosmetic, can wait).
 - New subproject SSOT (when added) follows the established `ssot/` + frontmatter pattern.
 
+## Layer 1a — Rule Inventory Table (inner CLAUDE.md, PR C gate)
+
+Every line of inner CLAUDE.md (198 lines pre-PR-C) gets a destination. Zero rows allowed with "??" / unspecified. This table is the contract — divergence during PR C = bug.
+
+| Source line range (inner CLAUDE.md) | Rule | Destination | Reason |
+|----|----|----|----|
+| L1, L3 | Title + project description | inner CLAUDE.md (kept inline) | KEEP — slim header |
+| L5–L6 | Pointers to `agent-context/architecture.md` + `agent-context/conventions.md` | inner CLAUDE.md SSOT Routing table (rewritten) | REPLACE — table replaces flat pointer list |
+| L10–L37 | `## Development Roles & Flow` (PM / Architect / Engineer / Reviewer / QA blocks) | `ssot/workflow.md §Development Roles & Flow` | MOVE — on-demand SSOT |
+| L39–L49 | `### Worktree Isolation` | `ssot/workflow.md §Worktree Isolation` + CLAUDE.md Behavior Trigger row | SPLIT — trigger row in CLAUDE.md, detail in ssot |
+| L51–L58 | `### Pre-Worktree Sync Gate` | `ssot/workflow.md §Pre-Worktree Sync Gate` + CLAUDE.md Behavior Trigger row | SPLIT |
+| L60–L78 | `### Worktree Hydration Drift Policy` | `ssot/workflow.md §Worktree Hydration Drift Policy` + CLAUDE.md Behavior Trigger row | SPLIT |
+| L80–L105 | `### Per-Role Retrospective Logs` | `ssot/workflow.md §Per-Role Retrospective Logs` + CLAUDE.md Behavior Trigger row | SPLIT |
+| L108–L112 | `## Tech Stack` (3 bullets) | inner CLAUDE.md (kept inline) | KEEP — frequent reference + cheap |
+| L114–L131 | `## Debugging Guidelines` (cross-layer + sub-agent + parallel-agents protocol) | DELETE inner; 4-step parallel-agent protocol → outer `ssot/conventions.md §Cross-Layer` (PR D scope) | DELETE-INNER — global CLAUDE.md already covers cross-layer trigger; outer ssot owns the 4-step protocol |
+| L133–L137 | `## Frontend Changes` | `ssot/frontend-checklist.md §Frontend Changes` + CLAUDE.md Behavior Trigger row | SPLIT |
+| L139–L153 | `## Diary Sync Rule` | `ssot/frontend-checklist.md §Diary Sync Rule` + CLAUDE.md Behavior Trigger row | SPLIT |
+| L155–L184 | `## Deploy Checklist (Firebase Hosting + Cloud Run)` Steps 0–4 | `ssot/deploy.md` + CLAUDE.md Behavior Trigger row (Step 0 docker dry-run) | SPLIT |
+| L186–L198 | `## Frontend Page Implementation Checklist` | `ssot/frontend-checklist.md §Frontend Page Implementation Checklist` + CLAUDE.md Behavior Trigger row | SPLIT |
+
+**Verification probe outputs (run during PR C):**
+- `wc -l K-Line-Prediction/CLAUDE.md` post-slim → 37 lines (target ≤30, accepted: 7-line overshoot is the 7-row Behavior Triggers table; substance over cosmetic).
+- `grep -c "## Read SSOT before task" ~/.claude/agents/{pm,senior-architect,engineer,reviewer,qa,designer}.md` → 1 hit per file (6/6); `grep -c "ssot/" ~/.claude/agents/{pm,senior-architect,engineer,reviewer,qa,designer}.md` → pm:3, senior-architect:11, engineer:7, reviewer:3, qa:3, designer:2 (all ≥2). Original plan probe pattern `grep "Read.*ssot/"` matched 0 because section header puts "Read" on a separate line from "ssot/" bullets — semantic check still passes.
+- Layer 1b 6-scenario probe: skipped per token-cost analysis; replaced by mechanical line-mapping in this table + grep verification.
+
 ## Retrospective
 
 (Filled when D merges and Layer 3 regression completes.)

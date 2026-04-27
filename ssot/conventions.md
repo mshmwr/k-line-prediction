@@ -1,15 +1,15 @@
 ---
 title: K-Line Prediction — Project Conventions
-type: reference
+type: ruleset
 tags: [K-Line-Prediction, Conventions]
-updated: 2026-04-09
+updated: 2026-04-27
 ---
 
 ## Summary
 
 K-Line Prediction 專案專屬規範。上層規範：
-- [ClaudeCodeProject 共用規範](../../agent-context/conventions.md)
-- [通用規範](../../../agent-context/conventions.md)
+- [ClaudeCodeProject 共用規範](../../../agent-context/conventions.md)
+- [通用規範](../../../../agent-context/conventions.md)
 
 ---
 

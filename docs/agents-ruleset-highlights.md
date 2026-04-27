@@ -10,7 +10,7 @@
 
 ## 1. Content-Alignment Gate (PM, K-044)
 
-**Rule:** For tickets with `content-delta: yes` on a user-voice file (README, portfolio copy, CV, roadmap text), PM inserts an explicit alignment gate between Architect return and Engineer release. PM surfaces verbatim to the user — not summaries — proposed section order, every rewritten paragraph ≥2 sentences, image/embed HTML, and any list add/remove/reorder. Engineer is not dispatched until the user responds. Internal dev docs (`agent-context/*.md`, retrospectives, tickets, architecture specs) are exempt.
+**Rule:** For tickets with `content-delta: yes` on a user-voice file (README, portfolio copy, CV, roadmap text), PM inserts an explicit alignment gate between Architect return and Engineer release. PM surfaces verbatim to the user — not summaries — proposed section order, every rewritten paragraph ≥2 sentences, image/embed HTML, and any list add/remove/reorder. Engineer is not dispatched until the user responds. Internal dev docs (`persona-overrides/*.md, ssot/*.md`, retrospectives, tickets, architecture specs) are exempt.
 
 **Bug it prevents:** K-044 — this README. PM was about to dispatch Engineer after Architect returned a good design doc. The user paused and said content framing (which paragraph opens, tagline tone, paragraph length) is user voice — not derivable from code or Pencil design. The rule was written after this pause, and this commit passed through it.
 
@@ -38,7 +38,7 @@
 
 ## 4. Global Style Route Impact Table (Architect, K-021)
 
-**Rule:** When the ticket's File Change List includes `index.css`, `tailwind.config.js`, or any sitewide CSS variable / token file, the design doc lists every route from `agent-context/architecture.md` and marks each **affected** / **must-be-isolated** / **unaffected**. For every must-be-isolated route, the design doc includes an explicit override spec. "Engineer decides" = design incomplete.
+**Rule:** When the ticket's File Change List includes `index.css`, `tailwind.config.js`, or any sitewide CSS variable / token file, the design doc lists every route from `ssot/system-overview.md` and marks each **affected** / **must-be-isolated** / **unaffected**. For every must-be-isolated route, the design doc includes an explicit override spec. "Engineer decides" = design incomplete.
 
 | Route | Status | Notes |
 |-------|--------|-------|
