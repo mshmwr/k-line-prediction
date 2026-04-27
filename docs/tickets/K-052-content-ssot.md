@@ -8,10 +8,33 @@ created: 2026-04-26
 visual-delta: yes
 design-locked: false
 content-delta: yes
-qa-early-consultation: pending — real qa required pre-Architect (schema + pre-commit hook + dual emit targets = runtime/infra layer; PM proxy not authorized)
+qa-early-consultation: ✓ → docs/retrospectives/qa.md 2026-04-27 K-052
 parent-plan: ~/.claude/plans/pm-ux-ux-wild-shore.md
 prerequisite: meta-engineer-challenge-gate PR merged to main (codifies Pre-Implementation Design Challenge Gate into engineer.md / senior-architect.md / pm.md personas; K-052 Architect dispatch BLOCKED until that lands)
 ---
+
+## BQ Resolution Lock-Ins (Phase 1 close, 2026-04-27)
+
+PM rulings on Phase 1 QA Early Consultation challenges. This table supersedes earlier BQ drafts in the parent plan file and is the in-ticket SOR for Architect Phase 2.
+
+| BQ / Zone | Decision | Impact on architecture |
+|---|---|---|
+| **BQ 1** — `featuresShipped` definition | **A — permissive** (count `K-*` with `status: closed`, no `closed-commit:` gate) | Card #1 reflects "shipped to main" intent loosely; Sacred-registry retains its own strict `closed-commit:` gate for retirement audit |
+| **BQ 2** — Card #4 metric | **B — replace `Guardrails in Place` with `Lessons Codified`**, auto-derived from `claude-config/memory/feedback_*.md` count | Removes manual-override field; emit pulls live count from memory feedback files; card label updates in `MetricsStripSection.tsx` |
+| **Zone 1** — README badge consistency | **B — structured stack `[{name, category, logo, color}]`** in JSON; README badges become 3rd JSON consumer via `<!-- STACK:start -->...<!-- STACK:end -->` marker block | Triple-emit pipeline: site-content.json + sacred-registry.md + README badge marker block. Marker pattern mirrors K-039 `<!-- ROLES:start -->` |
+| **Zone 2 — /about consumer** | **Z — defer to K-057** | K-052 builds SSOT + weight schema + auto-sync from README §Named Artefacts; /about Pencil-frame design + new section component deferred to K-057 (open same PR as K-052 close, orphan period < 1 week) |
+| **Zone 2 — weight calc** | **B — auto formula** `weight = recencyScore + severityScore` (recency decays from `addedAfter` ticket close date; severity = 3-tier tag `critical-blocker` / `warning` / `advisory`) | No PM action needed beyond severity tag when adding new processRule entry. Top-N rotation by sorted weight when consumer slot count < entry count |
+| **Designer persona patch** (Gap 1 + Gap 2 combined) | **Bundle into K-052 Architect design doc as a deliverable** — single-commit edit to `~/.claude/agents/designer.md` §Text fields are frozen-at-session snapshots | Gap 1: generalize L231 example from `roles.json` only → any `content/*.json` member, list metrics / processRules → about-v2.pen frame mapping. Gap 2: add §Weighted top-N layout slot sub-section (Designer defines N, content/*.json provides ordered list, runtime renders top-N by weight, Designer sets char/line constraints to prevent overflow per K-039 pattern) |
+| **BQ 3** — Sacred-detection rule + closed-commit gate | **A — frontmatter `sacred-clauses: [AC-XXX]` declaration + backfill 6 legacy Sacred-bearing tickets** (K-021 / K-031 / K-034 / K-035 / K-040 / K-046) with `closed-commit:` SHA + `sacred-clauses:` list | Generator only registers clauses listed in frontmatter (typo guard + invariant integrity); strict `closed-commit:` gate retained. First-run registry contains the 6 backfilled tickets + K-052's own clauses (~7-9 entries). Symmetric with `retires-sacred:` / `modifies-sacred:` family — three frontmatter fields form one Sacred lifecycle vocabulary. Backfill cost: ~12 lines patch across 6 tickets, single PM commit |
+
+**README is source-of-truth on overlap (user directive 2026-04-27):** when SSOT JSON and README §Named Artefacts duplicate content, README phrasing wins. SSOT generator reads README `<!-- NAMED-ARTEFACTS:start -->...<!-- NAMED-ARTEFACTS:end -->` marker block (Architect Phase 2 confirms exact marker name) to derive processRules entries. Display-count divergence between consumers is permitted and annotated per-entry in JSON (e.g. `homeSlots: 3, aboutSlots: 5`).
+
+**Triple-emit (final architecture):**
+1. `content/site-content.json` — Output 1 (frontend consumers: About + Home)
+2. `docs/sacred-registry.md` — Output 2 (PM/Architect repo-only tool)
+3. README badge marker block — Output 3 (renders via SSOT-driven marker injection, replaces hand-curated badge URL strings)
+
+**Architect Phase 2 input**: this table + the existing PRD §Architecture / §Schema / §Sacred-detection sections are the design-doc spec. README §Named Artefacts marker block is the source-of-truth for processRules entries — generator reads README and emits to JSON, never the other way. Designer persona patch (Gap 1 + Gap 2) is a K-052 deliverable, not a separate ticket.
 
 ## Goal
 
