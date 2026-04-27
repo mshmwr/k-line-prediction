@@ -16,6 +16,23 @@
 
 ---
 
+## 2026-04-27 — K-052 Phase 4 — Ticket-derived SSOT (build-ticket-derived-ssot.mjs)
+
+**What went well:**
+- Challenge sheet item #9 (category field case mismatch) caught before any Edit: JSON stack[] uses `Frontend`/`Backend`/`Tests`/`Hosting` as category labels (from README badge), not the lowercase semantic labels from the PM dispatch. Pre-read of site-content.json after bootstrap confirmed the case, and ProjectLogicSection filter was written against the actual JSON values.
+- Bootstrap one-shot script worked correctly on first run after fixing the multiline regex termination bug (last bullet not captured because JS `\Z` is unsupported — switched to position-based slicing). 5 processRules + 10 stack entries confirmed before committing JSON.
+- REPO_ROOT + CANONICAL_REPO_ROOT split correctly handles worktree vs canonical layout: REPO_ROOT from `join(__dirname, '..')` gives the worktree root for reading/writing local files; CANONICAL_REPO_ROOT from `git rev-parse --git-common-dir` + parent gives `K-Line-Prediction/` for computing cross-repo paths (claude-config). Both confirmed via node eval before committing.
+
+**What went wrong:**
+- First REPO_ROOT computation attempt used `git rev-parse --git-common-dir` for both REPO_ROOT and CLAUDE_CONFIG_PATH. This caused `README_PATH` to point to canonical `K-Line-Prediction/README.md` (no markers) instead of the worktree's README. Required a second pass to split into two separate variables.
+- Bootstrap regex used multiline JS `(?=^- \*\*|\Z)` — `\Z` is a Python/PCRE anchor not supported in JS. The last bullet was absorbed into the preceding bullet's body. Discovered by running the script and checking count (4 vs expected 5). Fix: switched to position-based slicing using header pattern offsets.
+
+**Next time improvement:**
+- When writing a Node.js generator that runs from a worktree `scripts/` directory, immediately compute and log both REPO_ROOT (worktree root) and CANONICAL_REPO_ROOT (canonical checkout) before any file I/O, and assert both are non-empty in a startup sanity check. This catches the worktree path trap in the first 5 seconds rather than discovering it mid-execution.
+- When using JS regex for multiline text splitting with a "lookahead until next section OR end-of-string" pattern, prefer position-based slicing (find all start positions, then slice between adjacent positions) over multiline lookahead regex — JS `/(?=^pattern|\Z)/m` silently drops last match; position slicing is O(N) and always catches the last entry.
+
+---
+
 ## 2026-04-26 — K-053 Scroll-to-top on route change
 
 **What went well:**

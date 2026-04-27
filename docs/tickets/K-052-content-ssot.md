@@ -416,4 +416,10 @@ K-052 worktree creation (`K-052-content-ssot`) and Architect dispatch happen ONL
 
 ## Retrospective
 
-(Populated at ticket close per `~/.claude/CLAUDE.md` §Daily Diary Style + per-role retros at `docs/retrospectives/<role>.md`.)
+### Engineer
+
+**AC judgments that were wrong:** None — AC-K052-06 regex assertions matched JSON-driven values correctly on first Playwright run.
+
+**Edge cases not anticipated:** Bootstrap script's multiline regex used JS-unsupported `\Z` anchor (last bullet silently dropped); position-based slicing fixed before commit. REPO_ROOT + CANONICAL_REPO_ROOT split required for worktree-vs-canonical path correctness — not anticipated before implementation.
+
+**Next time improvement:** For any generator that runs from a worktree `scripts/` directory, compute REPO_ROOT (worktree local) and CANONICAL_REPO_ROOT (via `git rev-parse --git-common-dir`) as separate variables in the first 10 lines, and log both before any file I/O. Catches worktree path traps immediately rather than mid-execution.
