@@ -4,7 +4,7 @@ role: engineer
 status: engineer-released
 handoff-from: pm
 handoff-date: 2026-04-23
-upstream-brief: docs/architecture/K-037-architect-brief.md
+upstream-brief: docs/designs/K-037-architect-brief.md
 upstream-ticket: docs/tickets/K-037-favicon-wiring.md
 branch: K-036-favicon (squashed with K-036 — same branch, no new worktree)
 ---
@@ -198,7 +198,7 @@ These are QA Challenge items worth re-reading before writing the spec:
 ## §Handoff Status
 
 - **Prepared:** 2026-04-23 by PM (capability disclosed in upstream brief — Agent tool unavailable this session; main-session PM prepared both Architect brief + this Engineer brief)
-- **Upstream:** `docs/architecture/K-037-architect-brief.md` §Architect Ruling (5 Qs resolved, no design doc needed)
+- **Upstream:** `docs/designs/K-037-architect-brief.md` §Architect Ruling (5 Qs resolved, no design doc needed)
 - **Ticket:** `docs/tickets/K-037-favicon-wiring.md` §Release Log — "Architect ruled no design doc; Engineer released 2026-04-23"
 - **Next gate:** Engineer delivers 4-file change → Code Reviewer (two-layer: superpowers breadth → Agent(reviewer) depth) → QA → PM close with PM+user Pencil `get_screenshot` side-by-side review
 - **Engineer scope discipline:** anything outside the frozen File Change Scope in §2 (e.g., editing `firebase.json`, adding `components/`, modifying existing `.spec.ts` files, touching `agent-context/`, changing the 5 Q contracts in §3) requires BQ to PM **before** editing

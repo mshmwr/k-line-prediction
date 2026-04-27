@@ -10,14 +10,14 @@ source: docs/tickets/K-011-loading-spinner-label.md#pm-裁決review-suggestions-
 
 ## 背景
 
-K-011 將 `LoadingSpinner` 由固定 `Running prediction...` 改為 `label?: string` prop，但 `docs/superpowers/specs/k002-component-spec.md:99,111` 仍描述舊行為。
+K-011 將 `LoadingSpinner` 由固定 `Running prediction...` 改為 `label?: string` prop，但 `docs/designs/k002-component-spec.md:99,111` 仍描述舊行為。
 
 此 spec 為 K-002 時間點的設計快照，改內容會扭曲歷史記錄；正確處理是加「Superseded by K-011」頭註，讓後續讀者知道該段落已不反映當前實作。
 
 ## 範圍
 
 **含：**
-- 在 `docs/superpowers/specs/k002-component-spec.md` 檔案最上方（frontmatter 之後 / 正文之前）加一行標註：
+- 在 `docs/designs/k002-component-spec.md` 檔案最上方（frontmatter 之後 / 正文之前）加一行標註：
   ```
   > **Note:** Portions of this spec describing `LoadingSpinner` (lines 99, 111) are superseded by [K-011](../../tickets/K-011-loading-spinner-label.md) on 2026-04-18. Spec content preserved as a K-002 design snapshot.
   ```
@@ -31,7 +31,7 @@ K-011 將 `LoadingSpinner` 由固定 `Running prediction...` 改為 `label?: str
 
 ### AC-016-HEADER：superseded 頭註存在且連結正確
 
-**Given** `docs/superpowers/specs/k002-component-spec.md`
+**Given** `docs/designs/k002-component-spec.md`
 **When** 讀取檔案
 **Then** frontmatter 之後出現 superseded 頭註
 **And** 頭註內 K-011 相對路徑可被 Markdown viewer 解析（`../../tickets/K-011-loading-spinner-label.md`）
