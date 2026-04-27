@@ -18,6 +18,9 @@ related:
   - K-022  # About structure v2 (missed shared Footer)
   - K-021  # sitewide design system (Footer was expected sitewide)
 worktree: .worktrees/K-035  # to be created when Phase 3 implementation is released
+closed-commit: e042262
+sacred-clauses: [AC-035-FOOTER-UNIFIED, AC-035-NO-DRIFT, AC-035-CROSS-PAGE-SPEC]
+retires-sacred: [AC-021-FOOTER]
 ---
 
 ## Summary
