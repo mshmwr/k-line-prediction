@@ -1,6 +1,10 @@
 # PM Retrospective Log — K-Line Prediction
 
-跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
+Cross-ticket cumulative reflection log. Each role agent appends one entry before declaring task complete, newest first.
+
+Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
+
+## 2026-04-27 — meta-retro-brevity-cap (governance) — retro logs drifted to 1700+ lines from verbose episodic dumps — codified into ssot/workflow.md §Retrospective Entry Brevity
 
 ## 2026-04-27 — K-052 close (ticket-derived SSOT — generator + Sacred Registry + JSON-driven frontend)
 
