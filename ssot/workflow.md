@@ -114,3 +114,24 @@ Entry format:
 
 - Rule: coexists with per-ticket `docs/tickets/K-XXX.md` `## Retrospective` section — not a replacement (per-ticket = current event; per-role log = cross-ticket cumulative learning)
 - K-001~007 not backfilled (mechanism didn't exist yet)
+
+### Retrospective Entry Brevity (hard cap, 2026-04-27)
+
+Per-role retrospective logs were drifting to 1000+ lines (QA 1721, PM 1447 as of 2026-04-27) because entries were dumping full episodic context — truth-tables, grep output, multi-paragraph reasoning — instead of extracting durable lessons. Apply the following hard caps:
+
+**Per-entry caps:**
+- **≤ 30 lines per entry** (including title + blank lines). Long episodic context goes into the PR conversation or commit SHA reference, not the retro log.
+- **One sentence per field.** `What went well` / `What went wrong` / `Next time improvement` each take one sentence stating event + decision/result.
+- **No verbatim dumps:** truth-tables, grep / ls / Read output, design-doc excerpts, multi-paragraph BQ reasoning are forbidden in retro entries. Reference by PR number, commit SHA, or design-doc anchor instead.
+- **Empty `What went well` is acceptable** when no specific event supports it — omit the line entirely; do not fabricate to fill format (per `feedback_retrospective_honesty.md`).
+
+**Codify-and-retire (same-commit gate):**
+- When a `Next time improvement` is codified into persona / `~/.claude/CLAUDE.md` / memory file, the retro entry must be rewritten in the same commit as a one-line stub:
+  `## YYYY-MM-DD — <ticket> — <one-line root cause> — codified into <persona.md#anchor>`
+- Stub-rewrite is mandatory; leaving the verbose entry alongside the codified rule is a recurring violation pattern (per Promote-and-retire rule in `~/.claude/CLAUDE.md` §Memory Maintenance).
+
+**Reviewer enforcement:**
+- Reviewer rejects any retro entry exceeding 30 lines or containing forbidden dumps. Author must restructure before merge.
+- Reviewer also rejects entries that codified a rule into persona/memory without stub-rewriting the corresponding retro entry in the same PR.
+
+**Rationale:** extraction-style entries match industry best practice (mem0 ~14x token reduction; JetBrains 2025-12 observation-masking research showing summaries cause +15% trajectory elongation). Verbose retro entries hide the actionable signal and inflate context-load cost on every `/retrospect` run.
