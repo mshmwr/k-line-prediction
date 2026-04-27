@@ -14,8 +14,8 @@ created: 2026-04-19
 
 ## Spec & Plan
 
-- Spec: `docs/superpowers/specs/2026-04-19-release-versioning-design.md`
-- Plan: `docs/superpowers/plans/2026-04-19-release-versioning-ci.md`
+- Spec: `docs/designs/2026-04-19-release-versioning-design.md`
+- Plan: `docs/designs/2026-04-19-release-versioning-ci.md`
 
 ## Acceptance Criteria
 

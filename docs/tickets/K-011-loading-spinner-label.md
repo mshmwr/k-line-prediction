@@ -124,13 +124,13 @@ Codex code review 2026-04-18 發現 `frontend/src/components/common/LoadingSpinn
 
 **下次改善：**
 - Review 發現「架構文件 drift 根因是本次改動」且改動極小（單行）時，直接建議本票內修；同時回饋 Architect 裁決「無需 Architecture」流程補一句 checklist：「grep 組件名於 architecture.md，有過期描述列入 Engineer scope」。
-- 面對已歸檔的設計 spec（`docs/superpowers/specs/*-design.md`），不強求同步內容，建議加「superseded by K-XXX」頭註，避免扭曲歷史快照。
+- 面對已歸檔的設計 spec（`docs/designs/*-design.md`），不強求同步內容，建議加「superseded by K-XXX」頭註，避免扭曲歷史快照。
 
 **Drift 裁決：**
 | Drift | 檔案 | 裁決 | 理由 |
 |------|------|------|------|
 | A | `agent-context/architecture.md:139` | **本票內修（建議 PM 放行 Engineer 補一行）** | 一行註解、不改設計、K-010 Architect 守則要求同步；留著會誤導下個 agent |
-| B | `docs/superpowers/specs/k002-component-spec.md:99,111` | **不改內容，建議加 superseded 頭註（可拆小 ticket）** | spec 是 K-002 設計快照，改會扭曲歷史；加「superseded by K-011」即可 |
+| B | `docs/designs/k002-component-spec.md:99,111` | **不改內容，建議加 superseded 頭註（可拆小 ticket）** | spec 是 K-002 設計快照，改會扭曲歷史；加「superseded by K-011」即可 |
 | C | `frontend/design/homepage.pen` | **拆 ticket → 技術債** | Designer agent 範圍，需 Pencil MCP 操作，不在 Engineer scope |
 
 **Review 結論：pass with suggestions（無 Critical / 無 Warning / 1 本票內修建議 + 2 drift 拆單建議）。**
@@ -140,7 +140,7 @@ Codex code review 2026-04-18 發現 `frontend/src/components/common/LoadingSpinn
 | Drift | 檔案 | 裁決 | 理由 / 行動 |
 |------|------|------|------------|
 | A | `agent-context/architecture.md:139` | **本票內修（in-scope）** | 單行註解改動、K-010 起 Architect 守則要求結構/介面變更必同步 architecture.md；留著會誤導下個 agent。指示 Engineer 補完 — 將該行「← K-011 將加 label prop（目前固定『Running prediction...』）」改為反映新事實「← 接受 `label?: string` prop，各呼叫處傳入情境文案（K-011 完成 2026-04-18）」。不改本票 status=in-progress，Engineer 補完後才交 QA。 |
-| B | `docs/superpowers/specs/k002-component-spec.md:99,111` | **拆新 ticket K-016（low priority）** | 已歸檔的設計 spec 是 K-002 時間點快照，改內容會扭曲歷史；正確作法是加「Superseded by K-011 (2026-04-18)」頭註，本票 scope 不含 spec 歸檔規範，拆小票單獨處理。 |
+| B | `docs/designs/k002-component-spec.md:99,111` | **拆新 ticket K-016（low priority）** | 已歸檔的設計 spec 是 K-002 時間點快照，改內容會扭曲歷史；正確作法是加「Superseded by K-011 (2026-04-18)」頭註，本票 scope 不含 spec 歸檔規範，拆小票單獨處理。 |
 | C | `frontend/design/homepage.pen` | **登記技術債 TD-011** | Designer agent 範圍、需 Pencil MCP 操作 + 截圖驗證，工具鏈與 Engineer scope 不同；排在下次 Designer 進場時一併同步。 |
 
 **Scope 增補（Drift A）：** 本票 AC 追加一條隱性驗收「architecture.md:139 行內 LoadingSpinner 描述反映 label prop 新行為」。Engineer 執行步驟：

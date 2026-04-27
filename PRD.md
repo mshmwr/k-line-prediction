@@ -305,13 +305,13 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 - **Status:** backlog / type: docs
 - **Ticket:** [docs/tickets/K-016-k002-spec-superseded-header.md](docs/tickets/K-016-k002-spec-superseded-header.md)
-- **摘要：** `docs/superpowers/specs/k002-component-spec.md` frontmatter 後加 superseded 頭註，指向 K-011（LoadingSpinner 文案變更）。
+- **摘要：** `docs/designs/k002-component-spec.md` frontmatter 後加 superseded 頭註，指向 K-011（LoadingSpinner 文案變更）。
 
 **AC：**
 
 #### AC-016-HEADER：superseded 頭註存在且連結正確
 
-- **Given** `docs/superpowers/specs/k002-component-spec.md`
+- **Given** `docs/designs/k002-component-spec.md`
 - **When** 讀取檔案
 - **Then** frontmatter 之後出現 superseded 頭註
 - **And** 頭註內 K-011 相對路徑可被 Markdown viewer 解析（`../../tickets/K-011-loading-spinner-label.md`）
@@ -341,8 +341,8 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 - **Status:** backlog / type: feat
 - **Ticket:** [docs/tickets/K-019-release-versioning-ci.md](docs/tickets/K-019-release-versioning-ci.md)
-- **Spec:** `docs/superpowers/specs/2026-04-19-release-versioning-design.md`
-- **Plan:** `docs/superpowers/plans/2026-04-19-release-versioning-ci.md`
+- **Spec:** `docs/designs/2026-04-19-release-versioning-design.md`
+- **Plan:** `docs/designs/2026-04-19-release-versioning-ci.md`
 - **摘要：** Release version 與 CI/CD 流程設計，AC 於 spec AC-K019-1 ~ AC-K019-5。
 
 **AC：** 見 ticket 引用 spec。

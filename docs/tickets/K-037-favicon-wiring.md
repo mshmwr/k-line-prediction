@@ -198,7 +198,7 @@ Per user instruction "design doc likely NOT needed; recommend Architect skip des
 
 ### 2026-04-23 — Architect ruled no design doc; Engineer released
 
-- **Architect ruling:** no design doc needed (concur with PM pre-recommendation). Recorded in `docs/architecture/K-037-architect-brief.md` §Architect Ruling. Rationale: zero backend / zero route / zero component tree / zero props interface / zero cross-layer contract / zero shared-component propagation; all 4 files are single-purpose single-layer edits (~110 LOC total).
+- **Architect ruling:** no design doc needed (concur with PM pre-recommendation). Recorded in `docs/designs/K-037-architect-brief.md` §Architect Ruling. Rationale: zero backend / zero route / zero component tree / zero props interface / zero cross-layer contract / zero shared-component propagation; all 4 files are single-purpose single-layer edits (~110 LOC total).
 - **§Triage architecture.md grep:** 2 hits (L285 SPA fallback FileResponse, L489 Google Fonts preconnect), neither describes favicon/manifest — no drift; K-037 is a net-add.
 - **Changelog landed:** `agent-context/architecture.md` L666 — `2026-04-23 (Architect, K-037 triage — no structural change)` one-line entry.
 - **5 open technical questions resolved (binding contracts; see Engineer brief §3 for verbatim):**
