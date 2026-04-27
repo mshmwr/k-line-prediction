@@ -1756,3 +1756,9 @@ text-muted on paper at 12px (text-xs) = 4.84:1 contrast — passes WCAG AA 4.5:1
 **沒做好：** 未跑 Vitest coverage 確認 Engineer 是否意外讓既有 test skip 或改判（只看 pass 數無法偵測「斷言被削弱」），本次靠 review 手動檢查 test diff 間接證明，程序上有漏洞；截圖 script 仍缺（K-008 未實作 cycle #6），本次跳過但流程定義上 QA 尾段是缺的。
 
 **下次改善：** (1) 日後 Vitest 涉及改寫斷言的 ticket，QA 必加跑 `npm test -- --run --coverage` 比對 coverage diff（或至少 read 改動的 test 原/新 diff）再聲明 PASS；(2) 在 K-008 實作前，QA 的「截圖報告」欄位採固定「跳過（K-008 未完成）」而不逕自聲稱流程完整，避免 PM 誤解。
+
+## 2026-04-27 — K-052 Phase 5 Sign-off
+
+**What went well:** AC-K052-14 drift tests (both cases) passed cleanly; sacred-registry 6+1 count correct; lessonsCodified count matched local (173=173).
+**What went wrong:** AC-K052-15 and AC-K052-17 persona patches (designer.md + pm.md) were not applied before Phase 5 QA — design doc §15/§17 specified "PM persona owner applies," but no commit evidence found; 2 pre-existing E2E failures (pages.spec.ts AC-023-DIARY-BULLET, shared-components.spec.ts footer snapshot) not K-052-introduced but unresolved; processRules schema gap (missing `lastReviewed`/`docHref`, extra `aboutSlots`/`homeSlots`/`ticketAnchor`) diverges from AC-K052-01 §5.3 spec.
+**Next time improvement:** Persona-patch ACs must have an explicit "applied-by" owner assigned in ticket frontmatter before Phase 5 dispatch; QA should block sign-off when Reviewer-gate items have no confirmed applier.
