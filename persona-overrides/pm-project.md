@@ -8,9 +8,9 @@ last-verified: 2026-04-25
 
 ## Summary
 
-Project-specific paths, deploy targets, and hard-coded tables referenced from `~/.claude/agents/pm.md`. The generic PM persona carries rules + pointer here; this file carries the K-Line-specific concrete values. Other projects MUST fork this file into their own `agent-context/pm-project.md` and override values below.
+Project-specific paths, deploy targets, and hard-coded tables referenced from `~/.claude/agents/pm.md`. The generic PM persona carries rules + pointer here; this file carries the K-Line-specific concrete values. Other projects MUST fork this file into their own `persona-overrides/pm-project.md` and override values below.
 
-**Scope:** K-Line Prediction project only. Running the PM agent outside this project → read target project's own `agent-context/pm-project.md`; if absent, escalate to user for project-config creation.
+**Scope:** K-Line Prediction project only. Running the PM agent outside this project → read target project's own `persona-overrides/pm-project.md`; if absent, escalate to user for project-config creation.
 
 ---
 
@@ -20,7 +20,7 @@ Anchor referenced from `pm.md §Phase end` Outer-repo mirror commit pre-flight. 
 
 | Ticket type | In-scope paths (outer Diary repo) |
 |-------------|-----------------------------------|
-| **K-Line inner mirror** | `ClaudeCodeProject/K-Line-Prediction/docs/tickets/K-<this-ticket>*` · `ClaudeCodeProject/K-Line-Prediction/docs/designs/K-<this-ticket>*` · `ClaudeCodeProject/K-Line-Prediction/docs/retrospectives/*.md` (only entries added this session) · `ClaudeCodeProject/K-Line-Prediction/frontend/public/diary.json` · `ClaudeCodeProject/K-Line-Prediction/PRD.md` · `ClaudeCodeProject/K-Line-Prediction/agent-context/architecture.md` |
+| **K-Line inner mirror** | `ClaudeCodeProject/K-Line-Prediction/docs/tickets/K-<this-ticket>*` · `ClaudeCodeProject/K-Line-Prediction/docs/designs/K-<this-ticket>*` · `ClaudeCodeProject/K-Line-Prediction/docs/retrospectives/*.md` (only entries added this session) · `ClaudeCodeProject/K-Line-Prediction/frontend/public/diary.json` · `ClaudeCodeProject/K-Line-Prediction/ssot/PRD.md` · `ClaudeCodeProject/K-Line-Prediction/ssot/system-overview.md` |
 | **Dashboard / diary** | `ClaudeCodeProject/PM-dashboard.md` · `daily-diary.md` |
 | **Out of scope** | Other tickets' files; unrelated agent/config/memory edits from prior sessions — `git restore --staged` before commit |
 
@@ -68,4 +68,4 @@ Anchor referenced from `pm.md §Auto-trigger Timing`. K-Line-only proactive acti
 
 - New K-Line-specific path / deploy field / automation → add here; `pm.md` stays project-agnostic
 - `last-verified` refreshed on every re-read
-- Other projects onboarding the PM persona → copy this file's structure, override values, commit as `<project>/agent-context/pm-project.md`
+- Other projects onboarding the PM persona → copy this file's structure, override values, commit as `<project>/persona-overrides/pm-project.md`

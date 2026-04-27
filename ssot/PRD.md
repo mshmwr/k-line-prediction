@@ -1,3 +1,10 @@
+---
+title: K-Line Prediction — Product Requirements Document
+type: spec
+tags: [K-Line-Prediction, PRD, AC]
+updated: 2026-04-27
+---
+
 # Product Requirements Document — K-Line Prediction
 
 ETH/USDT K-line pattern similarity prediction system。本文件為 PM 的產品規格 + AC 主目錄。
