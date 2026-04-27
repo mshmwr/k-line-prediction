@@ -196,7 +196,7 @@ function locateClauseBody(content, clauseId, ticketPath) {
   const escapedId = clauseId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   // Accept both ## and ### heading levels; heading may have suffix decorations
   const regex = new RegExp(
-    `^(##|###)\\s+(${escapedId})(?:[\\s—:\\[].*)?\n([\\s\\S]*?)(?=^(?:##|###)\\s|$)`,
+    `^(##|###)\\s+(${escapedId})(?:[^\\n]*)?\n([\\s\\S]*?)(?=^(?:##|###)\\s|$)`,
     'm'
   )
   const match = content.match(regex)
