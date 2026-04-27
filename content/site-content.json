@@ -1,0 +1,160 @@
+{
+  "lastUpdated": "2026-04-27T17:51:05+08:00",
+  "metrics": {
+    "acCoverage": {
+      "covered": 20,
+      "format": "{covered} / {total} ({percent}%)",
+      "label": "Documented AC Coverage",
+      "total": 52
+    },
+    "featuresShipped": {
+      "label": "Features Shipped",
+      "value": 35
+    },
+    "lessonsCodified": {
+      "label": "Lessons Codified",
+      "value": 173
+    },
+    "postMortemsWritten": {
+      "label": "Post-mortems Written",
+      "value": 34
+    }
+  },
+  "processRules": [
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-008",
+      "homeSlots": null,
+      "id": "bug-found-protocol",
+      "severity": "critical-blocker",
+      "summary": "when a code reviewer finds a bug, the responsible role writes a short retrospective naming the root cause before any fix begins.",
+      "ticketAnchor": null,
+      "title": "Bug Found Protocol",
+      "weight": 0
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": null,
+      "homeSlots": null,
+      "id": "content-alignment-gate",
+      "severity": "advisory",
+      "summary": "for any user-voice document (README, portfolio copy, CV), PM pauses the pipeline until the operator approves the verbatim draft.",
+      "ticketAnchor": null,
+      "title": "Content-Alignment Gate",
+      "weight": 0
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": null,
+      "homeSlots": null,
+      "id": "deploy-rebase-then-ff-merge",
+      "severity": "advisory",
+      "summary": "before any deploy, every unmerged ticket branch is rebased onto the current main and then fast-forward merged in.",
+      "ticketAnchor": null,
+      "title": "Deploy rebase-then-FF-merge",
+      "weight": 0
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": null,
+      "homeSlots": null,
+      "id": "pencil-as-design-source-of-truth",
+      "severity": "warning",
+      "summary": "only the Designer role edits the `.pen` design files; every other role reads the exported JSON + PNG. The code reviewer runs a line-by-line parity check between the design and the shipped component. Added during K-034 after shipped components kept diverging from the design without anyone noticing. See [docs/tickets/K-034](./docs/tickets/K-034-about-spec-audit-and-workflow-codification.md).",
+      "ticketAnchor": "docs/tickets/K-034-about-spec-audit-and-workflow-codification.md",
+      "title": "Pencil as design source of truth",
+      "weight": 0
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-039",
+      "homeSlots": null,
+      "id": "locked-marker-block",
+      "severity": "advisory",
+      "summary": "the role table in this README is wrapped in `<!-- ROLES:start -->` / `<!-- ROLES:end -->` markers and regenerated from a single JSON file.",
+      "ticketAnchor": "docs/tickets/K-039-split-ssot-role-cards.md",
+      "title": "Locked marker block",
+      "weight": 0
+    }
+  ],
+  "renderSlots": {
+    "about": {
+      "processRules": 5,
+      "stack": 0
+    },
+    "home": {
+      "processRules": 0,
+      "stack": 6
+    },
+    "readme": {
+      "processRules": 5,
+      "stack": 10
+    }
+  },
+  "stack": [
+    {
+      "category": "Frontend",
+      "color": "3178C6",
+      "logo": "typescript",
+      "name": "TypeScript"
+    },
+    {
+      "category": "Frontend",
+      "color": "3178C6",
+      "logo": null,
+      "name": "React"
+    },
+    {
+      "category": "Frontend",
+      "color": "3178C6",
+      "logo": null,
+      "name": "Vite"
+    },
+    {
+      "category": "Backend",
+      "color": "009688",
+      "logo": "fastapi",
+      "name": "Python"
+    },
+    {
+      "category": "Backend",
+      "color": "009688",
+      "logo": null,
+      "name": "FastAPI"
+    },
+    {
+      "category": "Hosting",
+      "color": "FFCA28",
+      "logo": "firebase",
+      "name": "Firebase Hosting"
+    },
+    {
+      "category": "Hosting",
+      "color": "FFCA28",
+      "logo": null,
+      "name": "Cloud Run"
+    },
+    {
+      "category": "Tests",
+      "color": "6E40C9",
+      "logo": null,
+      "name": "Vitest"
+    },
+    {
+      "category": "Tests",
+      "color": "6E40C9",
+      "logo": null,
+      "name": "Playwright"
+    },
+    {
+      "category": "Tests",
+      "color": "6E40C9",
+      "logo": null,
+      "name": "pytest"
+    }
+  ],
+  "ticketRange": {
+    "first": "K-001",
+    "last": "K-056"
+  }
+}

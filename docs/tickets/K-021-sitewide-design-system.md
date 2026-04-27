@@ -6,6 +6,8 @@ type: feat
 priority: high
 created: 2026-04-20
 closed: 2026-04-20
+closed-commit: bd5e271
+sacred-clauses: [AC-021-FOOTER]
 ---
 
 ## 背景
@@ -176,7 +178,7 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 
 ---
 
-### AC-021-FOOTER：全站 Footer 單行資訊列 `[K-021]`
+### AC-021-FOOTER：全站 Footer 單行資訊列 `[K-021]` [RETIRED by K-035 2026-04-22]
 
 **Given** 使用者訪問 `/`（首頁）
 **When** 頁面滾動至底部

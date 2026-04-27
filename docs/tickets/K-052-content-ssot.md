@@ -8,10 +8,41 @@ created: 2026-04-26
 visual-delta: yes
 design-locked: false
 content-delta: yes
-qa-early-consultation: pending — real qa required pre-Architect (schema + pre-commit hook + dual emit targets = runtime/infra layer; PM proxy not authorized)
+qa-early-consultation: ✓ → docs/retrospectives/qa.md 2026-04-27 K-052
 parent-plan: ~/.claude/plans/pm-ux-ux-wild-shore.md
 prerequisite: meta-engineer-challenge-gate PR merged to main (codifies Pre-Implementation Design Challenge Gate into engineer.md / senior-architect.md / pm.md personas; K-052 Architect dispatch BLOCKED until that lands)
 ---
+
+## BQ Resolution Lock-Ins (Phase 1 close 2026-04-27 + Phase 1.5 architectural reversal 2026-04-27)
+
+PM rulings on Phase 1 QA Early Consultation challenges + late-Phase-1 user-driven SSOT direction reversal. This table supersedes earlier BQ drafts in the parent plan file and is the in-ticket SOR for Architect Phase 1.5 redesign.
+
+**⚠️ Phase 1.5 redesign needed.** Existing Architect design doc (`docs/designs/K-052-content-ssot.md`) was produced under "README is source" assumption. BQ-052-14 reverses direction to "JSON is source". §Architecture / §Scope / §AC sections below describe OLD direction; Architect Phase 1.5 dispatch will produce delta covering: (a) Output 3 reverse direction (JSON → README marker block, not README → JSON), (b) bootstrap one-shot script + delete, (c) PM persona patch for ticket-close site-content review checklist.
+
+| BQ / Zone | Decision | Impact on architecture |
+|---|---|---|
+| **BQ 1** — `featuresShipped` definition | **A — permissive** (count `K-*` with `status: closed`, no `closed-commit:` gate) | Card #1 reflects "shipped to main" intent loosely; Sacred-registry retains its own strict `closed-commit:` gate for retirement audit |
+| **BQ 2** — Card #4 metric | **B — replace `Guardrails in Place` with `Lessons Codified`**, auto-derived from `claude-config/memory/feedback_*.md` count | Removes manual-override field; emit pulls live count from memory feedback files; card label updates in `MetricsStripSection.tsx` |
+| **Zone 1** — README badge consistency | **B — structured stack `[{name, category, logo, color}]`** in JSON; README badges rendered FROM JSON via `<!-- STACK:start -->...<!-- STACK:end -->` marker block (direction confirmed JSON→README per BQ-052-14) | Triple-emit pipeline: JSON SSOT + sacred-registry + README marker blocks. Marker pattern mirrors K-039 `<!-- ROLES:start -->` |
+| **Zone 2 — /about consumer** | **Z — defer to K-057** | K-052 builds SSOT + weight schema + maintenance flow; /about Pencil-frame design + new section component deferred to K-057 (open same PR as K-052 close, orphan period < 1 week) |
+| **Zone 2 — weight calc** | **B — auto formula** `weight = recencyScore + severityScore` (recency decays from `addedAfter` ticket close date; severity = 3-tier structured JSON field `critical-blocker` / `warning` / `advisory`) | Severity now structured JSON field per BQ-052-14 (was inline README tag); PM edits JSON entry, generator reads. Top-N rotation by sorted weight when consumer slot count < entry count |
+| **Designer persona patch** (Gap 1 + Gap 2 combined) | **Bundle into K-052 Architect design doc as a deliverable** — single-commit edit to `~/.claude/agents/designer.md` §Text fields are frozen-at-session snapshots | Gap 1: generalize L231 example from `roles.json` only → any `content/*.json` member, list metrics / processRules → about-v2.pen frame mapping. Gap 2: add §Weighted top-N layout slot sub-section |
+| **BQ 3** — Sacred-detection rule + closed-commit gate | **A — frontmatter `sacred-clauses: [AC-XXX]` declaration + backfill 5 legacy Sacred-bearing tickets** (K-021 / K-031 / K-035 / K-040 / K-046) — K-034 dropped per BQ-052-13 body-locality | Generator only registers clauses listed in frontmatter (typo guard + invariant integrity); strict `closed-commit:` gate retained. Backfill cost: ~10 lines patch across 5 tickets, single PM commit |
+| **BQ-052-12** — Home stack render count | **A — Category filter** | 6-category schema; Home consumer filters `category ∈ {language, framework, build-tool, e2e-test}` → 6 items match current visual; README badges render all 10 (no filter) |
+| **BQ-052-13** — K-034 vs K-035 Sacred clause file ownership | **A — body-locality wins, backfill K-035 not K-034** | `sacred-clauses:` frontmatter co-locates with `### AC-` body heading; Generator stays single-file. K-034 dropped from backfill (its body has 0 Sacred headings; clauses live in K-035 file) |
+| **BQ-052-14** — SSOT direction (Architectural reversal, user directive "重新規劃") | **A — JSON is sole source-of-truth; README marker blocks rendered FROM JSON** | Direction reversed from initial plan. `content/site-content.json` is sole hand-edit target for `stack[]` + `processRules[]`. Generator writes `<!-- STACK:start -->` and `<!-- NAMED-ARTEFACTS:start -->` README marker blocks FROM JSON (overwrite). Severity becomes structured JSON field (no inline README tags). README narrative paragraphs (K-line description, BFP quote) remain hand-written outside markers. `renderSlots.{home,about,readme}` per-consumer count fields |
+| **BQ-052-15** — Bootstrap parser lifecycle | **A — One-shot parse + delete** | `scripts/bootstrap-site-content-from-readme.mjs` runs once at K-052 land, parses current README badges + §Named Artefacts → seeds JSON, then `git rm`-ed in same commit. Avoids reverse-direction parser blurring SSOT direction |
+| **BQ-052-16** — Maintenance trigger at ticket close | **A — PM persona checklist addition** | `~/.claude/agents/pm.md` Phase Gate ticket-close checklist gains item: "Reviewed `content/site-content.json` against this ticket's retro: added new processRule / upgraded severity / downgraded stale entry / no change". Hard step, recorded in ticket close-out section |
+| **BQ-052-17** — Sacred Registry direction unchanged | **Confirmed — Sacred chain stays as designed** | Sacred Registry already follows JSON-is-source pattern (ticket frontmatter `sacred-clauses:` + body headings are source → registry rendered). BQ-052-14 reversal applies only to site-content chain; Architect design doc §Sacred sections untouched |
+
+**JSON-is-source paradigm (user directive 2026-04-27, supersedes earlier "README is source-of-truth on overlap"):** `content/site-content.json` is the sole hand-edit target for `stack[]` + `processRules[]`. Generator runs one direction only — JSON → README marker blocks + frontend consumers. Bootstrap script seeds JSON from current README content one-shot then self-deletes. Maintenance enforced via PM ticket-close checklist (BQ-052-16).
+
+**Triple-emit (final architecture, all WRITE-direction from SSOT):**
+1. `content/site-content.json` — site-content SSOT (sole hand-edit; bootstrap seeds from README once, then JSON is master)
+2. `docs/sacred-registry.md` — Sacred lifecycle output (orthogonal SSOT chain: ticket frontmatter is source → registry rendered; unchanged by BQ-052-14)
+3. README marker blocks (`<!-- STACK:start -->` + `<!-- NAMED-ARTEFACTS:start -->`) + frontend consumers (/home + /about) — all rendered FROM site-content.json
+
+**Architect Phase 1.5 input**: this table is the design-doc delta spec. Existing `docs/designs/K-052-content-ssot.md` §1-13 (shared infra + auto-derived fields + Sacred sections) remains valid; §14 (README marker block consumer wiring) needs reverse-direction rewrite; new §16 needed for bootstrap one-shot + PM persona patch. Designer persona patch (Gap 1 + Gap 2) unchanged. Net design doc delta: ~150-200 lines.
 
 ## Goal
 
@@ -73,15 +104,17 @@ Existing K-039 split-SSOT pattern (`content/roles.json` + `scripts/sync-roles-do
 
 ## Acceptance Criteria
 
-AC numbering: `AC-K052-01..08` cover site-content output; `AC-K052-09..11` cover sacred-registry output. Both groups land in the same Phase 4 implementation pass (single generator). Cross-output integration is implicit in the shared-script ACs (AC-K052-02 + AC-K052-03 cover the parser; AC-K052-09..11 extend the same script's emit phase).
+AC numbering: `AC-K052-01..08` cover site-content output; `AC-K052-09..11` cover sacred-registry output; `AC-K052-12..17` cover Phase 1.5 reversal (severity/renderSlots schema + reverse-direction marker drift + bootstrap lifecycle + PM persona patch). All groups land in the same Phase 4 implementation pass (single generator). Cross-output integration is implicit in the shared-script ACs (AC-K052-02 + AC-K052-03 cover the parser; AC-K052-09..11 extend the same script's emit phase; AC-K052-14 covers JSON→README marker write per BQ-052-14).
 
 ### AC-K052-01 — SSOT JSON file exists with locked schema
 **Given:** `content/site-content.json` lands at K-Line-Prediction repo root  
 **When:** `cat content/site-content.json | jq .` runs  
 **Then:** JSON parses cleanly  
-**And:** top-level keys are exactly `metrics`, `stack`, `lastUpdated`, `ticketRange`  
-**And:** `metrics.featuresShipped`, `metrics.acCoverage`, `metrics.postMortemsWritten`, `metrics.guardrails` all present  
-**And:** `stack` is array of 10 strings: `["React", "TypeScript", "Vite", "FastAPI", "Python", "Playwright", "Vitest", "pytest", "Firebase Hosting", "Cloud Run"]`  
+**And:** top-level keys are exactly `metrics`, `stack`, `processRules`, `renderSlots`, `lastUpdated`, `ticketRange` (6 keys; `processRules` + `renderSlots` added in Phase 1.5 per BQ-052-14)  
+**And:** `metrics.featuresShipped`, `metrics.acCoverage`, `metrics.postMortemsWritten`, `metrics.lessonsCodified` all present (BQ 2 swapped `guardrails` → `lessonsCodified`)  
+**And:** `stack` is array of 10 structured entries, each shape `{ name, category, logo, color }` per design doc §5.2 (BQ Zone 1 B); names cover `React, TypeScript, Vite, FastAPI, Python, Playwright, Vitest, pytest, Firebase Hosting, Cloud Run`  
+**And:** `processRules` is array; each entry has `id`, `title`, `addedAfter`, `severity ∈ {critical-blocker, warning, advisory}`, `summary`, `ticketAnchor`, `homeSlots`, `aboutSlots`, `weight` per design doc §5.3 (Phase 1.5 schema — `lastReviewed`/`docHref` were pre-Phase-1.5 drafts, superseded by Lock-Ins)  
+**And:** `renderSlots` is `{ home: { stack, processRules }, about: { stack, processRules }, readme: { stack, processRules } }` with default values `home={stack:6,processRules:0}`, `about={stack:0,processRules:5}`, `readme={stack:10,processRules:5}` per design doc §5.7  
 **And:** `ticketRange.first` = `"K-001"` and `ticketRange.last` matches max K-NNN from `docs/tickets/`
 
 ### AC-K052-02 — Build script computes metrics deterministically (single parse, two emit targets)
@@ -91,7 +124,7 @@ AC numbering: `AC-K052-01..08` cover site-content output; `AC-K052-09..11` cover
 **And:** `metrics.acCoverage.covered` equals count of `docs/tickets/K-*.md` files with non-empty `## Acceptance Criteria` section (≥ 1 line of content between heading and next `##`)  
 **And:** `metrics.acCoverage.total` equals total count of `docs/tickets/K-*.md` files (TD-* excluded)  
 **And:** `metrics.postMortemsWritten.value` equals count of `docs/tickets/K-*.md` files with non-empty `## Retrospective` section  
-**And:** `metrics.guardrails.value` is preserved from previous JSON (manual override; script must NOT zero it)  
+**And:** `metrics.lessonsCodified.value` equals `count(claude-config/memory/feedback_*.md)` per AC-K052-12 (BQ 2 — auto-derived, not manual override; replaces deprecated `guardrails` field)  
 **And:** the ticket corpus is parsed exactly once per invocation (verifiable via Architect-defined logging or single-`fs.readFile`-per-ticket assertion in unit test) — both `site-content.json` and `sacred-registry.md` derive from the same in-memory parse result
 
 ### AC-K052-03 — Pre-commit hook fails on JSON / registry drift (single hook, multi-emit)
@@ -176,6 +209,55 @@ AC numbering: `AC-K052-01..08` cover site-content output; `AC-K052-09..11` cover
 **And:** the entry remains in its original per-ticket grouping (K-021 grouping), NOT moved to a separate "retired" section — preserves source-ticket provenance for audit  
 **And:** if K-MMM frontmatter declares `retires-sacred:` but the source K-021 clause body lacks the retirement notation, the generator emits a fatal error (PM forgot to annotate-in-place; reconcile workflow incomplete)  
 **And:** if a Sacred clause body has retirement notation but no ticket has `retires-sacred:` pointing to it, the generator emits a fatal error (orphaned retirement; PM annotated source without opening the retiring ticket's frontmatter properly)
+
+### AC-K052-12 — `lessonsCodified` count test (Phase 1.5 add)
+**Given:** generator runs in mode `default`
+**When:** `content/site-content.json` is regenerated
+**Then:** `metrics.lessonsCodified.value` equals `ls claude-config/memory/feedback_*.md | wc -l` evaluated at generator-invocation time
+**And:** label = `"Lessons Codified"`
+**And:** if `claude-config/` path resolves to non-existent directory, generator emits warning + sets value to `null` (test does not fail on absence — local-only field per design doc §5.1)
+
+### AC-K052-13 — Weighted top-N rotation test (Phase 1.5 add)
+**Given:** `processRules[]` length > consumer's slot count `N` (where `N = renderSlots.<consumer>.processRules`)
+**When:** consumer renders the slot-bearing frame
+**Then:** rendered list = `processRules.slice(0, N)` after sorting by `weight` descending
+**And:** ties broken alphabetically by `id` ascending
+**And:** weight formula: `recencyScore + severityScore` per design doc §5.5
+
+### AC-K052-14 — README marker drift detection (reverse direction per BQ-052-14)
+**Given:** `content/site-content.json` is the sole hand-edit source; README marker contents are generator-rendered
+**When:** `--check` mode runs against drift-free state
+**Then:** exit code = 0 (marker contents on disk byte-match generator's in-memory render)
+**And:** drift case A — `stack[]` or `processRules[]` is hand-edited in JSON but generator NOT re-run (README marker contents stale relative to JSON) → `--check` exits 1, stderr names which marker pair drifted (`STACK` or `NAMED-ARTEFACTS`) + first offending entry index
+**And:** drift case B — README marker block contents hand-edited inside markers (regardless of JSON state) → `--check` exits 1, stderr names which marker pair drifted + diff hint pointing to `content/site-content.json` as source-of-truth
+**And:** exit code on drift = 1 (not 2 or 3 — drift is regen-fixable, not parse error or lifecycle violation)
+**And:** the regression note `<!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->` precedes both `<!-- STACK:start -->` and `<!-- NAMED-ARTEFACTS:start -->` markers in README
+
+### AC-K052-15 — Designer persona patch presence (Reviewer gate, NOT standalone test)
+**Recommended fold into Reviewer Pencil-parity gate** (mirrors design doc §15.2). Reviewer adds one grep step:
+```bash
+grep -E '(any `content/\*\.json`|Weighted top-N layout slot)' ~/.claude/agents/designer.md
+```
+Both matches present = pass. Standalone AC creates frontend-test surface that doesn't fit the persona-file domain. **Do NOT add as standalone AC.**
+
+### AC-K052-16 — Bootstrap one-shot script lifecycle (BQ-052-15)
+**Given:** K-052 PR is the only window in which `scripts/bootstrap-site-content-from-readme.mjs` exists in the repo
+**When:** the K-052 PR is merged to main
+**Then:** the bootstrap script was created → run → its output `content/site-content.json` was committed → script `git rm`-ed in the SAME commit
+**And:** at HEAD on main post-merge, `git ls-files scripts/bootstrap-*` returns empty (script absent from final tree)
+**And:** `content/site-content.json` is present at HEAD on main with `stack[]` (10 entries) + `processRules[]` (5 entries) populated
+**And:** `processRules[]` severity values match the design doc §16.3 hardcoded defaults (or PM-adjusted equivalents recorded in K-052 ticket §Release Status)
+**And:** all `processRules[].weight` values = `0` at bootstrap commit (computed by regular generator on first post-bootstrap invocation per §5.5)
+
+### AC-K052-17 — PM persona ticket-close checklist patch (BQ-052-16)
+**Given:** PM persona owner applies the design doc §17.2 patch text to `~/.claude/agents/pm.md` (Phase Gate / ticket-close section)
+**When:** Reviewer Phase 5 runs the verification grep:
+```bash
+grep -F 'site-content.json' ~/.claude/agents/pm.md
+```
+**Then:** at least 1 hit returned (the new checklist item)
+**And:** Reviewer Pencil-parity gate's persona-patch verification slot includes the line `pm.md ticket-close site-content.json checklist: ✓ patched`
+**And:** verification is a Reviewer-gate row, NOT a standalone Engineer test surface (mirror of design doc §15.2 / AC-K052-15 precedent — Engineer does NOT touch `~/.claude/agents/pm.md`)
 
 ## Phase plan
 
@@ -334,4 +416,10 @@ K-052 worktree creation (`K-052-content-ssot`) and Architect dispatch happen ONL
 
 ## Retrospective
 
-(Populated at ticket close per `~/.claude/CLAUDE.md` §Daily Diary Style + per-role retros at `docs/retrospectives/<role>.md`.)
+### Engineer
+
+**AC judgments that were wrong:** None — AC-K052-06 regex assertions matched JSON-driven values correctly on first Playwright run.
+
+**Edge cases not anticipated:** Bootstrap script's multiline regex used JS-unsupported `\Z` anchor (last bullet silently dropped); position-based slicing fixed before commit. REPO_ROOT + CANONICAL_REPO_ROOT split required for worktree-vs-canonical path correctness — not anticipated before implementation.
+
+**Next time improvement:** For any generator that runs from a worktree `scripts/` directory, compute REPO_ROOT (worktree local) and CANONICAL_REPO_ROOT (via `git rev-parse --git-common-dir`) as separate variables in the first 10 lines, and log both before any file I/O. Catches worktree path traps immediately rather than mid-execution.

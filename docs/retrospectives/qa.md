@@ -1,18 +1,55 @@
 # QA Retrospective Log — K-Line Prediction
 
-跨 ticket 累積式反省記錄。每次任務結束前由 qa agent append 一筆，最新在上。
+Cross-ticket cumulative retrospective log. The QA agent appends one entry before every task close, newest on top.
 
-## 寫入格式
+## Entry format
 
 ```
-## YYYY-MM-DD — <Ticket ID 或 Phase 名稱>
+## YYYY-MM-DD — <Ticket ID or Phase name>
 
-**做得好：**（具體事件；無則省略本行，勿捏造）
-**沒做好：**（哪些回歸測試設計不足 / 邊界沒覆蓋到）
-**下次改善：**（具體可執行的行動）
+**What went well:** (specific event; omit this line if none — do not fabricate)
+**What went wrong:** (which regression tests were under-designed / which boundaries were missed)
+**Next-time improvement:** (concrete, actionable follow-up)
 ```
 
-- 倒序（最新在上）
+- Newest first (reverse chronological)
+
+## 2026-04-27 — K-052 QA Early Consultation (pre-Architect, dual-emit ticket-derived SSOT)
+
+**Tier:** Real-QA spawn (not PM proxy). Schema + pre-commit hook + dual emit targets are runtime/infra layer; PM proxy disallowed per `feedback_qa_early_proxy_tier.md`. 26 adversarial cases surfaced across site-content + sacred-registry outputs; PM ruled all 26 in same-session lock-ins (table in PRD §BQ Resolution Lock-Ins). No challenges left in OPEN state at Phase 1 close.
+
+**Status:** ⚠ approved with locked-in scope expansion — original 8-AC scope expanded to 11 ACs + triple-emit architecture (site-content.json + sacred-registry.md + README marker block) + 6-ticket Sacred backfill + Designer persona patch as bundled deliverable. PM ruled every QA Challenge before Architect dispatch; no deferred-to-Engineer scope.
+
+**Coverage matrix (QA Challenges → PM rulings, all RESOLVED):**
+
+- **Site-content edge cases** (empty `docs/tickets/`, malformed YAML, K-* + `type: tech-debt` collision, empty AC + `status: closed`, AC heading variants, pre-commit hook noise on unrelated commits, `lastUpdated` source choice, TD→K rename) — 8 cases. PM ruling: BQ 1 permissive `featuresShipped` removes the `closed-commit:` gate edge entirely; AC heading variants resolved at Architect Phase 2 via canonical regex spec; pre-commit cross-output isolation enforced by AC-K052-03 last clause; `lastUpdated` decision deferred to Architect Phase 2 (truth table covers both options).
+- **Sacred-registry edge cases** (heading variants `AC-021-FOOTER` vs `AC-K035-REGRESSION-01` vs `AC-034-P1-ROUTE-DOM-PARITY`, closed-but-not-shipped state, same-commit add+retire, modify-then-retire chain, reconcile-without-annotation drift, orphaned `retires-sacred:`, retirement-suffix notation drift, legacy backfill scope, cross-output isolation) — 9 cases. PM ruling: BQ 3 frontmatter `sacred-clauses:` declaration replaces grep-by-heading-pattern entirely (typo-class FN eliminated); Architect Phase 2 spec covers three-case algorithm + SHA hash + audit trail + reconcile workflow; legacy backfill of 6 tickets (K-021/K-031/K-034/K-035/K-040/K-046) bundled into K-052 close commit instead of follow-up TD.
+- **Card #4 metric provenance** (`Guardrails in Place` had no programmatic SOR — manual override only) — 1 case. PM ruling: BQ 2 replaces with `Lessons Codified` (auto-derived from `claude-config/memory/feedback_*.md` filesystem count); manual-override field removed from schema.
+- **README badge consistency** (badges hand-curated; SSOT JSON has separate stack list; risk of badge-vs-stack drift) — 1 case. PM ruling: Zone 1 makes README badges the 3rd JSON consumer via `<!-- STACK:start -->...<!-- STACK:end -->` marker block; structured stack schema `[{name, category, logo, color}]` enables downstream marker injection.
+- **/about processRules section consumer** (slot-count vs entry-count mismatch when entries exceed display slots) — 2 cases. PM ruling: Zone 2 weight calc auto formula `weight = recencyScore + severityScore`; consumer component design deferred to K-057 (orphan SSOT period accepted, < 1 week to K-057 PR).
+- **Designer persona generalization gap** (L231 of `~/.claude/agents/designer.md` referenced only `roles.json`; `Text fields are frozen-at-session snapshots` rule did not generalize to weighted-top-N rotation pattern) — 2 cases (Gap 1 + Gap 2). PM ruling: Designer persona patch bundled into K-052 Architect design doc as a single-commit deliverable, not a separate ticket.
+- **README §Named Artefacts overlap with SSOT JSON** (which side wins on phrasing conflict?) — 1 case. PM ruling: README is SOR on overlap; SSOT generator reads README marker block to derive processRules entries; display-count divergence between consumers permitted and annotated per-entry in JSON.
+- **Sacred lifecycle vocabulary symmetry** (frontmatter has `retires-sacred:` and `modifies-sacred:` but no declaration field; relies on heading-pattern grep) — 1 case. PM ruling: BQ 3 introduces `sacred-clauses: [AC-XXX]` as the third frontmatter field, forming a symmetric three-field family (declare / reconcile / retire) for the Sacred lifecycle.
+- **Triple-emit cross-output isolation** (drift in one emit target should not cause spurious failure in another) — 1 case. AC-K052-03 last clause already covers; PM confirms triple-emit (vs original dual-emit) preserves the same isolation property — README marker block regen is independent of site-content.json regen which is independent of sacred-registry.md regen.
+
+Total: 26 challenges raised → 26 ruled → 0 supplemented to AC as new gaps → 0 declared Known Gap → 0 OPEN at Phase 1 close.
+
+**Adversarial coverage gaps to monitor in later phases:**
+- AC count expansion: 11 ACs may need 2-3 additions in Phase 2 to cover the new triple-emit surface (weighted-top-N test, Lessons Codified count test, README marker injection test). Architect Phase 2 produces the final AC list; PM amends ticket if additions land.
+- Designer persona patch is a K-052 deliverable but lives outside the worktree (`~/.claude/agents/designer.md`). Phase Gate Checklist needs an explicit verification line at Phase 6 confirming the persona file actually got patched (not just claimed in design doc).
+- 6-ticket Sacred backfill is a same-session PM commit; verify each backfilled ticket's `closed-commit:` SHA resolves to a real merge commit on main before declaring K-052 closed.
+
+**What went wrong:**
+- Original Phase 1 PRD draft anchored on dual-emit (site-content + sacred) and missed the README badge consumer; Zone 1 surfaced only because PM probed README§Named Artefacts overlap during ruling pass. QA Early Consultation could have caught the badge-vs-stack drift earlier by enumerating README marker blocks as a separate consumer surface during the consultation. Codification: when a ticket touches a JSON SSOT that has a near-mirror in README, QA persona checklist should add `grep -E '<!-- [A-Z-]+:(start|end) -->' README.md` as a pre-verdict step to enumerate marker blocks as candidate consumers.
+- Original PRD assumed manual-override `guardrails` field was acceptable scope; only during ruling pass did QA + PM converge on auto-derivable replacement (`Lessons Codified` from filesystem count). Lesson: when a schema field is documented as "manual override — no programmatic SOR", QA persona should challenge that classification (does an SOR exist that we haven't enumerated?) before approving the schema lock. Auto-derived metrics supersede manual-override fields when a programmatic SOR exists; manual-override is justified only when no consistent SOR.
+
+**Next time improvement (codification candidates):**
+- **QA persona — Marker-block consumer enumeration:** when a ticket introduces or modifies a `content/*.json` SSOT, run `grep -E '<!-- [A-Z-]+:(start|end) -->' README.md` AND `grep -rE '<!-- [A-Z-]+:(start|end) -->' docs/` during Early Consultation. Each marker block is a candidate consumer; surface to PM as a question "is this a third emit target?" before schema lock.
+- **QA persona — Manual-override field challenge:** any schema field labeled "manual override — no programmatic SOR" gets a Challenge in Early Consultation: "what filesystem / git / tooling state could derive this automatically?" Default-decision should be auto-derive; manual-override accepted only when QA + PM agree no SOR exists.
+- **QA persona — Sacred lifecycle vocabulary check:** when a ticket touches frontmatter conventions for one Sacred lifecycle action (declare / modify / retire), QA Early Consultation must verify the other two actions have symmetric vocabulary. Asymmetric naming (e.g. `modifies-sacred:` exists but no `sacred-clauses:`) is a typo-class false-negative trap; flag for PM ruling pre-Architect.
+- **QA persona — Weighted top-N pattern recognition:** when consumer slot count is fixed and entry count is unbounded, surface the rotation algorithm as a Challenge before schema lock. Default rotation = recency; severity-weighted rotation needs a 3-tier severity tag in schema. PM rules pattern at AC-write time, not at Engineer-implement time.
+
+**Verdict for PM:** ✓ **release Architect with PRD §BQ Resolution Lock-Ins block as canonical input.** Phase 1 closes clean — every challenge ruled in same session, no deferred-to-Engineer scope, no Known Gaps carried forward. Architect Phase 2 dispatches with the locked decision table + symmetric three-field Sacred frontmatter family + triple-emit architecture + Designer persona patch as bundled deliverable. AC count may grow from 11 to ~13-14 during Phase 2 design; PM amends ticket §Acceptance Criteria when Architect lands new ACs.
 
 ## 2026-04-26 — K-053 regression (post-Reviewer QA gate)
 
@@ -1719,3 +1756,9 @@ text-muted on paper at 12px (text-xs) = 4.84:1 contrast — passes WCAG AA 4.5:1
 **沒做好：** 未跑 Vitest coverage 確認 Engineer 是否意外讓既有 test skip 或改判（只看 pass 數無法偵測「斷言被削弱」），本次靠 review 手動檢查 test diff 間接證明，程序上有漏洞；截圖 script 仍缺（K-008 未實作 cycle #6），本次跳過但流程定義上 QA 尾段是缺的。
 
 **下次改善：** (1) 日後 Vitest 涉及改寫斷言的 ticket，QA 必加跑 `npm test -- --run --coverage` 比對 coverage diff（或至少 read 改動的 test 原/新 diff）再聲明 PASS；(2) 在 K-008 實作前，QA 的「截圖報告」欄位採固定「跳過（K-008 未完成）」而不逕自聲稱流程完整，避免 PM 誤解。
+
+## 2026-04-27 — K-052 Phase 5 Sign-off
+
+**What went well:** AC-K052-14 drift tests (both cases) passed cleanly; sacred-registry 6+1 count correct; lessonsCodified count matched local (173=173).
+**What went wrong:** AC-K052-15 and AC-K052-17 persona patches (designer.md + pm.md) were not applied before Phase 5 QA — design doc §15/§17 specified "PM persona owner applies," but no commit evidence found; 2 pre-existing E2E failures (pages.spec.ts AC-023-DIARY-BULLET, shared-components.spec.ts footer snapshot) not K-052-introduced but unresolved; processRules schema gap (missing `lastReviewed`/`docHref`, extra `aboutSlots`/`homeSlots`/`ticketAnchor`) diverges from AC-K052-01 §5.3 spec.
+**Next time improvement:** Persona-patch ACs must have an explicit "applied-by" owner assigned in ticket frontmatter before Phase 5 dispatch; QA should block sign-off when Reviewer-gate items have no confirmed applier.

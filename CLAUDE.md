@@ -18,6 +18,39 @@ ETH/USDT K-line pattern similarity prediction system.
 | Deploy steps (Firebase Hosting + Cloud Run, docker dry-run gate) | [ssot/deploy.md](./ssot/deploy.md) |
 | Frontend post-edit gate, diary.json sync, new-page checklist | [ssot/frontend-checklist.md](./ssot/frontend-checklist.md) |
 | Product requirements, acceptance criteria | [ssot/PRD.md](./ssot/PRD.md) |
+| Ticket-derived SSOT (site-content.json + sacred-registry.md) | `content/site-content.json` (hand-edit SSOT), `docs/sacred-registry.md` (generated), `scripts/build-ticket-derived-ssot.mjs` (generator) |
+
+## Ticket-Derived SSOT Pattern (K-052 2026-04-27)
+
+`content/site-content.json` is the single hand-edit source for portfolio metrics, stack[], processRules[], and renderSlots. The generator `scripts/build-ticket-derived-ssot.mjs` reads ticket corpus + README markers and emits:
+
+1. `content/site-content.json` — auto-fills `metrics.*`, `lastUpdated`, `ticketRange`; preserves hand-edited `stack[]`, `processRules[]`, `renderSlots`
+2. `docs/sacred-registry.md` — Sacred clause lifecycle registry (active/retired, bodyHash)
+3. `README.md` — STACK and NAMED-ARTEFACTS marker blocks (JSON → README direction)
+
+Run after ticket changes: `node scripts/build-ticket-derived-ssot.mjs`. Pre-commit hook auto-checks on staged SSOT files.
+
+## Sacred Reconcile Workflow (K-052 2026-04-27)
+
+Sacred clauses are regression-invariant ACs declared in ticket frontmatter. Three frontmatter fields:
+
+- `sacred-clauses: [AC-ID-1, AC-ID-2]` — lists clause IDs authored in THIS ticket (§8)
+- `modifies-sacred: [AC-ID]` — THIS ticket edits an existing clause body (§9 Pass 2)
+- `retires-sacred: [AC-ID]` — THIS ticket retires a clause (§9 Pass 4)
+
+**Modify sequence (PM action):**
+1. Open new ticket K-NNN with `modifies-sacred: [<clause-id>]` in frontmatter
+2. Edit the source ticket's clause body markdown in the same PM session
+3. Close K-NNN with `closed-commit: <SHA>`
+4. Run `node scripts/build-ticket-derived-ssot.mjs` → registry updates `bodyHash` + `lastModifiedBy`
+
+**Retire sequence (PM action):**
+1. Open new ticket K-MMM with `retires-sacred: [<clause-id>]` in frontmatter
+2. In the source ticket's clause heading, append `[RETIRED by K-MMM YYYY-MM-DD]` suffix (exact format)
+3. Close K-MMM with `closed-commit: <SHA>`
+4. Run generator → registry flips entry status to `retired-by: K-MMM`
+
+**Generator exit codes:** 0=ok, 1=drift (regen-fixable), 2=parse error, 3=Sacred lifecycle violation (PM-action-required).
 
 ## Behavior Triggers (auto-load events)
 

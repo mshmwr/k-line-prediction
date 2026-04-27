@@ -1,9 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
+import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [svgr({ svgrOptions: { icon: true } }), react()],
+  resolve: {
+    alias: {
+      '@/content': resolve(__dirname, '../content'),  // K-052: repo-root content/ SSOT
+    },
+  },
   server: {
     proxy: { '/api': 'http://localhost:8000' },
     fs: { allow: ['..'] },

@@ -1,20 +1,40 @@
 # Architect Retrospective Log — K-Line Prediction
 
-跨 ticket 累積式反省記錄。每次任務結束前由 senior-architect agent append 一筆，最新在上。
+Cross-ticket cumulative retrospective log. The senior-architect agent appends one entry before every task close, newest on top.
 
-## 寫入格式
+## Entry format
 
 ```
-## YYYY-MM-DD — <Ticket ID 或 Phase 名稱>
+## YYYY-MM-DD — <Ticket ID or Phase name>
 
-**做得好：**（具體事件；無則省略本行，勿捏造）
-**沒做好：**（根因 + 為何設計/review 時沒抓到）
-**下次改善：**（具體可執行的行動）
+**What went well:** (specific event; omit this line if none — do not fabricate)
+**What went wrong:** (root cause + why design/review failed to catch it)
+**Next-time improvement:** (concrete, actionable follow-up)
 ```
 
-- 倒序（最新在上）
-- 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 Architect 反省並存，不互相取代
-- 啟用日：2026-04-18（K-008 起）
+- Newest first (reverse chronological)
+- Coexists with single-ticket `docs/tickets/K-XXX.md` `## Retrospective` Architect entries; neither replaces the other
+- Active since 2026-04-18 (from K-008 onward)
+
+---
+
+## 2026-04-27 — K-052 Phase 1.5 Delta (reverse SSOT direction + bootstrap + PM persona patch)
+
+**What went well:** Surgical-edits-only discipline maintained — §1–§13 + §15 untouched, all changes scoped to §0 (K-G-01 close), §5.3 (severity field clarification), §5.7 (new renderSlots subsection), §14 (full reverse-direction rewrite), §16 + §17 (new sections), §20 ACs (rewrite AC-K052-14 + add AC-K052-16/17), and §18-§23 renumber pass. PM persona insertion-point verified by direct Read of `~/.claude/agents/pm.md` — line 489 is the closure of `Ticket closure bookkeeping` and line 490 is `Outer-repo mirror commit pre-flight`; cited line numbers exactly. AC-K052-14 reframed from "round-trip test" to "drift detection with two distinct cases (JSON-changed-but-README-stale vs README-edited-inside-markers)" — direction reversal makes round-trip framing semantically incorrect, drift framing matches JSON-is-source paradigm.
+
+**What went wrong:** Initial pass through §16 bootstrap script almost included a "rerun bootstrap on README structural change post-merge" maintenance scenario; caught during §16.5 drafting that BQ-052-15 ruling explicitly closes that door (recovery uses `git restore`, not re-parse). Re-read Lock-Ins BQ-052-15 fully before writing §16.5 decision rule. Root cause: speed-reading Lock-Ins table cell during initial outline — "one-shot parse + delete" should have been read as constraint not just lifecycle event.
+
+**Next-time improvement:** When a Phase-N redesign reverses architectural direction (here: SSOT polarity), produce a side-by-side direction table (parse-then-emit vs render-then-overwrite) in §0 Scope Questions BEFORE any §-section rewrite. Each algorithm in the old direction maps to an inverse in the new direction; surfacing the inverse map upfront prevents the "is this still correct?" loop on every paragraph. This is a sub-rule under the existing Scope Question Pause Rule — added trigger: "Lock-Ins reverses an existing architectural direction (e.g. source-of-truth polarity, read-vs-write flow, ownership boundary)".
+
+---
+
+## 2026-04-27 — K-052 Phase 2 Architect Design Doc (triple-emit + Designer persona patch)
+
+**What went well:** Drafted §1–§21 in one pass against PRD §BQ Resolution Lock-Ins as the in-ticket SOR. Each Lock-In cell traceable to a design-doc section (BQ 1 → §5.1 metrics, BQ 2 → §5.1 lessonsCodified, Zone 1 → §5.2 + §14, Zone 2 → §5.3 + §5.5 weight formula, BQ 3 → §8 frontmatter-gated parser + §9 three-case algorithm + §13 backfill table). Edge-case truth table (§9.2) enumerates 11 cases across the 5 sacred-lifecycle invariants (Add/Modify/Retire happy paths + 5 fatal paths + 1 advisory path + 1 in-flight skip path); each row names exit code so Engineer + QA share one source of truth. Verified before fabricating: ran `grep -nE '^### (AC-|Sacred)' docs/tickets/K-021* K-031* K-034* K-035* K-040* K-046*` to confirm Sacred clause body locations across the 6 backfill candidates BEFORE writing §13 patch table; discovered K-034 has zero AC-shape Sacred headings (its file absorbed K-035 retros but bodies live in K-035 file) and surfaced the grouping ambiguity to PM via §13.2 escalation rather than self-arbitrating.
+
+**What went wrong:** First draft of §5.1 `metrics.lessonsCodified` hardcoded `claude-config/memory/feedback_*.md` glob without considering that the generator runs from `K-Line-Prediction/scripts/` and `claude-config/` lives 3 directories up at `~/Diary/claude-config/` (sibling of `ClaudeCodeProject/`). CI environments don't share the parent layout. Caught during §5 self-review and revised to require `process.env.CLAUDE_CONFIG_PATH` env-var override + null-fallback when path resolves missing. Root cause: Lock-Ins introduced a cross-repo SSOT field (sibling-repo path) without architect-time portability check. Should have surfaced as §0 Scope Question before committing to schema — instead the path concern was absorbed into §5.1 itself, complicating the spec.
+
+**Next time improvement:** When Lock-Ins introduces a new SSOT field whose source lives outside the project repo (sibling repo, parent directory, env-var-pathed asset), surface CI environment portability as a §0 Scope Question BEFORE drafting §5 schema. Add to senior-architect persona §Scope Question Pause Rule trigger list: "any Lock-In field with source path outside `<project-root>/`" — pause + escalate to PM whether to (a) require env-var override, (b) hardcode-with-fallback, or (c) rule the field out-of-scope until path is canonical. PM-time decision saves §5-section rewrite at delivery time.
 
 ---
 

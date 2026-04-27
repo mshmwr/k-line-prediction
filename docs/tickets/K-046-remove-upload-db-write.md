@@ -21,6 +21,8 @@ design-locked: N/A
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-24 K-046 Phase 2 (QA proxy by PM, 5 challenges)
 dependencies: []
 sacred-regression: [K-009 MA99 1H→1D history path, K-013 stats contract cross-layer]
+closed-commit: 1090e63
+sacred-clauses: [AC-046-REGRESSION-SACRED]
 ---
 
 ## Summary

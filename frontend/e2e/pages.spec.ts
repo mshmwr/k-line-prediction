@@ -45,13 +45,16 @@ test.describe('AboutPage — AC-ABOUT-1 (K-017)', () => {
     await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible()
   })
 
-  test('Metrics strip four cards visible', async ({ page }) => {
+  test('Metrics strip four cards visible (K-052 JSON-driven labels)', async ({ page }) => {
+    // K-052: card labels updated from site-content.json — no longer hardcoded
+    // Old: "First-pass Review Rate" → "Documented AC Coverage"
+    // Old: "Guardrails in Place" → "Lessons Codified"
     await page.goto('/about')
 
     await expect(page.getByText('Features Shipped', { exact: true })).toBeVisible()
-    await expect(page.getByText('First-pass Review Rate', { exact: true })).toBeVisible()
+    await expect(page.getByText('Documented AC Coverage', { exact: true })).toBeVisible()
     await expect(page.getByText('Post-mortems Written', { exact: true })).toBeVisible()
-    await expect(page.getByText('Guardrails in Place', { exact: true })).toBeVisible()
+    await expect(page.getByText('Lessons Codified', { exact: true })).toBeVisible()
   })
 
   test('Role Cards section visible with 6 roles', async ({ page }) => {

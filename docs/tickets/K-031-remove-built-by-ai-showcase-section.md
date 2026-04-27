@@ -6,6 +6,8 @@ type: fix
 priority: high
 created: 2026-04-21
 closed: 2026-04-21
+closed-commit: f49344d
+sacred-clauses: [AC-031-K022-REGRESSION]
 ---
 
 ## Background

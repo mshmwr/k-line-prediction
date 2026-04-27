@@ -14,6 +14,8 @@ closed: 2026-04-23
 depends-on: []
 related-to: [K-017, K-022, K-024, K-030, K-034]
 worktree: .claude/worktrees/K-040-sitewide-ui-polish-batch
+closed-commit: 76915d2
+sacred-clauses: [AC-040-SITEWIDE-FONT-MONO]
 ---
 
 ## 0. One-line summary

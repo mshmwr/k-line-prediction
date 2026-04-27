@@ -42,4 +42,36 @@ MSG
   exit 1
 fi
 
+# K-052 Phase 4 — build-ticket-derived-ssot pre-commit gate.
+#
+# Blocks commit when content/site-content.json, docs/sacred-registry.md,
+# or README.md marker blocks have drifted from generator output.
+
+GENERATOR_K052="$REPO_ROOT/scripts/build-ticket-derived-ssot.mjs"
+
+if [ ! -f "$GENERATOR_K052" ]; then
+  # Generator not present on this branch — skip gate.
+  exit 0
+fi
+
+# Fast exit: only run the check if any of the SSOT-bound paths are staged.
+if ! git diff --cached --name-only | grep -qE '^(content/site-content\.json|docs/sacred-registry\.md|README\.md)$'; then
+  exit 0
+fi
+
+if ! node "$GENERATOR_K052" --check; then
+  cat <<'MSG' >&2
+
+✗ build-ticket-derived-ssot pre-commit gate: SSOT drift detected.
+
+  content/site-content.json, docs/sacred-registry.md, or README.md marker blocks
+  are out of sync with the generator output. Regenerate:
+
+    node scripts/build-ticket-derived-ssot.mjs
+    git add content/site-content.json docs/sacred-registry.md README.md
+
+MSG
+  exit 1
+fi
+
 exit 0
