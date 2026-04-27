@@ -89,7 +89,7 @@ After Architect returns the design doc, Product Manager surfaces the verbatim co
 
 ### Exempt
 
-Internal engineering documents: `agent-context/*.md`, `docs/designs/*.md`, role personas, ticket AC, retrospectives, architecture specs, test fixtures, code comments. These are engineering artefacts, not user voice.
+Internal engineering documents: `ssot/*.md`, `persona-overrides/*.md`, `docs/designs/*.md`, role personas, ticket AC, retrospectives, architecture specs, test fixtures, code comments. These are engineering artefacts, not user voice.
 
 ### Origin
 
