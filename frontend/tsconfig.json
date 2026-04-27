@@ -12,7 +12,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "types": ["vitest/globals", "vite/client"]
+    "types": ["vitest/globals", "vite/client"],
+    "paths": {
+      "@/content/*": ["../content/*"]
+    }
   },
   "include": ["src"]
 }

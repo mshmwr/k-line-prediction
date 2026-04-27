@@ -1,3 +1,5 @@
+import siteContent from '@/content/site-content.json'
+
 const STEPS = [
   {
     label: 'STEP 01 · INGEST',
@@ -71,13 +73,19 @@ export default function ProjectLogicSection() {
         ))}
       </div>
 
-      {/* techRow */}
+      {/* techRow — K-052: JSON-driven from content/site-content.json (§5.7 BQ-052-12) */}
       <div
         className="flex items-center gap-[10px] text-[11px] tracking-widest"
         style={{ fontFamily: '"Geist Mono", monospace' }}
       >
         <span className="text-[#6B5F4E]">STACK —</span>
-        <span className="text-[#1A1814]">React · TypeScript · Vite · FastAPI · Python · Playwright</span>
+        <span className="text-[#1A1814]">
+          {siteContent.stack
+            .filter(s => ['Frontend', 'Backend', 'Tests'].includes(s.category))
+            .slice(0, siteContent.renderSlots.home.stack)
+            .map(s => s.name)
+            .join(' · ')}
+        </span>
       </div>
     </section>
   )
