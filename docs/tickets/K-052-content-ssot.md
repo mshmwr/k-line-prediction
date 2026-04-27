@@ -113,7 +113,7 @@ AC numbering: `AC-K052-01..08` cover site-content output; `AC-K052-09..11` cover
 **And:** top-level keys are exactly `metrics`, `stack`, `processRules`, `renderSlots`, `lastUpdated`, `ticketRange` (6 keys; `processRules` + `renderSlots` added in Phase 1.5 per BQ-052-14)  
 **And:** `metrics.featuresShipped`, `metrics.acCoverage`, `metrics.postMortemsWritten`, `metrics.lessonsCodified` all present (BQ 2 swapped `guardrails` → `lessonsCodified`)  
 **And:** `stack` is array of 10 structured entries, each shape `{ name, category, logo, color }` per design doc §5.2 (BQ Zone 1 B); names cover `React, TypeScript, Vite, FastAPI, Python, Playwright, Vitest, pytest, Firebase Hosting, Cloud Run`  
-**And:** `processRules` is array; each entry has `id`, `title`, `summary`, `severity ∈ {critical-blocker, warning, advisory}`, `addedAfter`, `lastReviewed`, `docHref`, `weight` per design doc §5.3  
+**And:** `processRules` is array; each entry has `id`, `title`, `addedAfter`, `severity ∈ {critical-blocker, warning, advisory}`, `summary`, `ticketAnchor`, `homeSlots`, `aboutSlots`, `weight` per design doc §5.3 (Phase 1.5 schema — `lastReviewed`/`docHref` were pre-Phase-1.5 drafts, superseded by Lock-Ins)  
 **And:** `renderSlots` is `{ home: { stack, processRules }, about: { stack, processRules }, readme: { stack, processRules } }` with default values `home={stack:6,processRules:0}`, `about={stack:0,processRules:5}`, `readme={stack:10,processRules:5}` per design doc §5.7  
 **And:** `ticketRange.first` = `"K-001"` and `ticketRange.last` matches max K-NNN from `docs/tickets/`
 
