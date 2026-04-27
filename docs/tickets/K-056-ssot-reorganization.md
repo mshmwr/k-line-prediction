@@ -1,10 +1,10 @@
 ---
 id: K-056
 title: SSOT Reorganization (inner + outer CLAUDE.md slim, ssot/ scaffold)
-status: in-progress
+status: done
 type: meta
 opened: 2026-04-26
-closed: pending
+closed: 2026-04-27
 qa-early-consultation: N/A (docs-only meta ticket, no runtime behavior)
 ---
 

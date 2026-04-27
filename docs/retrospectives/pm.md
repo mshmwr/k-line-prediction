@@ -2,6 +2,12 @@
 
 跨 ticket 累積式反省記錄。每次任務結束前由 PM agent append 一筆,最新在上。
 
+## 2026-04-27 — K-056 close (status flip in-progress → done) [trivial]
+
+No observation — single-line frontmatter flip + closed date for ticket close. Full PR-D retro covers the substance (next entry below). Sequence violation noted: PR opened before retro entry; appended same-PR follow-up commit per `feedback_docs_only_pr_retro_sequence.md` rather than opening a remediation PR.
+
+---
+
 ## 2026-04-27 — K-056 PR D (outer ssot/ scaffold + CLAUDE.md slim 66→12 + 4-step parallel-agent protocol consolidated)
 
 **What went well:** PR D mirror of PR C pattern executed without fresh failure modes. 2 git mv (`ClaudeCodeProject/agent-context/{architecture,conventions}.md` → `ClaudeCodeProject/ssot/{monorepo-overview,conventions}.md`) plus directory removal (`rmdir ClaudeCodeProject/agent-context`) staged cleanly. Outer `ssot/conventions.md` absorbed three previously-duplicated sources into one single SSOT: outer CLAUDE.md L11–L66 (BDD Workflow / Tech Stack / Debugging / Frontend Changes / Test Data Realism / Git Workflow), pre-existing `agent-context/conventions.md` (Cross-Layer Changes / TDD / Testing Tools / Pre-Commit), and inner CLAUDE.md L114–L131 4-step parallel-agent protocol that was DELETE-INNER in PR C. The protocol now lives in exactly one place. `ssot/monorepo-overview.md` simultaneously translated from Chinese to English per global CLAUDE.md §Language rollout and stripped TradingView dormant-subproject row + related historical commentary (subproject was deleted in K-056 PR A; no live reference remained). Layer 1a Rule Inventory Table for outer CLAUDE.md L1–L66 inlined into K-056 ticket alongside the existing inner table, completing the mapping contract for both auto-load files.
