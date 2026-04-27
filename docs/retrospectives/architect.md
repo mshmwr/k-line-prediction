@@ -18,6 +18,16 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-04-27 — K-052 Phase 1.5 Delta (reverse SSOT direction + bootstrap + PM persona patch)
+
+**What went well:** Surgical-edits-only discipline maintained — §1–§13 + §15 untouched, all changes scoped to §0 (K-G-01 close), §5.3 (severity field clarification), §5.7 (new renderSlots subsection), §14 (full reverse-direction rewrite), §16 + §17 (new sections), §20 ACs (rewrite AC-K052-14 + add AC-K052-16/17), and §18-§23 renumber pass. PM persona insertion-point verified by direct Read of `~/.claude/agents/pm.md` — line 489 is the closure of `Ticket closure bookkeeping` and line 490 is `Outer-repo mirror commit pre-flight`; cited line numbers exactly. AC-K052-14 reframed from "round-trip test" to "drift detection with two distinct cases (JSON-changed-but-README-stale vs README-edited-inside-markers)" — direction reversal makes round-trip framing semantically incorrect, drift framing matches JSON-is-source paradigm.
+
+**What went wrong:** Initial pass through §16 bootstrap script almost included a "rerun bootstrap on README structural change post-merge" maintenance scenario; caught during §16.5 drafting that BQ-052-15 ruling explicitly closes that door (recovery uses `git restore`, not re-parse). Re-read Lock-Ins BQ-052-15 fully before writing §16.5 decision rule. Root cause: speed-reading Lock-Ins table cell during initial outline — "one-shot parse + delete" should have been read as constraint not just lifecycle event.
+
+**Next-time improvement:** When a Phase-N redesign reverses architectural direction (here: SSOT polarity), produce a side-by-side direction table (parse-then-emit vs render-then-overwrite) in §0 Scope Questions BEFORE any §-section rewrite. Each algorithm in the old direction maps to an inverse in the new direction; surfacing the inverse map upfront prevents the "is this still correct?" loop on every paragraph. This is a sub-rule under the existing Scope Question Pause Rule — added trigger: "Lock-Ins reverses an existing architectural direction (e.g. source-of-truth polarity, read-vs-write flow, ownership boundary)".
+
+---
+
 ## 2026-04-27 — K-052 Phase 2 Architect Design Doc (triple-emit + Designer persona patch)
 
 **What went well:** Drafted §1–§21 in one pass against PRD §BQ Resolution Lock-Ins as the in-ticket SOR. Each Lock-In cell traceable to a design-doc section (BQ 1 → §5.1 metrics, BQ 2 → §5.1 lessonsCodified, Zone 1 → §5.2 + §14, Zone 2 → §5.3 + §5.5 weight formula, BQ 3 → §8 frontmatter-gated parser + §9 three-case algorithm + §13 backfill table). Edge-case truth table (§9.2) enumerates 11 cases across the 5 sacred-lifecycle invariants (Add/Modify/Retire happy paths + 5 fatal paths + 1 advisory path + 1 in-flight skip path); each row names exit code so Engineer + QA share one source of truth. Verified before fabricating: ran `grep -nE '^### (AC-|Sacred)' docs/tickets/K-021* K-031* K-034* K-035* K-040* K-046*` to confirm Sacred clause body locations across the 6 backfill candidates BEFORE writing §13 patch table; discovered K-034 has zero AC-shape Sacred headings (its file absorbed K-035 retros but bodies live in K-035 file) and surfaced the grouping ambiguity to PM via §13.2 escalation rather than self-arbitrating.

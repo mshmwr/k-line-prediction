@@ -24,9 +24,9 @@
 
 All Phase-1 BQs resolved by PM in PRD Lock-Ins table. No new contradictions surfaced during Phase 2 design that PM needs to rule on. One residual risk remains tracked as a Known Gap not a BQ:
 
-- **K-G-01 (advisory only)** — ProjectLogicSection.tsx currently renders a single string `"React · TypeScript · Vite · FastAPI · Python · Playwright"` (line 80) as the home-page Stack list, NOT a 10-item array. Lock-Ins Zone 1 promotes the JSON `stack` field to a 10-item structured array. Engineer's consumer wiring decision (preserve 6-item rendering vs. expand to all 10) is a content decision PM should rule on AT engineering time, not a blocker for Phase 2 design. Recommend PM add to §Open BQs as `BQ-052-12 — home-page stack rendering count (current 6 vs JSON 10)` for engineering-time resolution.
+- **K-G-01 — RESOLVED (BQ-052-12 ruled A — Category filter, 2026-04-27).** Home consumer filters `stack[]` by `category ∈ {language, framework, build-tool, e2e-test}` → renders 6 items (matches current visual). README marker block renders all 10 (no filter). Slot counts now codified in JSON `renderSlots.home.stack: 6` / `renderSlots.readme.stack: 10` (§5.7). No further BQ on this surface.
 
-No prior Engineer Pre-Implementation Design Challenge Sheet exists (Phase 4 not yet dispatched). When that sheet lands, Architect will append §16 Verdict Sheet here per Same-Session Verdict Obligation.
+No prior Engineer Pre-Implementation Design Challenge Sheet exists (Phase 4 not yet dispatched). When that sheet lands, Architect will append §18 Verdict Sheet here per Same-Session Verdict Obligation.
 
 ---
 
@@ -269,7 +269,7 @@ const CLAUDE_CONFIG_PATH = process.env.CLAUDE_CONFIG_PATH
 |---|---|---|---|
 | `processRules[].id` | string | README named-artefacts block | kebab-case slug from `**<Name>**` heading at start of bullet |
 | `processRules[].addedAfter` | string | README bullet body | regex `/Added (during\|after) (K-\d+)/` capture |
-| `processRules[].severity` | enum | PM-authored README bullet tag | `(critical-blocker\|warning\|advisory)` — falls back to `advisory` if not tagged. **PM may need to retroactively tag README bullets** — surfaced as recommended migration in §11. |
+| `processRules[].severity` | enum | JSON-resident only (PM hand-edits in `content/site-content.json`) | `(critical-blocker\|warning\|advisory)`. **NOT serialized to README marker block** — README readers do not see the tag. Severity drives `weight` formula §5.5 + Reviewer prioritization only. PM updates severity at ticket-close per §17 PM persona checklist. |
 | `processRules[].summary` | string | README bullet body | first sentence after the `—` em-dash, truncated at first `.` |
 | `processRules[].ticketAnchor` | string | README bullet inline link | `href` of the first markdown link to `./docs/tickets/K-NNN-…md` |
 | `processRules[].homeSlots` | number\|null | future K-057 design | null at K-052 close; populated when consumer ships |
@@ -313,6 +313,29 @@ tiebreak (when weights equal): alphabetical id ascending
 - Unicode normalization: NFC.
 - Trailing newline at file end.
 - Running generator twice → byte-identical output (hard constraint).
+
+### 5.7 `renderSlots` (per-consumer count fields, BQ-052-14)
+
+```json
+"renderSlots": {
+  "home":   { "stack": 6, "processRules": 0 },
+  "about":  { "stack": 0, "processRules": 5 },
+  "readme": { "stack": 10, "processRules": 5 }
+}
+```
+
+| Field | Type | Default | Consumer |
+|---|---|---|---|
+| `renderSlots.home.stack` | number | `6` | `ProjectLogicSection.tsx` slices first N from `stack[]` after Category filter (BQ-052-12) |
+| `renderSlots.home.processRules` | number | `0` | Home page does not render processRules at K-052; reserved for future |
+| `renderSlots.about.stack` | number | `0` | About page does not render stack list at K-052 (MetricsStrip only) |
+| `renderSlots.about.processRules` | number | `5` | K-057 future consumer; weight-sorted top-5 |
+| `renderSlots.readme.stack` | number | `10` | Generator §14.3 emits all 10 stack entries to README STACK marker block |
+| `renderSlots.readme.processRules` | number | `5` | Generator §14.4 emits top-5-by-weight processRules to README NAMED-ARTEFACTS marker block |
+
+**Filter discipline:** generator + frontend consumers all read `renderSlots` for slot count — slot counts are NOT hardcoded in any consumer or in the generator. Changing a slot count is a single JSON edit. Bootstrap script seeds with the defaults above.
+
+**Hand-edited field:** `renderSlots` is preserved on regeneration (alongside `stack[]` and `processRules[]`); only `metrics.*` + `lastUpdated` + `ticketRange` are auto-rewritten.
 
 ---
 
@@ -720,146 +743,117 @@ After 6-ticket backfill + K-052 own clauses (none — K-052 introduces the regis
 
 ---
 
-## 14. README marker block consumer wiring
+## 14. README marker block emit (JSON → README, reverse direction per BQ-052-14)
 
-**Constraint reminder:** README VISIBLE CONTENT is locked (user directive 2026-04-27). Only HTML-comment marker pairs are added to README — markers are invisible in rendered Markdown, structural-enabling-only. Generator reads BETWEEN markers; on `--check` it regenerates the badges + named-artefacts content from JSON and diffs against in-place content (README is source, JSON is derived).
+**Direction (locked):** `content/site-content.json` is sole hand-edit; generator WRITES marker-block contents in README from JSON. README narrative paragraphs (K-line description, BFP quote, etc.) outside markers remain hand-written; generator never touches them. `--check` mode regenerates marker contents in-memory, diffs against on-disk README, drift → exit 1 + named marker pair.
 
-### 14.1 Two new marker pairs
+### 14.1 Two marker pairs Engineer adds to README in init commit
 
-Engineer adds these markers to README in their Phase-4 commit. Marker placement (with line numbers from current README HEAD):
+Engineer adds the marker pairs verbatim. Body inside markers is left as a single placeholder line `(populated by generator)`; first generator run overwrites with rendered content. Each marker pair is preceded by a DO-NOT-EDIT comment line.
 
-**Marker pair A — STACK (wraps existing badge block at README:5–9):**
+**Marker pair A — STACK** (wraps existing badge block at README:5–9; markers + DO-NOT-EDIT comment inserted around the existing 5 badge lines):
 
 ```markdown
+<!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
 <!-- STACK:start -->
-[![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://k-line-prediction-app.web.app)
-[![Frontend](https://img.shields.io/badge/Frontend-TypeScript%20%2B%20React%20%2B%20Vite-3178C6?logo=typescript)](https://vitejs.dev/)
-[![Backend](https://img.shields.io/badge/Backend-Python%20%2B%20FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
-[![Hosting](https://img.shields.io/badge/Hosting-Firebase%20Hosting%20%2B%20Cloud%20Run-FFCA28?logo=firebase)](https://firebase.google.com/)
-[![Tests](https://img.shields.io/badge/Tests-Vitest%20%2B%20Playwright%20%2B%20pytest-6E40C9)](https://playwright.dev/)
+(populated by generator)
 <!-- STACK:end -->
 ```
 
-**Marker pair B — NAMED-ARTEFACTS (wraps `## Named artefacts` content at README:54–80, body only — heading stays outside markers):**
+**Marker pair B — NAMED-ARTEFACTS** (wraps the body of `## Named artefacts` section at README:54–80; section heading + intro paragraph stay OUTSIDE markers):
 
 ```markdown
 ## Named artefacts
 
 Each rule was written after a specific failure was observed during the build. Five examples:
 
+<!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
 <!-- NAMED-ARTEFACTS:start -->
-- **Bug Found Protocol** — when a code reviewer finds a bug, the responsible role writes a short retrospective naming the root cause before any fix begins. Added after K-008, where the Engineer treated an environment variable as trusted input and shipped a path-traversal sink. See [docs/ai-collab-protocols.md §Bug Found Protocol](./docs/ai-collab-protocols.md#bug-found-protocol).
-  ...
-- **Locked marker block** — ...
+(populated by generator)
 <!-- NAMED-ARTEFACTS:end -->
 ```
 
-(Note: the K-035 quote block embedded in the BFP entry stays inside markers; generator must handle multi-paragraph bullets — see §14.3.)
+First post-init generator invocation overwrites the placeholder; subsequent runs are byte-idempotent against the prior output.
 
-### 14.2 Marker block parser regex
+### 14.2 Marker block locator regex
+
+Generator locates marker pairs to know which byte range to overwrite:
 
 ```regex
 <!--\s*STACK:start\s*-->\n([\s\S]*?)\n<!--\s*STACK:end\s*-->
 <!--\s*NAMED-ARTEFACTS:start\s*-->\n([\s\S]*?)\n<!--\s*NAMED-ARTEFACTS:end\s*-->
 ```
 
-Each yields capture group `$1` = block contents (badges or named-artefacts list, verbatim).
+Capture group `$1` = current on-disk block contents (used by `--check` for diff target only — never used as input source). Marker absence = exit code 2 with message naming which marker pair is missing.
 
-Marker absence = exit code 2 with message naming which marker pair is missing.
+### 14.3 JSON `stack[]` → README badge URL render algorithm (slot count: `renderSlots.readme.stack`)
 
-### 14.3 Badge URL → `{name, category, logo, color}` mapping algorithm
-
-Each badge line matches:
-
-```regex
-^\[!\[([^\]]+)\]\(https://img\.shields\.io/badge/([^-]+)-([^-]+(?:%20[^-]+)*)-([0-9A-Fa-f]{6})(?:\?logo=([^)]+))?\)\]\(([^)]+)\)$
-```
-
-Capture groups:
-- `$1` = alt-text (e.g. "Frontend") — **redundant** with `$2`
-- `$2` = category (e.g. `Frontend`, `Backend`, `Hosting`, `Tests`) — used as `stack[].category`
-- `$3` = name segment (URL-encoded; e.g. `TypeScript%20%2B%20React%20%2B%20Vite`)
-- `$4` = hex color (6-char, no `#`)
-- `$5` = optional logo slug (e.g. `typescript`, `fastapi`)
-- `$6` = link href (ignored by parser; preserved in marker block)
-
-Name expansion algorithm:
+Generator slices `stack[]` first N entries (N from `renderSlots.readme.stack`, default 10), groups by `category`, emits one badge line per category group.
 
 ```
-function expandStackEntries(badge) {
-  const decoded = decodeURIComponent(badge.$3)
-  // decoded e.g. "TypeScript + React + Vite"
-  const names = decoded.split(/\s*\+\s*/)  // ["TypeScript", "React", "Vite"]
-  return names.map(name => ({
-    name,
-    category: badge.$2,
-    logo: name === names[0] ? badge.$5 || null : null,  // logo only on first name
-    color: badge.$4
-  }))
-}
-```
-
-**Why split by `+`:** README badges concatenate multi-tech labels (`Frontend-TypeScript + React + Vite`). The 10-item structured stack expands these. Result for current README:
-
-| Badge category | Expands to |
-|---|---|
-| Live Demo | (special — not in `stack`, treat as marketing badge — see filter rule below) |
-| Frontend | TypeScript, React, Vite (3) |
-| Backend | Python, FastAPI (2) |
-| Hosting | Firebase Hosting, Cloud Run (2) |
-| Tests | Vitest, Playwright, pytest (3) |
-
-Total: 3 + 2 + 2 + 3 = 10 items ✓ (matches AC-K052-01 spec).
-
-**Filter rule:** badges whose `$2` (category) is `Live` are skipped (marketing badge, not stack entry). Hardcode `EXCLUDED_CATEGORIES = ['Live']` in generator.
-
-### 14.4 Named-artefacts → `processRules` mapping algorithm
-
-Each top-level bullet (line starting `- **`) is one processRules entry. Multi-paragraph (sub-quotes, sub-bullets indented under) are part of the same entry until the next top-level bullet.
-
-```
-function parseNamedArtefacts(blockBody) {
-  const entries = []
-  const bullets = blockBody.split(/^- \*\*/m).slice(1)  // first split is empty
-  for (chunk of bullets) {
-    const match = chunk.match(/^([^*]+)\*\*\s+—\s+([\s\S]*?)(?=\n\n|\Z)/)
-    if (!match) continue
-    const id = slugify(match[1])             // "Bug Found Protocol" → "bug-found-protocol"
-    const fullBody = match[2]
-    const summary = fullBody.split(/\.[\s\n]/)[0] + '.'  // first sentence
-    const addedAfter = (fullBody.match(/Added (?:during|after) (K-\d+)/) || [])[1]
-    const ticketAnchor = (fullBody.match(/\(\.\/docs\/tickets\/([^)]+)\)/) || [])[1]
-    const severity = inferSeverity(fullBody)  // see below
-    entries.push({id, addedAfter, severity, summary, ticketAnchor: `docs/tickets/${ticketAnchor}`, weight: 0})
+function renderStackBadges(stack, slotCount) {
+  const limited = stack.slice(0, slotCount)
+  const groups = groupBy(limited, e => e.category)
+  const lines = []
+  for ([category, entries] of groups) {
+    const namesEncoded = entries.map(e => e.name).join('%20%2B%20')
+    const first = entries[0]
+    const logoSegment = first.logo ? `?logo=${first.logo}` : ''
+    const linkHref = LINK_HREF_BY_CATEGORY[category]  // hardcoded map; see below
+    lines.push(`[![${category}](https://img.shields.io/badge/${category}-${namesEncoded}-${first.color}${logoSegment})](${linkHref})`)
   }
-  return entries
-}
-
-function inferSeverity(body) {
-  // PM authors README bullets WITHOUT severity tags currently.
-  // Default to 'advisory'; PM may retroactively tag bullets with `[critical-blocker]` / `[warning]` markers.
-  if (/\[critical-blocker\]/.test(body)) return 'critical-blocker'
-  if (/\[warning\]/.test(body)) return 'warning'
-  return 'advisory'
+  // Live-Demo badge prepended verbatim (marketing badge, not derived from stack[])
+  lines.unshift(LIVE_DEMO_BADGE_LITERAL)
+  return lines.join('\n')
 }
 ```
 
-**Migration note:** current README has 5 named-artefact bullets, none tagged with severity. First-run generator emits all 5 with `severity: 'advisory'`. PM should retroactively add `[critical-blocker]` to BFP and `[warning]` to Pencil-as-SSOT bullets in a follow-up commit. **This is recommended, not blocking** — README visible-content rule means PM's call. Architect surfaces as recommendation, does not Edit README.
+| Item | Source | Notes |
+|---|---|---|
+| Category grouping | derived from `stack[i].category` | Generator preserves first-seen category order from the JSON |
+| Name join separator | constant `%20%2B%20` (` + ` URL-encoded) | Matches existing badge convention — multi-name shields.io badge |
+| Color | first entry's `color` per group | Group's first entry wins; trailing entries' `color` ignored on output |
+| Logo | first entry's `logo` per group; `null` → omit `?logo=` | Same first-wins rule |
+| Link href | hardcoded `LINK_HREF_BY_CATEGORY` map | Static map: `Frontend → vitejs.dev`, `Backend → fastapi.tiangolo.com`, `Hosting → firebase.google.com`, `Tests → playwright.dev`. Categories in JSON `stack[]` use lowercase singulars (`framework`, `build-tool`, `e2e-test`, etc.); the badge category label uses the canonical visual mapping defined in this map. |
+| Live-Demo badge | constant `LIVE_DEMO_BADGE_LITERAL` | Hardcoded; not derived from `stack[]` because it's a marketing badge, not a stack entry. Generator prepends it verbatim. |
 
-### 14.5 Round-trip verification (--check mode)
+**No `EXCLUDED_CATEGORIES` filter needed.** Live-Demo badge is hardcoded prepended; consumer-side filter is enforced via `renderSlots.readme.stack` slot count + `stack[]` JSON containing exactly the 10 stack entries (no marketing entries). Generator emits exactly slotCount + 1 badge lines (10 stack + 1 marketing).
 
-1. Generator parses README marker blocks → derives `stack` + `processRules` arrays.
-2. Generator regenerates JSON in-memory.
-3. Generator regenerates marker block content from the JSON using inverse algorithms.
-4. Compare regenerated block content against on-disk README block content byte-for-byte.
-5. Drift → exit 1, name `STACK` or `NAMED-ARTEFACTS` block + the offending entry.
+### 14.4 JSON `processRules[]` → README bullet render algorithm (slot count: `renderSlots.readme.processRules`)
 
-**Inverse algorithms:**
+Generator sorts `processRules[]` by `weight` desc (formula §5.5), takes top-N (N from `renderSlots.readme.processRules`, default 5), emits one bullet per entry.
 
-- `stack[]` → badge URL: group entries by `category`, join `name` field with `%20%2B%20`, append `-<color>?logo=<logo>` from first entry of group; reconstruct full markdown badge.
-- `processRules[]` → bullet body: not currently round-trippable (full prose, image refs, etc.). **Solution:** generator's `--check` for NAMED-ARTEFACTS verifies count + ID + addedAfter + summary first-sentence match only, NOT full body. PRD already accepts that "README phrasing wins" for prose. Drift detection limited to structural fields; prose drift detected only when it changes the parsed structure.
+```
+function renderNamedArtefacts(processRules, slotCount) {
+  const sorted = [...processRules].sort((a, b) => b.weight - a.weight || a.id.localeCompare(b.id))
+  const limited = sorted.slice(0, slotCount)
+  return limited.map(r => {
+    const anchor = anchorFromTicketHref(r.ticketAnchor)  // e.g. "docs/tickets/K-008-...md" → relative link
+    return `- **${r.title}** — ${r.summary} See [${anchor.label}](${anchor.href}).`
+  }).join('\n')
+}
+```
 
-**Direction discipline:** generator NEVER writes inside marker blocks during `--check`. Default emit mode is conservative — only writes if at least one structural field round-trips differently. (Engineer's Phase-4 init commit IS the only intended write-to-README event; ongoing operation is read-only.)
+| Field | Source | Notes |
+|---|---|---|
+| `r.title` | JSON `processRules[].title` | Hand-edit in JSON; bootstrap seeds from current README bullet `**…**` heading |
+| `r.summary` | JSON `processRules[].summary` | Single sentence; bootstrap seeds from first sentence of current README bullet body |
+| Link target | `r.ticketAnchor` (JSON field) | Relative path to ticket file; rendered as `See [docs/tickets/K-XXX-…md](./docs/tickets/K-XXX-…md).` shape; bootstrap seeds from existing README inline link |
+| Severity | NOT serialized | `r.severity` lives in JSON only — drives `weight` formula §5.5 + Reviewer prioritization. README readers do not see the tag (per BQ-052-14). |
+
+**Why severity is omitted from README:** Lock-Ins BQ-052-14 codifies severity as a structured JSON-resident attribute; surfacing it inline as `[critical-blocker]` would clutter README narrative tone. Reviewer/PM workflows consume severity from JSON directly.
+
+### 14.5 `--check` mode
+
+1. Read JSON `stack[]` + `processRules[]` + `renderSlots`.
+2. In-memory render via §14.3 + §14.4 algorithms.
+3. Read README from disk; locate marker pairs via §14.2.
+4. Byte-compare regenerated block against on-disk block contents (capture group `$1`).
+5. Mismatch → exit 1, stderr names which marker pair drifted + first offending bullet/badge index. Default mode (no `--check`) overwrites marker block contents on disk.
+
+**Hand-edit inside markers is unrecoverable on next regen.** The DO-NOT-EDIT comment line above each marker pair (§14.1) makes the rule visible at edit time; pre-commit `--check` makes any drift surface before commit. Recovery: re-edit `content/site-content.json` to reflect the desired text, re-run generator. There is no path back from in-marker hand-edits except `git restore`.
+
+**Direction discipline:** generator NEVER reads marker block contents as input — only as `--check` diff target. JSON is sole source.
 
 ---
 
@@ -921,13 +915,100 @@ Both phrases present after Designer applies = verification pass.
 
 ---
 
-## 16. Engineer Pre-Implementation Design Challenge Sheet — verdict slot
+## 16. Bootstrap one-shot script (BQ-052-15)
+
+`scripts/bootstrap-site-content-from-readme.mjs` — single-purpose seeder. Lifecycle: K-052 PR creates the script → runs it → seed `content/site-content.json` committed → script is `git rm`-ed in the SAME commit. Script is NOT in the final tree.
+
+### 16.1 Filename + lifecycle
+
+| Phase | Action |
+|---|---|
+| Engineer Phase 4 commit | `scripts/bootstrap-site-content-from-readme.mjs` added |
+| Same commit | `node scripts/bootstrap-site-content-from-readme.mjs` invoked → emits `content/site-content.json` with `stack[]` + `processRules[]` populated |
+| Same commit | `git rm scripts/bootstrap-site-content-from-readme.mjs` |
+| Final tree (post-merge) | `git ls-files scripts/bootstrap-*` returns empty (AC-K052-16 gate) |
+
+**Why one-shot + delete:** keeping a reverse-direction parser around blurs SSOT direction (BQ-052-15). Recovery from accidental JSON loss uses `git restore content/site-content.json` against the K-052 commit, NOT re-running a bootstrap parser against current README (which by then may have drifted).
+
+### 16.2 Parse algorithm
+
+The bootstrap script PARSES current README §badge block + §Named artefacts list using regexes that are reverse-equivalent to the §14.3 / §14.4 RENDER algorithms (parse direction here, not render).
+
+| Source in README | JSON field populated | Regex / extraction |
+|---|---|---|
+| Badge block (current README:5–9) | `stack[]` | Per-badge regex `^\[!\[([^\]]+)\]\(https://img\.shields\.io/badge/([^-]+)-([^-]+(?:%20[^-]+)*)-([0-9A-Fa-f]{6})(?:\?logo=([^)]+))?\)\]\(([^)]+)\)$` — capture `$2`=category, `$3`=names (split on `%20%2B%20`), `$4`=color, `$5`=logo. Live-Demo badge skipped (matched separately + ignored). Names within a multi-name badge inherit category + color; first name keeps logo, trailing names get `logo: null`. |
+| Named artefacts bullets (current README:54–80, top-level `- **…**` only) | `processRules[]` | Per-bullet regex `^- \*\*([^*]+)\*\*\s+—\s+([\s\S]*?)(?=\n- \*\*|\Z)` — capture `$1`=title, `$2`=full body. Summary = first sentence of body (split on `\.[\s\n]`). `addedAfter` = regex match `Added (?:during|after) (K-\d+)`. `ticketAnchor` = first markdown link to `./docs/tickets/K-NNN-…md`. |
+| (no source) | `renderSlots`, `metrics.*`, `lastUpdated`, `ticketRange` | Bootstrap does NOT populate these — the regular generator (§1, §5) computes them on first post-bootstrap invocation. Bootstrap emits placeholder structure + lets generator fill in. |
+
+### 16.3 Severity defaults at seed time (5 hardcoded entries)
+
+Bootstrap script hardcodes severity for the 5 current README named-artefacts bullets. PM may adjust before the bootstrap commit lands.
+
+| `processRules[].id` (slug) | Severity at seed time |
+|---|---|
+| `bug-found-protocol` | `critical-blocker` |
+| `pencil-as-design-source-of-truth` | `warning` |
+| `content-alignment-gate` | `advisory` |
+| `deploy-rebase-then-ff-merge` | `advisory` |
+| `locked-marker-block` | `advisory` |
+
+PM ruling window: bootstrap script run → JSON in working tree → PM review JSON before staging → adjust severity values → `git add content/site-content.json`. Adjustments after the K-052 land are governed by §17 PM persona checklist (ticket-close review).
+
+### 16.4 `weight` field at seed time
+
+All `processRules[].weight` entries seeded with `0`. Weight is computed at render-time by the regular generator (§5.5 formula: `recencyScore + severityScore`); seeding `0` is intentional — generator overwrites on first invocation. Bootstrap does NOT compute weight (would require `recencyScore` from `addedAfter` ticket close date, which bootstrap doesn't read).
+
+### 16.5 Decision rule for README structural change mid-K-052
+
+Q: "What if README badge block / named-artefacts list structure changes during K-052 implementation, after bootstrap has already seeded JSON?"
+
+**Architect ruling:** re-run bootstrap. The old JSON in working tree is `git restore`-d (no commit yet at intermediate stages OR `git checkout HEAD -- content/site-content.json` if a WIP commit exists), bootstrap re-runs against fresh README, new JSON staged. This is NOT a maintenance scenario — bootstrap is one-shot and only relevant during the K-052 implementation window. Once K-052 ships, README is no longer authoritative for any field; subsequent edits go to JSON only. The `git rm` of the bootstrap script in the same commit is the architectural enforcement of "no re-bootstrap post-merge".
+
+---
+
+## 17. PM persona patch (spec only — Engineer does NOT apply)
+
+Architect specifies the patch text below. PM persona owner (or Engineer-as-proxy under PM dispatch) applies it in a single Edit call against `~/.claude/agents/pm.md`. Mirror of §15 Designer-patch pattern.
+
+### 17.1 Target line range in `~/.claude/agents/pm.md`
+
+Insertion point: **after line 489** (closing line of `Ticket closure bookkeeping (mandatory at close, 2026-04-21)` 4-step item) and **before line 490** (start of `Outer-repo mirror commit pre-flight (mandatory, 2026-04-22)` item). Both anchor lines verified by Architect via direct Read of `~/.claude/agents/pm.md` 2026-04-27.
+
+The new checklist item slots into the `### Phase end` section's bullet list, immediately after the 4-step `Ticket closure bookkeeping` item. Architect did NOT modify either anchor; PM persona owner inserts only the patch block below.
+
+### 17.2 Patch text (exact, verbatim insertion)
+
+```markdown
+- [ ] **`content/site-content.json` review at ticket close (mandatory, K-052 2026-04-27)**: at every ticket close, PM reviews `K-Line-Prediction/content/site-content.json` `processRules[]` entries against this ticket's retrospective. Outcome must be one of:
+  - **added new processRule entry** — this ticket surfaced a new persona / workflow rule worth showcasing in README named-artefacts; PM hand-edits JSON `processRules[]` (id + title + summary + severity + addedAfter + ticketAnchor) before close
+  - **upgraded severity** — an existing entry's severity tier moves up (e.g. `advisory` → `warning`) because this ticket revealed it as more critical; PM edits `processRules[<id>].severity` field
+  - **downgraded stale entry** — an existing rule no longer applies / has been retired by a newer rule; PM either deletes the entry or downgrades severity to `advisory`
+  - **no change** — this ticket's retrospective revealed no processRule mutation
+
+  Outcome recorded in ticket §Release Status as one line: `site-content.json review: <added|upgraded|downgraded|no-change> — <one-sentence rationale + entry id if applicable>`. Missing line = ticket NOT truly closed; PM Phase Gate does not PASS.
+
+  **Why:** K-052 2026-04-27 — JSON-is-source paradigm requires every ticket close to touch the SSOT once, ensuring rule lifecycle (introduce → mature → retire) tracks ticket retrospectives instead of drifting in README hand-edits. Memory: `feedback_pm_site_content_review.md` (to be authored at K-052 close).
+```
+
+### 17.3 Patch verification (post-apply, fold into Reviewer gate per §15.2 precedent)
+
+```bash
+grep -F 'site-content.json' ~/.claude/agents/pm.md
+```
+
+Must return at least 1 hit (the new checklist item) after PM persona owner applies the patch. Reviewer's existing scan adds one row "pm.md ticket-close checklist contains expected K-052 phrasing"; this is one grep, not a full E2E spec. Fold into Reviewer Pencil-parity gate's adjacent persona-patch verification slot — same shape as §15.2 Designer patch verification, NOT a standalone AC.
+
+**Recommendation on AC fold:** AC-K052-17 codifies this gate (see §20). AC-K052-17 is verified at Reviewer Phase 5, not Engineer Phase 4 — Engineer does NOT touch `~/.claude/agents/pm.md`.
+
+---
+
+## 18. Engineer Pre-Implementation Design Challenge Sheet — verdict slot
 
 (Empty at delivery. Architect appends per Same-Session Verdict Obligation when Engineer dispatch returns sheet.)
 
 ---
 
-## 17. Architecture Doc Sync
+## 19. Architecture Doc Sync
 
 `agent-context/architecture.md` does not currently exist for K-Line-Prediction repo (uses `ssot/system-overview.md` + per-domain SSOTs). K-052 adds:
 
@@ -947,7 +1028,7 @@ This Sync rule is recorded for Phase 6 close; not blocking Phase 2 design lock.
 
 ---
 
-## 18. New ACs proposed for §Acceptance Criteria
+## 20. New ACs proposed for §Acceptance Criteria
 
 PM amend block (Architect proposes; PM rules):
 
@@ -965,13 +1046,14 @@ PM amend block (Architect proposes; PM rules):
 **And:** ties broken alphabetically by `id` ascending
 **And:** weight formula: `recencyScore + severityScore` per §5.5
 
-### AC-K052-14 — README marker injection round-trip test
-**Given:** `--check` mode runs against drift-free state
-**When:** generator exits
-**Then:** exit code = 0
-**And:** when one badge URL is intentionally drifted (e.g. color hex changed) and `--check` re-runs, exit code ≠ 0
-**And:** stderr names the affected marker pair (`STACK` or `NAMED-ARTEFACTS`) + the offending entry ID/index
+### AC-K052-14 — README marker drift detection (reverse direction per BQ-052-14)
+**Given:** `content/site-content.json` is the sole hand-edit source; README marker contents are generator-rendered
+**When:** `--check` mode runs against drift-free state
+**Then:** exit code = 0 (marker contents on disk byte-match generator's in-memory render)
+**And:** drift case A — `stack[]` or `processRules[]` is hand-edited in JSON but generator NOT re-run (README marker contents stale relative to JSON) → `--check` exits 1, stderr names which marker pair drifted (`STACK` or `NAMED-ARTEFACTS`) + first offending entry index
+**And:** drift case B — README marker block contents hand-edited inside markers (regardless of JSON state) → `--check` exits 1, stderr names which marker pair drifted + diff hint pointing to `content/site-content.json` as source-of-truth
 **And:** exit code on drift = 1 (not 2 or 3 — drift is regen-fixable, not parse error or lifecycle violation)
+**And:** the regression note `<!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->` precedes both `<!-- STACK:start -->` and `<!-- NAMED-ARTEFACTS:start -->` markers in README
 
 ### AC-K052-15 — Designer persona patch presence (Reviewer gate, NOT standalone test)
 **Recommended fold into Reviewer Pencil-parity gate.** Reviewer adds one grep step:
@@ -980,9 +1062,28 @@ grep -E '(any `content/\*\.json`|Weighted top-N layout slot)' ~/.claude/agents/d
 ```
 Both matches present = pass. Standalone AC creates frontend-test surface that doesn't fit the persona-file domain. **Do NOT add as standalone AC.**
 
+### AC-K052-16 — Bootstrap one-shot script lifecycle (BQ-052-15)
+**Given:** K-052 PR is the only window in which `scripts/bootstrap-site-content-from-readme.mjs` exists in the repo
+**When:** the K-052 PR is merged to main
+**Then:** the bootstrap script was created → run → its output `content/site-content.json` was committed → script `git rm`-ed in the SAME commit
+**And:** at HEAD on main post-merge, `git ls-files scripts/bootstrap-*` returns empty (script absent from final tree)
+**And:** `content/site-content.json` is present at HEAD on main with `stack[]` (10 entries) + `processRules[]` (5 entries) populated
+**And:** `processRules[]` severity values match the §16.3 hardcoded defaults (or PM-adjusted equivalents recorded in K-052 ticket §Release Status)
+**And:** all `processRules[].weight` values = `0` at bootstrap commit (computed by regular generator on first post-bootstrap invocation per §5.5)
+
+### AC-K052-17 — PM persona ticket-close checklist patch (BQ-052-16)
+**Given:** PM persona owner applies the §17.2 patch text to `~/.claude/agents/pm.md` after line 489 (Ticket closure bookkeeping item) and before line 490 (Outer-repo mirror item)
+**When:** Reviewer Phase 5 runs the verification grep:
+```bash
+grep -F 'site-content.json' ~/.claude/agents/pm.md
+```
+**Then:** at least 1 hit returned (the new checklist item)
+**And:** Reviewer Pencil-parity gate's persona-patch verification slot includes the line `pm.md ticket-close site-content.json checklist: ✓ patched`
+**And:** verification is a Reviewer-gate row, NOT a standalone Engineer test surface (mirror of §15.2 / AC-K052-15 precedent — Engineer does NOT touch `~/.claude/agents/pm.md`)
+
 ---
 
-## 19. Refactorability checklist
+## 21. Refactorability checklist
 
 - [x] **Single responsibility:** `parseTicketCorpus()` reads, three writers emit. Three writers do not call each other.
 - [x] **Interface minimization:** `ParsedCorpus` shape is the only inter-phase contract; ~10 fields. Writers receive frozen object, no mutation.
@@ -995,7 +1096,7 @@ All passes.
 
 ---
 
-## 20. All-Phase Coverage Gate
+## 22. All-Phase Coverage Gate
 
 K-052 is single-phase (engineering) in implementation terms; Phases 0–6 in PRD are workflow phases not engineering phases. Engineering coverage:
 
@@ -1007,7 +1108,7 @@ All four columns covered for K-052's single engineering Phase. processRules cons
 
 ---
 
-## 21. Consolidated Delivery Gate Summary (2026-04-27)
+## 23. Consolidated Delivery Gate Summary (2026-04-27)
 
 ```
 Architect delivery gate:
@@ -1018,7 +1119,7 @@ Architect delivery gate:
   route-impact-table=N/A (no global CSS / sitewide token change),
   cross-page-duplicate-audit=✓ (grepped `frontend/src/components/` for `STACK = ` and `METRICS = ` arrays — only 1 hit each, no duplicates),
   target-route-consumer-scan=N/A (no route navigation behavior change),
-  architecture-doc-sync=deferred-to-K-052-close (per §17),
+  architecture-doc-sync=deferred-to-K-052-close (per §19),
   self-diff=✓ (this doc structural content cross-checked against PRD Lock-Ins table cell-by-cell)
   → OK
 ```
@@ -1036,3 +1137,13 @@ Architect delivery gate:
 **Which decisions needed revision:** §5.1 `lessonsCodified` path resolution — first draft hardcoded `claude-config/memory/feedback_*.md` relative path; revised to require `process.env.CLAUDE_CONFIG_PATH` env-var override after realizing CI environments don't share the parent-directory layout. §14.4 `processRules` round-trip — first draft assumed full prose round-trip; revised to structural-fields-only verification (count + ID + addedAfter + summary first-sentence) once it became clear "README phrasing wins" rules out reverse-direction prose generation.
 
 **Next time improvement:** When Lock-Ins introduces a new SSOT field that depends on a path outside the project repo (here: `claude-config/memory/`), surface CI environment portability concern in §0 Scope Questions before the field schema is locked. PM-level decision (whether to require env-var or hardcode-with-fallback) saves a §5-section rewrite.
+
+---
+
+### Phase 1.5 Delta Retrospective (2026-04-27)
+
+**Where most time was spent:** §14 reverse-direction rewrite — Phase-2 §14 was a parse-then-emit pipeline (README is source); Phase-1.5 §14 is a render-then-overwrite pipeline (JSON is source). Re-deriving the algorithm tables required holding both directions in mind to ensure Engineer's Phase-4 init commit can hand off cleanly to ongoing-mode generator. Also §17 PM persona insertion-point coordinates — Read of `~/.claude/agents/pm.md` necessary to verify line 489 is the bookkeeping closure and line 490 is outer-repo mirror; insertion-anchor drift would put the new checklist item in the wrong gate section.
+
+**Which decisions needed revision:** AC-K052-14 — Phase-2 framed it as "round-trip test" (parse + re-render symmetry); Phase-1.5 reframes as "drift detection" with two distinct cases (JSON-changed-but-README-stale vs README-edited-inside-markers). Round-trip framing implied bidirectional integrity; drift framing matches JSON-is-source paradigm cleanly. Also §16 — initial draft included "rerun bootstrap" as a maintenance scenario; revised to one-shot-only after re-reading BQ-052-15 ruling that recovery uses `git restore`, not re-parse.
+
+**Next time improvement:** When a Phase-N redesign reverses architectural direction (here: SSOT polarity), produce a side-by-side direction table (parse-then-emit vs render-then-overwrite) in §0 Scope Questions before any §-section rewrite. Each algorithm in the old direction maps to an inverse in the new direction; surfacing the inverse map upfront prevents accidental keep-old-text on sections (here: §14.2 marker locator regex stayed valid because it's directional-agnostic; §14.3 / §14.4 fully reversed). Saves the "is this still correct?" loop on every paragraph.
