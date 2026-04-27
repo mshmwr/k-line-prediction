@@ -2,11 +2,21 @@
 
 **Ticket:** [K-052](../tickets/K-052-content-ssot.md)
 **Worktree:** `.claude/worktrees/K-052-content-ssot/`
-**Architect Phase:** 2 (Design)
-**Status:** delivered, awaiting Engineer Pre-Implementation Design Challenge Sheet
-**Updated:** 2026-04-27
+**Architect Phase:** 2 → 1.5 redesign needed
+**Status:** Phase 2 delivered under "README is source" assumption; user reframe 2026-04-27 reverses direction. Architect Phase 1.5 dispatch pending in new session.
+**Updated:** 2026-04-27 (Phase 1.5 stamp)
 
-> Lock-Ins anchor: PRD §BQ Resolution Lock-Ins (2026-04-27). Where this doc and the older PRD §Architecture / §Schema / §Sacred-detection sections conflict, Lock-Ins wins (single source of design truth).
+> **⚠️ Phase 1.5 redesign needed (BQ-052-14 thru BQ-052-17 in PRD Lock-Ins).** This doc was produced under "README is source-of-truth on overlap → generator reads README marker block, emits to JSON" assumption. User reframe locks JSON-is-source: generator writes README marker blocks FROM JSON. Sections marked **[REVERSE NEEDED]** below require rewrite. Sections without that tag remain valid.
+>
+> **Delta scope for Phase 1.5:**
+> 1. §14 (README marker block consumer wiring) — direction reversed: JSON → README write, not README → JSON read
+> 2. New §16 — bootstrap one-shot script `scripts/bootstrap-site-content-from-readme.mjs` (parses README current content → seeds JSON, then `git rm` same commit)
+> 3. New §17 — PM persona patch for `~/.claude/agents/pm.md` Phase Gate ticket-close checklist (site-content.json review item per BQ-052-16)
+> 4. Schema update — `processRules[].severity` becomes structured JSON field (was inline README tag); `renderSlots.{home,about,readme}` per-consumer count fields
+>
+> **Sections still valid:** §1 (build script API), §2 (single-parse architecture), §3 (TD-vs-K filter), §4 (generator filename), §5 (JSON schema lock — extended with severity/renderSlots), §6 (AC-detection regex), §7 (Vite asset wiring), §8-13 (Sacred sections per BQ-052-17), §15 (Designer persona patch).
+>
+> Lock-Ins anchor: PRD §BQ Resolution Lock-Ins (2026-04-27 + Phase 1.5 reversal). Where this doc and the older PRD §Architecture / §Scope / §AC sections conflict, Lock-Ins wins.
 
 ---
 
