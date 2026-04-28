@@ -1,14 +1,27 @@
 {
-  "ticket": "K-040",
+  "ticket": "K-060",
   "frameId": "4CsvQ",
   "penFile": "frontend/design/homepage-v2.pen",
   "frameName": "Homepage / (v2 Dossier)",
   "route": "/",
   "width": 1440,
   "background": "#F4EFE5",
-  "generatedAt": "2026-04-23",
-  "generatorNote": "K-040 Sitewide Typography Reset — Bodoni Moda + Newsreader replaced by Geist Mono (italic OFF) across every text node in this frame. Footer (1BGtd) byte-identity preserved under K-034 Sacred.",
+  "generatedAt": "2026-04-28",
+  "generatorNote": "K-060 SSOT backfill — added DisclaimerBanner (yYnSS, index 0) and DisclaimerSection (qz7Po, below footer 1BGtd). Prior state: K-040 Geist Mono reset.",
   "components": [
+    {
+      "role": "disclaimer-banner",
+      "nodeId": "yYnSS",
+      "name": "DisclaimerBanner",
+      "fill": "#2A2520",
+      "height": 36,
+      "width": "fill_container",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "items": [
+        { "nodeId": "iWZWh", "content": "Lookup tool for K-line shape similarity — for learning and exploration. Outputs are not predictions and not financial advice.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#F4EFE5", "textAlign": "center" }
+      ]
+    },
     {
       "role": "navbar",
       "nodeId": "OSgI0",
@@ -117,6 +130,20 @@
       "items": [
         { "role": "footer-contact", "nodeId": "W3zUd", "content": "yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#6B5F4E" },
         { "role": "footer-ga", "nodeId": "i9kkN", "content": "This site uses Google Analytics to collect anonymous usage data.", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#6B5F4E" }
+      ]
+    },
+    {
+      "role": "disclaimer-section",
+      "nodeId": "qz7Po",
+      "name": "DisclaimerSection",
+      "fill": "#F4EFE5",
+      "width": "fill_container",
+      "padding": [48, 96],
+      "gap": 12,
+      "layout": "vertical",
+      "items": [
+        { "nodeId": "wd7SP", "name": "disclaimerHeading", "content": "Disclaimer", "font": { "family": "IBM Plex Mono", "size": 14, "weight": "700" }, "color": "#2A2520" },
+        { "nodeId": "Y2tTQR", "name": "disclaimerBody", "content": "This tool is for educational exploration of K-line pattern similarity only. It does not constitute financial advice, investment recommendations, or predictions of future market movements. Past pattern similarity does not guarantee future performance. Always conduct your own research and consult a qualified financial advisor before making any investment decisions.", "font": { "family": "Geist Mono", "size": 13, "weight": "normal", "lineHeight": 1.6 }, "color": "#2A2520", "width": "fill_container" }
       ]
     }
   ]

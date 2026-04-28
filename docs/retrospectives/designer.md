@@ -14,6 +14,12 @@
 
 - 倒序（最新在上）
 
+## 2026-04-28 — K-060 DisclaimerBanner + DisclaimerSection SSOT backfill (3 pages)
+
+**What went well:** Pencil buffer updates completed correctly — DisclaimerBanner (index 0, `#2A2520` 36px) and DisclaimerSection (below footer, `#F4EFE5` paper bg) added to all three pages (`4CsvQ`, `35VCj`, `wiDSi`); position correction (footer-below vs footer-above) applied in second pass after user feedback.
+**What went wrong:** `get_screenshot` and `export_nodes` both require VS Code Pencil app transport, which is unavailable from Claude Code CLI context — screenshots could not be exported this session; spec JSON had to be written manually from `batch_get` data rather than via `export_nodes`.
+**Next time improvement:** When running Designer from Claude Code CLI (not VS Code), screenshots are structurally blocked; note this upfront in the first health-check response so PM/user can open VS Code before session begins or plan a separate screenshot pass.
+
 ## 2026-04-24 — K-039 Phase 3（split-SSOT 規則落地 designer.md）
 
 **做得好：** 本 ticket 最終 content-delta: yes / visual-delta: none 全程 **未召喚 Designer**，符合 split-SSOT pattern 預期 — Phase 3 codification 把這個規則同時寫進 pm.md / engineer.md / designer.md 三支 persona，Designer 本人這端在 `~/.claude/agents/designer.md §Frame Artifact Export` 新增 "Text fields are frozen-at-session snapshots (K-039 2026-04-24 split-SSOT)" 子節，明確宣告 Pencil 的 content 節點（如 RoleCard 的 `r*Role` / `r*Owns` / `r*Art`）只是「上一次 Designer session 當下凍結的文字」，**runtime SSOT 是 `content/roles.json`**，非 Pencil — 下次 Designer 被召喚時 Step 0 有 `grep content/*.json <field-name>` re-sync gate 先看文字真相再動 Pencil，不會再把過期 `.pen` 當文字權威。

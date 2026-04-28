@@ -907,3 +907,27 @@ A0 — Pre-implementation grep scan（本段強制）：
 **沒做好：** Pass 2 盲抽 P5/P6 時應更謹慎估計 Diary page 的實際 DOM pattern，設計師兩頁用的 pattern 不同這點本可提前問清楚；盲抽理由「commit message 強暗示三處共用」過於薄弱，實際兩頁連 rail 的實作方式都截然不同（rectangle vs stroke），不是「共用 primitive 但樣式不同」而是「根本設計思路不同」
 
 **下次改善：** 「條件性 primitive」決策前先要求 Designer 提供所有相關頁面的 DOM 草圖，不等 Pencil MCP 連線好才確認；「commit message 暗示共用」不能作為抽 primitive 的唯一依據，必須至少有 structural similarity（相同 layout 模式）才考慮抽
+
+---
+
+## K-057 New Components (K-060 backfill, 2026-04-28)
+
+Components shipped in K-057 but missing from prior Pencil spec; backfilled by K-060.
+
+| Component | Pages | Location | Background | Text | Pencil Node IDs |
+|---|---|---|---|---|---|
+| DisclaimerBanner | `/`, `/about`, `/diary` | top of page, index 0, above NavBar | `#2A2520` | `#F4EFE5` 12px Geist Mono center | Home: `yYnSS`, About: `qnQHQ`, Diary: `ZqmEW` |
+| DisclaimerSection | `/`, `/about`, `/diary` | below footer (last element in frame) | `#F4EFE5` | `#2A2520` IBM Plex Mono heading 14px 700; Geist Mono body 13px lh-1.6 | Home: `qz7Po`, About: `QwyrN`, Diary: `Us4NB` |
+
+### DisclaimerBanner spec
+
+- Height: 36px, width: fill_container
+- Copy: `"Lookup tool for K-line shape similarity — for learning and exploration. Outputs are not predictions and not financial advice."`
+- Font: Geist Mono 12px normal, center-aligned
+
+### DisclaimerSection spec
+
+- Padding: 48px top/bottom, 96px left/right; gap: 12px; layout: vertical
+- Heading: `"Disclaimer"`, IBM Plex Mono 14px 700, color `#2A2520`
+- Body: Geist Mono 13px normal lh-1.6, color `#2A2520`, width fill_container
+- Body copy: `"This tool is for educational exploration of K-line pattern similarity only. It does not constitute financial advice, investment recommendations, or predictions of future market movements. Past pattern similarity does not guarantee future performance. Always conduct your own research and consult a qualified financial advisor before making any investment decisions."`

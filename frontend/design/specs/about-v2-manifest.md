@@ -19,7 +19,19 @@
 | `EBC1e` | S5_TicketAnatomySection (Nº 04 — ANATOMY OF A TICKET, 3 ticket case files: K-002 / K-008 / K-009) | `<TicketAnatomySection />` (S5) | `about-v2.frame-EBC1e.json` | `about-v2-EBC1e.png` |
 | `JFizO` | S6_ProjectArchitectureSection (Nº 05 — PROJECT ARCHITECTURE, 3 layer cards: Monorepo / Docs-driven / Testing pyramid) | `<ProjectArchitectureSection />` (S6) | `about-v2.frame-JFizO.json` | `about-v2-JFizO.png` |
 | `86psQ` | abFooterBar | `<Footer />` (shared/Footer, S7) | `homepage-v2.frame-86psQ.json` (preserved from K-034 Phase 1) | `about-v2-86psQ.png` + `homepage-v2-86psQ.png` |
+| `QwyrN` | DisclaimerSection (K-060) | `<DisclaimerSection />` (below footer) | `about-v2.frame-QwyrN.json` | (PNG pending — Pencil screenshot transport not available from CLI) |
 | `35VCj` (full page) | About /about (K-017 v2) — complete frame | entire `AboutPage.tsx` | (not re-exported; parent of all above) | `about-v2-35VCj-full.png` |
+
+## K-060 Addendum (2026-04-28)
+
+K-057 shipped `DisclaimerBanner` + `DisclaimerSection` to all three pages (`/`, `/about`, `/diary`) without Pencil SSOT. K-060 backfills the spec:
+
+| New Frame | Node ID | Position in 35VCj | Spec File |
+|---|---|---|---|
+| DisclaimerBanner | `qnQHQ` | index 0, above `voSTK` (abNav) | `about-v2.frame-qnQHQ.json` |
+| DisclaimerSection | `QwyrN` | last position, below `86psQ` (abFooterBar) | `about-v2.frame-QwyrN.json` |
+
+Screenshots blocked: `get_screenshot` requires VS Code Pencil app transport (not available from Claude Code CLI). Screenshots to be exported manually via Pencil app or in next Designer session with VS Code active.
 
 ## Drift Flags
 
