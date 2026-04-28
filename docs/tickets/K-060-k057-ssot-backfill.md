@@ -13,7 +13,7 @@ qa-early-consultation: N/A — docs-only, no runtime change
 dependencies: [K-057]
 worktree: .claude/worktrees/K-060-k057-ssot-backfill
 branch: K-060-k057-ssot-backfill
-base-commit: (to be filled at branch creation)
+base-commit: 4a722d8
 roles: [Designer, PM]
 ---
 

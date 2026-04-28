@@ -1,0 +1,27 @@
+{
+  "ticket": "K-060",
+  "frameId": "QwyrN",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "parentFrame": "35VCj",
+  "frameName": "DisclaimerSection — About /about",
+  "route": "/about",
+  "width": "fill_container",
+  "generatedAt": "2026-04-28",
+  "generatorNote": "K-060 SSOT backfill — DisclaimerSection added to About page (35VCj last position, below abFooterBar 86psQ). Spec mirrors Homepage qz7Po and Diary Us4NB.",
+  "components": [
+    {
+      "role": "disclaimer-section",
+      "nodeId": "QwyrN",
+      "name": "DisclaimerSection",
+      "fill": "#F4EFE5",
+      "width": "fill_container",
+      "padding": [48, 96],
+      "gap": 12,
+      "layout": "vertical",
+      "items": [
+        { "nodeId": "tNgXd", "name": "disclaimerHeading", "content": "Disclaimer", "font": { "family": "IBM Plex Mono", "size": 14, "weight": "700" }, "color": "#2A2520" },
+        { "nodeId": "vQpnS", "name": "disclaimerBody", "content": "This tool is for educational exploration of K-line pattern similarity only. It does not constitute financial advice, investment recommendations, or predictions of future market movements. Past pattern similarity does not guarantee future performance. Always conduct your own research and consult a qualified financial advisor before making any investment decisions.", "font": { "family": "Geist Mono", "size": 13, "weight": "normal", "lineHeight": 1.6 }, "color": "#2A2520", "width": "fill_container" }
+      ]
+    }
+  ]
+}

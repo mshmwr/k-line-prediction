@@ -14,6 +14,29 @@
       "children": [
         {
           "type": "frame",
+          "id": "qnQHQ",
+          "name": "DisclaimerBanner",
+          "width": "fill_container",
+          "height": 36,
+          "fill": "#2A2520",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "uyuvi",
+              "name": "disclaimerBannerText",
+              "fill": "#F4EFE5",
+              "content": "Lookup tool for K-line shape similarity — for learning and exploration. Outputs are not predictions and not financial advice.",
+              "textAlign": "center",
+              "fontFamily": "Geist Mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
           "id": "voSTK",
           "name": "abNav",
           "width": "fill_container",
@@ -3018,6 +3041,44 @@
               "letterSpacing": 1
             }
           ]
+        },
+        {
+          "type": "frame",
+          "id": "QwyrN",
+          "name": "DisclaimerSection",
+          "width": "fill_container",
+          "fill": "#F4EFE5",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            48,
+            96
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "tNgXd",
+              "name": "disclaimerHeading",
+              "fill": "#2A2520",
+              "content": "Disclaimer",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 14,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "vQpnS",
+              "name": "disclaimerBody",
+              "fill": "#2A2520",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "This tool is for educational exploration of K-line pattern similarity only. It does not constitute financial advice, investment recommendations, or predictions of future market movements. Past pattern similarity does not guarantee future performance. Always conduct your own research and consult a qualified financial advisor before making any investment decisions.",
+              "lineHeight": 1.6,
+              "fontFamily": "Geist Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
         }
       ]
     },
@@ -3031,6 +3092,29 @@
       "fill": "#F4EFE5",
       "layout": "vertical",
       "children": [
+        {
+          "type": "frame",
+          "id": "yYnSS",
+          "name": "DisclaimerBanner",
+          "width": "fill_container",
+          "height": 36,
+          "fill": "#2A2520",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "iWZWh",
+              "name": "disclaimerBannerText",
+              "fill": "#F4EFE5",
+              "content": "Lookup tool for K-line shape similarity — for learning and exploration. Outputs are not predictions and not financial advice.",
+              "textAlign": "center",
+              "fontFamily": "Geist Mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
         {
           "type": "frame",
           "id": "OSgI0",
@@ -3989,6 +4073,44 @@
               "letterSpacing": 1
             }
           ]
+        },
+        {
+          "type": "frame",
+          "id": "qz7Po",
+          "name": "DisclaimerSection",
+          "width": "fill_container",
+          "fill": "#F4EFE5",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            48,
+            96
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "wd7SP",
+              "name": "disclaimerHeading",
+              "fill": "#2A2520",
+              "content": "Disclaimer",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 14,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "Y2tTQR",
+              "name": "disclaimerBody",
+              "fill": "#2A2520",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "This tool is for educational exploration of K-line pattern similarity only. It does not constitute financial advice, investment recommendations, or predictions of future market movements. Past pattern similarity does not guarantee future performance. Always conduct your own research and consult a qualified financial advisor before making any investment decisions.",
+              "lineHeight": 1.6,
+              "fontFamily": "Geist Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
         }
       ]
     },
@@ -4002,6 +4124,29 @@
       "fill": "#F4EFE5",
       "layout": "vertical",
       "children": [
+        {
+          "type": "frame",
+          "id": "ZqmEW",
+          "name": "DisclaimerBanner",
+          "width": "fill_container",
+          "height": 36,
+          "fill": "#2A2520",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "mYIDn",
+              "name": "disclaimerBannerText",
+              "fill": "#F4EFE5",
+              "content": "Lookup tool for K-line shape similarity — for learning and exploration. Outputs are not predictions and not financial advice.",
+              "textAlign": "center",
+              "fontFamily": "Geist Mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
         {
           "type": "frame",
           "id": "vdJVv",
@@ -4572,6 +4717,44 @@
               "fontSize": 11,
               "fontWeight": "normal",
               "letterSpacing": 1
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Us4NB",
+          "name": "DisclaimerSection",
+          "width": "fill_container",
+          "fill": "#F4EFE5",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            48,
+            96
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "K0vun",
+              "name": "disclaimerHeading",
+              "fill": "#2A2520",
+              "content": "Disclaimer",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 14,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "sOxyY",
+              "name": "disclaimerBody",
+              "fill": "#2A2520",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "This tool is for educational exploration of K-line pattern similarity only. It does not constitute financial advice, investment recommendations, or predictions of future market movements. Past pattern similarity does not guarantee future performance. Always conduct your own research and consult a qualified financial advisor before making any investment decisions.",
+              "lineHeight": 1.6,
+              "fontFamily": "Geist Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
             }
           ]
         }

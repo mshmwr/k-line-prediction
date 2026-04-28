@@ -1,0 +1,26 @@
+{
+  "ticket": "K-060",
+  "frameId": "qnQHQ",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "parentFrame": "35VCj",
+  "frameName": "DisclaimerBanner — About /about",
+  "route": "/about",
+  "width": "fill_container",
+  "generatedAt": "2026-04-28",
+  "generatorNote": "K-060 SSOT backfill — DisclaimerBanner added to About page (35VCj index 0, above abNav voSTK). Spec mirrors Homepage yYnSS and Diary ZqmEW.",
+  "components": [
+    {
+      "role": "disclaimer-banner",
+      "nodeId": "qnQHQ",
+      "name": "DisclaimerBanner",
+      "fill": "#2A2520",
+      "height": 36,
+      "width": "fill_container",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "items": [
+        { "nodeId": "uyuvi", "content": "Lookup tool for K-line shape similarity — for learning and exploration. Outputs are not predictions and not financial advice.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#F4EFE5", "textAlign": "center" }
+      ]
+    }
+  ]
+}
