@@ -4,6 +4,10 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-28 — diary brevity fix — diary.json entries rewritten to ≤25w; ssot/frontend-checklist.md §Diary Sync Rule format corrected + hard cap added [trivial]
+
+---
+
 ## 2026-04-27 — meta-retro-brevity-cap (governance) — retro logs drifted to 1700+ lines from verbose episodic dumps — codified into ssot/workflow.md §Retrospective Entry Brevity
 
 ## 2026-04-27 — K-052 close (ticket-derived SSOT — generator + Sacred Registry + JSON-driven frontend)
