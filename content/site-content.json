@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-04-28T14:13:40+08:00",
+  "lastUpdated": "2026-04-28T14:49:21+08:00",
   "metrics": {
     "acCoverage": {
       "covered": 20,
@@ -9,11 +9,11 @@
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 36
+      "value": 37
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
-      "value": 179
+      "value": 182
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
