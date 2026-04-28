@@ -530,23 +530,9 @@ Phase 2 scope = CORS env var update (no image rebuild) + static CSV asset swap (
 **Next time improvement:**
 - Implement the `docs/qa/known-reds.md` manifest proposed in K-039 retro 2026-04-24. Before declaring any full-suite run matches baseline: byte-compare failing test IDs against manifest; new red ID = hard BLOCK; missing baseline red = targeted rerun before claiming pass. File as TD-QA-KNOWN-REDS ticket at next PM session end — cross-session accumulation of "known red" in retro text without a manifest file means each QA re-checks from zero. Add to qa.md persona §Mandatory Task Completion Steps between steps 2a and 3: "2b — compare failing test IDs against `docs/qa/known-reds.md`; any new ID = BLOCK". Codifying without filing a TD = same meta-violation as K-045 itself (retrospective lesson not landed as enforcement).
 
-## 2026-04-24 — K-045 QA Early Consultation (real QA spawn, pre-Architect)
+## 2026-04-24 — K-045 — Early Consultation step applicability not codified — codified into `~/.claude/agents/qa.md` §Suspended Steps at Pre-Implementation Phase (outer PR #58 SHA `2a2f1ee`, 2026-04-28)
 
-**Tier:** runtime code (frontend Tailwind class refactor on /about) — `feedback_qa_early_proxy_tier.md` enforces real QA spawn. Invoked before Architect release per ticket §5 BLOCK gate; pm proxy explicitly NOT authorized.
-
-**What went well:** Caught 3 Challenges not in PM's seed list — C-2 SectionContainer `py-16`/`py-12` vs Pencil `gap:72` structural mismatch (not a pure container-width migration — section-to-section vertical rhythm also needs reworking); C-3 Pencil `wwa0m` (S1 Hero) carries no per-line max-width constraint so migrating hero to full 1248 is actually Pencil-compliant (flips BQ-045-02 narrow-variant assumption); C-6 `about.spec.ts` Footer DOM-order assertion `#architecture.nextElementSibling === footer` requires Footer to remain full-bleed sibling of root `<div className="min-h-screen">` — any refactor that wraps sections in a new `max-w-[1248px]` outer wrapper MUST NOT swallow Footer or nextElementSibling breaks. 4 spec files grep'd byte-by-byte before writing each Challenge.
-
-**What went wrong:** Could not execute mandatory task step 0c (frame spec JSON + Playwright screenshot parity gate) because this is a pre-Architect consultation, not post-implementation sign-off — the flow has no running dev server to screenshot. Early Consultation persona does not currently define which QA mandatory steps are suspended at this stage. Discovered mid-task.
-
-**Next time improvement:** Edit `~/.claude/agents/qa.md` §Early Consultation to add explicit "suspended steps for pre-implementation mode": steps 0c (Pencil screenshot parity), 1 (visual-report.ts run), 2/2a (filename verify), 3 (PM notify of visual report) do NOT apply to Early Consultation; only apply to post-Code-Review sign-off. Step 0a (visual-spec.json read) + 0b (Pencil spec JSON read) DO apply to Early Consultation for any Pencil-backed ticket — K-045 has Pencil frames 35VCj / 4CsvQ / wiDSi as dependencies, all three were read verbatim before challenges were filed. Codify the tier-specific step applicability so future Early Consultations don't rediscover this case-by-case.
-
-## 2026-04-24 — K-041 Phase 4 Full E2E Regression (QA sign-off)
-
-**What went well:** Full suite (255 tests) ran once, 253 passed + 1 pre-existing flake + 1 skipped — Sacred K-023/K-028 Homepage marker tests (pages.spec.ts AC-023-DIARY-BULLET borderRadius 0px, AC-028-MARKER-COORD-INTEGRITY width=20 height=14) all green, confirming DiaryMarker prop unification preserved Homepage contract. Flipped T-C6 /diary mobile rail/marker display assertions now pass.
-
-**What went wrong:** Ran `npx playwright test --reporter=line` without TICKET_ID, producing K-UNKNOWN-visual-report.html pollution (persona step 1 pre-warning bypassed, TD-K030-03 Round-N recurrence). Post-step 2a verification caught it; deleted pollution + re-ran with TICKET_ID=K-041. Root cause: full-suite command fires visual-report.ts as part of `[visual-report]` project and the persona step-1 pre-warn only binds when visual-report is invoked standalone.
-
-**Next time improvement:** Before any `npx playwright test` command without test-file filter (i.e. full-suite run), prepend `TICKET_ID=K-XXX` env var — full-suite config contains visual-report project, so TICKET_ID is mandatory for BOTH standalone visual-report.ts runs AND full-suite runs. Codify into qa.md persona step 1: expand from "visual-report.ts standalone" to "any command that resolves the [visual-report] project, including full-suite".
+## 2026-04-24 — K-041 — TICKET_ID env var missing on full-suite run — codified into `~/.claude/agents/qa.md` §Mandatory Task Completion Steps step 1 (outer PR #58 SHA `2a2f1ee`, 2026-04-28)
 
 ## 2026-04-24 — K-041 QA Early Consultation (PM proxy tier — @qa-proxy)
 
@@ -578,13 +564,7 @@ Besides T-C6 (`diary-page.spec.ts:572`), any other spec asserting `/diary` mobil
 
 **Phase 4 mandatory full regression (unchanged):** post-implementation full Playwright suite + tsc must pass before PM close.
 
-## 2026-04-24 — K-039 Phase 1 (QA sign-off)
-
-**What went well:** Pre-existing guards on role cards (`AC-017-ROLES` 6×3, `AC-022-ROLE-GRID-HEIGHT` desktop + 3 mobile breakpoints, `AC-034-P2-FILENOBAR-VARIANTS` FILE Nº 01..06 exact, `AC-034-P2-DRIFT-D26-SUBTITLE-VERBATIM` S3 subtitle) all turned green on the refactored `RoleCardsSection` + new `roles.ts` module — single-source data extraction did not drift any visual or text assertion. The new `roles-doc-sync.spec.ts` (4/4 PASS) locks the TSX-canonical text against README + docs/ai-collab-protocols.md via explicit marker blocks, establishing a regression gate that would FAIL on any future drift without needing human diff review.
-
-**What went wrong:** No QA-observable defect. Process-level note: the 1 pre-existing red in the full suite (`AC-020-BEACON-SPA` in `ga-spa-pageview.spec.ts`, K-032 production gap) flows through every sign-off run and risks becoming invisible baseline noise — when a new failure surfaces under similar framing, the "known red" heuristic could cause a real regression to be waved through. The categorisation is correct for K-039 (beacon file unchanged, same failure pattern, zero overlap with role-card scope) but the baseline-as-noise pattern needs an explicit quarantine mechanism.
-
-**Next time improvement:** Enforce a "known-red manifest" in QA sign-off flow: before declaring any full-suite run matches baseline, compare the failing test IDs byte-equal against `docs/qa/known-reds.md` (to be created). Any new red ID = hard BLOCK even if count matches; any baseline red disappearing = verify with targeted rerun before claiming improvement. Codify as QA persona §Mandatory Task Completion Steps hard step (add between current steps 3 and 4).
+## 2026-04-24 — K-039 — known-red manifest enforcement gap — codified into `~/.claude/agents/qa.md` §Mandatory Task Completion Steps step 3a (outer PR #58 SHA `2a2f1ee`, 2026-04-28); manifest file created at `docs/qa/known-reds.md`
 
 ## 2026-04-23 — K-039 — QA Early Consultation (Split SSOT + README sync generator)
 
