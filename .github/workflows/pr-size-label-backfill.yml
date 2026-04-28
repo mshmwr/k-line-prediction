@@ -1,0 +1,33 @@
+name: Backfill PR Size Labels
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply size labels to all open PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for label in "size/XS" "size/S" "size/M" "size/L" "size/XL"; do
+            gh label create "$label" --repo ${{ github.repository }} --force 2>/dev/null || true
+          done
+
+          gh pr list --state open --json number,additions,deletions --repo ${{ github.repository }} | \
+          jq -r '.[] | "\(.number) \(.additions + .deletions)"' | \
+          while read -r number total; do
+            if   [ "$total" -lt 10  ]; then label="size/XS"
+            elif [ "$total" -lt 30  ]; then label="size/S"
+            elif [ "$total" -lt 100 ]; then label="size/M"
+            elif [ "$total" -lt 500 ]; then label="size/L"
+            else                             label="size/XL"
+            fi
+            echo "PR #$number: $total lines → $label"
+            gh pr edit "$number" --add-label "$label" --repo ${{ github.repository }}
+          done
