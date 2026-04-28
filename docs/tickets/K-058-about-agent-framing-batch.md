@@ -8,12 +8,12 @@ priority: high
 size: large
 visual-delta: yes
 content-delta: yes
-design-locked: false
-qa-early-consultation: pending
+design-locked: true
+qa-early-consultation: docs/retrospectives/qa.md 2026-04-28 K-058 — 7 challenges raised, 5 supplemented to AC, 1 Known Gap, 1 Engineer scope add
 dependencies: [K-057]
 worktree: .claude/worktrees/K-058-about-agent-framing-batch
 branch: K-058-about-agent-framing-batch
-base-commit: (to be filled at branch creation)
+base-commit: 28de229
 ---
 
 ## Summary
@@ -61,17 +61,21 @@ Lock down all copy for new sections before Designer draws anything. Gate conditi
 
 **Gate status:** `[GATE-PASSED 2026-04-28]`
 
-### Phase 1 — Designer
+### Phase 1 — Designer `[COMPLETE 2026-04-28]`
 
-Designer deliverables before Architect starts:
+Actual deliverables (supersedes original spec — scope evolved during design session):
 
-- Update Pencil `.pen` for `/about` frame `35VCj`:
-  - Add Role Pipeline section spec (static flow diagram + role table layout)
-  - Add "Where I Stepped In" section spec (A+C+B layout, 3-column comparison)
-  - Update Role Cards section to compact format α (reduced height, single-column)
-- Export updated `frontend/design/specs/35VCj.json` + `frontend/design/screenshots/35VCj.png`
-- In `35VCj.json`, mark `ticketCases[].title`, `ticketCases[].summary`, `ticketCases[].impact` text nodes as dynamic placeholder (annotate as `"dynamic": true` on the node, same pattern as numeric metric fields)
-- Update `/about` design doc spec table to reflect new sections
+- `omyb7` (SY_RolePipelineSection): section header + description + SVG placeholder; role table REMOVED (duplicate of compact cards); pills row REMOVED (replaced by SVG approach)
+- `GMEdT` (SX_WhereISteppedIn): A+C+B layout; mobile constraints annotated in JSON
+- `8mqwX` (S3_RoleCardsSection): compact format α; `(compact)` label **still in Pencil heading — Architect must flag to Engineer to use correct label "THE ROLES" in TSX**
+- `EBC1e` (S5_TicketAnatomySection): `dynamic: true` annotated on ticketCase title/outcome/learning nodes
+- Design doc: `docs/designs/K-058-about-framing-designer.md` (SVG spec, mobile constraints, shared component constraint)
+- BQ-058-01/02 resolved; BQ-058-03 open for Architect
+
+**Key scope changes vs. original PRD:**
+- Role Pipeline table removed (PM decision: duplicate of compact cards)
+- Pipeline flow: inline SVG (Engineer hand-writes from Designer spec) — CSS pills rejected (cannot represent cycle + on-demand branch)
+- Section order: S1 → S2 MetricsStrip → SX WhereISteppedIn → SY RolePipeline → S3 RoleCards(compact) → S4 → S5 → S6
 
 ### Phase 2 — Architect
 
@@ -104,6 +108,20 @@ Source targets:
 - `scripts/build-ticket-derived-ssot.mjs` — implement weight formula
 - `frontend/src/pages/AboutPage.tsx` — wire new sections in design-spec order
 
+**Shared component constraint (2026-04-28):** All new cards in RolePipelineSection and WhereISteppedInSection MUST use `CardShell` (`frontend/src/components/primitives/CardShell.tsx`) + `FileNoBar` (`frontend/src/components/about/FileNoBar.tsx`). No inline card JSX permitted. Grid layout uses inline Tailwind class (no shared grid wrapper — consistent with existing sections).
+
+**Mobile UX spec (2026-04-28, PM-approved):**
+- "Where I Stepped In" comparison table: `grid-cols-1 md:grid-cols-3` — each row stacks as a CardShell card on mobile, columns collapse to label+text pairs
+- Role Pipeline flow diagram: **inline SVG in TSX** (Engineer implements from Designer SVG spec in design doc) — SVG scales via `viewBox`, mobile uses `width: 100%`
+- Role Pipeline roles table: **REMOVED** — duplicate of compact RoleCards below. Role Pipeline section contains ONLY the flow diagram SVG + section header + description text.
+- Role Pipeline roles view (compact cards below): `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` — reuse compact RoleCard
+
+**Pipeline flow diagram spec (2026-04-28):**
+- Implementation: inline `<svg>` in `RolePipelineSection.tsx` — Engineer hand-writes SVG from Designer spec
+- Content: main loop (PM → Architect → Engineer → Reviewer → QA → PM cycle) + on-demand branch (Designer, dispatched by PM, feeds back to Architect)
+- Source of truth: `docs/designs/K-058-about-framing-designer.md` §SVG Flow Diagram Spec
+- Pills/CSS approach: REJECTED (cannot represent cyclic + on-demand branch in static Tailwind without JS)
+
 **Copy-change write-back gate (K-057 2026-04-28):** if any text node visible in `specs/35VCj.json` is changed in TSX, Engineer MUST update the matching JSON text node in the same PR.
 
 Sacred:
@@ -112,10 +130,14 @@ Sacred:
 - BuiltByAIBanner retirement: 4 E2E spec files reference `data-testid="built-by-ai-banner"` (`about.spec.ts:347`, `ga-tracking.spec.ts:232`, `pages.spec.ts:353`, `ga-spa-pageview.spec.ts:114`) — update or remove these assertions in the same Engineer commit if banner is removed/replaced
 
 E2E (new):
-- `about.spec.ts`: assert role pipeline section visible + role table row count ≥ 6
+- `about.spec.ts`: assert role pipeline section visible + ≥6 role name SVG text nodes present (`getByText` each of PM/Architect/Engineer/Reviewer/QA/Designer)
 - `about.spec.ts`: assert "Where I Stepped In" section visible with narrative block + comparison table
 - `about.spec.ts`: assert `TicketAnatomySection` renders 3 ticket cards from SSOT (not hardcoded TSX)
 - `about.spec.ts`: assert processRules rendered count = `renderSlots.about.processRules` (5)
+- `about.spec.ts` / `about-layout.spec.ts`: update ALL existing Nº-label assertions + SECTION_IDS array to reflect new section order (C-1 ruling)
+- `docs/qa/known-reds.md`: update T14 manifest entry — failure reason changes from "empty array" to "wrong expected list" after new section IDs added (C-7 ruling; T14 fix deferred)
+
+**Weight formula floor (C-5 ruling):** `weight = max(1, recencyScore + severityScore)` — ensures all processRules have weight ≥ 1 regardless of age/severity combination. Update formula in `scripts/build-ticket-derived-ssot.mjs`.
 
 ### Phase 4 — QA + Deploy
 
@@ -124,20 +146,25 @@ Deploy: Firebase Hosting only (frontend-only changes)
 
 ## Acceptance Criteria
 
-- AC-058-ROLE-PIPELINE: `/about` contains role pipeline section with ≥6 role names (PM/Architect/Engineer/Reviewer/QA/Designer) visible (Playwright `getByText`)
-- AC-058-PERIOD-STYLE: About page descriptive text uses period separators; zero `·` characters in rendered section bodies (Playwright text content scan)
+- AC-058-ROLE-PIPELINE: `/about` contains role pipeline section with ≥6 role names (PM/Architect/Engineer/Reviewer/QA/Designer) visible (Playwright `getByText` on SVG `<text>` nodes)
+- AC-058-PERIOD-STYLE: About page descriptive text uses period separators; zero `·` characters within `[data-section="where-i-stepped-in"] p, [data-section="role-pipeline"] p` (Playwright scoped text scan); `[data-testid="file-no-bar"]` explicitly exempted from scan
 - AC-058-WHERE-I: `/about` contains "Where I Stepped In" section with narrative block + 3-column comparison table visible (Playwright)
-- AC-058-ROLE-CARD-HEIGHT: Role cards use compact format α; Playwright screenshot shows reduced height vs K-057 baseline
-- AC-058-WEIGHT-FIX: `content/site-content.json` processRules all have `weight > 0` after generator run (`jq '.processRules[].weight' content/site-content.json | grep -v '^0$'` returns all lines)
+- AC-058-ROLE-CARD-HEIGHT: each role card `offsetHeight < 320` (K-057 fixed baseline) at 1280px viewport, verified by Playwright `evaluate` on `[data-role]` container
+- AC-058-WEIGHT-FIX: `content/site-content.json` processRules all have `weight ≥ 1` after generator run (formula: `max(1, recencyScore + severityScore)`); `jq '.processRules[].weight' content/site-content.json | grep -v '^0$'` returns all lines
 - AC-058-TOP-N: About page renders exactly `renderSlots.about.processRules` (5) process rules sorted by descending weight (Playwright count assertion)
 - AC-058-TICKET-CASES-SSOT: `TicketAnatomySection` imports from `content/ticket-cases.json`; no hardcoded array in TSX (`grep -n "const TICKETS" frontend/src/components/about/TicketAnatomySection.tsx` returns empty)
+- AC-058-TICKET-CASES-GITHUB-LINKS: after SSOT migration, each of the 3 ticket card `<a>` hrefs matches the known-good GitHub URL for K-002/K-008/K-009 verbatim (Playwright `toHaveAttribute`)
+- AC-058-SECTION-LABELS-UPDATED: all existing Nº-label assertions in `about-layout.spec.ts` T9, `about-v2.spec.ts`, and `about.spec.ts` updated to reflect new section order; no pre-K-058 green test becomes red from label-number renumbering alone
 - AC-058-DESIGN-LOCKED: `design-locked: true` set in this ticket frontmatter + Phase 1 Pencil artifacts landed before Phase A PR merge
+
+**Known Gaps:**
+- KG-058-01 (SVG mobile legibility): SVG role pipeline diagram legibility at narrow viewports (≤375px) not tested; `getByText` verifies node presence but not visual non-overlap; deferred — visual-only concern at this scale.
 
 ## Open BQs for Architect
 
-- **BQ-058-01** — Role pipeline visual: (A) static TSX flex row with arrow connectors, (B) CSS grid with role name pills + role-owns tooltip on hover, (C) inline SVG flow diagram. Default: A (no additional dep, current Tailwind sufficient).
-- **BQ-058-02** — "Where I Stepped In" placement on `/about`: (A) after MetricsStrip, (B) before Role Cards, (C) after Ticket Anatomy. Default: A (narrative precedes role detail).
-- **BQ-058-03** — `content/ticket-cases.json` location: (A) new top-level JSON in `content/`, (B) nested inside `site-content.json` as `ticketCases[]`. Default: A (separate concern; generator-independent).
+- **BQ-058-01** — ~~Role pipeline visual~~ **RESOLVED (Phase 1):** Option A — static TSX flex row with arrow connectors (`flex flex-wrap justify-center`, `→` inline). Implemented in Pencil spec `omyb7`.
+- **BQ-058-02** — ~~"Where I Stepped In" placement~~ **RESOLVED (Phase 1):** Option A — after MetricsStrip, before Role Pipeline. Confirmed in Pencil section order (y-coordinate validated).
+- **BQ-058-03** — `content/ticket-cases.json` location: (A) new top-level JSON in `content/`, (B) nested inside `site-content.json` as `ticketCases[]`. Default: A (separate concern; generator-independent). **Open for Architect.**
 
 ## Tech Debt Spawned (preliminary)
 

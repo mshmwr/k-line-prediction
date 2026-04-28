@@ -1,93 +1,65 @@
 {
-  "ticket": "K-040",
   "frameId": "8mqwX",
+  "name": "S3_RoleCardsSection",
   "penFile": "frontend/design/homepage-v2.pen",
-  "frameName": "S3_RoleCardsSection (About /about section 3)",
-  "parentPage": "About /about (K-017 v2) [35VCj]",
-  "layout": "vertical",
-  "gap": 28,
-  "generatedAt": "2026-04-23",
-  "generatorNote": "K-040 Sitewide Typography — 6 role cards; two-letter short names (PM/QA) Bodoni 36→Mono 26; long names (Architect/Engineer/Reviewer/Designer) Bodoni 32→Mono 22. All OWNS/ARTEFACT body Newsreader italic→Mono 12 normal.",
-  "components": [
+  "parentFrame": "35VCj > Y80Iv",
+  "sectionOrder": "After SY_RolePipelineSection (omyb7)",
+  "compactFormatAlpha": true,
+  "changes": {
+    "sectionLabel": "Nº 04 — THE ROLES (compact)",
+    "sectionIntro": "— Role cards. Each agent with its ownership and verifiable artefact.",
+    "cardHeight": "fit_content (was fixed 320px)",
+    "cardBodyPadding": 12,
+    "cardBodyGap": 8,
+    "cardBodyPaddingPrev": 20,
+    "cardBodyGapPrev": 14
+  },
+  "cards": [
     {
-      "role": "section-label",
-      "nodeId": "e5BzC",
-      "content": "Nº 02 — THE ROLES",
-      "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 },
-      "color": "#1A1814"
-    },
-    {
-      "role": "section-intro",
-      "nodeId": "JcFQi",
-      "content": "— Each role a separate agent with spec'd responsibilities. Every handoff produces a verifiable artefact.",
-      "font": { "family": "Geist Mono", "size": 14, "weight": "normal", "style": "normal", "lineHeight": 1.6 },
-      "color": "#1A1814",
-      "previousFontFamily": "Newsreader",
-      "previousFontStyle": "italic",
-      "previousFontSize": 15
-    },
-    {
-      "role": "role-card",
-      "nodeId": "szZ7h",
       "name": "role_PM",
-      "items": [
-        { "role": "card-label", "nodeId": "w6UOK", "content": "FILE Nº 01 · PERSONNEL", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#F4EFE5" },
-        { "role": "role-name", "nodeId": "yHMgd", "content": "PM", "font": { "family": "Geist Mono", "size": 26, "weight": "700", "style": "normal", "lineHeight": 1 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 36 },
-        { "role": "field-label", "nodeId": "SdhGZ", "content": "OWNS", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#6B5F4E" },
-        { "role": "field-body", "nodeId": "OHq4O", "content": "Requirements, AC, Phase Gates", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "style": "normal", "lineHeight": 1.5 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 14 },
-        { "role": "field-label", "nodeId": "mozdh", "content": "ARTEFACT", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#6B5F4E" },
-        { "role": "field-body", "nodeId": "F7xEA", "content": "PRD.md, docs/tickets/K-XXX.md", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814" }
-      ]
+      "id": "szZ7h",
+      "label": "FILE Nº 01 · PERSONNEL",
+      "roleId": "e5BzC"
     },
     {
-      "role": "role-card",
-      "nodeId": "p3NWv",
       "name": "role_Architect",
-      "items": [
-        { "role": "role-name", "nodeId": "giJrw", "content": "Architect", "font": { "family": "Geist Mono", "size": 22, "weight": "700", "style": "normal", "lineHeight": 1 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 32 },
-        { "role": "field-body", "nodeId": "mZjqa", "content": "System design, cross-layer contracts", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic" },
-        { "role": "field-body", "nodeId": "QLcUx", "content": "docs/designs/K-XXX-*.md", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814" }
-      ]
+      "id": "p3NWv",
+      "label": "FILE Nº 02 · PERSONNEL",
+      "roleId": "giJrw"
     },
     {
-      "role": "role-card",
-      "nodeId": "HGPky",
       "name": "role_Engineer",
-      "items": [
-        { "role": "role-name", "nodeId": "Mz3WZ", "content": "Engineer", "font": { "family": "Geist Mono", "size": 22, "weight": "700", "style": "normal", "lineHeight": 1 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 32 },
-        { "role": "field-body", "nodeId": "bZAe1", "content": "Implementation, stable checkpoints", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic" },
-        { "role": "field-body", "nodeId": "HhnZi", "content": "commits + ticket retrospective", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814" }
-      ]
+      "id": "HGPky",
+      "label": "FILE Nº 03 · PERSONNEL",
+      "roleId": "Mz3WZ"
     },
     {
-      "role": "role-card",
-      "nodeId": "3O32j",
       "name": "role_Reviewer",
-      "items": [
-        { "role": "role-name", "nodeId": "Oyr7h", "content": "Reviewer", "font": { "family": "Geist Mono", "size": 22, "weight": "700", "style": "normal", "lineHeight": 1 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 32 },
-        { "role": "field-body", "nodeId": "gqqx9", "content": "Code review, Bug Found Protocol", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic" },
-        { "role": "field-body", "nodeId": "jASUA", "content": "Review report + Reviewer 反省", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814" }
-      ]
+      "id": "3O32j",
+      "label": "FILE Nº 04 · PERSONNEL",
+      "roleId": "Oyr7h"
     },
     {
-      "role": "role-card",
-      "nodeId": "msFox",
       "name": "role_QA",
-      "items": [
-        { "role": "role-name", "nodeId": "uNkGq", "content": "QA", "font": { "family": "Geist Mono", "size": 26, "weight": "700", "style": "normal", "lineHeight": 1 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 36 },
-        { "role": "field-body", "nodeId": "MEBI4", "content": "Regression, E2E, visual report", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic" },
-        { "role": "field-body", "nodeId": "RW7Hz", "content": "Playwright results + docs/reports/*.html", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814" }
-      ]
+      "id": "msFox",
+      "label": "FILE Nº 05 · PERSONNEL",
+      "roleId": "uNkGq"
     },
     {
-      "role": "role-card",
-      "nodeId": "vtpKx",
       "name": "role_Designer",
-      "items": [
-        { "role": "role-name", "nodeId": "pnmDV", "content": "Designer", "font": { "family": "Geist Mono", "size": 22, "weight": "700", "style": "normal", "lineHeight": 1 }, "color": "#B43A2C", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 32 },
-        { "role": "field-body", "nodeId": "CxLxY", "content": "Pencil MCP, flow diagrams", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic" },
-        { "role": "field-body", "nodeId": "2d7dp", "content": ".pen file + get_screenshot output", "font": { "family": "Geist Mono", "size": 12, "weight": "normal" }, "color": "#1A1814" }
-      ]
+      "id": "vtpKx",
+      "label": "FILE Nº 06 · PERSONNEL",
+      "roleId": "pnmDV"
     }
-  ]
+  ],
+  "cardStructure": "Top dark bar (FILE Nº / PERSONNEL) + Body (role name prominent + OWNS label + owns text + ARTEFACT label + artefact text)",
+  "tokens": {
+    "roleNameColor": "#B43A2C",
+    "labelColor": "#6B5F4E",
+    "bodyBg": "#F4EFE5",
+    "topBarBg": "#2A2520",
+    "topBarText": "#F4EFE5",
+    "stroke": "#1A1814 1px inside",
+    "cornerRadius": 6
+  }
 }

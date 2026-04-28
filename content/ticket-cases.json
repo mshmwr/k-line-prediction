@@ -1,0 +1,28 @@
+{
+  "ticketCases": [
+    {
+      "id": "K-002",
+      "title": "UI optimization",
+      "summary": "Large-scale UI refactor surfaced a systematic And-clause omission — the SectionHeader icon And-clause was silently skipped by Engineer, Architect review, and QA before Code Review caught it.",
+      "impact": "The incident directly catalyzed the per-role retrospective log mechanism: one structural gap, three roles, one process improvement.",
+      "phase": "K-002",
+      "githubUrl": "https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-002-ui-optimization.md"
+    },
+    {
+      "id": "K-008",
+      "title": "Visual report script",
+      "summary": "Automated the visual screenshot pipeline (Playwright → HTML report). Bug Found Protocol triggered three times: module-level side effects, mutable accumulator state, and path traversal via env var.",
+      "impact": "Demonstrates the four-step Bug Found Protocol: reflect → PM confirms quality → write memory → release fix.",
+      "phase": "K-008",
+      "githubUrl": "https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-008-visual-report.md"
+    },
+    {
+      "id": "K-009",
+      "title": "1H MA history fix",
+      "summary": "1H predictions silently fell back to 1D MA history, producing incorrect similarity matches. Fixed via test-driven approach: failing test first, production fix second.",
+      "impact": "Demonstrates test-driven discipline: monkeypatch the internal call, write the failing assertion, confirm it fails, then fix implementation.",
+      "phase": "K-009",
+      "githubUrl": "https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-009-1h-ma-history-fix.md"
+    }
+  ]
+}

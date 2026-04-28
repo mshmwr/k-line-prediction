@@ -220,9 +220,9 @@ test.describe('AC-017-PILLARS — How AI Stays Reliable section', () => {
 test.describe('AC-017-TICKETS — Anatomy of a Ticket section', () => {
   test('section heading visible', async ({ page }) => {
     // K-034 Phase 2 §7 Step 6 — S5 h2 "Anatomy of a Ticket" deleted; SectionLabelRow
-    // in AboutPage.tsx carries "Nº 04 — ANATOMY OF A TICKET" as the sole heading.
+    // in AboutPage.tsx carries "Nº 06 — ANATOMY OF A TICKET" as the sole heading.
     await page.goto('/about')
-    await expect(page.getByText('Nº 04 — ANATOMY OF A TICKET', { exact: true })).toBeVisible()
+    await expect(page.getByText('Nº 06 — ANATOMY OF A TICKET', { exact: true })).toBeVisible()
   })
 
   test('K-002 card: ID + title + GitHub link', async ({ page }) => {
@@ -279,7 +279,7 @@ test.describe('AC-034-P2-DRIFT-D26-SUBTITLE-VERBATIM — Pencil-verbatim section
     await page.goto('/about')
     await expect(
       page.getByText(
-        "— Each role a separate agent with spec'd responsibilities. Every handoff produces a verifiable artefact.",
+        '— Role cards. Each agent with its ownership and verifiable artefact.',
         { exact: true }
       )
     ).toBeVisible()
@@ -304,9 +304,9 @@ test.describe('AC-034-P2-DRIFT-D26-SUBTITLE-VERBATIM — Pencil-verbatim section
 test.describe('AC-017-ARCH — Project Architecture section', () => {
   test('section heading and intro visible', async ({ page }) => {
     // K-034 Phase 2 §7 Step 7 — S6 h2 "Project Architecture" deleted; SectionLabelRow
-    // carries "Nº 05 — PROJECT ARCHITECTURE". s6Intro subtitle now has em-dash prefix.
+    // carries "Nº 07 — PROJECT ARCHITECTURE". s6Intro subtitle now has em-dash prefix.
     await page.goto('/about')
-    await expect(page.getByText('Nº 05 — PROJECT ARCHITECTURE', { exact: true })).toBeVisible()
+    await expect(page.getByText('Nº 07 — PROJECT ARCHITECTURE', { exact: true })).toBeVisible()
     await expect(page.getByText('— How the codebase stays legible for a solo operator + AI agents.', { exact: true })).toBeVisible()
   })
 
@@ -363,6 +363,70 @@ test.describe('AC-017-BANNER — Homepage BuiltByAIBanner', () => {
     await expect(page.getByRole('heading', { name: /K-line similarity/i })).toBeVisible()
     await expect(page.getByText('HOW IT WORKS')).toBeVisible()
     await expect(page.getByText('DEV DIARY')).toBeVisible()
+  })
+})
+
+// ── AC-058 — "One operator, six AI agents" framing batch ─────────────────────
+
+test.describe('AC-058-ROLE-PIPELINE — Role pipeline SVG section', () => {
+  test('role pipeline section and SVG visible with all 6 role names', async ({ page }) => {
+    await page.goto('/about')
+    await expect(page.locator('[data-testid="role-pipeline-svg"]')).toBeVisible()
+    for (const role of ['PM', 'Architect', 'Engineer', 'Reviewer', 'QA', 'Designer']) {
+      await expect(page.locator('[data-section="role-pipeline"]').getByText(role, { exact: true }).first()).toBeVisible()
+    }
+  })
+})
+
+test.describe('AC-058-WHERE-I — "Where I Stepped In" section', () => {
+  test('narrative block + comparison table visible', async ({ page }) => {
+    await page.goto('/about')
+    await expect(page.getByTestId('where-i-narrative')).toBeVisible()
+    await expect(page.getByTestId('where-i-table')).toBeVisible()
+    await expect(page.getByTestId('where-i-outcome')).toBeVisible()
+  })
+})
+
+test.describe('AC-058-ROLE-CARD-HEIGHT — compact role card height < 320', () => {
+  test('each role card offsetHeight < 320 at 1280px viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/about')
+    const heights = await page.locator('[data-role]').evaluateAll(els =>
+      els.map(el => (el as HTMLElement).offsetHeight)
+    )
+    for (const h of heights) {
+      expect(h).toBeLessThan(320)
+    }
+  })
+})
+
+test.describe('AC-058-PERIOD-STYLE — no middle-dots in new section paragraphs', () => {
+  test('no · character in [data-section="where-i-stepped-in"] p or [data-section="role-pipeline"] p', async ({ page }) => {
+    await page.goto('/about')
+    const midDots = await page.evaluate(() => {
+      const paras = Array.from(
+        document.querySelectorAll('[data-section="where-i-stepped-in"] p, [data-section="role-pipeline"] p')
+      ).filter(el => !el.closest('[data-testid="file-no-bar"]'))
+      return paras.filter(p => p.textContent?.includes('·')).length
+    })
+    expect(midDots).toBe(0)
+  })
+})
+
+test.describe('AC-058-TICKET-CASES-GITHUB-LINKS — ticket case GitHub URLs verbatim', () => {
+  test('K-002 GitHub link present with verbatim URL', async ({ page }) => {
+    await page.goto('/about')
+    await expect(page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-002-ui-optimization.md"]')).toBeVisible()
+  })
+
+  test('K-008 GitHub link present with verbatim URL', async ({ page }) => {
+    await page.goto('/about')
+    await expect(page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-008-visual-report.md"]')).toBeVisible()
+  })
+
+  test('K-009 GitHub link present with verbatim URL', async ({ page }) => {
+    await page.goto('/about')
+    await expect(page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-009-1h-ma-history-fix.md"]')).toBeVisible()
   })
 })
 

@@ -15,10 +15,12 @@ test.describe('AC-022-SECTION-LABEL — Section labels + hairline', () => {
 
     const sectionLabels = [
       'Nº 01 — DELIVERY METRICS',
-      'Nº 02 — THE ROLES',
-      'Nº 03 — RELIABILITY',
-      'Nº 04 — ANATOMY OF A TICKET',
-      'Nº 05 — PROJECT ARCHITECTURE',
+      'Nº 02.5 — WHERE I STEPPED IN',
+      'Nº 03 — THE ROLES',
+      'Nº 04 — THE ROLES',
+      'Nº 05 — RELIABILITY',
+      'Nº 06 — ANATOMY OF A TICKET',
+      'Nº 07 — PROJECT ARCHITECTURE',
     ]
 
     for (const label of sectionLabels) {
@@ -197,12 +199,12 @@ test.describe('AC-022-OWNS-ARTEFACT-LABEL — OWNS / ARTEFACT labels', () => {
 // ── AC-022-CASE-FILE-HEADER ───────────────────────────────────────────────────
 // Given: user visits /about
 // When:  page scrolls to Anatomy of a Ticket section
-// Then:  "Nº 04 — ANATOMY OF A TICKET" label visible (BQ-022-01 PM 裁決)
+// Then:  "Nº 06 — ANATOMY OF A TICKET" label visible (BQ-022-01 PM 裁決)
 
 test.describe('AC-022-CASE-FILE-HEADER — Ticket section label format', () => {
-  test('Nº 04 — ANATOMY OF A TICKET label visible (exact)', async ({ page }) => {
+  test('Nº 06 — ANATOMY OF A TICKET label visible (exact)', async ({ page }) => {
     await page.goto('/about')
-    await expect(page.getByText('Nº 04 — ANATOMY OF A TICKET', { exact: true })).toBeVisible()
+    await expect(page.getByText('Nº 06 — ANATOMY OF A TICKET', { exact: true })).toBeVisible()
   })
 })
 
@@ -334,7 +336,7 @@ test.describe('AC-022-ROLE-GRID-HEIGHT — Role Cards grid height', () => {
   })
 
   for (const width of [375, 390, 414]) {
-    test(`AC-022-ROLE-GRID-HEIGHT — ${width}px — 6 cards visible, height ≥ 200px each`, async ({ browser }) => {
+    test(`AC-022-ROLE-GRID-HEIGHT — ${width}px — 6 cards visible, height ≥ 100px each (compact format α)`, async ({ browser }) => {
       const ctx = await browser.newContext({ viewport: { width, height: 812 } })
       const page = await ctx.newPage()
       await page.goto('/about')
@@ -344,7 +346,7 @@ test.describe('AC-022-ROLE-GRID-HEIGHT — Role Cards grid height', () => {
         els.map(el => el.getBoundingClientRect().height)
       )
       for (const h of heights) {
-        expect(h).toBeGreaterThanOrEqual(200)
+        expect(h).toBeGreaterThanOrEqual(100)
       }
       await ctx.close()
     })

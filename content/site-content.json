@@ -1,11 +1,11 @@
 {
-  "lastUpdated": "2026-04-28T14:49:21+08:00",
+  "lastUpdated": "2026-04-28T18:08:54+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 20,
+      "covered": 23,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 53
+      "total": 56
     },
     "featuresShipped": {
       "label": "Features Shipped",
@@ -13,7 +13,7 @@
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
-      "value": 182
+      "value": 183
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
@@ -30,7 +30,7 @@
       "summary": "when a code reviewer finds a bug, the responsible role writes a short retrospective naming the root cause before any fix begins.",
       "ticketAnchor": null,
       "title": "Bug Found Protocol",
-      "weight": 0
+      "weight": 3
     },
     {
       "aboutSlots": null,
@@ -41,7 +41,7 @@
       "summary": "for any user-voice document (README, portfolio copy, CV), PM pauses the pipeline until the operator approves the verbatim draft.",
       "ticketAnchor": null,
       "title": "Content-Alignment Gate",
-      "weight": 0
+      "weight": 1
     },
     {
       "aboutSlots": null,
@@ -52,7 +52,7 @@
       "summary": "before any deploy, every unmerged ticket branch is rebased onto the current main and then fast-forward merged in.",
       "ticketAnchor": null,
       "title": "Deploy rebase-then-FF-merge",
-      "weight": 0
+      "weight": 1
     },
     {
       "aboutSlots": null,
@@ -63,7 +63,7 @@
       "summary": "only the Designer role edits the `.pen` design files; every other role reads the exported JSON + PNG. The code reviewer runs a line-by-line parity check between the design and the shipped component. Added during K-034 after shipped components kept diverging from the design without anyone noticing. See [docs/tickets/K-034](./docs/tickets/K-034-about-spec-audit-and-workflow-codification.md).",
       "ticketAnchor": "docs/tickets/K-034-about-spec-audit-and-workflow-codification.md",
       "title": "Pencil as design source of truth",
-      "weight": 0
+      "weight": 1
     },
     {
       "aboutSlots": null,
@@ -74,7 +74,7 @@
       "summary": "the role table in this README is wrapped in `<!-- ROLES:start -->` / `<!-- ROLES:end -->` markers and regenerated from a single JSON file.",
       "ticketAnchor": "docs/tickets/K-039-split-ssot-role-cards.md",
       "title": "Locked marker block",
-      "weight": 0
+      "weight": 1
     }
   ],
   "renderSlots": {
@@ -155,6 +155,6 @@
   ],
   "ticketRange": {
     "first": "K-001",
-    "last": "K-057"
+    "last": "K-060"
   }
 }

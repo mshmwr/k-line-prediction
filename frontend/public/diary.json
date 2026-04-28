@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-058",
+    "title": "About page — one operator, six AI agents framing batch",
+    "date": "2026-04-28",
+    "text": "Added two new /about sections (WhereISteppedIn comparison table + RolePipeline inline SVG diagram), updated section numbering to Nº 02.5–07, migrated TicketAnatomy data to a content/ticket-cases.json SSOT, shipped RoleCard compact format alpha reducing card height, and added processRules weight formula to the SSOT generator."
+  },
+  {
     "ticketId": "K-057",
     "title": "Landing product polish — hero reframe, consent gate, funnel events",
     "date": "2026-04-28",

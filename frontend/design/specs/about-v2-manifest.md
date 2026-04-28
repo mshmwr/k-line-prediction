@@ -78,6 +78,67 @@ Preserved from K-034 Phase 1 (footer, same `.pen` frame ID shared across /about 
 - `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/frontend/design/screenshots/about-v2-35VCj-full.png` (full-page overview)
 - `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/frontend/design/screenshots/about-v2-86psQ.png` (footer copy for /about naming consistency)
 
+## K-058 Phase 1.5 Addendum (2026-04-28)
+
+### omyb7 (SY_RolePipelineSection) — Table removed, SVG placeholder added
+
+**Change:** PM decision to remove role-owns-artefact table (node `qRYhe` / rpRolesTable) from `omyb7`.
+
+**Rationale:** Table duplicated compact role cards already present in `8mqwX` below.
+
+**omyb7 children after K-058 Phase 1.5:**
+| Node ID | Name | Type | Notes |
+|---------|------|------|-------|
+| `c9Cc2` | rpHead | frame | Section header — unchanged |
+| `g0IvrE` | rpDesc | text | Description — unchanged |
+| `xu3l7` | rpPillsRow | frame | Pills row — unchanged |
+| `ZIExb` | rpSvgPlaceholder | frame | **NEW** — 200px tall, fill `#EDE8DE`, dashed border `#8B7A6B`; marks SVG inject point |
+
+**Deleted:** `qRYhe` (rpRolesTable) — cross-frame scan confirmed single occurrence only.
+
+**SVG spec:** see `docs/designs/K-058-about-framing-designer.md §SVG Flow Diagram Spec (Role Pipeline)` for all coordinates, colors, and arrowhead marker definitions.
+
+**Updated artifacts:**
+- `frontend/design/specs/about-v2.frame-omyb7.json` — overwritten with post-deletion node tree
+- `frontend/design/screenshots/about-v2-omyb7.png` — re-exported at 1x
+
+---
+
+## K-058 Phase 1 Addendum (2026-04-28)
+
+Two new sections added, one section compact-updated, one section annotated with dynamic markers.
+
+### New frames added to 35VCj > Y80Iv
+
+| Frame ID | Section Name | Position in Y80Iv | Spec File | Screenshot |
+|----------|-------------|-------------------|-----------|------------|
+| `GMEdT` | SX_WhereISteppedIn | index 2 (after BF4Xe, before omyb7) | `about-v2.frame-GMEdT.json` | `about-v2-GMEdT.png` |
+| `omyb7` | SY_RolePipelineSection | index 3 (after GMEdT, before 8mqwX) | `about-v2.frame-omyb7.json` | `about-v2-omyb7.png` |
+
+### Updated frames
+
+| Frame ID | Change | Updated Spec | Updated Screenshot |
+|----------|--------|--------------|-------------------|
+| `8mqwX` | Compact format α: fit_content height, padding 12, gap 8; label → Nº 04 | `about-v2.frame-8mqwX.json` | `about-v2-8mqwX.png` |
+| `EBC1e` | Dynamic placeholder annotations on ticket case title/outcome/learning nodes | `about-v2.frame-EBC1e.json` | `about-v2-EBC1e.png` |
+
+### Known limitation (BQ-058-D1)
+
+Pencil `M()` re-orders `batch_get` JSON children array but NOT the rendering engine layout. New sections appear visually at bottom of Y80Iv in screenshots. Section order in `batch_get` JSON (index 0–7) is authoritative for Engineer implementation. See `docs/designs/K-058-about-framing-designer.md §BQ-058-D1`.
+
+### Y80Iv children order (authoritative, from batch_get)
+
+| Index | Frame ID | Section |
+|-------|----------|---------|
+| 0 | `wwa0m` | S1_PageHeaderSection |
+| 1 | `BF4Xe` | S2_MetricsStripSection |
+| 2 | `GMEdT` | SX_WhereISteppedIn |
+| 3 | `omyb7` | SY_RolePipelineSection |
+| 4 | `8mqwX` | S3_RoleCardsSection (compact) |
+| 5 | `UXy2o` | S4_ReliabilityPillarsSection |
+| 6 | `EBC1e` | S5_TicketAnatomySection |
+| 7 | `JFizO` | S6_ProjectArchitectureSection |
+
 ## Confirmation
 
 - `batch_design` NOT used — this is a pure read/export task

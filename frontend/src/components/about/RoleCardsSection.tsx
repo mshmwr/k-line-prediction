@@ -20,7 +20,7 @@ export default function RoleCardsSection() {
         className="text-[14px] text-ink leading-[1.6] mb-6"
         data-section-subtitle
       >
-        — Each role a separate agent with spec&apos;d responsibilities. Every handoff produces a verifiable artefact.
+        — Role cards. Each agent with its ownership and verifiable artefact.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[14px]">
         {ROLES.map(({ fileNo, role, owns, artefact }) => (

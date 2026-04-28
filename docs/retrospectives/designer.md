@@ -14,6 +14,35 @@
 
 - 倒序（最新在上）
 
+## 2026-04-28 — K-058 pills-row orphan cleanup + session retro
+
+**What went wrong:** (1) `xu3l7` (`rpPillsRow`) was not deleted when switching from CSS pills to SVG approach — "delete table" scope did not trigger audit of other nodes serving the same purpose. (2) `qRYhe` (Role Pipeline table) duplicated compact card data — PRD item implemented without cross-section redundancy check. (3) G-4 git-status check not run after every `batch_design`, only at session end. (4) Section heading text `(compact)` was an implementation note treated as approved copy and written to Pencil.
+**Next time improvement:** codified to designer.md BL-1 through BL-4 (see persona §Pencil Tool Constraints).
+
+## 2026-04-28 — K-058 Phase 1.5 omyb7 table removal + SVG spec
+
+**What went well:** Cross-frame scan immediately confirmed `qRYhe` appeared only in `omyb7` (no sync needed); `D("qRYhe")` + SVG placeholder insert executed cleanly in one `batch_design` call; git status confirmed disk write without needing cmd+s.
+**What went wrong:** No issues — straightforward delete + insert with clear PM scope.
+**Next time improvement:** n/a — clean execution.
+
+## 2026-04-28 — K-058 layout bug diagnosis (Y80Iv overlap claim)
+
+**What went well:** `snapshot_layout` on Y80Iv immediately confirmed flexbox auto-stacking with correct gap=72px between all sections; no overlap existed; 8mqwX height=173px correctly propagated to UXy2o y=1939; GMEdT→omyb7→8mqwX order confirmed correct; design doc §Section Order already had "Status: RESOLVED" note confirming prior session had reached the same conclusion.
+**What went wrong:** PM bug report described absolute-position overlap — but Y80Iv has `layout: "vertical"` so flexbox handles y-coordinates automatically; no manual fix was needed or possible.
+**Next time improvement:** When bug report claims y-coordinate drift in a frame, first read `batch_get` to check whether the parent uses `layout: "vertical"` — if yes, flexbox resolves heights automatically and the "overlap" is likely already fixed; `snapshot_layout` is the definitive check.
+
+## 2026-04-28 — K-058 Phase 1 doc/spec update (mobile constraints + BQ-058-D1 resolve)
+
+**What went well:** Three doc/spec files updated atomically in one session; BQ-058-D1 replaced with resolved status + y-coordinate evidence; mobile constraint tables added to both JSON specs and design doc correctly.
+**What went wrong:** No issues — this was a pure doc/spec update with no Pencil buffer changes.
+**Next time improvement:** n/a — doc-only update session.
+
+## 2026-04-28 — K-058 Phase 1 /about framing (WhereISteppedIn + RolePipeline + compact RoleCards + EBC1e dynamic)
+
+**What went well:** All four design targets (2 new sections, 1 compact update, 1 dynamic annotation) correctly authored in Pencil buffer with spec JSON + PNG exports; section content (copy, tokens, table structure) matches requirements verbatim; EBC1e dynamic metadata annotations applied correctly.
+**What went wrong:** Pencil `M()` only reorders `batch_get` JSON children but not the rendering engine layout — new sections `GMEdT`/`omyb7` render at bottom of Y80Iv instead of after BF4Xe; `snapshot_layout` y-coordinates stale (reflect computed layout, not array order); multiple M() retry attempts all confirmed the same limitation.
+**Next time improvement:** When inserting new child sections that require specific position in an existing vertical layout frame, use `D()` + correct-index `I()` instead of `M()` — or insert placeholder frames before filling content so the insertion index is set at creation time (no post-creation move needed).
+
 ## 2026-04-28 — K-060 DisclaimerBanner + DisclaimerSection SSOT backfill (3 pages)
 
 **What went well:** Pencil buffer updates completed correctly — DisclaimerBanner (index 0, `#2A2520` 36px) and DisclaimerSection (below footer, `#F4EFE5` paper bg) added to all three pages (`4CsvQ`, `35VCj`, `wiDSi`); position correction (footer-below vs footer-above) applied in second pass after user feedback.

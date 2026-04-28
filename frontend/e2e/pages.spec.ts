@@ -59,13 +59,14 @@ test.describe('AboutPage — AC-ABOUT-1 (K-017)', () => {
 
   test('Role Cards section visible with 6 roles', async ({ page }) => {
     await page.goto('/about')
-
-    await expect(page.getByText('PM', { exact: true })).toBeVisible()
-    await expect(page.getByText('Architect', { exact: true })).toBeVisible()
-    await expect(page.getByText('Engineer', { exact: true })).toBeVisible()
-    await expect(page.getByText('Reviewer', { exact: true })).toBeVisible()
-    await expect(page.getByText('QA', { exact: true })).toBeVisible()
-    await expect(page.getByText('Designer', { exact: true })).toBeVisible()
+    // K-058: role names also appear in RolePipelineSection SVG text nodes; scope to #roles
+    const roles = page.locator('#roles')
+    await expect(roles.getByText('PM', { exact: true })).toBeVisible()
+    await expect(roles.getByText('Architect', { exact: true })).toBeVisible()
+    await expect(roles.getByText('Engineer', { exact: true })).toBeVisible()
+    await expect(roles.getByText('Reviewer', { exact: true })).toBeVisible()
+    await expect(roles.getByText('QA', { exact: true })).toBeVisible()
+    await expect(roles.getByText('Designer', { exact: true })).toBeVisible()
   })
 
   test('How AI Stays Reliable three pillars visible', async ({ page }) => {
