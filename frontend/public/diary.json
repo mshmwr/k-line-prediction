@@ -3,73 +3,73 @@
     "ticketId": "K-052",
     "title": "Ticket-derived SSOT — site-content.json + Sacred Registry + JSON-driven frontend",
     "date": "2026-04-27",
-    "text": "Built the ticket-corpus generator (scripts/build-ticket-derived-ssot.mjs) that reads all docs/tickets/*.md once and emits three targets: content/site-content.json (auto-filled metrics — features shipped, AC coverage, post-mortems, lessons codified — plus hand-edited stack[], processRules[], renderSlots), docs/sacred-registry.md (Sacred clause lifecycle registry tracking active/retired regression-invariant ACs with SHA-256 body hashes), and README.md STACK + NAMED-ARTEFACTS marker blocks; the direction is JSON-is-source for all three outputs. Wired MetricsStripSection.tsx and ProjectLogicSection.tsx to import from the SSOT via a new Vite alias @/content so no values are hardcoded in component files. Backfilled five closed tickets (K-021/K-031/K-035/K-040/K-046) with sacred-clauses frontmatter and produced a 7-entry registry (6 active, 1 retired) on first generation. Pre-commit hook extended to run --check on staged SSOT files, and the prebuild script regenerates the SSOT before every frontend build."
+    "text": "Built a ticket-corpus generator emitting site-content.json, sacred-registry.md, and README markers from docs/tickets/*.md, wired to the frontend via a @/content Vite alias."
   },
   {
     "ticketId": "K-054",
     "title": "README cleanup + BFP narrative (translation split to K-055)",
     "date": "2026-04-26",
-    "text": "Polished the public-facing README with four surgical edits — deleted the duplicate Stack one-liner already covered by all five badges, removed the Try-the-prediction-tool CTA while keeping the section heading + descriptive paragraph as the harness narrative anchor, redirected the retrospectives directory link to the single-entry meta-retro file whose recursive process-improvement story carries higher portfolio signal than a flat per-role list, and added a K-035 Bug Found Protocol inline excerpt mirroring the Content-Alignment Gate Before/After quote pattern; same PR also paraphrased nine residual Chinese lines across docs/designs/shared-components-inventory.md, docs/designs/K-053-scroll-to-top.md, and docs/tickets/K-051-daily-db-backfill-rollup-fix.md per the new feedback_retro_no_verbatim_user_quotes.md rule, with the original ~150-file translation cherry-pick from outer Diary codex/translate-k-line-docs-en branch deferred to fresh ticket K-055 because outer-AI translation completeness still blocks the Chinese-sweep gate."
+    "text": "Polished the README with four surgical edits and paraphrased nine residual Chinese lines across three design and ticket docs."
   },
   {
     "ticketId": "K-053",
     "title": "Scroll-to-top on route change",
     "date": "2026-04-26",
-    "text": "Mounted a 30-LOC ScrollToTop component inside BrowserRouter (sibling-after GATracker, outside Routes/Suspense) that watches useLocation and resets window.scrollY to 0 on every pathname change while early-returning when a hash anchor is present, and disables history.scrollRestoration='manual' to eliminate the POP single-frame flicker; ships with a 102-LOC Playwright spec covering pathname-change reset, hash-anchor preservation (≥700px scroll retained), and same-route NavBar re-click no-op, plus an Engineer Pre-Implementation Design Challenge Sheet (4 items A1/C1/M1/Z1, all Architect-ACCEPT in Round 2) that absorbed every issue a depth review would have surfaced — Reviewer CODE-PASS 0/0/2 Info, QA 4/4 gates green, K-030 isolation + K-031 + K-034 Footer byte-identity + K-040 width parity all preserved."
+    "text": "Mounted a ScrollToTop component that resets window.scrollY on every pathname change while preserving hash-anchor scroll position."
   },
   {
     "ticketId": "K-051",
     "title": "Daily history DB backfill + Cloud Build rollup-musl fix",
     "date": "2026-04-26",
-    "text": "Backfilled 16 missing daily ETH/USDT bars (2026-03-20 through 2026-04-08, byte-equal verified against the Binance API on four overlap dates) so user-uploaded 1H CSVs near the present-day boundary stop tripping the 'ma_history requires at least 129 daily bars' error inside find_top_matches; same retroactive ticket also closed a Cloud Build npm bug (alpine + macOS-generated lockfile silently dropping the @rollup/rollup-linux-x64-musl binary) with a one-line surgical Dockerfile fix that pins the binary post-npm-ci, validated via local docker build --platform linux/amd64 and a clean Cloud Run deploy of revision 00006-vxr serving the new 3155-row daily DB with the original symptom CSV producing 10 matches at correlation 0.8746 and zero ma_history errors."
+    "text": "Backfilled 16 missing daily ETH/USDT bars and patched the Dockerfile to pin the missing @rollup linux binary, then redeployed to Cloud Run."
   },
   {
     "ticketId": "K-050",
     "title": "Footer social links — clickable brand-asset icons + click-to-copy email",
     "date": "2026-04-25",
-    "text": "Restored clickable Footer UX across all four marketing routes by replacing the Pencil flat-text one-liner with three brand-asset SVG anchors (mail / GitHub / LinkedIn imported via vite-plugin-svgr) and a click-to-copy email button that writes to navigator.clipboard with a range-selection fallback, swaps the label to 'Copied!' for 1500ms, and announces the copy via a sr-only role=status aria-live=polite region; K-018 GA cta_click events are fully restored on all four routes plus a new cross-route sanity test, the Pencil SSOT flat-text frames stay as layout-placeholders backed by a new design-exemptions.md §2 BRAND-ASSET category, and the K-034 Phase 1 byte-identity Sacred plus K-045 width parity invariants are preserved by keeping a single zero-prop Footer DOM shared across the four consumer pages."
+    "text": "Restored Footer clickability with brand-asset SVG anchors for mail, GitHub, and LinkedIn, plus a click-to-copy email button with clipboard fallback."
   },
   {
     "ticketId": "K-046",
     "title": "Neutralize upload-history write path + example CSV download",
     "date": "2026-04-24",
-    "text": "Commented out the disk-save and global-mutate block inside POST /api/upload-history so visitors can no longer pollute the demo database, and added an always-visible example CSV download link beneath the uploader; response schema preserved, semantics flip to pre-upload state (added_count:0, bar_count:len(existing)). Reversible for K-047 authenticated auto-scraper, Sacred K-009 and K-013 invariants preserved."
+    "text": "Disabled database writes on POST /api/upload-history to prevent visitor pollution and added an example CSV download link."
   },
   {
     "ticketId": "K-045",
     "title": "Desktop layout consistency across /about, /, /diary",
     "date": "2026-04-24",
-    "text": "Aligned desktop layouts of /about, /, and /diary by retiring the legacy SectionContainer primitive and rewriting /about with per-section max-w-[1248px] px-6 sm:px-24 containers plus margin-based vertical rhythm, preserving K-031 DOM adjacency and K-034 Footer byte-identity Sacred invariants with Footer width Δ=0 across routes at 1280px."
+    "text": "Aligned desktop layouts across all routes by retiring the SectionContainer primitive and rewriting /about with per-section width and padding containers."
   },
   {
     "ticketId": "K-044",
     "title": "README showcase rewrite — agent team primary identity plus v2 before/after",
     "date": "2026-04-24",
-    "text": "Rewrote the top-level README to lead with the six-agent harness (PM / Architect / Engineer / Reviewer / QA / Designer) and v1/v2 homepage screenshots, demoted K-line prediction to supporting scope, added a Content-Alignment Gate to ai-collab-protocols, migrated prediction architecture content into agent-context/architecture.md, and cascaded the K-039 roles SSOT update through README plus protocol doc plus /about role cards."
+    "text": "Rewrote the README to lead with the six-agent harness narrative and cascaded the roles SSOT update through README, protocols, and /about role cards."
   },
   {
     "ticketId": "K-042",
     "title": "PageHero shared component — responsive mobile type scale unifies Home/About/Diary H1",
     "date": "2026-04-24",
-    "text": "Extracted a PageHero shared component that renders a single <h1> with per-line span blocks, enforcing a 36px mobile / per-page desktop (56px /, 52px /about + /diary) type scale so the /about mobile Hero no longer overflows on long words like 'orchestrating'; Home, About, and Diary now share one heading primitive."
+    "text": "Extracted a PageHero shared component enforcing a 36px mobile and per-page desktop type scale across Home, About, and Diary."
   },
   {
     "ticketId": "K-041",
     "title": "/diary mobile rail and marker restore via shared-component mobileVisible prop",
     "date": "2026-04-24",
-    "text": "K-041 closed — /diary mobile rail and marker restored via shared DiaryRail/DiaryMarker components with mobileVisible + borderRadius + topInset props; Homepage K-023/K-028 Sacred invariants preserved via explicit prop overrides."
+    "text": "Restored /diary mobile rail and marker via shared DiaryRail and DiaryMarker components with mobileVisible and topInset props."
   },
   {
     "ticketId": "K-039",
     "title": "Split SSOT for /about role cards",
     "date": "2026-04-24",
-    "text": "Split the role-card source of truth into two layers — Pencil owns visual, content/roles.json owns runtime text — with a sync generator and pre-commit hook that kill README/protocol doc drift without needing a Designer session."
+    "text": "Split role-card data into two layers: Pencil owns visual layout, content/roles.json owns runtime text, enforced by a pre-commit hook."
   },
   {
     "ticketId": "K-040",
     "title": "Sitewide UI polish batch — Bodoni to Geist Mono reset plus 8 polish items",
     "date": "2026-04-23",
-    "text": "Sitewide font reset from Bodoni Moda / Newsreader to a single Geist Mono family with italic OFF across all routes, bundled with 8 UI polish items (Home padding parity, Diary footer spacing and mobile rail restore, /about protocol links open-in-new-tab, Hero mobile rhythm, Pencil GA backfill) and W-1/W-2/W-3 token semantic cleanup with zero runtime behavior change."
+    "text": "Reset sitewide fonts to Geist Mono with italic OFF and bundled eight UI polish items covering padding, spacing, and Pencil GA backfill."
   },
   {
     "ticketId": "K-037",
@@ -81,7 +81,7 @@
     "ticketId": "K-034",
     "title": "About footer Pencil-SSOT unification",
     "date": "2026-04-23",
-    "text": "Retired the Footer variant prop and collapsed the component to the single Pencil-literal one-liner, so homepage, /about, and /business-logic now render byte-identical footers from one source."
+    "text": "Retired the Footer variant prop and collapsed to a single Pencil-literal so all routes render byte-identical footers."
   },
   {
     "ticketId": "K-036",
@@ -128,7 +128,7 @@
     "ticketId": "K-022",
     "title": "About structure alignment v2",
     "date": "2026-04-21",
-    "text": "Aligned /about to design v2 across twelve items (DossierHeader, SectionLabelRow, Hero pairing, Role Card labels, CASE FILE / LAYER headers) and migrated shared primitives to the paper palette."
+    "text": "Aligned /about to design v2 across twelve items including DossierHeader, SectionLabelRow, and Role Card labels, migrating primitives to the paper palette."
   },
   {
     "ticketId": "K-021",
@@ -145,6 +145,6 @@
   {
     "title": "Early project phases and deployment setup",
     "date": "2026-04-16",
-    "text": "Stood up the FastAPI + React monorepo from scratch with a JWT-protected business-logic endpoint and a five-route SPA, shipped the 1H/1D K-line similarity forecast UI with MA99 trend filter, wrote the first 10 tickets covering architecture and the prediction pipeline, and deployed the backend to Cloud Run via Docker with the static frontend on Firebase Hosting."
+    "text": "Bootstrapped the FastAPI + React monorepo with a K-line similarity forecast UI and JWT-protected API, deployed to Cloud Run and Firebase Hosting."
   }
 ]

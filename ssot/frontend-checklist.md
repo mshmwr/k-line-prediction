@@ -27,14 +27,18 @@ After **any** edit to files under `frontend/src/` or `frontend/e2e/`:
 
 Format:
 ```json
-{ "milestone": "Phase X — Feature Name", "items": [{ "date": "YYYY-MM-DD", "text": "One sentence in English." }] }
+{ "ticketId": "K-XXX", "title": "Short ticket title", "date": "YYYY-MM-DD", "text": "One sentence, ≤25 words." }
 ```
 
-**Language rule: `milestone` name and every `text` entry must be in English.**
+(`ticketId` is optional — omit for non-ticket entries)
+
+**Entry style (hard cap):**
+- `text`: one sentence, **≤25 words** — no multi-clause text, no implementation details
+- `title` and `text` must be in English
 
 Update steps:
 
-1. Append a new item to the corresponding milestone's `items` array, or add a new milestone object
+1. Prepend a new item at the top of the array (newest-first order)
 2. After update, run `/playwright` to confirm DiaryPage E2E passes
 
 ---
