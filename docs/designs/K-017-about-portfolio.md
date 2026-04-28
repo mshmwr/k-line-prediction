@@ -313,12 +313,12 @@ HomePage.tsx
 
 | 元素 | 文案 | 樣式 |
 |------|------|------|
-| Heading 第一行 | `"Predict the next move"` | Bodoni Moda, 64px, italic, bold, fill:#1A1814, lineHeight:1.05, textGrowth:fixed-width |
-| Heading 第二行 | `"before it happens —"` | 同上，fill:**#9C4A3B**（紅棕強調色；整行換色） |
+| Heading 第一行 | `"K-line similarity"` *(updated K-057 2026-04-28)* | Geist Mono, 56px, bold, fill:#1A1814, lineHeight:1.1, textGrowth:fixed-width |
+| Heading 第二行 | `"lookup engine."` *(updated K-057 2026-04-28)* | 同上，fill:**#9C4A3B**（brick-dark；整行換色） |
 | 分隔線 | — | rectangle, width:fill_container, height:1, fill:#2A2520 |
 | 副標題 | `"Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next."` | Newsreader, 18px, italic, fill:#1A1814, lineHeight:1.5, textGrowth:fixed-width |
 | heroBtns 容器 | — | layout:horizontal, gap:14, width:fill_container |
-| CTA 按鈕 `btnPrimary` | `"Try the App →"` | fill:#2A2520, cornerRadius:6, padding:[12,26]; 文字 Geist Mono 13px bold, letterSpacing:1, fill:#F4EFE5 |
+| CTA 按鈕 `btnPrimary` | `"Run the ETH/USDT Demo →"` *(updated K-057 2026-04-28)* | fill:#2A2520, cornerRadius:6, padding:[12,26]; 文字 Geist Mono 13px bold, letterSpacing:1, fill:#F4EFE5 |
 
 **React 實作要點：**
 - `<HeroSection />` 不接 props，文案寫死對應 Pencil 原文
@@ -848,7 +848,7 @@ AC-017-METRICS 「Features Shipped 的 subtext 為 "17 tickets, K-001 → K-017"
 | R4 | Footer 3 個 external link 的 `rel` / `target` 斷言 — AC-017-FOOTER 明定 "三個連結在新分頁開啟（`target="_blank"` + `rel="noopener noreferrer"`）"，需斷言驗證 | `frontend/e2e/about.spec.ts`（新增） | Engineer 新增斷言：`await expect(link).toHaveAttribute('target', '_blank')` + `await expect(link).toHaveAttribute('rel', 'noopener noreferrer')`。Mailto link 另行處理：`await expect(mailtoLink).toHaveAttribute('href', 'mailto:yichen.lee.20@gmail.com')`。由於 P3 `<ExternalLink>` 寫死 `target=_blank + rel=noopener noreferrer`，只要用 P3 就自動過 — 斷言仍需寫，防迴歸 |
 | R5（延伸）| 新 7 組件的 label / anchor id 對齊 PRD 原文 — AC-017-ROLES 要求 6 card role 名稱為 "PM / Architect / Engineer / Reviewer / QA / Designer"，但 AC-017-HEADER 要求全小寫逗號分隔 "PM, architect, engineer, reviewer, QA, designer"。Engineer 若 refactor 時統一大小寫，會破壞 AC | 所有 /about 新組件 + `about.spec.ts` | Engineer 實作時嚴格區分 S1 文案（全小寫）vs S3 card title（Title Case）；斷言逐條引用 PRD 原文（不透過變數插值，寫死字串），避免 refactor 時誤統一 |
 | R6（延伸）| ~~P4 `<MilestoneAccordion>` 取代舊 `MilestoneSection` / `DiaryPreviewEntry`~~ **— CLOSED（Pass 3）**：P4 已廢棄，`MilestoneSection.tsx` / `DiaryEntry.tsx` 保留不動，Diary 頁 DOM 結構無異動，`AC-DIARY-1` 斷言（`aria-expanded` / `.px-4.pb-4 p` selector）不受影響。`DiaryPreviewEntry.tsx`（Home 頁）改為 `DiaryTimelineEntry.tsx`（layout:none 絕對定位），影響的是 AC-HOME-1 的 DevDiarySection，不是 AC-DIARY-1。 | `frontend/e2e/pages.spec.ts`（AC-DIARY-1）| **無需 mitigation**：Diary 頁組件保留原樣，`AC-DIARY-1` 不需改動 |
-| R7（Pass 4 新增）| **hpHero v2 heading 文案斷言** — 現有 `pages.spec.ts` AC-HOME-1 若有斷言舊 Hero 文案（如 "K-Line Pattern Prediction" 或舊 heading），C5 改寫後會紅。新文案為兩段 heading：`"Predict the next move"` + `"before it happens —"`；CTA 由原按鈕文案改為 `"Try the App →"` | `frontend/e2e/pages.spec.ts`（AC-HOME-1 Hero 段）| Engineer 先 `grep -rn "hero\|Hero\|heading\|Predict\|K-Line Pattern" frontend/e2e/` 列出現有 Hero 斷言，改寫為：`await expect(page.getByText('Predict the next move', { exact: true })).toBeVisible()` + `await expect(page.getByText('before it happens —', { exact: true })).toBeVisible()`；CTA 斷言：`await expect(page.getByText('Try the App →', { exact: true })).toBeVisible()` |
+| R7（Pass 4 新增；**updated K-057 2026-04-28**）| **hpHero v2 heading 文案斷言** — 文案已由 K-057 更新。當前 live 文案：heading 1 `"K-line similarity"`，heading 2 `"lookup engine."`，CTA `"Run the ETH/USDT Demo →"`；對應斷言已在 K-057 同步更新至 `pages.spec.ts` | `frontend/e2e/pages.spec.ts`（AC-HOME-1 Hero 段）| 斷言已 live：`await expect(page.getByText('K-line similarity', { exact: true })).toBeVisible()` + `await expect(page.getByText('lookup engine.', { exact: true })).toBeVisible()`；CTA：`await expect(page.getByRole('link', { name: /Run the ETH\/USDT Demo/i })).toBeVisible()` |
 | R8（Pass 4 新增）| **hpLogic v2 文案斷言** — step 卡標題（STEP 01/02/03）、body 標題（Upload/Scan/Project）、techRow 文案均為新增或改寫，若舊斷言存在會紅 | `frontend/e2e/pages.spec.ts`（AC-HOME-1 Logic 段）| `grep -rn "HOW IT WORKS\|STEP 0\|logic\|Logic\|stack\|Stack" frontend/e2e/` 確認現有斷言範圍。新增斷言：`await expect(page.getByText('HOW IT WORKS', { exact: true })).toBeVisible()`；三步驟卡 header `getByText('STEP 01 · INGEST', { exact: true })`；body title `getByText('Upload', { exact: true })`（注意 exact:true 防止 body description 誤命中）；techRow `getByText('React · TypeScript · Vite · FastAPI · Python · Playwright', { exact: true })` |
 
 **Engineer Phase A 首要步驟（加在 §6 Phase A 之前）：**

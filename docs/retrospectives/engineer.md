@@ -16,6 +16,23 @@
 
 ---
 
+## 2026-04-28 — K-057 Landing product polish — Phase 1 regressions + Phase 5 consent gate
+
+**What went well:**
+- Phase 1 timing race (diary marker `count()` returning 0 before data hydrated) diagnosed and fixed cleanly via `await expect(markers.first()).toBeVisible()` before `count()` — pattern covers all four marker assertions across `pages.spec.ts` without hard waits.
+- ConsentBanner overlay in footer snapshots diagnosed via snapshot diff inspection: old baselines were captured with the banner visible; adding `await page.addInitScript(() => localStorage.setItem('kline-consent', 'granted'))` before `mockApis(page)` in `shared-components.spec.ts` dismissed the overlay before the screenshot fired. One-shot fix, no selector changes.
+- 21 pre-existing failures systematically documented in `docs/qa/known-reds.md` using `git log main..HEAD -- <test-file>` commit-scope verification on every entry — no fabricated "pre-existing" classification.
+
+**What went wrong:**
+- CWD drifted to canonical after running `cd .../K-Line-Prediction/frontend` for baseline verification; the subsequent `npx playwright test --update-snapshots` wrote to canonical snapshots (`footer-diary-chromium-darwin.png`) instead of worktree snapshots. Required `git restore` to fix. Root cause: Bash `cd` persists CWD across tool calls — a verification `cd` is a silent scope-shift hazard.
+- Footer snapshot failure diagnosis took multiple rounds: initial hypothesis was a rendering difference in the Footer component; only after reading the diff image did the ConsentBanner overlay appear. Should have inspected the diff image contents first before hypothesizing.
+
+**Next time improvement:**
+- **After any `cd` to canonical for baseline verification, immediately run `cd <worktree-abs-path>/frontend` OR pass `--config <abs-path-to-playwright.config.ts>` to keep all test ops in the worktree.** Bash tool CWD persists across calls; a one-line `cd` to canonical is a commit-scope hazard.
+- **Visual regression snapshot failure first diagnostic step: open and read the diff image before hypothesizing.** Overlay/banner presence vs. DOM structure change are visually distinct; reading the diff takes 5 seconds and rules out 80% of false hypotheses.
+
+---
+
 ## 2026-04-27 — K-052 Phase 4 — Ticket-derived SSOT (build-ticket-derived-ssot.mjs)
 
 **What went well:**
