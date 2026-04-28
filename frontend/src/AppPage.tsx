@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { OHLCRow, MatchCase, PredictStats, DayStats, Ma99Gap } from './types'
 import { OHLCEditor } from './components/OHLCEditor'
 import { TopBar } from './components/TopBar'
@@ -15,6 +16,7 @@ import {
 } from './utils/aggregation'
 import { computeStatsFromMatches } from './utils/statsComputation'
 import { API_BASE } from './utils/api'
+import { trackDemoStarted, trackCsvUploaded, trackMatchRun, trackResultViewed } from './utils/analytics'
 const OFFICIAL_ROW_COUNT = 24
 
 function emptyRows(count: number): OHLCRow[] {
@@ -140,12 +142,57 @@ export default function AppPage() {
   const [maLoading, setMaLoading] = useState(false)
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null)
   const { predict, computeMa99, loading, error: predictionError } = usePrediction()
+  const [searchParams] = useSearchParams()
 
   useEffect(() => {
     fetch(`${API_BASE}/api/history-info`)
       .then(r => r.json())
       .then(data => setHistoryInfo(data as HistoryInfo))
       .catch(() => {})
+  }, [])
+
+  // K-057 Phase 2 — `/app?sample=ethusdt` auto-load.
+  // Fetches the bundled `/examples/ETHUSDT_1h_test.csv`, parses via the
+  // shared `parseOfficialCsvFile` (K-046 Sacred — bit-exact backend contract),
+  // then mirrors the post-upload flow from `handleOfficialFilesUpload` so the
+  // sample row set, MA99 series, and source-path label all match what a real
+  // CSV upload would produce. Runs once on mount when the query param is set.
+  useEffect(() => {
+    if (searchParams.get('sample') !== 'ethusdt') return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const response = await fetch('/examples/ETHUSDT_1h_test.csv')
+        if (!response.ok) throw new Error(`Sample fetch failed: HTTP ${response.status}`)
+        const text = await response.text()
+        const rows = parseOfficialCsvFile(text, 'ETHUSDT_1h_test.csv')
+        if (cancelled) return
+        const nextApiRows = viewTimeframe === '1D' ? aggregateRowsTo1D(rows) : rows
+        setOhlcData(rows)
+        setSourcePath('ETHUSDT_1h_test.csv (sample)')
+        trackDemoStarted()
+        resetPredictionState()
+        setQueryMa99([])
+        setQueryMa99Gap(null)
+        setMaLoading(true)
+        try {
+          const ma99Result = await computeMa99(nextApiRows, viewTimeframe)
+          if (cancelled) return
+          setQueryMa99(viewTimeframe === '1D' ? (ma99Result.queryMa991d ?? []) : (ma99Result.queryMa991h ?? []))
+          setQueryMa99Gap(viewTimeframe === '1D' ? (ma99Result.queryMa99Gap1d ?? null) : (ma99Result.queryMa99Gap1h ?? null))
+        } catch (err) {
+          if (!cancelled) setLoadError((err as Error).message)
+        } finally {
+          if (!cancelled) setMaLoading(false)
+        }
+      } catch (err) {
+        if (!cancelled) setLoadError((err as Error).message)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const ohlcComplete = useMemo(() => ohlcData.every(isRowComplete), [ohlcData])
@@ -275,6 +322,7 @@ export default function AppPage() {
       const nextApiRows = viewTimeframe === '1D' ? aggregateRowsTo1D(combined) : combined
       setOhlcData(combined)
       setSourcePath(fileList.map(f => f.name).join(' + '))
+      trackCsvUploaded(combined.length)
       resetPredictionState()
       setQueryMa99([])
       setQueryMa99Gap(null)
@@ -333,6 +381,8 @@ export default function AppPage() {
 
     const result = await predict(apiRows, [], viewTimeframe)
     if (!result) return
+    trackMatchRun(result.matches.length)
+    if (result.matches.length > 0) trackResultViewed(result.matches.length)
 
     const allIds = new Set(result.matches.map(m => m.id))
     setMatches(result.matches)

@@ -18,6 +18,8 @@ test.describe('AC-017-NAVBAR — NavBar on /about', () => {
 
   test('NavBar appears before first section in DOM order', async ({ page }) => {
     await page.goto('/about')
+    // Phase 1 lazy-chunk timing: wait for section to be in DOM before checking order.
+    await page.waitForSelector('section')
 
     // AC-017-NAVBAR And: NavBar is above PageHeaderSection (DOM order)
     const isNavBeforeSection = await page.evaluate(() => {
@@ -358,7 +360,7 @@ test.describe('AC-017-BANNER — Homepage BuiltByAIBanner', () => {
 
   test('banner does not break existing AC-HOME-1 sections', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('heading', { name: /Predict the Next Move/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /K-line similarity/i })).toBeVisible()
     await expect(page.getByText('HOW IT WORKS')).toBeVisible()
     await expect(page.getByText('DEV DIARY')).toBeVisible()
   })

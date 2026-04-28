@@ -56,6 +56,11 @@ async function installBeaconCollector(context: import('@playwright/test').Browse
 // ── PHASE 1 ── AC-020-SPA-NAV — dataLayer entry on SPA navigate ──────────────
 
 test.describe('AC-020-SPA-NAV — SPA Link click pushes pageview dataLayer entry', () => {
+  // K-057 Phase 5: initGA() is consent-gated; grant before load so window.dataLayer is set up.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
+  })
+
   test('NavBar About Link: / → /about pushes page_view entry referencing /about', async ({ page, context }) => {
     await installBeaconCollector(context) // attach to suppress network-error noise; do not assert beacons
     await page.goto('/')
@@ -157,6 +162,7 @@ test.describe('AC-020-SPA-NAV — SPA Link click pushes pageview dataLayer entry
 
 test.describe('AC-020-BEACON — GA4 /g/collect beacon HTTP assertion', () => {
   test('AC-020-BEACON-INITIAL — page.goto fires at least one beacon in 5s', async ({ page, context }) => {
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
     const beacons = await installBeaconCollector(context)
 
     await page.goto('/about')
@@ -193,6 +199,7 @@ test.describe('AC-020-BEACON — GA4 /g/collect beacon HTTP assertion', () => {
    * hiding wire-level breakage).
    */
   test('AC-020-BEACON-SPA — SPA navigate fires a NEW beacon referencing /about', async ({ page, context }) => {
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
     const beacons = await installBeaconCollector(context)
 
     await page.goto('/')
@@ -222,6 +229,7 @@ test.describe('AC-020-BEACON — GA4 /g/collect beacon HTTP assertion', () => {
   })
 
   test('AC-020-BEACON-PAYLOAD — beacon query contains v=2, tid, en=page_view, path-key', async ({ page, context }) => {
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
     const beacons = await installBeaconCollector(context)
 
     await page.goto('/about')
@@ -246,6 +254,7 @@ test.describe('AC-020-BEACON — GA4 /g/collect beacon HTTP assertion', () => {
   })
 
   test('AC-020-BEACON-COUNT — initial load fires exactly 1 beacon within 1s settle window', async ({ page, context }) => {
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
     const beacons = await installBeaconCollector(context)
 
     await page.goto('/about')
@@ -269,6 +278,7 @@ test.describe('AC-020-BEACON — GA4 /g/collect beacon HTTP assertion', () => {
 
 test.describe('AC-020-NEG — navigation types that must NOT fire pageview beacon', () => {
   test('AC-020-NEG-QUERY — query-only change does not fire new beacon', async ({ page, context }) => {
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
     const beacons = await installBeaconCollector(context)
 
     await page.goto('/?x=1')
@@ -293,6 +303,7 @@ test.describe('AC-020-NEG — navigation types that must NOT fire pageview beaco
   })
 
   test('AC-020-NEG-HASH — hash-only change does not fire new beacon', async ({ page, context }) => {
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
     const beacons = await installBeaconCollector(context)
 
     await page.goto('/about')
@@ -311,6 +322,7 @@ test.describe('AC-020-NEG — navigation types that must NOT fire pageview beaco
   })
 
   test('AC-020-NEG-SAMEROUTE — clicking About Link while on /about does not fire new beacon', async ({ page, context }) => {
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
     const beacons = await installBeaconCollector(context)
 
     await page.goto('/about')

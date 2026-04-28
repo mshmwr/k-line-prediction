@@ -5,14 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#F4EFE5" />
   <title>K-Line Prediction</title>
-  <meta name="description" content="Built by a 6-role AI agent team — PM / Architect / Engineer / Designer / Reviewer / QA. ETH/USDT pattern-prediction demo." />
+  <meta name="description" content="Educational pattern-similarity tool for ETH/USDT candlestick charts. Surfaces historically similar formations for study purposes. Not financial advice and not a market forecast." />
   <meta name="author" content="mshmwr" />
   <link rel="canonical" href="https://k-line-prediction-app.web.app/" />
   <meta property="og:title" content="K-Line Prediction" />
-  <meta property="og:description" content="Built by a 6-role AI agent team — PM / Architect / Engineer / Designer / Reviewer / QA. ETH/USDT pattern-prediction demo." />
+  <meta property="og:description" content="Educational pattern-similarity tool for ETH/USDT candlestick charts. Surfaces historically similar formations for study purposes. Not financial advice and not a market forecast." />
   <meta property="og:url" content="https://k-line-prediction-app.web.app/" />
   <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image" content="https://k-line-prediction-app.web.app/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="K-Line Prediction — educational similarity lookup tool for ETH/USDT candlestick charts" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://k-line-prediction-app.web.app/og-image.png" />
+  <meta name="twitter:image:alt" content="K-Line Prediction — educational similarity lookup tool for ETH/USDT candlestick charts" />
+  <link rel="preload" as="image" href="/hero-shot.png" fetchpriority="high" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Newsreader:ital,wght@1,400&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -27,18 +34,28 @@
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "SoftwareApplication",
+        "@type": "EducationalApplication",
         "name": "K-Line Prediction",
         "url": "https://k-line-prediction-app.web.app/",
-        "applicationCategory": "FinanceApplication",
+        "applicationCategory": "EducationalApplication",
+        "applicationSubCategory": "Reference",
         "operatingSystem": "Web",
-        "description": "Built by a 6-role AI agent team — PM / Architect / Engineer / Designer / Reviewer / QA. ETH/USDT pattern-prediction demo.",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        "description": "Educational pattern-similarity tool for ETH/USDT candlestick charts. Surfaces historically similar formations for study purposes. Not financial advice and not a market forecast.",
+        "educationalUse": ["study", "exploration", "reference"],
+        "learningResourceType": ["interactive resource", "reference work"],
+        "audience": {
+          "@type": "EducationalAudience",
+          "educationalRole": "self-learner"
+        },
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "usageInfo": "https://k-line-prediction-app.web.app/#disclaimer"
       },
       {
         "@type": "WebSite",
         "name": "K-Line Prediction",
-        "url": "https://k-line-prediction-app.web.app/"
+        "url": "https://k-line-prediction-app.web.app/",
+        "inLanguage": "en"
       }
     ]
   }

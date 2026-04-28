@@ -15,7 +15,9 @@ import { test, expect } from '@playwright/test'
 // Then:  a <script src*="googletagmanager.com"> is present in <head>
 
 test.describe('AC-018-INSTALL — GA4 snippet injected', () => {
-  test('gtag.js script tag exists in document head', async ({ page }) => {
+  test('gtag.js script tag exists in document head after consent granted', async ({ page }) => {
+    // K-057 Phase 5: GA4 init is gated behind consent; set granted before load.
+    await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
     await page.goto('/')
     const scriptCount = await page.locator('script[src*="googletagmanager.com"]').count()
     expect(scriptCount).toBe(1)
@@ -107,6 +109,8 @@ test.describe('AC-018-PAGEVIEW — pageview events fired on route change', () =>
 test.describe('AC-018-CLICK — CTA click events fired', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      // K-057 Phase 5: grant consent so ConsentBanner hides (no pointer-event intercept on footer CTAs).
+      localStorage.setItem('kline-consent', 'granted')
       window.dataLayer = window.dataLayer || []
       window.gtag = function () {
         // eslint-disable-next-line prefer-rest-params
