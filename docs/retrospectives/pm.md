@@ -4,6 +4,16 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-28 — K-057 close (landing product polish — hero reframe + legal banners + GDPR consent + OG image + funnel GA)
+
+**What went well:** 5-item batch scoped as single ticket was correct — all items share landing-page product-narrative motivation, shared build/deploy cycle saved 4× redundant deploys. DisclaimerBanner BQ (sticky vs non-sticky) adjudicated correctly: non-sticky satisfies "prominently displayed" legal minimum without UX noise, and ConsentBanner at `fixed bottom-4 left-4` avoids overlay. Phase sequencing (hero copy → legal banners → consent/GA → OG → funnel events) delivered without Playwright regression (21 pre-existing reds documented, zero new reds introduced).
+
+**What went wrong:** Deploy gate completely missed after Phase A PR #33 merge — live site retained old hero copy and no DisclaimerBanner until user manually discovered the gap. Root cause: pm.md Auto-trigger table had no deploy row; PM treated deploy as optional follow-up rather than mandatory ticket-completion gate. Separate miss: Pencil JSON spec update for `visual-delta: yes` copy change was omitted from Phase A scope; user had to prompt it, requiring a separate PR #36 after Phase A was already merged.
+
+**Codification:** pm.md Auto-trigger table updated with "Phase A PR merges → immediate deploy in SAME turn, no ask" row (2026-04-28 K-057 incident). `feedback_kline_post_merge_proactive.md` `last-verified` refreshed to 2026-04-28. Next time: for any `visual-delta: yes` ticket with copy changes, Pencil JSON spec update must land in the same PR as the copy source change — not a separate PR.
+
+---
+
 ## 2026-04-28 — diary brevity fix — diary.json entries rewritten to ≤25w; ssot/frontend-checklist.md §Diary Sync Rule format corrected + hard cap added [trivial]
 
 ---
