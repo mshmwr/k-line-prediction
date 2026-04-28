@@ -8,6 +8,7 @@ import DiaryError from '../components/diary/DiaryError'
 import DiaryEmptyState from '../components/diary/DiaryEmptyState'
 import LoadMoreButton from '../components/diary/LoadMoreButton'
 import Footer from '../components/shared/Footer'
+import FooterDisclaimer from '../components/shared/FooterDisclaimer'
 
 // K-024 Phase 3 — /diary full rewrite (design §6.1 / §6.9).
 // Flat timeline: DiaryHero + DiaryTimeline (ol/li + rail + markers + entries)
@@ -60,6 +61,7 @@ export default function DiaryPage() {
         )}
       </main>
       <Footer />
+      <FooterDisclaimer />
     </div>
   )
 }

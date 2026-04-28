@@ -145,6 +145,6 @@
   {
     "title": "Early project phases and deployment setup",
     "date": "2026-04-16",
-    "text": "Stood up the FastAPI + React monorepo with a JWT-protected business-logic endpoint and a five-route SPA, shipped the 1H/1D forecast UI with MA99 trend filter, and deployed to Cloud Run plus Firebase Hosting."
+    "text": "Stood up the FastAPI + React monorepo from scratch with a JWT-protected business-logic endpoint and a five-route SPA, shipped the 1H/1D K-line similarity forecast UI with MA99 trend filter, wrote the first 10 tickets covering architecture and the prediction pipeline, and deployed the backend to Cloud Run via Docker with the static frontend on Firebase Hosting."
   }
 ]

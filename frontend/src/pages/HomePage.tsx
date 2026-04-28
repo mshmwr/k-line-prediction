@@ -4,6 +4,7 @@ import ProjectLogicSection from '../components/home/ProjectLogicSection'
 import DevDiarySection from '../components/home/DevDiarySection'
 import BuiltByAIBanner from '../components/home/BuiltByAIBanner'
 import Footer from '../components/shared/Footer'
+import FooterDisclaimer from '../components/shared/FooterDisclaimer'
 import UnifiedNavBar from '../components/UnifiedNavBar'
 
 export default function HomePage() {
@@ -33,6 +34,7 @@ export default function HomePage() {
         </div>
       </div>
       <Footer />
+      <FooterDisclaimer />
     </div>
   )
 }

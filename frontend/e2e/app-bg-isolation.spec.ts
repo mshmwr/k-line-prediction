@@ -97,13 +97,12 @@ test.describe('AC-030-BG-COLOR — /app wrapper overrides body paper with gray-9
     await page.goto('/app')
     await page.waitForLoadState('networkidle')
 
-    // Target: first child <div> directly inside <div id="root"> — AppPage.tsx root wrapper
+    // Target: AppPage.tsx root wrapper — bg-gray-950 (K-057 Phase 1 added DisclaimerBanner
+    // as first root child, so ':scope > div' returns wrong element; use class selector).
     const wrapperBg = await page.evaluate(() => {
-      const root = document.getElementById('root')
-      if (!root) return null
-      const firstDiv = root.querySelector(':scope > div')
-      if (!firstDiv) return null
-      return getComputedStyle(firstDiv as Element).backgroundColor
+      const appWrapper = document.querySelector('#root div.bg-gray-950')
+      if (!appWrapper) return null
+      return getComputedStyle(appWrapper as Element).backgroundColor
     })
 
     expect(wrapperBg).toBe('rgb(3, 7, 18)')
@@ -127,8 +126,8 @@ test.describe('AC-030-NEW-TAB — Homepage Hero CTA opens /app in new tab', () =
     await mockApis(page)
     await page.goto('/')
 
-    // Hero CTA button: "Try the App →" — distinct from NavBar App link (T1)
-    const heroCta = page.getByRole('link', { name: /try the app/i })
+    // Hero CTA button: "Run the ETH/USDT Demo →" — Phase 1 renamed from "Try the App →"
+    const heroCta = page.locator('[data-testid="hero-cta-run-demo"]')
 
     // Assert attributes on the Hero CTA before click
     await expect(heroCta).toHaveAttribute('target', '_blank')

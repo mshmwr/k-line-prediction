@@ -9,11 +9,11 @@ test.describe('HomePage — AC-HOME-1', () => {
   test('Hero, HOW IT WORKS, and Dev Diary headings visible', async ({ page }) => {
     await page.goto('/')
 
-    // Hero heading (K-042 PageHero: single h1 with 2 <span className="block"> children)
+    // Hero heading (K-057 Phase 1 PageHero: single h1 with 2 <span className="block"> children)
     const hero = page.getByRole('heading', { level: 1 })
     await expect(hero).toBeVisible()
-    await expect(hero).toContainText('Predict the next move')
-    await expect(hero).toContainText('before it happens —')
+    await expect(hero).toContainText('K-line similarity')
+    await expect(hero).toContainText('lookup engine.')
 
     // HOW IT WORKS section label (inside the ProjectLogicSection logicHead)
     await expect(page.getByText('HOW IT WORKS', { exact: true })).toBeVisible()
@@ -137,9 +137,9 @@ test.describe('HomePage — AC-017-HOME-V2', () => {
   test('HeroSection v2: headings and CTA visible', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page.getByText('Predict the next move', { exact: true })).toBeVisible()
-    await expect(page.getByText('before it happens —', { exact: true })).toBeVisible()
-    await expect(page.getByText('Try the App →', { exact: true })).toBeVisible()
+    await expect(page.getByText('K-line similarity', { exact: true })).toBeVisible()
+    await expect(page.getByText('lookup engine.', { exact: true })).toBeVisible()
+    await expect(page.getByText('Run the ETH/USDT Demo →', { exact: true })).toBeVisible()
   })
 
   test('ProjectLogicSection v2: HOW IT WORKS label and three steps visible', async ({ page }) => {
@@ -169,8 +169,9 @@ test.describe('HomePage — AC-017-HOME-V2', () => {
 test.describe('HomePage — AC-023-DIARY-BULLET', () => {
   test('diary markers have correct width (20px) and height (14px)', async ({ page }) => {
     await page.goto('/')
-
+    // Phase 1 hero image extends load-event time; wait for first marker to appear before count().
     const markers = page.locator('[data-testid="diary-marker"]')
+    await expect(markers.first()).toBeVisible()
     // At least 3 markers must exist (AC requirement)
     const count = await markers.count()
     expect(count).toBeGreaterThanOrEqual(3)
@@ -184,8 +185,8 @@ test.describe('HomePage — AC-023-DIARY-BULLET', () => {
 
   test('diary markers have backgroundColor rgb(156, 74, 59) = brick-dark', async ({ page }) => {
     await page.goto('/')
-
     const markers = page.locator('[data-testid="diary-marker"]')
+    await expect(markers.first()).toBeVisible()
     const count = await markers.count()
     expect(count).toBeGreaterThanOrEqual(3)
 
@@ -198,8 +199,8 @@ test.describe('HomePage — AC-023-DIARY-BULLET', () => {
 
   test('diary markers have borderRadius 0px (rectangular, not rounded)', async ({ page }) => {
     await page.goto('/')
-
     const markers = page.locator('[data-testid="diary-marker"]')
+    await expect(markers.first()).toBeVisible()
     const count = await markers.count()
     expect(count).toBeGreaterThanOrEqual(3)
 
@@ -356,7 +357,7 @@ test.describe('HomePage — AC-023-REGRESSION', () => {
     await expect(page.getByText('One operator. Six AI agents.', { exact: false })).toBeVisible()
 
     // Hero heading still exists
-    await expect(page.getByText('Predict the next move', { exact: true })).toBeVisible()
+    await expect(page.getByText('K-line similarity', { exact: true })).toBeVisible()
 
     // DEV DIARY section still renders
     await expect(page.getByText('DEV DIARY')).toBeVisible()
@@ -365,9 +366,9 @@ test.describe('HomePage — AC-023-REGRESSION', () => {
     // (AC-023-REGRESSION: "BuiltByAIBanner position NavBar下方、Hero上方 not changed")
     const bannerBeforeHero = await page.evaluate(() => {
       const banner = document.querySelector('[data-testid="built-by-ai-banner"]')
-      // Locate hero heading as a proxy for HeroSection root
+      // Locate hero heading as a proxy for HeroSection root (K-057 Phase 1 text)
       const heroHeading = Array.from(document.querySelectorAll('h1')).find(
-        el => el.textContent?.includes('Predict the next move')
+        el => el.textContent?.includes('K-line similarity')
       )
       if (!banner || !heroHeading) return false
       // DOCUMENT_POSITION_FOLLOWING = 4: heroHeading follows banner => banner is before hero
@@ -389,8 +390,8 @@ test.describe('HomePage — AC-023-REGRESSION', () => {
 
   test('AC-028-MARKER-COORD-INTEGRITY: marker boundingBox width=20 height=14 after flex-col refactor', async ({ page }) => {
     await page.goto('/')
-
     const markers = page.locator('[data-testid="diary-marker"]')
+    await expect(markers.first()).toBeVisible()
     const count = await markers.count()
     expect(count).toBeGreaterThanOrEqual(3)
 
@@ -440,7 +441,7 @@ test.describe('HomePage — AC-028-SECTION-SPACING', () => {
     // Default Playwright viewport = 1280x720 (≥ sm breakpoint 640px → sm:gap-[72px] applies)
     await page.goto('/')
 
-    const hero = page.locator('section').filter({ hasText: 'Predict the next move' })
+    const hero = page.locator('section').filter({ hasText: 'K-line similarity' })
     const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
 
     const heroBox = await hero.boundingBox()
@@ -474,7 +475,7 @@ test.describe('HomePage — AC-028-SECTION-SPACING', () => {
     await page.setViewportSize({ width: 375, height: 812 })
     await page.goto('/')
 
-    const hero = page.locator('section').filter({ hasText: 'Predict the next move' })
+    const hero = page.locator('section').filter({ hasText: 'K-line similarity' })
     const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
     const diary = page.locator('section').filter({ hasText: '§ DEV DIARY' })
 
@@ -496,7 +497,7 @@ test.describe('HomePage — AC-028-SECTION-SPACING', () => {
     await page.setViewportSize({ width: 640, height: 812 })
     await page.goto('/')
 
-    const hero = page.locator('section').filter({ hasText: 'Predict the next move' })
+    const hero = page.locator('section').filter({ hasText: 'K-line similarity' })
     const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
 
     const heroBox = await hero.boundingBox()
@@ -512,7 +513,7 @@ test.describe('HomePage — AC-028-SECTION-SPACING', () => {
     await page.setViewportSize({ width: 639, height: 812 })
     await page.goto('/')
 
-    const hero = page.locator('section').filter({ hasText: 'Predict the next move' })
+    const hero = page.locator('section').filter({ hasText: 'K-line similarity' })
     const logic = page.locator('section').filter({ hasText: '§ PROJECT LOGIC' })
 
     const heroBox = await hero.boundingBox()

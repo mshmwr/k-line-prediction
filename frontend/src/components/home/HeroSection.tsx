@@ -7,23 +7,35 @@ export default function HeroSection() {
         <PageHero
           desktopSize={56}
           lines={[
-            { text: 'Predict the next move', color: 'ink' },
-            { text: 'before it happens —', color: 'brick-dark' },
+            { text: 'K-line similarity', color: 'ink' },
+            { text: 'lookup engine.', color: 'brick-dark' },
           ]}
         />
         <div className="h-px w-full bg-[#2A2520]" />
         <p className="text-[16px] leading-[1.5] text-[#1A1814]">
-          Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next.
+          Search past ETH/USDT formations that resemble any candlestick window. Inspect what came after — for learning, not for trading signals.
         </p>
+        <img
+          src="/hero-shot.png"
+          alt="Screenshot of the K-Line Prediction app showing a similarity match result for an ETH/USDT 1H window"
+          width={1280}
+          height={720}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className="w-full max-w-[960px] rounded-[8px] border border-[#2A2520] shadow-[0_2px_0_#2A2520]"
+          data-testid="hero-product-shot"
+        />
         <div className="flex gap-[14px]">
           <a
-            href="/app"
+            href="/app?sample=ethusdt"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-[#2A2520] text-[#F4EFE5] rounded-[6px] px-[26px] py-[12px] text-[13px] font-bold tracking-[1px]"
             style={{ fontFamily: '"Geist Mono", monospace' }}
+            data-testid="hero-cta-run-demo"
           >
-            Try the App →
+            Run the ETH/USDT Demo →
           </a>
         </div>
       </div>

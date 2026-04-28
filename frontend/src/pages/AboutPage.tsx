@@ -7,6 +7,7 @@ import TicketAnatomySection from '../components/about/TicketAnatomySection'
 import ProjectArchitectureSection from '../components/about/ProjectArchitectureSection'
 import SectionLabelRow from '../components/about/SectionLabelRow'
 import Footer from '../components/shared/Footer'
+import FooterDisclaimer from '../components/shared/FooterDisclaimer'
 
 // K-045 (2026-04-24) — /about desktop layout consistency.
 // SectionContainer primitive retired (BQ-045-02 Option α).
@@ -67,6 +68,9 @@ export default function AboutPage() {
 
       {/* Footer — shared sitewide (K-034 Phase 1); full-bleed sibling of root <div> */}
       <Footer />
+      {/* K-057 Phase 1d — FooterDisclaimer placed AFTER Footer to preserve K-031
+          Sacred (#architecture.nextElementSibling === <footer>). */}
+      <FooterDisclaimer />
     </div>
   )
 }

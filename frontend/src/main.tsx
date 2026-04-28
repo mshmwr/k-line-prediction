@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import RouteSuspense from './components/RouteSuspense'
-import { initGA } from './utils/analytics'
 import { useGAPageview } from './hooks/useGAPageview'
 import { ScrollToTop } from './components/ScrollToTop'
+import DisclaimerBanner from './components/shared/DisclaimerBanner'
+import ConsentBanner from './components/shared/ConsentBanner'
 import './index.css'
 
 // K-049 Phase 3: route-level code splitting. Each page lands in its own
@@ -19,8 +20,6 @@ const AboutPage = lazy(() => import('./pages/AboutPage'))
 const DiaryPage = lazy(() => import('./pages/DiaryPage'))
 const BusinessLogicPage = lazy(() => import('./pages/BusinessLogicPage'))
 
-initGA()
-
 function GATracker() {
   useGAPageview()
   return null
@@ -30,6 +29,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
       <BrowserRouter>
+        <DisclaimerBanner />
+        <ConsentBanner />
         <GATracker />
         <ScrollToTop />
         <Suspense fallback={<RouteSuspense />}>

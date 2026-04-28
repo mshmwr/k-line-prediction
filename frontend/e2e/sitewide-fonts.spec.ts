@@ -36,7 +36,7 @@ test.describe('AC-021-FONTS — sitewide body default is Geist Mono (K-040)', ()
     // K-042 — HeroSection h1 is now single h1 with 2 <span className="block"> children.
     const heroHeading = page.getByRole('heading', { level: 1 })
     await expect(heroHeading).toBeVisible()
-    await expect(heroHeading).toContainText('Predict the next move')
+    await expect(heroHeading).toContainText('K-line similarity')
 
     const fontFamily = await heroHeading.evaluate(el => getComputedStyle(el).fontFamily)
     expect(fontFamily).toMatch(/Geist Mono|ui-monospace/)
@@ -79,7 +79,7 @@ test.describe('AC-040-SITEWIDE-FONT-MONO — 4-route h1 Geist Mono + style=norma
     // K-042 — HeroSection h1 is single h1 with 2 span block children.
     const h1 = page.getByRole('heading', { level: 1 })
     await expect(h1).toBeVisible()
-    await expect(h1).toContainText('Predict the next move')
+    await expect(h1).toContainText('K-line similarity')
     const ff = await h1.evaluate(el => getComputedStyle(el).fontFamily)
     expect(ff).toMatch(/Geist Mono|ui-monospace/)
     const style = await h1.evaluate(el => getComputedStyle(el).fontStyle)

@@ -2,6 +2,9 @@
  * GA4 Analytics utilities.
  * Dynamically injects the gtag.js snippet only when VITE_GA_MEASUREMENT_ID is set.
  * All tracking calls are no-ops when the snippet is not installed.
+ *
+ * K-057 Phase 5: GA4 init is gated behind GDPR consent.
+ * Call consentGA('granted') after user accepts the consent banner.
  */
 
 declare global {
@@ -11,9 +14,21 @@ declare global {
   }
 }
 
+let _gaInitialized = false
+
+/**
+ * Called by ConsentBanner after user grants or declines consent.
+ * Only 'granted' triggers GA4 initialisation (idempotent).
+ */
+export function consentGA(status: 'granted' | 'declined'): void {
+  if (status !== 'granted' || _gaInitialized) return
+  initGA()
+  _gaInitialized = true
+}
+
 /**
  * Initialises GA4 by dynamically injecting the gtag.js script.
- * Call once before ReactDOM.render(), outside of any React component.
+ * Do NOT call directly from module scope — use consentGA() instead.
  * If VITE_GA_MEASUREMENT_ID is empty/undefined, this is a no-op.
  */
 export function initGA(): void {
@@ -63,4 +78,26 @@ export function trackCtaClick(label: string): void {
     label,
     page_location: window.location.pathname,
   })
+}
+
+// K-057 Phase 5 — activation funnel events
+
+export function trackDemoStarted(): void {
+  if (typeof window.gtag === 'undefined') return
+  window.gtag('event', 'app_demo_started')
+}
+
+export function trackCsvUploaded(rowCount: number): void {
+  if (typeof window.gtag === 'undefined') return
+  window.gtag('event', 'app_csv_uploaded', { row_count: rowCount })
+}
+
+export function trackMatchRun(matchCount: number): void {
+  if (typeof window.gtag === 'undefined') return
+  window.gtag('event', 'app_match_run', { match_count: matchCount })
+}
+
+export function trackResultViewed(matchCount: number): void {
+  if (typeof window.gtag === 'undefined') return
+  window.gtag('event', 'app_result_viewed', { match_count: matchCount })
 }

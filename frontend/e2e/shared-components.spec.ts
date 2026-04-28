@@ -249,6 +249,9 @@ test.describe('AC-034-P1 — Footer toMatchSnapshot() baselines per route', () =
 
   for (const route of ['/', '/about', '/business-logic', '/diary']) {
     test(`Footer snapshot on ${route}`, async ({ page }) => {
+      // K-057 Phase 5: grant consent so ConsentBanner is hidden — banner is fixed bottom-left
+      // and would overlap the footer bounding box in the screenshot if present.
+      await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
       await mockApis(page)
       await page.goto(route)
       const footer = page.locator('footer').last()
