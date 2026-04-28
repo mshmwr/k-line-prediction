@@ -18,6 +18,16 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-04-28 — K-058 Phase 2 (component tree + ticket-cases schema + weight formula)
+
+**What went well:** BQ-058-03 resolved cleanly by reading site-content.json structure and verifying generator preservation logic — separation decision was unambiguous once the generator's mutation boundary was confirmed.
+
+**What went wrong:** Initial read of build-ticket-derived-ssot.mjs stopped at line 100; needed a second read pass to locate the exact insertion point in `buildSiteContentJson()`. Root cause: skipped reading the full relevant function body upfront.
+
+**Next-time improvement:** When a phase includes a script modification, read the complete target function (not just file header) in the same upfront read batch — avoids a second read cycle for insertion-point precision.
+
+---
+
 ## 2026-04-27 — K-052 Phase 1.5 Delta (reverse SSOT direction + bootstrap + PM persona patch)
 
 **What went well:** Surgical-edits-only discipline maintained — §1–§13 + §15 untouched, all changes scoped to §0 (K-G-01 close), §5.3 (severity field clarification), §5.7 (new renderSlots subsection), §14 (full reverse-direction rewrite), §16 + §17 (new sections), §20 ACs (rewrite AC-K052-14 + add AC-K052-16/17), and §18-§23 renumber pass. PM persona insertion-point verified by direct Read of `~/.claude/agents/pm.md` — line 489 is the closure of `Ticket closure bookkeeping` and line 490 is `Outer-repo mirror commit pre-flight`; cited line numbers exactly. AC-K052-14 reframed from "round-trip test" to "drift detection with two distinct cases (JSON-changed-but-README-stale vs README-edited-inside-markers)" — direction reversal makes round-trip framing semantically incorrect, drift framing matches JSON-is-source paradigm.
