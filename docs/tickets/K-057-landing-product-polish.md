@@ -8,7 +8,7 @@ priority: high
 size: large
 visual-delta: yes
 content-delta: yes
-design-locked: false
+design-locked: true
 qa-early-consultation: done-2026-04-28-K-057-phase5
 dependencies: [K-049]
 sacred-regression: [K-037 favicon, K-034-P1 Footer byte-identity, K-030 /app isolation, K-024 diary.json flat schema, K-049 OG/canonical/JSON-LD plumbing]
