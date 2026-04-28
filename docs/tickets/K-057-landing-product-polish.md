@@ -1,7 +1,8 @@
 ---
 id: K-057
 title: Landing-page product positioning + legal/conversion polish — 5-finding batch from 2026-04-28 interviewer-reviewer audit (product-frame re-eval after K-049 portfolio-frame audit)
-status: open
+status: closed
+closed-commit: 0aeeb6ee77c21a80006850b37d78f08361ed3541
 created: 2026-04-28
 type: feat + refactor + ops
 priority: high
@@ -260,11 +261,15 @@ K-057 INTENTIONALLY MODIFIES JSON-LD (`SoftwareApplication` → `EducationalAppl
 - Lighthouse JSON snapshots: `/tmp/kline-audit/lighthouse-{home,about,app}.json`
 - Production screenshot snapshots: `/tmp/kline-audit/screenshots/page-{home,about,diary,app}.png`
 
-## Next Gate
+## Deploy Record
 
-PM (next session) must:
-1. Run **Pre-Worktree Sync Gate** for `K-057-landing-product-polish` worktree (already created from base `5af9578`)
-2. Resolve **BQ-057-01..05** (5 BQs) — get user input on visual + deploy strategy
-3. Run **Content-Alignment Gate** on Hero copy + disclaimer banner + Footer block (per `feedback_pm_content_alignment_before_engineer.md`) — user-voice content cannot ship without explicit user sign-off
-4. Run **QA Early Consultation** (real-qa tier per runtime + content + GA event touch)
-5. Release Architect for Phase structure ratification + AC patching
+**Deploy date:** 2026-04-28 15:24:32 (Asia/Taipei)
+**Git SHA at deploy:** `0aeeb6ee77c21a80006850b37d78f08361ed3541`
+**Hosting URL:** https://k-line-prediction-app.web.app
+**Bundle hash:** `assets/index-CH4QtM97.js`
+**Verification probes (executed 2026-04-28):**
+- `curl https://k-line-prediction-app.web.app/assets/index-CH4QtM97.js | grep "Lookup tool"` → `Lookup tool` (DisclaimerBanner live)
+- `curl https://k-line-prediction-app.web.app/assets/page-homepage-CYFvLpOR.js | grep "K-line similarity"` → `K-line similarity` (hero copy live)
+- `curl https://k-line-prediction-app.web.app/assets/page-homepage-CYFvLpOR.js | grep "ETH/USDT Demo"` → `ETH/USDT Demo` (CTA live)
+- OG meta tag: `<meta property="og:image" content="https://k-line-prediction-app.web.app/og-image.png" />` present in index.html
+**Status:** Live
