@@ -4,6 +4,11 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-28 — K-058 Phase 0 Content-Alignment Gate
+
+**What went well:** Phase 0 gate pattern confirmed by user in one round — Role Pipeline, "Where I Stepped In" A+C+B copy, and Role Card `content/roles.json` all locked before Designer is dispatched.
+**Next time improvement:** Add Content-Alignment Gate as a standard phase for any `visual-delta: yes` + `content-delta: yes` ticket at stub-creation time, not as a post-stub add-on.
+
 ## 2026-04-28 — K-057 close (landing product polish — hero reframe + legal banners + GDPR consent + OG image + funnel GA)
 
 **What went well:** 5-item batch scoped as single ticket was correct — all items share landing-page product-narrative motivation, shared build/deploy cycle saved 4× redundant deploys. DisclaimerBanner BQ (sticky vs non-sticky) adjudicated correctly: non-sticky satisfies "prominently displayed" legal minimum without UX noise, and ConsentBanner at `fixed bottom-4 left-4` avoids overlay. Phase sequencing (hero copy → legal banners → consent/GA → OG → funnel events) delivered without Playwright regression (21 pre-existing reds documented, zero new reds introduced).

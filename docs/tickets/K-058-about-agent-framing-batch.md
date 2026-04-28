@@ -34,6 +34,33 @@ Second-pass About page enhancement after K-057, targeting one strategic message:
 
 ## Phases
 
+### Phase 0 — Content-Alignment Gate (PM + user)
+
+Lock down all copy for new sections before Designer draws anything. Gate condition: user confirms all items below → PM sets `[GATE-PASSED]` → Designer dispatched.
+
+**Confirmed copy (2026-04-28):**
+
+**1. Role Pipeline section**
+- Heading: `THE ROLES`
+- Description: `Automatic handoffs between six AI agents. Each role owns a single responsibility and produces a verifiable artefact.`
+- Table source: `content/roles.json` (verbatim — no copy changes)
+
+**2. "Where I Stepped In" section**
+- A (narrative): `I am the single operator. Every ticket is filed by me, reviewed by me, and merged by me. The agents execute; I decide.`
+- C (comparison table):
+
+  | AI did | I decided | Outcome |
+  |---|---|---|
+  | Architect proposed component tree + API contract | Approved scope, rejected over-abstraction, set sacred constraints | Each ticket ships with a verifiable artefact trail |
+  | Engineer implemented + Reviewer flagged bugs | Confirmed root cause, approved fix strategy | Zero regressions across 60+ merged PRs |
+  | Designer produced Pencil spec per each visual ticket | Selected visual direction (A/B/C options), approved design-locked gate | SSOT maintained across 3-page redesign |
+
+- B (outcome row): `60 tickets. 100% AC coverage. Every decision logged.`
+
+**3. Role Card copy** — `content/roles.json` `owns` + `artefact` fields confirmed final; no changes.
+
+**Gate status:** `[GATE-PASSED 2026-04-28]`
+
 ### Phase 1 — Designer
 
 Designer deliverables before Architect starts:
