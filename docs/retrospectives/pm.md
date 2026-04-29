@@ -12,6 +12,16 @@ No observation — ops ticket; version already at 2.1.123 (exceeds 2.1.121 targe
 
 ---
 
+## 2026-04-29 — K-067 PM: design requirement alignment (9 requirements)
+
+**What went wrong:** PM dispatched Designer without first aligning requirements with user; user corrected and required one-by-one review. Req 9 also initially misrecorded as "remove ZIExb (SVG placeholder)" — user's image clarification showed red box was around xu3l7 (rpPillsRow); corrected same session.
+
+**Next time improvement:** When ticket has newly added PM Notes under discussion, confirm with user before dispatching any design role — BQ principle (user preference → ask) applies even when ticket text exists.
+
+**Codified:** No — existing BQ principle in CLAUDE.md §Communication Style covers this adequately.
+
+---
+
 ## 2026-04-29 — K-067 stub opened (About layout unification + section label rename)
 
 No observation — ticket scope derived from K-066 design review discussion; PRD written directly from user-confirmed decisions (card unification + THE PIPELINE / THE PERSONNEL rename).
