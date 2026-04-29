@@ -4,6 +4,16 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-29 — K-066 PM rule gap — FE-touching ticket Designer audit missing
+
+**What went wrong:** K-066 PRD scoped only the about-page WhereISteppedIn section; homepage frame 4CsvQ was never audited. Three stale nodes (hero subtext, stack order, missing hero screenshot placeholder) went undetected through the entire PRD authoring session — user discovered them by asking "首頁呢". Root cause: PM inferred `visual-delta: no` for the homepage by assumption rather than evidence; no Designer frame audit was dispatched before writing PRD scope.
+
+**Next time improvement:** Any ticket with `frontend/` in scope → call Designer to audit all affected frames before writing PRD; Designer returns staleness table; PM sets `visual-delta` from that output, not from inference.
+
+**Codified:** `~/.claude/agents/pm.md` BL-20 + PRD Pre-Authoring gate §FE-touching ticket Designer audit; `~/.claude/agents/designer.md` Pre-step staleness audit; memory `feedback_pm_fe_ticket_designer_audit.md` + `feedback_designer_frame_staleness_audit.md`.
+
+---
+
 ## 2026-04-29 — ops: SSOT + sitemap sync post K-058/059/060/061 mirror gap recovery
 
 No observation — routine metrics regen (featuresShipped 40→41, lessonsCodified 184→185) and sitemap date update after mirror gap recovery.

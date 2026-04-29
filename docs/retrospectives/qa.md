@@ -14,6 +14,15 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-04-29 — K-067 Early Consultation
+
+**What went well:** Identified three cross-spec affected files (about-v2.spec.ts, about.spec.ts, about-layout.spec.ts) and the uncovered COMPARISON FileNoBar variant before any code was touched.
+**What went wrong:** No prior spec covered `FILE Nº · COMPARISON` despite AC-034-P2-FILENOBAR-VARIANTS establishing the pattern for all other FileNoBar consumers; silent gap.
+**Next time improvement:** When a new FileNoBar consumer label variant is added, Engineer must add it to AC-034-P2-FILENOBAR-VARIANTS same ticket, not deferred.
+**Slowest step:** Tracing `AC-058-WHERE-I` intent (sacred vs. updatable) across three spec files took the most time; resolved by reading ticket K-058 frontmatter directly.
+
+
+
 
 ## 2026-04-29 — K-061 QA Early Consultation
 
