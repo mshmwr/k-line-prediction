@@ -24,21 +24,21 @@
       "└── ssot/                 # Project SSOT (system-overview, PRD, conventions, workflow)"
     ]
   },
-  "lastUpdated": "2026-04-29T15:09:49+08:00",
+  "lastUpdated": "2026-04-29T19:30:15+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 61,
+      "covered": 63,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 61
+      "total": 63
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 43
+      "value": 44
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
-      "value": 188
+      "value": 192
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
