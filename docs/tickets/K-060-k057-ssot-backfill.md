@@ -1,7 +1,9 @@
 ---
 id: K-060
 title: K-057 SSOT backfill — Pencil .pen + design doc spec tables for DisclaimerBanner + Disclaimer footer section (visual-delta sync gap)
-status: open
+status: closed
+closed: 2026-04-29
+closed-commit: TBD
 created: 2026-04-28
 type: docs
 priority: medium

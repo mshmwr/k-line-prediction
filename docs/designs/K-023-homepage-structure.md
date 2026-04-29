@@ -349,3 +349,24 @@ No structural table changes needed. The component names and paths are already co
 **Which decisions needed revision:** Initial assumption that all 5 changes would require implementation. After design file analysis, A-3 is already complete and A-4/A-5 are contradicted by the design.
 
 **Next time improvement:** When a ticket says "Architect extracts text from design", check the design file BEFORE reading the ticket ACs in detail — this would have immediately surfaced the A-3/A-4/A-5 contradictions earlier and reduced total investigation time.
+
+---
+
+## K-057 New Components (2026-04-29 Backfill)
+
+Shipped in K-057 without Designer pass; SSOT backfilled in K-060 (2026-04-29).
+
+| Component | Location | Background | Text color | Font size | Copy |
+|---|---|---|---|---|---|
+| DisclaimerBanner | Top of every page, above Hero | `#2A2520` | `#F4EFE5` | 12px center Geist Mono | "Lookup tool for K-line shape similarity — for learning and exploration. Outputs are not predictions and not financial advice." |
+| DisclaimerSection | Bottom of page, below footer bar | paper `#F4EFE5` | ink `#2A2520` | 14px IBM Plex Mono heading / 13px Geist Mono body lh-1.6 | "This tool is for educational exploration of K-line pattern similarity only. It does not constitute financial advice…" (see `FooterDisclaimer.tsx`) |
+
+**Pencil nodes (frame `4CsvQ` Homepage):**
+- DisclaimerBanner: node `yYnSS`, height 36, `justifyContent: center`, child text node `iWZWh`
+- DisclaimerSection: node `qz7Po`, layout vertical, padding `[48, 96]`, gap 12, child nodes `wd7SP` (heading) + `Y2tTQR` (body)
+
+**Same components present across all page frames:**
+- `35VCj` (About): DisclaimerBanner `qnQHQ`, DisclaimerSection `QwyrN`
+- `4CsvQ` (Homepage): DisclaimerBanner `yYnSS`, DisclaimerSection `qz7Po`
+- `wiDSi` (Diary): DisclaimerBanner `ZqmEW`, DisclaimerSection `Us4NB`
+- `VSwW9` (Business Logic): DisclaimerBanner and DisclaimerSection absent (page has no footer section)

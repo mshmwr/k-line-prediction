@@ -14,6 +14,12 @@
 
 - 倒序（最新在上）
 
+## 2026-04-29 — K-060 DisclaimerBanner + DisclaimerSection SSOT backfill
+
+**What went well:** Both components already present in .pen (all 3 page frames); batch_get confirmed specs matched requirements without any batch_design needed; JSON spec and screenshot exported cleanly.
+**What went wrong:** DisclaimerBanner and DisclaimerSection shipped in K-057 without Designer pass — visual-delta:yes ticket executed as Engineer-direct with no design gate, leaving Pencil SSOT and design doc K-023 without spec table until K-060 backfill.
+**Next time improvement:** codified to feedback_visual_ssot_sync_gate.md — any ticket with visual-delta:yes that adds a new shared component must include a Designer phase (or same-session backfill commit) before PR merge.
+
 ## 2026-04-28 — K-058 pills-row orphan cleanup + session retro
 
 **What went wrong:** (1) `xu3l7` (`rpPillsRow`) was not deleted when switching from CSS pills to SVG approach — "delete table" scope did not trigger audit of other nodes serving the same purpose. (2) `qRYhe` (Role Pipeline table) duplicated compact card data — PRD item implemented without cross-section redundancy check. (3) G-4 git-status check not run after every `batch_design`, only at session end. (4) Section heading text `(compact)` was an implementation note treated as approved copy and written to Pencil.
