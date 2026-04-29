@@ -86,7 +86,7 @@ test.describe('AboutPage — AC-ABOUT-1 (K-017)', () => {
 // Given: user visits /diary
 // When: diary.json loads successfully
 // Then: flat timeline renders; Hero title visible; at least one entry visible;
-//       load-more button appears when entry count > 5.
+//       infinite scroll sentinel appears when entry count > 5.
 //
 // K-024 AC-024-REGRESSION Allowed-to-change: the old accordion-based
 // assertions (getByRole('button') + aria-expanded + .px-4.pb-4) targeted the
