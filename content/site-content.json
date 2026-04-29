@@ -1,11 +1,11 @@
 {
-  "lastUpdated": "2026-04-29T11:25:28+08:00",
+  "lastUpdated": "2026-04-29T12:22:30+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 23,
+      "covered": 24,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 56
+      "total": 57
     },
     "featuresShipped": {
       "label": "Features Shipped",
@@ -155,6 +155,6 @@
   ],
   "ticketRange": {
     "first": "K-001",
-    "last": "K-060"
+    "last": "K-061"
   }
 }
