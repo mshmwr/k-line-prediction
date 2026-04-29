@@ -16,6 +16,18 @@
 
 ---
 
+## 2026-04-29 — K-063 Engineer — Retro format: add mandatory Slowest step field
+
+**What went well:** All 6 persona files + verification-protocol.md + ssot/workflow.md updated in one pass with consistent wording.
+
+**What went wrong:** verification-protocol.md ≤6-line cap needed updating to ≤7 since one extra field was added; missed on first pass, caught via grep.
+
+**Next time improvement:** When adding a new retro field globally, grep for the current field count in all format-spec files before committing.
+
+**Slowest step:** Reading all 6 persona files to find exact format blocks — could be sped up by grepping for "What went well" first to get exact line numbers.
+
+---
+
 ## 2026-04-29 — K-062 Engineer — README Folder Structure via SSOT generator
 
 **What went well:**

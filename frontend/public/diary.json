@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-063",
+    "title": "Retro format — add Slowest step field to all role retrospective entries",
+    "date": "2026-04-29",
+    "text": "Added a mandatory Slowest step field to the retrospective format across all six role personas and the workflow spec."
+  },
+  {
     "ticketId": "K-062",
     "title": "README Folder Structure section — auto-generated from SSOT JSON",
     "date": "2026-04-29",
