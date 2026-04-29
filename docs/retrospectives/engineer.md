@@ -16,6 +16,22 @@
 
 ---
 
+## 2026-04-29 — K-062 Engineer — README Folder Structure via SSOT generator
+
+**What went well:**
+- Design doc was complete; 3-file scope matched design exactly.
+- `--check` mode confirmed idempotency on first pass after regex fix.
+
+**What went wrong:**
+- `buildSiteContentJson` did not preserve `folderStructure` in its output object — required a second fix after the generator silently overwrote the hand-authored key.
+- Initial `folderStructureMarkerRe` used `\n([\s\S]*?)\n` pattern (copied from STACK/NAMED-ARTEFACTS), which fails to match the empty initial marker state `start\n end`. Needed a permissive regex without anchoring `\n` on both sides.
+
+**What to improve next time:**
+- When extending the generator with a new preserved key, add it to `buildSiteContentJson` output object in the same step — don't split key addition and preservation fix into separate iterations.
+- When a new marker regex targets an initially empty block, use `([\s\S]*?)` without surrounding `\n` anchors.
+
+**Slowest step:** finding that `buildSiteContentJson` didn't preserve `folderStructure` → run the generator once against a real empty-marker README as a smoke test before committing.
+
 ## 2026-04-29 — K-061 Engineer — Fix 24 E2E backend-dependent failures
 
 **What went well:**
