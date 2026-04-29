@@ -789,6 +789,41 @@ test.describe('DiaryPage — AC-059-INFINITE-SCROLL', () => {
     await expect(page.locator('[data-testid="diary-sentinel"]')).toHaveCount(0)
   })
 
+  test('AC-059-NO-LOAD-MORE-BUTTON: diary-load-more not in DOM', async ({ page }) => {
+    await page.goto('/diary')
+    await page.waitForLoadState('networkidle')
+    await expect(page.locator('[data-testid="diary-load-more"]')).toHaveCount(0)
+  })
+
+  test('AC-059-FADE-IN: new entries have transition-opacity duration-300 classes', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    const fixture = await loadFixture('diary-five.json')
+    await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
+    await page.goto('/diary')
+    await page.waitForLoadState('networkidle')
+    const entries = page.locator('[data-testid="diary-entry"]')
+    const firstEntry = entries.first()
+    await expect(firstEntry).toHaveClass(/transition-opacity/)
+    await expect(firstEntry).toHaveClass(/duration-300/)
+  })
+
+  test('AC-059-PAPER-PALETTE: diary-loading inner container has paper-palette background', async ({ page }) => {
+    // DiaryLoading inner container uses bg-[#F4EFE5] (paper-palette rebrand, K-059 §5).
+    // Route intercepts diary.json with a 300ms delay to hold loading state visible.
+    const fixture = await loadFixture('diary-five.json')
+    await page.route('**/diary.json', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      await mockDiaryBody(route, fixture)
+    })
+    const navigationPromise = page.goto('/diary')
+    const loading = page.locator('[data-testid="diary-loading"]')
+    await expect(loading).toBeVisible()
+    // Inner card carries the paper-palette background colour
+    const innerCard = loading.locator('div').first()
+    await expect(innerCard).toHaveCSS('background-color', 'rgb(244, 239, 229)')
+    await navigationPromise
+  })
+
   test('AC-059-RAPID-SCROLL: double invocation of onVisible returns +5 only once', async ({ page }) => {
     // Fixture: 11 entries. Two rapid onVisible() calls → gated to +5 → count=10, not 11.
     // Uses same __onVisible test hook as T-D9.

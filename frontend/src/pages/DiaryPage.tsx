@@ -20,7 +20,7 @@ import FooterDisclaimer from '../components/shared/FooterDisclaimer'
 //   loading                      → <DiaryLoading>
 //   error                        → <DiaryError message loading onRetry>
 //   !loading && !error && 0      → <DiaryEmptyState>
-//   !loading && !error && N>0    → <DiaryTimeline> (+ <LoadMoreButton> when hasMore)
+//   !loading && !error && N>0    → <DiaryTimeline> (+ <InfiniteScrollSentinel> when hasMore)
 //
 // Content container: max-w-[1248px] + mx-auto (AC-024-CONTENT-WIDTH) + px-6
 // sm:px-24 (mobile ≤ 640px → 24px, desktop ≥ 640px → 96px per AC-024-CONTENT-WIDTH
@@ -36,7 +36,7 @@ import FooterDisclaimer from '../components/shared/FooterDisclaimer'
 
 export default function DiaryPage() {
   const { entries, loading, error, refetch } = useDiary()
-  const { visible, hasMore, loadMore, canLoadMore } = useDiaryPagination(entries)
+  const { visible, hasMore, loadMore } = useDiaryPagination(entries)
 
   return (
     <div className="min-h-screen">
