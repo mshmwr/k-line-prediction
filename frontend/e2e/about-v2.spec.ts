@@ -15,7 +15,7 @@ test.describe('AC-022-SECTION-LABEL — Section labels + hairline', () => {
 
     const sectionLabels = [
       'Nº 01 — DELIVERY METRICS',
-      'Nº 02.5 — WHERE I STEPPED IN',
+      'Nº 02 — WHERE I STEPPED IN',
       'Nº 03 — THE PIPELINE',
       'Nº 04 — THE PERSONNEL',
       'Nº 05 — RELIABILITY',

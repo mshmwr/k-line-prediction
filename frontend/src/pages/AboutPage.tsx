@@ -43,7 +43,7 @@ export default function AboutPage() {
 
       {/* SX — WhereISteppedInSection */}
       <section id="where-i-stepped-in" data-section="where-i-stepped-in" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 02.5 — WHERE I STEPPED IN" />
+        <SectionLabelRow label="Nº 02 — WHERE I STEPPED IN" />
         <WhereISteppedInSection />
       </section>
 

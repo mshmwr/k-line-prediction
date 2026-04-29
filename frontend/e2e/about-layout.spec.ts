@@ -161,7 +161,7 @@ test.describe('AC-045-SECTION-LABEL-X — section-label left edge anchors to con
     await page.goto('/about')
     const labelIdPairs: Array<{ parentId: string; label: string }> = [
       { parentId: 'metrics', label: 'Nº 01 — DELIVERY METRICS' },
-      { parentId: 'where-i-stepped-in', label: 'Nº 02.5 — WHERE I STEPPED IN' },
+      { parentId: 'where-i-stepped-in', label: 'Nº 02 — WHERE I STEPPED IN' },
       { parentId: 'role-pipeline', label: 'Nº 03 — THE PIPELINE' },
       { parentId: 'roles', label: 'Nº 04 — THE PERSONNEL' },
       { parentId: 'pillars', label: 'Nº 05 — RELIABILITY' },
