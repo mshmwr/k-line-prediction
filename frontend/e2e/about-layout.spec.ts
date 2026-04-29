@@ -23,7 +23,7 @@
 
 import { test, expect } from '@playwright/test'
 
-const SECTION_IDS = ['header', 'metrics', 'roles', 'pillars', 'tickets', 'architecture'] as const
+const SECTION_IDS = ['header', 'metrics', 'where-i-stepped-in', 'role-pipeline', 'roles', 'pillars', 'tickets', 'architecture'] as const
 
 async function sectionBoxes(page: import('@playwright/test').Page) {
   // K-049 Phase 3: AboutPage is now a React.lazy chunk. `page.goto('/about')`
@@ -35,7 +35,7 @@ async function sectionBoxes(page: import('@playwright/test').Page) {
   // future append-to-list structural edit.
   await page.locator('#header').waitFor({ state: 'attached', timeout: 10_000 })
   await page.locator('#architecture').waitFor({ state: 'attached', timeout: 10_000 })
-  return page.locator('#header, #metrics, #roles, #pillars, #tickets, #architecture').evaluateAll(els =>
+  return page.locator('#header, #metrics, #where-i-stepped-in, #role-pipeline, #roles, #pillars, #tickets, #architecture').evaluateAll(els =>
     els.map(el => {
       const r = el.getBoundingClientRect()
       const s = window.getComputedStyle(el)
@@ -156,15 +156,17 @@ test.describe('AC-045-HERO-LINE-COUNT — /about hero wraps correctly at 1248 co
 })
 
 test.describe('AC-045-SECTION-LABEL-X — section-label left edge anchors to container inner left', () => {
-  test('T9 — desktop 1280: all 5 section-labels left-edge = section.left + 96 ± 1', async ({ page }) => {
+  test('T9 — desktop 1280: all 7 section-labels left-edge = section.left + 96 ± 1', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/about')
     const labelIdPairs: Array<{ parentId: string; label: string }> = [
       { parentId: 'metrics', label: 'Nº 01 — DELIVERY METRICS' },
-      { parentId: 'roles', label: 'Nº 02 — THE ROLES' },
-      { parentId: 'pillars', label: 'Nº 03 — RELIABILITY' },
-      { parentId: 'tickets', label: 'Nº 04 — ANATOMY OF A TICKET' },
-      { parentId: 'architecture', label: 'Nº 05 — PROJECT ARCHITECTURE' },
+      { parentId: 'where-i-stepped-in', label: 'Nº 02.5 — WHERE I STEPPED IN' },
+      { parentId: 'role-pipeline', label: 'Nº 03 — THE ROLES' },
+      { parentId: 'roles', label: 'Nº 04 — THE ROLES' },
+      { parentId: 'pillars', label: 'Nº 05 — RELIABILITY' },
+      { parentId: 'tickets', label: 'Nº 06 — ANATOMY OF A TICKET' },
+      { parentId: 'architecture', label: 'Nº 07 — PROJECT ARCHITECTURE' },
     ]
     for (const { parentId, label } of labelIdPairs) {
       const section = page.locator(`#${parentId}`)
@@ -178,10 +180,10 @@ test.describe('AC-045-SECTION-LABEL-X — section-label left edge anchors to con
     }
   })
 
-  test('T10 — mobile 375: all 5 section-labels left-edge = section.left + 24 ± 1', async ({ page }) => {
+  test('T10 — mobile 375: all 7 section-labels left-edge = section.left + 24 ± 1', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/about')
-    const parentIds = ['metrics', 'roles', 'pillars', 'tickets', 'architecture']
+    const parentIds = ['metrics', 'where-i-stepped-in', 'role-pipeline', 'roles', 'pillars', 'tickets', 'architecture']
     for (const parentId of parentIds) {
       const section = page.locator(`#${parentId}`)
       const labelLoc = page.locator(`#${parentId} [data-testid="section-label"]`).first()
@@ -197,7 +199,7 @@ test.describe('AC-045-SECTION-LABEL-X — section-label left edge anchors to con
   test('T11 — desktop 1280: hairline right-edge = section.right - 96 ± 1', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/about')
-    const parentIds = ['metrics', 'roles', 'pillars', 'tickets', 'architecture']
+    const parentIds = ['metrics', 'where-i-stepped-in', 'role-pipeline', 'roles', 'pillars', 'tickets', 'architecture']
     for (const parentId of parentIds) {
       const section = page.locator(`#${parentId}`)
       const hairline = page.locator(`#${parentId} [data-section-hairline]`).first()
@@ -213,7 +215,7 @@ test.describe('AC-045-SECTION-LABEL-X — section-label left edge anchors to con
 })
 
 test.describe('AC-045-K031-ADJACENCY-PRESERVED — structural root-child sanity (T14 safety net)', () => {
-  test('T14 — all 6 <section> are direct children of root <div class="min-h-screen">, <footer> is last child', async ({ page }) => {
+  test('T14 — all 8 <section> are direct children of root <div class="min-h-screen">, <footer> is last child', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/about')
     const summary = await page.evaluate(() => {
@@ -226,7 +228,7 @@ test.describe('AC-045-K031-ADJACENCY-PRESERVED — structural root-child sanity 
       return { ok: true, directSectionIds, lastChildTag }
     })
     expect(summary.ok).toBe(true)
-    expect(summary.directSectionIds).toEqual(['header', 'metrics', 'roles', 'pillars', 'tickets', 'architecture'])
+    expect(summary.directSectionIds).toEqual(['header', 'metrics', 'where-i-stepped-in', 'role-pipeline', 'roles', 'pillars', 'tickets', 'architecture'])
     expect(summary.lastChildTag).toBe('footer')
   })
 })

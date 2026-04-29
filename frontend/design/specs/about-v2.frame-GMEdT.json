@@ -1,0 +1,102 @@
+{
+  "frameId": "GMEdT",
+  "name": "SX_WhereISteppedIn",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "parentFrame": "35VCj > Y80Iv",
+  "sectionOrder": "After S2_MetricsStrip (BF4Xe), before SY_RolePipeline (omyb7)",
+  "layout": {
+    "type": "frame",
+    "layout": "vertical",
+    "gap": 28,
+    "width": "fill_container"
+  },
+  "children": {
+    "wsHead": {
+      "id": "OrZ1h",
+      "type": "frame",
+      "layout": "horizontal",
+      "alignItems": "center",
+      "gap": 16
+    },
+    "wsLabel": {
+      "id": "km9nu",
+      "content": "Nº 02.5 — WHERE I STEPPED IN",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "700",
+      "letterSpacing": 2,
+      "fill": "#1A1814"
+    },
+    "wsLine": {
+      "id": "XQgRF",
+      "type": "rectangle",
+      "height": 1,
+      "fill": "#8B7A6B"
+    },
+    "wsNarrative": {
+      "id": "R5jxX",
+      "type": "text",
+      "content": "I am the single operator. Every ticket is filed by me, reviewed by me, and merged by me. The agents execute; I decide.",
+      "fontSize": 14,
+      "lineHeight": 1.6
+    },
+    "wsComparisonTable": {
+      "id": "UFPld",
+      "type": "frame",
+      "layout": "vertical",
+      "cornerRadius": 6,
+      "stroke": "#1A1814 1px inside",
+      "mobileConstraint": {
+        "layout": "grid-cols-1 md:grid-cols-3",
+        "note": "Each comparison row stacks as a CardShell card on mobile; column headers collapse to label+text pairs"
+      }
+    },
+    "wsTableHeader": {
+      "id": "OYRHr",
+      "fill": "#2A2520",
+      "columns": [
+        "AI DID",
+        "I DECIDED",
+        "OUTCOME"
+      ]
+    },
+    "wsRows": [
+      {
+        "col1": "Architect proposed component tree + API contract",
+        "col2": "Approved scope, rejected over-abstraction, set sacred constraints",
+        "col3": "Each ticket ships with a verifiable artefact trail"
+      },
+      {
+        "col1": "Engineer implemented + Reviewer flagged bugs",
+        "col2": "Confirmed root cause, approved fix strategy",
+        "col3": "Zero regressions across 60+ merged PRs"
+      },
+      {
+        "col1": "Designer produced Pencil spec per each visual ticket",
+        "col2": "Selected visual direction (A/B/C options), approved design-locked gate",
+        "col3": "SSOT maintained across 3-page redesign"
+      }
+    ],
+    "wsBBlock": {
+      "id": "eIxup",
+      "fill": "#2A2520",
+      "cornerRadius": 6,
+      "padding": [
+        16,
+        20
+      ],
+      "content": "60 tickets. 100% AC coverage. Every decision logged.",
+      "fill_text": "#F4EFE5",
+      "fontSize": 14,
+      "fontWeight": "700"
+    }
+  },
+  "tokens": {
+    "fontFamily": "Geist Mono",
+    "bg": "none (inherits parent #F4EFE5)",
+    "accentText": "#B43A2C",
+    "mutedText": "#6B5F4E",
+    "primaryText": "#1A1814",
+    "darkBg": "#2A2520"
+  }
+}

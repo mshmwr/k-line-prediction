@@ -358,6 +358,19 @@ function buildSiteContentJson(tickets, existingSiteContent) {
   // Preserve hand-edited fields: stack[], processRules[], renderSlots
   const preserved = existingSiteContent || {}
 
+  const processedRules = (preserved.processRules || []).map(rule => {
+    const addedAfter = rule.addedAfter || ''
+    const ticketNumMatch = addedAfter.match(/K-(\d+)/)
+    const ticketNum = ticketNumMatch ? parseInt(ticketNumMatch[1], 10) : 0
+    const recencyScore = ticketNum > 40 ? 2 : ticketNum > 20 ? 1 : 0
+    const severityScore =
+      rule.severity === 'critical-blocker' ? 3 :
+      rule.severity === 'warning' ? 1 :
+      0
+    const weight = Math.max(1, recencyScore + severityScore)
+    return { ...rule, weight }
+  })
+
   const output = {
     lastUpdated: m.lastUpdated,
     metrics: {
@@ -380,7 +393,7 @@ function buildSiteContentJson(tickets, existingSiteContent) {
         value: m.postMortemsWritten,
       },
     },
-    processRules: preserved.processRules || [],
+    processRules: processedRules,
     renderSlots: preserved.renderSlots || {
       about: { processRules: 5, stack: 0 },
       home: { processRules: 0, stack: 6 },

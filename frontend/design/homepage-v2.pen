@@ -708,6 +708,780 @@
             },
             {
               "type": "frame",
+              "id": "GMEdT",
+              "name": "SX_WhereISteppedIn",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "OrZ1h",
+                  "name": "wsHead",
+                  "width": "fill_container",
+                  "gap": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "km9nu",
+                      "name": "wsLabel",
+                      "fill": "#1A1814",
+                      "content": "Nº 02.5 — WHERE I STEPPED IN",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "XQgRF",
+                      "name": "wsLine",
+                      "fill": "#8B7A6B",
+                      "width": "fill_container",
+                      "height": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "R5jxX",
+                  "name": "wsNarrative",
+                  "fill": "#1A1814",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "I am the single operator. Every ticket is filed by me, reviewed by me, and merged by me. The agents execute; I decide.",
+                  "lineHeight": 1.6,
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "UFPld",
+                  "name": "wsComparisonTable",
+                  "width": "fill_container",
+                  "cornerRadius": 6,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#1A1814"
+                  },
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "OYRHr",
+                      "name": "wsThRow",
+                      "width": "fill_container",
+                      "fill": "#2A2520",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "t334L7",
+                          "name": "wsTh1",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "padding": [
+                            8,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "H8iYsK",
+                              "fill": "#F4EFE5",
+                              "content": "AI DID",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 10,
+                              "fontWeight": "700",
+                              "letterSpacing": 2
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "C9O4x",
+                          "name": "wsTh2",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 1
+                            },
+                            "fill": "#6B5F4E"
+                          },
+                          "layout": "vertical",
+                          "padding": [
+                            8,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qI5Nu",
+                              "fill": "#F4EFE5",
+                              "content": "I DECIDED",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 10,
+                              "fontWeight": "700",
+                              "letterSpacing": 2
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "t9pMD",
+                          "name": "wsTh3",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 1
+                            },
+                            "fill": "#6B5F4E"
+                          },
+                          "layout": "vertical",
+                          "padding": [
+                            8,
+                            12
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "n7t9O",
+                              "fill": "#F4EFE5",
+                              "content": "OUTCOME",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 10,
+                              "fontWeight": "700",
+                              "letterSpacing": 2
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "h9Yjgs",
+                      "name": "wsR1Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#8B7A6B"
+                      },
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "t5egMQ",
+                          "name": "wsR1C1",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "PKJue",
+                              "fill": "#1A1814",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Architect proposed component tree + API contract",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "JIAKJ",
+                          "name": "wsR1C2",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 1
+                            },
+                            "fill": "#8B7A6B"
+                          },
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "iV34k",
+                              "fill": "#1A1814",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Approved scope, rejected over-abstraction, set sacred constraints",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "K3biDq",
+                          "name": "wsR1C3",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 1
+                            },
+                            "fill": "#8B7A6B"
+                          },
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "d5TBqf",
+                              "fill": "#B43A2C",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Each ticket ships with a verifiable artefact trail",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "XM0V3",
+                      "name": "wsR2Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#8B7A6B"
+                      },
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "l8RIMO",
+                          "name": "wsR2C1",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "seHxb",
+                              "fill": "#1A1814",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Engineer implemented + Reviewer flagged bugs",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "r0T98h",
+                          "name": "wsR2C2",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 1
+                            },
+                            "fill": "#8B7A6B"
+                          },
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VRJpO",
+                              "fill": "#1A1814",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Confirmed root cause, approved fix strategy",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "XKTcJ",
+                          "name": "wsR2C3",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 1
+                            },
+                            "fill": "#8B7A6B"
+                          },
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "IkWdK",
+                              "fill": "#B43A2C",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Zero regressions across 60+ merged PRs",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "h6wmp",
+                      "name": "wsR3Row",
+                      "width": "fill_container",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": {
+                          "top": 1
+                        },
+                        "fill": "#8B7A6B"
+                      },
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "HAXts",
+                          "name": "wsR3C1",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "L6bftK",
+                              "fill": "#1A1814",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Designer produced Pencil spec per each visual ticket",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "NgJmL",
+                          "name": "wsR3C2",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 1
+                            },
+                            "fill": "#8B7A6B"
+                          },
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "HNqig",
+                              "fill": "#1A1814",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Selected visual direction (A/B/C options), approved design-locked gate",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "kRgvW",
+                          "name": "wsR3C3",
+                          "width": "fill_container",
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": {
+                              "left": 1
+                            },
+                            "fill": "#8B7A6B"
+                          },
+                          "layout": "vertical",
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mQ0Er",
+                              "fill": "#B43A2C",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "SSOT maintained across 3-page redesign",
+                              "lineHeight": 1.55,
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "eIxup",
+                  "name": "wsBBlock",
+                  "width": "fill_container",
+                  "fill": "#2A2520",
+                  "cornerRadius": 6,
+                  "gap": 16,
+                  "padding": [
+                    16,
+                    20
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "j6U3b",
+                      "name": "wsOutcome",
+                      "fill": "#F4EFE5",
+                      "content": "60 tickets. 100% AC coverage. Every decision logged.",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 14,
+                      "fontWeight": "700",
+                      "letterSpacing": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "omyb7",
+              "name": "SY_RolePipelineSection",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "c9Cc2",
+                  "name": "rpHead",
+                  "width": "fill_container",
+                  "gap": 16,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "oaTTN",
+                      "name": "rpLabel",
+                      "fill": "#1A1814",
+                      "content": "Nº 03 — THE ROLES",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "gWxQI",
+                      "name": "rpLine",
+                      "fill": "#8B7A6B",
+                      "width": "fill_container",
+                      "height": 1
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "g0IvrE",
+                  "name": "rpDesc",
+                  "fill": "#1A1814",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Automatic handoffs between six AI agents. Each role owns a single responsibility and produces a verifiable artefact.",
+                  "lineHeight": 1.6,
+                  "fontFamily": "Geist Mono",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "xu3l7",
+                  "name": "rpPillsRow",
+                  "width": "fill_container",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "aR6gA",
+                      "name": "rpPillPM",
+                      "fill": "#2A2520",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "padding": [
+                        6,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "POaiG",
+                          "fill": "#F4EFE5",
+                          "content": "PM",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "jDye7",
+                      "name": "rpArrow1",
+                      "fill": "#8B7A6B",
+                      "content": "→",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "w62HN",
+                      "name": "rpPillArch",
+                      "fill": "#2A2520",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "padding": [
+                        6,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dtezQ",
+                          "fill": "#F4EFE5",
+                          "content": "Architect",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "divSi",
+                      "name": "rpArrow2",
+                      "fill": "#8B7A6B",
+                      "content": "→",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "u93nj",
+                      "name": "rpPillEng",
+                      "fill": "#2A2520",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "padding": [
+                        6,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xLemF",
+                          "fill": "#F4EFE5",
+                          "content": "Engineer",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "vZdt3",
+                      "name": "rpArrow3",
+                      "fill": "#8B7A6B",
+                      "content": "→",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "vtVhX",
+                      "name": "rpPillRev",
+                      "fill": "#2A2520",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "padding": [
+                        6,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "nvdid",
+                          "fill": "#F4EFE5",
+                          "content": "Reviewer",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "N7xxb",
+                      "name": "rpArrow4",
+                      "fill": "#8B7A6B",
+                      "content": "→",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Mbi6S",
+                      "name": "rpPillQA",
+                      "fill": "#2A2520",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "padding": [
+                        6,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "G3nrz",
+                          "fill": "#F4EFE5",
+                          "content": "QA",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "puXkw",
+                      "name": "rpArrow5",
+                      "fill": "#8B7A6B",
+                      "content": "→",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hbHOn",
+                      "name": "rpPillDes",
+                      "fill": "#2A2520",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "padding": [
+                        6,
+                        14
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qeJAf",
+                          "fill": "#F4EFE5",
+                          "content": "Designer",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZIExb",
+                  "name": "rpSvgPlaceholder",
+                  "width": "fill_container",
+                  "height": 200,
+                  "fill": "#EDE8DE",
+                  "cornerRadius": 6,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#8B7A6B"
+                  },
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "t04g4",
+                      "name": "rpSvgLabel",
+                      "fill": "#8B7A6B",
+                      "content": "[SVG: role pipeline flow — see design doc]",
+                      "fontFamily": "Geist Mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "8mqwX",
               "name": "S3_RoleCardsSection",
               "width": "fill_container",
@@ -727,7 +1501,7 @@
                       "id": "e5BzC",
                       "name": "s3label",
                       "fill": "#1A1814",
-                      "content": "Nº 02 — THE ROLES",
+                      "content": "Nº 04 — THE ROLES (compact)",
                       "fontFamily": "Geist Mono",
                       "fontSize": 13,
                       "fontWeight": "700",
@@ -750,7 +1524,7 @@
                   "fill": "#1A1814",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "— Each role a separate agent with spec'd responsibilities. Every handoff produces a verifiable artefact.",
+                  "content": "— Role cards. Each agent with its ownership and verifiable artefact.",
                   "lineHeight": 1.6,
                   "fontFamily": "Geist Mono",
                   "fontSize": 14,
@@ -768,7 +1542,6 @@
                       "id": "szZ7h",
                       "name": "role_PM",
                       "width": "fill_container",
-                      "height": 320,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -807,10 +1580,9 @@
                           "id": "EUnlR",
                           "name": "r1Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
-                          "gap": 14,
-                          "padding": 20,
+                          "gap": 8,
+                          "padding": 12,
                           "children": [
                             {
                               "type": "text",
@@ -888,7 +1660,6 @@
                       "id": "p3NWv",
                       "name": "role_Architect",
                       "width": "fill_container",
-                      "height": 320,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -927,10 +1698,9 @@
                           "id": "lmfvd",
                           "name": "r2Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
-                          "gap": 14,
-                          "padding": 20,
+                          "gap": 8,
+                          "padding": 12,
                           "children": [
                             {
                               "type": "text",
@@ -1008,7 +1778,6 @@
                       "id": "HGPky",
                       "name": "role_Engineer",
                       "width": "fill_container",
-                      "height": 320,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -1047,10 +1816,9 @@
                           "id": "DFb0T",
                           "name": "r3Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
-                          "gap": 14,
-                          "padding": 20,
+                          "gap": 8,
+                          "padding": 12,
                           "children": [
                             {
                               "type": "text",
@@ -1137,7 +1905,6 @@
                       "id": "3O32j",
                       "name": "role_Reviewer",
                       "width": "fill_container",
-                      "height": 320,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -1176,10 +1943,9 @@
                           "id": "LSdl9",
                           "name": "r4Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
-                          "gap": 14,
-                          "padding": 20,
+                          "gap": 8,
+                          "padding": 12,
                           "children": [
                             {
                               "type": "text",
@@ -1257,7 +2023,6 @@
                       "id": "msFox",
                       "name": "role_QA",
                       "width": "fill_container",
-                      "height": 320,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -1296,10 +2061,9 @@
                           "id": "8bvnp",
                           "name": "r5Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
-                          "gap": 14,
-                          "padding": 20,
+                          "gap": 8,
+                          "padding": 12,
                           "children": [
                             {
                               "type": "text",
@@ -1377,7 +2141,6 @@
                       "id": "vtpKx",
                       "name": "role_Designer",
                       "width": "fill_container",
-                      "height": 320,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -1416,10 +2179,9 @@
                           "id": "L4BO2",
                           "name": "r6Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
-                          "gap": 14,
-                          "padding": 20,
+                          "gap": 8,
+                          "padding": 12,
                           "children": [
                             {
                               "type": "text",

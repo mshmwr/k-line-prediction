@@ -1,6 +1,8 @@
 import UnifiedNavBar from '../components/UnifiedNavBar'
 import PageHeaderSection from '../components/about/PageHeaderSection'
 import MetricsStripSection from '../components/about/MetricsStripSection'
+import WhereISteppedInSection from '../components/about/WhereISteppedInSection'
+import RolePipelineSection from '../components/about/RolePipelineSection'
 import RoleCardsSection from '../components/about/RoleCardsSection'
 import ReliabilityPillarsSection from '../components/about/ReliabilityPillarsSection'
 import TicketAnatomySection from '../components/about/TicketAnatomySection'
@@ -39,21 +41,33 @@ export default function AboutPage() {
         <MetricsStripSection />
       </section>
 
+      {/* SX — WhereISteppedInSection */}
+      <section id="where-i-stepped-in" data-section="where-i-stepped-in" className={`${bodyGap} ${baseContainer}`}>
+        <SectionLabelRow label="Nº 02.5 — WHERE I STEPPED IN" />
+        <WhereISteppedInSection />
+      </section>
+
+      {/* SY — RolePipelineSection */}
+      <section id="role-pipeline" data-section="role-pipeline" className={`${bodyGap} ${baseContainer}`}>
+        <SectionLabelRow label="Nº 03 — THE ROLES" />
+        <RolePipelineSection />
+      </section>
+
       {/* S3 — RoleCardsSection */}
       <section id="roles" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 02 — THE ROLES" />
+        <SectionLabelRow label="Nº 04 — THE ROLES" />
         <RoleCardsSection />
       </section>
 
       {/* S4 — ReliabilityPillarsSection */}
       <section id="pillars" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 03 — RELIABILITY" />
+        <SectionLabelRow label="Nº 05 — RELIABILITY" />
         <ReliabilityPillarsSection />
       </section>
 
-      {/* S5 — TicketAnatomySection (BQ-022-01: Nº 04 — ANATOMY OF A TICKET) */}
+      {/* S5 — TicketAnatomySection */}
       <section id="tickets" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 04 — ANATOMY OF A TICKET" />
+        <SectionLabelRow label="Nº 06 — ANATOMY OF A TICKET" />
         <TicketAnatomySection />
       </section>
 
@@ -62,7 +76,7 @@ export default function AboutPage() {
         id="architecture"
         className={`${bodyGap} mb-8 sm:mb-[96px] ${baseContainer}`}
       >
-        <SectionLabelRow label="Nº 05 — PROJECT ARCHITECTURE" />
+        <SectionLabelRow label="Nº 07 — PROJECT ARCHITECTURE" />
         <ProjectArchitectureSection />
       </section>
 

@@ -15,7 +15,7 @@ interface FileNoBarProps {
   label?: string
   prefix?: 'FILE Nº' | 'LAYER Nº'
   trailing?: string
-  cardPaddingSize?: 'md' | 'lg'
+  cardPaddingSize?: 'sm' | 'md' | 'lg'
 }
 
 export default function FileNoBar({
@@ -25,7 +25,7 @@ export default function FileNoBar({
   trailing,
   cardPaddingSize = 'md',
 }: FileNoBarProps) {
-  const negativeMargin = cardPaddingSize === 'lg' ? '-mx-6 -mt-6' : '-mx-5 -mt-5'
+  const negativeMargin = cardPaddingSize === 'lg' ? '-mx-6 -mt-6' : cardPaddingSize === 'sm' ? '-mx-3 -mt-3' : '-mx-5 -mt-5'
   const padded = String(fileNo).padStart(2, '0')
   const content = label ? `${prefix} ${padded} · ${label}` : `${prefix} ${padded}`
 

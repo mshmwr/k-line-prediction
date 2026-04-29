@@ -14,6 +14,22 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-04-28 — K-058 QA Early Consultation
+
+**Status:** Complete — 7 challenges raised, 5 supplemented to AC, 1 Known Gap, 1 Engineer scope add.
+
+**Challenges summary:**
+- C-1 → AC-058-SECTION-LABELS-UPDATED (section Nº-label collisions in existing green tests)
+- C-2 → KG-058-01 Known Gap (SVG mobile legibility at narrow viewport)
+- C-3 → AC-058-PERIOD-STYLE scoped to `[data-section="..."] p`, FileNoBar exempted
+- C-4 → AC-058-TICKET-CASES-GITHUB-LINKS (GitHub hrefs must match verbatim post-migration)
+- C-5 → weight formula floor `max(1, recencyScore + severityScore)` added; AC-058-WEIGHT-FIX updated
+- C-6 → AC-058-ROLE-CARD-HEIGHT replaced screenshot with `offsetHeight < 320` numeric assertion
+- C-7 → Engineer scope: update `docs/qa/known-reds.md` T14 manifest entry in same PR
+
+**What went well:** Existing E2E baseline (`about.spec.ts`, `about-layout.spec.ts`, `about-v2.spec.ts`) read thoroughly before raising challenges — no false positives. SVG coordinate math done from Designer spec to verify mobile clipping risk.
+**What went wrong:** AC-058-WEIGHT-FIX as originally written was structurally impossible (formula cannot guarantee all-nonzero without floor). Should have been caught at PRD drafting. Lesson: weight-formula ACs need a floor specified at AC-authoring time.
+
 ## 2026-04-28 — K-057 QA gate (Phase A sign-off)
 
 **Status:** ✅ QA-PASS — 290/311 Playwright passing; 21 known-reds all documented in manifest; 86/86 Vitest; tsc exit 0.

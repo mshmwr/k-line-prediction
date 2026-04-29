@@ -1,55 +1,38 @@
 {
-  "ticket": "K-040",
   "frameId": "EBC1e",
+  "name": "S5_TicketAnatomySection",
   "penFile": "frontend/design/homepage-v2.pen",
-  "frameName": "S5_TicketAnatomySection (About /about section 5)",
-  "parentPage": "About /about (K-017 v2) [35VCj]",
-  "layout": "vertical",
-  "gap": 28,
-  "generatedAt": "2026-04-23",
-  "generatorNote": "K-040 Sitewide Typography — s5 intro Newsreader italic 15→Mono 14 normal; 3 case cards with Title Bodoni italic 26→Mono 20 normal; CaseNo Newsreader italic 13→Mono 11 normal; outcome/learning body Mono 12; link Mono 11.",
-  "components": [
-    { "role": "section-label", "nodeId": "CQyS0", "content": "Nº 04 — ANATOMY OF A TICKET", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
-    { "role": "section-intro", "nodeId": "iUkFk", "content": "— Anatomy of a ticket. Three cases, each filed in full with outcome and learning.", "font": { "family": "Geist Mono", "size": 14, "weight": "normal", "style": "normal", "lineHeight": 1.6 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 15 },
-    {
-      "role": "ticket-card",
-      "nodeId": "835fD",
-      "name": "ticket_K002",
-      "items": [
-        { "role": "card-label", "nodeId": "vcvPk", "content": "FILE Nº 01 · CASE FILE", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#F4EFE5" },
-        { "role": "card-id", "nodeId": "LVfTv", "content": "K-002", "font": { "family": "Geist Mono", "size": 12, "weight": "700", "letterSpacing": 2 }, "color": "#F4EFE5" },
-        { "role": "case-no", "nodeId": "kJyTC", "content": "Case Nº 01", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "style": "normal" }, "color": "#6B5F4E", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 13 },
-        { "role": "ticket-title", "nodeId": "GtO0Z", "content": "UI optimization", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
-        { "role": "field-label", "nodeId": "icZQk", "content": "OUTCOME", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#6B5F4E" },
-        { "role": "ticket-outcome", "nodeId": "lwBEi", "content": "Large UI refactor where And-clause systematic omission was caught by three-role reflection.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#1A1814" },
-        { "role": "field-label", "nodeId": "tgGNM", "content": "LEARNING", "font": { "family": "Geist Mono", "size": 10, "weight": "normal", "letterSpacing": 2 }, "color": "#6B5F4E" },
-        { "role": "ticket-learning", "nodeId": "wWdZj", "content": "Birthed the per-role retrospective log mechanism.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#B43A2C" },
-        { "role": "ticket-link", "nodeId": "GBRSI", "content": "→ View K-002 on GitHub", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
-      ]
+  "parentFrame": "35VCj > Y80Iv",
+  "k058Changes": "Dynamic placeholder annotations added to ticket case text nodes",
+  "dynamicNodes": {
+    "note": "Nodes with dynamic:true are runtime-populated from content/ticket-cases.json, not hardcoded TSX",
+    "cases": {
+      "K-002": {
+        "titleNodeId": "GtO0Z",
+        "outcomeNodeId": "lwBEi",
+        "learningNodeId": "wWdZj"
+      },
+      "K-008": {
+        "titleNodeId": "FIemh",
+        "outcomeNodeId": "dAprq",
+        "learningNodeId": "fA0eV"
+      },
+      "K-009": {
+        "titleNodeId": "CMDTi",
+        "outcomeNodeId": "UsPNK",
+        "learningNodeId": "RbIL9"
+      }
     },
-    {
-      "role": "ticket-card",
-      "nodeId": "sl7k7",
-      "name": "ticket_K008",
-      "items": [
-        { "role": "case-no", "nodeId": "jgyWD", "content": "Case Nº 02", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "style": "normal" }, "color": "#6B5F4E", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 13 },
-        { "role": "ticket-title", "nodeId": "FIemh", "content": "Visual report script", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
-        { "role": "ticket-outcome", "nodeId": "dAprq", "content": "Automated Playwright visual-report pipeline rendering every page to HTML.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#1A1814" },
-        { "role": "ticket-learning", "nodeId": "fA0eV", "content": "Demonstrates the Bug Found Protocol four-step flow.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#B43A2C" },
-        { "role": "ticket-link", "nodeId": "hUnl9", "content": "→ View K-008 on GitHub", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
-      ]
-    },
-    {
-      "role": "ticket-card",
-      "nodeId": "vnu0g",
-      "name": "ticket_K009",
-      "items": [
-        { "role": "case-no", "nodeId": "BOW69", "content": "Case Nº 03", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "style": "normal" }, "color": "#6B5F4E", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 13 },
-        { "role": "ticket-title", "nodeId": "CMDTi", "content": "1H MA history fix", "font": { "family": "Geist Mono", "size": 20, "weight": "700", "style": "normal", "lineHeight": 1.15 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 26 },
-        { "role": "ticket-outcome", "nodeId": "UsPNK", "content": "TDD bug fix for 1H prediction MA history source mismatch.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#1A1814" },
-        { "role": "ticket-learning", "nodeId": "RbIL9", "content": "Test-driven discipline demonstration.", "font": { "family": "Geist Mono", "size": 12, "weight": "normal", "lineHeight": 1.55 }, "color": "#B43A2C" },
-        { "role": "ticket-link", "nodeId": "XOwQv", "content": "→ View K-009 on GitHub", "font": { "family": "Geist Mono", "size": 11, "weight": "normal", "letterSpacing": 1 }, "color": "#1A1814" }
-      ]
-    }
-  ]
+    "dynamicFields": [
+      "title",
+      "outcome (Out)",
+      "learning (Learn)"
+    ],
+    "staticFields": [
+      "ticket ID (K-NNN)",
+      "case number label",
+      "section headers",
+      "link text pattern"
+    ]
+  }
 }

@@ -28,9 +28,9 @@ export default function RoleCard({ fileNo, role, owns, artefact }: RoleCardProps
   const roleSizeClass = role.length <= 2 ? 'text-[26px]' : 'text-[22px]'
 
   return (
-    <CardShell padding="md" className="flex flex-col min-h-[320px] overflow-hidden">
-      <FileNoBar fileNo={fileNo} label="PERSONNEL" cardPaddingSize="md" />
-      <article data-role={role} className="flex flex-col flex-1 gap-[14px] pt-[18px]">
+    <CardShell padding="sm" className="flex flex-col overflow-hidden">
+      <FileNoBar fileNo={fileNo} label="PERSONNEL" cardPaddingSize="sm" />
+      <article data-role={role} className="flex flex-col flex-1 gap-[8px] pt-3">
         <h3
           className={`font-bold text-brick ${roleSizeClass} leading-none`}
         >
