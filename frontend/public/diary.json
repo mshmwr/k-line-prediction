@@ -9,13 +9,13 @@
     "ticketId": "K-059",
     "title": "/diary — Infinite Scroll + paper-palette loading rebrand",
     "date": "2026-04-29",
-    "text": "Replaced the manual 'Load more ↓' button with an IntersectionObserver-based InfiniteScrollSentinel — entries load in 5-entry batches as you scroll, sentinel disappears when all entries are loaded. Rebranded DiaryLoading from a dark spinner to paper-palette (#F4EFE5 background, ink animated dots), resolving tech debt from K-024. New entries fade in with a 300ms CSS opacity transition. All 8 acceptance criteria verified by Playwright; Sacred loading ARIA attributes preserved byte-exact."
+    "text": "/diary now loads entries automatically as you scroll — replaced the manual 'Load more' button. Loading state rebranded to paper palette."
   },
   {
     "ticketId": "K-060",
     "title": "K-057 SSOT backfill — DisclaimerBanner + Disclaimer section design spec",
     "date": "2026-04-29",
-    "text": "Backfilled the Pencil design SSOT for two components shipped in K-057 without a Designer pass: DisclaimerBanner (dark top banner, #2A2520 background) and DisclaimerSection (footer disclaimer text block, paper palette). Confirmed both components already present across all three page frames in homepage-v2.pen; added K-057 spec table to K-023-homepage-structure.md design doc with Pencil node IDs, color values, font sizes, and cross-frame references."
+    "text": "Design SSOT backfilled for two components shipped in K-057 without a Designer pass: DisclaimerBanner and Disclaimer section."
   },
   {
     "ticketId": "K-058",
