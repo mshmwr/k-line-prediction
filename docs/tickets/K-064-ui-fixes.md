@@ -15,6 +15,7 @@ dependencies: []
 worktree: .claude/worktrees/K-064-ui-fixes
 branch: K-064-ui-fixes
 base-commit: 6230f19
+closed-commit: ef019bb
 ---
 
 ## Summary

@@ -24,7 +24,7 @@
       "└── ssot/                 # Project SSOT (system-overview, PRD, conventions, workflow)"
     ]
   },
-  "lastUpdated": "2026-04-29T15:05:10+08:00",
+  "lastUpdated": "2026-04-29T15:09:17+08:00",
   "metrics": {
     "acCoverage": {
       "covered": 60,
