@@ -2,7 +2,7 @@
   "lastUpdated": "2026-04-29T12:22:30+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 24,
+      "covered": 56,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
       "total": 57

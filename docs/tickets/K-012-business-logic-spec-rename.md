@@ -33,7 +33,7 @@ Engineer 擇一執行：
 
 - `frontend/e2e/business-logic.spec.ts`
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-012-ALIGN：測試名與斷言語意一致
 

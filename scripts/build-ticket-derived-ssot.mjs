@@ -21,7 +21,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs'
-import { join, dirname, relative } from 'node:path'
+import { join, dirname, relative, isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { execSync } from 'node:child_process'
@@ -33,18 +33,17 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 // always lives at <worktree-root>/scripts/build-ticket-derived-ssot.mjs.
 const REPO_ROOT = join(__dirname, '..')
 
-// CANONICAL_REPO_ROOT: the main K-Line-Prediction checkout (not a worktree).
-// Used only for computing CLAUDE_CONFIG_PATH (§5.1 design doc).
-// In canonical: same as REPO_ROOT.
-// In worktree (.claude/worktrees/K-NNN-<slug>/): navigate up 3 dirs (worktree/→.claude/→K-Line-Prediction/).
-// Verified: join(REPO_ROOT, '../../..') from worktree = K-Line-Prediction/
+// CANONICAL_REPO_ROOT: absolute path to the main K-Line-Prediction checkout.
+// git-common-dir returns a relative path (".git") from canonical checkout but an
+// absolute path ("/abs/.git") from a worktree — resolve both against REPO_ROOT
+// so CANONICAL_REPO_ROOT is always an absolute path to K-Line-Prediction/.
 let CANONICAL_REPO_ROOT = REPO_ROOT
 try {
-  const gitCommonDir = execSync('git rev-parse --git-common-dir', {
+  const raw = execSync('git rev-parse --git-common-dir', {
     cwd: REPO_ROOT, encoding: 'utf-8',
   }).trim()
-  // git-common-dir is always K-Line-Prediction/.git regardless of worktree
-  CANONICAL_REPO_ROOT = join(gitCommonDir, '..')
+  const absGitDir = isAbsolute(raw) ? raw : join(REPO_ROOT, raw)
+  CANONICAL_REPO_ROOT = join(absGitDir, '..')
 } catch { /* use REPO_ROOT as fallback */ }
 
 // CLI flags
@@ -58,7 +57,7 @@ const SACRED_REGISTRY_PATH = join(REPO_ROOT, 'docs', 'sacred-registry.md')
 const README_PATH = join(REPO_ROOT, 'README.md')
 
 // claude-config path for lessonsCodified count (§5.1)
-// CANONICAL_REPO_ROOT = K-Line-Prediction/, so ../../claude-config = ~/Diary/claude-config
+// CANONICAL_REPO_ROOT is now always absolute K-Line-Prediction/, so ../../ = Diary/
 const CLAUDE_CONFIG_PATH = process.env.CLAUDE_CONFIG_PATH
   || join(CANONICAL_REPO_ROOT, '..', '..', 'claude-config')
 
@@ -170,10 +169,13 @@ function parseSection(content, heading) {
 
 /** §6 — detect non-empty AC section */
 function hasNonEmptyACSection(content) {
-  const match = content.match(/^##\s+(?:Acceptance Criteria|Acceptance criteria|AC)\s*\n([\s\S]*?)(?=^##\s|$)/m)
-  if (!match) return false
-  const body = match[1]
-  return body.replace(/\s+/g, '').length > 0
+  // Named section header match (English, Chinese, and non-standard variants)
+  const match = content.match(/^##\s+(?:Acceptance Criteria|Acceptance criteria|AC|驗收條件|[^#\n]*Acceptance [Cc]riteria[^#\n]*|[^#\n]*[Vv]erification\s+[Cc]riteria[^#\n]*)\s*\n([\s\S]*?)(?=^##\s|$)/m)
+  if (match) {
+    return match[1].replace(/\s+/g, '').length > 0
+  }
+  // Fallback: inline Given/When/Then AC items (e.g. #### AC-XXX-* blocks)
+  return /^#{3,}\s+AC-[A-Z0-9-]+/m.test(content)
 }
 
 /** §6 — detect non-empty Retrospective section */

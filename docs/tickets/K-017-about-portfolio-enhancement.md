@@ -100,7 +100,7 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 - Usage: `./scripts/audit-ticket.sh K-XXX`
 - Check groups A–G：
   - **A. Ticket file** — frontmatter: id / title / status / type / priority / created；status=closed 時須有 closed date
-  - **B. AC** — ticket `## 驗收條件` section 存在；PRD.md 可 grep 到 `AC-XXX-*`
+  - **B. AC** — ticket `## Acceptance Criteria` section 存在；PRD.md 可 grep 到 `AC-XXX-*`
   - **C. Architecture** — `docs/designs/K-XXX-*.md` 存在 OR ticket 明確聲明「無需 Architecture」；若有設計檔則末尾需有 `## Retrospective`
   - **D. Commit trail** — `git log --grep="K-XXX"` ≥ 1 筆；排除 vague msg（wip/fix 等）
   - **E. Code Review** — ticket `## Retrospective` 有 Reviewer 反省段（不用 git log heuristic）
@@ -152,7 +152,7 @@ Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [Lin
 
 **PRD locked。放行 Architect。** 8 sections + 2 scope +1 artifacts 文案 + 設計決策全部定稿，AC 完整覆蓋，no blocking question。Architect 下一步負責 `/about` 組件樹拆分 + props interface + `scripts/audit-ticket.sh` 架構設計 + `docs/ai-collab-protocols.md` 文件結構設計。
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-017-NAVBAR：/about 頁面頂部顯示 NavBar `[K-017]`
 

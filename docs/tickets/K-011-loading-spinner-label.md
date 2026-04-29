@@ -42,7 +42,7 @@ Codex code review 2026-04-18 發現 `frontend/src/components/common/LoadingSpinn
 - `frontend/src/components/PredictButton.tsx`
 - 可能更動：`frontend/src/__tests__/*`、`frontend/e2e/*`（若有斷言 spinner 文字）
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-011-PROP：LoadingSpinner 支援 label prop
 

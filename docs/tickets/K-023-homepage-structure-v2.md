@@ -69,7 +69,7 @@ Homepage 整頁 body 的內邊距對齊設計稿：`padding: 72px 96px 96px 96px
 | SQ-023-04 Q2：移除各 section 個別 padding | HeroSection / ProjectLogicSection / DevDiarySection 的 `py-XX px-6 max-w-5xl mx-auto` 於加入 body padding 時同步移除，避免雙重疊加。 | PM 裁決 SQ-023-04，2026-04-21 |
 | AC-023-STEP-HEADER-BAR 文字色修正 | `rgb(255,255,255)`（原 AC 近似值誤記）→ `rgb(244, 239, 229)`（`paper` = `#F4EFE5`，K-021 設計系統 token）。設計文件 §2 A-3 current code state 原始碼為 `text-[#F4EFE5]`，Target state = Same as current，實作正確，AC 為誤記。 | PM 裁決 2026-04-21 |
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-023-DIARY-BULLET：Homepage Diary section 每條 entry 左側矩形磚紅 marker `[K-023]`
 

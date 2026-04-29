@@ -47,7 +47,7 @@ K-021 交付時 `UnifiedNavBar.tsx` 保留 7 處 hex literal（3 個 distinct co
 - NavBar 結構改動（順序 / 新項 / icon 換）— 非 scope
 - 其他頁面 hex 遷移（由 K-022/K-023/K-024 自管）
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-025-NAVBAR-TOKEN：NavBar 零 hex `[K-025]`
 

@@ -43,7 +43,7 @@ closed: 2026-04-18
 
 **放行 Engineer。** PM 已裁決所有阻塞問題（2026-04-18）：路由維持 `/business-logic`、NavBar 補 About 連結、畫面切換系統延後至新 ticket。設計稿已完成，AC 全部確認，Engineer 可開始實作。
 
-## 驗收條件
+## Acceptance Criteria
 
 完整 AC 定義在 [PRD.md — UI 優化 Backlog](../../PRD.md#ui-優化-backlog)。
 
