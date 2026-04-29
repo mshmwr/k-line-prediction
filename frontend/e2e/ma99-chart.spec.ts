@@ -45,6 +45,11 @@ const MOCK_STATS = {
   consensus_forecast_1d: [],
 }
 
+// KG-061-02: MA99 computation correctness (e.g. correct sliding window, numeric precision) is
+// backend unit test territory — not verifiable from the Playwright mock layer.
+// KG-061-03: file upload byte integrity (binary-exact round-trip) is not verifiable from
+// the Playwright mock layer; covered by backend integration tests.
+
 /** 48 non-null MA99 values; last value = 1897, formatted as "1,897.00". */
 const QUERY_MA99 = Array.from({ length: 48 }, (_, i) => 1850 + i)
 
@@ -157,6 +162,8 @@ async function setupAndPredict(
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(predictResponse) })
   )
 
+  // Dismiss cookie consent banner before page load so it does not intercept pointer events.
+  await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
   await page.goto('/app')
 
   // Upload two 24-row CSV files so ohlcComplete = true
@@ -224,6 +231,8 @@ test('predict button is disabled with maLoading tooltip while MA99 is computing'
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_MA99_RESPONSE) })
   })
 
+  // Dismiss cookie consent banner before page load so it does not intercept pointer events.
+  await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
   await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
@@ -256,6 +265,8 @@ test('MainChart shows MA99 computing label while loading, then value after load'
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_MA99_RESPONSE) })
   })
 
+  // Dismiss cookie consent banner before page load so it does not intercept pointer events.
+  await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
   await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
@@ -317,6 +328,8 @@ test('shared 1D toggle sends native 1D timeframe to MA99 and predict APIs', asyn
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NO_GAP) })
   })
 
+  // Dismiss cookie consent banner before page load so it does not intercept pointer events.
+  await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
   await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
@@ -350,6 +363,8 @@ test('shared 1D toggle updates match list header to date-only display', async ({
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NATIVE_1D) })
   )
 
+  // Dismiss cookie consent banner before page load so it does not intercept pointer events.
+  await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
   await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
@@ -378,6 +393,8 @@ test('AC-1D-1: in 1D mode, match card right badge shows daily bar count not No f
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_NO_GAP) })
   )
 
+  // Dismiss cookie consent banner before page load so it does not intercept pointer events.
+  await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
   await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')

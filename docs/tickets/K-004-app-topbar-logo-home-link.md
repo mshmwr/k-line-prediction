@@ -35,7 +35,7 @@ Logo（"K-Line Predictor"）點擊後導向 `/`。
 - 其他頁面的 NavBar（已有「← Home」）
 - TopBar 其他欄位的修改
 
-## 驗收條件
+## Acceptance Criteria
 
 **AC-K004-1：Logo 點擊導向 Home**
 

@@ -15,7 +15,7 @@ created: 2026-04-16
 
 **目標：** `main.py` coverage ≥ 80%。
 
-## 驗收條件
+## Acceptance Criteria
 
 對應 PRD AC（見 `PRD.md`）：
 

@@ -72,7 +72,7 @@ const top = i * (ENTRY_HEIGHT + ENTRY_GAP)  // 每個 entry 從固定 top 位置
 | DevDiarySection layout 改版方案 | 待 Architect 設計（absolute → flow-based）| Architect 設計文件 |
 | Mobile viewport 斷言要求 | 兩個 AC 均需含 375px viewport 驗收 | K-027 retrospective 規範 |
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-028-SECTION-SPACING：Homepage section 之間有適當 vertical spacing `[K-028]`
 

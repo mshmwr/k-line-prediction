@@ -26,7 +26,7 @@ updated: 2026-04-18
 - 截圖比對（pixel diff）
 - CI 自動觸發（維持手動 `npx playwright test visual-report.ts`）
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-008-SCRIPT：Script 可執行
 

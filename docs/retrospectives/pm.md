@@ -4,6 +4,14 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-29 — K-061 Close (fix 24 E2E failures — consent banner root cause)
+
+**What went well:** Root cause identified in one trace (ConsentBanner pointer-event interception, not missing API mocks); fix was 8-line addInitScript across 3 spec files; all 20 scope tests now pass without backend.
+**What went wrong:** Ticket title and AC framing assumed the fix was "complete route mocking" — actual root cause was entirely different (K-057 ConsentBanner shipped without updating /app E2E specs). PM did not probe the hypothesis before finalizing ACs.
+**Next time improvement:** When triaging E2E timeout failures, PM should trace one failing test to its actual error type (pointer-event intercept vs ECONNREFUSED) before writing ACs that prescribe a specific fix mechanism.
+
+---
+
 ## 2026-04-29 — K-059 Close (Infinite Scroll + paper-palette loading rebrand, merged #47, deployed)
 
 **What went well:** All 8 ACs verified PASS via Playwright; Sacred AC-024-LOADING-ERROR-PRESERVED preserved byte-exact across DiaryLoading rebrand; 300/324 E2E pass (24 backend-only pre-existing failures correctly classified and triaged to K-061); design-locked gate enforced — Designer dispatch completed before Phase A PR opened; Firebase deploy clean.

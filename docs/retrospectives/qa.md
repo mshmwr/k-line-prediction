@@ -15,6 +15,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 - Newest first (reverse chronological)
 
 
+## 2026-04-29 — K-061 QA Early Consultation
+
+**What went well:** Read all three spec files verbatim; identified LIFO mock ordering risk and fixture-loading side-effect before Engineer touched a line.
+**What went wrong:** No prior Early Consultation existed for E2E mock-coverage tickets; the ECONNREFUSED gap class went undetected until 24 tests were already failing.
+**Next-time improvement:** Any ticket adding or modifying page.route() handlers must list existing handlers for the same endpoint in the PR description to surface LIFO ordering conflicts before review.
+
+
 ## 2026-04-29 — K-059 QA Early Consultation
 
 **Status:** Complete — 9 challenges raised, 6 supplemented to AC, 2 Known Gaps, 1 Engineer scope add.

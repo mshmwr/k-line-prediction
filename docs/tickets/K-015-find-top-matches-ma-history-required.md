@@ -60,7 +60,7 @@ if ma_history is None:
 
 最終方案由 Architect RFC 產出後 PM 裁決。
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-015-NO-FALLBACK：無 silent fallback
 

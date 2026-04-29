@@ -23,7 +23,7 @@ closed: 2026-04-17
 - SSR / code splitting by route（目前 SPA 架構不需要）
 - 壓縮設定調整（Vite 預設已啟用）
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-BUNDLE-1: build 無 chunk > 500kB 警告
 

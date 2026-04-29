@@ -46,7 +46,7 @@ K-004（/app logo 點擊回 Home）被本票涵蓋，K-004 隨本票實作完成
 - NavBar 以外的頁面 layout 修改
 - App `/app` 內部 TopBar utility bar 的其他欄位
 
-## 驗收條件
+## Acceptance Criteria
 
 **AC-NAV-1：桌機 NavBar 統一**
 

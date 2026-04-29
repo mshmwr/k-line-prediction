@@ -106,7 +106,7 @@ qa subagent re-ran adversarial review. Upgrades to previous simulated consultati
 - Borderline observation: text-muted on paper at 12px = 4.84:1 (passes AA 4.5:1 but close to floor) — recorded, no action
 - K-022 about-v2.spec.ts L195 color-assertion style confirmed as the canonical pattern to follow
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-029-ARCH-BODY-TEXT：Architecture section card body 文字採用 paper palette token `[K-029]`
 

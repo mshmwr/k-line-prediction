@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-061",
+    "title": "Fix 24 E2E failures — consent banner was blocking pointer events in headless runs",
+    "date": "2026-04-29",
+    "text": "Added consent pre-seeding to 3 E2E specs so cookie banner no longer blocks button clicks during headless runs."
+  },
+  {
     "ticketId": "K-059",
     "title": "/diary — Infinite Scroll + paper-palette loading rebrand",
     "date": "2026-04-29",
