@@ -1,7 +1,9 @@
 ---
 id: K-059
 title: /diary — Infinite Scroll + CSS opacity fade (replace LoadMoreButton; style-consistent loading animation)
-status: open
+status: closed
+closed: 2026-04-29
+closed-commit: 45e4fce
 created: 2026-04-28
 type: feat + refactor
 priority: medium

@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-04-29T11:25:28+08:00",
+  "lastUpdated": "2026-04-29T12:08:30+08:00",
   "metrics": {
     "acCoverage": {
       "covered": 23,
@@ -9,7 +9,7 @@
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 39
+      "value": 40
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
