@@ -28,6 +28,20 @@
 **Next time improvement:** Always use canonical repo path for `export_nodes` outputDir, not worktree path.
 **Slowest step:** Reading GMEdT at depth 4 to confirm no hidden table node; could be pre-empted by scanning for `layout:"horizontal"` at depth 2 first.
 
+## 2026-04-29 — K-066 Task 3: WHERE I STEPPED IN cards match TSX CardShell
+
+**What went well:** Pencil already had card-stack layout (no desktop table to delete); single batch_design pass updated all 3 cards' fill/cornerRadius/stroke/label size/value color in 20 ops; git status confirmed disk write immediately.
+**What went wrong:** export_nodes failed for frame 35VCj — Pencil MCP limitation; used GMEdT sub-section export + cp workaround for the PM-requested 35VCj-cards.png filename.
+**Next time improvement:** When PM requests screenshot at parent frame path but export_nodes fails for that ID, export the changed section node and cp with the PM-specified filename — document this workaround pattern.
+**Slowest step:** Cross-checking TSX badge text color (#F4EFE5 on muted badge) against light card background — confirmed readable, no change needed; next time note badge stays unchanged when only card BG flips.
+
+## 2026-04-29 — K-066 Task 1+2: WHERE I STEPPED IN copy sync + THE ROLES pill row delete
+
+**What went well:** Both text updates and the pill row deletion executed cleanly in a single batch_design call; buffer-level batch_get verified correct content before artifact export; BL-1 orphan audit confirmed all pill row children removed with the parent D().
+**What went wrong:** Sections GMEdT and omyb7 are in frame 35VCj (About /about), not 4CsvQ (Homepage) — required 3 extra batch_get calls to locate correct ancestor frame. export_nodes failed for 35VCj (Pencil MCP limitation); screenshot only via get_screenshot (session-memory, not disk).
+**Next time improvement:** Before any section-level update, run `snapshot_layout` on all top-level frames first to pre-map section → ancestor frame; never assume section placement from PM prompt frame label alone.
+**Slowest step:** Tracing GMEdT/omyb7 parent chain — pre-session layout map would eliminate this.
+
 ## 2026-04-29 — K-059 Task 1+2: /diary frame audit + home frame sync
 
 **What went well:** /diary frame scan confirmed no "Load more" button or DiaryLoading node — zero batch_design needed; K-059 worktree correctly isolated spec JSON edit from main. Cross-frame comparison with shipped source code caught 3 out-of-sync items (hero description, disclaimerBody text, missing hero product-shot placeholder) in one `batch_get` pass.

@@ -12,11 +12,29 @@ No observation — ops ticket; version already at 2.1.123 (exceeds 2.1.121 targe
 
 ---
 
+## 2026-04-29 — K-067 stub opened (About layout unification + section label rename)
+
+No observation — ticket scope derived from K-066 design review discussion; PRD written directly from user-confirmed decisions (card unification + THE PIPELINE / THE PERSONNEL rename).
+
+**Slowest step:** Section title naming discussion — resolved in-session via user confirmation.
+
+---
+
 ## 2026-04-29 — K-065 stub opened (Claude Code update + restart)
 
 No observation — routine ops ticket stub; no design/AC decisions required.
 
 **Slowest step:** N/A
+
+---
+
+## 2026-04-29 — K-066 PM rule gap — FE-touching ticket Designer audit missing
+
+**What went wrong:** K-066 PRD scoped only the about-page WhereISteppedIn section; homepage frame 4CsvQ was never audited. Three stale nodes (hero subtext, stack order, missing hero screenshot placeholder) went undetected through the entire PRD authoring session — user discovered them by asking "首頁呢". Root cause: PM inferred `visual-delta: no` for the homepage by assumption rather than evidence; no Designer frame audit was dispatched before writing PRD scope.
+
+**Next time improvement:** Any ticket with `frontend/` in scope → call Designer to audit all affected frames before writing PRD; Designer returns staleness table; PM sets `visual-delta` from that output, not from inference.
+
+**Codified:** `~/.claude/agents/pm.md` BL-20 + PRD Pre-Authoring gate §FE-touching ticket Designer audit; `~/.claude/agents/designer.md` Pre-step staleness audit; memory `feedback_pm_fe_ticket_designer_audit.md` + `feedback_designer_frame_staleness_audit.md`.
 
 ---
 

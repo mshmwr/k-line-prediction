@@ -38,7 +38,7 @@
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
-      "value": 187
+      "value": 188
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
@@ -180,6 +180,6 @@
   ],
   "ticketRange": {
     "first": "K-001",
-    "last": "K-065"
+    "last": "K-067"
   }
 }

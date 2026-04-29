@@ -6,6 +6,12 @@
     "text": "Removed desktop table, unified WHERE I STEPPED IN to CardShell cards at all breakpoints; renamed Nº 02.5, 03, 04 labels."
   },
   {
+    "ticketId": "K-066",
+    "title": "WhereISteppedIn narrative + bottom bar SSOT + homepage .pen sync",
+    "date": "2026-04-29",
+    "text": "Revised operator narrative, SSOT-driven bottom bar, and synced .pen frames GMEdT and 4CsvQ to shipped copy."
+  },
+  {
     "ticketId": "K-064",
     "title": "UI polish — hero accent color corrected, MetricCard height constraint removed",
     "date": "2026-04-29",

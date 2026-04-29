@@ -1,0 +1,81 @@
+{
+  "ticket": "K-066",
+  "frameId": "GMEdT",
+  "name": "SX_WhereISteppedIn",
+  "penFile": "frontend/design/homepage-v2.pen",
+  "parentFrame": "35VCj > Y80Iv",
+  "generatedAt": "2026-04-29",
+  "generatorNote": "K-066 sync — narrative updated to operator/boundary framing; bottom bar updated to featuresShipped=44 + 6-agent pipeline; stale ROLES pill row deleted (not present in .pen).",
+  "layout": {
+    "type": "frame",
+    "layout": "vertical",
+    "gap": 28,
+    "width": "fill_container"
+  },
+  "children": {
+    "wsHead": {
+      "id": "OrZ1h",
+      "type": "frame",
+      "layout": "horizontal",
+      "alignItems": "center",
+      "gap": 16,
+      "width": "fill_container"
+    },
+    "wsLabel": {
+      "id": "km9nu",
+      "type": "text",
+      "content": "Nº 02.5 — WHERE I STEPPED IN",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "700",
+      "letterSpacing": 2,
+      "fill": "#1A1814"
+    },
+    "wsLine": {
+      "id": "XQgRF",
+      "type": "rectangle",
+      "height": 1,
+      "width": "fill_container",
+      "fill": "#8B7A6B"
+    },
+    "wsNarrative": {
+      "id": "R5jxX",
+      "type": "text",
+      "content": "I am the single operator. I define requirements and the rules agents run by; they handle design through QA. I review at the boundary — correcting output when needed, and deciding what ships.",
+      "fontFamily": "Geist Mono",
+      "fontSize": 14,
+      "fontWeight": "normal",
+      "lineHeight": 1.6,
+      "fill": "#1A1814",
+      "textGrowth": "fixed-width",
+      "width": "fill_container"
+    },
+    "wsBBlock": {
+      "id": "eIxup",
+      "type": "frame",
+      "fill": "#2A2520",
+      "cornerRadius": 6,
+      "padding": [16, 20],
+      "gap": 16,
+      "width": "fill_container",
+      "wsOutcome": {
+        "id": "j6U3b",
+        "type": "text",
+        "content": "44 features shipped. 100% AC coverage. 6-agent pipeline.",
+        "fontFamily": "Geist Mono",
+        "fontSize": 14,
+        "fontWeight": "700",
+        "letterSpacing": 1,
+        "fill": "#F4EFE5"
+      }
+    }
+  },
+  "tokens": {
+    "fontFamily": "Geist Mono",
+    "bg": "none (inherits parent #F4EFE5)",
+    "accentText": "#B43A2C",
+    "mutedText": "#6B5F4E",
+    "primaryText": "#1A1814",
+    "darkBg": "#2A2520"
+  }
+}
