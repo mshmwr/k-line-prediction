@@ -34,7 +34,7 @@ export default function MetricCard({
 }: MetricCardProps) {
   const titleSizeClass = bigNumber ? 'text-[18px]' : 'text-[22px]'
   return (
-    <CardShell padding="md" className="flex flex-col min-h-[280px] overflow-hidden">
+    <CardShell padding="md" className="flex flex-col overflow-hidden">
       <FileNoBar fileNo={fileNo} cardPaddingSize="md" />
       <div className="flex flex-col flex-1 gap-[10px] pt-[18px]">
         {redacted && <RedactionBar width={redacted.width} />}

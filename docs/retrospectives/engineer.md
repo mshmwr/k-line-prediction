@@ -16,6 +16,18 @@
 
 ---
 
+## 2026-04-29 — K-064 Engineer — UI polish: hero brick-dark → brick + MetricCard min-h removal
+
+**What went well:** Both changes were single-line surgical edits; tsc + full Playwright run confirmed no regressions.
+
+**What went wrong:** none — changes were exactly as specified.
+
+**Next time improvement:** n/a — trivial fix, no process gaps.
+
+**Slowest step:** running full Playwright suite (52s) to gate a 2-line color/layout change — acceptable cost given visual-delta: yes.
+
+---
+
 ## 2026-04-29 — K-063 Engineer — Retro format: add mandatory Slowest step field
 
 **What went well:** All 6 persona files + verification-protocol.md + ssot/workflow.md updated in one pass with consistent wording.

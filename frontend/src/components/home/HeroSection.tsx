@@ -8,7 +8,7 @@ export default function HeroSection() {
           desktopSize={56}
           lines={[
             { text: 'K-line similarity', color: 'ink' },
-            { text: 'lookup engine.', color: 'brick-dark' },
+            { text: 'lookup engine.', color: 'brick' },
           ]}
         />
         <div className="h-px w-full bg-[#2A2520]" />

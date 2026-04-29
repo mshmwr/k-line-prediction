@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-064",
+    "title": "UI polish — hero accent color corrected, MetricCard height constraint removed",
+    "date": "2026-04-29",
+    "text": "Fixed hero heading accent from brick-dark to brick and removed the MetricCard minimum-height constraint causing excess whitespace."
+  },
+  {
     "ticketId": "K-063",
     "title": "Retro format — add Slowest step field to all role retrospective entries",
     "date": "2026-04-29",
