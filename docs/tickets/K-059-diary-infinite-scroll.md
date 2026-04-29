@@ -13,7 +13,7 @@ qa-early-consultation: docs/retrospectives/qa.md 2026-04-29 K-059
 dependencies: [K-024]
 worktree: .claude/worktrees/K-059-diary-infinite-scroll
 branch: K-059-diary-infinite-scroll
-base-commit: (to be filled at branch creation)
+base-commit: 387cdd5
 ---
 
 ## Summary
