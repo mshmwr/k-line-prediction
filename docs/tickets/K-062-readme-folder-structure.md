@@ -1,7 +1,9 @@
 ---
 id: K-062
 title: README Folder Structure section — SSOT generator emits from content/site-content.json
-status: open
+status: in-progress
+phase-1-status: closed
+phase-1-commit: 415f08a
 created: 2026-04-29
 type: feat
 priority: medium

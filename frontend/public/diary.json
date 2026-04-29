@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-062",
+    "title": "README Folder Structure section — auto-generated from SSOT JSON",
+    "date": "2026-04-29",
+    "text": "Added a Folder Structure section to the README, generated from a JSON file so it stays in sync as the project grows."
+  },
+  {
     "ticketId": "K-061",
     "title": "Fix 24 E2E failures — consent banner was blocking pointer events in headless runs",
     "date": "2026-04-29",
