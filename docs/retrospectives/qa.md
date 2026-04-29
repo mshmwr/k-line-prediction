@@ -14,6 +14,25 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+
+## 2026-04-29 — K-059 QA Early Consultation
+
+**Status:** Complete — 9 challenges raised, 6 supplemented to AC, 2 Known Gaps, 1 Engineer scope add.
+
+**Challenges summary:**
+- C-1 → New AC: AC-059-SCROLL-TRIGGER (IntersectionObserver via page.evaluate scroll, not rootMargin workaround)
+- C-2 → AC-059-INFINITE-SCROLL supplemented: sentinel absent from DOM when hasMore=false
+- C-3 → KG-059-01 Known Gap: CSS opacity transition visual timing deferred (screenshot-only, not CI-reliable)
+- C-4 → AC-059-PAPER-PALETTE supplemented: visual-spec JSON colors imported, not hardcoded
+- C-5 → New AC: AC-059-RAPID-SCROLL (sentinel fires ≥2 rapid scrolls; only one batch per event)
+- C-6 → AC-059-A11Y-LOADING supplemented: aria-label literal verbatim preserved
+- C-7 → Engineer scope: update T-D2/T-D7/T-D8/T-D9 + pages.spec.ts load-more assertions
+- C-8 → New AC: AC-059-NO-SENTINEL-WHEN-EXHAUSTED (sentinel not in DOM after last batch)
+- C-9 → KG-059-02 Known Gap: canLoadMore concurrent gate under IntersectionObserver (Vitest covers hook; E2E deferred)
+
+**What went well:** Read diary-page.spec.ts line-by-line — identified all tests referencing diary-load-more needing update.
+**What went wrong:** AC-059-INFINITE-SCROLL lacked sentinel DOM lifecycle assertion (appears/disappears with hasMore).
+
 ## 2026-04-28 — K-058 QA Early Consultation
 
 **Status:** Complete — 7 challenges raised, 5 supplemented to AC, 1 Known Gap, 1 Engineer scope add.
