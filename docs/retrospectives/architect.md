@@ -18,6 +18,16 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-04-29 — K-059 Phase 1 Architect
+
+**What went well:** Sacred T-L1 text dependency identified early by reading `LoadingSpinner.tsx` immediately after `DiaryLoading.tsx` — cross-referenced the inner `<p>Loading diary…</p>` against T-L1 `toHaveText(/Loading diary/)` before writing the rebrand spec.
+
+**What went wrong:** Initial fade-in strategy assumed `transition-opacity` + React state toggle; reading `DiaryEntryV2.tsx` confirmed no existing state, requiring a pivot to CSS `@keyframes` animation approach.
+
+**Next-time improvement:** When rebrand touches a wrapper that imports a shared primitive, read the primitive's JSX in the same upfront batch — its own ARIA/text content may be load-bearing for existing Sacred tests.
+
+---
+
 ## 2026-04-28 — K-058 Phase 2 (component tree + ticket-cases schema + weight formula)
 
 **What went well:** BQ-058-03 resolved cleanly by reading site-content.json structure and verifying generator preservation logic — separation decision was unambiguous once the generator's mutation boundary was confirmed.
