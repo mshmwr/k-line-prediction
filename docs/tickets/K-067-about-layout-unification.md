@@ -10,7 +10,7 @@ size: small
 visual-delta: yes
 content-delta: no
 design-locked: false
-qa-early-consultation:
+qa-early-consultation: ✓ docs/retrospectives/qa.md 2026-04-29 K-067
 dependencies: [K-066]
 worktree:
 branch:
@@ -47,7 +47,7 @@ Two related about-page improvements decided in K-066 design review:
 ### Gates
 
 - **AC-067-TSC:** `npx tsc --noEmit` passes.
-- **AC-067-E2E:** Playwright passes; existing `AC-022-SECTION-LABEL` spec updated to reflect new label text for Nº 03 and Nº 04.
+- **AC-067-E2E:** Playwright passes; `AC-022-SECTION-LABEL` in `about-v2.spec.ts` (lines ~19–20) and `AC-045-SECTION-LABEL-X` in `about-layout.spec.ts` (lines ~165–166) both updated to new label text for Nº 03 / Nº 04.
 
 ## PRD
 
@@ -58,6 +58,7 @@ Two related about-page improvements decided in K-066 design review:
 | `frontend/src/pages/AboutPage.tsx` | Lines with `"Nº 03 — THE ROLES"` → `"Nº 03 — THE PIPELINE"` and `"Nº 04 — THE ROLES"` → `"Nº 04 — THE PERSONNEL"` |
 | `frontend/src/components/about/WhereISteppedInSection.tsx` | Remove `hidden md:block` table section (lines 45–69); remove `md:hidden` from card container (line 72) |
 | `frontend/e2e/about-v2.spec.ts` | Update `AC-022-SECTION-LABEL` expected text for Nº 03 / Nº 04 |
+| `frontend/e2e/about-layout.spec.ts` | Update `AC-045-SECTION-LABEL-X` lines ~165–166 hardcoded label strings for Nº 03 / Nº 04 |
 | `frontend/design/homepage-v2.pen` | Update frame 35VCj: section labels + WHERE I STEPPED IN cards (desktop) |
 | `frontend/design/specs/homepage-v2.frame-35VCj.json` | Re-export after .pen changes |
 
