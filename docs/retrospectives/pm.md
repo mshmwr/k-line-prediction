@@ -4,6 +4,22 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-29 — K-065 Close (Claude Code update v2.1.123, all ACs pass)
+
+No observation — ops ticket; version already at 2.1.123 (exceeds 2.1.121 target) when session started; all three ACs (VERSION/SESSION/VERIFY) passed on first check.
+
+**Slowest step:** None — zero implementation steps required.
+
+---
+
+## 2026-04-29 — K-065 stub opened (Claude Code update + restart)
+
+No observation — routine ops ticket stub; no design/AC decisions required.
+
+**Slowest step:** N/A
+
+---
+
 ## 2026-04-29 — ops: SSOT + sitemap sync post K-058/059/060/061 mirror gap recovery
 
 No observation — routine metrics regen (featuresShipped 40→41, lessonsCodified 184→185) and sitemap date update after mirror gap recovery.
