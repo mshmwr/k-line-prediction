@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-060",
+    "title": "K-057 SSOT backfill — DisclaimerBanner + Disclaimer section design spec",
+    "date": "2026-04-29",
+    "text": "Backfilled the Pencil design SSOT for two components shipped in K-057 without a Designer pass: DisclaimerBanner (dark top banner, #2A2520 background) and DisclaimerSection (footer disclaimer text block, paper palette). Confirmed both components already present across all three page frames in homepage-v2.pen; added K-057 spec table to K-023-homepage-structure.md design doc with Pencil node IDs, color values, font sizes, and cross-frame references."
+  },
+  {
     "ticketId": "K-058",
     "title": "About page — one operator, six AI agents framing batch",
     "date": "2026-04-28",

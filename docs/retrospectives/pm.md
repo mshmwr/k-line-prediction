@@ -4,6 +4,14 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-29 — K-060 Close (K-057 SSOT backfill, docs-only)
+
+**What went well:** Designer confirmed both components already present in .pen across all 3 page frames — no batch_design needed; design doc spec table and screenshot exported cleanly; PM close with SSOT regen landed in a single docs-only PR.
+**What went wrong:** K-057 closed without enforcing the Visual SSOT sync gate for DisclaimerBanner and DisclaimerSection — both were Engineer-direct without a Designer pass, leaving Pencil and design doc stale until K-060.
+**Next time improvement:** Visual SSOT sync gate must be enforced before Phase A `gh pr create` for any ticket with `visual-delta: yes`, including Engineer-direct phases that add new shared components.
+
+---
+
 ## 2026-04-29 — K-058 Close (merged 80e061a1, deployed)
 
 **What went well:** All 8 ACs shipped; 272 chromium tests pass + 23 known-reds all documented; Firebase deploy clean; no post-deploy rollback required.
