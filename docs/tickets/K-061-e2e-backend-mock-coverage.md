@@ -1,7 +1,9 @@
 ---
 id: K-061
 title: Fix 24 backend-dependent E2E failures — complete route mocking for ma99-chart, upload, consensus-stats specs
-status: open
+status: closed
+closed: 2026-04-29
+closed-commit: a70db60
 created: 2026-04-29
 type: fix
 priority: high
