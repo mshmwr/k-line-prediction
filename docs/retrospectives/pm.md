@@ -4,6 +4,30 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-29 — K-065 Close (Claude Code update v2.1.123, all ACs pass)
+
+No observation — ops ticket; version already at 2.1.123 (exceeds 2.1.121 target) when session started; all three ACs (VERSION/SESSION/VERIFY) passed on first check.
+
+**Slowest step:** None — zero implementation steps required.
+
+---
+
+## 2026-04-29 — K-067 stub opened (About layout unification + section label rename)
+
+No observation — ticket scope derived from K-066 design review discussion; PRD written directly from user-confirmed decisions (card unification + THE PIPELINE / THE PERSONNEL rename).
+
+**Slowest step:** Section title naming discussion — resolved in-session via user confirmation.
+
+---
+
+## 2026-04-29 — K-065 stub opened (Claude Code update + restart)
+
+No observation — routine ops ticket stub; no design/AC decisions required.
+
+**Slowest step:** N/A
+
+---
+
 ## 2026-04-29 — K-066 PM rule gap — FE-touching ticket Designer audit missing
 
 **What went wrong:** K-066 PRD scoped only the about-page WhereISteppedIn section; homepage frame 4CsvQ was never audited. Three stale nodes (hero subtext, stack order, missing hero screenshot placeholder) went undetected through the entire PRD authoring session — user discovered them by asking "首頁呢". Root cause: PM inferred `visual-delta: no` for the homepage by assumption rather than evidence; no Designer frame audit was dispatched before writing PRD scope.
