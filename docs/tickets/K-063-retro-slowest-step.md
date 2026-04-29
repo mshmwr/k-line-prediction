@@ -15,6 +15,7 @@ dependencies: [K-062]
 worktree: .claude/worktrees/K-063-retro-slowest-step
 branch: K-063-retro-slowest-step
 base-commit: 0bca714
+closed-commit: dbe7a2d
 ---
 
 ## Summary
