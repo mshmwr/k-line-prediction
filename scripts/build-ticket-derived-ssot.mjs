@@ -169,10 +169,13 @@ function parseSection(content, heading) {
 
 /** §6 — detect non-empty AC section */
 function hasNonEmptyACSection(content) {
-  const match = content.match(/^##\s+(?:Acceptance Criteria|Acceptance criteria|AC)\s*\n([\s\S]*?)(?=^##\s|$)/m)
-  if (!match) return false
-  const body = match[1]
-  return body.replace(/\s+/g, '').length > 0
+  // Named section header match (English, Chinese, and non-standard variants)
+  const match = content.match(/^##\s+(?:Acceptance Criteria|Acceptance criteria|AC|驗收條件|[^#\n]*Acceptance [Cc]riteria[^#\n]*|[^#\n]*[Vv]erification\s+[Cc]riteria[^#\n]*)\s*\n([\s\S]*?)(?=^##\s|$)/m)
+  if (match) {
+    return match[1].replace(/\s+/g, '').length > 0
+  }
+  // Fallback: inline Given/When/Then AC items (e.g. #### AC-XXX-* blocks)
+  return /^#{3,}\s+AC-[A-Z0-9-]+/m.test(content)
 }
 
 /** §6 — detect non-empty Retrospective section */

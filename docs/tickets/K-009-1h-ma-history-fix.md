@@ -40,7 +40,7 @@ Codex code review 2026-04-18 發現 `backend/main.py` 的 `predict()` 在呼叫 
 - `backend/main.py`（修正 `find_top_matches()` 呼叫參數）
 - `backend/tests/test_main.py` 或 `backend/tests/test_predictor.py`（補 regression test）
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-009-FIX：predict() 1H 路徑傳遞正確的 ma_history
 

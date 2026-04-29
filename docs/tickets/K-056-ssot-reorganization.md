@@ -10,7 +10,15 @@ qa-early-consultation: N/A (docs-only meta ticket, no runtime behavior)
 
 # K-056 — SSOT Reorganization
 
-Decision-archive ticket. No PM→Architect→Engineer flow. No AC. No design doc. Pure record of restructure decisions, PR sequence, and verification framework.
+Decision-archive ticket. No PM→Architect→Engineer flow. No design doc. Pure record of restructure decisions, PR sequence, and verification framework.
+
+## Acceptance Criteria
+
+### AC-K056-1
+
+**Given** this ticket file exists
+**When** a reader opens it
+**Then** the SSOT restructure decisions, PR sequence, and three-layer behavior parity verification framework are documented
 
 ## Context
 

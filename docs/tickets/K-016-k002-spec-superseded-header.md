@@ -27,7 +27,7 @@ K-011 將 `LoadingSpinner` 由固定 `Running prediction...` 改為 `label?: str
 - 掃描其他歸檔 spec 的類似 drift（若未來發現再逐案開票）
 - 制定「歸檔 spec 通用標註規範」（屬 process 改善，非本票 scope）
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-016-HEADER：superseded 頭註存在且連結正確
 

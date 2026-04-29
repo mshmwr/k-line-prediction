@@ -129,7 +129,7 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 | PM persona 維護流程啟用 | 本票關閉後生效；persona 文字已寫入，ticket 編號待關閉時校正為 K-024 | PM 裁決 2026-04-20 |
 | Milestone accordion 移除 | 扁平 timeline 取代；Loading / Error 機制保留 | PM 裁決 2026-04-20 |
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-024-SCHEMA：diary.json 採扁平 flat array schema `[K-024]`
 
