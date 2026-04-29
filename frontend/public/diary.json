@@ -9,133 +9,133 @@
     "ticketId": "K-059",
     "title": "/diary — Infinite Scroll + paper-palette loading rebrand",
     "date": "2026-04-29",
-    "text": "Replaced the manual 'Load more ↓' button with an IntersectionObserver-based InfiniteScrollSentinel — entries load in 5-entry batches as you scroll, sentinel disappears when all entries are loaded. Rebranded DiaryLoading from a dark spinner to paper-palette (#F4EFE5 background, ink animated dots), resolving tech debt from K-024. New entries fade in with a 300ms CSS opacity transition. All 8 acceptance criteria verified by Playwright; Sacred loading ARIA attributes preserved byte-exact."
+    "text": "/diary now loads entries automatically as you scroll — replaced the manual 'Load more' button. Loading state rebranded to paper palette."
   },
   {
     "ticketId": "K-060",
     "title": "K-057 SSOT backfill — DisclaimerBanner + Disclaimer section design spec",
     "date": "2026-04-29",
-    "text": "Backfilled the Pencil design SSOT for two components shipped in K-057 without a Designer pass: DisclaimerBanner (dark top banner, #2A2520 background) and DisclaimerSection (footer disclaimer text block, paper palette). Confirmed both components already present across all three page frames in homepage-v2.pen; added K-057 spec table to K-023-homepage-structure.md design doc with Pencil node IDs, color values, font sizes, and cross-frame references."
+    "text": "Design SSOT backfilled for two components shipped in K-057 without a Designer pass: DisclaimerBanner and Disclaimer section."
   },
   {
     "ticketId": "K-058",
     "title": "About page — one operator, six AI agents framing batch",
     "date": "2026-04-28",
-    "text": "Added two new /about sections (WhereISteppedIn comparison table + RolePipeline inline SVG diagram), updated section numbering to Nº 02.5–07, migrated TicketAnatomy data to a content/ticket-cases.json SSOT, shipped RoleCard compact format alpha reducing card height, and added processRules weight formula to the SSOT generator."
+    "text": "Added two new /about sections — operator decision table and agent pipeline diagram — and compacted the role card layout."
   },
   {
     "ticketId": "K-057",
     "title": "Landing product polish — hero reframe, consent gate, funnel events",
     "date": "2026-04-28",
-    "text": "Shipped a five-phase product polish batch addressing findings from the 2026-04-28 interviewer-reviewer audit: reframed the hero as a K-line similarity lookup engine with a hero-shot product screenshot, disclaimer banner, and OG meta tags wired to a sample demo CTA; added a GDPR consent gate (ConsentBanner storing opt-in to localStorage, deferring GA4 initialization until granted) plus four conversion funnel events (app_demo_started, app_csv_uploaded, app_match_run, app_result_viewed) wired into AppPage; fixed 21 pre-existing Playwright known-reds by documenting them in a known-reds manifest and repaired four Phase 1 timing regressions where diary marker count() returned zero before React hydrated the data by adding waitForVisible guards, and regenerated three footer snapshot baselines that had captured the ConsentBanner overlay."
+    "text": "Reframed the landing hero as a K-line similarity lookup engine, added a cookie consent gate, and wired four funnel events."
   },
   {
     "ticketId": "K-052",
     "title": "Ticket-derived SSOT — site-content.json + Sacred Registry + JSON-driven frontend",
     "date": "2026-04-27",
-    "text": "Built a ticket-corpus generator emitting site-content.json, sacred-registry.md, and README markers from docs/tickets/*.md, wired to the frontend via a @/content Vite alias."
+    "text": "Built a generator that auto-updates portfolio metrics and the README from the ticket corpus."
   },
   {
     "ticketId": "K-054",
     "title": "README cleanup + BFP narrative (translation split to K-055)",
     "date": "2026-04-26",
-    "text": "Polished the README with four surgical edits and paraphrased nine residual Chinese lines across three design and ticket docs."
+    "text": "Polished the README narrative and translated remaining Chinese lines in design and ticket docs."
   },
   {
     "ticketId": "K-053",
     "title": "Scroll-to-top on route change",
     "date": "2026-04-26",
-    "text": "Mounted a ScrollToTop component that resets window.scrollY on every pathname change while preserving hash-anchor scroll position."
+    "text": "Pages now scroll to top on navigation while preserving anchor links."
   },
   {
     "ticketId": "K-051",
     "title": "Daily history DB backfill + Cloud Build rollup-musl fix",
     "date": "2026-04-26",
-    "text": "Backfilled 16 missing daily ETH/USDT bars and patched the Dockerfile to pin the missing @rollup linux binary, then redeployed to Cloud Run."
+    "text": "Backfilled 16 missing daily ETH/USDT bars and fixed a Cloud Run build failure blocking deployment."
   },
   {
     "ticketId": "K-050",
     "title": "Footer social links — clickable brand-asset icons + click-to-copy email",
     "date": "2026-04-25",
-    "text": "Restored Footer clickability with brand-asset SVG anchors for mail, GitHub, and LinkedIn, plus a click-to-copy email button with clipboard fallback."
+    "text": "Restored Footer links for email, GitHub, and LinkedIn, plus a click-to-copy email button."
   },
   {
     "ticketId": "K-046",
     "title": "Neutralize upload-history write path + example CSV download",
     "date": "2026-04-24",
-    "text": "Disabled database writes on POST /api/upload-history to prevent visitor pollution and added an example CSV download link."
+    "text": "Disabled database writes on upload to prevent visitor data pollution; added an example CSV download link."
   },
   {
     "ticketId": "K-045",
     "title": "Desktop layout consistency across /about, /, /diary",
     "date": "2026-04-24",
-    "text": "Aligned desktop layouts across all routes by retiring the SectionContainer primitive and rewriting /about with per-section width and padding containers."
+    "text": "Aligned desktop layouts across all routes — consistent width and padding on Home, About, and Diary."
   },
   {
     "ticketId": "K-044",
     "title": "README showcase rewrite — agent team primary identity plus v2 before/after",
     "date": "2026-04-24",
-    "text": "Rewrote the README to lead with the six-agent harness narrative and cascaded the roles SSOT update through README, protocols, and /about role cards."
+    "text": "Rewrote the README to lead with the six-agent pipeline narrative and synced role descriptions across the site."
   },
   {
     "ticketId": "K-042",
     "title": "PageHero shared component — responsive mobile type scale unifies Home/About/Diary H1",
     "date": "2026-04-24",
-    "text": "Extracted a PageHero shared component enforcing a 36px mobile and per-page desktop type scale across Home, About, and Diary."
+    "text": "Unified the page hero heading style across Home, About, and Diary."
   },
   {
     "ticketId": "K-041",
     "title": "/diary mobile rail and marker restore via shared-component mobileVisible prop",
     "date": "2026-04-24",
-    "text": "Restored /diary mobile rail and marker via shared DiaryRail and DiaryMarker components with mobileVisible and topInset props."
+    "text": "Restored the /diary mobile timeline rail and date markers."
   },
   {
     "ticketId": "K-039",
     "title": "Split SSOT for /about role cards",
     "date": "2026-04-24",
-    "text": "Split role-card data into two layers: Pencil owns visual layout, content/roles.json owns runtime text, enforced by a pre-commit hook."
+    "text": "Separated role-card visual layout from content so each has a single owner."
   },
   {
     "ticketId": "K-040",
     "title": "Sitewide UI polish batch — Bodoni to Geist Mono reset plus 8 polish items",
     "date": "2026-04-23",
-    "text": "Reset sitewide fonts to Geist Mono with italic OFF and bundled eight UI polish items covering padding, spacing, and Pencil GA backfill."
+    "text": "Reset sitewide font to Geist Mono and shipped eight UI polish items across padding and spacing."
   },
   {
     "ticketId": "K-037",
     "title": "Favicon wiring and Web App Manifest",
     "date": "2026-04-23",
-    "text": "Wired the K-036 favicon assets and a minimal Web App Manifest into the HTML head, with a regression spec guarding asset availability and link-tag integrity."
+    "text": "Wired the K-036 favicon and Web App Manifest into the site."
   },
   {
     "ticketId": "K-034",
     "title": "About footer Pencil-SSOT unification",
     "date": "2026-04-23",
-    "text": "Retired the Footer variant prop and collapsed to a single Pencil-literal so all routes render byte-identical footers."
+    "text": "Unified the Footer across all routes to a single design-spec implementation."
   },
   {
     "ticketId": "K-036",
     "title": "Favicon design and rasterization",
     "date": "2026-04-22",
-    "text": "Designed a 4-candle golden-cross favicon with dual moving-average curves and rasterized it to the seven standard web and mobile formats."
+    "text": "Designed a golden-cross K-line favicon and exported it to all standard web and mobile formats."
   },
   {
     "ticketId": "K-025",
     "title": "NavBar hex-to-token refactor",
     "date": "2026-04-22",
-    "text": "Migrated UnifiedNavBar's hex literals to design-system tokens and upgraded navbar specs from brittle class-name regex to aria-current plus computed-color assertions."
+    "text": "Migrated the NavBar from hardcoded colors to design-system tokens."
   },
   {
     "ticketId": "K-029",
     "title": "About paper palette migration",
     "date": "2026-04-22",
-    "text": "Migrated the /about ArchPillarBlock and TicketAnatomyCard from dark-theme colors to the paper palette tokens, with added Playwright color-regression coverage."
+    "text": "Migrated /about component colors from dark theme to the paper palette."
   },
   {
     "ticketId": "K-020",
     "title": "GA4 SPA pageview hardening",
     "date": "2026-04-22",
-    "text": "Added Playwright coverage for SPA pageviews and the underlying HTTP beacon payload, logging follow-up tickets for a residual send-page-view gap."
+    "text": "Added test coverage for GA4 SPA pageview tracking."
   },
   {
     "ticketId": "K-031",
@@ -152,29 +152,29 @@
     "ticketId": "K-023",
     "title": "Homepage structure alignment v2",
     "date": "2026-04-21",
-    "text": "Closed the remaining homepage v2 visual alignments: rectangular diary markers, STEP header bars on flow cards, and body padding aligned with the Pencil spec."
+    "text": "Closed the remaining homepage v2 visual alignment items: diary markers, flow card headers, and body padding."
   },
   {
     "ticketId": "K-022",
     "title": "About structure alignment v2",
     "date": "2026-04-21",
-    "text": "Aligned /about to design v2 across twelve items including DossierHeader, SectionLabelRow, and Role Card labels, migrating primitives to the paper palette."
+    "text": "Aligned /about to design v2 across twelve visual items including headers, labels, and palette migration."
   },
   {
     "ticketId": "K-021",
     "title": "Sitewide design system baseline",
     "date": "2026-04-20",
-    "text": "Shipped the sitewide paper palette and three-font system, migrated the NavBar, and extended HomeFooterBar across every route — unblocking the /about and homepage v2 tickets."
+    "text": "Shipped the sitewide paper palette and font system, unblocking the /about and homepage redesign."
   },
   {
     "ticketId": "K-008",
     "title": "Automated visual report script",
     "date": "2026-04-18",
-    "text": "Added a visual-report script that auto-screenshots every route into an HTML report, with Playwright config split so the report and E2E suite run in isolation."
+    "text": "Added a script that auto-screenshots every route into an HTML visual report."
   },
   {
     "title": "Early project phases and deployment setup",
     "date": "2026-04-16",
-    "text": "Bootstrapped the FastAPI + React monorepo with a K-line similarity forecast UI and JWT-protected API, deployed to Cloud Run and Firebase Hosting."
+    "text": "Bootstrapped the FastAPI + React app with a K-line similarity forecast UI, deployed to Cloud Run and Firebase Hosting."
   }
 ]

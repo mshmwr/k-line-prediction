@@ -4,6 +4,12 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-29 — ops: SSOT + sitemap sync post K-058/059/060/061 mirror gap recovery
+
+No observation — routine metrics regen (featuresShipped 40→41, lessonsCodified 184→185) and sitemap date update after mirror gap recovery.
+
+---
+
 ## 2026-04-29 — K-061 Close (fix 24 E2E failures — consent banner root cause)
 
 **What went well:** Root cause identified in one trace (ConsentBanner pointer-event interception, not missing API mocks); fix was 8-line addInitScript across 3 spec files; all 20 scope tests now pass without backend.
