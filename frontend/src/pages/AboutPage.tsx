@@ -49,13 +49,13 @@ export default function AboutPage() {
 
       {/* SY — RolePipelineSection */}
       <section id="role-pipeline" data-section="role-pipeline" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 03 — THE ROLES" />
+        <SectionLabelRow label="Nº 03 — THE PIPELINE" />
         <RolePipelineSection />
       </section>
 
       {/* S3 — RoleCardsSection */}
       <section id="roles" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 04 — THE ROLES" />
+        <SectionLabelRow label="Nº 04 — THE PERSONNEL" />
         <RoleCardsSection />
       </section>
 
