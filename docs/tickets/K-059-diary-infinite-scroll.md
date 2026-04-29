@@ -8,7 +8,7 @@ priority: medium
 size: medium
 visual-delta: yes
 content-delta: no
-design-locked: false
+design-locked: true
 qa-early-consultation: docs/retrospectives/qa.md 2026-04-29 K-059
 dependencies: [K-024]
 worktree: .claude/worktrees/K-059-diary-infinite-scroll

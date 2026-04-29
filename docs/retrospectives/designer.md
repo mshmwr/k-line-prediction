@@ -14,6 +14,12 @@
 
 - 倒序（最新在上）
 
+## 2026-04-29 — K-059 Task 1+2: /diary frame audit + home frame sync
+
+**What went well:** /diary frame scan confirmed no "Load more" button or DiaryLoading node — zero batch_design needed; K-059 worktree correctly isolated spec JSON edit from main. Cross-frame comparison with shipped source code caught 3 out-of-sync items (hero description, disclaimerBody text, missing hero product-shot placeholder) in one `batch_get` pass.
+**What went wrong:** .pen buffer in K-058 worktree (active editor) still requires cmd+s before disk write confirmed; screenshots exported to canonical path correctly but session needs to track active-editor vs ticket-worktree split explicitly.
+**Next time improvement:** When active editor is in a different worktree than the ticket worktree, state this at session start and confirm export target path matches canonical before export_nodes call.
+
 ## 2026-04-29 — K-060 DisclaimerBanner + DisclaimerSection SSOT backfill
 
 **What went well:** Both components already present in .pen (all 3 page frames); batch_get confirmed specs matched requirements without any batch_design needed; JSON spec and screenshot exported cleanly.
