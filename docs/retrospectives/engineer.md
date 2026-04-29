@@ -16,6 +16,19 @@
 
 ---
 
+## 2026-04-29 — K-061 Engineer — Fix 24 E2E backend-dependent failures
+
+**What went well:**
+- Root cause identified immediately from Playwright error output: cookie consent banner intercepting pointer events, not missing API mocks as the ticket title suggested.
+
+**What went wrong:**
+- Ticket framing ("ECONNREFUSED", "incomplete route mocking") led to premature assumption that the fix was API route-related; actual root cause was consent banner pointer-event interception shipped in K-057 without updating all /app specs.
+
+**Next time improvement:**
+- When E2E tests fail with "intercepts pointer events" in the Playwright trace, check consent banner localStorage gate before investigating API mock coverage; the cookie-banner pattern is now established in ga-*.spec.ts as the canonical fix.
+
+---
+
 ## 2026-04-29 — K-059 Phase 2 Engineer — Infinite scroll + paper-palette loading rebrand
 
 **What went well:**
