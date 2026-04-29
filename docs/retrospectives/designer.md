@@ -14,6 +14,20 @@
 
 - 倒序（最新在上）
 
+## 2026-04-29 — K-067 frame 35VCj: Fix 1–4 label + card style sync
+
+**What went well:** All 4 fixes executed in 2 batch_design calls; batch_get verify confirmed exact values before and after; git status showed `M` on pen file confirming disk write without needing cmd+s.
+**What went wrong:** `padding: null` rejected by Pencil schema — cannot delete a property via U(), must use `padding: 0` to clear card-level padding; first batch call rolled back.
+**Next time improvement:** When matching a target style that has no padding, use `padding: 0` not `padding: null`; Pencil schema requires a valid value type, not null.
+**Slowest step:** Reading PERSONNEL card structure to confirm no card-level padding — could be preempted by noting that `batch_get` result for PERSONNEL cards shows no `padding` key at top level.
+
+## 2026-04-29 — K-067 frame 35VCj: section label renames + WHERE I STEPPED IN audit
+
+**What went well:** Cross-frame label scan confirmed both `rpLabel` and `s3label` nodes exist only in `35VCj` — no cross-frame sync needed; `GMEdT` already had card-only layout with no table node, matching shipped code.
+**What went wrong:** `export_nodes` failed on first two attempts with wrong outputDir path; needed canonical checkout path, not worktree path.
+**Next time improvement:** Always use canonical repo path for `export_nodes` outputDir, not worktree path.
+**Slowest step:** Reading GMEdT at depth 4 to confirm no hidden table node; could be pre-empted by scanning for `layout:"horizontal"` at depth 2 first.
+
 ## 2026-04-29 — K-059 Task 1+2: /diary frame audit + home frame sync
 
 **What went well:** /diary frame scan confirmed no "Load more" button or DiaryLoading node — zero batch_design needed; K-059 worktree correctly isolated spec JSON edit from main. Cross-frame comparison with shipped source code caught 3 out-of-sync items (hero description, disclaimerBody text, missing hero product-shot placeholder) in one `batch_get` pass.
