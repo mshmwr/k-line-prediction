@@ -110,6 +110,7 @@ Entry format:
 **What went well:** (specific event; omit if none — do not fabricate)
 **What went wrong:** (root cause)
 **Next time improvement:** (specific action)
+**Slowest step:** (one sentence: which step took longest + how to avoid next time)
 ```
 
 - Rule: coexists with per-ticket `docs/tickets/K-XXX.md` `## Retrospective` section — not a replacement (per-ticket = current event; per-role log = cross-ticket cumulative learning)
@@ -121,7 +122,7 @@ Per-role retrospective logs were drifting to 1000+ lines (QA 1721, PM 1447 as of
 
 **Per-entry caps:**
 - **≤ 30 lines per entry** (including title + blank lines). Long episodic context goes into the PR conversation or commit SHA reference, not the retro log.
-- **One sentence per field.** `What went well` / `What went wrong` / `Next time improvement` each take one sentence stating event + decision/result.
+- **One sentence per field.** `What went well` / `What went wrong` / `Next time improvement` / `Slowest step` each take one sentence stating event + decision/result.
 - **No verbatim dumps:** truth-tables, grep / ls / Read output, design-doc excerpts, multi-paragraph BQ reasoning are forbidden in retro entries. Reference by PR number, commit SHA, or design-doc anchor instead.
 - **Empty `What went well` is acceptable** when no specific event supports it — omit the line entirely; do not fabricate to fill format (per `feedback_retrospective_honesty.md`).
 
