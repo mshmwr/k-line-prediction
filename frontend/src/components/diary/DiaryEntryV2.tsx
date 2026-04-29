@@ -22,7 +22,7 @@ export default function DiaryEntryV2({ entry }: DiaryEntryV2Props) {
   const title = entry.ticketId ? `${entry.ticketId} — ${entry.title}` : entry.title
   return (
     <article
-      className="relative pl-[92px] min-h-[48px]"
+      className="relative pl-[92px] min-h-[48px] transition-opacity duration-300 animate-[fadeIn_300ms_ease-in-out_forwards]"
       data-testid="diary-entry"
     >
       <DiaryMarker mobileVisible />

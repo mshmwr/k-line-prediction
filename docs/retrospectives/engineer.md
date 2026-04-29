@@ -16,6 +16,21 @@
 
 ---
 
+## 2026-04-29 — K-059 Phase 2 Engineer — Infinite scroll + paper-palette loading rebrand
+
+**What went well:**
+- IntersectionObserver sentinel with `__onVisible` test hook satisfied T-D9 concurrency gate without needing a global `window` exposure or backend change.
+- Playwright 1.32.3 lacks `toBeAttached()` — identified quickly via first run failure and replaced with `toHaveCount(0/1)` equivalents across all 7 locations; no re-run loops.
+
+**What went wrong:**
+- Sentinel `<div>` with no height caused Playwright `toBeVisible()` to fail (`visibility: hidden`) — required adding `className="h-px"` to pass the pages.spec.ts sentinel-present assertion; the design doc did not specify minimum height.
+
+**Next time improvement:**
+- When a new sentinel/ghost element uses `toBeVisible()` in any test, add at least `h-px` (1px height) to the element upfront — empty divs are invisible to Playwright regardless of DOM attachment.
+- Before using `toBeAttached()`, check the installed Playwright version; 1.32 and below require `toHaveCount(0/1)` equivalents.
+
+---
+
 ## 2026-04-29 — K-058 Phase 3 Engineer — About page framing batch
 
 **What went well:**
