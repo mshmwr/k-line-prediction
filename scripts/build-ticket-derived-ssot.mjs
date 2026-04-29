@@ -406,6 +406,7 @@ function buildSiteContentJson(tickets, existingSiteContent) {
       first: m.ticketRange.first,
       last: m.ticketRange.last,
     },
+    ...(preserved.folderStructure ? { folderStructure: preserved.folderStructure } : {}),
   }
 
   return toJson(output)
@@ -812,6 +813,11 @@ function renderNamedArtefacts(processRules, slotCount, tickets) {
   }).join('\n')
 }
 
+function renderFolderStructure(tree) {
+  if (!tree || tree.length === 0) return '```\n```'
+  return '```\n' + tree.join('\n') + '\n```'
+}
+
 function emitReadmeMarkers(corpus, siteContent, checkMode) {
   const readmeContent = corpus.readme.content
   const relPath = relative(REPO_ROOT, README_PATH)
@@ -819,9 +825,11 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
   // §14.2: Locate marker pairs
   const stackMarkerRe = /<!--\s*STACK:start\s*-->\n([\s\S]*?)\n<!--\s*STACK:end\s*-->/
   const namedArtefactsRe = /<!--\s*NAMED-ARTEFACTS:start\s*-->\n([\s\S]*?)\n<!--\s*NAMED-ARTEFACTS:end\s*-->/
+  const folderStructureMarkerRe = /<!--\s*FOLDER-STRUCTURE:start\s*-->([\s\S]*?)<!--\s*FOLDER-STRUCTURE:end\s*-->/
 
   const stackMatch = readmeContent.match(stackMarkerRe)
   const namedMatch = readmeContent.match(namedArtefactsRe)
+  const folderMatch = readmeContent.match(folderStructureMarkerRe)
 
   if (!stackMatch) {
     process.stderr.write(`build-ticket-derived-ssot: README missing <!-- STACK:start --> marker pair (exit 2)\n`)
@@ -830,6 +838,9 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
   if (!namedMatch) {
     process.stderr.write(`build-ticket-derived-ssot: README missing <!-- NAMED-ARTEFACTS:start --> marker pair (exit 2)\n`)
     process.exit(2)
+  }
+  if (!folderMatch) {
+    process.stderr.write(`build-ticket-derived-ssot: README missing <!-- FOLDER-STRUCTURE:start --> marker pair — skipping\n`)
   }
 
   // §14.3: Generate stack badges from JSON
@@ -845,10 +856,22 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
     corpus.tickets
   )
 
+  // §14.5: Generate folder structure from JSON (optional — marker may not exist yet)
+  const folderContent = folderMatch
+    ? renderFolderStructure(siteContent.folderStructure?.tree || [])
+    : null
+
   // Replace marker block contents
   let newReadme = readmeContent
     .replace(stackMarkerRe, `<!-- STACK:start -->\n${stackContent}\n<!-- STACK:end -->`)
     .replace(namedArtefactsRe, `<!-- NAMED-ARTEFACTS:start -->\n${namedContent}\n<!-- NAMED-ARTEFACTS:end -->`)
+
+  if (folderMatch && folderContent !== null) {
+    newReadme = newReadme.replace(
+      folderStructureMarkerRe,
+      `<!-- FOLDER-STRUCTURE:start -->\n${folderContent}\n<!-- FOLDER-STRUCTURE:end -->`
+    )
+  }
 
   if (checkMode) {
     if (newReadme === readmeContent) {
@@ -875,6 +898,17 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
         `  fix: node scripts/build-ticket-derived-ssot.mjs && git add ${relPath}\n`
       )
     }
+    if (folderMatch && folderContent !== null) {
+      const currentFolder = (folderMatch[1] || '').trim()
+      const genFolder = folderContent.trim()
+      if (currentFolder !== genFolder) {
+        process.stderr.write(
+          `build-ticket-derived-ssot: DRIFT in ${relPath}\n` +
+          `  field/clause: FOLDER-STRUCTURE marker block\n` +
+          `  fix: node scripts/build-ticket-derived-ssot.mjs && git add ${relPath}\n`
+        )
+      }
+    }
     return 1
   }
 
@@ -882,8 +916,9 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
     writeFileSync(README_PATH, newReadme, 'utf-8')
     const stackLines = stackContent.split('\n').length
     const namedLines = namedContent.split('\n').length
+    const folderLines = folderContent ? folderContent.split('\n').length : 0
     process.stdout.write(
-      `build-ticket-derived-ssot: wrote ${relPath} marker blocks (STACK: ${stackLines} badge lines, NAMED-ARTEFACTS: ${namedLines} entries)\n`
+      `build-ticket-derived-ssot: wrote ${relPath} marker blocks (STACK: ${stackLines} badge lines, NAMED-ARTEFACTS: ${namedLines} entries, FOLDER-STRUCTURE: ${folderLines} lines)\n`
     )
     return 0
   } catch (e) {

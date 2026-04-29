@@ -67,6 +67,34 @@ Each rule was written after a specific failure was observed during the build. Fi
 - **Locked marker block** — the role table in this README is wrapped in `<!-- ROLES:start -->` / `<!-- ROLES:end -->` markers and regenerated from a single JSON file. See [docs/tickets/K-039-split-ssot-role-cards.md](./docs/tickets/K-039-split-ssot-role-cards.md).
 <!-- NAMED-ARTEFACTS:end -->
 
+## Folder structure
+
+<!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json folderStructure.tree instead. -->
+<!-- FOLDER-STRUCTURE:start -->
+```
+K-Line-Prediction/
+├── backend/              # FastAPI app, Pydantic models, predictor, auth, pytest suite
+├── content/              # Hand-edited SSOT JSON (stack, process rules, folder structure)
+├── docs/
+│   ├── designs/          # Per-ticket architecture design docs
+│   ├── tickets/          # K-001 … K-06x ticket files (AC + retrospective)
+│   ├── retrospectives/   # Per-role cumulative retrospective logs
+│   └── agents-ruleset-highlights.md
+├── frontend/
+│   ├── e2e/              # Playwright end-to-end specs
+│   ├── public/           # Static assets served by Firebase Hosting
+│   └── src/
+│       ├── components/   # React components (shared, page-specific, primitives)
+│       ├── hooks/        # Custom React hooks
+│       ├── pages/        # Route-level page components
+│       └── utils/        # Pure utilities (stats, API, analytics, diary sort)
+├── history_database/     # Binance ETHUSDT 1h + daily OHLC CSVs
+├── scripts/              # Generator + audit tooling
+│   └── build-ticket-derived-ssot.mjs
+└── ssot/                 # Project SSOT (system-overview, PRD, conventions, workflow)
+```
+<!-- FOLDER-STRUCTURE:end -->
+
 ## The K-line prediction tool
 
 This is the testbed the harness operates on. The deployed site predicts short-term ETH/USDT price direction by matching the current K-line pattern against historical patterns and reporting the consensus of the top-N nearest neighbors.
