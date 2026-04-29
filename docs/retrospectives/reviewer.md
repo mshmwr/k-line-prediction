@@ -1,3 +1,13 @@
+## 2026-04-29 — K-061 (Fix 24 E2E backend-dependent failures; Step 2 depth review; CODE-PASS, COMMIT-BLOCKED)
+
+**What went well:** ga-consent.spec.ts sacred-check verified — addInitScript pattern is established there (per-test body, before goto); fix in 3 new specs follows the identical pattern with no conflict. AC-061-NO-FALSE-PASS confirmed: only addInitScript + comment lines added, zero assertion changes. AC-061-NO-SHARED-BEFOREEACH confirmed: no beforeEach block exists in ma99-chart.spec.ts.
+
+**What went wrong:** Ticket and commit message claim "24 failing / 17 from ma99-chart" but grep of base commit (dac6cee) finds only 13 tests in ma99-chart, 3 in upload-real-1h-csv, 4 in K-013 = 20 total; even subtracting 2 previously-passing tests yields 18 max failing, not 24 — count discrepancy in AC text vs actual spec.
+
+**Next time improvement:** When reviewing a fix ticket whose AC states a specific test count, run `grep -c` on the base-commit spec file immediately to validate the count claim before reviewing code.
+
+---
+
 ## 2026-04-29 — K-059 (Infinite Scroll + paper-palette rebrand; Step 2 depth review; CODE-PASS, COMMIT-BLOCKED)
 
 **What went well:** Sacred AC-024-LOADING-ERROR-PRESERVED byte-verified against `git show 387cdd5:frontend/src/components/diary/DiaryLoading.tsx` — outer div attributes identical before/after; all three attributes (`data-testid`, `role`, `aria-label`) preserved verbatim. Removed-text widened grep confirmed `diary-load-more` only in comment context (DiaryPage.tsx:17 inline comment) and new negative-assertion test (diary-page.spec.ts:795) — zero orphaned positive assertions. Commit-Block Gate caught 3 uncommitted runtime files (`content/site-content.json`, `frontend/public/sitemap.xml`) + 1 docs file; reported with exact list per gate format.

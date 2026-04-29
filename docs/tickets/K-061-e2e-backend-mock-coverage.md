@@ -31,6 +31,8 @@ Identified in K-059 Phase 3 Playwright run (300 pass / 24 fail). Triaged as pre-
 
 **Log evidence:** `[WebServer] http proxy error: /api/history-info AggregateError [ECONNREFUSED]` in Playwright output.
 
+**Note on "24" count:** Playwright output in K-059 run listed 24 failure entries (including retries); actual test count across the 3 specs is 20 (13 + 3 + 4). All 20 tests (18 previously failing + 2 that had been passing) now pass. The "24" in ACs refers to failure entries, not distinct test definitions.
+
 ## Phases
 
 ### Phase 1 — Architect + Engineer (combined, small scope)
