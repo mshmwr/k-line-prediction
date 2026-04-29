@@ -93,11 +93,11 @@ test.describe('DiaryPage — AC-024-DIARY-PAGE-CURATION', () => {
 
     const entries = page.locator('[data-testid="diary-entry"]')
     await expect(entries).toHaveCount(5)
-    // No Load-more when entry count = initial page size
-    await expect(page.locator('[data-testid="diary-load-more"]')).toHaveCount(0)
+    // No sentinel when entry count = initial page size (hasMore=false)
+    await expect(page.locator('[data-testid="diary-sentinel"]')).toHaveCount(0)
   })
 
-  test('T-D2: Load more click reveals +5 entries when fixture has > 5', async ({ page }) => {
+  test('T-D2: Scroll sentinel into view reveals +5 entries when fixture has > 5', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     const fixture = await loadFixture('diary-ten.json')
     await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
@@ -106,13 +106,13 @@ test.describe('DiaryPage — AC-024-DIARY-PAGE-CURATION', () => {
     const entries = page.locator('[data-testid="diary-entry"]')
     await expect(entries).toHaveCount(5)
 
-    const loadMore = page.locator('[data-testid="diary-load-more"]')
-    await expect(loadMore).toBeVisible()
-    await loadMore.click()
+    const sentinel = page.locator('[data-testid="diary-sentinel"]')
+    await expect(sentinel).toHaveCount(1)
+    await sentinel.scrollIntoViewIfNeeded()
 
     await expect(entries).toHaveCount(10)
-    // 10 of 10 rendered → button gone
-    await expect(loadMore).toHaveCount(0)
+    // 10 of 10 rendered → sentinel gone (hasMore=false)
+    await expect(sentinel).toHaveCount(0)
   })
 
   test('T-D3: 0-entry empty state renders diary-empty', async ({ page }) => {
@@ -124,7 +124,7 @@ test.describe('DiaryPage — AC-024-DIARY-PAGE-CURATION', () => {
     await expect(page.locator('[data-testid="diary-empty"]')).toBeVisible()
     await expect(page.locator('[data-testid="diary-empty"]')).toHaveText(/No entries yet\. Check back soon\./)
     await expect(page.locator('[data-testid="diary-entry"]')).toHaveCount(0)
-    await expect(page.locator('[data-testid="diary-load-more"]')).toHaveCount(0)
+    await expect(page.locator('[data-testid="diary-sentinel"]')).toHaveCount(0)
   })
 
   test('T-D4: 1-entry boundary — no Load more button', async ({ page }) => {
@@ -134,7 +134,7 @@ test.describe('DiaryPage — AC-024-DIARY-PAGE-CURATION', () => {
     await page.goto('/diary')
 
     await expect(page.locator('[data-testid="diary-entry"]')).toHaveCount(1)
-    await expect(page.locator('[data-testid="diary-load-more"]')).toHaveCount(0)
+    await expect(page.locator('[data-testid="diary-sentinel"]')).toHaveCount(0)
   })
 
   test('T-D5: 3-entry boundary — all rendered, no Load more', async ({ page }) => {
@@ -144,7 +144,7 @@ test.describe('DiaryPage — AC-024-DIARY-PAGE-CURATION', () => {
     await page.goto('/diary')
 
     await expect(page.locator('[data-testid="diary-entry"]')).toHaveCount(3)
-    await expect(page.locator('[data-testid="diary-load-more"]')).toHaveCount(0)
+    await expect(page.locator('[data-testid="diary-sentinel"]')).toHaveCount(0)
   })
 
   test('T-D6: 5-entry boundary — all rendered, no Load more', async ({ page }) => {
@@ -154,79 +154,79 @@ test.describe('DiaryPage — AC-024-DIARY-PAGE-CURATION', () => {
     await page.goto('/diary')
 
     await expect(page.locator('[data-testid="diary-entry"]')).toHaveCount(5)
-    await expect(page.locator('[data-testid="diary-load-more"]')).toHaveCount(0)
+    await expect(page.locator('[data-testid="diary-sentinel"]')).toHaveCount(0)
   })
 
-  test('T-D7: 10-entry fixture — one Load more click then button hidden', async ({ page }) => {
+  test('T-D7: 10-entry fixture — one scroll trigger then sentinel gone', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     const fixture = await loadFixture('diary-ten.json')
     await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
     await page.goto('/diary')
 
     const entries = page.locator('[data-testid="diary-entry"]')
-    const loadMore = page.locator('[data-testid="diary-load-more"]')
+    const sentinel = page.locator('[data-testid="diary-sentinel"]')
 
     await expect(entries).toHaveCount(5)
-    await expect(loadMore).toBeVisible()
-    await loadMore.click()
+    await expect(sentinel).toHaveCount(1)
+    await sentinel.scrollIntoViewIfNeeded()
     await expect(entries).toHaveCount(10)
-    await expect(loadMore).toHaveCount(0)
+    await expect(sentinel).toHaveCount(0)
   })
 
-  test('T-D8: 11-entry fixture — two clicks reveal all, button then hidden', async ({ page }) => {
+  test('T-D8: 11-entry fixture — two scroll triggers reveal all, sentinel then gone', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     const fixture = await loadFixture('diary-eleven.json')
     await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
     await page.goto('/diary')
 
     const entries = page.locator('[data-testid="diary-entry"]')
-    const loadMore = page.locator('[data-testid="diary-load-more"]')
+    const sentinel = page.locator('[data-testid="diary-sentinel"]')
 
     await expect(entries).toHaveCount(5)
-    await loadMore.click()
+    await expect(sentinel).toHaveCount(1)
+    await sentinel.scrollIntoViewIfNeeded()
     await expect(entries).toHaveCount(10)
-    await expect(loadMore).toBeVisible()
-    await loadMore.click()
+    // Sentinel still present (11 entries, 10 visible, 1 remaining)
+    await expect(sentinel).toHaveCount(1)
+    await sentinel.scrollIntoViewIfNeeded()
     await expect(entries).toHaveCount(11)
-    await expect(loadMore).toHaveCount(0)
+    await expect(sentinel).toHaveCount(0)
   })
 
-  test('T-D9: rapid double-click on Load more advances +5 only once', async ({ page }) => {
-    // Fixture: 11 entries. Initial visible=5. Two synchronous DOM click events
-    // in the same JS tick (via page.evaluate + dispatchEvent, bypassing
-    // Playwright's actionability wait that would otherwise serialize the
-    // clicks around the React `disabled` state flip):
-    //   - With useDiaryPagination useRef gate  → first +5 → 10, second gated → 10.
-    //   - Without gate                         → first +5 → 10, second +5 capped → 11.
+  test('T-D9: rapid double-fire on sentinel onVisible advances +5 only once', async ({ page }) => {
+    // Fixture: 11 entries. Initial visible=5. Two synchronous onVisible() calls
+    // in the same JS tick (via page.evaluate + __onVisible test hook, bypassing
+    // IntersectionObserver timing):
+    //   - With useDiaryPagination inFlightRef gate  → first +5 → 10, second gated → 10.
+    //   - Without gate                              → first +5 → 10, second +5 capped → 11.
     // Asserting count === 10 (NOT 11) is the only way to distinguish gated from
-    // ungated behaviour; a 10-entry fixture would yield 10 either way (gated
-    // leaves one-click remainder, ungated second click caps at 10 since
-    // min(10+5, 10) === 10). 11 is the minimum that surfaces the gate.
+    // ungated behaviour; a 10-entry fixture would yield 10 either way.
+    // 11 is the minimum fixture size that surfaces the gate.
     // Dry-run verified 2026-04-22 (K-024 R2 I-3): commenting out the
-    // `if (inFlightRef.current) return` guard → count=11 observed, test flips
-    // red. Restoring the guard → count=10 → test passes.
+    // `if (inFlightRef.current) return` guard → count=11 → test flips red.
+    // Restoring the guard → count=10 → test passes.
     await page.setViewportSize({ width: 1280, height: 800 })
     const fixture = await loadFixture('diary-double-click.json')
     await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
     await page.goto('/diary')
 
     const entries = page.locator('[data-testid="diary-entry"]')
-    const loadMore = page.locator('[data-testid="diary-load-more"]')
+    const sentinel = page.locator('[data-testid="diary-sentinel"]')
 
     await expect(entries).toHaveCount(5)
-    // Fire two synchronous DOM click events in the SAME microtask via
-    // page.evaluate — this bypasses Playwright's actionability wait that would
-    // otherwise serialize the two clicks around the React `disabled` state
-    // flip. Only `.dispatchEvent(new MouseEvent('click', ...))` on the raw
-    // DOM node lets us observe concurrency gates that rely purely on event
-    // handler ordering within one JS tick.
+    await expect(sentinel).toHaveCount(1)
+
+    // Call onVisible twice in the SAME microtask via the __onVisible test hook
+    // attached to the sentinel div. This bypasses IntersectionObserver timing
+    // and lets us observe the inFlightRef concurrency gate synchronously.
     await page.evaluate(() => {
-      const btn = document.querySelector<HTMLButtonElement>(
-        '[data-testid="diary-load-more"]',
+      const el = document.querySelector<HTMLDivElement & { __onVisible?: () => void }>(
+        '[data-testid="diary-sentinel"]',
       )
-      if (!btn) throw new Error('load-more button missing')
-      btn.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-      btn.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      if (!el) throw new Error('diary-sentinel missing')
+      if (!el.__onVisible) throw new Error('diary-sentinel __onVisible hook missing')
+      el.__onVisible()
+      el.__onVisible()
     })
     await expect(entries).toHaveCount(10)
   })
@@ -288,7 +288,7 @@ test.describe('DiaryPage — AC-024-TIMELINE-STRUCTURE', () => {
     expect(railBox!.y + railBox!.height).toBeLessThanOrEqual(timelineBottom + 2)
   })
 
-  test('T-T5: marker count dynamically equals entry count (after Load more)', async ({ page }) => {
+  test('T-T5: marker count dynamically equals entry count (after scroll trigger)', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     const fixture = await loadFixture('diary-ten.json')
     await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
@@ -300,7 +300,7 @@ test.describe('DiaryPage — AC-024-TIMELINE-STRUCTURE', () => {
     await expect(entries).toHaveCount(5)
     await expect(markers).toHaveCount(5)
 
-    await page.locator('[data-testid="diary-load-more"]').click()
+    await page.locator('[data-testid="diary-sentinel"]').scrollIntoViewIfNeeded()
     await expect(entries).toHaveCount(10)
     await expect(markers).toHaveCount(10)
   })
@@ -749,5 +749,70 @@ test.describe('DiaryPage — AC-024-LOADING-ERROR-PRESERVED', () => {
       innerWidth: window.innerWidth,
     }))
     expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.innerWidth)
+  })
+})
+
+// ════════════════════════════════════════════════════════════════════════════
+// AC-059-INFINITE-SCROLL + AC-059-NO-SENTINEL-WHEN-EXHAUSTED + AC-059-RAPID-SCROLL
+// ════════════════════════════════════════════════════════════════════════════
+
+test.describe('DiaryPage — AC-059-INFINITE-SCROLL', () => {
+  test('AC-059-INFINITE-SCROLL: scroll sentinel into view reveals more entries', async ({ page }) => {
+    // Fixture: 10 entries. Initial batch = 5. Scroll sentinel → 10.
+    await page.setViewportSize({ width: 1280, height: 800 })
+    const fixture = await loadFixture('diary-ten.json')
+    await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
+    await page.goto('/diary')
+
+    const entries = page.locator('[data-testid="diary-entry"]')
+    await expect(entries).toHaveCount(5)
+
+    const sentinel = page.locator('[data-testid="diary-sentinel"]')
+    await expect(sentinel).toHaveCount(1)
+    await sentinel.scrollIntoViewIfNeeded()
+
+    // After scroll trigger, entry count increases above initial batch
+    await expect(entries).toHaveCount(10)
+  })
+
+  test('AC-059-NO-SENTINEL-WHEN-EXHAUSTED: sentinel not attached when total entries <= page size', async ({ page }) => {
+    // Fixture: 5 entries. All visible on initial render → hasMore=false → no sentinel.
+    await page.setViewportSize({ width: 1280, height: 800 })
+    const fixture = await loadFixture('diary-five.json')
+    await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
+    await page.goto('/diary')
+
+    const entries = page.locator('[data-testid="diary-entry"]')
+    await expect(entries).toHaveCount(5)
+
+    // Sentinel must not be in DOM when all entries are visible
+    await expect(page.locator('[data-testid="diary-sentinel"]')).toHaveCount(0)
+  })
+
+  test('AC-059-RAPID-SCROLL: double invocation of onVisible returns +5 only once', async ({ page }) => {
+    // Fixture: 11 entries. Two rapid onVisible() calls → gated to +5 → count=10, not 11.
+    // Uses same __onVisible test hook as T-D9.
+    await page.setViewportSize({ width: 1280, height: 800 })
+    const fixture = await loadFixture('diary-double-click.json')
+    await page.route('**/diary.json', (route) => mockDiaryBody(route, fixture))
+    await page.goto('/diary')
+
+    const entries = page.locator('[data-testid="diary-entry"]')
+    const sentinel = page.locator('[data-testid="diary-sentinel"]')
+
+    await expect(entries).toHaveCount(5)
+    await expect(sentinel).toHaveCount(1)
+
+    await page.evaluate(() => {
+      const el = document.querySelector<HTMLDivElement & { __onVisible?: () => void }>(
+        '[data-testid="diary-sentinel"]',
+      )
+      if (!el) throw new Error('diary-sentinel missing')
+      if (!el.__onVisible) throw new Error('diary-sentinel __onVisible hook missing')
+      el.__onVisible()
+      el.__onVisible()
+    })
+    // inFlightRef gate ensures only one +5 advance regardless of double-fire
+    await expect(entries).toHaveCount(10)
   })
 })

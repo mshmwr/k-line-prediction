@@ -115,17 +115,16 @@ test.describe('DiaryPage — AC-DIARY-1 (K-024 flat timeline)', () => {
     await expect(page.locator('[class*="milestone"]')).toHaveCount(0)
   })
 
-  test('load-more button visible when diary entry count > 5', async ({ page }) => {
+  test('sentinel present when diary entry count > 5', async ({ page }) => {
     await page.goto('/diary')
 
     // Wait for initial 5 entries to render
     const entries = page.locator('[data-testid="diary-entry"]')
     await expect(entries.first()).toBeVisible()
 
-    // Production diary.json has 7 entries (≥ 5 + 1) → button should appear
-    const loadMore = page.locator('[data-testid="diary-load-more"]')
-    await expect(loadMore).toBeVisible()
-    await expect(loadMore).toHaveText(/Load more/)
+    // Production diary.json has > 5 entries → sentinel should be present
+    const sentinel = page.locator('[data-testid="diary-sentinel"]')
+    await expect(sentinel).toBeVisible()
   })
 })
 

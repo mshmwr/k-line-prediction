@@ -13,6 +13,17 @@ export default {
       fontFamily: {
         mono: ['"Geist Mono"', 'monospace'],
       },
+      keyframes: {
+        // K-059 — fade-in animation for DiaryEntryV2 (design §4).
+        fadeIn: {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+      },
+      animation: {
+        // Consumed via arbitrary class: animate-[fadeIn_300ms_ease-in-out_forwards]
+        // Defining the keyframe here makes it part of the Tailwind build chain.
+      },
     },
   },
   plugins: [require('@tailwindcss/typography')],

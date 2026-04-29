@@ -6,14 +6,15 @@ import DiaryTimeline from '../components/diary/DiaryTimeline'
 import DiaryLoading from '../components/diary/DiaryLoading'
 import DiaryError from '../components/diary/DiaryError'
 import DiaryEmptyState from '../components/diary/DiaryEmptyState'
-import LoadMoreButton from '../components/diary/LoadMoreButton'
+import InfiniteScrollSentinel from '../components/diary/InfiniteScrollSentinel'
 import Footer from '../components/shared/Footer'
 import FooterDisclaimer from '../components/shared/FooterDisclaimer'
 
 // K-024 Phase 3 — /diary full rewrite (design §6.1 / §6.9).
 // Flat timeline: DiaryHero + DiaryTimeline (ol/li + rail + markers + entries)
-// + LoadMoreButton. Consumes flat DiaryEntry[] via useDiary (no limit = full
-// sorted array), then slices through useDiaryPagination for Load-more pattern.
+// + InfiniteScrollSentinel. Consumes flat DiaryEntry[] via useDiary (no limit
+// = full sorted array), then slices through useDiaryPagination for infinite
+// scroll pattern (K-059 replaces LoadMoreButton with IntersectionObserver).
 //
 // State transitions (mutually exclusive render gates):
 //   loading                      → <DiaryLoading>
@@ -54,9 +55,7 @@ export default function DiaryPage() {
         {!loading && !error && visible.length > 0 && (
           <>
             <DiaryTimeline entries={visible} />
-            {hasMore && (
-              <LoadMoreButton onClick={loadMore} disabled={!canLoadMore} />
-            )}
+            <InfiniteScrollSentinel onVisible={loadMore} hasMore={hasMore} />
           </>
         )}
       </main>

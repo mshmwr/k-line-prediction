@@ -1,9 +1,10 @@
-import LoadingSpinner from '../common/LoadingSpinner'
-
-// K-024 Phase 3 — /diary loading state wrapper (design §6.3 / §6.4).
-// Provides `data-testid="diary-loading"` + ARIA role/label required by
-// AC-024-LOADING-ERROR-PRESERVED. Inner LoadingSpinner retains its existing
-// visual (dark residue); paper-palette migration is tracked as TD-K024-01.
+// K-059 — DiaryLoading paper-palette rebrand (design §5).
+// Outer <div> attributes preserved byte-for-byte (Sacred AC-059-A11Y-LOADING /
+// AC-024-LOADING-ERROR-PRESERVED): data-testid, role, aria-label, className.
+// Inner LoadingSpinner removed; replaced with inline paper-palette pulse row
+// (bg-[#F4EFE5] + ink dots bg-[#2A2520] + "Loading diary…" text).
+//
+// T-L1 invariant: outer div textContent contains "Loading diary" substring.
 
 export default function DiaryLoading() {
   return (
@@ -13,8 +14,14 @@ export default function DiaryLoading() {
       aria-label="Loading diary entries"
       className="flex justify-center py-16"
     >
-      {/* TODO TD-K024-01: LoadingSpinner paper-palette migration (out of scope for K-024) */}
-      <LoadingSpinner label="Loading diary…" />
+      <div className="bg-[#F4EFE5] rounded-lg px-8 py-6 flex flex-col items-center gap-3">
+        <div className="flex items-center gap-3">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#2A2520] animate-pulse" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#2A2520] animate-pulse [animation-delay:120ms]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#2A2520] animate-pulse [animation-delay:240ms]" />
+        </div>
+        <p className="text-[#2A2520] font-mono text-[12px]">Loading diary…</p>
+      </div>
     </div>
   )
 }
