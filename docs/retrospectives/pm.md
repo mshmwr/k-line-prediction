@@ -12,6 +12,14 @@ No observation — ops ticket; version already at 2.1.123 (exceeds 2.1.121 targe
 
 ---
 
+## 2026-04-29 — K-067 stub opened (About layout unification + section label rename)
+
+No observation — ticket scope derived from K-066 design review discussion; PRD written directly from user-confirmed decisions (card unification + THE PIPELINE / THE PERSONNEL rename).
+
+**Slowest step:** Section title naming discussion — resolved in-session via user confirmation.
+
+---
+
 ## 2026-04-29 — K-065 stub opened (Claude Code update + restart)
 
 No observation — routine ops ticket stub; no design/AC decisions required.
