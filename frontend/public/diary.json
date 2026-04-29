@@ -6,6 +6,12 @@
     "text": "Added consent pre-seeding to 3 E2E specs so cookie banner no longer blocks button clicks during headless runs."
   },
   {
+    "ticketId": "K-059",
+    "title": "/diary — Infinite Scroll + paper-palette loading rebrand",
+    "date": "2026-04-29",
+    "text": "Replaced the manual 'Load more ↓' button with an IntersectionObserver-based InfiniteScrollSentinel — entries load in 5-entry batches as you scroll, sentinel disappears when all entries are loaded. Rebranded DiaryLoading from a dark spinner to paper-palette (#F4EFE5 background, ink animated dots), resolving tech debt from K-024. New entries fade in with a 300ms CSS opacity transition. All 8 acceptance criteria verified by Playwright; Sacred loading ARIA attributes preserved byte-exact."
+  },
+  {
     "ticketId": "K-060",
     "title": "K-057 SSOT backfill — DisclaimerBanner + Disclaimer section design spec",
     "date": "2026-04-29",

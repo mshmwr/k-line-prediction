@@ -12,6 +12,16 @@ Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospectiv
 
 ---
 
+## 2026-04-29 — K-059 Close (Infinite Scroll + paper-palette loading rebrand, merged #47, deployed)
+
+**What went well:** All 8 ACs verified PASS via Playwright; Sacred AC-024-LOADING-ERROR-PRESERVED preserved byte-exact across DiaryLoading rebrand; 300/324 E2E pass (24 backend-only pre-existing failures correctly classified and triaged to K-061); design-locked gate enforced — Designer dispatch completed before Phase A PR opened; Firebase deploy clean.
+
+**What went wrong:** Pencil MCP screenshots written to canonical checkout not worktree — required manual `cp` after discovering the discrepancy via canonical `git status`; reviewer retro entry written to canonical too — had to manually port to worktree; `.pen` binary never flushed despite cmd+s.
+
+**Next time improvement:** After any Designer agent run in a worktree session, immediately run `git status --short` on BOTH worktree AND canonical; copy any design artifacts (screenshots, specs JSON) that landed in canonical to the worktree before staging. Codified in `feedback_pencil_save_after_design.md`.
+
+---
+
 ## 2026-04-29 — K-060 Close (K-057 SSOT backfill, docs-only)
 
 **What went well:** Designer confirmed both components already present in .pen across all 3 page frames — no batch_design needed; design doc spec table and screenshot exported cleanly; PM close with SSOT regen landed in a single docs-only PR.
