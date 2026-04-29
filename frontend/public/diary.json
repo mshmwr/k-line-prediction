@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-061",
+    "title": "Fix 24 E2E backend-dependent failures — complete route mocking",
+    "date": "2026-04-29",
+    "text": "Added consent pre-seeding to 3 E2E specs so cookie banner no longer blocks button clicks during headless runs."
+  },
+  {
     "ticketId": "K-060",
     "title": "K-057 SSOT backfill — DisclaimerBanner + Disclaimer section design spec",
     "date": "2026-04-29",

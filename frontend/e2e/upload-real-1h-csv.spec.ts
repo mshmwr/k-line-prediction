@@ -25,6 +25,8 @@ import { fileURLToPath } from 'node:url'
 // the project convention (`diary-homepage.spec.ts:9`, `diary-page.spec.ts:10`).
 const __here = dirname(fileURLToPath(import.meta.url))
 const REAL_1H_CSV_PATH = join(__here, 'fixtures', 'ETHUSDT-1h-2026-04-07.csv')
+// KG-061-01: top-level readFileSync — fixture absence causes module parse failure (not per-test FAIL).
+// If the fixture file is missing the entire spec fails to load, not at individual test runtime.
 const REAL_1H_CSV_BYTES = readFileSync(REAL_1H_CSV_PATH)
 
 // ── Mock payloads (mirrored verbatim from ma99-chart.spec.ts:20-89) ──────────
@@ -126,6 +128,8 @@ async function uploadRealCsvAndPredict(page: Page) {
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_PREDICT_BASE) })
   )
 
+  // Dismiss cookie consent banner before page load so it does not intercept pointer events.
+  await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
   await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')

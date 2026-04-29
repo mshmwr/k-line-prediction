@@ -197,6 +197,8 @@ async function setupAndPredict(page: Page, predictResponse: object) {
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(predictResponse) })
   )
 
+  // Dismiss cookie consent banner before page load so it does not intercept pointer events.
+  await page.addInitScript(() => { localStorage.setItem('kline-consent', 'granted') })
   await page.goto('/app')
 
   const fileInput = page.locator('input[type="file"][multiple]')
@@ -261,6 +263,10 @@ test('Case C — empty matches response: fallback visible, chart not visible', a
 })
 
 test('Case D — projectedFutureBars.length < 2 (util throw) fallback: fallback visible, chart not visible', async ({ page }) => {
+  // KG-061-04: deselect-all path is unreachable via UI (PredictButton disables when
+  // tempSelection.size === 0, blocking the appliedSelection-empty commit path).
+  // Case D exercises the same emptyResult branch via the 1-bar future_ohlc util-throw path.
+  //
   // Backend returns a match with only 1 future_ohlc bar. In workspace useMemo,
   // computeStatsFromMatches throws (need >=2 bars for median computation) →
   // catch block triggers the dev-mode console.warn (Fix 2) and returns
