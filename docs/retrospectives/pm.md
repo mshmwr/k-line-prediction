@@ -4,6 +4,34 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-29 — K-058 Close (merged 80e061a1, deployed)
+
+**What went well:** All 8 ACs shipped; 272 chromium tests pass + 23 known-reds all documented; Firebase deploy clean; no post-deploy rollback required.
+**What went wrong:** Architect Phase 2 doc was committed to worktree without being in the Phase A PR (required a separate commit); Phase A PR had 2 commits instead of 1 because the arch doc commit landed post-PR-creation.
+**Next time improvement:** Ensure all Phase 2 outputs (arch doc) are staged and in the same Phase A commit set — do not commit arch doc as a separate "pre-work" commit on the branch that shows up as an extra commit in the PR diff.
+
+---
+
+## 2026-04-28 — K-058 Phase 1 Designer (PM failures requiring operator intervention)
+
+**What went wrong:**
+- PRD designed Role Pipeline (flow + table) AND compact role cards as separate sections without checking for content redundancy — same ROLE/OWNS/ARTEFACT data appeared twice; operator had to flag it.
+- PM did not cross-check the pills sequence against README `## Role pipeline` before approving Designer dispatch — pills ended at Designer (wrong) instead of cycling back to PM; operator caught the error.
+- PM did not audit omyb7 after Designer's "switch to SVG" session to verify ALL nodes serving the old approach (pills row `xu3l7`) were removed — only confirmed table was deleted; operator caught the residual pills in screenshot.
+- Visual verification of Designer artifacts was shallow: PM read JSON spec and confirmed structure, but did not verify that the section heading `(compact)` was user-visible copy rather than an internal note.
+- Multiple rounds of operator intervention (4+ corrections) indicate PM phase-gate review was not catching issues that should be caught before screenshots reach the operator.
+
+**Root causes:**
+- PRD written without a "cross-section redundancy check" — no step requires PM to read all sibling sections and confirm new content doesn't duplicate existing.
+- PM visual-delta review reads JSON structure but not rendered copy; heading text not verified against approved copy table.
+- After a "switch approach" PM ruling, PM did not issue an explicit cleanup checklist to Designer covering ALL nodes affected by the old approach.
+
+**Rules codified (hard, apply next ticket):**
+1. Before dispatching Designer on any new section: list all existing sibling sections and confirm zero content overlap with new section's data.
+2. After any "replace approach X with Y" PM ruling: issue explicit checklist to Designer naming every node implementing X that must be deleted.
+3. PM visual-delta review must include: read every visible text node in updated frames against approved copy table — not just structure.
+4. README is SOR for role/pipeline content; PM must verify Designer's copy matches README before approving Phase 1.
+
 ## 2026-04-28 — K-058 Phase 0 Content-Alignment Gate
 
 **What went well:** Phase 0 gate pattern confirmed by user in one round — Role Pipeline, "Where I Stepped In" A+C+B copy, and Role Card `content/roles.json` all locked before Designer is dispatched.
