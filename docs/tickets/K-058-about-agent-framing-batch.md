@@ -1,7 +1,8 @@
 ---
 id: K-058
 title: About page — "One operator, six AI agents" framing batch (role pipeline section + Where I Stepped In + role card compact redesign + processRules weight system + TicketAnatomy SSOT migration)
-status: open
+status: closed
+closed-commit: 80e061a1
 created: 2026-04-28
 type: feat + refactor
 priority: high

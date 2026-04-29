@@ -16,6 +16,23 @@
 
 ---
 
+## 2026-04-29 — K-058 Phase 3 Engineer — About page framing batch
+
+**What went well:**
+- SVG strict-mode conflict (RolePipelineSection `<text>PM</text>` clashing with pages.spec.ts `getByText('PM', { exact: true })`) diagnosed in one isolation run; fix was surgical — scope the 6 assertions to `#roles`.
+- Footer snapshot drift identified immediately by running shared-components.spec.ts in isolation; `--update-snapshots` resolved it in one command after confirming the Footer component itself unchanged.
+- ssot/system-overview.md update targeted 4 specific locations without full-file rewrite.
+
+**What went wrong:**
+- Edit tool rejected `old_string` that included line-number prefixes from Read tool output (cat -n format prepends `N\t` to each line; the actual file has no prefix). Required re-reading and stripping the prefix before copying the string.
+- Two ma99-chart tests were missing from known-reds.md despite requiring live backend (same pattern as 11 documented entries). Caught in Phase 4 QA run; required backfilling the manifest.
+
+**Next time improvement:**
+- When adding SVG `<text>` elements for names also used in existing `getByText('X', { exact: true })` E2E assertions, immediately grep the E2E directory for every such assertion on those names and scope to a parent section locator before committing.
+- After adding new tests to a spec file requiring live backend, grep known-reds.md against the test titles and backfill any missing entries in the same PR rather than discovering them in Phase 4 QA.
+
+---
+
 ## 2026-04-28 — K-057 Landing product polish — Phase 1 regressions + Phase 5 consent gate
 
 **What went well:**
