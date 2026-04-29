@@ -1,5 +1,10 @@
 import CardShell from '../primitives/CardShell'
 import FileNoBar from './FileNoBar'
+import siteContent from '@/content/site-content.json'
+
+const { metrics } = siteContent
+// Not in site-content.json: build script auto-overwrites metrics block; architectural constant per K-066 AC-066-SSOT
+const PIPELINE_DEPTH = 6
 
 const ROWS = [
   {
@@ -22,13 +27,17 @@ const ROWS = [
 const HEADERS = ['AI DID', 'I DECIDED', 'OUTCOME'] as const
 
 export default function WhereISteppedInSection() {
+  const acPercent = metrics.acCoverage.total > 0
+    ? Math.round((metrics.acCoverage.covered / metrics.acCoverage.total) * 100)
+    : 0
+
   return (
     <div>
       <p
         data-testid="where-i-narrative"
         className="text-[14px] text-ink leading-[1.6] mb-6"
       >
-        I am the single operator. Every ticket is filed by me, reviewed by me, and merged by me. The agents execute; I decide.
+        I am the single operator. I define requirements and the rules agents run by; they handle design through QA. I review at the boundary — correcting output when needed, and deciding what ships.
       </p>
 
       <div data-testid="where-i-table" className="mb-4">
@@ -84,7 +93,7 @@ export default function WhereISteppedInSection() {
         className="bg-charcoal rounded-md px-5 py-4"
       >
         <p className="font-mono text-[14px] font-bold text-paper tracking-[1px]">
-          60 tickets. 100% AC coverage. Every decision logged.
+          {metrics.featuresShipped.value} features shipped. {acPercent}% AC coverage. {PIPELINE_DEPTH}-agent pipeline.
         </p>
       </div>
     </div>
