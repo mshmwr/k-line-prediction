@@ -67,7 +67,7 @@ K-021 完成後 `/diary` 只做了 body 配色遷移（paper/ink + 字型），*
 
 PM 本票只開 ticket + 定 AC 視覺行為，layout 技術方案交 Architect 設計階段裁決。
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-027-NO-OVERLAP：手機 viewport 下相鄰 milestone 不重疊 `[K-027]`
 

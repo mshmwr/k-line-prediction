@@ -62,7 +62,7 @@ Codex 2026-04-18 review 指出 projected future bar aggregation / stats derivati
 - `backend/main.py` `/api/predict` route（payload schema 不變）
 - Playwright E2E specs（mock payload 不變；但 mock `future_ohlc` 仍需 ≥2 筆符合 CLAUDE.md 規範）
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-013-UTIL：前端抽出共用純函式
 

@@ -55,7 +55,7 @@ K-021 已將 `/app` body 外層遷至 paper palette（`bg-paper` + `text-ink`）
 - AppPage <900px viewport 響應性（TD-K021-07）
 - AppPage 功能行為改動
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-026-APPPAGE-PAPER：AppPage 7 子元件無 dark-class `[K-026]`
 

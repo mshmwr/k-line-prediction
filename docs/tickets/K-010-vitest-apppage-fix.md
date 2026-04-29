@@ -35,7 +35,7 @@ Playwright E2E 與 backend tests 皆綠，但前端 unit suite 紅色使得 merg
 - `frontend/src/__tests__/AppPage.test.tsx`
 - 若需補 `data-testid` → `frontend/src/AppPage.tsx` 或 timeframe switch 組件
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-010-GREEN：Vitest suite 全綠
 

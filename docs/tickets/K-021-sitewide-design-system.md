@@ -95,7 +95,7 @@ K-017 完成 `/about` portfolio-oriented 改版後，PM 於 2026-04-20 逐頁比
 | `/login` scope 正名 | 原 ticket 誤寫 `/login`（codebase 無此路由），以 `/business-logic` 取代；未來若 OAuth/SSO 新增獨立 `/login` 路由則獨立開票 | PM 裁決 TD-K021-06（2026-04-20，見 Blocker 1 矩陣 10/10 採 Option A） |
 | `brick` vs `brick-dark` 用途分工 | `brick = #B43A2C` 保留給 K-023 Hero 副標 magenta；`brick-dark = #9C4A3B` 為 hover/active variant，本票 NavBar active 使用；K-017 已視覺驗收通過 `#9C4A3B`，既有 `navbar.spec.ts` 8 處斷言不動 | PM 裁決 Q2（2026-04-20，矩陣 10/10 採 Option C 兩色並存） |
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-021-TOKEN：Tailwind theme token 完整註冊 `[K-021]`
 

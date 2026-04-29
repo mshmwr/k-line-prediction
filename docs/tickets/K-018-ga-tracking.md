@@ -48,6 +48,20 @@ K-Line Prediction 已部署於 Firebase Hosting，目前沒有任何訪客分析
 - AC-018-PRIVACY `[K-018]`
 - AC-018-PRIVACY-POLICY `[K-018]`
 
+## Acceptance Criteria
+
+### AC-K018-1
+
+**Given** GA measurement ID is configured
+**When** user visits any route
+**Then** a GA4 `page_view` event is recorded in `window.dataLayer`
+
+### AC-K018-2
+
+**Given** user is on a page with a tracked CTA
+**When** user clicks the CTA
+**Then** a `cta_click` event is recorded with correct label and `page_location`
+
 ## 相依 / 協同
 
 - **K-017 完成後，設計師需補更新設計稿**：AC-018-PRIVACY-POLICY 要求 Footer 加 GA4 說明文字，設計稿必須與最終實作對齊。K-017 Engineer 完成後、K-018 Engineer 開始前，召喚設計師將此文字加入 Footer 設計稿。

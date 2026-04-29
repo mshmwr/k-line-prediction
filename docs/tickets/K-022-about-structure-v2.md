@@ -87,7 +87,7 @@ Role Cards 下方以 small Geist Mono 標 `BEHAVIOUR` / `POSITION` 這類 annota
 | B-1/B-2/B-3 不做 | 使用者 2026-04-20 決定跳過（MVP 不必要） | 使用者決定 |
 | AC-018-PRIVACY-POLICY 保留 | GA4 聲明為 K-018 合規要求，本票不得移除 | PM 裁決 |
 
-## 驗收條件
+## Acceptance Criteria
 
 ### AC-022-SECTION-LABEL：每個 section 上方有 small-caps label + hairline `[K-022]`
 
