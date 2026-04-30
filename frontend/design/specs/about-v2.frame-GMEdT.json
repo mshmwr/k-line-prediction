@@ -55,6 +55,11 @@
       "layout": "horizontal",
       "gap": 14,
       "width": "fill_container",
+      "responsive": {
+        "mobile": "grid-cols-1",
+        "desktop": "md:grid-cols-3"
+      },
+      "tailwindHint": "grid grid-cols-1 md:grid-cols-3 gap-[14px]",
       "wsCards": [
         {
           "id": "H7fyn",

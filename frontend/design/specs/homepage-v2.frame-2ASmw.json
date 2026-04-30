@@ -22,6 +22,11 @@
     "alignItems": "center",
     "padding": [20, 72],
     "width": "fill_container",
+    "responsive": {
+      "mobile": "flex-row",
+      "desktop": "md:flex-row"
+    },
+    "tailwindHint": "flex flex-row justify-between items-center",
     "stroke": {
       "align": "inside",
       "fill": "#1A1814",

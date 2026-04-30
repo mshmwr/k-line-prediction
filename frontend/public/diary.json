@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-068",
+    "title": "Designer JSON SSOT — responsive + tailwindHint schema enforcement",
+    "date": "2026-04-30",
+    "text": "Added a JSON schema + validator that requires every horizontal-with-multiple-children frame spec to declare its mobile + desktop Tailwind classes, closing the K-067 layout gap."
+  },
+  {
     "ticketId": "K-067",
     "title": "About page — WHERE I STEPPED IN card unification + section label rename",
     "date": "2026-04-30",
