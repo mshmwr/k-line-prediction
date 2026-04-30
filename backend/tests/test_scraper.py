@@ -9,7 +9,7 @@ import csv
 import io
 import sys
 import zipfile
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -29,9 +29,10 @@ def _make_zip_bytes(rows: list[list]) -> bytes:
     return buf.getvalue()
 
 
-def _kline_row(open_time_ms: int) -> list:
-    return [open_time_ms, "1800.0", "1900.0", "1700.0", "1850.0", "100.0",
-            open_time_ms + 3_599_999, "0", "0", "0", "0", "0"]
+def _kline_row(open_time_us: int) -> list:
+    # Binance Vision CSVs use microsecond timestamps (16 digits)
+    return [open_time_us, "1800.0", "1900.0", "1700.0", "1850.0", "100.0",
+            open_time_us + 3_599_999_999, "0", "0", "0", "0", "0"]
 
 
 def _mock_zip_resp(rows: list[list]) -> MagicMock:
@@ -60,11 +61,8 @@ def test_correct_date_range_fetched(tmp_path):
         # extract date from URL: .../ETHUSDT-1d-YYYY-MM-DD.zip
         date_str = url.split("ETHUSDT-1d-")[1].replace(".zip", "")
         fetched_dates.append(date.fromisoformat(date_str))
-        open_ms = int(scrape_history.datetime(
-            *map(int, date_str.split("-")),
-            tzinfo=scrape_history.timezone.utc
-        ).timestamp() * 1000)
-        return _mock_zip_resp([_kline_row(open_ms)])
+        open_us = int(datetime(*map(int, date_str.split("-")), tzinfo=timezone.utc).timestamp() * 1_000_000)
+        return _mock_zip_resp([_kline_row(open_us)])
 
     with patch.object(scrape_history, "_last_date", return_value=last_date), \
          patch("scrape_history.requests.get", side_effect=fake_get):
@@ -81,7 +79,7 @@ def test_404_date_skipped_others_fetched(tmp_path):
 
     responses = {
         two_days_ago: _mock_404(),
-        yesterday: _mock_zip_resp([_kline_row(1_000_000_000_000)]),
+        yesterday: _mock_zip_resp([_kline_row(1_745_884_800_000_000)]),
     }
 
     def fake_get(url, timeout):

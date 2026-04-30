@@ -4,7 +4,7 @@ import sys
 import zipfile
 import requests
 from pathlib import Path
-from datetime import datetime, date, timedelta, timezone
+from datetime import datetime, date, timedelta
 from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
@@ -48,9 +48,9 @@ def _read_csv(path: Path) -> list:
 
 
 def _bar_from_row(row: list) -> dict:
-    dt = datetime.fromtimestamp(int(row[0]) / 1000, tz=timezone.utc)
+    # Binance Vision CSVs use microsecond timestamps; normalize_bar_time handles µs/ms/s
     return {
-        "date": dt.strftime("%Y-%m-%d %H:%M"),
+        "date": normalize_bar_time(str(row[0])),
         "open": float(row[1]),
         "high": float(row[2]),
         "low": float(row[3]),
