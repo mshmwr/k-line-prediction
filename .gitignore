@@ -2,6 +2,7 @@
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/test-results/
 
 # Python caches
 __pycache__/
