@@ -4,6 +4,18 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-30 — K-048 PM: Phase 1 ticket close + deploy
+
+**What went well:** BQ rulings (3 decisions) were clean; QA known-reds PM ruling (add 3 pre-existing failures to manifest, clear block) was correct and unblocked deploy without re-testing. Role handoffs PM→Architect→Engineer→Reviewer→QA executed without user prompts.
+
+**What went wrong:** Deploy gate revealed a Docker stale-image problem — `gcloud run deploy --source .` silently pushed a cached image (same digest as 2026-04-16 build) because K-052 added prebuild file dependencies without updating Dockerfile COPY; discovered only via post-deploy API curl. ops-dockerfile fix required 3 Cloud Build iterations. PM should have flagged the Docker dry-run gate as blocked (OrbStack not running) and substituted `gcloud builds submit --no-cache` before releasing Phase A PR.
+
+**Next time improvement:** When Docker dry-run gate is blocked (daemon unavailable), PM must halt Phase A and substitute `gcloud builds submit --no-cache` as the gate before `gh pr create` — not defer to post-deploy discovery.
+
+**Codified:** `feedback_deploy_smoke_test_mandatory.md` + `feedback_dockerfile_copy_audit_prebuild.md` in memory; `ssot/deploy.md` update proposed (awaiting confirmation).
+
+---
+
 ## 2026-04-30 — K-067 PM: ticket close + deploy
 
 No observation — Phase A commit + merge + Firebase deploy all clean. Pre-existing Playwright failures (T14, AC-022) and Vitest failure (AC-024) confirmed on main branch before commit; no K-067 regressions.

@@ -12,7 +12,8 @@ content-delta: none
 design-locked: "N/A — no visual changes"
 qa-early-consultation: "docs/retrospectives/qa.md 2026-04-30 K-048 (PM proxy tier)"
 dependencies: [K-046]
-base-commit: "TBD — set when worktree is cut for implementation"
+base-commit: "f70dc6a"
+phase1-closed-commit: "5074caf"
 sacred-clauses: []
 ---
 
