@@ -14,6 +14,26 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-04-30 — K-048 QA Early Consultation (PM proxy)
+
+**Status:** Complete — 9 challenges raised; 8 resolved to AC or setup gate; 1 zero-impact (C9 Sacred).
+
+**Challenges summary:**
+- C1 → AC-048-P2-03 CLOSED-ONLY: exclude Binance in-progress candle (`close_time_ms > now_ms`)
+- C2 → AC-048-P2-04 BACKFILL-PAGINATE: pagination loop for gaps > 1000 bars
+- C3 → AC-048-P2-08 FORMAT-MIGRATION-TEST: update `test_history_db_contiguity.py` to detect both CSV header formats
+- C4 → AC-048-P1-03 FRESHNESS-MOCK-NULL: return `null` when CSV not on disk
+- C5 → AC-048-P2-05 IDEMPOTENT: skip commit if no new bars
+- C6 → AC-048-P2-09 PUSH-AUTH (setup gate): `GH_PAT` secret with `contents: write` scope
+- C7 → AC-048-P2-06 COMMIT-FORMAT: `[skip ci]` tag to prevent Cloud Build loop
+- C8 → AC-048-P2-07 DEPLOY-TRIGGER: `gcloud run deploy` after push
+- C9 → No AC: Sacred K-009/K-013/K-015 unaffected (bar_count only increases)
+
+**What went well:** Caught CSV format migration regression risk (C3) before any code touched — `test_history_db_contiguity.py` raw `csv.reader` would silently mis-parse post-scraper 1D file.
+**What went wrong:** N/A (PM proxy tier, pre-implementation consultation).
+**Next-time improvement:** When a ticket changes CSV format on disk, always check if any test reads the file via raw `csv.reader` rather than `load_csv_history` — these are invisible to `load_csv_history` format-detection logic.
+**Slowest step:** Determining Cloud Run ephemeral storage constraint (architecture constraint, §1.3) and its impact on hosting shape decision.
+
 ## 2026-04-29 — K-067 Early Consultation
 
 **What went well:** Identified three cross-spec affected files (about-v2.spec.ts, about.spec.ts, about-layout.spec.ts) and the uncovered COMPARISON FileNoBar variant before any code was touched.
