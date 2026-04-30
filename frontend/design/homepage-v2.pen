@@ -283,7 +283,6 @@
                       "id": "2k5ED",
                       "name": "m1_FeaturesShipped",
                       "width": "fill_container",
-                      "height": 280,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -322,7 +321,6 @@
                           "id": "yPEl5",
                           "name": "m1Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 10,
                           "padding": 18,
@@ -388,7 +386,6 @@
                       "id": "55Zha",
                       "name": "m2_FirstPassReview",
                       "width": "fill_container",
-                      "height": 280,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -427,7 +424,6 @@
                           "id": "seD31",
                           "name": "m2Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 10,
                           "padding": 18,
@@ -495,7 +491,6 @@
                       "id": "i7d8Y",
                       "name": "m3_PostMortems",
                       "width": "fill_container",
-                      "height": 280,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -534,7 +529,6 @@
                           "id": "k89s2",
                           "name": "m3Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 10,
                           "padding": 18,
@@ -602,7 +596,6 @@
                       "id": "jG43T",
                       "name": "m4_Guardrails",
                       "width": "fill_container",
-                      "height": 280,
                       "fill": "#F4EFE5",
                       "cornerRadius": 6,
                       "stroke": {
@@ -641,7 +634,6 @@
                           "id": "XSj54",
                           "name": "m4Body",
                           "width": "fill_container",
-                          "height": "fill_container",
                           "layout": "vertical",
                           "gap": 10,
                           "padding": 18,
@@ -758,6 +750,463 @@
                 },
                 {
                   "type": "frame",
+                  "id": "IW5ws",
+                  "name": "wsCardsWrapper",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "H7fyn",
+                      "name": "wsCard1",
+                      "clip": true,
+                      "width": "fill_container",
+                      "fill": "#F4EFE5",
+                      "cornerRadius": 6,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "pvzIn",
+                          "name": "wsCard1FileBar",
+                          "width": "fill_container",
+                          "fill": "#2A2520",
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Ypv3G",
+                              "name": "wsCard1FileBarText",
+                              "fill": "#F4EFE5",
+                              "content": "FILE Nº 01 · COMPARISON",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 10,
+                              "fontWeight": "normal",
+                              "letterSpacing": 2
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "BYPeB",
+                          "name": "wsCard1Body",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "iGnBO",
+                              "name": "r1a",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "c75eeK",
+                                  "fill": "#8B7A6B",
+                                  "content": "AI DID",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "QxSvj",
+                                  "fill": "#1A1814",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Architect proposed component tree + API contract",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "cmXrP",
+                              "name": "r1b",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "ANMj4",
+                                  "fill": "#8B7A6B",
+                                  "content": "I DECIDED",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "HfoKc",
+                                  "fill": "#1A1814",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Approved scope, rejected over-abstraction, set sacred constraints",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "KxBpQ",
+                              "name": "r1c",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "oZHQO",
+                                  "fill": "#8B7A6B",
+                                  "content": "OUTCOME",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "V6HUr",
+                                  "fill": "#B43A2C",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Each ticket ships with a verifiable artefact trail",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Nv9Xw",
+                      "name": "wsCard2",
+                      "clip": true,
+                      "width": "fill_container",
+                      "fill": "#F4EFE5",
+                      "cornerRadius": 6,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "DtXRQ",
+                          "name": "wsCard2FileBar",
+                          "width": "fill_container",
+                          "fill": "#2A2520",
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "fRD9R",
+                              "name": "wsCard2FileBarText",
+                              "fill": "#F4EFE5",
+                              "content": "FILE Nº 02 · COMPARISON",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 10,
+                              "fontWeight": "normal",
+                              "letterSpacing": 2
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "GBxr7",
+                          "name": "wsCard2Body",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "c41gYC",
+                              "name": "r2a",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "vvFR6",
+                                  "fill": "#8B7A6B",
+                                  "content": "AI DID",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "iQ1kL",
+                                  "fill": "#1A1814",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Engineer implemented + Reviewer flagged bugs",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "SZvVH",
+                              "name": "r2b",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "kaOcH",
+                                  "fill": "#8B7A6B",
+                                  "content": "I DECIDED",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "u5L77",
+                                  "fill": "#1A1814",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Confirmed root cause, approved fix strategy",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "DIogO",
+                              "name": "r2c",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "zdCaq",
+                                  "fill": "#8B7A6B",
+                                  "content": "OUTCOME",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "HL0xb",
+                                  "fill": "#B43A2C",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Zero regressions across 60+ merged PRs",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "HTyi6",
+                      "name": "wsCard3",
+                      "clip": true,
+                      "width": "fill_container",
+                      "fill": "#F4EFE5",
+                      "cornerRadius": 6,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#1A1814"
+                      },
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "cUMUF",
+                          "name": "wsCard3FileBar",
+                          "width": "fill_container",
+                          "fill": "#2A2520",
+                          "padding": [
+                            6,
+                            10
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "hevVA",
+                              "name": "wsCard3FileBarText",
+                              "fill": "#F4EFE5",
+                              "content": "FILE Nº 03 · COMPARISON",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 10,
+                              "fontWeight": "normal",
+                              "letterSpacing": 2
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "BmIHY",
+                          "name": "wsCard3Body",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "EBYhM",
+                              "name": "r3a",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "WHNFZ",
+                                  "fill": "#8B7A6B",
+                                  "content": "AI DID",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "b3Wje",
+                                  "fill": "#1A1814",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Designer produced Pencil spec per each visual ticket",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mnpgN",
+                              "name": "r3b",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "poGyT",
+                                  "fill": "#8B7A6B",
+                                  "content": "I DECIDED",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "GEHiz",
+                                  "fill": "#1A1814",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Selected visual direction (A/B/C options), approved design-locked gate",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ZEg7U",
+                              "name": "r3c",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "eeRWs",
+                                  "fill": "#8B7A6B",
+                                  "content": "OUTCOME",
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 10,
+                                  "fontWeight": "normal",
+                                  "letterSpacing": 2
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "HMdYP",
+                                  "fill": "#B43A2C",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "SSOT maintained across 3-page redesign",
+                                  "lineHeight": 1.55,
+                                  "fontFamily": "Geist Mono",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "eIxup",
                   "name": "wsBBlock",
                   "width": "fill_container",
@@ -834,228 +1283,6 @@
                   "fontFamily": "Geist Mono",
                   "fontSize": 14,
                   "fontWeight": "normal"
-                },
-                {
-                  "type": "frame",
-                  "id": "xu3l7",
-                  "name": "rpPillsRow",
-                  "width": "fill_container",
-                  "gap": 8,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "aR6gA",
-                      "name": "rpPillPM",
-                      "fill": "#2A2520",
-                      "cornerRadius": 4,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1,
-                        "fill": "#1A1814"
-                      },
-                      "padding": [
-                        6,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "POaiG",
-                          "fill": "#F4EFE5",
-                          "content": "PM",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "jDye7",
-                      "name": "rpArrow1",
-                      "fill": "#8B7A6B",
-                      "content": "→",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "w62HN",
-                      "name": "rpPillArch",
-                      "fill": "#2A2520",
-                      "cornerRadius": 4,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1,
-                        "fill": "#1A1814"
-                      },
-                      "padding": [
-                        6,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "dtezQ",
-                          "fill": "#F4EFE5",
-                          "content": "Architect",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "divSi",
-                      "name": "rpArrow2",
-                      "fill": "#8B7A6B",
-                      "content": "→",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "u93nj",
-                      "name": "rpPillEng",
-                      "fill": "#2A2520",
-                      "cornerRadius": 4,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1,
-                        "fill": "#1A1814"
-                      },
-                      "padding": [
-                        6,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "xLemF",
-                          "fill": "#F4EFE5",
-                          "content": "Engineer",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "vZdt3",
-                      "name": "rpArrow3",
-                      "fill": "#8B7A6B",
-                      "content": "→",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "vtVhX",
-                      "name": "rpPillRev",
-                      "fill": "#2A2520",
-                      "cornerRadius": 4,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1,
-                        "fill": "#1A1814"
-                      },
-                      "padding": [
-                        6,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "nvdid",
-                          "fill": "#F4EFE5",
-                          "content": "Reviewer",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "N7xxb",
-                      "name": "rpArrow4",
-                      "fill": "#8B7A6B",
-                      "content": "→",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "Mbi6S",
-                      "name": "rpPillQA",
-                      "fill": "#2A2520",
-                      "cornerRadius": 4,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1,
-                        "fill": "#1A1814"
-                      },
-                      "padding": [
-                        6,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "G3nrz",
-                          "fill": "#F4EFE5",
-                          "content": "QA",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "id": "puXkw",
-                      "name": "rpArrow5",
-                      "fill": "#8B7A6B",
-                      "content": "→",
-                      "fontFamily": "Geist Mono",
-                      "fontSize": 14,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "hbHOn",
-                      "name": "rpPillDes",
-                      "fill": "#2A2520",
-                      "cornerRadius": 4,
-                      "stroke": {
-                        "align": "inside",
-                        "thickness": 1,
-                        "fill": "#1A1814"
-                      },
-                      "padding": [
-                        6,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "qeJAf",
-                          "fill": "#F4EFE5",
-                          "content": "Designer",
-                          "fontFamily": "Geist Mono",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        }
-                      ]
-                    }
-                  ]
                 },
                 {
                   "type": "frame",
@@ -3663,7 +3890,7 @@
                     {
                       "type": "text",
                       "id": "2bQtY",
-                      "fill": "#9C4A3B",
+                      "fill": "#B43A2C",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
                       "content": "lookup engine.",
@@ -3685,11 +3912,47 @@
                       "fill": "#1A1814",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next.",
+                      "content": "Search past ETH/USDT formations that resemble any candlestick window. Inspect what came after — for learning, not for trading signals.",
                       "lineHeight": 1.5,
                       "fontFamily": "Geist Mono",
                       "fontSize": 16,
                       "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "iGpA2",
+                      "name": "heroShot_placeholder",
+                      "metadata": {
+                        "type": "unsplash",
+                        "username": "lonelyblue",
+                        "link": "https://unsplash.com/@lonelyblue",
+                        "author": "lonely blue"
+                      },
+                      "width": "fill_container",
+                      "height": 240,
+                      "fill": "#EDE8DE",
+                      "cornerRadius": 6,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#8B7A6B"
+                      },
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "uEDV0",
+                          "name": "heroLabel",
+                          "fill": "#8B7A6B",
+                          "content": "[hero-shot.png — product screenshot]",
+                          "fontFamily": "Geist Mono",
+                          "fontSize": 12,
+                          "fontWeight": "normal",
+                          "letterSpacing": 1
+                        }
+                      ]
                     },
                     {
                       "type": "frame",

@@ -9,7 +9,7 @@
   "generatedAt": "2026-04-23",
   "generatorNote": "K-040 Sitewide Typography — s6 intro Newsreader italic 15→Mono 14 normal; 3 arch pillar cards with titles Bodoni italic 24→Mono 20 normal; bodies Newsreader italic→Mono 12 normal; step numbers '01/02/03' Bodoni 22 (non-italic)→Mono 22 retained.",
   "components": [
-    { "role": "section-label", "nodeId": "NqwhK", "content": "Nº 05 — PROJECT ARCHITECTURE", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
+    { "role": "section-label", "nodeId": "NqwhK", "content": "Nº 07 — PROJECT ARCHITECTURE", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
     { "role": "section-intro", "nodeId": "fG3xb", "content": "— How the codebase stays legible for a solo operator + AI agents.", "font": { "family": "Geist Mono", "size": 14, "weight": "normal", "style": "normal", "lineHeight": 1.6 }, "color": "#1A1814", "previousFontFamily": "Newsreader", "previousFontStyle": "italic", "previousFontSize": 15 },
     {
       "role": "arch-pillar",

@@ -53,8 +53,8 @@
     "wsCardsWrapper": {
       "id": "IW5ws",
       "type": "frame",
-      "layout": "vertical",
-      "gap": 12,
+      "layout": "horizontal",
+      "gap": 14,
       "width": "fill_container",
       "cardStyle": {
         "cornerRadius": 6,
