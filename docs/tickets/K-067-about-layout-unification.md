@@ -120,6 +120,27 @@ Designer must update all 4 cards: remove `height: 280`, set to `fit_content`. Al
 
 Designer action: delete node `xu3l7` (`rpPillsRow`) from `omyb7`. No replacement needed — SVG covers the flow.
 
+### Requirement 10 — WHERE I STEPPED IN section narrative copy update (added 2026-04-30)
+
+User reviewed and rejected the existing `wsNarrative` text. Approved replacement via interviewer consultation (Option B — constraint system framing):
+
+| Node | File | Old | New |
+|------|------|-----|-----|
+| `R5jxX` | `homepage-v2.pen` GMEdT | "I am the single operator. I define requirements and the rules agents run by; they handle design through QA. I review at the boundary — correcting output when needed, and deciding what ships." | "My contribution was the constraint system: the rules, personas, and acceptance criteria that turned agent outputs into shippable work." |
+| `wsNarrative` | `WhereISteppedInSection.tsx` | same old text | same new text |
+
+Designer action: update `R5jxX` content in `homepage-v2.pen`.
+Engineer action: update `wsNarrative` text in `frontend/src/components/about/WhereISteppedInSection.tsx`.
+
+### Designer Deficiencies Fixed (2026-04-30)
+
+Discovered and fixed during design review session. Both were gaps from original Designer delivery:
+
+| # | Deficiency | Root cause | Fix applied |
+|---|-----------|------------|-------------|
+| D1 | `IW5ws` `layout: vertical` — cards stacked vertically instead of horizontal | Designer did not match Nº 05 RELIABILITY `s4Row` layout pattern (horizontal, gap 14) | `layout: horizontal`, `gap: 14` |
+| D2 | Section labels Nº 05/06/07 wrong (showed 03/04/05) | SX (Nº 02) + SY (Nº 03) inserted after original design; subsequent labels not ripple-updated | Updated `tDZ9f` / `CQyS0` / `NqwhK` to correct numbers |
+
 ## Tech Debt
 
 None anticipated.

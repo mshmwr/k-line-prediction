@@ -14,6 +14,12 @@
 
 - 倒序（最新在上）
 
+## 2026-04-30 — K-067 frame 35VCj: design review deficiency fixes + narrative update
+
+**What went well:** Horizontal layout fix and section numbering correction applied in single batch_design call; screenshot verified card layout matches Nº 05 RELIABILITY pattern.
+**What went wrong:** Two deficiencies from original delivery found during PM/user review: (1) IW5ws layout was vertical instead of horizontal — failed to match RELIABILITY section pattern as required; (2) section labels Nº 05/06/07 were wrong (03/04/05) — ripple update after SX/SY section insertion was missed.
+**Next time improvement:** After inserting new sections, always scan all subsequent section label nodes and update numbers. When spec says "match X section layout," read X's exact layout properties (layout, gap) via batch_get before implementing.
+
 ## 2026-04-29 — K-067 frame 35VCj: Fix 1–4 label + card style sync
 
 **What went well:** All 4 fixes executed in 2 batch_design calls; batch_get verify confirmed exact values before and after; git status showed `M` on pen file confirming disk write without needing cmd+s.
