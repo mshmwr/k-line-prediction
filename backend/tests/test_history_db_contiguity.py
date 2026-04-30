@@ -26,9 +26,13 @@ FRESHNESS_FLOOR_DAYS = 7  # matches K-048 auto-scraper SLA
 
 def _load_dates_ascending() -> list[date]:
     """
-    Read on-disk CSV, skip the URL line + header line, parse row[1] (Date column)
-    of every data row with datetime.strptime(row[1], "%Y-%m-%d").date().
-    Return a list sorted ascending (input file is descending; sort here, do not reverse,
+    Read on-disk CSV, detect format, parse the date column.
+
+    Two formats supported (AC-048-P2-08):
+    - CryptoDataDownload: rows[0] starts with 'http'; data starts at rows[2]; date in col 1
+    - Simple (written by _save_history_csv): rows[0] is header 'date,...'; data at rows[1]; date in col 0
+
+    Return a list sorted ascending (input file may be descending; sort here, do not reverse,
     so a future re-ordering of the file is detected by the strict-monotonic assertion).
     """
     assert HISTORY_DB_PATH.exists(), (
@@ -39,12 +43,16 @@ def _load_dates_ascending() -> list[date]:
     with open(HISTORY_DB_PATH, newline="", encoding="utf-8") as f:
         reader = csv.reader(f)
         rows = list(reader)
-    # Line 1 = URL, Line 2 = header; data starts at line 3 (index 2)
-    for row in rows[2:]:
+    if rows and rows[0] and rows[0][0].strip().startswith("http"):
+        data_rows = rows[2:]   # CryptoDataDownload: skip URL line + header
+        date_col = 1
+    else:
+        data_rows = rows[1:]   # Simple format: skip header only
+        date_col = 0
+    for row in data_rows:
         if not row:
             continue
-        # Column 1 (0-indexed) is the YYYY-MM-DD Date column
-        dates.append(datetime.strptime(row[1], "%Y-%m-%d").date())
+        dates.append(datetime.strptime(row[date_col], "%Y-%m-%d").date())
     return sorted(dates)
 
 

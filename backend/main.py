@@ -11,7 +11,7 @@ from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
 from time_utils import normalize_bar_time
-from history_utils import _merge_bars, _save_history_csv
+from history_utils import _merge_bars
 from auth import router as auth_router
 
 HISTORY_DB = Path(__file__).parent.parent / "history_database"
@@ -145,20 +145,8 @@ async def upload_history_file(file: UploadFile = File(...)):
     target_path = HISTORY_1D_PATH if is_1d else HISTORY_1H_PATH
     existing = _history_1d if is_1d else _history_1h
 
-    original_count = len(existing)
-    merged = _merge_bars(existing, new_bars)
-    added_count_local = len(merged) - original_count  # noqa: F841 — retained for K-048 revert
-
-    # TODO(K-048): re-enable upload-driven DB write once auto-scraper lands.
-    # Commented-out 2026-04-24 per K-046 to prevent anonymous public writes
-    # to authoritative history DB. Restore by uncommenting the block below.
-    # if added_count_local > 0:
-    #     _save_history_csv(merged, target_path)
-    #     if is_1d:
-    #         _history_1d = merged
-    #     else:
-    #         _history_1h = merged
-
+    # DB write permanently disabled (K-046 2026-04-24): K-048 Phase 2 scraper
+    # owns all CSV writes; anonymous upload writes would undermine the authoritative DB.
     latest = existing[-1]['date'] if existing else None
     return {
         'filename': target_path.name,
