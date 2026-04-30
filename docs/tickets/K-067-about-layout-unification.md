@@ -9,7 +9,7 @@ priority: medium
 size: small
 visual-delta: yes
 content-delta: no
-design-locked: false
+design-locked: true
 qa-early-consultation: ✓ docs/retrospectives/qa.md 2026-04-29 K-067
 dependencies: [K-066]
 worktree:
@@ -82,10 +82,64 @@ Two related about-page improvements decided in K-066 design review:
 
 CardShell: `padding="md"`, `border border-muted/40`, `rounded-md`, `bg-paper`
 
+**PM Note (design spec update):** `.pen` card visual style must match the existing role cards in `Nº 04 — THE PERSONNEL` (`8mqwX` / `S3_RoleCardsSection`): `cornerRadius: 6`, `stroke: { align: "inside", fill: "#1A1814", thickness: 1 }`, body `padding: 12`. Do NOT use the Designer-added style (`cornerRadius: 12`, `stroke fill: "#1A181433"`). Designer must delete nodes H7fyn / Nv9Xw / HTyi6 / IW5ws and re-create cards matching role card pattern.
+
 ## Out of Scope
 
 - No changes to card content / copy (handled in K-066)
 - No changes to other sections on the about page
+
+## PM Notes
+
+### Requirement 7 — Homepage design frame 4CsvQ: 3 missing / stale items (added 2026-04-29)
+
+Designer must fix the following in `homepage-v2.pen` frame `4CsvQ` (`hpHero` section):
+
+| # | Item | Source (truth) | Design (current) | Action |
+|---|------|---------------|-----------------|--------|
+| 7a | Hero product screenshot | `<img src="/hero-shot.png">` between body text and CTA button (HeroSection.tsx line 18–28) | Missing — no image node in `heroCol` | Add image node after body text, before `heroBtns` |
+| 7b | Hero body copy | "Search past ETH/USDT formations that resemble any candlestick window. Inspect what came after — for learning, not for trading signals." | "Pattern-matching engine for K-line candlestick charts. Upload historical data, find similar formations, and see what happened next." (stale) | Update `PrI8l` text content |
+| 7c | Hero accent color (2nd heading line) | `text-brick` = `#B43A2C` | `fill: "#9C4A3B"` (brick-dark, wrong) | Update `2bQtY` fill to `#B43A2C` |
+
+### Requirement 8 — About page design frame 35VCj: DELIVERY METRICS cards excess height (added 2026-04-29)
+
+All 4 MetricCards in `BF4Xe` (`S2_MetricsStripSection`) have hardcoded `height: 280`, causing excess whitespace. K-064 already removed the min-height constraint in source code; design was not synced.
+
+Designer must update all 4 cards: remove `height: 280`, set to `fit_content`. Also update body frames (`yPEl5`, `seD31`, `k89s2`, `XSj54`) from `height: "fill_container"` to remove height (let content define height).
+
+| Node | Name | Fix |
+|------|------|-----|
+| `2k5ED` | m1_FeaturesShipped | `height` → remove (fit_content) |
+| `55Zha` | m2_FirstPassReview | `height` → remove (fit_content) |
+| `i7d8Y` | m3_PostMortems | `height` → remove (fit_content) |
+| `jG43T` | m4_Guardrails | `height` → remove (fit_content) |
+
+### Requirement 9 — About page design frame 35VCj: Nº 03 THE PIPELINE — remove pills row (added 2026-04-29)
+
+`omyb7` (`SY_RolePipelineSection`) contains `xu3l7` (`rpPillsRow`) — a row of pill buttons showing PM → Architect → Engineer → Reviewer → QA → Designer. The actual SVG pipeline diagram (`data-testid="role-pipeline-svg"`) already illustrates the full flow with boxes, arrows, QA→PM loop-back arc, and dotted Designer→Architect line. The pills row is redundant.
+
+Designer action: delete node `xu3l7` (`rpPillsRow`) from `omyb7`. No replacement needed — SVG covers the flow.
+
+### Requirement 10 — WHERE I STEPPED IN section narrative copy update (added 2026-04-30)
+
+User reviewed and rejected the existing `wsNarrative` text. Approved replacement via interviewer consultation (Option B — constraint system framing):
+
+| Node | File | Old | New |
+|------|------|-----|-----|
+| `R5jxX` | `homepage-v2.pen` GMEdT | "I am the single operator. I define requirements and the rules agents run by; they handle design through QA. I review at the boundary — correcting output when needed, and deciding what ships." | "My contribution was the constraint system: the rules, personas, and acceptance criteria that turned agent outputs into shippable work." |
+| `wsNarrative` | `WhereISteppedInSection.tsx` | same old text | same new text |
+
+Designer action: update `R5jxX` content in `homepage-v2.pen`.
+Engineer action: update `wsNarrative` text in `frontend/src/components/about/WhereISteppedInSection.tsx`.
+
+### Designer Deficiencies Fixed (2026-04-30)
+
+Discovered and fixed during design review session. Both were gaps from original Designer delivery:
+
+| # | Deficiency | Root cause | Fix applied |
+|---|-----------|------------|-------------|
+| D1 | `IW5ws` `layout: vertical` — cards stacked vertically instead of horizontal | Designer did not match Nº 05 RELIABILITY `s4Row` layout pattern (horizontal, gap 14) | `layout: horizontal`, `gap: 14` |
+| D2 | Section labels Nº 05/06/07 wrong (showed 03/04/05) | SX (Nº 02) + SY (Nº 03) inserted after original design; subsequent labels not ripple-updated | Updated `tDZ9f` / `CQyS0` / `NqwhK` to correct numbers |
 
 ## Tech Debt
 

@@ -9,7 +9,7 @@
   "generatedAt": "2026-04-23",
   "generatorNote": "K-040 Sitewide Typography — s4 intro 'How AI Stays Reliable' Bodoni italic 30→Mono 22 normal; 3 pillar cards with titles Bodoni 26→Mono 20; bodies Newsreader italic→Mono normal; quote text Bodoni 14→Mono 12.",
   "components": [
-    { "role": "section-label", "nodeId": "tDZ9f", "content": "Nº 03 — RELIABILITY", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
+    { "role": "section-label", "nodeId": "tDZ9f", "content": "Nº 05 — RELIABILITY", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 2 }, "color": "#1A1814" },
     { "role": "section-intro", "nodeId": "PyUKW", "content": "How AI Stays Reliable", "font": { "family": "Geist Mono", "size": 22, "weight": "700", "style": "normal", "lineHeight": 1.2 }, "color": "#1A1814", "previousFontFamily": "Bodoni Moda", "previousFontStyle": "italic", "previousFontSize": 30 },
     {
       "role": "pillar-card",

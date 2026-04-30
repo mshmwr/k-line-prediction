@@ -16,6 +16,18 @@
 
 ---
 
+## 2026-04-29 — K-067 Engineer — About page: WHERE I STEPPED IN table removal + section label rename
+
+**What went well:** Design doc was precise; all 4 file edits + CardShell data-testid addition completed without trial and error; AC-067 tests all passed on first run.
+
+**What went wrong:** `CardShell` had no `data-testid` — required an extra file edit not listed in the top-level file change list (only mentioned as a conditional precondition in design doc §6.1). node_modules symlink also needed manual setup.
+
+**Next time improvement:** When design doc mentions a conditional precondition ("Engineer must grep X first"), grep it in the read-only pass before writing any code — don't discover it mid-implementation.
+
+**Slowest step:** Confirming pre-existing test failures were not caused by my changes; running canonical server to cross-check took an extra 3 minutes.
+
+---
+
 ## 2026-04-29 — K-064 Engineer — UI polish: hero brick-dark → brick + MetricCard min-h removal
 
 **What went well:** Both changes were single-line surgical edits; tsc + full Playwright run confirmed no regressions.

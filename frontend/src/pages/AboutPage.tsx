@@ -43,19 +43,19 @@ export default function AboutPage() {
 
       {/* SX — WhereISteppedInSection */}
       <section id="where-i-stepped-in" data-section="where-i-stepped-in" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 02.5 — WHERE I STEPPED IN" />
+        <SectionLabelRow label="Nº 02 — WHERE I STEPPED IN" />
         <WhereISteppedInSection />
       </section>
 
       {/* SY — RolePipelineSection */}
       <section id="role-pipeline" data-section="role-pipeline" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 03 — THE ROLES" />
+        <SectionLabelRow label="Nº 03 — THE PIPELINE" />
         <RolePipelineSection />
       </section>
 
       {/* S3 — RoleCardsSection */}
       <section id="roles" className={`${bodyGap} ${baseContainer}`}>
-        <SectionLabelRow label="Nº 04 — THE ROLES" />
+        <SectionLabelRow label="Nº 04 — THE PERSONNEL" />
         <RoleCardsSection />
       </section>
 

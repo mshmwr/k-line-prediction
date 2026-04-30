@@ -15,9 +15,9 @@ test.describe('AC-022-SECTION-LABEL — Section labels + hairline', () => {
 
     const sectionLabels = [
       'Nº 01 — DELIVERY METRICS',
-      'Nº 02.5 — WHERE I STEPPED IN',
-      'Nº 03 — THE ROLES',
-      'Nº 04 — THE ROLES',
+      'Nº 02 — WHERE I STEPPED IN',
+      'Nº 03 — THE PIPELINE',
+      'Nº 04 — THE PERSONNEL',
       'Nº 05 — RELIABILITY',
       'Nº 06 — ANATOMY OF A TICKET',
       'Nº 07 — PROJECT ARCHITECTURE',
@@ -52,6 +52,71 @@ test.describe('AC-022-SECTION-LABEL — Section labels + hairline', () => {
       expect(overflow).not.toBe('hidden')
       await ctx.close()
     })
+  }
+})
+
+// ── AC-067-CARD-ALL ────────────────────────────────────────────────────────────
+// Given: user visits /about
+// When:  viewport is 320px, 768px, or 1280px
+// Then:  WHERE I STEPPED IN section renders exactly 3 CardShell cards
+
+test.describe('AC-067-CARD-ALL — WHERE I STEPPED IN 3 cards at all breakpoints', () => {
+  for (const width of [320, 768, 1280]) {
+    test(`${width}px — exactly 3 cards visible`, async ({ browser }) => {
+      const ctx = await browser.newContext({ viewport: { width, height: 800 } })
+      const page = await ctx.newPage()
+      await page.goto('/about')
+      const section = page.locator('[data-section="where-i-stepped-in"]')
+      const cards = section.locator('[data-testid="card-shell"]')
+      await expect(cards).toHaveCount(3)
+      for (let i = 0; i < 3; i++) {
+        await expect(cards.nth(i)).toBeVisible()
+      }
+      await ctx.close()
+    })
+  }
+})
+
+// ── AC-067-NO-TABLE ────────────────────────────────────────────────────────────
+// Given: user visits /about at 1280px viewport
+// When:  WHERE I STEPPED IN section is in view
+// Then:  no 3-column bordered table grid exists in the DOM
+
+test('AC-067-NO-TABLE — desktop table grid absent at 1280px', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+  const page = await ctx.newPage()
+  await page.goto('/about')
+  // The old table had a 3-column header grid inside where-i-table;
+  // after removal, no element with grid-cols-3 + border-ink should exist
+  // in the where-i-stepped-in section.
+  const tableGrid = page
+    .locator('[data-section="where-i-stepped-in"] .grid.grid-cols-3')
+  await expect(tableGrid).toHaveCount(0)
+  await ctx.close()
+})
+
+// ── AC-067-CARD-STRUCTURE ─────────────────────────────────────────────────────
+// Given: user visits /about
+// When:  WHERE I STEPPED IN section cards are rendered
+// Then:  each card contains FILE Nº {N} · COMPARISON + AI DID / I DECIDED / OUTCOME labels
+//        and OUTCOME value has text-brick class
+
+test('AC-067-CARD-STRUCTURE — card structure: FileNoBar + 3 labels + OUTCOME text-brick', async ({ page }) => {
+  await page.goto('/about')
+  const section = page.locator('[data-section="where-i-stepped-in"]')
+  const cards = section.locator('[data-testid="card-shell"]')
+
+  for (let i = 0; i < 3; i++) {
+    const card = cards.nth(i)
+    // FileNoBar label
+    await expect(card.getByText(`FILE Nº ${String(i + 1).padStart(2, '0')} · COMPARISON`, { exact: true })).toBeVisible()
+    // Column labels
+    await expect(card.getByText('AI DID', { exact: true })).toBeVisible()
+    await expect(card.getByText('I DECIDED', { exact: true })).toBeVisible()
+    await expect(card.getByText('OUTCOME', { exact: true })).toBeVisible()
+    // OUTCOME value carries text-brick
+    const outcomeValue = card.locator('.text-brick')
+    await expect(outcomeValue).toBeVisible()
   }
 })
 

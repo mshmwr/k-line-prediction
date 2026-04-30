@@ -14,6 +14,32 @@
 
 - 倒序（最新在上）
 
+## 2026-04-30 — K-067 frame 35VCj: design review deficiency fixes + narrative update
+
+**What went wrong:**
+1. IW5ws `layout: vertical` — PM spec said "match RELIABILITY section cards" but Designer never read S4_ReliabilityPillarsSection (UXy2o) s4Row properties via batch_get; assumed vertical stacking without verification. Root cause: skipped the verify step.
+2. Section labels Nº 05/06/07 wrong (showed 03/04/05) — SX (Nº 02) and SY (Nº 03) were new sections inserted before UXy2o/EBC1e/JFizO; Designer updated the new sections' labels but never scanned subsequent sections for ripple impact. Root cause: no end-to-end section label audit after structural insertion.
+3. Pencil in-memory changes not confirmed to disk after narrative R5jxX update — `git status` showed no `.pen` modification, meaning batch_design write was not persisted. Root cause: Pencil save timing issue in worktree context.
+
+**Next time improvement:**
+- "Match X section" → always batch_get X first, copy exact `layout`, `gap`, sizing properties before writing.
+- After any structural section insertion, run a full section label audit: batch_get all label nodes, verify numbering sequence end-to-end.
+- After each batch_design call affecting `.pen`, confirm `git status` shows `M` on the pen file before moving on; if not, re-issue the operation or investigate save path.
+
+## 2026-04-29 — K-067 frame 35VCj: Fix 1–4 label + card style sync
+
+**What went well:** All 4 fixes executed in 2 batch_design calls; batch_get verify confirmed exact values before and after; git status showed `M` on pen file confirming disk write without needing cmd+s.
+**What went wrong:** `padding: null` rejected by Pencil schema — cannot delete a property via U(), must use `padding: 0` to clear card-level padding; first batch call rolled back.
+**Next time improvement:** When matching a target style that has no padding, use `padding: 0` not `padding: null`; Pencil schema requires a valid value type, not null.
+**Slowest step:** Reading PERSONNEL card structure to confirm no card-level padding — could be preempted by noting that `batch_get` result for PERSONNEL cards shows no `padding` key at top level.
+
+## 2026-04-29 — K-067 frame 35VCj: section label renames + WHERE I STEPPED IN audit
+
+**What went well:** Cross-frame label scan confirmed both `rpLabel` and `s3label` nodes exist only in `35VCj` — no cross-frame sync needed; `GMEdT` already had card-only layout with no table node, matching shipped code.
+**What went wrong:** `export_nodes` failed on first two attempts with wrong outputDir path; needed canonical checkout path, not worktree path.
+**Next time improvement:** Always use canonical repo path for `export_nodes` outputDir, not worktree path.
+**Slowest step:** Reading GMEdT at depth 4 to confirm no hidden table node; could be pre-empted by scanning for `layout:"horizontal"` at depth 2 first.
+
 ## 2026-04-29 — K-066 Task 3: WHERE I STEPPED IN cards match TSX CardShell
 
 **What went well:** Pencil already had card-stack layout (no desktop table to delete); single batch_design pass updated all 3 cards' fill/cornerRadius/stroke/label size/value color in 20 ops; git status confirmed disk write immediately.

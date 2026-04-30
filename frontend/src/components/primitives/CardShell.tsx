@@ -18,6 +18,7 @@ export default function CardShell({
 
   return (
     <div
+      data-testid="card-shell"
       className={`rounded-xl border ${borderColorClass} bg-paper ${paddingClass} ${className}`.trim()}
     >
       {children}
