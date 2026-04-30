@@ -1,8 +1,10 @@
 import csv
+import io
 import sys
+import zipfile
 import requests
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, date, timedelta, timezone
 from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
@@ -13,11 +15,9 @@ HISTORY_DB = Path(__file__).resolve().parents[1] / "history_database"
 HISTORY_1H_PATH = HISTORY_DB / "Binance_ETHUSDT_1h.csv"
 HISTORY_1D_PATH = HISTORY_DB / "Binance_ETHUSDT_d.csv"
 
-BINANCE_KLINES_URL = "https://api.binance.com/api/v3/klines"
-SYMBOL = "ETHUSDT"
-LIMIT = 1000
-INTERVAL_MS = {"1h": 3_600_000, "1d": 86_400_000}
-BACKFILL_EPOCH_MS = int(datetime(2020, 1, 1, tzinfo=timezone.utc).timestamp() * 1000)
+# Public S3 bucket — no geo-restriction, available globally
+BINANCE_VISION_BASE = "https://data.binance.vision/data/spot/daily/klines/ETHUSDT"
+EPOCH_DATE = date(2017, 8, 17)  # Binance ETHUSDT listing date
 
 
 def _read_csv(path: Path) -> list:
@@ -47,47 +47,53 @@ def _read_csv(path: Path) -> list:
     return bars
 
 
-def _bar_from_kline(kline: list) -> dict:
-    # open_time_ms is a millisecond Unix timestamp; normalize_bar_time accepts it as string
+def _bar_from_row(row: list) -> dict:
+    dt = datetime.fromtimestamp(int(row[0]) / 1000, tz=timezone.utc)
     return {
-        "date": normalize_bar_time(str(kline[0])),
-        "open": float(kline[1]),
-        "high": float(kline[2]),
-        "low": float(kline[3]),
-        "close": float(kline[4]),
+        "date": dt.strftime("%Y-%m-%d %H:%M"),
+        "open": float(row[1]),
+        "high": float(row[2]),
+        "low": float(row[3]),
+        "close": float(row[4]),
     }
 
 
-def _start_time_ms(path: Path, interval: str) -> int:
+def _last_date(path: Path) -> Optional[date]:
     if not path.exists():
-        return BACKFILL_EPOCH_MS
+        return None
     bars = _read_csv(path)
     if not bars:
-        return BACKFILL_EPOCH_MS
-    try:
-        last_dt = datetime.strptime(bars[-1]["date"][:16], "%Y-%m-%d %H:%M")
-        return int(last_dt.replace(tzinfo=timezone.utc).timestamp() * 1000) + INTERVAL_MS[interval]
-    except ValueError:
-        return BACKFILL_EPOCH_MS
+        return None
+    return datetime.strptime(bars[-1]["date"][:10], "%Y-%m-%d").date()
 
 
-def fetch_new_bars(interval: str, path: Path, _now_ms: Optional[int] = None) -> list:
-    now_ms = _now_ms if _now_ms is not None else int(datetime.now(tz=timezone.utc).timestamp() * 1000)
-    cursor = _start_time_ms(path, interval)
+def _dates_to_fetch(last: Optional[date]) -> list:
+    """Return list of dates from (last+1) to yesterday UTC. Empty if already up-to-date."""
+    yesterday = date.today() - timedelta(days=1)
+    start = (last + timedelta(days=1)) if last else EPOCH_DATE
+    if start > yesterday:
+        return []
+    return [start + timedelta(days=i) for i in range((yesterday - start).days + 1)]
+
+
+def fetch_bars_for_date(interval: str, target_date: date) -> list:
+    """Download one daily zip and return all bars inside. Returns [] on 404 (date not yet available)."""
+    date_str = target_date.strftime("%Y-%m-%d")
+    url = f"{BINANCE_VISION_BASE}/{interval}/ETHUSDT-{interval}-{date_str}.zip"
+    resp = requests.get(url, timeout=30)
+    if resp.status_code == 404:
+        return []
+    resp.raise_for_status()
+    with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+        with zf.open(zf.namelist()[0]) as f:
+            reader = csv.reader(io.TextIOWrapper(f, encoding="utf-8"))
+            return [_bar_from_row(row) for row in reader if len(row) >= 5]
+
+
+def fetch_new_bars(interval: str, path: Path) -> list:
     all_bars: list = []
-    while True:
-        resp = requests.get(
-            BINANCE_KLINES_URL,
-            params={"symbol": SYMBOL, "interval": interval, "startTime": cursor, "limit": LIMIT},
-            timeout=30,
-        )
-        resp.raise_for_status()
-        klines = resp.json()
-        closed = [k for k in klines if int(k[6]) < now_ms]
-        all_bars.extend(_bar_from_kline(k) for k in closed)
-        if len(closed) < LIMIT:
-            break
-        cursor += LIMIT * INTERVAL_MS[interval]
+    for d in _dates_to_fetch(_last_date(path)):
+        all_bars.extend(fetch_bars_for_date(interval, d))
     return all_bars
 
 
