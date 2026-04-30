@@ -24,7 +24,7 @@
       "└── ssot/                 # Project SSOT (system-overview, PRD, conventions, workflow)"
     ]
   },
-  "lastUpdated": "2026-04-30T14:16:32+08:00",
+  "lastUpdated": "2026-04-30T18:58:27+08:00",
   "metrics": {
     "acCoverage": {
       "covered": 64,
@@ -34,15 +34,15 @@
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 45
+      "value": 46
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
-      "value": 193
+      "value": 199
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
-      "value": 34
+      "value": 35
     }
   },
   "processRules": [
