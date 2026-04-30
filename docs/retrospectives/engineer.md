@@ -16,6 +16,12 @@
 
 ---
 
+## 2026-04-30 — ops-dockerfile — Dockerfile Stage 1 missing content/ scripts/ docs/tickets/
+
+**What went well:** Root cause isolated quickly (K-052 prebuild SSOT generator step added after last Cloud Build); fix verified via Cloud Build no-cache run before deploy.
+**What went wrong:** Dockerfile was not tested after K-052 added `node ../scripts/build-ticket-derived-ssot.mjs` to prebuild — the script's file dependencies (scripts/, content/, docs/tickets/) were not added to Docker Stage 1 COPY. The pre-merge docker dry-run gate couldn't catch it because Docker daemon was unavailable and no Cloud Build dry-run was substituted.
+**Next time improvement:** Dockerfile changes from other tickets (K-052, K-058, etc.) that add prebuild dependencies must trigger a Dockerfile review in the same session. When local Docker is unavailable, submit `gcloud builds submit --no-cache` as the dry-run gate before merging any prebuild-touching PR.
+
 ## 2026-04-30 — K-048 Phase 1 — freshness_hours API + stale indicator UI
 
 **What went well:** All 3 verification gates (pytest 17/17, tsc exit 0, Playwright 10/10) passed on first run with no iteration; worktree node_modules symlink applied cleanly per persona rule.
