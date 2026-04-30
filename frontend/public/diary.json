@@ -1,6 +1,12 @@
 [
   {
     "ticketId": "K-048",
+    "title": "Auto-scraper complete — Binance Vision S3 + Cloud Run deploy verified end-to-end",
+    "date": "2026-04-30",
+    "text": "Switched data source from geo-blocked api.binance.com to data.binance.vision (AWS S3, no geo-restriction); fixed µs timestamp parsing and numpy import isolation; committed frontend/.env.production so Cloud Build can read VITE_GA_MEASUREMENT_ID. Workflow ran end-to-end: scraped 504 1H bars, committed, deployed Cloud Run revision f093027."
+  },
+  {
+    "ticketId": "K-048",
     "title": "Auto-scraper Phase 2 — GitHub Actions daily cron + Binance klines fetch",
     "date": "2026-04-30",
     "text": "Implemented scrape_history.py (Binance klines API, pagination loop, closed-only filter, idempotent exit) and .github/workflows/scrape-history.yml (cron 03:00 UTC, commit [skip ci], Cloud Run deploy). Three unit tests cover closed-only/pagination/idempotent ACs. GH_PAT + GCP_SA_KEY secrets required in repo settings before first cron run."
