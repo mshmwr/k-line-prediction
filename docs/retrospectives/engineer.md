@@ -16,6 +16,18 @@
 
 ---
 
+## 2026-04-30 — K-048 Phase 2 (Part 2) — Binance Vision + Cloud Run deploy fix
+
+**What went well:** All three runtime bugs (numpy import chain, geo-block 451, µs timestamps) diagnosed directly from error messages with no guessing; `normalize_bar_time` already handled µs — zero new code for timestamp fix.
+
+**What went wrong:** Three separate fix PRs (#79 #80 #81) for preventable bugs: (1) scraper imported `load_csv_history` from `mock_data.py` which pulls numpy at top level — stdlib-only CI script must never import from test/mock helpers; (2) `api.binance.com` returns HTTP 451 from US GitHub Actions runners (Binance geo-block, known behavior); (3) Binance Vision CSVs use 16-digit µs timestamps — no header documenting this, runtime crash only.
+
+**Next time improvement:** Before writing a CI scraper with minimal deps: grep transitively imported modules for non-stdlib heavy deps. Verify data source is geo-unrestricted for US runners. Check timestamp digit count when parsing third-party financial CSVs (16 = µs, 13 = ms).
+
+**Slowest step:** Diagnosing why `git add frontend/.env.production` returned no output — file was already tracked from a previous commit; `git add` on a clean tracked file is a silent no-op; check `git ls-files` first.
+
+---
+
 ## 2026-04-30 — K-048 Phase 2 — GitHub Actions scraper + Binance fetch
 
 **What went well:** Design doc from Phase 1 architect work was complete and accurate; `_now_ms` optional param kept tests simple without mocking datetime; 83 tests green on second attempt.
