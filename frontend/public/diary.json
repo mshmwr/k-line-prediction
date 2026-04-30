@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-048",
+    "title": "Auto-scraper foundation — history DB freshness API + stale indicator UI",
+    "date": "2026-04-30",
+    "text": "Added freshness_hours to /api/history-info response and a stale indicator (≥48h) to the History Reference UI section; extracted history_utils.py for Phase 2 scraper use."
+  },
+  {
     "ticketId": "K-068",
     "title": "Designer JSON SSOT — responsive + tailwindHint schema enforcement",
     "date": "2026-04-30",
