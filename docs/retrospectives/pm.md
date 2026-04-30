@@ -4,6 +4,14 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-30 — K-067 PM: ticket close + deploy
+
+No observation — Phase A commit + merge + Firebase deploy all clean. Pre-existing Playwright failures (T14, AC-022) and Vitest failure (AC-024) confirmed on main branch before commit; no K-067 regressions.
+
+**Slowest step:** Running tests against canonical main to cross-verify pre-existing failures (needed two separate playwright runs + one vitest run).
+
+---
+
 ## 2026-04-30 — K-067 PM: design review session — multiple requirement and process gaps
 
 **What went wrong:**

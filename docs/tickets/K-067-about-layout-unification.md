@@ -1,9 +1,10 @@
 ---
 id: K-067
 title: About page layout — WHERE I STEPPED IN card unification + section label rename
-status: open
-phase-1-status: open
+status: closed
+phase-1-status: closed
 created: 2026-04-29
+closed: 2026-04-30
 type: frontend
 priority: medium
 size: small
@@ -12,10 +13,10 @@ content-delta: no
 design-locked: true
 qa-early-consultation: ✓ docs/retrospectives/qa.md 2026-04-29 K-067
 dependencies: [K-066]
-worktree:
-branch:
-base-commit:
-closed-commit:
+worktree: .claude/worktrees/K-067-about-layout-unification
+branch: K-067-about-layout-unification
+base-commit: 6dae8c2
+closed-commit: 2e395d7
 ---
 
 ## Summary
