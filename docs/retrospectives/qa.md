@@ -14,6 +14,14 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-04-30 — K-048 Phase 1 Sign-off
+
+**What went well:** All 17 backend unit tests and 10 E2E tests (T1–T10) passed in first run; AC coverage was complete and testable.
+**What went wrong:** 2 pre-existing failures (`scroll-to-top` AC-K053-04 + `shared-components` Footer snapshot `/about` + `/diary`) not in known-reds manifest — exposed missing manifest maintenance after K-059/K-067 landed.
+**Next time improvement:** After any ticket changing page layout or footer, QA must regenerate snapshots OR add a known-red entry same ticket, not defer silently.
+**Slowest step:** Canonical re-run to distinguish hydration drift from real regression — resolved in one step but required separate `cd canonical` run.
+
+
 ## 2026-04-30 — K-048 QA Early Consultation (PM proxy)
 
 **Status:** Complete — 9 challenges raised; 8 resolved to AC or setup gate; 1 zero-impact (C9 Sacred).
