@@ -37,7 +37,7 @@ export default function WhereISteppedInSection() {
         data-testid="where-i-narrative"
         className="text-[14px] text-ink leading-[1.6] mb-6"
       >
-        I am the single operator. I define requirements and the rules agents run by; they handle design through QA. I review at the boundary — correcting output when needed, and deciding what ships.
+        My contribution was the constraint system: the rules, personas, and acceptance criteria that turned agent outputs into shippable work.
       </p>
 
       <div data-testid="where-i-table" className="mb-4">

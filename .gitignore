@@ -34,3 +34,6 @@ docs/reports/*.html
 
 # K-017 build-time copy of ai-collab-protocols.md (source of truth is docs/ai-collab-protocols.md)
 frontend/public/docs/
+
+# Pencil MCP generated temp images (not design artefacts)
+frontend/design/images/
