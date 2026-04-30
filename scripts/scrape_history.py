@@ -1,3 +1,4 @@
+import csv
 import sys
 import requests
 from pathlib import Path
@@ -6,7 +7,6 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 from history_utils import _merge_bars, _save_history_csv
-from mock_data import load_csv_history
 from time_utils import normalize_bar_time
 
 HISTORY_DB = Path(__file__).resolve().parents[1] / "history_database"
@@ -18,6 +18,33 @@ SYMBOL = "ETHUSDT"
 LIMIT = 1000
 INTERVAL_MS = {"1h": 3_600_000, "1d": 86_400_000}
 BACKFILL_EPOCH_MS = int(datetime(2020, 1, 1, tzinfo=timezone.utc).timestamp() * 1000)
+
+
+def _read_csv(path: Path) -> list:
+    """Read history CSV using stdlib only — no numpy dependency."""
+    with open(path, newline="", encoding="utf-8") as f:
+        lines = [l for l in f if l.strip()]
+    if not lines:
+        return []
+    is_cdd = lines[0].strip().startswith("http")
+    header_idx = 1 if is_cdd else 0
+    reader = csv.DictReader(lines[header_idx:])
+    headers = {k.strip().lower(): k for k in (reader.fieldnames or [])}
+    bars = []
+    for row in reader:
+        try:
+            date_key = headers.get("date") or headers.get("unix") or next(iter(headers.values()))
+            raw_date = row[date_key].strip() if date_key else ""
+            bars.append({
+                "date": normalize_bar_time(raw_date),
+                "open": float(row[headers["open"]]),
+                "high": float(row[headers["high"]]),
+                "low": float(row[headers["low"]]),
+                "close": float(row[headers["close"]]),
+            })
+        except (KeyError, ValueError):
+            continue
+    return bars
 
 
 def _bar_from_kline(kline: list) -> dict:
@@ -34,7 +61,7 @@ def _bar_from_kline(kline: list) -> dict:
 def _start_time_ms(path: Path, interval: str) -> int:
     if not path.exists():
         return BACKFILL_EPOCH_MS
-    bars = load_csv_history(path)
+    bars = _read_csv(path)
     if not bars:
         return BACKFILL_EPOCH_MS
     try:
@@ -65,7 +92,7 @@ def fetch_new_bars(interval: str, path: Path, _now_ms: Optional[int] = None) -> 
 
 
 def scrape(interval: str, path: Path) -> int:
-    existing = load_csv_history(path) if path.exists() else []
+    existing = _read_csv(path) if path.exists() else []
     new_bars = fetch_new_bars(interval, path)
     if not new_bars:
         return 0
