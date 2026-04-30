@@ -16,9 +16,15 @@
 
 ## 2026-04-30 — K-067 frame 35VCj: design review deficiency fixes + narrative update
 
-**What went well:** Horizontal layout fix and section numbering correction applied in single batch_design call; screenshot verified card layout matches Nº 05 RELIABILITY pattern.
-**What went wrong:** Two deficiencies from original delivery found during PM/user review: (1) IW5ws layout was vertical instead of horizontal — failed to match RELIABILITY section pattern as required; (2) section labels Nº 05/06/07 were wrong (03/04/05) — ripple update after SX/SY section insertion was missed.
-**Next time improvement:** After inserting new sections, always scan all subsequent section label nodes and update numbers. When spec says "match X section layout," read X's exact layout properties (layout, gap) via batch_get before implementing.
+**What went wrong:**
+1. IW5ws `layout: vertical` — PM spec said "match RELIABILITY section cards" but Designer never read S4_ReliabilityPillarsSection (UXy2o) s4Row properties via batch_get; assumed vertical stacking without verification. Root cause: skipped the verify step.
+2. Section labels Nº 05/06/07 wrong (showed 03/04/05) — SX (Nº 02) and SY (Nº 03) were new sections inserted before UXy2o/EBC1e/JFizO; Designer updated the new sections' labels but never scanned subsequent sections for ripple impact. Root cause: no end-to-end section label audit after structural insertion.
+3. Pencil in-memory changes not confirmed to disk after narrative R5jxX update — `git status` showed no `.pen` modification, meaning batch_design write was not persisted. Root cause: Pencil save timing issue in worktree context.
+
+**Next time improvement:**
+- "Match X section" → always batch_get X first, copy exact `layout`, `gap`, sizing properties before writing.
+- After any structural section insertion, run a full section label audit: batch_get all label nodes, verify numbering sequence end-to-end.
+- After each batch_design call affecting `.pen`, confirm `git status` shows `M` on the pen file before moving on; if not, re-issue the operation or investigate save path.
 
 ## 2026-04-29 — K-067 frame 35VCj: Fix 1–4 label + card style sync
 

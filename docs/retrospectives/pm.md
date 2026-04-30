@@ -4,6 +4,23 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-04-30 — K-067 PM: design review session — multiple requirement and process gaps
+
+**What went wrong:**
+1. Card layout spec was underspecified — "match RELIABILITY section cards" was written but never translated to explicit properties (`layout: horizontal`, `gap: 14`); Designer defaulted to vertical, and the error was only caught during user review.
+2. Discussion outcomes not recorded in ticket proactively — after user approved narrative Option B and identified horizontal layout + numbering gaps, PM did not update ticket until user explicitly asked "PM這個討論你有加到ticket嗎？"
+3. Section label ripple update not included in design requirements — when SX (Nº 02) and SY (Nº 03) were inserted, PM wrote new section requirements but did not specify "update UXy2o/EBC1e/JFizO labels from Nº 03/04/05 → Nº 05/06/07."
+4. Approved narrative copy not forwarded to Designer or Engineer — user selected Option B in session; PM recorded it to memory but did not update ticket or instruct implementation until prompted.
+
+**Next time improvement:**
+- "Match X section" in design requirements must always be followed by explicit property enumeration (`layout`, `gap`, card dimensions) verified via batch_get — never assume Designer will infer the right values.
+- Any user decision made in conversation (copy change, design direction) must be written to ticket in the same response before continuing discussion.
+- When inserting new ordered sections, always add explicit ripple-update instruction listing every affected label node and its new number.
+
+**Codified:** No — lessons are context-specific; adding to this retro is sufficient.
+
+---
+
 ## 2026-04-29 — K-065 Close (Claude Code update v2.1.123, all ACs pass)
 
 No observation — ops ticket; version already at 2.1.123 (exceeds 2.1.121 target) when session started; all three ACs (VERSION/SESSION/VERIFY) passed on first check.
