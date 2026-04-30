@@ -42,7 +42,7 @@ export default function WhereISteppedInSection() {
 
       <div data-testid="where-i-table" className="mb-4">
         {/* Cards — all breakpoints */}
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px]">
           {ROWS.map((row, i) => (
             <CardShell key={i} padding="md">
               <FileNoBar fileNo={i + 1} label="COMPARISON" />
