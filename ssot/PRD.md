@@ -145,6 +145,19 @@ Find historical segments that are similar to the user's current K-line structure
 
 **Note:** all timestamp formats are normalized to UTC `YYYY-MM-DD HH:MM` by `time_utils.normalize_bar_time` before storage. The file is only written to disk when `added_count > 0`。
 
+#### GET `/api/history-info`
+
+**Response** — object with `1H` and `1D` keys, each a `HistoryEntry`:
+
+- `filename`: CSV filename on disk, or `"mock data (no file)"` when running without a CSV
+- `latest`: most recent bar's date string in UTC+0 (`YYYY-MM-DD HH:MM`), or `null` if history is empty
+- `bar_count`: total bars currently loaded in memory
+- `freshness_hours`: integer — floor of hours elapsed since `latest` bar vs current UTC time; `null` when running on mock data (CSV not on disk at startup) — added K-048
+
+**Purpose:** read-only status endpoint used by the History Reference UI to display DB freshness. Called once on component mount.
+
+**Note (K-048):** `freshness_hours >= 48` means the DB is stale enough for the frontend to show a stale warning indicator.
+
 ### Timezone Convention
 
 All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` format (16 characters). The display layer is responsible for converting to **UTC+8** for user-facing text。
