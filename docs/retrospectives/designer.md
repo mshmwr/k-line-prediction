@@ -14,6 +14,13 @@
 
 - 倒序（最新在上）
 
+## 2026-04-30 — K-067 frame GMEdT: wsBBlock text sync + JSON spec rebuild
+
+**What went well:** Staleness audit found only one delta (wsBBlock `44`→`45`); `.pen` buffer already had wsLabel + wsNarrative + all card field content updated from a prior session.
+**What went wrong:** `git status homepage-v2.pen` showed clean after `batch_design` — buffer not flushed to disk; requires cmd+s before `.pen` changes are persisted.
+**Next time improvement:** After each `batch_design`, immediately run `git status <pen-file>`; if clean, halt and request cmd+s before JSON export. Never export JSON spec implying `.pen` is saved until disk write confirmed.
+**Slowest step:** Deep `batch_get` of all 9 field nodes — spot-check first card only then infer if content matches spec verbatim to save reads.
+
 ## 2026-04-30 — K-067 frame 35VCj: design review deficiency fixes + narrative update
 
 **What went wrong:**
