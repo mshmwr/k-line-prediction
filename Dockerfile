@@ -6,7 +6,10 @@ RUN npm ci && npm install --no-save @rollup/rollup-linux-x64-musl@4.60.1
 COPY frontend/ .
 COPY docs/ai-collab-protocols.md /docs/ai-collab-protocols.md
 COPY backend/tests/fixtures/stats_contract_cases.json /backend/tests/fixtures/stats_contract_cases.json
-COPY content/roles.json /content/roles.json
+COPY content/ /content/
+COPY scripts/ /scripts/
+COPY docs/tickets/ /docs/tickets/
+COPY README.md /README.md
 RUN npm run build
 
 # Stage 2: Python backend + serve static
