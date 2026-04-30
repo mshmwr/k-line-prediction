@@ -124,7 +124,7 @@ function computeStatsByDay(projectedBars: Array<{ time: string; high: number; lo
 }
 
 export default function AppPage() {
-  type HistoryEntry = { filename: string; latest: string | null; bar_count: number }
+  type HistoryEntry = { filename: string; latest: string | null; bar_count: number; freshness_hours: number | null }
   type HistoryInfo = { '1H': HistoryEntry; '1D': HistoryEntry }
 
   const [ohlcData, setOhlcData] = useState<OHLCRow[]>(() => emptyRows(48))
@@ -444,11 +444,31 @@ export default function AppPage() {
 
           <div data-testid="history-reference-section" className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
             <div className="text-xs uppercase tracking-wider text-gray-400">History Reference</div>
-            <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">
-              {historyInfo
-                ? `${historyInfo['1H'].filename} (latest: ${historyInfo['1H'].latest ?? 'N/A'} UTC+0)`
-                : 'Loading...'}
-            </div>
+            {historyInfo ? (
+              <>
+                {(['1H', '1D'] as const).map(tf => {
+                  const entry = historyInfo[tf]
+                  const fh = entry.freshness_hours
+                  const freshnessStr = fh != null
+                    ? ` · ${Math.floor(fh / 24)}d ${fh % 24}h ago`
+                    : ''
+                  const isStale = fh != null && fh >= 48
+                  return (
+                    <div
+                      key={tf}
+                      className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono"
+                      {...(isStale ? { 'data-testid': 'history-freshness-stale' } : {})}
+                    >
+                      {`${entry.filename} (latest: ${entry.latest ?? 'N/A'} UTC+0${freshnessStr})`}
+                    </div>
+                  )
+                })}
+              </>
+            ) : (
+              <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">
+                Loading...
+              </div>
+            )}
           </div>
 
           <OHLCEditor rows={ohlcData} timeframe={'1H'} onChange={handleCellChange} />

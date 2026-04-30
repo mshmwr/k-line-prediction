@@ -201,3 +201,12 @@ Existing no-gap, monotonic-date, and ≥129-bar-floor assertions apply to both f
 
 - 2026-04-24 — K-ID stub created alongside K-046 forward pointer; not scheduled
 - 2026-04-30 — Promoted backlog → open; full PRD + BQ rulings + QA Early Consultation + AC authored by PM; next gate = Architect
+
+---
+
+## Retrospective
+
+### QA
+
+**Regression tests that were insufficient:** `scroll-to-top` AC-K053-04 and `shared-components.spec.ts` Footer snapshot (`/about`, `/diary`) — both pre-existing reds not in known-reds manifest, introduced by K-059/K-067 layout changes without manifest update.
+**Next time improvement:** Layout-touching tickets must regenerate snapshots or add known-red entries in the same PR; silent deferral is not acceptable.

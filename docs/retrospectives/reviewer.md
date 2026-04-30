@@ -1,3 +1,15 @@
+## 2026-04-30 — K-048 Phase 1 (freshness_hours API + stale indicator; Step 2 depth review; CODE-PASS, COMMIT-BLOCKED)
+
+**What went well:** All 3 ACs trace directly to implementation; date-slice logic ([:16] for 1H, [:10] for 1D) matches design doc §2 exactly; loose `!= null` guard correctly handles both `null` and `undefined`; K-009 Sacred clause (ma_history=_history_1d) and K-046 write-block both intact.
+
+**What went wrong:** `frontend/public/sitemap.xml` (lastmod date bump) was left unstaged in the worktree — unrelated to K-048 scope but falls inside `frontend/public/**` commit-block scope per K-037 gate, making the branch not merge-ready.
+
+**Next time improvement:** Engineer should run `git status --short` and restore/stage stray dev-server side-effects before handing off to Reviewer; the sitemap.xml date bump is a known pre-build side-effect that recurs across tickets.
+
+**Slowest step:** Verifying the monkeypatch-ordering in test_history_info_freshness_null_when_mock_data took longest — tracing Python module-reload semantics in conftest.py make_client fixture confirmed the test is valid.
+
+---
+
 ## 2026-04-29 — K-061 (Fix 24 E2E backend-dependent failures; Step 2 depth review; CODE-PASS, COMMIT-BLOCKED)
 
 **What went well:** ga-consent.spec.ts sacred-check verified — addInitScript pattern is established there (per-test body, before goto); fix in 3 new specs follows the identical pattern with no conflict. AC-061-NO-FALSE-PASS confirmed: only addInitScript + comment lines added, zero assertion changes. AC-061-NO-SHARED-BEFOREEACH confirmed: no beforeEach block exists in ma99-chart.spec.ts.

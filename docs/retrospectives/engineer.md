@@ -16,6 +16,15 @@
 
 ---
 
+## 2026-04-30 — K-048 Phase 1 — freshness_hours API + stale indicator UI
+
+**What went well:** All 3 verification gates (pytest 17/17, tsc exit 0, Playwright 10/10) passed on first run with no iteration; worktree node_modules symlink applied cleanly per persona rule.
+**What went wrong:** Worktree lacked node_modules — expected per persona pre-flight; caught immediately and resolved with symlink before tsc gate.
+**Next time improvement:** Run worktree node_modules check as first action before any frontend gate to avoid surprises mid-flow.
+**Slowest step:** Reading all source files before implementation; unavoidable given cross-layer change scope.
+
+---
+
 ## 2026-04-29 — K-067 Engineer — About page: WHERE I STEPPED IN table removal + section label rename
 
 **What went well:** Design doc was precise; all 4 file edits + CardShell data-testid addition completed without trial and error; AC-067 tests all passed on first run.

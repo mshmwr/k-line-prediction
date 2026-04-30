@@ -18,6 +18,30 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-04-30 — K-048 PM-correction round
+
+**What went well:** Both PM rulings (region confirmed, upload-write item removed) were precise enough to apply as direct edits with no ambiguity; all six affected locations in the design doc updated in one pass.
+
+**What went wrong:** Upload write path item (d) in `backend/main.py` row was included in the initial design despite the ticket not covering re-enabling it — design doc drifted from ticket scope on that point.
+
+**Next-time improvement:** Before listing `backend/main.py` edit items, grep the ticket's out-of-scope / explicitly-disabled section to confirm no carry-over from a prior ticket's TODO comment.
+
+**Slowest step:** Locating the `Change isolation` line for the refactorability checklist required a grep because the exact wording differed from memory; keep checklist language generic to avoid precision-match failures.
+
+---
+
+## 2026-04-30 — K-048 Architect
+
+**What went well:** Cloud Run region discrepancy (`us-central1` in ticket vs `asia-east1` in deployed revisions) caught before writing the workflow YAML by cross-reading K-049 and K-046 deploy records.
+
+**What went wrong:** Initial scraper option draft used direct `main.py` import without first checking module-level side-effects; pivoted to `history_utils.py` extraction after confirming FastAPI app construction runs at import time.
+
+**Next-time improvement:** When a new script targets an existing FastAPI module, grep module-level statements for side-effects before selecting the import strategy.
+
+**Slowest step:** Region discrepancy discovery required reading two deploy-record files; pre-scanning `grep "region\|gcloud run" docs/tickets/` before writing workflow YAML would surface this faster.
+
+---
+
 ## 2026-04-29 — K-059 Phase 1 Architect
 
 **What went well:** Sacred T-L1 text dependency identified early by reading `LoadingSpinner.tsx` immediately after `DiaryLoading.tsx` — cross-referenced the inner `<p>Loading diary…</p>` against T-L1 `toHaveText(/Loading diary/)` before writing the rebrand spec.

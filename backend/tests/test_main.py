@@ -19,6 +19,28 @@ def test_history_info_returns_1h_and_1d(make_client):
     assert "bar_count" in body["1D"]
     assert body["1H"]["bar_count"] > 0
     assert body["1D"]["bar_count"] > 0
+    # AC-048-P1-01: freshness_hours present in both entries; value is int or None
+    assert "freshness_hours" in body["1H"]
+    assert "freshness_hours" in body["1D"]
+    assert isinstance(body["1H"]["freshness_hours"], (int, type(None)))
+    assert isinstance(body["1D"]["freshness_hours"], (int, type(None)))
+
+
+# ---------------------------------------------------------------------------
+# AC-048-P1-03: freshness_hours is None when CSV not on disk (mock data path)
+# ---------------------------------------------------------------------------
+
+def test_history_info_freshness_null_when_mock_data(make_client, monkeypatch, tmp_path):
+    """AC-048-P1-03: when CSV path does not exist, freshness_hours must be None."""
+    client = make_client()
+    monkeypatch.setattr("main.HISTORY_1H_PATH", tmp_path / "nonexistent_1h.csv")
+    monkeypatch.setattr("main.HISTORY_1D_PATH", tmp_path / "nonexistent_1d.csv")
+
+    response = client.get("/api/history-info")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["1H"]["freshness_hours"] is None
+    assert body["1D"]["freshness_hours"] is None
 
 
 # ---------------------------------------------------------------------------

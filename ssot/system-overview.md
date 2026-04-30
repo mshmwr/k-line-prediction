@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-29 (K-062)
+updated: 2026-04-30 (K-048)
 ---
 
 ## Summary
@@ -684,6 +684,9 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 ---
 
 ## Changelog
+
+**2026-04-30 — K-048 — Architecture design: daily Binance scraper + `freshness_hours` field on `/api/history-info` + History Reference stale indicator.**
+Design doc: [docs/designs/K-048-scraper-design.md](../docs/designs/K-048-scraper-design.md)
 
 **2026-04-29 — K-062 — Add FOLDER-STRUCTURE marker block to README; generator emits tree from content/site-content.json.**
 Design doc: [docs/designs/K-062-readme-folder-structure.md](../docs/designs/K-062-readme-folder-structure.md)

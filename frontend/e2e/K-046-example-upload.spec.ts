@@ -170,4 +170,41 @@ test.describe('K-046 Phase 2 — example download + UI restructure', () => {
     expect(g).toBeGreaterThanOrEqual(163)
     expect(b).toBeGreaterThanOrEqual(175)
   })
+
+  test('T9 AC-048-P1-02 freshness_hours 528 renders "· 22d 0h ago"', async ({ page }) => {
+    await mockApis(page)
+    await page.route('/api/history-info', route =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          '1H': { filename: 'Binance_ETHUSDT_1h.csv', latest: '2026-04-08 23:00', bar_count: 73990, freshness_hours: 528 },
+          '1D': { filename: 'Binance_ETHUSDT_1d.csv', latest: '2026-04-08', bar_count: 3080, freshness_hours: 5 },
+        }),
+      }),
+    )
+    await page.goto('/app')
+
+    const section = page.locator('[data-testid="history-reference-section"]')
+    await expect(section.getByText(/22d 0h ago/)).toBeVisible()
+  })
+
+  test('T10 AC-048-P1-02 freshness_hours 72 renders stale indicator', async ({ page }) => {
+    await mockApis(page)
+    await page.route('/api/history-info', route =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          '1H': { filename: 'Binance_ETHUSDT_1h.csv', latest: '2026-04-27 03:00', bar_count: 73990, freshness_hours: 72 },
+          '1D': { filename: 'Binance_ETHUSDT_1d.csv', latest: '2026-04-27', bar_count: 3080, freshness_hours: 3 },
+        }),
+      }),
+    )
+    await page.goto('/app')
+
+    const staleDiv = page.locator('[data-testid="history-freshness-stale"]')
+    await expect(staleDiv).toHaveCount(1)
+    await expect(staleDiv).toBeVisible()
+  })
 })
