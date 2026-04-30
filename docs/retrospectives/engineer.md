@@ -16,6 +16,13 @@
 
 ---
 
+## 2026-04-30 — K-048 Phase 2 — GitHub Actions scraper + Binance fetch
+
+**What went well:** Design doc from Phase 1 architect work was complete and accurate; `_now_ms` optional param kept tests simple without mocking datetime; 83 tests green on second attempt.
+**What went wrong:** Used `int | None` union type hint (Python 3.10+ syntax) in a Python 3.9 environment — first test run failed at import time with `TypeError: unsupported operand type(s) for |`.
+**Next time improvement:** Check runtime Python version before using PEP 604 union syntax; default to `Optional[X]` from `typing` when repo targets Python <3.10.
+
+
 ## 2026-04-30 — ops-dockerfile — Dockerfile Stage 1 missing content/ scripts/ docs/tickets/
 
 **What went well:** Root cause isolated quickly (K-052 prebuild SSOT generator step added after last Cloud Build); fix verified via Cloud Build no-cache run before deploy.
