@@ -1,7 +1,7 @@
 ---
 id: K-048
 title: Auto scraper for authoritative K-line history DB
-status: open
+status: closed
 created: 2026-04-24
 updated: 2026-04-30
 type: feature
@@ -14,6 +14,7 @@ qa-early-consultation: "docs/retrospectives/qa.md 2026-04-30 K-048 (PM proxy tie
 dependencies: [K-046]
 base-commit: "f70dc6a"
 phase1-closed-commit: "5074caf"
+phase2-closed-commit: "fd2a8db"
 sacred-clauses: []
 ---
 
