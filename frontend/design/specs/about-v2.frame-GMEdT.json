@@ -16,79 +16,266 @@
       "type": "frame",
       "layout": "horizontal",
       "alignItems": "center",
-      "gap": 16
-    },
-    "wsLabel": {
-      "id": "km9nu",
-      "content": "Nº 02.5 — WHERE I STEPPED IN",
-      "fontFamily": "Geist Mono",
-      "fontSize": 13,
-      "fontWeight": "700",
-      "letterSpacing": 2,
-      "fill": "#1A1814"
-    },
-    "wsLine": {
-      "id": "XQgRF",
-      "type": "rectangle",
-      "height": 1,
-      "fill": "#8B7A6B"
+      "gap": 16,
+      "children": {
+        "wsLabel": {
+          "id": "km9nu",
+          "type": "text",
+          "content": "Nº 02 — WHERE I STEPPED IN",
+          "fontFamily": "Geist Mono",
+          "fontSize": 13,
+          "fontWeight": "700",
+          "letterSpacing": 2,
+          "fill": "#1A1814"
+        },
+        "wsLine": {
+          "id": "XQgRF",
+          "type": "rectangle",
+          "height": 1,
+          "width": "fill_container",
+          "fill": "#8B7A6B"
+        }
+      }
     },
     "wsNarrative": {
       "id": "R5jxX",
       "type": "text",
-      "content": "I am the single operator. Every ticket is filed by me, reviewed by me, and merged by me. The agents execute; I decide.",
+      "content": "My contribution was the constraint system: the rules, personas, and acceptance criteria that turned agent outputs into shippable work.",
+      "fontFamily": "Geist Mono",
       "fontSize": 14,
-      "lineHeight": 1.6
+      "fontWeight": "normal",
+      "lineHeight": 1.6,
+      "fill": "#1A1814",
+      "textGrowth": "fixed-width",
+      "width": "fill_container"
     },
-    "wsComparisonTable": {
-      "id": "UFPld",
+    "wsCardsWrapper": {
+      "id": "IW5ws",
       "type": "frame",
-      "layout": "vertical",
-      "cornerRadius": 6,
-      "stroke": "#1A1814 1px inside",
-      "mobileConstraint": {
-        "layout": "grid-cols-1 md:grid-cols-3",
-        "note": "Each comparison row stacks as a CardShell card on mobile; column headers collapse to label+text pairs"
-      }
-    },
-    "wsTableHeader": {
-      "id": "OYRHr",
-      "fill": "#2A2520",
-      "columns": [
-        "AI DID",
-        "I DECIDED",
-        "OUTCOME"
+      "layout": "horizontal",
+      "gap": 14,
+      "width": "fill_container",
+      "wsCards": [
+        {
+          "id": "H7fyn",
+          "name": "wsCard1",
+          "type": "frame",
+          "layout": "vertical",
+          "width": "fill_container",
+          "fill": "#F4EFE5",
+          "cornerRadius": 6,
+          "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
+          "clip": true,
+          "children": {
+            "wsCard1FileBar": {
+              "id": "pvzIn",
+              "type": "frame",
+              "layout": "horizontal",
+              "alignItems": "center",
+              "fill": "#2A2520",
+              "padding": [6, 10],
+              "width": "fill_container",
+              "wsCard1FileBarText": {
+                "id": "Ypv3G",
+                "type": "text",
+                "content": "FILE Nº 01 · COMPARISON",
+                "fontFamily": "Geist Mono",
+                "fontSize": 10,
+                "fontWeight": "normal",
+                "letterSpacing": 2,
+                "fill": "#F4EFE5"
+              }
+            },
+            "wsCard1Body": {
+              "id": "BYPeB",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "width": "fill_container",
+              "fields": {
+                "r1a": {
+                  "id": "iGnBO",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "c75eeK", "content": "AI DID", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "QxSvj", "content": "Architect proposed component tree + API contract", "fontSize": 12, "lineHeight": 1.55, "fill": "#1A1814", "fontFamily": "Geist Mono" }
+                },
+                "r1b": {
+                  "id": "cmXrP",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "ANMj4", "content": "I DECIDED", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "HfoKc", "content": "Approved scope, rejected over-abstraction, set sacred constraints", "fontSize": 12, "lineHeight": 1.55, "fill": "#1A1814", "fontFamily": "Geist Mono" }
+                },
+                "r1c": {
+                  "id": "KxBpQ",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "oZHQO", "content": "OUTCOME", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "V6HUr", "content": "Each ticket ships with a verifiable artefact trail", "fontSize": 12, "lineHeight": 1.55, "fill": "#B43A2C", "fontFamily": "Geist Mono" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "Nv9Xw",
+          "name": "wsCard2",
+          "type": "frame",
+          "layout": "vertical",
+          "width": "fill_container",
+          "fill": "#F4EFE5",
+          "cornerRadius": 6,
+          "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
+          "clip": true,
+          "children": {
+            "wsCard2FileBar": {
+              "id": "DtXRQ",
+              "type": "frame",
+              "layout": "horizontal",
+              "alignItems": "center",
+              "fill": "#2A2520",
+              "padding": [6, 10],
+              "width": "fill_container",
+              "wsCard2FileBarText": {
+                "id": "fRD9R",
+                "type": "text",
+                "content": "FILE Nº 02 · COMPARISON",
+                "fontFamily": "Geist Mono",
+                "fontSize": 10,
+                "fontWeight": "normal",
+                "letterSpacing": 2,
+                "fill": "#F4EFE5"
+              }
+            },
+            "wsCard2Body": {
+              "id": "GBxr7",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "width": "fill_container",
+              "fields": {
+                "r2a": {
+                  "id": "c41gYC",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "vvFR6", "content": "AI DID", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "iQ1kL", "content": "Engineer implemented + Reviewer flagged bugs", "fontSize": 12, "lineHeight": 1.55, "fill": "#1A1814", "fontFamily": "Geist Mono" }
+                },
+                "r2b": {
+                  "id": "SZvVH",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "kaOcH", "content": "I DECIDED", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "u5L77", "content": "Confirmed root cause, approved fix strategy", "fontSize": 12, "lineHeight": 1.55, "fill": "#1A1814", "fontFamily": "Geist Mono" }
+                },
+                "r2c": {
+                  "id": "DIogO",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "zdCaq", "content": "OUTCOME", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "HL0xb", "content": "Zero regressions across 60+ merged PRs", "fontSize": 12, "lineHeight": 1.55, "fill": "#B43A2C", "fontFamily": "Geist Mono" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "HTyi6",
+          "name": "wsCard3",
+          "type": "frame",
+          "layout": "vertical",
+          "width": "fill_container",
+          "fill": "#F4EFE5",
+          "cornerRadius": 6,
+          "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
+          "clip": true,
+          "children": {
+            "wsCard3FileBar": {
+              "id": "cUMUF",
+              "type": "frame",
+              "layout": "horizontal",
+              "alignItems": "center",
+              "fill": "#2A2520",
+              "padding": [6, 10],
+              "width": "fill_container",
+              "wsCard3FileBarText": {
+                "id": "hevVA",
+                "type": "text",
+                "content": "FILE Nº 03 · COMPARISON",
+                "fontFamily": "Geist Mono",
+                "fontSize": 10,
+                "fontWeight": "normal",
+                "letterSpacing": 2,
+                "fill": "#F4EFE5"
+              }
+            },
+            "wsCard3Body": {
+              "id": "BmIHY",
+              "type": "frame",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "width": "fill_container",
+              "fields": {
+                "r3a": {
+                  "id": "EBYhM",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "WHNFZ", "content": "AI DID", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "b3Wje", "content": "Designer produced Pencil spec per each visual ticket", "fontSize": 12, "lineHeight": 1.55, "fill": "#1A1814", "fontFamily": "Geist Mono" }
+                },
+                "r3b": {
+                  "id": "mnpgN",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "poGyT", "content": "I DECIDED", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "GEHiz", "content": "Selected visual direction (A/B/C options), approved design-locked gate", "fontSize": 12, "lineHeight": 1.55, "fill": "#1A1814", "fontFamily": "Geist Mono" }
+                },
+                "r3c": {
+                  "id": "ZEg7U",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "width": "fill_container",
+                  "header": { "id": "eeRWs", "content": "OUTCOME", "fontSize": 10, "fill": "#8B7A6B", "letterSpacing": 2, "fontFamily": "Geist Mono" },
+                  "body": { "id": "HMdYP", "content": "SSOT maintained across 3-page redesign", "fontSize": 12, "lineHeight": 1.55, "fill": "#B43A2C", "fontFamily": "Geist Mono" }
+                }
+              }
+            }
+          }
+        }
       ]
     },
-    "wsRows": [
-      {
-        "col1": "Architect proposed component tree + API contract",
-        "col2": "Approved scope, rejected over-abstraction, set sacred constraints",
-        "col3": "Each ticket ships with a verifiable artefact trail"
-      },
-      {
-        "col1": "Engineer implemented + Reviewer flagged bugs",
-        "col2": "Confirmed root cause, approved fix strategy",
-        "col3": "Zero regressions across 60+ merged PRs"
-      },
-      {
-        "col1": "Designer produced Pencil spec per each visual ticket",
-        "col2": "Selected visual direction (A/B/C options), approved design-locked gate",
-        "col3": "SSOT maintained across 3-page redesign"
-      }
-    ],
     "wsBBlock": {
       "id": "eIxup",
+      "type": "frame",
+      "layout": "horizontal",
+      "alignItems": "center",
       "fill": "#2A2520",
       "cornerRadius": 6,
-      "padding": [
-        16,
-        20
-      ],
-      "content": "60 tickets. 100% AC coverage. Every decision logged.",
-      "fill_text": "#F4EFE5",
-      "fontSize": 14,
-      "fontWeight": "700"
+      "padding": [16, 20],
+      "gap": 16,
+      "width": "fill_container",
+      "wsOutcome": {
+        "id": "j6U3b",
+        "type": "text",
+        "content": "45 features shipped. 100% AC coverage. 6-agent pipeline.",
+        "fontFamily": "Geist Mono",
+        "fontSize": 14,
+        "fontWeight": "700",
+        "letterSpacing": 1,
+        "fill": "#F4EFE5"
+      }
     }
   },
   "tokens": {
