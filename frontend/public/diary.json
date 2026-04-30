@@ -2,8 +2,8 @@
   {
     "ticketId": "K-067",
     "title": "About page — WHERE I STEPPED IN card unification + section label rename",
-    "date": "2026-04-29",
-    "text": "Removed desktop table, unified WHERE I STEPPED IN to CardShell cards at all breakpoints; renamed Nº 02.5, 03, 04 labels."
+    "date": "2026-04-30",
+    "text": "Removed desktop table, unified WHERE I STEPPED IN to cards at all breakpoints; renamed Nº labels; updated narrative to constraint-system framing."
   },
   {
     "ticketId": "K-066",
