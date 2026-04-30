@@ -9,7 +9,7 @@ priority: medium
 size: small
 visual-delta: yes
 content-delta: no
-design-locked: false
+design-locked: true
 qa-early-consultation: ✓ docs/retrospectives/qa.md 2026-04-29 K-067
 dependencies: [K-066]
 worktree:

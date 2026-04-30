@@ -1,11 +1,11 @@
 {
-  "ticket": "K-066",
+  "ticket": "K-067",
   "frameId": "GMEdT",
   "name": "SX_WhereISteppedIn",
   "penFile": "frontend/design/homepage-v2.pen",
   "parentFrame": "35VCj > Y80Iv",
-  "generatedAt": "2026-04-29",
-  "generatorNote": "K-066 sync — narrative updated to operator/boundary framing; bottom bar updated to featuresShipped=44 + 6-agent pipeline; stale ROLES pill row deleted (not present in .pen).",
+  "generatedAt": "2026-04-30",
+  "generatorNote": "K-067 sync — comparison card style fixed: cornerRadius 12→6, stroke #1A181433→#1A1814 solid, body padding 20→12; now matches Nº 04 THE PERSONNEL role card pattern. Layout unified to cards-only (no desktop table branch). Prior: K-066 narrative + bottom bar sync.",
   "layout": {
     "type": "frame",
     "layout": "vertical",
@@ -24,7 +24,7 @@
     "wsLabel": {
       "id": "km9nu",
       "type": "text",
-      "content": "Nº 02.5 — WHERE I STEPPED IN",
+      "content": "Nº 02 — WHERE I STEPPED IN",
       "fontFamily": "Geist Mono",
       "fontSize": 13,
       "fontWeight": "700",
@@ -49,6 +49,25 @@
       "fill": "#1A1814",
       "textGrowth": "fixed-width",
       "width": "fill_container"
+    },
+    "wsCardsWrapper": {
+      "id": "IW5ws",
+      "type": "frame",
+      "layout": "vertical",
+      "gap": 12,
+      "width": "fill_container",
+      "cardStyle": {
+        "cornerRadius": 6,
+        "fill": "#F4EFE5",
+        "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
+        "bodyPadding": 12,
+        "note": "Matches Nº 04 THE PERSONNEL role card pattern (K-067)"
+      },
+      "cards": [
+        { "id": "H7fyn", "fileBar": "FILE Nº 01 · COMPARISON", "aiDid": "Architect proposed component tree + API contract", "iDecided": "Approved scope, rejected over-abstraction, set sacred constraints", "outcome": "Each ticket ships with a verifiable artefact trail" },
+        { "id": "Nv9Xw", "fileBar": "FILE Nº 02 · COMPARISON", "aiDid": "Engineer implemented + Reviewer flagged bugs", "iDecided": "Confirmed root cause, approved fix strategy", "outcome": "Zero regressions across 60+ merged PRs" },
+        { "id": "HTyi6", "fileBar": "FILE Nº 03 · COMPARISON", "aiDid": "Designer produced Pencil spec per each visual ticket", "iDecided": "Selected visual direction (A/B/C options), approved design-locked gate", "outcome": "SSOT maintained across 3-page redesign" }
+      ]
     },
     "wsBBlock": {
       "id": "eIxup",

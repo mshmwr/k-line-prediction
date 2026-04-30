@@ -1,23 +1,48 @@
 {
-  "ticket": "K-040",
+  "ticket": "K-067",
   "frameId": "35VCj",
   "penFile": "frontend/design/homepage-v2.pen",
   "frameName": "About /about (K-017 v2)",
   "route": "/about",
   "width": 1440,
   "background": "#F4EFE5",
-  "generatedAt": "2026-04-23",
-  "generatorNote": "K-040 Sitewide Typography Reset — About page composite. Reference the 6 sub-section specs (about-v2.frame-wwa0m/BF4Xe/8mqwX/UXy2o/EBC1e/JFizO.json) for full node-by-node detail. Footer 86psQ Sacred, navbar voSTK already mono.",
+  "generatedAt": "2026-04-30",
+  "generatorNote": "K-067 complete — .pen sync: comparison card style fixed (cornerRadius 12→6, stroke solid #1A1814, body padding 20→12); MetricCard height:280 removed (fit_content); rpPillsRow xu3l7 deleted; section labels Nº 03 THE PIPELINE + Nº 04 THE PERSONNEL confirmed. Prior: K-067 PM Note — card style spec + label rename.",
+  "sectionLabels": [
+    { "sectionId": "metrics", "nodeId": "BF4Xe", "labelNodeId": "S2label", "label": "Nº 01 — DELIVERY METRICS" },
+    { "sectionId": "where-i-stepped-in", "nodeId": "GMEdT", "labelNodeId": "km9nu", "label": "Nº 02 — WHERE I STEPPED IN" },
+    { "sectionId": "role-pipeline", "nodeId": "omyb7", "labelNodeId": "oaTTN", "label": "Nº 03 — THE PIPELINE" },
+    { "sectionId": "roles", "nodeId": "8mqwX", "labelNodeId": "e5BzC", "label": "Nº 04 — THE PERSONNEL" },
+    { "sectionId": "pillars", "nodeId": "UXy2o", "labelNodeId": "s4label", "label": "Nº 05 — RELIABILITY" },
+    { "sectionId": "tickets", "nodeId": "EBC1e", "labelNodeId": "s5label", "label": "Nº 06 — ANATOMY OF A TICKET" },
+    { "sectionId": "architecture", "nodeId": "JFizO", "labelNodeId": "s6label", "label": "Nº 07 — PROJECT ARCHITECTURE" }
+  ],
+  "whereISteppedInCards": {
+    "note": "3 CardShell comparison cards (AI DID / I DECIDED / OUTCOME) — all breakpoints unified, no desktop table branch.",
+    "cardStyle": {
+      "cornerRadius": 6,
+      "fill": "#F4EFE5",
+      "stroke": { "align": "inside", "fill": "#1A1814", "thickness": 1 },
+      "note": "No explicit card-level padding node — CardShell padding='md' applied via class"
+    },
+    "cards": [
+      { "fileNo": 1, "label": "COMPARISON", "aiDid": "Architect proposed component tree + API contract", "iDecided": "Approved scope, rejected over-abstraction, set sacred constraints", "outcome": "Each ticket ships with a verifiable artefact trail" },
+      { "fileNo": 2, "label": "COMPARISON", "aiDid": "Engineer implemented + Reviewer flagged bugs", "iDecided": "Confirmed root cause, approved fix strategy", "outcome": "Zero regressions across 60+ merged PRs" },
+      { "fileNo": 3, "label": "COMPARISON", "aiDid": "Designer produced Pencil spec per each visual ticket", "iDecided": "Selected visual direction (A/B/C options), approved design-locked gate", "outcome": "SSOT maintained across 3-page redesign" }
+    ]
+  },
   "components": [
     { "role": "navbar", "nodeId": "voSTK", "reference": "about-v2.frame-voSTK.json" },
     { "role": "page-body", "nodeId": "Y80Iv", "padding": [72, 96, 96, 96], "gap": 72, "layout": "vertical",
       "sections": [
-        { "role": "section-header", "nodeId": "wwa0m", "sectionNumber": 1, "reference": "about-v2.frame-wwa0m.json" },
-        { "role": "section-metrics", "nodeId": "BF4Xe", "sectionNumber": 2, "reference": "about-v2.frame-BF4Xe.json" },
-        { "role": "section-roles", "nodeId": "8mqwX", "sectionNumber": 3, "reference": "about-v2.frame-8mqwX.json" },
-        { "role": "section-pillars", "nodeId": "UXy2o", "sectionNumber": 4, "reference": "about-v2.frame-UXy2o.json" },
-        { "role": "section-tickets", "nodeId": "EBC1e", "sectionNumber": 5, "reference": "about-v2.frame-EBC1e.json" },
-        { "role": "section-architecture", "nodeId": "JFizO", "sectionNumber": 6, "reference": "about-v2.frame-JFizO.json" }
+        { "role": "section-header", "nodeId": "wwa0m", "sectionNumber": 0, "note": "No section label — above-the-fold hero", "reference": "about-v2.frame-wwa0m.json" },
+        { "role": "section-metrics", "nodeId": "BF4Xe", "sectionNumber": 1, "label": "Nº 01 — DELIVERY METRICS", "reference": "about-v2.frame-BF4Xe.json" },
+        { "role": "section-where-i-stepped-in", "nodeId": "GMEdT", "sectionNumber": 2, "label": "Nº 02 — WHERE I STEPPED IN", "reference": "about-v2.frame-GMEdT.json" },
+        { "role": "section-role-pipeline", "nodeId": "omyb7", "sectionNumber": 3, "label": "Nº 03 — THE PIPELINE" },
+        { "role": "section-role-cards", "nodeId": "8mqwX", "sectionNumber": 4, "label": "Nº 04 — THE PERSONNEL", "reference": "about-v2.frame-8mqwX.json" },
+        { "role": "section-pillars", "nodeId": "UXy2o", "sectionNumber": 5, "label": "Nº 05 — RELIABILITY", "reference": "about-v2.frame-UXy2o.json" },
+        { "role": "section-tickets", "nodeId": "EBC1e", "sectionNumber": 6, "label": "Nº 06 — ANATOMY OF A TICKET", "reference": "about-v2.frame-EBC1e.json" },
+        { "role": "section-architecture", "nodeId": "JFizO", "sectionNumber": 7, "label": "Nº 07 — PROJECT ARCHITECTURE", "reference": "about-v2.frame-JFizO.json" }
       ]
     },
     {
