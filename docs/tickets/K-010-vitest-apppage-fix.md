@@ -1,7 +1,7 @@
 ---
 id: K-010
-title: 前端 Vitest 修復 — AppPage.test.tsx 假設兩個 1D button
-status: closed (2026-04-18)
+title: Frontend Vitest fix — AppPage.test.tsx assumes two 1D buttons
+status: closed
 type: bug
 priority: high
 created: 2026-04-18
