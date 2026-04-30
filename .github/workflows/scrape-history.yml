@@ -8,11 +8,11 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # allow GITHUB_TOKEN to push scraper commits
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}   # AC-048-P2-09: contents:write scope for push
 
       - name: Set up Python
         uses: actions/setup-python@v5
