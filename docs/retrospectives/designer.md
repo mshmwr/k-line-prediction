@@ -14,6 +14,13 @@
 
 - 倒序（最新在上）
 
+## 2026-04-30 — K-068 design-spec schema + validator (no .pen edits)
+
+**What went well:** No `.pen` work this session — pure tooling ticket. Validator caught the K-067 root cause (`about-v2.frame-GMEdT.json` `wsCardsWrapper` missing `responsive` + `tailwindHint`) on first run, plus 2 footer specs that needed explicit no-change declarations. All 23 frame specs pass after 3-file patch.
+**What went wrong:** N/A — no design execution this session.
+**Next time improvement:** Per the new G-rule (§Frame Artifact Export — Responsive + tailwindHint mandatory), every future Designer session that mutates a horizontal-with-multi-child frame must run `node frontend/design/specs/validate-specs.mjs` before declaring task complete. K-067 root cause was Pencil re-export dropping the prior `mobileConstraint` field with no enforcement; validator + persona G-rule + schema together close that gap.
+**Slowest step:** Deciding between strict JSON Schema (draft-07 conditional requires) vs custom Node walker — picked walker because spec JSON shape is ad-hoc (children appear under varying key names: `children`, `wsCards`, `fields`); schema only types the field shape.
+
 ## 2026-04-30 — K-067 frame GMEdT: wsBBlock text sync + JSON spec rebuild
 
 **What went well:** Staleness audit found only one delta (wsBBlock `44`→`45`); `.pen` buffer already had wsLabel + wsNarrative + all card field content updated from a prior session.

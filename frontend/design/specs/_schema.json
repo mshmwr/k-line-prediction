@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://k-line-prediction.local/design/specs/_schema.json",
+  "title": "K-Line frame spec — responsive + tailwindHint contract",
+  "description": "Design SSOT contract introduced in K-068 to close the layout-spec gap that caused K-067 desktop-vertical regression. Pencil exports 1440px-only absolute coordinates; the responsive + tailwindHint fields are the hand-authored bridge to the responsive Tailwind classes the React component must render. Required (per validate-specs.mjs) on every object where layout=horizontal AND there are >=2 visual children.",
+  "definitions": {
+    "responsive": {
+      "type": "object",
+      "description": "Tailwind class fragments that map the Pencil 1440px layout to mobile + desktop breakpoints.",
+      "properties": {
+        "mobile": {
+          "type": "string",
+          "description": "Tailwind classes that apply at the smallest breakpoint (no md: prefix). Example: 'grid-cols-1' or 'flex-col'."
+        },
+        "desktop": {
+          "type": "string",
+          "description": "Tailwind classes that apply at md: and up (must include the md: prefix). Example: 'md:grid-cols-3' or 'md:flex-row'."
+        }
+      },
+      "required": ["mobile", "desktop"],
+      "additionalProperties": false
+    },
+    "tailwindHint": {
+      "type": "string",
+      "description": "Full Tailwind class string the React component should render verbatim. Example: 'grid grid-cols-1 md:grid-cols-3 gap-[14px]'. Acts as the canonical engineer-readable form of the responsive fields."
+    }
+  },
+  "type": "object",
+  "properties": {
+    "responsive": { "$ref": "#/definitions/responsive" },
+    "tailwindHint": { "$ref": "#/definitions/tailwindHint" }
+  }
+}
