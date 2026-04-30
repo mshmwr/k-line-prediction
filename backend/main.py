@@ -1,6 +1,8 @@
 import os
 import csv
 import io
+import math
+from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.responses import FileResponse
@@ -9,6 +11,7 @@ from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
 from time_utils import normalize_bar_time
+from history_utils import _merge_bars, _save_history_csv
 from auth import router as auth_router
 
 HISTORY_DB = Path(__file__).parent.parent / "history_database"
@@ -40,29 +43,6 @@ app.include_router(auth_router, prefix="/api")
 _dist_assets = DIST_DIR / "assets"
 if _dist_assets.exists():
     app.mount("/assets", StaticFiles(directory=str(_dist_assets)), name="assets")
-
-
-def _merge_bars(existing: list, new_bars: list) -> list:
-    """Merge new_bars into existing, dedup by normalized 'date', sort chronologically."""
-    combined = {normalize_bar_time(bar['date']): {**bar, 'date': normalize_bar_time(bar['date'])} for bar in existing}
-    combined.update({normalize_bar_time(bar['date']): {**bar, 'date': normalize_bar_time(bar['date'])} for bar in new_bars})
-    return sorted(combined.values(), key=lambda b: b['date'])
-
-
-def _save_history_csv(bars: list, path: Path) -> None:
-    """Save bars to CSV in minimal date,open,high,low,close format."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['date', 'open', 'high', 'low', 'close'])
-        writer.writeheader()
-        for bar in bars:
-            writer.writerow({
-                'date': bar['date'],
-                'open': bar['open'],
-                'high': bar['high'],
-                'low': bar['low'],
-                'close': bar['close'],
-            })
 
 
 def _parse_csv_history_from_text(text: str) -> list:
@@ -120,15 +100,29 @@ def _parse_csv_history_from_text(text: str) -> list:
 
 @app.get("/api/history-info")
 def get_history_info():
-    def info(history: list, path: Path) -> dict:
+    def info(history: list, path: Path, is_1d: bool = False) -> dict:
+        freshness_hours = None
+        if path.exists() and history:
+            date_str = history[-1]['date']
+            if date_str:
+                try:
+                    if is_1d:
+                        latest_bar_utc = datetime.strptime(date_str[:10], "%Y-%m-%d")
+                    else:
+                        latest_bar_utc = datetime.strptime(date_str[:16], "%Y-%m-%d %H:%M")
+                    delta = datetime.utcnow() - latest_bar_utc
+                    freshness_hours = int(math.floor(delta.total_seconds() / 3600))
+                except ValueError:
+                    freshness_hours = None
         return {
             'filename': path.name if path.exists() else 'mock data (no file)',
             'latest': history[-1]['date'] if history else None,
             'bar_count': len(history),
+            'freshness_hours': freshness_hours,
         }
     return {
-        '1H': info(_history_1h, HISTORY_1H_PATH),
-        '1D': info(_history_1d, HISTORY_1D_PATH),
+        '1H': info(_history_1h, HISTORY_1H_PATH, is_1d=False),
+        '1D': info(_history_1d, HISTORY_1D_PATH, is_1d=True),
     }
 
 
