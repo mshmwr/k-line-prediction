@@ -84,7 +84,7 @@
 
 **Rule:** Every shared chrome component (Footer, NavBar, Hero, PageHeader, CTA block, banner) rendering on ≥2 routes MUST have a `frontend/e2e/shared-components.spec.ts` asserting DOM / innerText equivalence across ALL consuming routes. Per-route presence assertions ("NavBar visible on /about") are insufficient — they pass even when a route renders duplicate inline copy with matching text. Required: capture a reference route's `outerHTML` / `innerText`, compare every other consuming route against the reference. Route-specific variations (`aria-current`, active-link highlight) are allowed as explicit modulo exceptions with a spec comment. An existing spec containing `"route X renders <LocalComponent>, NOT <SharedComponent>"` is a red flag, not an AC — flag to PM immediately.
 
-**Bug it prevents:** K-035 — paired with rule #5. The `/about` Footer drift slipped past K-017, K-021, K-022 because every footer assertion was route-local. K-021's `sitewide-footer.spec.ts` actively codified the drift as "intentional" with the assertion `/about 維持 FooterCtaSection，不得渲染 HomeFooterBar`. The spec itself was enforcing the bug.
+**Bug it prevents:** K-035 — paired with rule #5. The `/about` Footer drift slipped past K-017, K-021, K-022 because every footer assertion was route-local. K-021's `sitewide-footer.spec.ts` actively codified the drift as "intentional" with the assertion `/about keep FooterCtaSection, do not render HomeFooterBar`. The spec itself was enforcing the bug.
 
 ---
 
