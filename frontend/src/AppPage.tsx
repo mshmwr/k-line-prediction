@@ -449,10 +449,10 @@ export default function AppPage() {
                 {(['1H', '1D'] as const).map(tf => {
                   const entry = historyInfo[tf]
                   const fh = entry.freshness_hours
-                  const freshnessStr = fh !== null
+                  const freshnessStr = fh != null
                     ? ` · ${Math.floor(fh / 24)}d ${fh % 24}h ago`
                     : ''
-                  const isStale = fh !== null && fh >= 48
+                  const isStale = fh != null && fh >= 48
                   return (
                     <div
                       key={tf}
