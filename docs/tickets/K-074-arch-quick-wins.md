@@ -1,7 +1,9 @@
 ---
 id: K-074
 title: arch quick wins — remove dead NavBar, selected_ids default, PasswordForm contrast
-status: open
+status: closed
+closed: 2026-05-02
+closed-commit: 7f82e25
 created: 2026-05-02
 type: refactor
 priority: medium
