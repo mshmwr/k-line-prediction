@@ -9,7 +9,7 @@ size: large
 visual-delta: no
 content-delta: no
 design-locked: n/a
-qa-early-consultation: "✗ — required before Engineer release (runtime hook extraction, state wiring change)"
+qa-early-consultation: "✓ — complete 2026-05-02; 5 rulings in docs/qa/K-075-early-consultation.md §7"
 dependencies: [K-013]
 resolves-td: [TD-004, TD-005]
 sacred-regression:

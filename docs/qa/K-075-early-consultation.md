@@ -215,3 +215,24 @@ Explicit checklist. All items must be green before sign-off. Items marked `[PM-r
 | QA Challenge #3 | PM/Architect confirms `parseExchangeTimestamp` timezone behavior + minimum boundary cases |
 | QA Challenge #4 | PM confirms UTC+8 day-boundary test case required OR Known Gap declared |
 | QA Interception #1 | PM rules: analytics call assertion added to test scope OR Known Gap declared |
+
+---
+
+## §7 PM Rulings (2026-05-02)
+
+**QA Challenge #1 — AC-075-APPPAGE-LINE-COUNT inline-logic prohibition**
+> **Ruling: Known Gap accepted.** `wc -l ≤ 100` is the sole automatable gate. QA may verify absence of inline hook calls by grep at Phase 5, but this is advisory, not blocking. Rationale: post-refactor AppPage has no inline hook calls by design; any violation surfaces as TypeScript error (wrong hook context) or ESLint violation, both of which fail the `tsc --noEmit` gate.
+
+**QA Challenge #2 — AC-075-TD004-CHART-STABLE behavioral clause**
+> **Ruling: Known Gap accepted.** eslint-disable removal grep is the sole automatable gate for the behavioral clause. Key-prop correctness is accepted on trust of the React `key` remount mechanism. A new Playwright spec (`predictor-chart-remount.spec.ts`) is recommended for a future QA hardening ticket, not required for K-075 sign-off.
+
+**QA Challenge #3 — parseExchangeTimestamp timezone behavior**
+> **Ruling: Clarified, not a gap.** Verified from source (AppPage.tsx:42-46): function uses pure UTC output (`getUTCFullYear`, `getUTCMonth`, `getUTCDate`, `getUTCHours`). No UTC+8 offset applied. Required test cases for Engineer: (a) unix-seconds input roundtrip (e.g., 1700000000 → `"2023-11-14 22:13"`), (b) milliseconds-format auto-detection, (c) empty string throws, (d) non-numeric throws.
+
+**QA Challenge #4 — statsByDay UTC+8 day-boundary test**
+> **Ruling: Required.** `computeStatsByDay` uses UTC+8 date grouping (verified from existing usage). Engineer MUST add a day-boundary test case: UTC timestamps straddling midnight (e.g., 2024-01-01T23:30Z and 2024-01-02T00:30Z grouping to separate UTC+8 days). This is a required condition for QA Phase 5 sign-off (checklist item #16).
+
+**QA Interception #1 — trackCsvUploaded analytics missing-call risk**
+> **Ruling: Known Gap accepted.** Analytics call correctness is not tested by the E2E suite. Import migration is verified by grep (Phase 5 sign-off condition #14). Engineer must confirm the import and call site move to `useOfficialInput.ts` in the same commit as the handler migration.
+
+**Phase 2 outcome:** All rulings complete. Engineer is released for Phase 3.
