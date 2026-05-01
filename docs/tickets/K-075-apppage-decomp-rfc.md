@@ -3,6 +3,7 @@ id: K-075
 title: AppPage.tsx decomposition RFC — TD-004 + TD-005
 status: closed
 closed: 2026-05-02
+closed-commit: 7f938a2
 created: 2026-05-02
 type: refactor
 priority: medium
