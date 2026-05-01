@@ -14,6 +14,24 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-01 — K-071 QA Early Consultation (PM proxy)
+
+**Status:** Complete — 7 challenges raised; all 7 resolved to Option A (no blocker). Ticket correction: `visual-delta: yes` → `no`.
+
+**Challenges summary:**
+- C1 → No E2E impact: no spec asserts processRules content, count, or order
+- C2 → No E2E impact: `npm run rules` is dev-only utility; not in build or test target
+- C3 → No TypeScript error: `resolveJsonModule: true` — TS infers array type; new entries with same shape pass tsc
+- C4 → No spec impact: `roles-doc-sync.spec.ts` reads README.md ROLES marker block only, not NAMED-ARTEFACTS
+- C5 → No About page impact: `renderSlots.about.processRules = 5` reserved slot with no React component consuming it; no frontend file reads `siteContent.processRules`
+- C6 → No regression: K-063 Release Status correction is docs-only text edit; no Sacred clause, no test assertion
+- C7 → Ticket correction: `visual-delta: yes` wrong — processRules only render to README.md (generator), not deployed site. Corrected to `visual-delta: no`.
+
+**What went well:** Discovered visual-delta misclaim (C7) early — prevents unnecessary Pencil SSOT sync gate from blocking a docs-only ticket.
+**What went wrong:** Ticket authored with `visual-delta: yes` based on incorrect assumption that processRules renders on About page.
+**Next time improvement:** Before setting `visual-delta: yes` for processRules mutations, verify a frontend component reads `siteContent.processRules`. Currently none does — About page slot is reserved but unimplemented.
+**Slowest step:** Tracing renderSlots.about.processRules through all frontend source files to confirm no component consumes it (3 grep passes).
+
 ## 2026-04-30 — K-048 Phase 1 Sign-off
 
 **What went well:** All 17 backend unit tests and 10 E2E tests (T1–T10) passed in first run; AC coverage was complete and testable.

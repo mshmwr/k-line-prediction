@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-071",
+    "title": "processRules PM query tool + systematic backfill 5→17 entries",
+    "date": "2026-05-01",
+    "text": "Added npm run rules query script and backfilled processRules from 5 to 17 entries covering critical-blocker, warning, and advisory tiers. K-063 Release Status corrected from no-change to added."
+  },
+  {
     "ticketId": "K-069",
     "title": "Architecture SSOT cleanup — 22 stale annotations cleared, changelog collapsed 53%",
     "date": "2026-05-01",

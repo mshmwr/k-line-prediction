@@ -24,21 +24,21 @@
       "└── ssot/                 # Project SSOT (system-overview, PRD, conventions, workflow)"
     ]
   },
-  "lastUpdated": "2026-04-30T23:56:51+08:00",
+  "lastUpdated": "2026-05-01T14:11:34+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 64,
+      "covered": 67,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 64
+      "total": 67
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 47
+      "value": 48
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
-      "value": 199
+      "value": 205
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
@@ -100,6 +100,138 @@
       "ticketAnchor": "docs/tickets/K-039-split-ssot-role-cards.md",
       "title": "Locked marker block",
       "weight": 1
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-049",
+      "homeSlots": null,
+      "id": "deploy-local-docker-dry-run",
+      "severity": "critical-blocker",
+      "summary": "before opening any PR that touches Dockerfile, package*.json, .gcloudignore, or deploy scripts, run `docker build -f Dockerfile .` locally. catches build-time blockers (env injection, lockfile drift, missing binaries) before a Cloud Build round-trip.",
+      "ticketAnchor": "docs/tickets/K-049-public-surface-plumbing.md",
+      "title": "Deploy local docker dry-run",
+      "weight": 5
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-051",
+      "homeSlots": null,
+      "id": "real-csv-integration-test-mandatory",
+      "severity": "critical-blocker",
+      "summary": "backend integration tests use the actual ETHUSDT-1h Binance CSV fixture, not fabricated data. mock data passes when the real format drifts; only a real-CSV integration test catches the exact failure mode (Sacred floor misalignment under real bar counts).",
+      "ticketAnchor": "docs/tickets/K-051-daily-db-backfill-rollup-fix.md",
+      "title": "Real CSV integration test mandatory",
+      "weight": 5
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-052",
+      "homeSlots": null,
+      "id": "ticket-derived-ssot-pipeline",
+      "severity": "warning",
+      "summary": "`content/site-content.json` is the single hand-edited source for portfolio metrics, stack, processRules, and renderSlots. the generator `build-ticket-derived-ssot.mjs` auto-fills computed fields and writes README marker blocks from it — no ticket data lives in more than one hand-edited file.",
+      "ticketAnchor": "docs/tickets/K-052-content-ssot.md",
+      "title": "Ticket-derived SSOT pipeline",
+      "weight": 3
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-035",
+      "homeSlots": null,
+      "id": "shared-component-inventory-check",
+      "severity": "warning",
+      "summary": "before any page-level implementation, PM/Engineer/Reviewer/QA verify which components in `frontend/src/components/` are used on ≥2 routes. prevents page-scoped changes from silently breaking shared components — a 5-role × 2-ticket miss (K-035 duplicate Footer) is diagnostic of a missing structural check, not individual carelessness.",
+      "ticketAnchor": "docs/tickets/K-035-about-footer-shared-component-regression.md",
+      "title": "Shared component inventory check",
+      "weight": 2
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-039",
+      "homeSlots": null,
+      "id": "split-ssot-visual-vs-textual",
+      "severity": "warning",
+      "summary": "Pencil `.pen` files own the visual SSOT (layout, spacing, color tokens); TypeScript source files own the textual SSOT (role names, copy, descriptions). changes to one surface are reflected in the other through a defined Designer handoff — never duplicate content between the two.",
+      "ticketAnchor": "docs/tickets/K-039-split-ssot-role-cards.md",
+      "title": "Split SSOT: visual vs textual",
+      "weight": 2
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-013",
+      "homeSlots": null,
+      "id": "contract-test-ssot-fixture",
+      "severity": "warning",
+      "summary": "the cross-layer API contract between frontend and backend is locked by a SSOT fixture in the E2E test suite (`compute_stats` response shape). any backend change that breaks the fixture requires a PM-approved contract renegotiation, not a silent AC amendment.",
+      "ticketAnchor": "docs/tickets/K-013-consensus-stats-contract.md",
+      "title": "Contract test SSOT fixture",
+      "weight": 1
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-035",
+      "homeSlots": null,
+      "id": "sacred-regression-inventory-audit",
+      "severity": "warning",
+      "summary": "before releasing Engineer on any ticket, PM cross-checks the ticket's target scope against all active Sacred clause IDs in `docs/sacred-registry.md`. AC conflicts with an invariant block the ticket until the invariant is formally modified or retired.",
+      "ticketAnchor": "docs/tickets/K-035-about-footer-shared-component-regression.md",
+      "title": "Sacred regression inventory audit",
+      "weight": 2
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-034",
+      "homeSlots": null,
+      "id": "pencil-designer-parity-code-review",
+      "severity": "warning",
+      "summary": "the code reviewer runs a line-by-line parity check between the Pencil design JSON (`specs/<frame>.json`) and the shipped component props, including typography, spacing, and color tokens. divergences not listed in `design-exemptions.md` are Critical findings that block merge.",
+      "ticketAnchor": "docs/tickets/K-034-about-spec-audit-and-workflow-codification.md",
+      "title": "Pencil–code parity code review",
+      "weight": 2
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-063",
+      "homeSlots": null,
+      "id": "retro-slowest-step-mandatory",
+      "severity": "advisory",
+      "summary": "every per-role retrospective entry includes a mandatory **Slowest step** field that names the single bottleneck step and its root cause. tracks which process steps compound slowness across multiple tickets.",
+      "ticketAnchor": "docs/tickets/K-063-retro-slowest-step.md",
+      "title": "Retro slowest step mandatory",
+      "weight": 2
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-060",
+      "homeSlots": null,
+      "id": "visual-ssot-sync-gate",
+      "severity": "advisory",
+      "summary": "before opening a PR for any ticket with `visual-delta: yes`, the Pencil `.pen` file, design doc spec tables, and `design-locked: true` flag must all be updated to match the shipped state. prevents future Designer sessions from working off stale specs.",
+      "ticketAnchor": "docs/tickets/K-060-k057-ssot-backfill.md",
+      "title": "Visual SSOT sync gate",
+      "weight": 2
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-046",
+      "homeSlots": null,
+      "id": "ac-grep-raw-count-sanity",
+      "severity": "advisory",
+      "summary": "before committing any AC whose verification grep targets a count, run the grep against the current codebase and confirm the raw count is non-zero and plausible. a pre-existing-zero match means the AC always passes regardless of whether the target code was added.",
+      "ticketAnchor": "docs/tickets/K-046-remove-upload-db-write.md",
+      "title": "AC grep raw-count sanity",
+      "weight": 2
+    },
+    {
+      "aboutSlots": null,
+      "addedAfter": "K-062",
+      "homeSlots": null,
+      "id": "marker-block-generator-discipline",
+      "severity": "advisory",
+      "summary": "README marker blocks (`<!-- STACK:start -->`, `<!-- NAMED-ARTEFACTS:start -->`, `<!-- FOLDER-STRUCTURE:start -->`) are generated by `build-ticket-derived-ssot.mjs` from `content/site-content.json`. never hand-edit content inside a marker block — the generator overwrites it on the next run.",
+      "ticketAnchor": "docs/tickets/K-062-readme-folder-structure.md",
+      "title": "Marker block generator discipline",
+      "weight": 2
     }
   ],
   "renderSlots": {
@@ -180,6 +312,6 @@
   ],
   "ticketRange": {
     "first": "K-001",
-    "last": "K-068"
+    "last": "K-071"
   }
 }

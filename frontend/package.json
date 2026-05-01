@@ -14,7 +14,8 @@
     "build": "tsc && vite build",
     "test": "vitest run",
     "test:watch": "node ./scripts/patch-vitest-node16.mjs && vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "rules": "node ../scripts/query-process-rules.mjs"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
