@@ -22,7 +22,7 @@ ETH/USDT K-line candlestick pattern similarity prediction system. User uploads r
 | Layer | Technology |
 |-------|-----------|
 | Frontend | TypeScript + React + Recharts + lightweight-charts + Vite + react-router-dom |
-| Backend | Python + FastAPI + PyJWT |
+| Backend | Python + FastAPI + python-jose |
 | Tests (FE) | Vitest + Playwright |
 | Tests (BE) | pytest |
 
