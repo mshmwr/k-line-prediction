@@ -1,11 +1,11 @@
 {
-  "ticket": "K-067",
+  "ticket": "K-072",
   "frameId": "GMEdT",
   "name": "SX_WhereISteppedIn",
   "penFile": "frontend/design/homepage-v2.pen",
   "parentFrame": "35VCj > Y80Iv",
-  "generatedAt": "2026-04-30",
-  "generatorNote": "K-067 sync — comparison card style fixed: cornerRadius 12→6, stroke #1A181433→#1A1814 solid, body padding 20→12; now matches Nº 04 THE PERSONNEL role card pattern. Layout unified to cards-only (no desktop table branch). Prior: K-066 narrative + bottom bar sync.",
+  "generatedAt": "2026-05-01",
+  "generatorNote": "K-072 sync — wsOutcome counter updated 44→49 features shipped (matches live site-content.json metrics). Prior: K-067 comparison card style fixed cornerRadius 12→6; K-066 narrative + bottom bar sync.",
   "layout": {
     "type": "frame",
     "layout": "vertical",
@@ -80,7 +80,7 @@
       "wsOutcome": {
         "id": "j6U3b",
         "type": "text",
-        "content": "44 features shipped. 100% AC coverage. 6-agent pipeline.",
+        "content": "49 features shipped. 100% AC coverage. 6-agent pipeline.",
         "fontFamily": "Geist Mono",
         "fontSize": 14,
         "fontWeight": "700",

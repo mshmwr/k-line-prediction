@@ -742,7 +742,7 @@
                   "fill": "#1A1814",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "My contribution was the constraint system: the rules, personas, and acceptance criteria that turned agent outputs into shippable work.",
+                  "content": "I am the single operator. I define requirements and the rules agents run by; they handle design through QA. I review at the boundary — correcting output when needed, and deciding what ships.",
                   "lineHeight": 1.6,
                   "fontFamily": "Geist Mono",
                   "fontSize": 14,
@@ -1223,7 +1223,7 @@
                       "id": "j6U3b",
                       "name": "wsOutcome",
                       "fill": "#F4EFE5",
-                      "content": "45 features shipped. 100% AC coverage. 6-agent pipeline.",
+                      "content": "49 features shipped. 100% AC coverage. 6-agent pipeline.",
                       "fontFamily": "Geist Mono",
                       "fontSize": 14,
                       "fontWeight": "700",
@@ -3986,6 +3986,62 @@
                           ]
                         }
                       ]
+                    },
+                    {
+                      "type": "rectangle",
+                      "cornerRadius": 8,
+                      "id": "KhfTh",
+                      "name": "hero-product-shot",
+                      "width": 960,
+                      "height": 540,
+                      "stroke": {
+                        "align": "center",
+                        "thickness": 1,
+                        "fill": "#2A2520"
+                      },
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#2A2520",
+                        "offset": {
+                          "x": 0,
+                          "y": 2
+                        }
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "I5m9VG",
+                      "name": "heroBtns",
+                      "width": "fill_container",
+                      "gap": 14,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "OyUxM",
+                          "name": "btnPrimary",
+                          "fill": "#2A2520",
+                          "cornerRadius": 6,
+                          "padding": [
+                            12,
+                            26
+                          ],
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "nr3Up",
+                              "fill": "#F4EFE5",
+                              "content": "Run the ETH/USDT Demo →",
+                              "fontFamily": "Geist Mono",
+                              "fontSize": 13,
+                              "fontWeight": "700",
+                              "letterSpacing": 1
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -4323,7 +4379,7 @@
                       "type": "text",
                       "id": "MdNRn",
                       "fill": "#1A1814",
-                      "content": "React · TypeScript · Vite · FastAPI · Python · Playwright",
+                      "content": "TypeScript · React · Vite · Python · FastAPI · Playwright",
                       "fontFamily": "Geist Mono",
                       "fontSize": 11,
                       "fontWeight": "normal",

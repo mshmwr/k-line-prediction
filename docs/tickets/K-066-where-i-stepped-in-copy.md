@@ -1,8 +1,8 @@
 ---
 id: K-066
 title: WhereISteppedIn narrative + bottom bar SSOT + homepage .pen sync
-status: open
-phase-1-status: open
+status: closed
+phase-1-status: closed
 created: 2026-04-29
 type: content
 priority: medium
@@ -15,7 +15,7 @@ dependencies: []
 worktree: .claude/worktrees/K-066-where-i-stepped-in-copy
 branch: K-066-where-i-stepped-in-copy
 base-commit: c73cc2d
-closed-commit:
+closed-commit: f421a3e
 ---
 
 ## Summary
