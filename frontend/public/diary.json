@@ -1,5 +1,23 @@
 [
   {
+    "ticketId": "K-073",
+    "title": "Content SSOT externalize — 3 component arrays to site-content.json + README METRICS marker",
+    "date": "2026-05-01",
+    "text": "Externalized ProjectLogicSection STEPS (3 items), ProjectArchitectureSection layers (3 items), and WhereISteppedInSection ROWS (3 items) from inline TypeScript constants to site-content.json. Added README METRICS marker block so featuresShipped/acCoverage/postMortems/lessonsCodified auto-update via generator. Added shared site-content.types.ts. QA fixed two known-reds manifest gaps (Footer snapshot on /, ga-spa test title)."
+  },
+  {
+    "ticketId": "K-066",
+    "title": "K-066 Designer close — homepage-v2.pen narrative + feature count + stack row updated",
+    "date": "2026-05-01",
+    "text": "Updated homepage-v2.pen frame GMEdT: narrative rewritten to single-operator arc, bottom bar updated to 50 features shipped, THE ROLES pill row deleted. Frame 4CsvQ: hero subtext updated to K-057 approved copy, stack row corrected to TypeScript·React·Vite·Python·FastAPI·Playwright, hero-product-shot placeholder added (960×540)."
+  },
+  {
+    "ticketId": "K-072",
+    "title": "renderSlots.about.processRules corrected from placeholder 5 to 0",
+    "date": "2026-05-01",
+    "text": "Confirmed no React component reads siteContent.processRules[]; renderSlots.about.processRules was an unrealized placeholder set to 5. Corrected to 0 to accurately reflect that the About page does not render the processRules array."
+  },
+  {
     "ticketId": "K-071",
     "title": "processRules PM query tool + systematic backfill 5→17 entries",
     "date": "2026-05-01",
