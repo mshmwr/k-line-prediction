@@ -6,7 +6,7 @@
  * 執行方式：
  *   TICKET_ID=K-008 npx playwright test visual-report.ts
  *
- * 未設 TICKET_ID 時使用預設字串 "UNKNOWN"（印 warning 提醒）。
+ * 未設 TICKET_ID 時直接 throw（fail-fast），避免產生 K-UNKNOWN 孤兒 artifact。
  *
  * 輸出：../docs/reports/K-<TICKET_ID>-visual-report.html
  *
@@ -77,11 +77,7 @@ type SectionResult =
 function resolveTicketId(): string {
   const raw = process.env.TICKET_ID
   if (!raw || raw.trim() === '') {
-    // eslint-disable-next-line no-console
-    console.warn(
-      '[visual-report] WARNING: TICKET_ID not set, output will be K-UNKNOWN-visual-report.html'
-    )
-    return 'UNKNOWN'
+    throw new Error('[visual-report] TICKET_ID env var is required. Run: TICKET_ID=K-NNN npx playwright test visual-report.ts')
   }
   // 允許傳 "K-008" 或 "008"；normalize 到不含前綴
   const normalized = raw.replace(/^K-/i, '')
