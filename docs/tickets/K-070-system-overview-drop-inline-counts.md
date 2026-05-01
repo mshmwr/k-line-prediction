@@ -47,6 +47,10 @@ time — list may be longer):
 
 Replacement pattern: `← <file-purpose> (<ticket-attribution>)` — no numeric prefix.
 
+**AC-070-TECH-STACK-LIB:** Correct Tech Stack table row: `PyJWT` → `python-jose`
+(actual library in `requirements.txt` is `python-jose[cryptography]`; PyJWT is a
+different package). Apply while touching the file for AC-070-DROP-COUNTS.
+
 **AC-070-GREP-VERIFY:** After edits, run:
 ```
 grep -n "[0-9]\+ test\|[0-9]\+ tests\|[0-9]\+ cases\|[0-9]\+ asset" ssot/system-overview.md

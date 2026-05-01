@@ -11,7 +11,7 @@ class OHLCBar(BaseModel):
 
 class PredictRequest(BaseModel):
     ohlc_data: List[OHLCBar]
-    selected_ids: List[str]
+    selected_ids: List[str] = []
     timeframe: str = "1H"
 
 class Ma99Gap(BaseModel):
