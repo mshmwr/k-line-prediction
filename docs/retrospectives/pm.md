@@ -4,6 +4,18 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-01 — K-072/K-066/K-073 PM: content SSOT externalize + K-066 designer close + K-072 processRules close
+
+**What went well:** QA Early Consultation correctly scoped K-073 to 5 ACs — Sacred constraints (PageHeaderSection, BuiltByAIBanner), K-066 AC-066-SSOT conflict (PIPELINE_DEPTH), and JSX-body non-serializability (ReliabilityPillarsSection) all caught before Engineer started; zero rescheduled work. K-072 processRules=0 decision was clean (no component renderer confirmed in one grep pass).
+
+**What went wrong:** (1) Initial content-SSOT audit started from site-content.json fields to find gaps — wrong direction; user corrected twice before PM adopted page-content-first approach (grep component source for inline constants). (2) K-066 Designer closure was user-prompted — PM had not proactively checked open-ticket status when K-073 scope touched WhereISteppedInSection, which shares a component with K-066. (3) Design doc §8 Risk table listed generator preservation as a risk but PM did not codify it as a hard Engineer step; Engineer self-caught mid-implementation.
+
+**Next time improvement:** Content SSOT audit starts from `grep -rn "const [A-Z_]* = \[" frontend/src/` — component inline constants are candidates; JSON is destination. Before opening ticket touching component X, scan open-ticket list for same-component conflicts.
+
+**Codified:** `feedback_content_ssot_audit_method.md` + `feedback_generator_preservation_verify.md` in memory/cat-agents.md.
+
+---
+
 ## 2026-05-01 — K-071 PM: processRules query script + backfill 5→17 (docs+feat)
 
 **What went well:** QA Early Consultation caught the `visual-delta: yes` misclaim before Engineer started — processRules are not rendered by any frontend component, saving a needless Pencil SSOT sync gate. Generator auto-computed all 12 new weights correctly (exit 0). K-063 Release Status correction (no-change → added) resolved a carryover from the previous session.
