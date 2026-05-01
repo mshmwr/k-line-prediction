@@ -18,6 +18,15 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-02 — K-075 Phase 1 (Architect RFC)
+
+**What went well:** Cross-hook dependency graph (resetPredictionState / setQueryMa99 setter injection) was identified before finalizing hook interfaces, avoiding a design revision after handoff.
+**What went wrong:** Initial hook boundary table omitted the `queryMa99`/`queryMa99Gap` setter calls inside `handlePredict`; discovered only after tracing the full function body, requiring the usePredictionWorkspace interface to be revised mid-session.
+**Next time improvement:** When mapping hook boundaries, trace all cross-domain setter calls (not just useState declarations) as the first step before writing any interface table.
+**Slowest step:** Determining whether `workspace` useMemo should live in AppPage or a fourth hook — cross-hook dep analysis required reading both existing hooks' state maps before ruling.
+
+---
+
 ## 2026-04-30 — K-048 PM-correction round
 
 **What went well:** Both PM rulings (region confirmed, upload-write item removed) were precise enough to apply as direct edits with no ambiguity; all six affected locations in the design doc updated in one pass.

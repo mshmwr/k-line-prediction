@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-05-01 (K-069)
+updated: 2026-05-02 (K-075)
 ---
 
 ## Summary
@@ -13,7 +13,7 @@ ETH/USDT K-line candlestick pattern similarity prediction system. User uploads r
 - **Backend:** FastAPI single-file `main.py`; 2 in-memory history stores (`_history_1h` / `_history_1d`); auto-scraper via K-048 Cloud Run cron keeps history current.
 - **Stats SSOT (TD-008 Option C, K-013 closed 2026-04-21):** frontend computes subset stats (`statsComputation.ts`); backend computes full-set baseline; drift locked by `backend/tests/fixtures/stats_contract_cases.json`.
 - **Content SSOT (K-052/K-062):** `content/site-content.json` is the hand-edit source for stack[], processRules[], renderSlots; generator (`scripts/build-ticket-derived-ssot.mjs`) auto-fills metrics and emits `docs/sacred-registry.md` + README marker blocks.
-- **Known modularity debt:** `AppPage.tsx` (TD-005) / `main.py` (TD-006) / `predictor.py` (TD-007) pending Architect RFC; see Known Architecture Debt table.
+- **Known modularity debt:** `AppPage.tsx` (TD-005 — K-075 RFC in progress, 3-hook decomposition + `useOfficialInput` / `useHistoryUpload` / `usePredictionWorkspace`) / `main.py` (TD-006) / `predictor.py` (TD-007) pending Architect RFC; see Known Architecture Debt table.
 
 ---
 
@@ -643,6 +643,9 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 ---
 
 ## Changelog
+
+**2026-05-02 — K-075 — Architect RFC: AppPage.tsx 3-hook decomposition (useOfficialInput / useHistoryUpload / usePredictionWorkspace) + TD-004 PredictorChart stale chart fix via key-based remount.**
+Design doc: [docs/designs/K-075-apppage-decomp.md](../docs/designs/K-075-apppage-decomp.md)
 
 **2026-04-30 — K-048 — Architecture design: daily Binance scraper + `freshness_hours` field on `/api/history-info` + History Reference stale indicator.**
 Design doc: [docs/designs/K-048-scraper-design.md](../docs/designs/K-048-scraper-design.md)
