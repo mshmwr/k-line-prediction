@@ -12,6 +12,13 @@
 **下次改善：**（具體可執行的行動）
 ```
 
+## 2026-05-02 — K-075 Phase C (AppPage decomposition)
+
+**What went well:** resetPredWsRef pattern resolved the circular hook dependency cleanly without any circular imports; all K-030 Sacred Playwright specs passed 6/6 on first run.
+**What went wrong:** Design doc estimated AppPage ≤ 100 lines but JSX Sacred structure (K-030 data-testids + history-reference rendering) is ~80 lines alone, yielding 127 actual; estimate was based on 40-line JSX guess that did not account for the full template.
+**Next time improvement:** When Architect estimates residual JSX line count, grep the actual JSX block of the current file (`wc -l` of the return statement) before publishing the estimate — avoids mis-set delivery constraint.
+**Slowest step:** Iterating AppPage line count down from 287 → 147 → 131 → 127 via workspaceComputation extraction; next time extract large useMemo bodies into pure util functions during design phase, not implementation.
+
 - 倒序（最新在上）
 
 ---

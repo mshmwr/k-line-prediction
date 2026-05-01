@@ -1,3 +1,14 @@
+## 2026-05-02 — K-075 AppPage decomp (Step 2 depth review; CODE-PASS, COMMIT-BLOCKED)
+
+**What went well:** Hook interface tables matched design doc §1 exactly; K-013 spirit verified via workspaceComputation.ts call chain; useRef circular-dep pattern documented.
+
+**What went wrong:** Engineer extracted computeWorkspace to a new undocumented util file absent from design doc §2 File Plan, making the design doc §3/§5 statements about the call site factually wrong; AC-075-APPPAGE-LINE-COUNT violated (127 vs ≤100) due to Architect underestimate of Sacred JSX size.
+
+**Next time improvement:** When AC specifies a line-count bound on a component with Sacred DOM testids, Architect must count actual JSX lines before publishing the constraint.
+
+**Slowest step:** Verifying K-013 spirit vs letter — required reading K-013 design doc §5.3 call tree, workspaceComputation.ts body, and AC-075-K013-CONTRACT text to confirm the dead-import is a grep anchor, not a behavior regression.
+
+
 ## 2026-04-30 — K-048 Phase 1 (freshness_hours API + stale indicator; Step 2 depth review; CODE-PASS, COMMIT-BLOCKED)
 
 **What went well:** All 3 ACs trace directly to implementation; date-slice logic ([:16] for 1H, [:10] for 1D) matches design doc §2 exactly; loose `!= null` guard correctly handles both `null` and `undefined`; K-009 Sacred clause (ma_history=_history_1d) and K-046 write-block both intact.

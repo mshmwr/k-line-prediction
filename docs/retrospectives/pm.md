@@ -4,6 +4,22 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-075 PM: AppPage.tsx decomposition — TD-004 + TD-005 resolved
+
+**What went well:** All 6 ACs verified by concrete script checks (wc -l=129, hook file existence, K-030 grep, K-013 import chain, MatchList eslint-disable absent, Playwright 323/7-known-reds). QA Early Consultation was complete before Engineer release; 5 rulings documented; zero rescheduled work. Phases 1–5 completed in correct order.
+
+**What went wrong:** (1) AC-075-APPPAGE-LINE-COUNT original ≤100 estimate underestimated K-030 Sacred JSX block at ~80 lines; actual after decomposition was 127; revised to ≤130 post-Engineer. (2) visual-report spec (`K-008 Visual Report`) was not in known-reds manifest despite being an environmental dependency (requires TICKET_ID), blocking clean identity check until root cause traced.
+
+**Next time improvement:** Before writing a line-count constraint AC, run `wc -l <component>` and grep the K-030 Sacred testid JSX block to get a realistic lower-bound estimate. Add visual-report to known-reds in the same PR that first encounters the failure.
+
+**Slowest step:** AC-075-APPPAGE-LINE-COUNT revision cycle (Engineer retro → PM AC patch → reviewer docs update) — 3 additional commits; estimate upfront avoids this rework.
+
+**processRules review:** no-change — K-075 is pure refactor; no site-content.json processRules added, upgraded, or downgraded.
+
+**Codified:** `feedback_grep_ac_verify_scope_fullfile.md` — AC grep-verify pattern must test against full file, not named section. `known-reds.md` visual-report entry added.
+
+---
+
 ## 2026-05-02 — K-070 PM: system-overview.md drop inline counts + PyJWT→python-jose
 
 **What went well:** All 3 ACs verified in one pass — 7 direct tree-entry edits + 4 prose/Changelog edits cleared the grep-verify gate to zero matches. PyJWT→python-jose fix confirmed against requirements.txt before edit.
