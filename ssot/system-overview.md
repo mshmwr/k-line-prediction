@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-04-30 (K-048)
+updated: 2026-05-01 (K-069)
 ---
 
 ## Summary

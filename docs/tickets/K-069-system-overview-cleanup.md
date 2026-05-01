@@ -1,7 +1,7 @@
 ---
 id: K-069
 title: system-overview.md cleanup — stale annotations, structure, changelog reduction
-status: open
+status: in-review
 created: 2026-05-01
 type: docs
 priority: medium
