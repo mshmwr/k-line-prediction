@@ -15,6 +15,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 - Newest first (reverse chronological)
 
 
+## 2026-05-02 — K-075 Phase 5 Re-run (post-AC-revision ≤130)
+
+**What went well:** All 16 sign-off conditions verified; tsc clean; Vitest 18/18 pass on new test files; 6 Playwright failures — 5 match known-reds by identity.
+**What went wrong:** Two pre-existing unlisted failures found (T-COPY-RAPID + diary.legacy-merge word count) — neither introduced by K-075 but neither in known-reds manifest, forcing hard block per protocol.
+**Next time improvement:** Before final sign-off run, grep known-reds manifest for completeness against all suites (Vitest AND Playwright), not just Playwright.
+**Slowest step:** Full Playwright suite (54s); canonical re-run of T-COPY-RAPID to rule out hydration drift added ~13s.
+
 ## 2026-05-02 — K-075 Final Sign-off
 
 **What went well:** 323 passed; tsc zero errors; all 6 ACs verified by script (line count wc -l=129, 3 hook files, no UnifiedNavBar/Footer, K-013 import chain, no eslint-disable in MatchList.tsx); 7 failures all identity-matched known-reds.
