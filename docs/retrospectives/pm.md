@@ -4,6 +4,18 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-01 — K-071 PM: processRules query script + backfill 5→17 (docs+feat)
+
+**What went well:** QA Early Consultation caught the `visual-delta: yes` misclaim before Engineer started — processRules are not rendered by any frontend component, saving a needless Pencil SSOT sync gate. Generator auto-computed all 12 new weights correctly (exit 0). K-063 Release Status correction (no-change → added) resolved a carryover from the previous session.
+
+**What went wrong:** Two coding discipline violations surfaced in code review: (1) unsolicited COL/row() abstraction + secondary sort in query script; (2) missing JSDoc header. Both fixed before commit. Visual-delta misclaim was authored without checking if processRules have a renderer — pre-verify first next time.
+
+**Next time improvement:** For any ticket touching processRules[], before setting visual-delta, run `grep -rn 'processRules' frontend/src/` to confirm whether a renderer exists.
+
+**Slowest step:** QA Early Consultation trace (3 grep passes through frontend source) to confirm no component reads `siteContent.processRules` — expected 1 pass, needed 3 to be certain.
+
+---
+
 ## 2026-05-01 — K-070 PM: ticket stub open (docs-only, trivial)
 
 No observation — single-file ticket stub creation; no decisions, no errors.

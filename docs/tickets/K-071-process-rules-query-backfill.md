@@ -1,8 +1,9 @@
 ---
 id: K-071
 title: processRules — PM quick-query script + systematic backfill (5 → 17 entries)
-status: open
+status: closed
 created: 2026-05-01
+closed: 2026-05-01
 type: feat+docs
 priority: medium
 size: medium
@@ -159,4 +160,4 @@ None. No runtime behavior changes; SSOT JSON data update only.
 
 ## Release Status
 
-- (open)
+- `site-content.json review: added × 12 (deploy-local-docker-dry-run / real-csv-integration-test-mandatory / ticket-derived-ssot-pipeline / shared-component-inventory-check / split-ssot-visual-vs-textual / contract-test-ssot-fixture / sacred-regression-inventory-audit / pencil-designer-parity-code-review / retro-slowest-step-mandatory / visual-ssot-sync-gate / ac-grep-raw-count-sanity / marker-block-generator-discipline); processRules expanded 5→17 entries; K-063 corrected from no-change→added`

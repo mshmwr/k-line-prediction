@@ -32,3 +32,7 @@ Codify the **Slowest step** field (first used in K-062 engineer retro) as a mand
 
 ### Phase 1 — Implementation (docs-only)
 Files: `ssot/workflow.md`, `~/.claude/agents/engineer.md` (and other role files)
+
+## Release Status
+
+- `site-content.json review: added: retro-slowest-step-mandatory (K-063 2026-04-29) — mandatory Slowest step field in all per-role retrospective entries; cross-role quality discipline rule, not just internal format; retroactively corrected from no-change via K-071 2026-05-01`
