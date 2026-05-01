@@ -130,3 +130,13 @@ known-reds introduced). `npx tsc --noEmit` reports zero errors.
 | 4 — Code Review | Reviewer (breadth + depth) | 0 Critical / 0 Warning |
 | 5 — QA | QA | Full regression pass |
 | 6 — Close | PM | All ACs verified |
+
+---
+
+## Retrospective
+
+### Engineer
+
+**AC judgments that were wrong:** AC-075-APPPAGE-LINE-COUNT ≤ 100 line constraint — actual JSX Sacred structure (K-030 data-testids + history-reference render) is ~80 lines, yielding AppPage at 127 lines; design doc estimate of ~92 lines assumed 40-line JSX.
+**Edge cases not anticipated:** K-013 `computeStatsFromMatches` import required in AppPage (Sacred contract), but after extracting K-013 logic to workspaceComputation.ts the import becomes unused — resolved by keeping the import in place (TypeScript allows unused imports without noUnusedLocals flag; grep check passes).
+**Next time improvement:** Before publishing ≤ N line constraint in a ticket, grep the actual JSX block of the current component and count lines to get a realistic estimate.
