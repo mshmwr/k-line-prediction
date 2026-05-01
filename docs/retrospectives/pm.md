@@ -4,6 +4,20 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-074 PM: arch quick wins (NavBar rm + selected_ids default + PasswordForm contrast)
+
+**What went well:** All 3 ACs verified before PR merge (grep-confirmed zero NavBar consumers, Pydantic instantiation test, file read for amber-700). Code reviewer subagent confirmed no Simplicity First or Surgical Changes violations. Playwright 45/45 passed. QW4 (PyJWT fix) correctly deferred to K-070 scope rather than mixed into runtime PR.
+
+**What went wrong:** PM kickoff was skipped entirely — engineer began implementing after arch report without creating ticket, defining AC, or documenting QA consultation. User caught this mid-session. Required retroactive branch rename (ops-arch-qw → K-074-arch-qw), PR close (#98) + reopen (#99), ticket creation, and PM-dashboard update.
+
+**Next time improvement:** After any architect/review report → PM creates ticket stub with AC before releasing to Engineer. "開始做" = PM kickoff + ticket, not direct implementation.
+
+**Slowest step:** Retroactive flow repair after user pointed out violation — estimated 30 min overhead that proper PM kickoff would have prevented.
+
+**Codified:** None this session; pattern is already in flow rules.
+
+---
+
 ## 2026-05-01 — K-072/K-066/K-073 PM: content SSOT externalize + K-066 designer close + K-072 processRules close
 
 **What went well:** QA Early Consultation correctly scoped K-073 to 5 ACs — Sacred constraints (PageHeaderSection, BuiltByAIBanner), K-066 AC-066-SSOT conflict (PIPELINE_DEPTH), and JSX-body non-serializability (ReliabilityPillarsSection) all caught before Engineer started; zero rescheduled work. K-072 processRules=0 decision was clean (no component renderer confirmed in one grep pass).
