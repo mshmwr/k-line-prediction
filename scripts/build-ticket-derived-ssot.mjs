@@ -407,6 +407,9 @@ function buildSiteContentJson(tickets, existingSiteContent) {
       last: m.ticketRange.last,
     },
     ...(preserved.folderStructure ? { folderStructure: preserved.folderStructure } : {}),
+    ...(preserved.homeContent ? { homeContent: preserved.homeContent } : {}),
+    ...(preserved.aboutContent ? { aboutContent: preserved.aboutContent } : {}),
+    ...(preserved.pipeline ? { pipeline: preserved.pipeline } : {}),
   }
 
   return toJson(output)
@@ -818,6 +821,19 @@ function renderFolderStructure(tree) {
   return '```\n' + tree.join('\n') + '\n```'
 }
 
+// ── METRICS marker renderer (AC-073-METRICS-MARKER) ─────────────────────────
+
+function renderMetricsLine(sc) {
+  const featuresShipped = sc.metrics?.featuresShipped?.value ?? 0
+  const acCovered       = sc.metrics?.acCoverage?.covered ?? 0
+  const acTotal         = sc.metrics?.acCoverage?.total ?? 0
+  const postMortems     = sc.metrics?.postMortemsWritten?.value ?? 0
+  const lessons         = sc.metrics?.lessonsCodified?.value ?? 0
+  return `${featuresShipped}+ tickets shipped · ${acCovered}/${acTotal} AC covered · ${postMortems} post-mortems · ${lessons} lessons codified`
+}
+
+const metricsMarkerRe = /<!--\s*METRICS:start\s*-->\n([\s\S]*?)\n<!--\s*METRICS:end\s*-->/
+
 function emitReadmeMarkers(corpus, siteContent, checkMode) {
   const readmeContent = corpus.readme.content
   const relPath = relative(REPO_ROOT, README_PATH)
@@ -830,6 +846,7 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
   const stackMatch = readmeContent.match(stackMarkerRe)
   const namedMatch = readmeContent.match(namedArtefactsRe)
   const folderMatch = readmeContent.match(folderStructureMarkerRe)
+  const metricsMatch = readmeContent.match(metricsMarkerRe)
 
   if (!stackMatch) {
     process.stderr.write(`build-ticket-derived-ssot: README missing <!-- STACK:start --> marker pair (exit 2)\n`)
@@ -837,6 +854,10 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
   }
   if (!namedMatch) {
     process.stderr.write(`build-ticket-derived-ssot: README missing <!-- NAMED-ARTEFACTS:start --> marker pair (exit 2)\n`)
+    process.exit(2)
+  }
+  if (!metricsMatch) {
+    process.stderr.write(`build-ticket-derived-ssot: README missing <!-- METRICS:start --> marker pair (exit 2)\n`)
     process.exit(2)
   }
   if (!folderMatch) {
@@ -861,10 +882,14 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
     ? renderFolderStructure(siteContent.folderStructure?.tree || [])
     : null
 
+  // AC-073-METRICS-MARKER: Generate metrics line from JSON
+  const metricsContent = renderMetricsLine(siteContent)
+
   // Replace marker block contents
   let newReadme = readmeContent
     .replace(stackMarkerRe, `<!-- STACK:start -->\n${stackContent}\n<!-- STACK:end -->`)
     .replace(namedArtefactsRe, `<!-- NAMED-ARTEFACTS:start -->\n${namedContent}\n<!-- NAMED-ARTEFACTS:end -->`)
+    .replace(metricsMarkerRe, `<!-- METRICS:start -->\n${metricsContent}\n<!-- METRICS:end -->`)
 
   if (folderMatch && folderContent !== null) {
     newReadme = newReadme.replace(
@@ -881,8 +906,10 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
     // Find which marker pair drifted
     const currentStack = (stackMatch[1] || '').trim()
     const currentNamed = (namedMatch[1] || '').trim()
+    const currentMetrics = (metricsMatch[1] || '').trim()
     const genStack = stackContent.trim()
     const genNamed = namedContent.trim()
+    const genMetrics = metricsContent.trim()
 
     if (currentStack !== genStack) {
       process.stderr.write(
@@ -895,6 +922,13 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
       process.stderr.write(
         `build-ticket-derived-ssot: DRIFT in ${relPath}\n` +
         `  field/clause: NAMED-ARTEFACTS marker block\n` +
+        `  fix: node scripts/build-ticket-derived-ssot.mjs && git add ${relPath}\n`
+      )
+    }
+    if (currentMetrics !== genMetrics) {
+      process.stderr.write(
+        `build-ticket-derived-ssot: DRIFT in ${relPath}\n` +
+        `  field/clause: METRICS marker block\n` +
         `  fix: node scripts/build-ticket-derived-ssot.mjs && git add ${relPath}\n`
       )
     }
@@ -918,7 +952,7 @@ function emitReadmeMarkers(corpus, siteContent, checkMode) {
     const namedLines = namedContent.split('\n').length
     const folderLines = folderContent ? folderContent.split('\n').length : 0
     process.stdout.write(
-      `build-ticket-derived-ssot: wrote ${relPath} marker blocks (STACK: ${stackLines} badge lines, NAMED-ARTEFACTS: ${namedLines} entries, FOLDER-STRUCTURE: ${folderLines} lines)\n`
+      `build-ticket-derived-ssot: wrote ${relPath} marker blocks (STACK: ${stackLines} badge lines, NAMED-ARTEFACTS: ${namedLines} entries, FOLDER-STRUCTURE: ${folderLines} lines, METRICS: 1 line)\n`
     )
     return 0
   } catch (e) {

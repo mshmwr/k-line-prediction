@@ -1,28 +1,13 @@
 import CardShell from '../primitives/CardShell'
 import FileNoBar from './FileNoBar'
 import siteContent from '@/content/site-content.json'
+import type { WhereIRow } from '../../content/site-content.types'
 
 const { metrics } = siteContent
 // Not in site-content.json: build script auto-overwrites metrics block; architectural constant per K-066 AC-066-SSOT
 const PIPELINE_DEPTH = 6
 
-const ROWS = [
-  {
-    aiDid: 'Architect proposed component tree + API contract',
-    iDecided: 'Approved scope, rejected over-abstraction, set sacred constraints',
-    outcome: 'Each ticket ships with a verifiable artefact trail',
-  },
-  {
-    aiDid: 'Engineer implemented + Reviewer flagged bugs',
-    iDecided: 'Confirmed root cause, approved fix strategy',
-    outcome: 'Zero regressions across 60+ merged PRs',
-  },
-  {
-    aiDid: 'Designer produced Pencil spec per each visual ticket',
-    iDecided: 'Selected visual direction (A/B/C options), approved design-locked gate',
-    outcome: 'SSOT maintained across 3-page redesign',
-  },
-]
+const rows = siteContent.aboutContent.whereISteppedIn.rows satisfies WhereIRow[]
 
 const HEADERS = ['AI DID', 'I DECIDED', 'OUTCOME'] as const
 
@@ -43,7 +28,7 @@ export default function WhereISteppedInSection() {
       <div data-testid="where-i-table" className="mb-4">
         {/* Cards — all breakpoints */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px]">
-          {ROWS.map((row, i) => (
+          {rows.map((row, i) => (
             <CardShell key={i} padding="md">
               <FileNoBar fileNo={i + 1} label="COMPARISON" />
               <div className="flex flex-col gap-2 pt-3">

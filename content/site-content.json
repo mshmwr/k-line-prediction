@@ -1,4 +1,92 @@
 {
+  "aboutContent": {
+    "architecture": [
+      {
+        "category": "BACKBONE",
+        "fields": [
+          {
+            "label": "BOUNDARY",
+            "type": "labelValue",
+            "value": "Frontend (React/TypeScript) and backend (FastAPI/Python) live in one repo.",
+            "valueFont": "body"
+          },
+          {
+            "label": "CONTRACT",
+            "type": "labelValue",
+            "value": "Every cross-layer change starts with a written API contract mapping snake_case (backend) ↔ camelCase (frontend) — parallel agents implement against it.",
+            "valueFont": "body"
+          }
+        ],
+        "no": 1,
+        "title": "Monorepo, contract-first"
+      },
+      {
+        "category": "DISCIPLINE",
+        "fields": [
+          {
+            "label": "SPEC FORMAT",
+            "type": "labelValue",
+            "value": "Acceptance Criteria are written in Behavior-Driven Development (BDD) style — Given/When/Then/And scenarios — so every Playwright test mirrors the spec 1:1.",
+            "valueFont": "body"
+          },
+          {
+            "label": "FLOW",
+            "type": "labelValue",
+            "value": "PRD → docs/tickets/K-XXX.md → role retrospectives.",
+            "valueFont": "mono"
+          }
+        ],
+        "no": 2,
+        "title": "Docs-driven tickets"
+      },
+      {
+        "category": "ASSURANCE",
+        "fields": [
+          {
+            "rows": [
+              {
+                "detail": "Vitest (frontend), pytest (backend).",
+                "layerLabel": "UNIT",
+                "no": "01"
+              },
+              {
+                "detail": "FastAPI test client.",
+                "layerLabel": "INTEGRATION",
+                "no": "02"
+              },
+              {
+                "detail": "Playwright, including a visual-report pipeline that renders every page to HTML for human review.",
+                "layerLabel": "E2E",
+                "no": "03"
+              }
+            ],
+            "type": "pyramid"
+          }
+        ],
+        "no": 3,
+        "title": "Three-layer testing pyramid"
+      }
+    ],
+    "whereISteppedIn": {
+      "rows": [
+        {
+          "aiDid": "Architect proposed component tree + API contract",
+          "iDecided": "Approved scope, rejected over-abstraction, set sacred constraints",
+          "outcome": "Each ticket ships with a verifiable artefact trail"
+        },
+        {
+          "aiDid": "Engineer implemented + Reviewer flagged bugs",
+          "iDecided": "Confirmed root cause, approved fix strategy",
+          "outcome": "Zero regressions across 60+ merged PRs"
+        },
+        {
+          "aiDid": "Designer produced Pencil spec per each visual ticket",
+          "iDecided": "Selected visual direction (A/B/C options), approved design-locked gate",
+          "outcome": "SSOT maintained across 3-page redesign"
+        }
+      ]
+    }
+  },
   "folderStructure": {
     "comment": "Hand-authored. Edit here; generator emits to README FOLDER-STRUCTURE marker block.",
     "tree": [
@@ -24,13 +112,35 @@
       "└── ssot/                 # Project SSOT (system-overview, PRD, conventions, workflow)"
     ]
   },
-  "lastUpdated": "2026-05-01T15:22:21+08:00",
+  "homeContent": {
+    "steps": [
+      {
+        "description": "Drop in a CSV of 24 × 1H OHLC bars. The reference sample.",
+        "no": "01",
+        "title": "Upload",
+        "verb": "INGEST"
+      },
+      {
+        "description": "Cosine similarity walks the history database to rank windows.",
+        "no": "02",
+        "title": "Scan",
+        "verb": "MATCH"
+      },
+      {
+        "description": "Show the price action that followed each matched window.",
+        "no": "03",
+        "title": "Project",
+        "verb": "PROJECT"
+      }
+    ]
+  },
+  "lastUpdated": "2026-05-01T15:50:22+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 68,
+      "covered": 69,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 68
+      "total": 69
     },
     "featuresShipped": {
       "label": "Features Shipped",
@@ -42,8 +152,11 @@
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
-      "value": 35
+      "value": 36
     }
+  },
+  "pipeline": {
+    "agentCount": 6
   },
   "processRules": [
     {
@@ -312,6 +425,6 @@
   ],
   "ticketRange": {
     "first": "K-001",
-    "last": "K-072"
+    "last": "K-073"
   }
 }

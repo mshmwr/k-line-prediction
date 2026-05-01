@@ -1,4 +1,10 @@
 import ArchPillarBlock from './ArchPillarBlock'
+import siteContent from '@/content/site-content.json'
+import type { ArchLayer } from '../../content/site-content.types'
+
+// resolveJsonModule widens literals to string; cast through unknown to ArchLayer[] for map usage.
+// ArchLayer uses string for discriminant fields (category, type) — satisfies verifies structural shape.
+const architectureLayers = siteContent.aboutContent.architecture as unknown as ArchLayer[]
 
 /**
  * S6 — ProjectArchitectureSection (K-034 Phase 2 §7 Step 7 — D-16/D-17/D-18/D-26/D-27)
@@ -22,77 +28,15 @@ export default function ProjectArchitectureSection() {
         — How the codebase stays legible for a solo operator + AI agents.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px]">
-        <ArchPillarBlock
-          layerNo={1}
-          category="BACKBONE"
-          title="Monorepo, contract-first"
-          fields={[
-            {
-              type: 'labelValue',
-              label: 'BOUNDARY',
-              value:
-                'Frontend (React/TypeScript) and backend (FastAPI/Python) live in one repo.',
-              valueFont: 'body',
-            },
-            {
-              type: 'labelValue',
-              label: 'CONTRACT',
-              value:
-                'Every cross-layer change starts with a written API contract mapping snake_case (backend) ↔ camelCase (frontend) — parallel agents implement against it.',
-              valueFont: 'body',
-            },
-          ]}
-        />
-
-        <ArchPillarBlock
-          layerNo={2}
-          category="DISCIPLINE"
-          title="Docs-driven tickets"
-          fields={[
-            {
-              type: 'labelValue',
-              label: 'SPEC FORMAT',
-              value:
-                'Acceptance Criteria are written in Behavior-Driven Development (BDD) style — Given/When/Then/And scenarios — so every Playwright test mirrors the spec 1:1.',
-              valueFont: 'body',
-            },
-            {
-              type: 'labelValue',
-              label: 'FLOW',
-              value: 'PRD → docs/tickets/K-XXX.md → role retrospectives.',
-              valueFont: 'mono',
-            },
-          ]}
-        />
-
-        <ArchPillarBlock
-          layerNo={3}
-          category="ASSURANCE"
-          title="Three-layer testing pyramid"
-          fields={[
-            {
-              type: 'pyramid',
-              rows: [
-                {
-                  no: '01',
-                  layerLabel: 'UNIT',
-                  detail: 'Vitest (frontend), pytest (backend).',
-                },
-                {
-                  no: '02',
-                  layerLabel: 'INTEGRATION',
-                  detail: 'FastAPI test client.',
-                },
-                {
-                  no: '03',
-                  layerLabel: 'E2E',
-                  detail:
-                    'Playwright, including a visual-report pipeline that renders every page to HTML for human review.',
-                },
-              ],
-            },
-          ]}
-        />
+        {architectureLayers.map(layer => (
+          <ArchPillarBlock
+            key={layer.no}
+            layerNo={layer.no}
+            category={layer.category as 'BACKBONE' | 'DISCIPLINE' | 'ASSURANCE'}
+            title={layer.title}
+            fields={layer.fields as Parameters<typeof ArchPillarBlock>[0]['fields']}
+          />
+        ))}
       </div>
     </div>
   )
