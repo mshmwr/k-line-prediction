@@ -4,6 +4,18 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-01 — K-069 PM: system-overview.md SSOT cleanup (docs-only)
+
+**What went well:** Disk verification before editing (grepped all 22 stale items against disk state before any Edit) prevented incorrect deletions. Phase 2 delegation to senior-architect agent was clean. Byte-count analysis (123 KB → 58 KB, −53%) correctly explained why line-count reduction looked small.
+
+**What went wrong:** (1) Edit for `types/diary.ts` tree line failed twice — constructed old_string from Read output instead of grepping for exact line; box-drawing character nesting depth differs at different levels but looks identical in Read output. (2) Inner PR #88 merged without retro entry — violated docs-only sequence; `feedback_docs_only_pr_retro_sequence.md` was referenced in CLAUDE.md but had never been created.
+
+**Next time improvement:** Tree-structure edits: always `grep -n "filename"` first to copy exact line before constructing old_string. Docs-only wrap-up: run pre-push self-check (retro + diary staged) before `git push`.
+
+**Codified:** `feedback_tree_edit_grep_first.md` + `feedback_docs_only_pr_retro_sequence.md` created in memory.
+
+---
+
 ## 2026-04-30 — K-048 PM: Phase 1 ticket close + deploy
 
 **What went well:** BQ rulings (3 decisions) were clean; QA known-reds PM ruling (add 3 pre-existing failures to manifest, clear block) was correct and unblocked deploy without re-testing. Role handoffs PM→Architect→Engineer→Reviewer→QA executed without user prompts.
