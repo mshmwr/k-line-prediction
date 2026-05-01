@@ -15,6 +15,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 - Newest first (reverse chronological)
 
 
+## 2026-05-02 — K-075 Final Sign-off
+
+**What went well:** 323 passed; tsc zero errors; all 6 ACs verified by script (line count wc -l=129, 3 hook files, no UnifiedNavBar/Footer, K-013 import chain, no eslint-disable in MatchList.tsx); 7 failures all identity-matched known-reds.
+**What went wrong:** visual-report spec (`K-008 Visual Report`) fails without TICKET_ID but is not in the known-reds manifest — sign-off blocked on identity check until environmental context confirmed pre-existing.
+**Next time improvement:** Add visual-report to known-reds manifest with reason "requires TICKET_ID env var at runtime; environmental, not a regression."
+**Slowest step:** Playwright full suite (1.1 min); unavoidable for full regression.
+
 ## 2026-05-02 — Phase 2 (K-075)
 
 **What went well:** Design doc §6 explicitly flagged TD-004 Playwright gap + analytics migration risk — both surfaced as Challenges without needing extra investigation.
