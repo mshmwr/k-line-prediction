@@ -4,6 +4,18 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-01 — PM: site-content.json review retroactive backfill (K-062/063/064/065/069)
+
+**What went well:** Root cause isolated in one pass; all 5 tickets assessed consistently as no-change with distinct rationales.
+
+**What went wrong:** K-052 close left `feedback_pm_site_content_review.md` unwritten, removing the only secondary recall path for the mandatory checklist step — 5 consecutive tickets missed it.
+
+**Next time improvement:** Any pm.md checklist item that references a "memory: X (to be authored)" must be treated as a blocking deliverable of the same commit, not a deferred note.
+
+**Codified:** `feedback_pm_site_content_review.md` authored + `pm.md` Docs-only alert added (outer Diary PR #131).
+
+---
+
 ## 2026-05-01 — K-070 PM: ticket stub open (docs-only, trivial)
 
 No observation — single-file ticket stub creation; no decisions, no errors.

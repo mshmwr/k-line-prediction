@@ -29,3 +29,7 @@ Two small UI fixes shipped together:
 - **AC-064-HERO:** `HeroSection.tsx` line 2 uses `brick` color token (not `brick-dark`)
 - **AC-064-METRIC:** `MetricCard.tsx` `CardShell` className no longer contains `min-h-[280px]`
 - **AC-064-REGRESSION:** All pre-existing Playwright green tests remain green
+
+## Release Status
+
+- `site-content.json review: no-change — UI token fix; no process rule codified (retroactive backfill 2026-05-01)`

@@ -41,3 +41,7 @@ Add a Folder Structure section to README.md, driven by a new `folderStructure.tr
 Files: `content/site-content.json`, `scripts/build-ticket-derived-ssot.mjs`, `README.md`
 
 ### Phase 2 — Code Review + QA + Close
+
+## Release Status
+
+- `site-content.json review: no-change — SSOT generator extension adds new folderStructure output artefact; not a process/governance rule for processRules[] showcase (retroactive backfill 2026-05-01)`

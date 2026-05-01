@@ -32,3 +32,7 @@ Codify the **Slowest step** field (first used in K-062 engineer retro) as a mand
 
 ### Phase 1 — Implementation (docs-only)
 Files: `ssot/workflow.md`, `~/.claude/agents/engineer.md` (and other role files)
+
+## Release Status
+
+- `site-content.json review: no-change — internal retro format discipline (Slowest step field); not an external-facing portfolio process rule for processRules[] showcase (retroactive backfill 2026-05-01)`
