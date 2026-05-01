@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import fs from 'node:fs'
 import path from 'node:path'
-import { parseOfficialCsvFile } from '../AppPage'
+import { parseOfficialCsvFile } from '../utils/officialCsvParsing'
 
 /**
  * AC-046-PHASE2-EXAMPLE-PARSE — parse-layer coverage for the committed example
