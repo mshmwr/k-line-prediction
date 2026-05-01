@@ -252,8 +252,7 @@ function PredictorChart({
     return () => {
       disposeChart()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [base, startDate, timeframe, historical.length, future.length, historicalMa99.length, futureMa99.length])
+  }, [base, startDate, timeframe, histData, futData, historicalMa99, futureMa99])
 
   return (
     <div className="relative w-full rounded overflow-hidden" style={{ height: CHART_HEIGHT }}>
@@ -408,6 +407,7 @@ export function MatchList({ matches, selected, onToggle, timeframe }: Props) {
                     </span>
                   </div>
                   <PredictorChart
+                    key={`${m.id}_${m.startDate}_${hist.length}_${fut.length}_${String(hist[0]?.close ?? '')}_${String(fut[0]?.close ?? '')}`}
                     historical={hist}
                     future={fut}
                     startDate={m.startDate}
