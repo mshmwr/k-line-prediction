@@ -1,13 +1,13 @@
 {
-  "ticket": "K-066",
+  "ticket": "K-072",
   "frameId": "4CsvQ",
   "penFile": "frontend/design/homepage-v2.pen",
   "frameName": "Homepage / (v2 Dossier)",
   "route": "/",
   "width": 1440,
   "background": "#F4EFE5",
-  "generatedAt": "2026-04-29",
-  "generatorNote": "K-066 sync — hero subtext (PrI8l) updated to learning-not-trading framing; stack order corrected to TypeScript-first (MdNRn); hero product-shot placeholder added as rectangle JKNC5 (fill_container × 540, cornerRadius 8, border+shadow #2A2520). Prior: K-059 hero description + disclaimerBody; K-060 DisclaimerBanner + DisclaimerSection.",
+  "generatedAt": "2026-05-01",
+  "generatorNote": "K-072 sync — hero-product-shot rectangle updated (KhfTh, 960×540 with border+shadow); disclaimerBody updated to concise learning-only copy; second heroBtns node I5m9VG added. Prior: K-066 hero subtext + stack order + placeholder JKNC5; K-059/K-060 DisclaimerBanner + DisclaimerSection.",
   "components": [
     {
       "role": "disclaimer-banner",
@@ -59,7 +59,7 @@
         { "role": "hero-title-accent", "nodeId": "2bQtY", "content": "lookup engine.", "font": { "family": "Geist Mono", "size": 56, "weight": "700", "lineHeight": 1.1 }, "color": "#9C4A3B" },
         { "role": "hero-divider", "nodeId": "u7CDu", "fill": "#2A2520", "height": 1 },
         { "role": "hero-subtitle", "nodeId": "PrI8l", "content": "Search past ETH/USDT formations that resemble any candlestick window. Inspect what came after — for learning, not for trading signals.", "font": { "family": "Geist Mono", "size": 16, "weight": "normal", "lineHeight": 1.5 }, "color": "#1A1814" },
-        { "role": "hero-product-shot", "nodeId": "JKNC5", "name": "heroShotPlaceholder", "note": "Placeholder for /hero-shot.png — actual image served from public/hero-shot.png at runtime. Width fill_container, height 540, cornerRadius 8, border #2A2520 1px, shadow 0 2px 0 #2A2520.", "fill": "#E8E0D4", "width": "fill_container", "height": 540, "cornerRadius": 8, "stroke": { "fill": "#2A2520", "thickness": 1 }, "shadow": { "offset": { "x": 0, "y": 2 }, "color": "#2A2520" } },
+        { "role": "hero-product-shot", "nodeId": "KhfTh", "name": "hero-product-shot", "note": "Product shot placeholder rectangle. Width 960, height 540, cornerRadius 8, border #2A2520 1px center-align, shadow 0 2px 0 #2A2520 outer.", "width": 960, "height": 540, "cornerRadius": 8, "stroke": { "align": "center", "fill": "#2A2520", "thickness": 1 }, "shadow": { "offset": { "x": 0, "y": 2 }, "color": "#2A2520", "type": "outer" } },
         { "role": "cta-primary", "nodeId": "iz4bR", "fill": "#2A2520", "padding": [12, 26], "cornerRadius": 6, "label": { "nodeId": "iIZ8M", "content": "Run the ETH/USDT Demo →", "font": { "family": "Geist Mono", "size": 13, "weight": "700", "letterSpacing": 1 }, "color": "#F4EFE5" } }
       ]
     },
@@ -144,7 +144,7 @@
       "layout": "vertical",
       "items": [
         { "nodeId": "wd7SP", "name": "disclaimerHeading", "content": "Disclaimer", "font": { "family": "IBM Plex Mono", "size": 14, "weight": "700" }, "color": "#2A2520" },
-        { "nodeId": "Y2tTQR", "name": "disclaimerBody", "content": "K-Line Prediction is an educational tool that surfaces historically similar candlestick formations from past ETH/USDT data. It does not constitute financial advice, investment recommendation, or a forecast of future market behavior. Past patterns and historical similarity scores do not predict future returns — markets are non-stationary and prior outcomes carry no guarantee of recurrence. Use this tool at your own discretion and conduct independent due diligence before making any trading or investment decision.", "font": { "family": "Geist Mono", "size": 13, "weight": "normal", "lineHeight": 1.6 }, "color": "#2A2520", "width": "fill_container" }
+        { "nodeId": "Y2tTQR", "name": "disclaimerBody", "content": "This tool is for educational exploration of K-line pattern similarity only. It does not constitute financial advice, investment recommendations, or predictions of future market movements. Past pattern similarity does not guarantee future performance. Always conduct your own research and consult a qualified financial advisor before making any investment decisions.", "font": { "family": "Geist Mono", "size": 13, "weight": "normal", "lineHeight": 1.6 }, "color": "#2A2520", "width": "fill_container" }
       ]
     }
   ]

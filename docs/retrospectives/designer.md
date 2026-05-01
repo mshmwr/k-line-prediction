@@ -14,6 +14,13 @@
 
 - 倒序（最新在上）
 
+## 2026-05-01 — K-072 JSON spec export: GMEdT + 4CsvQ sync
+
+**What went well:** Both JSONs updated to match live Pencil node values (GMEdT wsOutcome 44→49, 4CsvQ hero-product-shot JKNC5→KhfTh, disclaimerBody concise copy); all 5 verification greps passed; validator exit 0 on all 23 specs; git status confirmed disk write.
+**What went wrong:** Prior GMEdT JSON had stale counter (44) from K-067 session that was never updated when `.pen` was edited; 4CsvQ JSON had stale JKNC5 node reference replaced by KhfTh in a prior session with no JSON backfill.
+**Next time improvement:** When PM-instructed to export a JSON spec, grep the existing JSON for key counters/nodeIds before writing to catch staleness — do not assume prior JSON matches current `.pen` state.
+**Slowest step:** Cross-checking the full batch_get node tree against two existing JSON files simultaneously; combining both reads in one call saved context turns.
+
 ## 2026-04-30 — K-068 design-spec schema + validator (no .pen edits)
 
 **What went well:** No `.pen` work this session — pure tooling ticket. Validator caught the K-067 root cause (`about-v2.frame-GMEdT.json` `wsCardsWrapper` missing `responsive` + `tailwindHint`) on first run, plus 2 footer specs that needed explicit no-change declarations. All 23 frame specs pass after 3-file patch.
