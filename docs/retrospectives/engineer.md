@@ -16,6 +16,18 @@
 
 ---
 
+## 2026-05-01 — K-073 Phase 2 — Content SSOT externalize
+
+**What went well:** All eight implementation steps completed in order; generator sync confirmed idempotent on second run.
+
+**What went wrong:** `buildSiteContentJson` in the generator only preserved `stack`, `processRules`, `renderSlots`, `folderStructure` — the new `homeContent`, `aboutContent`, `pipeline` fields were silently wiped on first generator run. Also `satisfies ArchLayer[]` cannot work with `resolveJsonModule`-widened JSON literals (`"BACKBONE"` → `string`), requiring `as unknown as ArchLayer[]` cast at the usage site instead of a pure `satisfies` expression.
+
+**Next time improvement:** When adding new hand-authored fields to `site-content.json`, always check `buildSiteContentJson` preservation list first — add the new field to the spread before running the generator. For `satisfies` + `resolveJsonModule` + discriminated unions: use structural types with `string` for discriminant fields; pure `satisfies` with literal unions only works for inline object literals, not JSON imports.
+
+**Slowest step:** Diagnosing the `satisfies` + `resolveJsonModule` literal widening incompatibility — required three tsc iterations before switching to `as unknown as` cast strategy.
+
+---
+
 ## 2026-04-30 — K-048 Phase 2 (Part 2) — Binance Vision + Cloud Run deploy fix
 
 **What went well:** All three runtime bugs (numpy import chain, geo-block 451, µs timestamps) diagnosed directly from error messages with no guessing; `normalize_bar_time` already handled µs — zero new code for timestamp fix.

@@ -158,6 +158,40 @@ test.describe('HomePage — AC-017-HOME-V2', () => {
   })
 })
 
+// ── AC-073-STEPS-ASSERTIONS ──────────────────────────────────────────────────
+// Given: user visits /
+// When:  page loads (ProjectLogicSection v2, steps from site-content.json)
+// Then:  step title "Upload" and its description are visible (exact match)
+//        WhereISteppedIn outcome cell text is visible (exact match)
+
+test.describe('HomePage — AC-073-STEPS-ASSERTIONS', () => {
+  test('step title "Upload" visible (exact)', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByText('Upload', { exact: true })).toBeVisible()
+  })
+
+  test('step description for step 01 visible (exact)', async ({ page }) => {
+    await page.goto('/')
+    await expect(
+      page.getByText('Drop in a CSV of 24 × 1H OHLC bars. The reference sample.', { exact: true })
+    ).toBeVisible()
+  })
+})
+
+// ── AC-073-WHERE-ASSERTIONS ──────────────────────────────────────────────────
+// Given: user visits /about
+// When:  page loads (WhereISteppedInSection, rows from site-content.json)
+// Then:  one outcome cell value is visible (exact match)
+
+test.describe('AboutPage — AC-073-WHERE-ASSERTIONS', () => {
+  test('WhereISteppedIn outcome cell "Each ticket ships with a verifiable artefact trail" visible (exact)', async ({ page }) => {
+    await page.goto('/about')
+    await expect(
+      page.getByText('Each ticket ships with a verifiable artefact trail', { exact: true })
+    ).toBeVisible()
+  })
+})
+
 // AC-017-FOOTER /diary negative clause retired per K-034 Phase 3 §BQ-034-P3-03 — user intent change 2026-04-23; Footer now covered by shared-components.spec.ts T1 (byte-identity 4 routes)
 
 // ── AC-023-DIARY-BULLET ──────────────────────────────────────────────────────

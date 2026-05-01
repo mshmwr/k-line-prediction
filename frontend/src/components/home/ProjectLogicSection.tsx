@@ -1,22 +1,7 @@
 import siteContent from '@/content/site-content.json'
+import type { Step } from '../../content/site-content.types'
 
-const STEPS = [
-  {
-    label: 'STEP 01 · INGEST',
-    title: 'Upload',
-    description: 'Drop in a CSV of 24 × 1H OHLC bars. The reference sample.',
-  },
-  {
-    label: 'STEP 02 · MATCH',
-    title: 'Scan',
-    description: 'Cosine similarity walks the history database to rank windows.',
-  },
-  {
-    label: 'STEP 03 · PROJECT',
-    title: 'Project',
-    description: 'Show the price action that followed each matched window.',
-  },
-]
+const steps = siteContent.homeContent.steps satisfies Step[]
 
 export default function ProjectLogicSection() {
   return (
@@ -45,9 +30,9 @@ export default function ProjectLogicSection() {
 
       {/* Step cards */}
       <div className="grid grid-cols-3 gap-3.5">
-        {STEPS.map(s => (
+        {steps.map(step => (
           <div
-            key={s.label}
+            key={`STEP ${step.no} · ${step.verb}`}
             className="border border-[#1A1814] rounded-[6px] overflow-hidden bg-paper"
           >
             {/* Card header */}
@@ -56,17 +41,17 @@ export default function ProjectLogicSection() {
                 className="text-[10px] tracking-widest text-paper"
                 style={{ fontFamily: '"Geist Mono", monospace' }}
               >
-                {s.label}
+                {`STEP ${step.no} · ${step.verb}`}
               </span>
             </div>
             {/* Card body */}
             <div className="p-5 flex flex-col gap-3">
               <h3 className="text-[20px] font-bold text-[#1A1814]">
-                {s.title}
+                {step.title}
               </h3>
               <div className="w-10 h-px bg-charcoal" />
               <p className="text-[12px] leading-[1.55] text-[#1A1814]">
-                {s.description}
+                {step.description}
               </p>
             </div>
           </div>

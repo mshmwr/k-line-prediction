@@ -14,6 +14,42 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+
+
+## 2026-05-01 — K-073 Final Sign-off
+
+**What went well:** 327 tests passed; tsc clean; AC-073-STEPS-ASSERTIONS + AC-073-WHERE-ASSERTIONS + AC-073-METRICS-BLOCK all verified; 6 of 7 failures matched known-reds by identity.
+**What went wrong:** `docs/qa/known-reds.md` entry for `ga-spa-pageview.spec.ts` carries stale test title `AC-020-BEACON-SPA SPA navigation fires GA pageview beacon` (K-032 2026-04-21); actual test title is `AC-020-BEACON-SPA — SPA navigate fires a NEW beacon referencing /about` since K-049/K-057 rename; title mismatch blocks strict byte-equal identity check.
+**Next-time improvement:** When a test file is renamed or restructured, update the known-reds manifest in the same PR; manifest staleness is invisible until the next full-suite identity check.
+**Slowest step:** Tracing the ga-spa title mismatch to git log to confirm it predates K-073 (2 Bash calls); unavoidable but signals manifest needs a periodic freshness audit.
+
+## 2026-05-01 — K-073 Phase 2 Sign-off
+
+**What went well:** AC-073-STEPS-ASSERTIONS and AC-073-WHERE-ASSERTIONS confirmed in spec with exact markers; AC-029-ARCH-BODY-TEXT regression passed cleanly; generator --check exit 0.
+**What went wrong:** known-reds manifest missing `Footer snapshot on /` (homepage) — the K-059 entry covered /about + /diary but silently omitted /; identity check caught the gap at sign-off.
+**Next time improvement:** when adding snapshot known-red entries, enumerate all affected routes explicitly — never collapse sibling routes into a single entry.
+**Slowest step:** Playwright full suite (1.3 min); no avoidance possible for full regression.
+
+## 2026-05-01 — K-073 QA Early Consultation (PM proxy)
+
+**Status:** Complete — 9 challenges raised; 5 resolved to scope reduction, 4 resolved to AC refinement.
+
+**Challenges summary:**
+- C1 → PageHeaderSection removed from scope: subtitle is static role-name list, not a number; Sacred AC-017-HEADER exact-text constraint
+- C2 → BuiltByAIBanner removed from scope: "Six AI agents" is Pencil SSOT marketing copy; 2 exact-text E2E assertions would break
+- C3 → WhereISteppedInSection PIPELINE_DEPTH removed from scope: K-066 AC-066-SSOT mandates module-level constant; K-073 cannot override
+- C4 → Option B: README METRICS marker block added (new `<!-- METRICS:start -->...<!-- METRICS:end -->` block written by generator)
+- C5 → Option A: AC-073-HOME-STEPS requires behavior-equivalence E2E assertions for step title + description after migration
+- C6 → AC-073-ABOUT-PILLARS removed entirely: `body` prop is `ReactNode` with `<code>` markup; cannot JSON-serialize without markdown parser; no cross-page sync benefit
+- C7 → Option A: ArchPillarBlock `fields` union type schema provided in ticket §Schema section; `satisfies` required
+- C8 → AC-073-ABOUT-WHERE removed: K-066 open conflict (C9 sequencing); defer to post-K-066 ticket
+- C9 → K-066 must close before any K-073 work touches WhereISteppedInSection
+
+**What went well:** Caught three Sacred exact-text conflicts (C1/C2/C3) before Engineer wrote a single line — prevented guaranteed regression on about.spec.ts and pages.spec.ts.
+**What went wrong:** K-073 was scoped assuming all hardcoded strings are trivially JSON-serializable; JSX ReactNode body in Pillars and K-066 open conflict were not pre-checked before ticket authoring.
+**Next-time improvement:** Before scoping a content externalization ticket, PM must grep `frontend/src/` for ReactNode/JSX props and check open ticket list for conflicts on same component files. Both checks are SOR-verifiable and must run before ticket creation.
+**Slowest step:** Distinguishing Sacred exact-text constraints (C1/C2) from non-Sacred hardcoded strings — required reading all three spec files (about.spec.ts, about-v2.spec.ts, pages.spec.ts) to enumerate exact-text assertions per component.
+
 ## 2026-05-01 — K-072 QA Early Consultation (PM proxy)
 
 **Status:** Complete — 7 challenges raised. Ticket closed without implementation; PM decision.

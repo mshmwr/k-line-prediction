@@ -1,6 +1,9 @@
 # K-Line Prediction
 
-**Directing a team of AI coding agents to ship [a live K-line prediction web app](https://k-line-prediction-app.web.app) — six agents, one human operator, 40+ shipped tickets. Ten representative rules with their originating bugs in [`docs/agents-ruleset-highlights.md`](./docs/agents-ruleset-highlights.md).**
+<!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
+<!-- METRICS:start -->
+50+ tickets shipped · 69/69 AC covered · 36 post-mortems · 206 lessons codified
+<!-- METRICS:end -->
 
 <!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
 <!-- STACK:start -->
