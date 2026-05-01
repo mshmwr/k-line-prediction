@@ -15,6 +15,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 - Newest first (reverse chronological)
 
 
+## 2026-05-02 — Phase 2 (K-075)
+
+**What went well:** Design doc §6 explicitly flagged TD-004 Playwright gap + analytics migration risk — both surfaced as Challenges without needing extra investigation.
+**What went wrong:** AC-075-APPPAGE-LINE-COUNT's "all logic in hooks" clause has no automatable proxy beyond line count; gap was not caught at PM AC-authoring stage.
+**Next time improvement:** For refactor ACs, always add a grep-based "no inline hook calls in residual component" clause alongside the line-count gate.
+**Slowest step:** Tracing analytics call migration path through design doc (2 reads); future: design doc should explicitly list all analytics call sites in the sacred testid inventory section.
+
 
 ## 2026-05-01 — K-073 Final Sign-off
 
