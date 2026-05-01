@@ -17,7 +17,7 @@ export default function PasswordForm({ onSubmit, isLoading, expiredMessage }: Pa
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm w-full">
       {expiredMessage && (
-        <p className="text-yellow-400 text-sm border border-yellow-400/30 px-3 py-2 rounded-sm">
+        <p className="text-amber-700 text-sm border border-amber-700/30 px-3 py-2 rounded-sm">
           {expiredMessage}
         </p>
       )}
