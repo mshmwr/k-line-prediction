@@ -14,6 +14,24 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-01 — K-072 QA Early Consultation (PM proxy)
+
+**Status:** Complete — 7 challenges raised. Ticket closed without implementation; PM decision.
+
+**Challenges summary:**
+- C1 → Sacred violation risk: inserting ProcessRulesSection after `#architecture` breaks AC-031-LAYOUT-CONTINUITY (`document.getElementById('architecture')?.nextElementSibling?.tagName === 'footer'`); clean resolution = insert before architecture (push architecture to Nº 08)
+- C2 → No existing Playwright spec covers processRules rendering on About page — new spec would be required from scratch
+- C3 → `renderSlots.about.processRules = 0` guard required in component to prevent empty render
+- C4 → Weight ties have no stable secondary sort — spec must define deterministic tie-break
+- C5 → Severity badge enum validation: unknown severity value would silently render empty badge
+- C6 → Card text overflow at 390px viewport — title/summary line-clamp behavior unspecified
+- C7 → About page quick-impression audience mismatch: processRules detail suits developer/README audience, not portfolio visitor
+
+**What went well:** Sacred constraint caught pre-implementation — avoided a broken E2E suite on first Engineer run.
+**What went wrong:** Ticket opened before verifying no existing component reads `siteContent.processRules`; renderSlots slot being reserved != feature being planned for delivery.
+**Next-time improvement:** Before opening a feat ticket for a renderSlot component, PM should verify: (a) slot is non-zero, AND (b) a component reads the slot. Slot value alone is not sufficient signal.
+**Slowest step:** Enumerating all 7 challenges covering Sacred + new spec scope + audience fit — each requires a separate grep/Read pass through AboutPage.tsx, about-v2.spec.ts, and site-content.json.
+
 ## 2026-05-01 — K-071 QA Early Consultation (PM proxy)
 
 **Status:** Complete — 7 challenges raised; all 7 resolved to Option A (no blocker). Ticket correction: `visual-delta: yes` → `no`.
