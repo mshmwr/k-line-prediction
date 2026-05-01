@@ -4,6 +4,20 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-070 PM: system-overview.md drop inline counts + PyJWT→python-jose
+
+**What went well:** All 3 ACs verified in one pass — 7 direct tree-entry edits + 4 prose/Changelog edits cleared the grep-verify gate to zero matches. PyJWT→python-jose fix confirmed against requirements.txt before edit.
+
+**What went wrong:** AC-070-GREP-VERIFY grep pattern was broader than the AC text ("tree entries only") — it also matched prose rationale and Changelog entries. All matches cleaned to achieve the stated zero-match gate rather than raising a BQ, since the change was trivially safe.
+
+**Next time improvement:** When writing a grep-verify AC, test the pattern against the full file first to catch unintended matches in prose sections; scope the grep to a line range or add a context flag if the target is only the Directory Structure tree.
+
+**Slowest step:** First grep pass showing 6 residual matches after the initial 7 targeted edits — required a second analysis pass to separate tree entries from prose.
+
+**Codified:** None this session.
+
+---
+
 ## 2026-05-02 — K-074 PM: arch quick wins (NavBar rm + selected_ids default + PasswordForm contrast)
 
 **What went well:** All 3 ACs verified before PR merge (grep-confirmed zero NavBar consumers, Pydantic instantiation test, file read for amber-700). Code reviewer subagent confirmed no Simplicity First or Surgical Changes violations. Playwright 45/45 passed. QW4 (PyJWT fix) correctly deferred to K-070 scope rather than mixed into runtime PR.

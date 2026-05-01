@@ -1,7 +1,8 @@
 ---
 id: K-070
 title: system-overview.md — drop inline test/route/section counts from tree
-status: open
+status: closed
+closed: 2026-05-02
 created: 2026-05-01
 type: docs
 priority: low

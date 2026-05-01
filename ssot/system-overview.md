@@ -22,7 +22,7 @@ ETH/USDT K-line candlestick pattern similarity prediction system. User uploads r
 | Layer | Technology |
 |-------|-----------|
 | Frontend | TypeScript + React + Recharts + lightweight-charts + Vite + react-router-dom |
-| Backend | Python + FastAPI + PyJWT |
+| Backend | Python + FastAPI + python-jose |
 | Tests (FE) | Vitest + Playwright |
 | Tests (BE) | pytest |
 
@@ -69,10 +69,10 @@ ClaudeCodeProject/
 │   │       ├── conftest.py
 │   │       ├── test_auth.py     ← AC-AUTH-1/2/4 + AC-TEST-AUTH-3/5
 │   │       ├── test_main.py     ← main.py route integration（K-001 補齊 coverage）
-│   │       ├── test_predictor.py ← predictor 純函式測試（49 tests，含 K-013 contract parametrize 3 cases + fixture coverage + realism rule）
+│   │       ├── test_predictor.py ← predictor 純函式測試（含 K-013 contract parametrize + fixture coverage + realism rule）
 │   │       └── fixtures/                              ← K-013 跨層 contract fixture 目錄
 │   │           ├── __init__.py                        ← 空檔；讓 fixtures 成為 importable package
-│   │           ├── stats_contract_cases.json         ← 3 cases（all_matches_full_set / subset_deselect_one / single_match_two_bars）；snake_case expected；前後端共吃
+│   │           ├── stats_contract_cases.json         ← （all_matches_full_set / subset_deselect_one / single_match_two_bars）；snake_case expected；前後端共吃
 │   │           └── generate_stats_contract_cases.py  ← deterministic generator；呼叫現有 `compute_stats` 產 ground truth；後端改算法時一鍵重跑
 │   ├── frontend/
 │   │   ├── public/
@@ -84,21 +84,21 @@ ClaudeCodeProject/
 │   │   │   ├── pages.spec.ts
 │   │   │   ├── ma99-chart.spec.ts
 │   │   │   ├── navbar.spec.ts
-│   │   │   ├── diary-page.spec.ts          ← K-024 Phase 3; 29 test cases (DIARY-PAGE-CURATION×9 + TIMELINE×6 + ENTRY-LAYOUT×6 + PAGE-HERO×3 + CONTENT-WIDTH×5)
-│   │   │   ├── diary-homepage.spec.ts      ← K-024 Phase 3; 4 test cases (HOMEPAGE-CURATION 0/1/2/3-entry + tie-break)
+│   │   │   ├── diary-page.spec.ts          ← K-024 Phase 3; DIARY-PAGE-CURATION + TIMELINE + ENTRY-LAYOUT + PAGE-HERO + CONTENT-WIDTH
+│   │   │   ├── diary-homepage.spec.ts      ← K-024 Phase 3; HOMEPAGE-CURATION (0/1/2/3-entry + tie-break)
 │   │   │   ├── visual-report.ts          ← K-008 視覺報告 script（env var TICKET_ID → docs/reports/K-XXX-visual-report.html）
 │   │   │   ├── K-013-consensus-stats-ssot.spec.ts ← K-013 cross-layer contract fixture E2E guard
 │   │   │   ├── K-046-example-upload.spec.ts    ← K-046; example CSV download link + upload-hidden E2E
-│   │   │   ├── about-layout.spec.ts            ← K-045; 15 tests: container width / section gap / hero / section-label-x / sm-boundary / K031-adjacency
+│   │   │   ├── about-layout.spec.ts            ← K-045; container width / section gap / hero / section-label-x / sm-boundary / K031-adjacency
 │   │   │   ├── about-v2.spec.ts                ← K-022 / K-034 /about structural spec (palette + FileNoBar + section labels)
 │   │   │   ├── about.spec.ts                   ← legacy /about spec (pre-K-022)
 │   │   │   ├── app-bg-isolation.spec.ts        ← K-030; /app bg-gray-950 isolation + no-NavBar + no-Footer guards
-│   │   │   ├── favicon-assets.spec.ts          ← K-037; 8 asset paths + link-tag hrefs + manifest schema
+│   │   │   ├── favicon-assets.spec.ts          ← K-037; asset paths + link-tag hrefs + manifest schema
 │   │   │   ├── ga-consent.spec.ts              ← GA consent flow E2E
-│   │   │   ├── ga-spa-pageview.spec.ts         ← K-020; 9 tests: SPA-NAV × 2 + BEACON × 4 + NEG × 3
+│   │   │   ├── ga-spa-pageview.spec.ts         ← K-020; SPA-NAV + BEACON + NEG
 │   │   │   ├── ga-tracking.spec.ts             ← K-018; dataLayer spy: pageview / click / privacy / install
 │   │   │   ├── roles-doc-sync.spec.ts          ← K-039; roles SSOT parity guard
-│   │   │   ├── scroll-to-top.spec.ts           ← K-053; 3 tests: route-change reset / hash early-return / same-route preserve
+│   │   │   ├── scroll-to-top.spec.ts           ← K-053; route-change reset / hash early-return / same-route preserve
 │   │   │   ├── shared-components.spec.ts       ← K-034 P1 + K-045; Footer byte-identity × 4 routes + width parity
 │   │   │   ├── sitewide-body-paper.spec.ts     ← sitewide bg-paper body guard
 │   │   │   ├── sitewide-fonts.spec.ts          ← K-040; sitewide Geist Mono body reset guard
@@ -139,7 +139,7 @@ ClaudeCodeProject/
 │   │       │   ├── PredictButton.test.tsx
 │   │       │   ├── StatsPanel.test.tsx
 │   │       │   ├── aggregation.test.ts
-│   │       │   ├── statsComputation.test.ts ← K-013；relative path import `../../../backend/tests/fixtures/stats_contract_cases.json`，對 3 case 跑 `computeStatsFromMatches` 並 assert bit-exact (`toBeCloseTo(value, 6)`) + error contract + key mapping（共 9 tests）
+│   │       │   ├── statsComputation.test.ts ← K-013；relative path import `../../../backend/tests/fixtures/stats_contract_cases.json`，對 fixture case 跑 `computeStatsFromMatches` 並 assert bit-exact (`toBeCloseTo(value, 6)`) + error contract + key mapping
 │   │       │   ├── diary.schema.test.ts     ← zod `.strict()` schema validation (valid / extra-key reject / missing-required reject / ticketId optional)
 │   │       │   ├── diary.english.test.ts    ← CJK regex sweep (no `/[一-鿿]/` in text+title per entry), AC-024-ENGLISH
 │   │       │   ├── diary.legacy-merge.test.ts ← verifies legacy entries (pre-K-001) merged into single "Early project phases and deployment setup" (date=2026-04-16), AC-024-LEGACY-MERGE
@@ -401,7 +401,7 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 **為什麼不選 Option A / B**（節錄，完整論證見 RFC）：
 - A（backend-only，每次 deselect 打 API）：每次 click 100~300ms round-trip，what-if 分析情境 UX 退步
-- B（frontend-only，刪 backend stats）：作廢 `test_predictor.py` 44 tests 中相當比例，負投資
+- B（frontend-only，刪 backend stats）：作廢 `test_predictor.py` 相當比例的既有測試，負投資
 
 **Wire-level vs Observable contract（2026-04-21 Round 2 Fix 1 `853a8aa` 更正，原 Known Gap 撤回）：** 後端 `PredictStats.consensus_forecast_1h/1d` wire-level 永遠是 `[]`（`compute_stats` 從未填入；`models.py` 預設 `[]`）— 此為 backend API schema 事實。**Observable chart render 由前端 `AppPage.tsx` `displayStats` useMemo 無條件注入** `projectedFutureBars` / `projectedFutureBars1D` 保證（full-set 與 subset 兩分支皆注入），故 `StatsPanel::ConsensusForecastChart` 兩種選擇狀態皆可見。OLD base `b0212bb` L224-226 即為此無條件注入行為，K-013 Round 1 `8442966` 把注入誤綁 subset 分支 → 全集分支 chart 消失 → 觸發 C-1 Critical；Round 2 Fix 1 `853a8aa` 恢復無條件注入。早期設計文件敘述「全集下無 consensus 圖 pre-existing gap」為 Architect Pre-Design Audit 只讀 backend schema 未 cross-verify OLD frontend observable 所致誤判，已於 K-013 設計文件 §0.3 以 "RETRACTED" 標記留底並更正。若未來要讓 `consensus_forecast_*` 成為 backend-computed 而非 frontend-injected，需另開 ticket。
 
@@ -677,7 +677,7 @@ Design doc: [docs/designs/K-062-readme-folder-structure.md](../docs/designs/K-06
 - **2026-04-22** (Engineer, K-025) — `UnifiedNavBar` 7 hex values migrated to K-021 design tokens; `navbar.spec.ts` updated to computed-color assertions. Design doc: [K-025-design.md](../docs/designs/K-025-design.md).
 - **2026-04-22** (Architect, K-025 design) — `UnifiedNavBar` hex → token migration design; class-name regex assertions replaced by `toHaveCSS`. Design doc: [K-025-design.md](../docs/designs/K-025-design.md).
 - **2026-04-22** (Architect, K-029 design) — `/about` card body text palette aligned to paper tokens; 21 new computed-color E2E assertions. Design doc: [K-029-about-card-body-text-palette.md](../docs/designs/K-029-about-card-body-text-palette.md).
-- **2026-04-22** (Architect, K-020 design) — GA4 SPA pageview E2E hardening: `ga-spa-pageview.spec.ts` added (9 tests); `§GA4 E2E Test Matrix` section added. Design doc: [K-020-ga-spa-pageview-e2e.md](../docs/designs/K-020-ga-spa-pageview-e2e.md).
+- **2026-04-22** (Architect, K-020 design) — GA4 SPA pageview E2E hardening: `ga-spa-pageview.spec.ts` added; `§GA4 E2E Test Matrix` section added. Design doc: [K-020-ga-spa-pageview-e2e.md](../docs/designs/K-020-ga-spa-pageview-e2e.md).
 - **2026-04-22** (Architect, K-024 design) — `/diary` structure rework: `DiaryEntry` → flat `DiaryEntry[]` schema; 8 new `diary/` components + `timelinePrimitives.ts`; 5 Vitest specs + 29+4 Playwright cases. Design doc: [K-024-diary-structure.md](../docs/designs/K-024-diary-structure.md).
 - **2026-04-21** (PM, K-013 close) — K-013 Stats SSOT (TD-008 Option C) closed after R2 bug-found remediation; merged + deployed.
 - **2026-04-21** (Architect, K-013/K-030/K-031/K-028/K-023 designs) — Stats SSOT frontend util + contract fixture; `/app` isolation; `/about` S7 showcase removed; homepage visual fix; directory drift fixes. Design docs in `docs/designs/`.
