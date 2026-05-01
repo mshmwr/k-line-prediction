@@ -6,10 +6,10 @@ created: 2026-05-01
 type: feat+docs
 priority: medium
 size: medium
-visual-delta: yes
+visual-delta: no
 content-delta: yes
 design-locked: n/a
-qa-early-consultation: required before Engineer Phase 1 release (About page count assertions, NAMED-ARTEFACTS grep)
+qa-early-consultation: docs/retrospectives/qa.md 2026-05-01 K-071 (PM proxy) — 7 challenges, all Option A; no E2E impact; processRules not rendered by any frontend component
 dependencies: []
 ---
 
