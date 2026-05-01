@@ -96,3 +96,7 @@ One-shot command, no commit required. Run at start of next session.
 ### Task 3 — PostToolUse hook `duration_ms` logging (optional, no ticket yet)
 
 v2.1.119+ exposes `duration_ms` in PostToolUse hook input. If desired: modify `~/.claude/settings.json` PostToolUse command hook to append `duration_ms` to a log after each `tsc`/`py_compile` run. Nice-to-have, not urgent.
+
+## Release Status
+
+- `site-content.json review: no-change — ops version update; no process rule codified (retroactive backfill 2026-05-01)`

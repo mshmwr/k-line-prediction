@@ -154,3 +154,7 @@ project) kept as one sentence in `ssot/conventions.md §Testing`.
 ## §8 Sacred Clauses
 
 None. Docs-only ticket; no runtime behavior changes.
+
+## Release Status
+
+- `site-content.json review: no-change — SSOT cleanup applied existing K-063 writing standards; no new process rule introduced (retroactive backfill 2026-05-01)`
