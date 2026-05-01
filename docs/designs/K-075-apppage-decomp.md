@@ -2,7 +2,7 @@
 title: K-075 — AppPage.tsx Decomposition RFC
 ticket: K-075
 phase: 1 (Architect RFC)
-status: draft
+status: approved
 created: 2026-05-02
 visual-spec: N/A — reason: visual-delta = no (pure refactor, no UI change)
 ---
