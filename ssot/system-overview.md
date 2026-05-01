@@ -7,18 +7,13 @@ updated: 2026-04-30 (K-048)
 
 ## Summary
 
-ETH/USDT K 線型態相似度預測系統。使用者上傳近期 OHLC，後端在歷史資料庫中找出最相似的歷史片段，計算 MA99 並提供後續走勢統計。
+ETH/USDT K-line candlestick pattern similarity prediction system. User uploads recent OHLC; backend finds the most similar historical segments, computes MA99, and returns projection statistics.
 
-**現況（2026-04-19，K-017 Architect 設計完成後）：**
-- 前端：5 條 SPA 路由（`/` / `/app` / `/about` / `/diary` / `/business-logic`）+ Unified NavBar；`/about` K-017 重寫為 portfolio-oriented recruiter page（8 sections，K-031 移除 S7 BuiltByAIShowcaseSection；**K-058 2026-04-28 加 2 新 section：WhereISteppedIn (Nº 02.5) + RolePipeline (Nº 03)**），homepage 加 `BuiltByAIBanner`
-- 後端：FastAPI 單檔 `main.py` 內含所有 route + 併存 2 份 in-memory history（`_history_1h` / `_history_1d`）
-- Cross-layer 重複計算（stats）已於 TD-008 RFC 決議採 Option C — 前端算 subset、後端算全集、contract fixture 鎖漂移（K-013 設計完成 2026-04-21，已放行 Engineer；`frontend/src/utils/statsComputation.ts` + `backend/tests/fixtures/stats_contract_cases.json` + generator script 新增）
-- 多個大模組（`AppPage.tsx` / `main.py` / `predictor.py`）已登記為 TD-005/006/007，待 K-013 驗收後啟動拆分 RFC
-- Portfolio artifact：`scripts/audit-ticket.sh`（A–G check group）+ `docs/ai-collab-protocols.md`（公開版協議文件）K-017 交付
-- K-017 Pass 2 — cross-page primitive：新增 `frontend/src/components/primitives/` 目錄（P1–P3 落地：SectionContainer / CardShell / ExternalLink）+ `hooks/useDiary.ts`；P4/P5/P6/P7（MilestoneAccordion / VerticalRail / TimelineMarker / DiaryEntryRow）**未落地**（K-017 Pass 3 廢棄、磁碟不存在）；diary/ 舊三組件（DiaryTimeline / MilestoneSection / DiaryEntry）保留；CtaButton `rel` 補 `noopener`；RoleCard interface 重設（owns/artefact + 6 role 含 Reviewer）；K-027 hotfix 修正 diary/ mobile responsive（2026-04-21）
-- K-045 — /about desktop layout consistency（2026-04-24，Engineer 交付）：BQ-045-02 Option α 落地 — `frontend/src/components/primitives/SectionContainer.tsx` DELETED（`git rm`，單一 consumer 清空，磁碟不復存在）；`AboutPage.tsx` 重寫為 6 `<section>` 直接為 root `<div className="min-h-screen">` 子元素（pattern A per ticket §4a，K-031 `#architecture.nextElementSibling === <footer>` 保留），每 section inline `max-w-[1248px] mx-auto px-6 sm:px-24 w-full` + `mt-6 sm:mt-[72px]`（S2–S6）/ `pt-8 sm:pt-[72px]`（S1 hero）/ `mb-8 sm:mb-[96px]`（S6 before footer）；對齊 Pencil frame 35VCj `Y80Iv padding:[72,96,96,96], gap:72`；inline `SectionLabelRow` 抽出至 `components/about/SectionLabelRow.tsx` 獨立 file（`data-testid="section-label"` + `data-section-hairline` 保留，K-022 AC-022-SECTION-LABEL spec 不動）；hero BQ-045-05 PM Option A 升 1248 落地；PageHeaderSection 去除 outer `py-20`（垂直節奏改由 parent section 承接）；K-031 Sacred + K-034 Phase 1 Footer byte-identity + K-040 pairwise ≤2px 全保留；19 new Playwright T1–T19 全 pass（about-layout.spec.ts 15/15 + shared-components.spec.ts T18/T19 新增）；full Playwright suite 261 pass + 1 pre-existing flaky + 1 skipped；設計文件 [K-045-design.md](../docs/designs/K-045-design.md)
-- K-022 — /about 結構細節對齊 v2（2026-04-21）：新增 `components/about/DossierHeader.tsx`（dossier header bar + FILE Nº）、`components/about/RedactionBar.tsx`（黑色塗黑條遮蔽）；`components/primitives/CardShell.tsx` 遷 paper palette（`dark:` class 移除）；`components/common/SectionLabel.tsx` 新增 `SectionLabelRow`（hairline + label 橫列）；`components/about/PillarCard.tsx` 加 `overflow-hidden`（圓角修正）；PageHeaderSection 拆主句 / 角色列 / tagline 三層；5 個 section label（Nº 01~05）；6 Role Cards `OWNS`/`ARTEFACT` label 採 Geist Mono small-caps
-- K-024 — /diary structure rework + diary.json flat schema（2026-04-22，Architect 設計完成，Engineer 未交付）：diary.json 從 `DiaryMilestone[]` 攤平為 `DiaryEntry[]`（`{ ticketId?, title, date, text }`，全英文，zod `.strict()` runtime validate）；`/diary` 改 v2 timeline（Hero + rail + marker + 3-layer entry + Load more 5-per-click pagination）；Homepage 以 `useDiary(3)` 讀前 3 筆並套同一 rail/marker primitive；diary/ 子目錄大換血（新增 `DiaryHero` / `DiaryEntryV2` / `DiaryRail` / `DiaryMarker` / `DiaryLoading` / `DiaryError` / `DiaryEmptyState` / `LoadMoreButton` / `timelinePrimitives.ts`；刪除 `MilestoneSection.tsx` + `DiaryEntry.tsx`；`DiaryTimeline.tsx` 重寫為 `<ol role="list">` flat renderer）；新增 `hooks/useDiaryPagination.ts`（client-side slicing + inFlight 併發 gate）+ `utils/diarySort.ts`（date desc + array-index tie-break）；兩支新 E2E spec（`diary-page.spec.ts` 29 tests + `diary-homepage.spec.ts` 4 tests）+ 刪除 `diary-mobile.spec.ts`；BQ-024-01 已 PM 裁決 (b)（2026-04-22）：K-024 AC literal 更名為 `diary-entry-wrapper`，復用 K-028 Sacred；Phase 2 unblocked
+- **Frontend:** 5 SPA routes (`/` `/app` `/about` `/diary` `/business-logic`) + Unified NavBar. `/about` is a portfolio-oriented recruiter page with 8 sections (K-058, 2026-04-28). `/diary` is a v2 timeline with infinite-scroll pagination (K-024/K-059).
+- **Backend:** FastAPI single-file `main.py`; 2 in-memory history stores (`_history_1h` / `_history_1d`); auto-scraper via K-048 Cloud Run cron keeps history current.
+- **Stats SSOT (TD-008 Option C, K-013 closed 2026-04-21):** frontend computes subset stats (`statsComputation.ts`); backend computes full-set baseline; drift locked by `backend/tests/fixtures/stats_contract_cases.json`.
+- **Content SSOT (K-052/K-062):** `content/site-content.json` is the hand-edit source for stack[], processRules[], renderSlots; generator (`scripts/build-ticket-derived-ssot.mjs`) auto-fills metrics and emits `docs/sacred-registry.md` + README marker blocks.
+- **Known modularity debt:** `AppPage.tsx` (TD-005) / `main.py` (TD-006) / `predictor.py` (TD-007) pending Architect RFC; see Known Architecture Debt table.
 
 ---
 
@@ -55,8 +50,13 @@ ClaudeCodeProject/
 │   │   ├── retrospectives/      ← per-role 跨 ticket 累積反省（K-008 起）
 │   │   ├── reports/             ← Playwright visual-report 產出
 │   │   └── ai-collab-protocols.md ← K-017 公開版協議文件（英文，對外 recruiter 可見）
-│   ├── scripts/                 ← K-017 起；portfolio demo scripts
-│   │   └── audit-ticket.sh      ← A–G check group audit（portfolio demo, not CI gate）
+│   ├── scripts/                 ← K-017; portfolio demo scripts
+│   │   ├── audit-ticket.sh      ← A–G check group audit (portfolio demo, not CI gate)
+│   │   └── build-ticket-derived-ssot.mjs ← K-052/K-062; reads ticket corpus + README markers; emits site-content.json metrics/ticketRange, sacred-registry.md, README STACK + NAMED-ARTEFACTS blocks
+│   ├── content/                 ← K-052 ticket-derived SSOT (hand-edit source); generator reads + preserves hand-edited fields
+│   │   ├── site-content.json    ← stack[], processRules[], renderSlots (hand-edit); metrics.*, lastUpdated, ticketRange (generator-filled)
+│   │   ├── ticket-cases.json    ← K-058 SSOT for TicketAnatomySection (K-002/K-008/K-009 trio)
+│   │   └── roles.json           ← K-058 SSOT for RoleCards (6 roles × Owns/Artefact)
 │   ├── backend/
 │   │   ├── main.py              ← FastAPI app + 所有 /api route + SPA fallback（最後一個 route）
 │   │   ├── models.py            ← Pydantic request/response models
@@ -76,7 +76,7 @@ ClaudeCodeProject/
 │   │           └── generate_stats_contract_cases.py  ← deterministic generator；呼叫現有 `compute_stats` 產 ground truth；後端改算法時一鍵重跑
 │   ├── frontend/
 │   │   ├── public/
-│   │   │   ├── diary.json       ← DiaryMilestone[] 靜態資料（K-024 Phase 1 後攤平為 DiaryEntry[]：{ ticketId?, title, date, text }，全英文；pending Engineer）
+│   │   │   ├── diary.json       ← flat DiaryEntry[] static data ({ ticketId?, title, date, text }, all English, zod .strict() validated at fetch time)
 │   │   │   └── docs/
 │   │   │       └── ai-collab-protocols.md  ← K-017 起；copy from docs/，讓 SPA Hosting 可直接訪問 `/docs/ai-collab-protocols.md`（避免 SPA fallback 吞 .md）
 │   │   ├── e2e/
@@ -84,12 +84,28 @@ ClaudeCodeProject/
 │   │   │   ├── pages.spec.ts
 │   │   │   ├── ma99-chart.spec.ts
 │   │   │   ├── navbar.spec.ts
-│   │   │   ├── diary-page.spec.ts          ← K-024 Phase 3 新增 pending；29 test cases（DIARY-PAGE-CURATION×9 + TIMELINE×6 + ENTRY-LAYOUT×6 + PAGE-HERO×3 + CONTENT-WIDTH×5 + 2 skipped LOADING-ERROR stubs pending QA R2）
-│   │   │   ├── diary-homepage.spec.ts      ← K-024 Phase 3 新增 pending；4 test cases（HOMEPAGE-CURATION 0/1/2/3-entry + tie-break）
-│   │   │   ├── diary-mobile.spec.ts        ← K-027 落地；K-024 Phase 3 pending deletion（mobile scope 併入 diary-page.spec.ts CONTENT-WIDTH × 5 viewport）
+│   │   │   ├── diary-page.spec.ts          ← K-024 Phase 3; 29 test cases (DIARY-PAGE-CURATION×9 + TIMELINE×6 + ENTRY-LAYOUT×6 + PAGE-HERO×3 + CONTENT-WIDTH×5)
+│   │   │   ├── diary-homepage.spec.ts      ← K-024 Phase 3; 4 test cases (HOMEPAGE-CURATION 0/1/2/3-entry + tie-break)
 │   │   │   ├── visual-report.ts          ← K-008 視覺報告 script（env var TICKET_ID → docs/reports/K-XXX-visual-report.html）
+│   │   │   ├── K-013-consensus-stats-ssot.spec.ts ← K-013 cross-layer contract fixture E2E guard
+│   │   │   ├── K-046-example-upload.spec.ts    ← K-046; example CSV download link + upload-hidden E2E
+│   │   │   ├── about-layout.spec.ts            ← K-045; 15 tests: container width / section gap / hero / section-label-x / sm-boundary / K031-adjacency
+│   │   │   ├── about-v2.spec.ts                ← K-022 / K-034 /about structural spec (palette + FileNoBar + section labels)
+│   │   │   ├── about.spec.ts                   ← legacy /about spec (pre-K-022)
+│   │   │   ├── app-bg-isolation.spec.ts        ← K-030; /app bg-gray-950 isolation + no-NavBar + no-Footer guards
+│   │   │   ├── favicon-assets.spec.ts          ← K-037; 8 asset paths + link-tag hrefs + manifest schema
+│   │   │   ├── ga-consent.spec.ts              ← GA consent flow E2E
+│   │   │   ├── ga-spa-pageview.spec.ts         ← K-020; 9 tests: SPA-NAV × 2 + BEACON × 4 + NEG × 3
+│   │   │   ├── ga-tracking.spec.ts             ← K-018; dataLayer spy: pageview / click / privacy / install
+│   │   │   ├── roles-doc-sync.spec.ts          ← K-039; roles SSOT parity guard
+│   │   │   ├── scroll-to-top.spec.ts           ← K-053; 3 tests: route-change reset / hash early-return / same-route preserve
+│   │   │   ├── shared-components.spec.ts       ← K-034 P1 + K-045; Footer byte-identity × 4 routes + width parity
+│   │   │   ├── sitewide-body-paper.spec.ts     ← sitewide bg-paper body guard
+│   │   │   ├── sitewide-fonts.spec.ts          ← K-040; sitewide Geist Mono body reset guard
+│   │   │   ├── sitewide-footer.spec.ts         ← K-034; Footer 4-route + /business-logic auth fixture
+│   │   │   ├── upload-real-1h-csv.spec.ts      ← K-051; real-CSV upload + 23-bar error toast + fixture parity
 │   │   │   ├── _fixtures/
-│   │   │   │   └── diary/                  ← K-024 Phase 3 新增 pending；8 JSON fixtures（0/1/2-same-date/3/5/10/11 entry + double-click race）
+│   │   │   │   └── diary/                  ← K-024 Phase 3; 8 JSON fixtures (0/1/2-same-date/3/5/10/11 entry + double-click race)
 │   │   │   └── fixtures/
 │   │   │       └── expired-token.ts
 │   │   └── src/
@@ -97,18 +113,18 @@ ClaudeCodeProject/
 │   │       ├── AppPage.tsx      ← K-Line 預測主頁（TD-005：責任過多，待拆分）
 │   │       ├── types.ts         ← MatchCase / PredictStats / ProjectionBar 等
 │   │       ├── types/
-│   │       │   └── diary.ts     ← K-024 Phase 1 後：`DiaryEntry { ticketId?, title, date, text }` + zod `.strict()` schema export（取代既有 `DiaryItem` / `DiaryMilestone`；pending Engineer）
+│   │       │   └── diary.ts     ← `DiaryEntry { ticketId?, title, date, text }` + zod `.strict()` schema export (replaces DiaryItem / DiaryMilestone)
 │   │       ├── hooks/
 │   │       │   ├── useAsyncState.ts
 │   │       │   ├── usePrediction.ts    ← predict + computeMa99 呼叫封裝
 │   │       │   ├── useDiary.ts         ← K-017 Pass 2；封裝 /diary.json fetch + AsyncState + limit slice；K-024 Phase 2 reshape 為回傳 sorted `DiaryEntry[]`（date desc + array-index tie-break），HomePage 用 `useDiary(3)`、DiaryPage 用 `useDiary()` 吃全部
-│   │       │   └── useDiaryPagination.ts ← K-024 Phase 2 新增 pending；client-side slicing pagination（5-per-click）+ inFlight 併發 gate（`queueMicrotask` 釋放 +  `hasMore` / `loadMore` / `visibleCount` return shape），DiaryPage 獨用
+│   │       │   └── useDiaryPagination.ts ← client-side slicing pagination (5-per-click) + inFlight concurrency gate (`queueMicrotask` flush + `hasMore` / `loadMore` / `visibleCount` return shape), DiaryPage only
 │   │       ├── utils/
 │   │       │   ├── aggregation.ts      ← 1H → 1D bar 聚合、time formatter
 │   │       │   ├── analytics.ts        ← K-018；GA4 initGA / trackPageview / trackCtaClick
 │   │       │   ├── api.ts              ← API_BASE env
 │   │       │   ├── auth.ts             ← localStorage bl_token helper
-│   │       │   ├── diarySort.ts        ← K-024 Phase 1 新增 pending；pure `sortDiary(entries)`：date desc + array-index tie-break（later index = newer within same date）；Phase 2 useDiary 內呼叫
+│   │       │   ├── diarySort.ts        ← pure `sortDiary(entries)`: date desc + array-index tie-break (later index = newer within same date); called by useDiary
 │   │       │   ├── statsComputation.ts ← K-013；`computeStatsFromMatches` 純 util（subset stats，與 backend `compute_stats` 由 `backend/tests/fixtures/stats_contract_cases.json` 鎖 bit-exact <=1e-6）；另 export `snakeSuggestionToCamel` / `snakeStatsToCamel` / `aggregateProjectedBarsTo1D`
 │   │       │   └── time.ts             ← toUTC8Display（render-only）
 │   │       ├── pages/
@@ -124,11 +140,11 @@ ClaudeCodeProject/
 │   │       │   ├── StatsPanel.test.tsx
 │   │       │   ├── aggregation.test.ts
 │   │       │   ├── statsComputation.test.ts ← K-013；relative path import `../../../backend/tests/fixtures/stats_contract_cases.json`，對 3 case 跑 `computeStatsFromMatches` 並 assert bit-exact (`toBeCloseTo(value, 6)`) + error contract + key mapping（共 9 tests）
-│   │       │   ├── diary.schema.test.ts     ← K-024 Phase 1 新增 pending；zod `.strict()` schema 驗證（valid / extra-key reject / missing-required reject / ticketId optional）
-│   │       │   ├── diary.english.test.ts    ← K-024 Phase 1 新增 pending；CJK regex sweep（每筆 text+title 不得含 `/[一-鿿]/`），AC-024-ENGLISH
-│   │       │   ├── diary.legacy-merge.test.ts ← K-024 Phase 1 新增 pending；legacy entries （pre-K-001）合併為單筆 "Early project phases and deployment setup" (date=2026-04-16) 驗證，AC-024-LEGACY-MERGE
-│   │       │   ├── diarySort.test.ts        ← K-024 Phase 1 新增 pending；date desc + array-index tie-break 純函式測試
-│   │       │   └── useDiaryPagination.test.ts ← K-024 Phase 2 新增 pending；visibleCount / hasMore / loadMore / concurrent double-click idempotent 斷言
+│   │       │   ├── diary.schema.test.ts     ← zod `.strict()` schema validation (valid / extra-key reject / missing-required reject / ticketId optional)
+│   │       │   ├── diary.english.test.ts    ← CJK regex sweep (no `/[一-鿿]/` in text+title per entry), AC-024-ENGLISH
+│   │       │   ├── diary.legacy-merge.test.ts ← verifies legacy entries (pre-K-001) merged into single "Early project phases and deployment setup" (date=2026-04-16), AC-024-LEGACY-MERGE
+│   │       │   ├── diarySort.test.ts        ← date desc + array-index tie-break pure function tests
+│   │       │   └── useDiaryPagination.test.ts ← visibleCount / hasMore / loadMore / concurrent double-click idempotent assertions
 │   │       └── components/
 │   │           ├── ErrorBoundary.tsx
 │   │           ├── ScrollToTop.tsx          ← K-053（2026-04-26）sitewide scroll-reset on route change；mounted inside `<BrowserRouter>` as sibling of `<GATracker />`；side-effect-only (`useEffect` on `[pathname, hash]`)，hash-link early-return；returns null
@@ -163,26 +179,24 @@ ClaudeCodeProject/
 │   │           │   ├── ProjectArchitectureSection.tsx    ← S6 Monorepo / Docs-driven / Testing pyramid（K-034 Phase 2：刪 h2 + subtitle；intro 改 Pencil s6Intro literal；ARCH_PILLARS data 從 `body`+`testingPyramid` 改為結構化 `fields: Array<FieldEntry | TestingRowEntry>`）
 │   │           │   └── ArchPillarBlock.tsx               ← K-034 Phase 2 重寫（D-16/D-17/D-18）；interface 改為 `{ layerNo, category: 'BACKBONE'|'DISCIPLINE'|'ASSURANCE', title, fields }`；LAYER Nº 0N · <CATEGORY> FileNoBar + Bodoni Moda 24 title + label Geist Mono 10 / value Newsreader italic body field pattern + testing pyramid numbered row variant
 │   │           │   （D-1: `DossierHeader.tsx` **RETIRED** K-034 Phase 2 — Pencil 無對應 frame；K-022 AC-022-DOSSIER-HEADER Sacred 同步退役；`FooterCtaLink.tsx` 已於 K-035 合併入 `components/shared/Footer.tsx`；`FooterCtaSection.tsx` 已於 K-035 刪除）
-│   │           ├── diary/                                 ← K-024 Phase 3 大改（pending Engineer）：accordion → flat `<ol role="list">` timeline；rail + marker 重設計；8 新組件 + timelinePrimitives.ts 常數模組
-│   │           │   ├── DiaryTimeline.tsx                  ← K-024 Phase 3 pending rewrite；從 `map milestones → MilestoneSection` 重寫為 flat `<ol role="list" class="list-none p-0 m-0 relative flex flex-col gap-8">` → DiaryEntryV2 + DiaryRail + LoadMoreButton；key = `${ticketId ?? 'no-id'}-${date}-${title}`
-│   │           │   ├── MilestoneSection.tsx               ← pending deletion (K-024 Phase 3 step 1)；accordion wrapper（K-027 修改）已被 flat timeline 取代
-│   │           │   ├── DiaryEntry.tsx                     ← pending deletion (K-024 Phase 3 step 1)；entry row（K-027 修改）已被 DiaryEntryV2 取代
-│   │           │   ├── DiaryHero.tsx                      ← K-024 Phase 3 新增 pending；Bodoni Moda italic 64 700 #1A1814 `<h1>` + 1px #2A2520 divider + Newsreader italic 17 subtitle
-│   │           │   ├── DiaryEntryV2.tsx                   ← K-024 Phase 3 新增 pending；3-layer entry（title em-dash(U+2014) / date Geist Mono 12 letterSpacing 1 / body Newsreader italic 18 lh 1.55）+ DiaryMarker absolute at x=20 y=10；props { entry: DiaryEntry, isFirst: boolean, 'data-testid'?: string }
-│   │           │   ├── DiaryRail.tsx                      ← K-024 Phase 3 新增 pending；absolute 1px × (top:40 bottom:40) 自動撐高 rail；#2A2520；與 DevDiarySection 共用；entries.length < 2 時不渲染（boundary §4.3.1）
-│   │           │   ├── DiaryMarker.tsx                    ← K-024 Phase 3 新增 pending；20×14 rectangle cornerRadius 6 bg-#9C4A3B；絕對定位於 entry x=20 y=10
-│   │           │   ├── DiaryLoading.tsx                   ← K-024 Phase 3 新增 pending；LoadingSpinner wrapper（data-testid="diary-loading"）
-│   │           │   ├── DiaryError.tsx                     ← K-024 Phase 3 新增 pending；ErrorMessage wrapper（data-testid="diary-error"；literal "Couldn't load the diary right now. Please try again." + "Retry" button）
-│   │           │   ├── DiaryEmptyState.tsx                ← K-024 Phase 3 新增 pending；empty literal "No entries yet. Check back soon."
-│   │           │   ├── LoadMoreButton.tsx                 ← K-024 Phase 3 新增 pending；literal "Load more ↓" right-aligned；hasMore===false 時從 DOM removeNode（非 hidden）
-│   │           │   └── timelinePrimitives.ts              ← K-024 Phase 3 新增 pending；const 模組 export `RAIL`（1×autoheight #2A2520）/ `MARKER`（20×14 #9C4A3B cornerRadius 6）/ `ENTRY_TYPE`（3-layer role CSS spec）；DevDiarySection + DiaryEntryV2 + DiaryRail + DiaryMarker 共用，避免 homepage / /diary 間 drift
+│   │           ├── diary/                                 ← K-024 Phase 3; flat `<ol role="list">` timeline; rail + marker redesign; 7 components + timelinePrimitives.ts constants module
+│   │           │   ├── DiaryTimeline.tsx                  ← K-024 Phase 3; flat renderer — `<ol role="list">` → DiaryEntryV2 + DiaryRail + InfiniteScrollSentinel; key = `${ticketId ?? 'no-id'}-${date}-${title}`
+│   │           │   ├── DiaryHero.tsx                      ← K-024 Phase 3; Bodoni Moda italic 64 `<h1>` + 1px divider + Newsreader italic 17 subtitle
+│   │           │   ├── DiaryEntryV2.tsx                   ← K-024 Phase 3; 3-layer entry (title em-dash / date Geist Mono 12 / body Newsreader italic 18)
+│   │           │   ├── DiaryRail.tsx                      ← K-024 Phase 3; absolute 1px rail #2A2520 top:40/bottom:40; shared with DevDiarySection; hidden when entries < 2
+│   │           │   ├── DiaryMarker.tsx                    ← K-024 Phase 3; 20×14 #9C4A3B rectangle cornerRadius 6; absolute at x=20 y=10
+│   │           │   ├── DiaryLoading.tsx                   ← K-024 Phase 3; LoadingSpinner wrapper (data-testid="diary-loading")
+│   │           │   ├── DiaryError.tsx                     ← K-024 Phase 3; error state (data-testid="diary-error") + Retry button
+│   │           │   ├── DiaryEmptyState.tsx                ← K-024 Phase 3; empty state literal "No entries yet. Check back soon."
+│   │           │   ├── InfiniteScrollSentinel.tsx         ← K-059; IntersectionObserver-based sentinel replacing LoadMoreButton; fade-in via transition-opacity
+│   │           │   └── timelinePrimitives.ts              ← K-024 Phase 3; constants module: RAIL / MARKER / ENTRY_TYPE; shared by DevDiarySection + diary/ components to prevent homepage/diary drift
 │   │           ├── primitives/                            ← K-017 Pass 2 新目錄；cross-page primitive 抽出（/about 專用；diary/ 重構未落地）
 │   │           │   ├── CardShell.tsx                      ← P2；MetricCard / RoleCard / PillarCard / TicketAnatomyCard / ArchPillarBlock 共用（K-022：dark class 遷 paper palette；PillarCard consumer 加 overflow-hidden）
 │   │           │   └── ExternalLink.tsx                   ← P3；target=_blank + rel=noopener noreferrer 寫死
 │   │           │   （SectionContainer.tsx P1 — **K-045 2026-04-24 RETIRED (git rm)**；單一 consumer 清空；AboutPage.tsx 改寫為 per-section root-child 容器替代，primitive 抽象不再需要）
 │   │           │   （MilestoneAccordion.tsx / DiaryEntryRow.tsx / VerticalRail.tsx / TimelineMarker.tsx — K-017 Pass 2 P4/P5/P6/P7 未落地，磁碟不存在；K-024 結構重做時重新設計）
 │   │           ├── shared/                                 ← K-035 新目錄（2026-04-22 落地）；sitewide page-level chrome canonical registry（Footer / 未來 NavBar 搬入 per TD-K035-01）
-│   │           │   └── Footer.tsx                          ← K-034 Phase 1 design 2026-04-23：variant prop 即將 retire（pending Engineer + PM BQ-034-P1-01 ruling）；post-Phase-1 為 zero-prop 單一 inline one-liner，Pencil SSOT = frames 86psQ + 1BGtd（byte-identical content parity, Designer 8d95c03）；pre-Phase-1 為 K-035 `variant: 'home' | 'about'` props（已 empirically 證偽 α-premise）
+│   │           │   └── Footer.tsx                          ← K-034 Phase 1; zero-prop shared Footer; 3 brand-asset SVG anchors + click-to-copy email (K-050); Pencil SSOT frames 86psQ (/about) + 1BGtd (/) + ei7cl (/diary) + 2ASmw (/business-logic); rendered across 4 routes — byte-identical DOM (K-034 P1 T1 Sacred)
 │   │           ├── business-logic/
 │   │           │   ├── PasswordForm.tsx
 │   │           │   ├── BusinessLogicContent.tsx
@@ -312,15 +326,11 @@ AuthResponse:  token: str
 
 **前端 TypeScript Types (`frontend/src/types.ts` + `types/diary.ts`)**
 ```typescript
-// K-024 Phase 1 前（current on main）:
-interface DiaryItem        { date: string; text: string }
-interface DiaryMilestone   { milestone: string; items: DiaryItem[] }
-// K-024 Phase 1 後（pending Engineer）— flat schema, zod .strict() validated at fetch time:
 interface DiaryEntry       { ticketId?: string; title: string; date: string; text: string }
-// (DiaryItem / DiaryMilestone 刪除；useDiary / DevDiarySection / DiaryTimeline / DiaryEntryV2 全 consumer 切換)
+// DiaryItem / DiaryMilestone retired K-024; all consumers (useDiary / DevDiarySection / DiaryTimeline / DiaryEntryV2) use DiaryEntry
 type AuthState             = 'IDLE' | 'SHOW_PASSWORD_FORM' | 'LOADING_CONTENT' | 'SHOW_CONTENT' | 'SHOW_ERROR'
 type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
-// MatchCase / PredictStats 與後端欄位對映（camelCase），見下方 Field Mapping
+// MatchCase / PredictStats field mapping (camelCase), see Field Mapping below
 ```
 
 ---
@@ -408,13 +418,12 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 | TD-005 | `frontend/src/AppPage.tsx` | 22 KB 單檔，責任含 official CSV parse / upload workflow / MA99 loading / prediction orchestration / derived stats / selection state / layout | 拆 `useOfficialInput()` / `useHistoryUpload()` / `usePredictionWorkspace()` + 左右 rail 抽 presentational sub-section | K-013 驗收後 → Architect RFC |
 | TD-006 | `backend/main.py` | 12 KB 單檔，FastAPI wiring / CSV parse / mutable state / 持久化 / prediction orchestration / SPA fallback 全混 | 拆 `history_repository.py` / `history_service.py` / `prediction_service.py`，`main.py` 僅留薄路由層；建議併 TD-003 | K-013 驗收後 → Architect RFC（併 TD-003） |
 | TD-007 | `backend/predictor.py` | 17 KB 單檔，time normalize / MA99 helpers / similarity / trend classify / 1D aggregation / stats generation 全混 | 拆 `predictor_ma.py` / `predictor_similarity.py` / `predictor_stats.py`，`predictor.py` 作 orchestration entrypoint。`compute_stats` 搬進 `predictor_stats.py` 時 K-013 contract fixture 需同步遷移 | K-013 驗收後 → Architect RFC |
-| TD-008 | cross-layer stats | 前後端各算一次有漂移風險 | **已決策 Option C（見上節）**，K-013 實作中 | 實作中 |
+| TD-008 | cross-layer stats | frontend/backend double-compute drift risk | Option C implemented (K-013, closed 2026-04-21); contract fixture locks drift | closed |
 
-**RFC 排序（PM 確認）：**
-1. K-013 實作 + 驗收（TD-008 落地）
-2. TD-005 RFC（`AppPage.tsx` 拆分；`usePredictionWorkspace()` 邊界以 K-013 抽出的 `statsComputation.ts` 為基礎）
-3. TD-006 + TD-003 合併 RFC（backend 拆分 + 併發 lock）
-4. TD-007 RFC（`predictor.py` 拆分；contract fixture 同步遷移）
+**RFC ordering (PM confirmed):**
+1. TD-005 RFC (`AppPage.tsx` split; `usePredictionWorkspace()` boundary uses `statsComputation.ts` from K-013)
+2. TD-006 + TD-003 combined RFC (backend split + concurrency lock)
+3. TD-007 RFC (`predictor.py` split; contract fixture migration)
 
 ---
 
@@ -740,32 +749,3 @@ Design doc: [docs/designs/K-062-readme-folder-structure.md](../docs/designs/K-06
 - **2026-04-18**（Architect, K-008 設計）— 新增 `## QA Artifacts` 段（visual-report.ts / docs/reports/ 職責、env var `TICKET_ID` 約定、單檔 inline base64 決策）；Directory Structure 的 `e2e/` 區塊補 `visual-report.ts` + 原漏列的 `ma99-chart.spec.ts` / `navbar.spec.ts`
 - **2026-04-18**（Architect）— Reflect Phase 3 state（5 pages / 35 components / Unified NavBar / usePrediction hook / utils/ 四檔）、TD-008 Option C 決策（新增 `## Consensus Stats Source of Truth` 段 + `consensus_forecast_1h/1d` 欄位對應）、modularity debt（新增 `## Known Architecture Debt` 段，條列 TD-003~007 與拆分方向）、修正實際 file layout（hooks 增 `usePrediction.ts`，components 增 `UnifiedNavBar.tsx`，about/home 子目錄組件重列，common/ 新增 `SectionHeader` / `SectionLabel` / `CtaButton`）
 - **2026-04-15**（初版）— Phase 1/2 完成：JWT auth + BrowserRouter + 4 pages + business-logic 密碼保護
-
----
-
-## Retrospective
-
-### 2026-04-18 更新反省
-
-**為何從 2026-04-15 漂移到 2026-04-18 累積 3 天未同步？**
-
-結構性原因：K-001 ~ K-008 的 Architect 介入點設計為「每張票開始前設計、完成後交 Engineer」，**沒有定義「ticket 完成後 Architect 回填 architecture.md」的義務**。實際執行上：
-- K-005 Unified NavBar 完成時，新增 `UnifiedNavBar.tsx` 沒回填 directory structure
-- K-006/007 陸續抽出 `usePrediction.ts` / `utils/time.ts` / about 子目錄大量組件，Architect 未被召喚回填
-- PM 在每次 ticket closed 時只確認 AC 通過，未檢查 architecture.md 是否反映新增/搬移的檔案
-- 直到 2026-04-18 要寫 TD-008 RFC 時，才發現 `consensus_forecast_1h/1d` 欄位對應表缺漏、`Known Architecture Debt` 段完全不存在，才逆向把這 3 天的差異補齊
-
-**3 處與實況不符，最嚴重的是哪個？**
-
-最嚴重是 **遺漏 20+ 個 about/home 子目錄組件與 UnifiedNavBar**。舊版 directory structure 只列頂層 components/，把整個 about/ 與 home/ 子樹簡化為單行，任何新 Engineer 或 sub-agent 讀這份文件時會得到「about 頁面由單一組件渲染」的錯印象，進而在修改 AboutPage 時低估影響範圍（實際上有 RoleCard / TechDecCard / PhaseGateBanner 等 14 個組件）。
-
-相較之下：
-- `docs/` 位置舊 — 影響面僅是找檔案繞一步
-- 遺漏 `usePrediction.ts` — 讀 AppPage.tsx 時能從 import 直接看到，傷害較小
-
-之前沒發現的具體原因：TD-005 登記「AppPage.tsx 過大」時，Architect 只看 AppPage.tsx 本身，未順手掃 `components/about/` 的規模累積（about 子目錄組件數已超過 common/ + diary/ 總和），directory structure 的陳舊沒被當成「技術債」登記。
-
-**下次改善：**
-1. **Ticket-level 回填義務**：在 K-Line-Prediction CLAUDE.md 的 Architect 角色下加一條「每張票 close 時，Architect 必須 diff `frontend/src/` 與 `backend/` 實際 file list 對照 architecture.md 的 directory structure，有新增/搬移即同步 update。此為 ticket close 的硬門檻，PM 驗收時檢查。」不再依賴「批次更新」。
-2. **Architecture diff 自動化**：用 `tree -L 4 frontend/src backend/` 輸出與 architecture.md 內嵌的 directory block 做文字 diff，CI warn（不 fail）。預期一週內從「人工記得」進化到「漏了會被提醒」。
-3. **「新增子目錄」也算架構事件**：K-006 把 about/ 拆成 14 個 sub-component 等同於新增一個「UI module」，應該在當時就觸發 architecture.md 的 Frontend Routing / Components 段更新，而非視為「純組件拆分」。
