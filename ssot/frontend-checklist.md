@@ -56,3 +56,44 @@ Before implementing a new page, must:
    Not installed → install before continuing
 3. **Playwright assertions** — section label and short-text assertions must use `{ exact: true }` to prevent description text false matches
 4. **After implementation** — E2E assertions must cover all And conditions
+
+---
+
+## QA Visual Report
+
+**Purpose:** After QA regression testing, produce a visual report for PM / user to review current UI state.
+
+**Output location:** `docs/reports/K-XXX-visual-report.html` (one file per ticket; filename determined by env var `TICKET_ID`)
+
+**Generation:**
+
+```bash
+cd frontend
+TICKET_ID=K-008 npx playwright test visual-report.ts
+```
+
+- Runner: Playwright test runner (reuses `playwright.config.ts` `webServer` + `baseURL`)
+- Coverage (MVP): `/` / `/app` / `/about` / `/diary` full-page screenshots; `/business-logic` placeholder ("auth-required, not captured")
+- Output format: single HTML file, PNG screenshots inline base64-embedded (offline-viewable, committable)
+- Summary header template: `Pages: {successes} captured, {failures} failed, {authRequired} auth-required (not captured)`
+- Failure strategy: single-page failure does not abort; continues other pages; failed section gets red border + error message; script exits 1
+- Missing `TICKET_ID` → default filename `K-UNKNOWN-visual-report.html` + stdout warning
+
+**Script location:** `frontend/e2e/visual-report.ts`
+
+**Spec separation (per-project testMatch):** `playwright.config.ts` splits E2E suite into 2 projects:
+- `chromium` — `testMatch: /.*\.spec\.ts$/` — only `*.spec.ts`, excludes `visual-report.ts`
+- `visual-report` — `testMatch: /visual-report\.ts$/` — only `visual-report.ts`
+
+**Rationale:** `testIgnore` cannot solve CLI file-targeting when default `testMatch` would block `npx playwright test visual-report.ts`. Dedicated project is the only way to achieve "default run skips it" + "explicit `--project=visual-report` runs it".
+
+**Side effects (Engineer / Reviewer note):**
+- New E2E spec: keep `*.spec.ts` naming → automatically assigned to `chromium` project, no extra config needed
+- New visual-report-style scripts: if filename is not `visual-report.ts`, create new project or extend `visual-report` project `testMatch` regex (e.g. `/(visual-report|a11y-report)\.ts$/`)
+- Running `npx playwright test` without `--project` runs all projects including `visual-report`; use `--project=chromium` to exclude it
+
+**Post-K-008 extension directions (out of K-008 scope):**
+- Ticket → page mapping (add as needed)
+- Per-section screenshots (instead of full-page)
+- Auth fixture to capture `/business-logic`
+- Split to multi-file directory mode when single file exceeds size limit
