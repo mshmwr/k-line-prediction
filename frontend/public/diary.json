@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-069",
+    "title": "Architecture SSOT cleanup — 22 stale annotations cleared, changelog collapsed 53%",
+    "date": "2026-05-01",
+    "text": "Cleared 22 stale pending annotations accumulated since K-024, removed a prohibited Retrospective section, added missing content/ directory to the tree, closed TD-008 (implemented K-013 2026-04-21), rewrote the Summary to 5 current-state bullets, collapsed pre-K-063 Changelog entries from 123 KB to 58 KB, and relocated the GA4 test matrix and QA artifacts sections to their canonical SSOT files."
+  },
+  {
     "ticketId": "K-048",
     "title": "Auto-scraper complete — Binance Vision S3 + Cloud Run deploy verified end-to-end",
     "date": "2026-04-30",
