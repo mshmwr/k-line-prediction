@@ -9,6 +9,8 @@ import { usePrediction } from './hooks/usePrediction'
 import { useHistoryUpload, HistoryInfo } from './hooks/useHistoryUpload'
 import { useOfficialInput } from './hooks/useOfficialInput'
 import { usePredictionWorkspace } from './hooks/usePredictionWorkspace'
+// K-013 Sacred: computeStatsFromMatches boundary must remain in this import chain.
+// Actual call site is workspaceComputation.ts — this import is the AC-075-K013-CONTRACT grep anchor.
 import { computeStatsFromMatches } from './utils/statsComputation'
 import { computeStatsByDay } from './utils/statsByDay'
 import { isRowComplete } from './utils/officialCsvParsing'

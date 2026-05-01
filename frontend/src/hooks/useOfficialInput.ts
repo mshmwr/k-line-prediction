@@ -105,6 +105,8 @@ export function useOfficialInput({
     return () => {
       cancelled = true
     }
+    // Mount-once (K-057 Sacred): sample auto-load must not re-run on viewTimeframe/computeMa99/
+    // resetPredictionState changes — deps are intentionally excluded to prevent repeated loads.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
