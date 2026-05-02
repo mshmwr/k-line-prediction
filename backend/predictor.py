@@ -11,6 +11,11 @@ FUTURE_LOOKAHEAD_BARS = 72
 MA_TREND_WINDOW_DAYS = 30
 MA_TREND_PEARSON_THRESHOLD = 0.4
 
+# K-078: single-namespace param object; default preserves byte-identical behavior.
+# Replaced atomically at boot via main.py startup hook.
+from firestore_config import DEFAULT_PARAMS, ParamSnapshot  # noqa: E402
+params: ParamSnapshot = DEFAULT_PARAMS
+
 def z_score_normalize(series: List[float]) -> List[float]:
     arr = np.array(series, dtype=float)
     std = arr.std()
@@ -144,7 +149,7 @@ def _fetch_30d_ma_series(anchor_end_time: str, ma_history_1d: list, time_index: 
         return []
 
     window_end = idx + 1
-    window_start = max(0, window_end - MA_TREND_WINDOW_DAYS)
+    window_start = max(0, window_end - params.ma_trend_window_days)
     window_bars = ma_history_1d[window_start:window_end]
     if not window_bars:
         return []
@@ -153,7 +158,7 @@ def _fetch_30d_ma_series(anchor_end_time: str, ma_history_1d: list, time_index: 
     prefix_bars = ma_history_1d[prefix_start:window_start]
 
     combined_closes = _extract_closes(prefix_bars) + _extract_closes(window_bars)
-    if len(combined_closes) < MA_TREND_WINDOW_DAYS + MA_WINDOW:
+    if len(combined_closes) < params.ma_trend_window_days + MA_WINDOW:
         return []
 
     ma_full = _rolling_mean(combined_closes, MA_WINDOW)
@@ -207,9 +212,9 @@ def _classify_trend_by_pearson(series: List[float]) -> int:
         return 0
     reference = list(range(len(clean)))
     r = pearson_correlation(clean, reference)
-    if r >= MA_TREND_PEARSON_THRESHOLD:
+    if r >= params.ma_trend_pearson_threshold:
         return 1
-    if r <= -MA_TREND_PEARSON_THRESHOLD:
+    if r <= -params.ma_trend_pearson_threshold:
         return -1
     return 0
 
@@ -332,7 +337,7 @@ def find_top_matches(
     if not query_30d_ma:
         raise ValueError(
             f"Unable to compute 30-day MA99 trend for {input_end_time}: "
-            f"ma_history requires at least {MA_TREND_WINDOW_DAYS + MA_WINDOW} daily bars ending at that date."
+            f"ma_history requires at least {params.ma_trend_window_days + MA_WINDOW} daily bars ending at that date."
         )
     query_direction = _classify_trend_by_pearson(query_30d_ma)
     _1d_index = _history_time_index(ma_history, '1D')
@@ -360,7 +365,7 @@ def find_top_matches(
             "Try a different input range."
         )
     results.sort(key=lambda x: x[0], reverse=True)
-    top = results[:10]
+    top = results[:params.top_k_matches]
     matches = []
     for r, i, window, future in top:
         prefix = history[:i]
