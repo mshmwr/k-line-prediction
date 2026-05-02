@@ -134,13 +134,13 @@
       }
     ]
   },
-  "lastUpdated": "2026-05-02T15:20:35+08:00",
+  "lastUpdated": "2026-05-02T15:27:01+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 75,
+      "covered": 76,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 75
+      "total": 76
     },
     "featuresShipped": {
       "label": "Features Shipped",
@@ -152,7 +152,7 @@
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
-      "value": 39
+      "value": 40
     }
   },
   "pipeline": {
@@ -425,6 +425,6 @@
   ],
   "ticketRange": {
     "first": "K-001",
-    "last": "K-079"
+    "last": "K-080"
   }
 }
