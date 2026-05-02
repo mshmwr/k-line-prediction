@@ -14,6 +14,12 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-02 — K-081
+
+**What went well:** All 4 Playwright AC cases green on first run; all 8 K-081-specific vitest tests passed; tsc exit 0; backend zero-diff confirmed; known-reds identity-matched.
+**What went wrong:** `diary.legacy-merge.test.ts` failure is canonical-identical but absent from known-reds manifest — flagged as PM-level gap (manifest incomplete, not K-081 regression).
+**Next time improvement:** Before sign-off, cross-reference every failing test against known-reds manifest proactively rather than discovering the gap mid-report.
+**Slowest step:** Full Playwright backtest spec (8.3s) — acceptable; no mitigation needed.
 
 ## 2026-05-02 — K-080
 

@@ -1,3 +1,10 @@
+## 2026-05-02 — K-081
+
+**What went well:** Two-step depth review (breadth scan + depth) caught C-1 (actuals runQuery used `query_ts` filter on a collection without that field — chart would have been empty in production) and C-2 (ActiveParams TS interface used Python attribute names instead of Firestore wire keys, breaking the cross-ticket type contract) before merge. Both fixes verified in re-review.
+**What went wrong:** Initial breadth scan missed the actuals filter mismatch — focused on cell rendering rather than the runQuery payload. Required full depth read of `useBacktestData.ts` against `backend/firestore_config.py` write helpers to surface.
+**Next time improvement:** Reviewer depth checklist must include "for every Firestore read filter, grep the corresponding write helper to confirm the field name exists". Frozenset constants are the SSOT — TS reads must match Python writes.
+**Slowest step:** Cross-checking ActiveParams TS keys against FIRESTORE_PREDICTOR_PARAMS_FIELDS — frozenset literal is in `backend/firestore_config.py:175` while ParamSnapshot dataclass attribute names live in `backend/predictor.py:39`. Confusing visual similarity (`ma_trend_window_days` vs `window_days`) made the mismatch easy to miss until grep confirmed.
+
 ## 2026-05-02 — K-080
 
 **What went well:** Frozenset contract test, idempotency via set(), sacred/predictor invariants, YAML cron/dispatch all verified clean in one pass.

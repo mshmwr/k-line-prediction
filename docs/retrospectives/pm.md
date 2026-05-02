@@ -4,6 +4,13 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-081
+
+**What went well:** SQ-1 ruling (lightweight-charts over recharts) prevented an unnecessary Recharts dependency; existing MainChart.tsx pattern reused; depth review caught two latent bugs (C-1 actuals filter, C-2 wire-format mismatch) before merge.
+**What went wrong:** Architect's first design draft had `query_ts` filter on actuals — actuals collection has no `query_ts` field, only `computed_at` — would have shipped an always-empty chart. Engineer ActiveParams interface used Python ParamSnapshot attribute names instead of the Firestore wire keys frozen by K-078, breaking AC-081-TYPE-CONTRACT.
+**Next time improvement:** Before approving any frontend type contract, grep the backend SSOT frozenset (FIRESTORE_*_FIELDS) and assert the TS interface keys are byte-equal to the Python wire-format constants. Add this as a Reviewer depth-pass checklist item.
+**Slowest step:** Diagnosing why ActiveParams used `ma_trend_*` keys — required reading both `backend/predictor.py` (ParamSnapshot dataclass) and `backend/firestore_config.py` (FIRESTORE_PREDICTOR_PARAMS_FIELDS) to confirm the mismatch.
+
 ## 2026-05-02 — K-080 — ticket open
 
 **What went well:** QA proxy consultation surfaced 8 challenges; 6 resolved into AC text and 2 declared Known Gap with explicit rationale; all done before releasing Architect.
