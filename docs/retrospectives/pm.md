@@ -4,6 +4,16 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-080 — ticket open
+
+**What went well:** QA proxy consultation surfaced 8 challenges; 6 resolved into AC text and 2 declared Known Gap with explicit rationale; all done before releasing Architect.
+
+**What went wrong:** Post-merge close-sync scan revealed K-078/K-079 merged on main but dashboard Last synced still at K-076 — confirmed ticket frontmatter already `status: closed`; dashboard update deferred to outer-repo mirror commit per worktree isolation rules.
+
+**Next time improvement:** When epic has dependencies that close in rapid succession, verify dashboard sync explicitly before opening the next ticket stub to avoid accumulating drift.
+
+**Slowest step:** QA proxy consultation — 8 challenges each requiring PM ruling; pre-identifying anticipated blockers in the brief reduced per-challenge deliberation time significantly.
+
 ## 2026-05-02 — K-078 PM: Firestore param-loader epic foundation shipped
 
 **What went well:** All 9 ACs verified through Architect → Engineer → Reviewer (W1+D-1+D-3 all addressed) → QA (95 passed, 3 canonical-identical hydration drift) chain; sacred K-015 floor preserved; cross-ticket K-079 schema contract exported via `FIRESTORE_PREDICTOR_PARAMS_FIELDS` frozenset.

@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-080",
+    "title": "Daily predict + storage workflow — Firestore writes + 3 schema frozensets exported",
+    "date": "2026-05-02",
+    "text": "GitHub Actions cron at 04:00 UTC reads latest CSV, calls predictor with active Firestore params, writes predictions/{ts} doc, backfills actuals/{ts} for predictions older than 72h, recomputes backtest_summaries/{today} over last 30 days. Exported FIRESTORE_PREDICTION_FIELDS / FIRESTORE_ACTUAL_FIELDS / FIRESTORE_BACKTEST_SUMMARY_FIELDS frozensets as cross-ticket schema contract for K-081 (frontend reader) and K-082 (optimizer reader). Idempotent set() overwrite + retry-once with 5s sleep; 90-min CSV freshness gate; permanent failure exits non-zero."
+  },
+  {
     "ticketId": "K-079",
     "title": "Known-reds manifest cleanup — 20 stale entries removed (22→2 active)",
     "date": "2026-05-02",

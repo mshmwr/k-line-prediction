@@ -1,8 +1,10 @@
 ---
 id: K-080
 title: Daily predict + storage workflow
-status: open
+status: closed
 created: 2026-05-02
+closed: 2026-05-02
+closed-commit: f43b3b3
 type: feat
 priority: high
 size: medium

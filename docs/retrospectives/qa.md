@@ -15,6 +15,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 - Newest first (reverse chronological)
 
 
+## 2026-05-02 — K-080
+
+**What went well:** All 12 ACs met, 106 passed + 3 known-reds identity-matched, sacred floor + predictor immutability both confirmed zero-diff.
+**What went wrong:** N/A — no regressions or sign-off blockers found in this session.
+**Next time improvement:** W-1 fix pattern (call `main()` not just the helper, patch write symbol in script's namespace) should be referenced in test-authoring guidelines for future GHA script tests.
+**Slowest step:** pytest suite took ~37s; no avoidance needed, all backend tests must run.
+
 ## 2026-05-02 — K-078
 
 **What went well:** All 5 pytest AC targets green on first run; W1 bypass replay caught ast.Name reference exactly as designed.
