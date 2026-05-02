@@ -4,6 +4,15 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-083 ticket open: Weekly Bayesian optimizer (epic K-D final ticket)
+
+**What went well:** QA Early Consultation proxy surfaced 9 challenges; cost-guard epsilon ambiguity (Challenge #2) and redeploy idempotency (Challenge #3) were the highest-value findings — both would have reached Engineer underdefined without the proxy pass. Atomicity Known Gap (Challenge #9) is correctly scoped as a Phase-1 trade-off rather than a blocker. All spec gaps resolved from `pm-app-jaunty-wren.md §C3` + K-078 / K-080 frozenset inspection; zero user escalations needed.
+**What went wrong:** `optimize_runs` and `predictor_params/history` frozenset contracts were not pre-exported by K-080 (K-080 only exported prediction/actual/summary); K-083 must add `FIRESTORE_OPTIMIZE_RUN_FIELDS` to `firestore_config.py` itself. This was not flagged at K-080 ticket-open as a downstream contract gap — future epic final-ticket open should grep `__all__` of firestore_config.py at ticket-open to surface any missing downstream frozensets.
+**Next time improvement:** When the final epic ticket depends on a shared schema module, run `grep __all__ backend/firestore_config.py` at ticket-open to confirm all needed frozensets are already exported; if not, author them in the final ticket's scope rather than discovering the gap mid-AC authoring.
+**Slowest step:** Verifying `top_k_matches` vs `top_k` field name discrepancy between `ParamSnapshot` (K-078: `top_k_matches: int`) and `FIRESTORE_PREDICTOR_PARAMS_FIELDS` (K-078: `"top_k"`) — required reading both firestore_config.py and the K-078 ticket to confirm the two names are intentional (internal dataclass vs Firestore wire key).
+
+---
+
 ## 2026-05-02 — K-081
 
 **What went well:** SQ-1 ruling (lightweight-charts over recharts) prevented an unnecessary Recharts dependency; existing MainChart.tsx pattern reused; depth review caught two latent bugs (C-1 actuals filter, C-2 wire-format mismatch) before merge.
