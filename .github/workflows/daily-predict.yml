@@ -1,0 +1,39 @@
+name: Daily Predict
+
+on:
+  schedule:
+    - cron: "0 4 * * *"   # 04:00 UTC daily — runs after scrape-history.yml (03:00 UTC)
+  workflow_dispatch:        # manual trigger for testing and backfill runs
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read    # checkout only; no push
+      id-token: write   # reserved for future OIDC workload-identity migration
+
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-sa.json
+      CSV_PATH: history_database/Binance_ETHUSDT_1h.csv
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"   # matches scrape-history.yml; 3.12 as fallback if needed
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Write GCP service account key
+        run: echo '${{ secrets.GCP_SA_KEY }}' > /tmp/gcp-sa.json
+
+      - name: Run daily predict
+        run: python scripts/daily_predict.py
+
+      - name: Cleanup SA key
+        if: always()   # runs even if earlier steps fail; prevents key leakage
+        run: rm -f /tmp/gcp-sa.json
