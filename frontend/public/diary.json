@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-077",
+    "title": "E2E test cleanup — T14 DOM fix, data-redaction removal, Footer baselines regen",
+    "date": "2026-05-02",
+    "text": "Fixed 4 deferred known-red E2E tests: T14 timing gate + FooterDisclaimer assertion, data-redaction obsolete removal, 3 Footer snapshot baselines regenerated, scroll threshold self-healed."
+  },
+  {
     "ticketId": "K-073",
     "title": "Content SSOT externalize — 3 component arrays to site-content.json + README METRICS marker",
     "date": "2026-05-01",

@@ -215,9 +215,10 @@ test.describe('AC-045-SECTION-LABEL-X — section-label left edge anchors to con
 })
 
 test.describe('AC-045-K031-ADJACENCY-PRESERVED — structural root-child sanity (T14 safety net)', () => {
-  test('T14 — all 8 <section> are direct children of root <div class="min-h-screen">, <footer> is last child', async ({ page }) => {
+  test('T14 — all 9 <section> are direct children of root <div class="min-h-screen">, FooterDisclaimer <section> is last child', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/about')
+    await page.locator('section#header').waitFor({ state: 'attached', timeout: 10_000 })
     const summary = await page.evaluate(() => {
       const root = document.querySelector('div.min-h-screen')
       if (!root) return { ok: false, reason: 'min-h-screen root not found' }
@@ -228,8 +229,8 @@ test.describe('AC-045-K031-ADJACENCY-PRESERVED — structural root-child sanity 
       return { ok: true, directSectionIds, lastChildTag }
     })
     expect(summary.ok).toBe(true)
-    expect(summary.directSectionIds).toEqual(['header', 'metrics', 'where-i-stepped-in', 'role-pipeline', 'roles', 'pillars', 'tickets', 'architecture'])
-    expect(summary.lastChildTag).toBe('footer')
+    expect(summary.directSectionIds).toEqual(['header', 'metrics', 'where-i-stepped-in', 'role-pipeline', 'roles', 'pillars', 'tickets', 'architecture', 'disclaimer'])
+    expect(summary.lastChildTag).toBe('section')
   })
 })
 
