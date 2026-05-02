@@ -134,17 +134,17 @@
       }
     ]
   },
-  "lastUpdated": "2026-05-02T01:51:17+08:00",
+  "lastUpdated": "2026-05-02T13:46:48+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 71,
+      "covered": 73,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 71
+      "total": 73
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 53
+      "value": 54
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
@@ -425,6 +425,6 @@
   ],
   "ticketRange": {
     "first": "K-001",
-    "last": "K-075"
+    "last": "K-077"
   }
 }
