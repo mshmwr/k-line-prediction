@@ -77,7 +77,7 @@ K-078 (param loader) + K-080 (daily predict + storage) deliver the plumbing and 
   - `window`: `Integer(14, 60)` (inclusive bounds; maps to `predictor.params.ma_trend_window_days`)
   - `pearson`: `Real(0.2, 0.7)` (inclusive bounds; maps to `predictor.params.ma_trend_pearson_threshold`)
   - `top_k`: `Integer(5, 30)` (inclusive bounds; maps to `predictor.params.top_k_matches`)
-- And: a fixed random seed `RANDOM_STATE = 42` is passed to the optimizer constructor (declared as a module-level constant in `weekly_optimize.py`) so repeated runs on identical data produce identical candidate sequences
+- And: a fixed random seed `RANDOM_STATE = 42` is passed to the optimizer constructor (declared as a module-level constant in `backend/optimizer.py` — the helper module that owns the search loop — and imported by `weekly_optimize.py`; this placement was ruled acceptable during depth review since the constant lives with its consumer) so repeated runs on identical data produce identical candidate sequences
 - And: `n_calls` is set to `MAX_ITERATIONS = 50` (module-level constant)
 
 ### AC-083-OBJECTIVE-FUNCTION
