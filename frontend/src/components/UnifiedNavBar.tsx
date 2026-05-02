@@ -22,6 +22,7 @@ import { HomeIcon } from 'lucide-react'
 const TEXT_LINKS: Array<{ label: string; path: string; hidden?: boolean; external?: boolean }> = [
   { label: 'App', path: '/app', external: true },
   { label: 'Diary', path: '/diary' },
+  { label: 'Backtest', path: '/backtest' },
   { label: 'Prediction', path: '/business-logic', hidden: true },
   { label: 'About', path: '/about' },
 ]

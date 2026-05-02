@@ -213,6 +213,22 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 - **Then** each match in the response has non-empty `future_ohlc_1d`
 - **And** `historical_ohlc_1d` contains the aggregated daily bars for the matched window
 
+### Backtest Page
+
+Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy from Firestore (K-081).
+
+#### AC-081-LATEST-SUMMARY-CARD
+- Summary card displaying `hit_rate_high`, `hit_rate_low`, `avg_mae`, `avg_rmse`, `sample_size`, `window_days` from `backtest_summaries/{latest}`. Loading skeleton (`summary-card-loading`) and error block (`summary-card-error`) on non-ready states.
+
+#### AC-081-PER-TREND-TABLE
+- Table with exactly 3 data rows (up → down → flat order); missing trend keys render `N/A` (not `0`). Column headers: Trend, High Hit %, Low Hit %, Avg MAE, Samples.
+
+#### AC-081-TIME-SERIES-CHART
+- `lightweight-charts` line chart with `projected_median` (color `#9C4A3B`) and `actual_close` (midpoint `(actual_high + actual_low) / 2`, color `#999999`). `data-testid="time-series-chart"` with `minHeight: 240px`. When fewer than 2 completed pairs: `data-testid="time-series-empty"` placeholder.
+
+#### AC-081-ACTIVE-PARAMS-CARD
+- Params card showing `ma_trend_window_days`, `ma_trend_pearson_threshold` (2dp), `top_k`, `params_hash` (12-char prefix), `optimized_at` (formatted or "Defaults — never optimized").
+
 ---
 
 ## §2 Sitewide AC

@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-081",
+    "title": "/backtest route — Firestore read dashboard: summary card, per-trend table, lightweight-charts time-series, params card",
+    "date": "2026-05-02",
+    "text": "New /backtest SPA route reads Firestore backtest_summaries/{latest} + predictor_params/active + 30-day predictions/actuals via public-read REST endpoint. useBacktestData hook handles fetch, retry-once on error, and ChartPoint assembly (actualClose = midpoint of actual_high + actual_low). Four child components: SummaryCard (hit rates / MAE / RMSE), PerTrendTable (up/down/flat with N/A for missing trends), TimeSeriesChart (lightweight-charts line overlay — projected_median vs actual_close), ActiveParamsCard (window/pearson/top_k/hash prefix). Firestore rules already enforced write-deny; firebase.json already had the deploy target. Playwright E2E mocks all Firestore REST traffic via route.fulfill()."
+  },
+  {
     "ticketId": "K-080",
     "title": "Daily predict + storage workflow — Firestore writes + 3 schema frozensets exported",
     "date": "2026-05-02",

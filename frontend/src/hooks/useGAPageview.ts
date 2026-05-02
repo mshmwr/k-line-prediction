@@ -8,6 +8,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/about': 'K-Line Prediction — About',
   '/diary': 'K-Line Prediction — Dev Diary',
   '/business-logic': 'K-Line Prediction — Business Logic',
+  '/backtest': 'K-Line Prediction — Backtest',
 }
 
 export function useGAPageview(): void {
