@@ -349,17 +349,27 @@ def test_firestore_transient_failure_retry_succeed(mock_client):
 
 
 # ---------------------------------------------------------------------------
-# Test 6 — Firestore permanent failure (both attempts fail) → exits non-zero
+# Test 6 — Firestore permanent failure (both attempts fail) → main() exits non-zero
 # ---------------------------------------------------------------------------
 
-def test_firestore_permanent_failure_exits_nonzero(mock_client):
-    """set() raises on both calls → write_prediction propagates exception."""
-    client, doc_ref = mock_client
-    doc_ref.set.side_effect = Exception("permanent failure")
+def test_firestore_permanent_failure_exits_nonzero(tmp_path):
+    """Permanent Firestore failure in write_prediction → main() exits with non-zero code.
+
+    AC-080-FIRESTORE-FAILURE: unretriable Firestore failure must cause the SCRIPT to
+    exit non-zero so GHA shows red. Patches the already-imported `write_prediction`
+    symbol in daily_predict's namespace to avoid requiring a live google.cloud install.
+    Also patches the google.cloud.firestore module import inside main() so Client()
+    does not fail before reaching write_prediction.
+    """
+    import types
+
+    # Create a stub CSV file that passes the freshness gate (mtime = now)
+    stub_csv = tmp_path / "stub.csv"
+    stub_csv.write_text("time,open,high,low,close\n2026-04-07 23:00,1800,1810,1790,1800\n")
 
     df = _load_fixture_df()
     midprice = float(df["close"].mean())
-    prediction = {
+    fake_prediction = {
         "params_hash": "e" * 64,
         "projected_high": midprice * 1.01,
         "projected_low": midprice * 0.99,
@@ -370,11 +380,41 @@ def test_firestore_permanent_failure_exits_nonzero(mock_client):
         "created_at": "2026-04-08T04:00:00Z",
     }
 
-    with patch("firestore_config.time.sleep"):
-        with pytest.raises(Exception, match="permanent failure"):
-            write_prediction(client, "2026-04-07-23", prediction)
+    # Build a minimal stub for the google.cloud.firestore namespace so the
+    # `import google.cloud.firestore; google.cloud.firestore.Client()` local
+    # import inside main() succeeds on environments without the SDK installed.
+    import google  # google namespace package always present (google-auth etc.)
+    mock_cloud = types.ModuleType("google.cloud")
+    mock_firestore_sdk = types.ModuleType("google.cloud.firestore")
+    mock_firestore_sdk.Client = MagicMock(return_value=MagicMock())
+    mock_cloud.firestore = mock_firestore_sdk
 
-    assert doc_ref.set.call_count == 2
+    from daily_predict import main
+    from firestore_config import DEFAULT_PARAMS
+
+    extra_modules = {
+        "google.cloud": mock_cloud,
+        "google.cloud.firestore": mock_firestore_sdk,
+    }
+    with (
+        patch.dict("os.environ", {"CSV_PATH": str(stub_csv)}),
+        patch.dict("sys.modules", extra_modules),
+        patch.object(google, "cloud", mock_cloud, create=True),
+        patch("daily_predict.load_active_params", return_value=DEFAULT_PARAMS),
+        patch("daily_predict.load_csv_history_as_df", return_value=df),
+        patch("daily_predict.build_query_window", return_value=df.head(24)),
+        patch("daily_predict.run_prediction", return_value=fake_prediction),
+        # Patch write_prediction in daily_predict's own namespace: this is the symbol
+        # main() calls after the client is created. Raising here simulates both retry
+        # attempts having already failed inside firestore_config._write_with_retry.
+        patch("daily_predict.write_prediction", side_effect=Exception("permanent failure")),
+    ):
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+
+    assert exc_info.value.code != 0, (
+        f"expected non-zero exit code, got {exc_info.value.code}"
+    )
 
 
 # ---------------------------------------------------------------------------

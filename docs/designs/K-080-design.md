@@ -74,7 +74,7 @@ GitHub Actions cron timeline
               │    ├─ find_top_matches(input_bars, ...)
               │    └─ compute_stats(matches, current_close)
               │
-              │  write_prediction(client, ts, prediction, params_hash)
+              │  write_prediction(client, ts, prediction)
               │    └─ Firestore: predictions/{YYYY-MM-DD-HH}
               │
               │  backfill_actuals(client, df, cutoff_ts)
@@ -147,6 +147,8 @@ Field semantics:
 - `top_k_count` = `len(matches)` (may be < `params.top_k_matches` if history is sparse)
 - `trend` extracted from `_classify_trend_by_pearson` result via the direction label map used in `find_top_matches` error path
 
+**Known Gap (trend proxy):** `_classify_trend_by_pearson` is predictor-internal; K-080 uses win_rate thresholds (>0.55 = up, <0.45 = down, else flat) as observable proxy. The trend label is used only for `per_trend` breakdown in `backtest_summaries`, not for backtest correctness. K-082 may revisit when scikit-optimize search space evaluation needs the canonical trend label.
+
 ### 3.2 FIRESTORE_ACTUAL_FIELDS
 
 ```python
@@ -211,7 +213,7 @@ All function signatures are fixed. Engineer must not alter signatures without re
 | `load_csv_history` | `(path: Path) -> pd.DataFrame` | Read `Binance_ETHUSDT_1h.csv` into DataFrame with columns `[open, high, low, close, time]`; `time` as UTC datetime index |
 | `build_query_window` | `(df: pd.DataFrame, anchor_ts: datetime) -> pd.DataFrame` | Return the 24 × 1H bars ending at `anchor_ts` (inclusive); raises `ValueError` if fewer than 24 bars available |
 | `run_prediction` | `(query_df: pd.DataFrame, params: ParamSnapshot, full_df: pd.DataFrame) -> dict` | Convert `query_df` to `List[OHLCBar]`, call `find_top_matches()` + `compute_stats()`; return assembled prediction dict matching `FIRESTORE_PREDICTION_FIELDS` shape |
-| `write_prediction` | `(client, ts: str, prediction: dict, params_hash: str) -> None` | Write prediction dict to `predictions/{ts}` using Firestore `set()` (overwrite semantics); retry once after 5s on failure |
+| `write_prediction` | `(client, ts: str, data: dict) -> None` | Write prediction dict to `predictions/{ts}` using Firestore `set()` (overwrite semantics); retry once after 5s on failure. `params_hash` is pre-embedded in `data` by the caller (see `daily_predict.py:458`); separate param removed for caller-side simplicity. |
 | `backfill_actuals` | `(client, df: pd.DataFrame, cutoff_ts: datetime) -> int` | Scan `predictions` docs with `query_ts` < `cutoff_ts`; for each without a corresponding `actuals` doc (or to overwrite): check 72-bar window completeness; skip if incomplete; else compute and write; return count written |
 | `compute_outcome` | `(prediction: dict, df: pd.DataFrame) -> dict` | Given a prediction dict and the full CSV DataFrame, extract 72-bar window from `query_ts`; compute high_hit, low_hit, MAE, RMSE, actual_high, actual_low; return dict matching `FIRESTORE_ACTUAL_FIELDS` shape |
 | `compute_backtest_summary` | `(client, today: date) -> dict | None` | Read all `actuals` docs in last 30 calendar days from Firestore; join with `predictions` for trend field; return dict matching `FIRESTORE_BACKTEST_SUMMARY_FIELDS`; return `None` if zero completed pairs |
@@ -230,7 +232,7 @@ All function signatures are fixed. Engineer must not alter signatures without re
 8. `query_df = build_query_window(df, anchor_ts)`.
 9. `prediction = run_prediction(query_df, params, df)`.
 10. `ts = anchor_ts.strftime("%Y-%m-%d-%H")` → e.g. `"2026-05-01-23"`.
-11. `write_prediction(client, ts, prediction, params.params_hash)`.
+11. `write_prediction(client, ts, prediction)` — `params_hash` is already embedded in `prediction` dict by `run_prediction()`.
 12. `cutoff_ts = datetime.utcnow() - timedelta(hours=72)`.
 13. `backfill_actuals(client, df, cutoff_ts)`.
 14. `summary = compute_backtest_summary(client, date.today())`.
@@ -394,7 +396,7 @@ Boundary pre-emption: `projected_high`, `projected_low`, `projected_median` fiel
 
 | Test ID | AC coverage | Description |
 |---|---|---|
-| `test_prediction_write_field_set` | AC-080-TESTS item 1 | Mock Firestore client; call `write_prediction(client, ts, prediction, hash)`; assert `client.set()` was called with a dict whose keys == `FIRESTORE_PREDICTION_FIELDS`; assert `params_hash` value present |
+| `test_prediction_write_field_set` | AC-080-TESTS item 1 | Mock Firestore client; call `write_prediction(client, ts, prediction)` (`params_hash` pre-embedded in `prediction` dict); assert `client.set()` was called with a dict whose keys == `FIRESTORE_PREDICTION_FIELDS`; assert `params_hash` value present |
 | `test_compute_outcome_high_hit_true` | AC-080-TESTS item 2 | Fixture: prediction with `projected_high=2000.0`; actual CSV window has bar with `high=2001.0`; assert `high_hit == True` |
 | `test_compute_outcome_low_hit_false` | AC-080-TESTS item 2 | Fixture: prediction with `projected_low=1800.0`; actual CSV window has all bars with `low >= 1900.0`; assert `low_hit == False` |
 | `test_compute_outcome_mae_rmse` | AC-080-TESTS item 2 | Fixture: `projected_median=2000.0`, 72-bar close all at 2100.0; assert `mae == 100.0`, `rmse == 100.0` (exact, no float tolerance needed for uniform deviation) |
