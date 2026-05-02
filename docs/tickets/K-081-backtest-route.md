@@ -109,12 +109,13 @@ New React route `/backtest` that reads Firestore `backtest_summaries/{latest}` +
 ### AC-081-TIME-SERIES-CHART
 - Given: K-081 implementation is complete; the chart consumes a 30-day time-series of completed (prediction + actual) pairs assembled by `useBacktestData`
 - When: `BacktestPage` renders with `status === 'ready'`
-- Then: a Recharts `LineChart` element with `data-testid="time-series-chart"` is mounted
-- And: it overlays at minimum two lines: one for `projected_median` (color: brick-dark per K-017 palette) and one for `actual_close` (color: ink/60)
-- And: the X axis is dates (ISO `YYYY-MM-DD`), Y axis is price (auto-scaled), with at least 7 X-axis tick labels visible at desktop width
+- Then: a chart container `<div data-testid="time-series-chart">` is mounted with non-zero rendered pixel dimensions (width ≥ 600px at desktop, height ≥ 240px) when ≥2 completed pairs are present
+- And: the chart is implemented using `lightweight-charts` (existing dependency, same library as `MainChart.tsx` — PM ruling 2026-05-02 SQ-1: AC originally said Recharts but `recharts` is not installed; reuse `lightweight-charts` to avoid adding a new dep)
+- And: the chart renders at minimum two line series: one for `projected_median` (color: brick-dark per K-017 palette = `#9C4A3B`) and one for `actual_close` (color: ink/60 ≈ `#999999`)
 - And: when fewer than 2 completed pairs exist, the chart slot renders a placeholder `<div data-testid="time-series-empty">` with the text `Not enough completed pairs yet — minimum 2 required for chart.`
 - And: data assembly logic is in `useBacktestData` (or a sibling helper); `TimeSeriesChart.tsx` is a presentational component (no fetch logic inside)
-- Known Gap: 30-day series assembly requires reading `predictions/{ts}` + `actuals/{ts}` collections (not just `backtest_summaries/{latest}`); Architect to specify exact REST collection-list query shape and pagination strategy in the design doc
+- Known Gap 1: 30-day series assembly requires reading `predictions/{ts}` + `actuals/{ts}` collections (not just `backtest_summaries/{latest}`); Architect specified the exact REST collection-list query shape + pagination strategy in `docs/designs/K-081-design.md` §4
+- Known Gap 2: `lightweight-charts` renders to a canvas — the container `data-testid` is queryable from Playwright but axis tick labels are not DOM-queryable. Acceptable trade-off: presence + dimensions check substitutes for tick-count assertion.
 
 ### AC-081-ACTIVE-PARAMS-CARD
 - Given: `useBacktestData` returns `params` (the `predictor_params/active` doc body)
@@ -204,7 +205,8 @@ Ruling: Three distinct testids — `summary-card-loading`, `summary-card-error`,
 
 **QA Challenge #6 — Recharts dependency check**
 Issue: AC mentions Recharts; need to verify it's in `package.json`.
-Ruling: Confirmed present (existing chart code in `MainChart.tsx`). No new dependency needed; reuse existing version.
+Original ruling (SUPERSEDED): "Confirmed present (existing chart code in `MainChart.tsx`). No new dependency needed; reuse existing version." This was incorrect — `MainChart.tsx` uses `lightweight-charts`, not Recharts; `recharts` is NOT in `package.json`. The stale `system-overview.md` listed Recharts in tech stack.
+Updated ruling (2026-05-02 SQ-1, PM mid-pipeline): use `lightweight-charts` (existing dep) rather than installing `recharts`. AC-081-TIME-SERIES-CHART rewritten — chart-container testid + pixel-dimension check substitute for the original "Recharts LineChart element + 7 X-axis tick labels" assertion (canvas-rendered ticks are not DOM-queryable).
 
 **QA Challenge #7 — `/backtest` GA pageview test wiring**
 Issue: AC-081-GA-PAGEVIEW says "verified via existing analytics mock" — Engineer needs to know which mock pattern.

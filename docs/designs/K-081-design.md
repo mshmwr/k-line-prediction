@@ -9,23 +9,15 @@ visual-spec: N/A — reason: visual-delta=none; no Pencil frame produced for thi
 
 ## §0 Scope Questions (Architect gate)
 
-**SQ-1 — Recharts not in package.json (blocker for AC-081-TIME-SERIES-CHART)**
+**SQ-1 — Recharts not in package.json — RESOLVED 2026-05-02 (PM ruling: option b, lightweight-charts)**
 
-- AC-081-TIME-SERIES-CHART says: "a Recharts `LineChart` element with `data-testid="time-series-chart"` is mounted"
-- QA Challenge #6 ruling says: "Confirmed present (existing chart code in `MainChart.tsx`)"
-- Actual state: `frontend/package.json` has NO `recharts` dependency. `MainChart.tsx` uses `lightweight-charts` (v5.1.0). `grep -n "recharts"` across the entire repo finds zero production source references.
-- `ssot/system-overview.md` tech-stack table lists "Recharts" — this appears to be a stale/incorrect entry not reflecting the actual dependency.
+- Original concern: AC-081-TIME-SERIES-CHART referenced "Recharts `LineChart`" but `recharts` is not installed; QA Challenge #6 ruling was incorrect (`MainChart.tsx` uses `lightweight-charts` v5.1.0).
+- PM ruling 2026-05-02: option **(b)** — reuse `lightweight-charts`. Rationale: zero new dep, smaller bundle, same library already proven in `MainChart.tsx`. Architect's option-(a) recommendation overruled.
+- AC-081-TIME-SERIES-CHART rewritten in ticket (commit on this branch): drops "Recharts LineChart" + "7 X-axis tick labels" assertions, replaces with container-div testid + non-zero pixel-dimension check (canvas-rendered ticks are not DOM-queryable, accepted trade-off).
+- §5.3 TimeSeriesChart, §8 test plan, §9 implementation order all updated to reflect the lightweight-charts approach.
+- Stale `ssot/system-overview.md` tech-stack "Recharts" entry to be corrected by Engineer in AC-081-DOCS-UPDATE.
 
-**Impact:** AC as written requires Recharts. Three resolution paths for PM to rule on:
-  (a) Add `recharts` as a new dependency — Engineer installs it, AC stays as written.
-  (b) Replace AC reference to use `lightweight-charts` instead — `TimeSeriesChart.tsx` wraps lightweight-charts; testid contract is unchanged; the word "Recharts" is removed from AC.
-  (c) Use a simple SVG-based line chart (no library) — achieves visual output but diverges from the spirit of "reuse existing dependency."
-
-**Recommendation (Architect, not ruling):** Option (a) — add Recharts. It is a well-tested library with native `data-testid` passthrough, produces clean DOM for Playwright selection, and is explicitly named in the epic plan §C5. `lightweight-charts` is a canvas-based library that does not produce testable DOM nodes — Playwright `data-testid` assertions would fail. The epic plan clearly intended a separate library for the backtest chart.
-
-**Design doc status:** §5 TimeSeriesChart and §8 Test Plan sections are written assuming option (a) — Recharts installed. If PM rules option (b), Engineer must adjust `TimeSeriesChart.tsx` to use lightweight-charts canvas API and the `data-testid="time-series-chart"` Playwright assertion must be replaced with a container-div testid (canvas element is not introspectable).
-
-_PM ruling awaited. This is the only open question. All other ACs are implementable as written._
+_All ACs are now implementable as written. No open Architect questions._
 
 ---
 
@@ -87,7 +79,7 @@ Hook return shape:
 | `frontend/src/pages/BacktestPage.tsx` | Page root; layout shell; mounts 4 child components; no fetch logic | `default BacktestPage` | ≤180 | `useBacktestData`, 4 child components |
 | `frontend/src/components/backtest/SummaryCard.tsx` | Renders hit rates, MAE, RMSE, sample_size, window_days; 3-state aware | `default SummaryCard` | ≤80 | `types/backtest.ts` |
 | `frontend/src/components/backtest/PerTrendTable.tsx` | 3-row table (up/down/flat); N/A for missing trend keys | `default PerTrendTable` | ≤80 | `types/backtest.ts` |
-| `frontend/src/components/backtest/TimeSeriesChart.tsx` | Recharts LineChart overlay; pure presentation | `default TimeSeriesChart` | ≤80 | `recharts`, `types/backtest.ts` |
+| `frontend/src/components/backtest/TimeSeriesChart.tsx` | `lightweight-charts` line-overlay; container div + `useEffect` for chart instance lifecycle; pure presentation | `default TimeSeriesChart` | ≤100 | `lightweight-charts` (existing), `types/backtest.ts` |
 | `frontend/src/components/backtest/ActiveParamsCard.tsx` | Displays 4 param fields + optimized_at; 3-state aware | `default ActiveParamsCard` | ≤80 | `types/backtest.ts` |
 | `frontend/src/hooks/useBacktestData.ts` | Firestore REST reads; retry; state machine | `useBacktestData` | ≤150 | `types/backtest.ts` |
 | `frontend/src/types/backtest.ts` | TypeScript mirror types for 4 frozensets | `BacktestSummary`, `ActualOutcome`, `Prediction`, `ActiveParams` | ≤60 | none |
@@ -346,16 +338,22 @@ Internal state: none. No fetch logic. Chart data assembly is in `useBacktestData
 
 | `data-testid` | Render condition | Content |
 |---------------|-----------------|---------|
-| `time-series-chart` | `status === 'ready'` AND paired pairs ≥ 2 | Recharts `<LineChart>` root wrapper div |
+| `time-series-chart` | `status === 'ready'` AND paired pairs ≥ 2 | `<div data-testid="time-series-chart">` wrapping a `lightweight-charts` chart instance attached via `useEffect` + `useRef` (mirror `MainChart.tsx` pattern). The `<div>` element receives the testid, NOT the canvas inside. |
 | `time-series-empty` | `status === 'ready'` AND paired pairs < 2 | Placeholder div |
 
 Text when empty: `Not enough completed pairs yet — minimum 2 required for chart.` (exact match per AC).
 
-Line series:
-- `projected_median` — color `#9C4A3B` (brick-dark, K-017 palette)
-- `actual_close` — color `rgba(0,0,0,0.6)` (ink/60 approximation)
+**Library:** `lightweight-charts` v5.1.0 (already in `package.json`; same lib as `MainChart.tsx`). PM SQ-1 ruling 2026-05-02: do NOT add `recharts`. The original Architect-recommended option (a) is overruled. AC-081-TIME-SERIES-CHART has been amended in the ticket to drop the "Recharts LineChart" + "7 X-axis tick labels" assertions — replaced with container-div testid + non-zero pixel-dimension check (canvas-rendered ticks are not DOM-queryable, accepted trade-off).
 
-X axis: ISO `YYYY-MM-DD` date from `query_ts`. Y axis: auto-scaled price. Minimum 7 X-axis tick labels at desktop width (`width={700}` breakpoint).
+Two line series via `chart.addLineSeries({ color, lineWidth: 2 })`:
+- `projected_median` — color `#9C4A3B` (brick-dark, K-017 palette)
+- `actual_close` — color `#999999` (ink/60 approximation; lightweight-charts requires hex, not rgba)
+
+X axis: lightweight-charts `LineData[]` time-series with ISO `YYYY-MM-DD` from `query_ts` (use `time: dateString` shape; lightweight-charts auto-scales the time axis). Y axis: auto-scaled price.
+
+**Pixel-dimension contract:** the `<div data-testid="time-series-chart">` MUST have `style={{ width: '100%', minHeight: '240px' }}` and live inside a parent with at least 600px width at desktop breakpoint, so Playwright's `boundingBox()` check returns ≥600×240. Chart instance is created with `chart.applyOptions({ width: container.clientWidth, height: 240 })` on mount + `ResizeObserver` to keep width responsive.
+
+**Cleanup:** `useEffect` cleanup function calls `chart.remove()` to prevent canvas/listener leaks on route unmount (same pattern as `MainChart.tsx`).
 
 **"actual_close" derivation:** `ActualOutcome` does not have an `actual_close` field directly. The time-series chart plots `actual_high` as a proxy for close (or the hook derives a midpoint). **Architect ruling:** `useBacktestData` assembles `ChartPoint[]` as `{ date: string, projectedMedian: number, actualClose: number }` where `actualClose = (actualOutcome.actual_high + actualOutcome.actual_low) / 2` (midpoint of the 72-bar realized window). This is labeled "Actual (mid)" on the Y-axis legend. If PM wants a different derivation, this is the only place to change it.
 
@@ -453,7 +451,7 @@ describe('AC-081-GA-PAGEVIEW — useGAPageview /backtest entry', () => {
 | # | Test | Type | Tool | AC |
 |---|------|------|------|----|
 | 1 | `npx tsc --noEmit` exits 0 | tsc gate | tsc | AC-081-TSC-CLEAN |
-| 2 | Route renders; 4 testids present (`backtest-summary-card`, `per-trend-table`, `time-series-chart`, `active-params-card`) | E2E | Playwright | AC-081-PLAYWRIGHT-SPEC case 1 |
+| 2 | Route renders; 4 testids present (`backtest-summary-card`, `per-trend-table`, `time-series-chart`, `active-params-card`); chart-container `boundingBox()` returns ≥600×240 px when ≥2 paired points | E2E | Playwright | AC-081-PLAYWRIGHT-SPEC case 1, AC-081-TIME-SERIES-CHART |
 | 3 | PerTrendTable has exactly 3 rows in order up → down → flat | E2E | Playwright | AC-081-PLAYWRIGHT-SPEC case 2, AC-081-PER-TREND-TABLE |
 | 4 | Loading state: Firestore mock delays 500ms; `summary-card-loading` visible during wait | E2E | Playwright | AC-081-PLAYWRIGHT-SPEC case 3 |
 | 5 | Error state: Firestore mock fails twice; `summary-card-error` visible with mocked error message | E2E | Playwright | AC-081-PLAYWRIGHT-SPEC case 4 |
@@ -496,7 +494,7 @@ describe('AC-081-TYPE-CONTRACT — BacktestSummary parity with K-080 frozenset',
 2. **`frontend/src/hooks/useBacktestData.ts`** — implement hook (§4): project ID constant, `listDocuments` for summary, `runQuery` for predictions/actuals, retry logic, state machine, `ChartPoint` assembly. Verify with `tsc --noEmit`.
 3. **`frontend/src/components/backtest/SummaryCard.tsx`** — implement (§5.1). Verify `tsc`.
 4. **`frontend/src/components/backtest/PerTrendTable.tsx`** — implement (§5.2). Verify `tsc`.
-5. **`frontend/src/components/backtest/TimeSeriesChart.tsx`** — implement (§5.3). **Requires PM ruling on SQ-1 before writing this file.** If option (a), install `recharts` first: `npm install recharts`. Verify `tsc`.
+5. **`frontend/src/components/backtest/TimeSeriesChart.tsx`** — implement (§5.3) using `lightweight-charts` (PM SQ-1 ruling: option b; do NOT install recharts). Mirror the `MainChart.tsx` pattern: container `<div ref={containerRef} data-testid="time-series-chart" style={{ width: '100%', minHeight: '240px' }}>`; `useEffect` creates chart instance, two `addLineSeries` calls, sets data, returns cleanup that calls `chart.remove()`. Add `ResizeObserver` to keep `chart.applyOptions({ width: container.clientWidth })` synced. Verify `tsc`.
 6. **`frontend/src/components/backtest/ActiveParamsCard.tsx`** — implement (§5.4). Verify `tsc`.
 7. **`frontend/src/pages/BacktestPage.tsx`** — assemble page from hook + 4 components (§5). Verify `tsc`.
 8. **`frontend/src/main.tsx`** — add lazy import line + Route (§2 Modified files).
@@ -515,13 +513,7 @@ describe('AC-081-TYPE-CONTRACT — BacktestSummary parity with K-080 frozenset',
 
 ## §10 Open Questions for PM
 
-**SQ-1 — Recharts not in package.json (blocker for TimeSeriesChart implementation)**
-
-Documented in §0 above. Three options presented. Architect recommends option (a): install `recharts`.
-
-AC-081-TIME-SERIES-CHART and QA Challenge #6 ruling ("Confirmed present") are contradicted by the actual `frontend/package.json`. PM ruling required before Engineer writes `TimeSeriesChart.tsx`.
-
-All other ACs are implementable as written. No other open questions.
+**None — all ACs implementable as written after SQ-1 resolution (PM ruled option b: `lightweight-charts`).**
 
 ---
 
