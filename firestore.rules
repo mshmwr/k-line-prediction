@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public read for all collections used by the self-tuning epic.
+    match /predictions/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /actuals/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /backtest_summaries/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /predictor_params/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /optimize_runs/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
