@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-079",
+    "title": "Known-reds manifest cleanup — 20 stale entries removed (22→2 active)",
+    "date": "2026-05-02",
+    "text": "Dropped 20 known-red entries whose route.fulfill() mocks were already wired; K-013×4, ma99×13, upload×3 all pass 20/20. Prior failures were state contamination from backgrounded Playwright runs. Remaining manifest: ga-spa-pageview + visual-report."
+  },
+  {
     "ticketId": "K-077",
     "title": "E2E test cleanup — T14 DOM fix, data-redaction removal, Footer baselines regen",
     "date": "2026-05-02",
