@@ -4,6 +4,22 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-077 PM: E2E test cleanup — 4 deferred items resolved
+
+**What went well:** All 4 ACs verified cleanly. Scroll-to-top threshold self-healed (diary page grew; no assertion change needed). Full suite showed only 2 failures, both in known-reds. Discovery: 20+ previously known-red tests (ma99/K-013/upload) now pass — stale entries to clean in follow-up ticket.
+
+**What went wrong:** AC-077-SCROLL-THRESHOLD was written assuming an assertion change was needed; actual scroll test passed without changes — known-reds entry was self-healed by diary page growth since K-059. Spending time on analysis of a self-healed test was avoidable.
+
+**Next time improvement:** Before writing a test-cleanup AC that requires a threshold change, run the named test first to verify it still fails — if it passes, the entry is stale and only a known-reds removal is needed.
+
+**Slowest step:** FooterDisclaimer DOM investigation — required reading FooterDisclaimer.tsx, AboutPage.tsx, and running T14 twice to diagnose both the Suspense timing race and the `<section>` vs `<footer>` assertion.
+
+**processRules review:** no-change — test-only ticket.
+
+**Codified:** `feedback_e2e_wait_gate_consistency.md` (Engineer role); no PM-specific rule added.
+
+---
+
 ## 2026-05-02 — K-076 PM: known-reds cleanup — 0 entries removed, manifest hygiene no-op
 
 **What went well:** Verification was fast — 3 targeted Playwright runs confirmed all 20 targeted tests still fail. Addded `addInitScript` confirmed present in all 3 spec files. Root cause analysis correctly attributed to live-backend requirement (not ConsentBanner regression).

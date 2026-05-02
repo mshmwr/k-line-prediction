@@ -12,6 +12,20 @@
 **下次改善：**（具體可執行的行動）
 ```
 
+## 2026-05-02 — K-077: E2E test cleanup — T14 fix, data-redaction, Footer baselines
+
+**What went well:** FooterDisclaimer DOM analysis was accurate (`<section id="disclaimer">`, not `<footer>`); node_modules symlink to worktree was fast; code-reviewer caught `toBeVisible()` vs `waitFor({state:'attached'})` idiom mismatch before ship; discovered 20+ stale known-reds entries (ma99/K-013/upload all pass with mocks — prior failures were state contamination).
+
+**What went wrong:** (1) First T14 wait gate used `toBeVisible()` instead of the file-established `waitFor({ state: 'attached' })` pattern — required a fix iteration after reviewer caught it. (2) Background sitewide-footer run showed "5 failed" in output file; spent time investigating before realizing the file captured a prior interrupted run's tail — re-running fresh confirmed all 5 pass.
+
+**Next time improvement:** Before adding a Playwright wait gate, grep the target file for `waitFor` to confirm the established idiom — do not default to `toBeVisible()` for Suspense/lazy-mount scenarios. When background Playwright output shows unexpected failures, re-run fresh immediately before investigating.
+
+**Slowest step:** Diagnosing "footer not visible" Footer snapshot timeout — two re-runs and a cross-check with sitewide-footer to confirm state contamination, not a regression.
+
+**Codified:** `feedback_e2e_wait_gate_consistency.md` — match file's established wait idiom; grep before adding.
+
+---
+
 ## 2026-05-02 — K-075 Phase C (AppPage decomposition)
 
 **What went well:** resetPredWsRef pattern resolved the circular hook dependency cleanly without any circular imports; all K-030 Sacred Playwright specs passed 6/6 on first run.

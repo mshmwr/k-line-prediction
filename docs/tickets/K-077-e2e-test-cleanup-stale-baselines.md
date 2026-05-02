@@ -1,8 +1,10 @@
 ---
 id: K-077
 title: E2E test cleanup — about DOM T14, data-redaction obsolete test, Footer baselines regen, scroll-to-top threshold
-status: open
+status: closed
 created: 2026-05-02
+closed: 2026-05-02
+closed-commit: deae7b7
 type: test
 priority: medium
 size: small
