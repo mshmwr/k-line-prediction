@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-05-02 (K-081)
+updated: 2026-05-02 (K-083)
 ---
 
 ## Summary
@@ -37,7 +37,7 @@ ETH/USDT K-line candlestick pattern similarity prediction system. User uploads r
 | `predictions` | `{YYYY-MM-DD-HH}` | K-080: daily prediction records (fields: `FIRESTORE_PREDICTION_FIELDS`) |
 | `actuals` | `{YYYY-MM-DD-HH}` | K-080: realized 72h windows (fields: `FIRESTORE_ACTUAL_FIELDS`) |
 | `backtest_summaries` | `{YYYY-MM-DD}` | K-080: rolling 30-day accuracy summaries (fields: `FIRESTORE_BACKTEST_SUMMARY_FIELDS`) |
-| `optimize_runs` | `{run_id}` | K-081: Bayesian optimizer run metadata |
+| `optimize_runs` | `{run_id}` | K-083: Bayesian optimizer run metadata (fields: `FIRESTORE_OPTIMIZE_RUN_FIELDS`) |
 
 Backend reads `predictor_params/active` once at boot via `backend/firestore_config.py::load_active_params()`.
 `predictor.params` is the single `ParamSnapshot` namespace object; atomically replaced at startup.
@@ -84,6 +84,40 @@ GitHub Actions — 04:00 UTC daily (after scrape-history.yml at 03:00 UTC)
 
 Contract: `per_trend` sub-keys ("up"/"down"/"flat") are only written when sample_size > 0
 for that trend. K-081 (frontend) must handle missing trend keys gracefully.
+─────────────────────────────────────────────────────────────────────────
+```
+
+### Weekly Optimizer Workflow (K-083)
+
+```
+GitHub Actions — Mondays 05:00 UTC (workflow_dispatch also enabled)
+─────────────────────────────────────────────────────────────────────────
+.github/workflows/weekly-optimize.yml
+  │
+  ├─ pip install -r backend/requirements.txt (includes scikit-optimize>=0.9)
+  ├─ GOOGLE_APPLICATION_CREDENTIALS ← ${{ secrets.GCP_SA_KEY }}
+  │
+  └─ python scripts/weekly_optimize.py
+       │
+       ├─ Corpus fetch: predictions/ + actuals/ last 90 days → completed_pairs[]
+       │
+       ├─ Data-sufficiency guard: len(completed_pairs) < 30 → exit 0 (graceful skip)
+       │
+       ├─ Bayesian search: skopt.gp_minimize over (window∈[14,60], pearson∈[0.2,0.7], top_k∈[5,30])
+       │    ≤50 iterations, RANDOM_STATE=42, cost guard: early exit after 20 no-improvement iters
+       │    Objective: 0.5·high_hit_rate + 0.5·low_hit_rate (evaluated via param_override context mgr)
+       │
+       ├─ Idempotency check: winner_hash == current_params_hash → exit 0 (no writes)
+       │
+       ├─ Sequential Firestore writes (retry-once each):
+       │    predictor_params/active  (FIRESTORE_PREDICTOR_PARAMS_FIELDS)
+       │    predictor_params/history/{run_id}  (FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS)
+       │    optimize_runs/{run_id}   (FIRESTORE_OPTIMIZE_RUN_FIELDS)
+       │
+       └─ Cloud Run redeploy: gcloud run services update k-line-backend --region=asia-east1 --no-traffic
+            failure → exit 1 (Firestore writes NOT rolled back)
+
+Helper module: backend/optimizer.py (param_override, evaluate_corpus, doc builders — no Firestore I/O)
 ─────────────────────────────────────────────────────────────────────────
 ```
 
@@ -707,6 +741,9 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 ---
 
 ## Changelog
+
+**2026-05-02 — K-083 — Weekly Bayesian optimizer design: new `scripts/weekly_optimize.py` + `backend/optimizer.py` + `.github/workflows/weekly-optimize.yml`; added `FIRESTORE_OPTIMIZE_RUN_FIELDS` + `FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS` frozensets; weekly optimizer workflow added to system-overview.md.**
+Design doc: [docs/designs/K-083-design.md](../docs/designs/K-083-design.md)
 
 **2026-05-02 — K-078 — Firestore plumbing: new `backend/firestore_config.py` (ParamSnapshot dataclass + load_active_params loader), predictor.params module attr, /api/health endpoint, firestore.rules, requirements.txt google-cloud-firestore pin.**
 Design doc: [docs/designs/K-078-design.md](../docs/designs/K-078-design.md)
