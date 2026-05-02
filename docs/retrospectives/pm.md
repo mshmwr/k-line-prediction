@@ -4,6 +4,22 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-076 PM: known-reds cleanup — 0 entries removed, manifest hygiene no-op
+
+**What went well:** Verification was fast — 3 targeted Playwright runs confirmed all 20 targeted tests still fail. Addded `addInitScript` confirmed present in all 3 spec files. Root cause analysis correctly attributed to live-backend requirement (not ConsentBanner regression).
+
+**What went wrong:** (1) Ticket stated "17 ma99-chart entries" but manifest only has 13 — count was wrong at ticket authoring time; actual spec runs 13 tests, all fail. (2) K-076 assumption ("K-061 fixed 20 scope tests → these 24 are among them") was incorrect — K-061's 20 fixed tests were different scope (pages/app-page/ga-consent-flow specs), not ma99/K-013/upload which require actual prediction API responses.
+
+**Next time improvement:** Before opening a manifest-cleanup ticket, grep-count the actual manifest entries for each spec (`grep -c "spec.ts" known-reds.md`) to verify the count in the ticket AC matches reality. Also cross-check K-061 retro scope list before assuming overlap.
+
+**Slowest step:** Waiting for Playwright test runs (~6.5 min for ma99-chart alone) — no mitigation, inherent to E2E verification.
+
+**processRules review:** no-change — docs-only close.
+
+**Codified:** none — lesson is about ticket authoring accuracy, not a reusable rule.
+
+---
+
 ## 2026-05-02 — K-075 PM: AppPage.tsx decomposition — TD-004 + TD-005 resolved
 
 **What went well:** All 6 ACs verified by concrete script checks (wc -l=129, hook file existence, K-030 grep, K-013 import chain, MatchList eslint-disable absent, Playwright 323/7-known-reds). QA Early Consultation was complete before Engineer release; 5 rulings documented; zero rescheduled work. Phases 1–5 completed in correct order.
