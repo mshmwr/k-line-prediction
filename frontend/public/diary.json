@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-083",
+    "title": "Weekly Bayesian optimizer — scikit-optimize tunes (window, pearson, top_k) from 90-day Firestore corpus + Cloud Run redeploy",
+    "date": "2026-05-02",
+    "text": "GitHub Actions cron at Mondays 05:00 UTC reads last 90 days of predictions + actuals from Firestore, runs Bayesian search (scikit-optimize gp_minimize) over (window 14-60, pearson 0.2-0.7, top_k 5-30) with RANDOM_STATE=42. Objective is 0.5·high_hit_rate + 0.5·low_hit_rate over the corpus; cost guard early-exits via EarlyExitSignal after 20 iterations with no improvement (epsilon 1e-4). Idempotency hash check skips writes + redeploy if winner equals current params_hash. On winner selection, sequentially writes predictor_params/active + predictor_params/history/runs/{run_id} + optimize_runs/{run_id} (two new frozenset contracts: FIRESTORE_OPTIMIZE_RUN_FIELDS 9 fields, FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS 8 fields), then triggers Cloud Run redeploy via gcloud run services update. Data-sufficiency guard exits 0 if <30 completed pairs (graceful skip). Sacred K-015 floor intact — backend/predictor.py untouched; param_override context manager swaps + restores predictor.params unconditionally. Final ticket of backtest-self-tuning epic."
+  },
+  {
     "ticketId": "K-081",
     "title": "/backtest route — Firestore read dashboard: summary card, per-trend table, lightweight-charts time-series, params card",
     "date": "2026-05-02",

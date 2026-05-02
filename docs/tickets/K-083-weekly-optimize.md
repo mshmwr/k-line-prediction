@@ -1,8 +1,10 @@
 ---
 id: K-083
 title: Weekly Bayesian optimizer — auto-tune predictor params from accumulated prediction history
-status: open
+status: closed
 created: 2026-05-02
+closed: 2026-05-02
+closed-commit: 84d6dec
 type: feat
 priority: medium
 size: large

@@ -14,6 +14,14 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-02 — K-083
+
+**What went well:** All 10 K-083 pytest cases green on first run; sacred floor 4/4; full suite 3 failures identity-matched known-reds (strptime mismatch on test_history_db_contiguity.py); optimizer.py reader fields match daily_predict.py writer fields exactly.
+**What went wrong:** N/A — no regressions or sign-off blockers; all 10 gates clean.
+**Next time improvement:** GHA cleanup step prevents SA key leakage; future tickets with GHA auth flows should add a post-step assertion that /tmp/gcp-sa.json does not exist after cleanup.
+**Slowest step:** Full backend pytest suite (~120s) — test_predict_real_csv_integration CSV fixture load; unavoidable.
+
+
 ## 2026-05-02 — K-081
 
 **What went well:** All 4 Playwright AC cases green on first run; all 8 K-081-specific vitest tests passed; tsc exit 0; backend zero-diff confirmed; known-reds identity-matched.
