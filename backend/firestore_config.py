@@ -125,7 +125,7 @@ class ParamSnapshot:
     top_k_matches: int
     params_hash: str              # sha256 hex of canonical tuple; 12-char prefix in /health
     optimized_at: Optional[str]   # ISO8601 or None
-    source: Literal["firestore", "default"]
+    source: Literal["firestore", "default", "optimizer"]
 
 
 def _compute_params_hash(window: int, pearson: float, top_k: int) -> str:

@@ -418,100 +418,173 @@ def test_predictor_params_restored_after_objective_eval():
 
 
 # ---------------------------------------------------------------------------
-# Test 8 — AC-083-WINNER-WRITE (idempotency check)
+# Shared helper for tests 8 + 9: build a fake gp_minimize result
+# ---------------------------------------------------------------------------
+
+def _make_fake_gp_result(window: int, pearson: float, top_k: int, score: float):
+    """Return a mock OptimizeResult with a single iteration at the given params.
+
+    func_vals stores the NEGATED score (gp_minimize minimizes).
+    x_iters stores the corresponding params list.
+    """
+    result = MagicMock()
+    result.func_vals = [-score]          # negated; best index = 0
+    result.x_iters = [[window, pearson, top_k]]
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Test 8 — AC-083-WINNER-WRITE (idempotency check via wopt.main())
 # ---------------------------------------------------------------------------
 
 def test_hash_equal_early_exit():
-    """When winner hash equals current active params hash, no writes and sys.exit(0).
+    """When winner hash equals current active-params hash, wopt.main() must
+    exit(0) WITHOUT calling any Firestore write or gcloud subprocess.
 
-    Tests the idempotency guard: if the optimizer selects the same params that are
-    already deployed, skip writes and redeploy.
+    Uses the test-1 pattern: patch all externals, invoke wopt.main() directly.
+    The write functions themselves are patched (not the Firestore client) so
+    call-count is unambiguous regardless of mock-client chaining.
     """
-    # winner params
+    import weekly_optimize as wopt
+
     winner_window, winner_pearson, winner_top_k = 30, 0.4, 10
     winner_hash = _compute_params_hash(winner_window, winner_pearson, winner_top_k)
 
-    # current active params hash (same as winner)
-    current_hash = _compute_params_hash(winner_window, winner_pearson, winner_top_k)
+    gp_result = _make_fake_gp_result(winner_window, winner_pearson, winner_top_k, score=0.65)
 
-    assert winner_hash == current_hash, "Precondition: hashes must be equal"
+    # load_active_params returns a Firestore-sourced snapshot whose hash == winner_hash
+    # → current_hash is NOT None → idempotency check fires → sys.exit(0)
+    matching_params = ParamSnapshot(
+        ma_trend_window_days=winner_window,
+        ma_trend_pearson_threshold=winner_pearson,
+        top_k_matches=winner_top_k,
+        params_hash=winner_hash,
+        optimized_at="2026-04-01T00:00:00Z",
+        source="firestore",
+    )
 
-    client, doc_ref = _make_mock_client()
-    from firestore_config import write_predictor_params_active
+    corpus = _make_corpus(31)
+    mock_gcp_mod = MagicMock()
+    mock_subprocess = MagicMock()
+    mock_subprocess.check_output.return_value = b"deadbeef\n"
+    mock_subprocess.DEVNULL = -1
 
-    # Simulate the idempotency check
-    with pytest.raises(SystemExit) as exc_info:
-        if winner_hash == current_hash:
-            sys.exit(0)
+    sys.modules["google"] = MagicMock()
+    sys.modules["google.cloud"] = MagicMock()
+    sys.modules["google.cloud.firestore"] = mock_gcp_mod
 
-    assert exc_info.value.code == 0
-    # No writes should have been called
-    assert doc_ref.set.call_count == 0
+    mock_write_active = MagicMock()
+    mock_write_history = MagicMock()
+    mock_write_run = MagicMock()
+
+    try:
+        with patch("weekly_optimize.read_predictions_corpus", return_value=[]), \
+             patch("weekly_optimize.read_actuals_corpus", return_value=[]), \
+             patch("weekly_optimize.build_completed_pairs", return_value=corpus), \
+             patch("weekly_optimize.load_csv_history", return_value=[]), \
+             patch("weekly_optimize.load_active_params", return_value=matching_params), \
+             patch("weekly_optimize.gp_minimize", return_value=gp_result), \
+             patch("weekly_optimize.subprocess", mock_subprocess), \
+             patch("weekly_optimize.write_predictor_params_active", mock_write_active), \
+             patch("weekly_optimize.write_predictor_params_history", mock_write_history), \
+             patch("weekly_optimize.write_optimize_run", mock_write_run):
+            with pytest.raises(SystemExit) as exc_info:
+                wopt.main()
+    finally:
+        for mod_name in ["google", "google.cloud", "google.cloud.firestore"]:
+            sys.modules.pop(mod_name, None)
+
+    assert exc_info.value.code == 0, f"Expected exit 0 (idempotency skip), got {exc_info.value.code}"
+    assert mock_write_active.call_count == 0, "write_predictor_params_active must NOT be called"
+    assert mock_write_history.call_count == 0, "write_predictor_params_history must NOT be called"
+    assert mock_write_run.call_count == 0, "write_optimize_run must NOT be called"
+    # No gcloud subprocess
+    gcloud_calls = [
+        c for c in mock_subprocess.run.call_args_list
+        if c[0] and isinstance(c[0][0], list) and "gcloud" in c[0][0]
+    ]
+    assert len(gcloud_calls) == 0, "gcloud must not be called when params are unchanged"
 
 
 # ---------------------------------------------------------------------------
-# Test 9 — AC-083-REDEPLOY-TRIGGER
+# Test 9 — AC-083-REDEPLOY-TRIGGER (gcloud failure via wopt.main())
 # ---------------------------------------------------------------------------
 
 def test_gcloud_failure_exits_nonzero():
-    """gcloud returning returncode=1 must cause sys.exit(1) after all Firestore writes succeed.
+    """gcloud returning returncode=1 must cause wopt.main() to exit(1) AFTER
+    all three Firestore writes have been committed.
 
-    Firestore writes must succeed (3 set() calls) before the gcloud attempt.
+    Uses the test-1 pattern: patch all externals, invoke wopt.main() directly.
+    Winner params differ from active params so the idempotency check is bypassed.
+    Write functions are patched at the weekly_optimize namespace boundary so
+    call-count is unambiguous regardless of mock-client chaining.
     """
-    from firestore_config import (
-        write_predictor_params_active,
-        write_predictor_params_history,
-        write_optimize_run,
+    import weekly_optimize as wopt
+
+    winner_window, winner_pearson, winner_top_k = 30, 0.4, 10
+    winner_hash = _compute_params_hash(winner_window, winner_pearson, winner_top_k)
+
+    gp_result = _make_fake_gp_result(winner_window, winner_pearson, winner_top_k, score=0.65)
+
+    # Active params differ → current_hash != winner_hash → writes proceed
+    different_hash = _compute_params_hash(20, 0.3, 5)
+    different_params = ParamSnapshot(
+        ma_trend_window_days=20,
+        ma_trend_pearson_threshold=0.3,
+        top_k_matches=5,
+        params_hash=different_hash,
+        optimized_at="2026-04-01T00:00:00Z",
+        source="firestore",
     )
+    assert different_hash != winner_hash, "Precondition: hashes must differ"
 
-    active_doc = build_predictor_params_doc(
-        window_days=30, pearson_threshold=0.45, top_k=12, optimized_at="2026-05-05T05:07:00Z"
+    corpus = _make_corpus(31)
+    mock_gcp_mod = MagicMock()
+
+    # gcloud returns returncode=1 → redeploy fails
+    gcloud_mock = MagicMock()
+    gcloud_mock.returncode = 1
+    mock_subprocess = MagicMock()
+    mock_subprocess.run.return_value = gcloud_mock
+    mock_subprocess.check_output.return_value = b"deadbeef\n"
+    mock_subprocess.DEVNULL = -1
+
+    sys.modules["google"] = MagicMock()
+    sys.modules["google.cloud"] = MagicMock()
+    sys.modules["google.cloud.firestore"] = mock_gcp_mod
+
+    mock_write_active = MagicMock()
+    mock_write_history = MagicMock()
+    mock_write_run = MagicMock()
+
+    try:
+        with patch("weekly_optimize.read_predictions_corpus", return_value=[]), \
+             patch("weekly_optimize.read_actuals_corpus", return_value=[]), \
+             patch("weekly_optimize.build_completed_pairs", return_value=corpus), \
+             patch("weekly_optimize.load_csv_history", return_value=[]), \
+             patch("weekly_optimize.load_active_params", return_value=different_params), \
+             patch("weekly_optimize.gp_minimize", return_value=gp_result), \
+             patch("weekly_optimize.subprocess", mock_subprocess), \
+             patch("weekly_optimize.write_predictor_params_active", mock_write_active), \
+             patch("weekly_optimize.write_predictor_params_history", mock_write_history), \
+             patch("weekly_optimize.write_optimize_run", mock_write_run):
+            with pytest.raises(SystemExit) as exc_info:
+                wopt.main()
+    finally:
+        for mod_name in ["google", "google.cloud", "google.cloud.firestore"]:
+            sys.modules.pop(mod_name, None)
+
+    assert exc_info.value.code != 0, f"Expected non-zero exit after gcloud failure, got {exc_info.value.code}"
+    # All three Firestore writes must have been called before the gcloud attempt
+    assert mock_write_active.call_count == 1, (
+        f"write_predictor_params_active must be called once, got {mock_write_active.call_count}"
     )
-    history_doc = build_predictor_params_history_doc(
-        window_days=30, pearson_threshold=0.45, top_k=12,
-        optimized_at="2026-05-05T05:07:00Z",
-        best_score=0.72,
-        run_id="optimize-2026-05-05",
-        git_sha="abcd1234",
-        corpus_size=45,
+    assert mock_write_history.call_count == 1, (
+        f"write_predictor_params_history must be called once, got {mock_write_history.call_count}"
     )
-    run_doc = build_optimize_run_doc(
-        run_id="optimize-2026-05-05",
-        best_score=0.72,
-        best_params={"window_days": 30, "pearson_threshold": 0.45, "top_k": 12},
-        iterations_run=35,
-        early_exit=False,
-        data_window_days=90,
-        sample_size=45,
-        started_at="2026-05-05T05:00:00Z",
-        completed_at="2026-05-05T05:07:00Z",
+    assert mock_write_run.call_count == 1, (
+        f"write_optimize_run must be called once, got {mock_write_run.call_count}"
     )
-
-    client, doc_ref = _make_mock_client()
-
-    # All writes succeed
-    write_predictor_params_active(client, active_doc)
-    write_predictor_params_history(client, "optimize-2026-05-05", history_doc)
-    write_optimize_run(client, "optimize-2026-05-05", run_doc)
-
-    assert doc_ref.set.call_count == 3, "All three writes should have succeeded"
-
-    # Mock gcloud returning returncode=1
-    gcloud_result = MagicMock()
-    gcloud_result.returncode = 1
-
-    with patch("weekly_optimize.subprocess.run", return_value=gcloud_result), \
-         pytest.raises(SystemExit) as exc_info:
-        import subprocess
-        result = subprocess.run(
-            ["gcloud", "run", "services", "update", "k-line-backend",
-             "--region=asia-east1", "--no-traffic"],
-            check=False,
-        )
-        if result.returncode != 0:
-            sys.exit(1)
-
-    assert exc_info.value.code == 1
 
 
 # ---------------------------------------------------------------------------
