@@ -4,7 +4,7 @@ title: known-reds cleanup — verify K-061 ConsentBanner fix removed ma99-chart 
 status: closed
 created: 2026-05-02
 closed: 2026-05-02
-closed-commit: TBD
+closed-commit: 7af331b
 type: test
 priority: high
 size: small
