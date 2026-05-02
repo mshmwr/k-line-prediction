@@ -42,3 +42,8 @@ frontend/design/images/
 
 # Graphify AST cache (regenerable, ~500KB)
 graphify-out/cache/
+
+# Graphify runtime/config files (not design artefacts)
+graphify-out/.graphify_*
+graphify-out/cost.json
+graphify-out/manifest.json
