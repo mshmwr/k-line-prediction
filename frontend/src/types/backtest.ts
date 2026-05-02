@@ -45,15 +45,16 @@ export interface BacktestSummary {
 }
 
 // Source: FIRESTORE_PREDICTOR_PARAMS_FIELDS (backend/firestore_config.py)
-// Note: ParamSnapshot on backend stores ma_trend_window_days etc. —
-// the Firestore doc uses shorter key names (window_days, pearson_threshold, top_k).
-// The hook maps Firestore doc keys to these interface fields.
+// Wire format uses window_days / pearson_threshold — NOT the Python ParamSnapshot attribute
+// names (ma_trend_window_days / ma_trend_pearson_threshold). AC-081-TYPE-CONTRACT mandates parity.
 export interface ActiveParams {
-  ma_trend_window_days: number;        // Firestore key: window_days
-  ma_trend_pearson_threshold: number;  // Firestore key: pearson_threshold
-  top_k: number;
-  optimized_at: string | null;
-  params_hash: string;                 // computed by hook from window+pearson+top_k
+  /** Mirrors backend/firestore_config.py FIRESTORE_PREDICTOR_PARAMS_FIELDS. */
+  window_days: number
+  pearson_threshold: number
+  top_k: number
+  optimized_at: string | null
+  /** Computed by useBacktestData from {window_days, pearson_threshold, top_k}; not a Firestore wire field. */
+  params_hash: string
 }
 
 // Assembled chart point for TimeSeriesChart (hook builds this from Prediction + ActualOutcome join)

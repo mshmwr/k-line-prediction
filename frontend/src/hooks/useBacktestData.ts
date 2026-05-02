@@ -112,30 +112,60 @@ async function fetchLatestSummary(): Promise<BacktestSummary> {
 
 // ─── Active params fetch ───────────────────────────────────────────────────────
 
+/**
+ * Default sentinel returned when predictor_params/active doc is missing (404).
+ * Matches DEFAULT_PARAMS from K-078. AC-081-ACTIVE-PARAMS-CARD: card displays
+ * "Defaults — never optimized" when the doc does not exist.
+ */
+const DEFAULT_ACTIVE_PARAMS_SENTINEL: Omit<ActiveParams, 'params_hash'> = {
+  window_days: 30,
+  pearson_threshold: 0.4,
+  top_k: 10,
+  optimized_at: null,
+}
+
+async function computeParamsHash(window_days: number, pearson: number, top_k: number): Promise<string> {
+  const hashSource = `${window_days}:${pearson.toFixed(6)}:${top_k}`
+  try {
+    const encoded = new TextEncoder().encode(hashSource)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoded)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  } catch {
+    // crypto.subtle unavailable in some test environments — use placeholder
+    return hashSource
+  }
+}
+
 async function fetchActiveParams(): Promise<ActiveParams> {
   const url = `${BASE_URL}/predictor_params/active`
-  const resp = await fetchWithRetry(url)
+  let resp: Response
+  try {
+    resp = await fetchWithRetry(url)
+  } catch (err) {
+    // fetchWithRetry throws on non-ok; treat 404 as "doc missing" → return defaults sentinel
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('HTTP 404')) {
+      const params_hash = await computeParamsHash(
+        DEFAULT_ACTIVE_PARAMS_SENTINEL.window_days,
+        DEFAULT_ACTIVE_PARAMS_SENTINEL.pearson_threshold,
+        DEFAULT_ACTIVE_PARAMS_SENTINEL.top_k,
+      )
+      return { ...DEFAULT_ACTIVE_PARAMS_SENTINEL, params_hash }
+    }
+    throw err
+  }
   const json = await resp.json()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fields = decodeFields((json as any).fields ?? {})
   const window_days = fields.window_days as number
   const pearson = fields.pearson_threshold as number
   const top_k = fields.top_k as number
-  // Compute params_hash prefix from window+pearson+top_k for display
-  const hashSource = `${window_days}:${pearson.toFixed(6)}:${top_k}`
-  let params_hash = 'unknown'
-  try {
-    const encoded = new TextEncoder().encode(hashSource)
-    const hashBuffer = await crypto.subtle.digest('SHA-256', encoded)
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    params_hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-  } catch {
-    // crypto.subtle unavailable in some test environments — use placeholder
-    params_hash = hashSource
-  }
+  // Compute params_hash from window+pearson+top_k for display (not a Firestore wire field)
+  const params_hash = await computeParamsHash(window_days, pearson, top_k)
   return {
-    ma_trend_window_days: window_days,
-    ma_trend_pearson_threshold: pearson,
+    window_days,
+    pearson_threshold: pearson,
     top_k,
     optimized_at: (fields.optimized_at as string | null | undefined) ?? null,
     params_hash,
@@ -144,36 +174,46 @@ async function fetchActiveParams(): Promise<ActiveParams> {
 
 // ─── 30-day time-series runQuery ───────────────────────────────────────────────
 
-function thirtyDaysAgo(): string {
-  const d = new Date()
-  d.setUTCDate(d.getUTCDate() - 30)
-  return d.toISOString().replace(/\.\d{3}Z$/, 'Z')
+/**
+ * Returns a doc-ID lower bound in YYYY-MM-DD-HH format (UTC) representing ~30 days ago.
+ * Both `predictions` and `actuals` collections use this format for their doc IDs,
+ * so `__name__ >= cutoffDocId` is the correct range filter for both collections
+ * (the `actuals` collection has no `query_ts` field — C-1 fix).
+ */
+function thirtyDaysAgoDocId(): string {
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  // YYYY-MM-DD-HH format, e.g. "2026-04-02-16"
+  const yyyy = cutoff.getUTCFullYear()
+  const mm = String(cutoff.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(cutoff.getUTCDate()).padStart(2, '0')
+  const hh = String(cutoff.getUTCHours()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}-${hh}`
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function runQueryBody(collectionId: string): any {
+function runQueryBody(collectionId: string, cutoffDocId: string): any {
   return {
     structuredQuery: {
       from: [{ collectionId }],
       where: {
         fieldFilter: {
-          field: { fieldPath: 'query_ts' },
+          field: { fieldPath: '__name__' },
           op: 'GREATER_THAN_OR_EQUAL',
-          value: { stringValue: thirtyDaysAgo() },
+          value: { referenceValue: `projects/${PROJECT_ID}/databases/(default)/documents/${collectionId}/${cutoffDocId}` },
         },
       },
-      orderBy: [{ field: { fieldPath: 'query_ts' }, direction: 'ASCENDING' }],
+      orderBy: [{ field: { fieldPath: '__name__' }, direction: 'ASCENDING' }],
       limit: 35,
     },
   }
 }
 
-async function fetchPredictions(): Promise<Prediction[]> {
+async function fetchPredictions(cutoffDocId: string): Promise<Prediction[]> {
   const url = `${BASE_URL}:runQuery`
   const resp = await fetchWithRetry(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(runQueryBody('predictions')),
+    body: JSON.stringify(runQueryBody('predictions', cutoffDocId)),
   })
   const json: unknown[] = await resp.json()
   return json
@@ -199,12 +239,12 @@ async function fetchPredictions(): Promise<Prediction[]> {
     })
 }
 
-async function fetchActuals(): Promise<ActualOutcome[]> {
+async function fetchActuals(cutoffDocId: string): Promise<ActualOutcome[]> {
   const url = `${BASE_URL}:runQuery`
   const resp = await fetchWithRetry(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(runQueryBody('actuals')),
+    body: JSON.stringify(runQueryBody('actuals', cutoffDocId)),
   })
   const json: unknown[] = await resp.json()
   return json
@@ -266,17 +306,20 @@ export function useBacktestData(): BacktestDataResult {
 
     async function load() {
       try {
+        // Compute cutoff once per load() — shared by both predictions + actuals queries (C-1 fix)
+        const cutoffDocId = thirtyDaysAgoDocId()
         const [summaryResult, paramsResult, predsResult, actualsResult] = await Promise.all([
           fetchLatestSummary(),
           fetchActiveParams(),
-          fetchPredictions(),
-          fetchActuals(),
+          fetchPredictions(cutoffDocId),
+          fetchActuals(cutoffDocId),
         ])
         if (cancelled) return
-        const points = assembleChartPoints(predsResult, actualsResult)
-        if (points.length > 35) {
-          console.warn('useBacktestData: runQuery returned > 35 paired points; using first 35')
+        // Warn BEFORE join if either collection saturated the 35-doc cap (B-W3 fix)
+        if (predsResult.length === 35 || actualsResult.length === 35) {
+          console.warn('runQuery saturated 35-doc cap; older data may be missing from chart')
         }
+        const points = assembleChartPoints(predsResult, actualsResult)
         setSummary(summaryResult)
         setParams(paramsResult)
         setPredictions(predsResult)

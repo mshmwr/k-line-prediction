@@ -45,5 +45,6 @@ describe('AC-081-NAVBAR-ENTRY — UnifiedNavBar Backtest entry', () => {
     const navDesktop = screen.getByTestId('navbar-desktop')
     const backtestLink = within(navDesktop).getByRole('link', { name: 'Backtest' })
     expect(backtestLink.getAttribute('aria-current')).toBe('page')
+    expect(backtestLink.className).toContain('text-brick-dark')
   })
 })

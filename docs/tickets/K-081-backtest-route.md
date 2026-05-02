@@ -121,9 +121,10 @@ New React route `/backtest` that reads Firestore `backtest_summaries/{latest}` +
 - Given: `useBacktestData` returns `params` (the `predictor_params/active` doc body)
 - When: `BacktestPage` renders
 - Then: an `ActiveParamsCard` element with `data-testid="active-params-card"` is mounted
-- And: the card displays four fields from `params`: `ma_trend_window_days` (int), `ma_trend_pearson_threshold` (2-decimal float), `top_k` (int), `params_hash` (12-char prefix only — full hash is too long for the layout)
+- And: the card displays four fields from `params`: `window_days` (int), `pearson_threshold` (2-decimal float), `top_k` (int), `params_hash` (12-char prefix only — full hash is too long for the layout)
 - And: the card displays `optimized_at` formatted as `YYYY-MM-DD HH:mm UTC` (or `Defaults — never optimized` when the doc is missing or `optimized_at` is null)
-- And: each value has a `data-testid` of the form `param-{field}`
+- And: each value has a `data-testid` of the form `param-{field}` — exact testids: `param-window_days`, `param-pearson_threshold`, `param-top_k`, `param-params_hash`, `param-optimized_at`
+- And: when `predictor_params/active` doc is missing (404), the hook returns a sentinel with `optimized_at: null` and defaults `window_days: 30, pearson_threshold: 0.4, top_k: 10` so the card shows `Defaults — never optimized`
 
 ### AC-081-FIRESTORE-RULES
 - Given: K-081 changes are applied

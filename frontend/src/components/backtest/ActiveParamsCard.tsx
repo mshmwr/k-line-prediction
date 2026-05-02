@@ -34,14 +34,14 @@ export default function ActiveParamsCard({ params, status, error }: ActiveParams
       <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <div>
           <dt className="text-xs text-ink/50 mb-1">Window Days</dt>
-          <dd data-testid="param-ma_trend_window_days" className="font-mono text-xl font-bold text-ink">
-            {String(params.ma_trend_window_days)}
+          <dd data-testid="param-window_days" className="font-mono text-xl font-bold text-ink">
+            {String(params.window_days)}
           </dd>
         </div>
         <div>
           <dt className="text-xs text-ink/50 mb-1">Pearson Threshold</dt>
-          <dd data-testid="param-ma_trend_pearson_threshold" className="font-mono text-xl font-bold text-ink">
-            {params.ma_trend_pearson_threshold.toFixed(2)}
+          <dd data-testid="param-pearson_threshold" className="font-mono text-xl font-bold text-ink">
+            {params.pearson_threshold.toFixed(2)}
           </dd>
         </div>
         <div>
