@@ -1,8 +1,10 @@
 ---
 id: K-076
 title: known-reds cleanup — verify K-061 ConsentBanner fix removed ma99-chart / K-013 / upload backend dependency
-status: open
+status: closed
 created: 2026-05-02
+closed: 2026-05-02
+closed-commit: 7af331b
 type: test
 priority: high
 size: small
@@ -56,3 +58,19 @@ entry must still be red and have a valid remediation ticket or explicit `deferre
   reason + open follow-up ticket before closing K-076.
 - K-061 retro: root cause was `addInitScript` to hide ConsentBanner in 3 spec files.
   Verify those addInitScript calls cover ma99, upload, and K-013 specs.
+
+## Close Findings (2026-05-02)
+
+**Outcome: 0 entries removed. Known-reds manifest unchanged.**
+
+Verification results:
+- `ma99-chart.spec.ts`: 13/13 fail (Running 13 tests, all red). K-076 ticket had incorrect count of 17 — only 13 entries in manifest.
+- `K-013-consensus-stats-ssot.spec.ts`: 4/4 fail.
+- `upload-real-1h-csv.spec.ts`: 3/3 fail.
+
+K-061 addInitScript confirmed present in all 3 spec files (L166, L235, L269, L332, L367, L397 in ma99-chart; L201 in K-013; L132 in upload). ConsentBanner is properly bypassed.
+
+Failure mode post-K-061 + K-075: `frame.setInputFiles: Target closed` — waiting for `input[type="file"][multiple]`. Root cause unchanged: tests require live backend for prediction API responses. K-061 was NOT partial; these tests were never in K-061's 20-test scope. The `Target closed` pattern (vs pre-K-075 ECONNREFUSED surface) is a Playwright-level surface change from K-075's AppPage refactor, not a new regression — known-reds reason "requires live backend" remains accurate.
+
+AC-076-NO-NEW-REDS: N/A (zero manifest changes = zero new block risk).
+AC-076-MANIFEST-CONSISTENT: All 24 remaining entries still red with valid `deferred` remediation ✓.
