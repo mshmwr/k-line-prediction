@@ -18,6 +18,18 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-02 — K-083
+
+**What went well:** All required source files read before drafting (firestore_config.py, predictor.py signatures, daily_predict.py patterns, test_daily_predict.py import conventions); `param_override` context manager designed before writing test cases, preventing spec drift between §4 and §10.
+
+**What went wrong:** None this session.
+
+**Next time improvement:** When objective function interacts with a module-global, draft the context manager contract in the algorithm section before writing the test plan — test isolation cases (#7) depend on it.
+
+**Slowest step:** Resolving `EarlyExitSignal` + `skopt.gp_minimize` callback interaction — skopt has no native early-stop; required designing custom exception + callback raise pattern.
+
+---
+
 ## 2026-05-02 — K-081
 
 **What went well:** All 10 mandatory input files read before writing; `actual_close` derivation gap caught at design time (field absent from `ActualOutcome` frozenset), preventing Engineer from discovering it mid-implementation.

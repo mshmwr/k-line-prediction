@@ -77,7 +77,7 @@ K-078 (param loader) + K-080 (daily predict + storage) deliver the plumbing and 
   - `window`: `Integer(14, 60)` (inclusive bounds; maps to `predictor.params.ma_trend_window_days`)
   - `pearson`: `Real(0.2, 0.7)` (inclusive bounds; maps to `predictor.params.ma_trend_pearson_threshold`)
   - `top_k`: `Integer(5, 30)` (inclusive bounds; maps to `predictor.params.top_k_matches`)
-- And: a fixed random seed `RANDOM_STATE = 42` is passed to the optimizer constructor (declared as a module-level constant in `weekly_optimize.py`) so repeated runs on identical data produce identical candidate sequences
+- And: a fixed random seed `RANDOM_STATE = 42` is passed to the optimizer constructor (declared as a module-level constant in `backend/optimizer.py` — the helper module that owns the search loop — and imported by `weekly_optimize.py`; this placement was ruled acceptable during depth review since the constant lives with its consumer) so repeated runs on identical data produce identical candidate sequences
 - And: `n_calls` is set to `MAX_ITERATIONS = 50` (module-level constant)
 
 ### AC-083-OBJECTIVE-FUNCTION
@@ -100,7 +100,7 @@ K-078 (param loader) + K-080 (daily predict + storage) deliver the plumbing and 
 - Given: the optimizer loop completes (either full 50 iterations or early-exit)
 - When: the winner candidate is selected (max objective over all evaluated candidates)
 - Then: the script writes `predictor_params/active` Firestore document with fields matching `FIRESTORE_PREDICTOR_PARAMS_FIELDS` frozenset (from K-078: `window_days`, `pearson_threshold`, `top_k`, `optimized_at`)
-- And: the script writes `predictor_params/history/{run_id}` document where `run_id` is a deterministic string `"optimize-{YYYY-MM-DD}"` (ISO8601 date of the run)
+- And: the script writes `predictor_params/history/runs/{run_id}` document where `run_id` is a deterministic string `"optimize-{YYYY-MM-DD}"` (ISO8601 date of the run); `predictor_params/history` is a parent doc whose `runs` sub-collection holds per-run history docs (Firestore requires collection/doc path alternation, so the bare `predictor_params/history/{run_id}` from the epic spec resolves to this canonical sub-collection form)
 - And: the script writes `optimize_runs/{run_id}` document with fields matching `FIRESTORE_OPTIMIZE_RUN_FIELDS` frozenset (to be exported from `backend/firestore_config.py` by this ticket); the doc contains at minimum: `run_id` (str), `best_score` (float), `best_params` (dict with `window_days`, `pearson_threshold`, `top_k`), `iterations_run` (int), `early_exit` (bool), `data_window_days` (int, 90), `sample_size` (int), `started_at` (ISO8601 str), `completed_at` (ISO8601 str)
 - And: all three writes are attempted sequentially; if any write fails after one retry (5s wait), the script logs the failure and exits non-zero — no partial-success silent continue
 

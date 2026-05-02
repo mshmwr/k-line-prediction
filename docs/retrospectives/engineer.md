@@ -1,5 +1,25 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-02 — K-083 fix-up (W1/W2/O1)
+
+**What went well:** W1 (gcloud auth step) and W2 (Literal type) were 1-line fixes; test 8 passed on first attempt after rewrite.
+
+**What went wrong:** Test 9 doc_ref.set.call_count was 0 despite 3 successful writes — the Firestore mock client passed to main() was the right object but write functions patch at `weekly_optimize.write_*` namespace is cleaner and unambiguous; switched strategy mid-run.
+
+**Next time improvement:** When verifying write-count in orchestrator tests, patch the write functions at the caller's namespace (e.g. `weekly_optimize.write_predictor_params_active`) rather than asserting on mock client chain internals — avoids mock-chain identity mismatches across test sessions.
+
+**Slowest step:** Diagnosing doc_ref.set.call_count=0 despite successful writes — required debug script to confirm client identity mismatch between test fixture and main() runtime.
+
+## 2026-05-02 — K-083
+
+**What went well:** Design doc §4 pseudocode was precise enough to translate directly to code with no ambiguity; param_override context manager + EarlyExitSignal pattern landed cleanly on first attempt.
+
+**What went wrong:** Two test failures required iteration: (1) `patch("weekly_optimize.google")` failed because `google` is not a module-level attribute in weekly_optimize — it is dynamically imported inside `main()`; fixed by injecting into `sys.modules` directly. (2) `patch("optimizer.find_top_matches")` failed because evaluate_corpus uses a local `from predictor import` — fixed by switching to `predictor.find_top_matches` module-level call in optimizer.py so `patch("predictor.find_top_matches")` works correctly.
+
+**Next time improvement:** When a function uses late `from <module> import <func>` inside a loop, prefer `import <module>; <module>.<func>()` so tests can patch at the module level without tracking each call site.
+
+**Slowest step:** Test iteration for test_data_sufficiency_guard_fires_at_29 — patching a dynamically imported Google Cloud module required sys.modules injection pattern.
+
 ## 2026-05-02 — K-081
 
 **What went well:** Design doc §3–§5 type contract + component boundary table were completely implementable as written; no ambiguity forced mid-implementation stops. Pre-existing firestore.rules + firebase.json already satisfied AC-081-FIRESTORE-RULES — no merge conflict.
