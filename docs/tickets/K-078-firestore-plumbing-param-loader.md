@@ -1,7 +1,9 @@
 ---
 id: K-078
 title: Firestore plumbing + backend predictor-param loader for self-tuning epic
-status: open
+status: closed
+closed: 2026-05-02
+closed-commit: cf902ad
 created: 2026-05-02
 type: feat
 priority: high
@@ -231,3 +233,16 @@ started; Mandatory Task Completion Steps suspended per K-045.
 - The five-second boot timeout is intentional: longer waits would degrade
   Cloud Run cold-start; the fallback path keeps the app serving even with
   Firestore down.
+
+## Retrospective
+
+### Engineer
+
+**AC judgments that were wrong:** None.
+
+**Edge cases not anticipated:**
+1. Python 3.9 does not support `str | None` syntax — used `Optional[str]` instead.
+2. `ThreadPoolExecutor` context manager blocks `__exit__` until workers complete — `with executor:` defeats the timeout. Fixed with explicit `executor.shutdown(wait=False)`.
+3. AST forbidden-literal set needed per-function scoping: `0.4` in `find_top_matches` is the MA blend weight, not the pearson threshold.
+
+**Next time improvement:** Before writing Python type annotations, run `python3 --version` in the target environment and use `Optional[T]` if < 3.10. When ThreadPoolExecutor is used for timeout, verify `shutdown(wait=False)` is in place.

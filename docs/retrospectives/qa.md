@@ -15,6 +15,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 - Newest first (reverse chronological)
 
 
+## 2026-05-02 — K-078
+
+**What went well:** All 5 pytest AC targets green on first run; W1 bypass replay caught ast.Name reference exactly as designed.
+**What went wrong:** 3 canonical-identical pre-existing failures in test_history_db_contiguity.py absent from known-reds manifest — step 3a triggered a flag; manifest backfill required.
+**Next time improvement:** Pre-sign-off, QA must verify known-reds manifest covers all canonical-failing tests before running full suite; missing entries = PM notification before sign-off not after.
+**Slowest step:** Full pytest suite (36s) dominated by CSV integration fixtures — no mitigation, fixture load is necessary.
+
 ## 2026-05-02 — K-075 Final Sign-off
 
 **What went well:** 323 passed; tsc zero errors; all 6 ACs verified by script (line count wc -l=129, 3 hook files, no UnifiedNavBar/Footer, K-013 import chain, no eslint-disable in MatchList.tsx); 7 failures all identity-matched known-reds.

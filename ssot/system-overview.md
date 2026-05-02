@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-05-02 (K-075)
+updated: 2026-05-02 (K-078)
 ---
 
 ## Summary
@@ -25,6 +25,24 @@ ETH/USDT K-line candlestick pattern similarity prediction system. User uploads r
 | Backend | Python + FastAPI + python-jose |
 | Tests (FE) | Vitest + Playwright |
 | Tests (BE) | pytest |
+
+---
+
+## Firestore Config Layer (K-078)
+
+| Collection | Doc | Purpose |
+|---|---|---|
+| `predictor_params` | `active` | Current predictor params (window, pearson, top_k, optimized_at, params_hash) |
+| `predictor_params` | `history/{run_id}` | K-081: Bayesian run winners |
+| `predictions` | `{YYYY-MM-DD-HH}` | K-079: daily prediction records |
+| `actuals` | `{YYYY-MM-DD-HH}` | K-079: realized 72h windows |
+| `backtest_summaries` | `{YYYY-MM-DD}` | K-079: rolling 30-day accuracy summaries |
+| `optimize_runs` | `{run_id}` | K-081: Bayesian optimizer run metadata |
+
+Backend reads `predictor_params/active` once at boot via `backend/firestore_config.py::load_active_params()`.
+`predictor.params` is the single `ParamSnapshot` namespace object; atomically replaced at startup.
+Firestore calls are NOT made per-request — `/api/health` reads the cached `predictor.params`.
+Security: client-facing writes denied; Admin SDK (Cloud Run runtime SA) bypasses client rules.
 
 ---
 
@@ -643,6 +661,9 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 ---
 
 ## Changelog
+
+**2026-05-02 — K-078 — Firestore plumbing: new `backend/firestore_config.py` (ParamSnapshot dataclass + load_active_params loader), predictor.params module attr, /api/health endpoint, firestore.rules, requirements.txt google-cloud-firestore pin.**
+Design doc: [docs/designs/K-078-design.md](../docs/designs/K-078-design.md)
 
 **2026-05-02 — K-075 — Architect RFC: AppPage.tsx 3-hook decomposition (useOfficialInput / useHistoryUpload / usePredictionWorkspace) + TD-004 PredictorChart stale chart fix via key-based remount.**
 Design doc: [docs/designs/K-075-apppage-decomp.md](../docs/designs/K-075-apppage-decomp.md)

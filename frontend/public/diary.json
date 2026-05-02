@@ -6,6 +6,12 @@
     "text": "Dropped 20 known-red entries whose route.fulfill() mocks were already wired; K-013×4, ma99×13, upload×3 all pass 20/20. Prior failures were state contamination from backgrounded Playwright runs. Remaining manifest: ga-spa-pageview + visual-report."
   },
   {
+    "ticketId": "K-078",
+    "title": "Firestore plumbing + backend predictor-param loader for self-tuning epic",
+    "date": "2026-05-02",
+    "text": "Stood up Firestore as shared config store; refactored backend boot so MA_TREND_WINDOW_DAYS / MA_TREND_PEARSON_THRESHOLD / top_k read from ParamSnapshot at runtime. Atomic GIL-safe module-level swap; 5s ThreadPoolExecutor timeout with graceful default fallback. /health exposes allow-listed ParamSnapshot fields only. Sacred 2-layer rewrite replaces brittle constant assertion with AST structure + behavior floor invariants."
+  },
+  {
     "ticketId": "K-077",
     "title": "E2E test cleanup — T14 DOM fix, data-redaction removal, Footer baselines regen",
     "date": "2026-05-02",

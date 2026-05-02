@@ -4,6 +4,13 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-078 PM: Firestore param-loader epic foundation shipped
+
+**What went well:** All 9 ACs verified through Architect → Engineer → Reviewer (W1+D-1+D-3 all addressed) → QA (95 passed, 3 canonical-identical hydration drift) chain; sacred K-015 floor preserved; cross-ticket K-079 schema contract exported via `FIRESTORE_PREDICTOR_PARAMS_FIELDS` frozenset.
+**What went wrong:** D-1 mid-pipeline added `modifies-sacred: [K-015-sacred-floor]` but K-015 predates the Sacred Reconcile Workflow (K-052) and was never registered as a Sacred clause — generator rejected with exit 3 at SSOT regen time. D-3 (no exported schema for K-079) only surfaced at depth-review, should have been ticket-open obligation.
+**Next time improvement:** Ticket-open checklist for `feat` tickets in a multi-ticket epic — (a) before declaring `modifies-sacred:`, verify the clause ID exists in `docs/sacred-registry.md`; pre-K-052 test conventions are NOT registered clauses and should not use this frontmatter; (b) when `epic-tickets:` lists a downstream writer/reader, declare the cross-ticket contract surface (frozenset / dataclass / typed protocol) in this ticket's design doc § "Exported contract" before Architect handoff.
+**Slowest step:** Compaction-resume coherence — re-verifying merge state of K-079 (already merged in #114/#115) before resuming K-078 wrap-up to avoid duplicate-pipeline anti-pattern from K-075.
+
 ## 2026-05-02 — K-077 PM: E2E test cleanup — 4 deferred items resolved
 
 **What went well:** All 4 ACs verified cleanly. Scroll-to-top threshold self-healed (diary page grew; no assertion change needed). Full suite showed only 2 failures, both in known-reds. Discovery: 20+ previously known-red tests (ma99/K-013/upload) now pass — stale entries to clean in follow-up ticket.
