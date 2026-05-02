@@ -58,3 +58,15 @@ Must run before deploy:
    firebase deploy --only firestore:rules
    ```
    Lint before deploy: `firebase firestore:rules:validate`
+
+7. **daily-predict.yml first-run verification (K-080, post-deploy gate)** — after the `GCP_SA_KEY` secret is set in GitHub Actions secrets:
+   ```
+   GitHub UI → Actions → Daily Predict → Run workflow (workflow_dispatch)
+   ```
+   Expected outcome:
+   - Job completes green (exit 0)
+   - GHA log shows `active params_hash: <12-char prefix>` line
+   - GHA log shows `wrote predictions/YYYY-MM-DD-23` line
+   - Firestore console → `predictions` collection → new doc `YYYY-MM-DD-23` visible with `top_k_count > 0`
+
+   Known Gap: first run will fail at "Write GCP service account key" step if `GCP_SA_KEY` secret is not yet set — this is expected behavior (not a regression). The secret must be a JSON string of a GCP service account key with `roles/datastore.user` (see step 5 above for IAM setup). This `workflow_dispatch` verification is the post-deploy confirmation gate, NOT a pre-merge gate.

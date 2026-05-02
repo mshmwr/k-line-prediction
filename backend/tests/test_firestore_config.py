@@ -166,3 +166,28 @@ def test_read_firestore_doc_only_reads_contract_fields():
         f"Mock doc keys {consumed_keys} differ from FIRESTORE_PREDICTOR_PARAMS_FIELDS — "
         "contract drift detected."
     )
+
+
+def test_prediction_frozenset_contract():
+    """K-080 cross-ticket contract: all three K-080 frozensets have exact expected field sets.
+
+    K-081 (frontend) and K-082 (optimizer) import these frozensets for type safety.
+    Any silent field rename breaks downstream consumers at import time — this test catches it.
+    """
+    from firestore_config import (
+        FIRESTORE_PREDICTION_FIELDS,
+        FIRESTORE_ACTUAL_FIELDS,
+        FIRESTORE_BACKTEST_SUMMARY_FIELDS,
+    )
+    assert FIRESTORE_PREDICTION_FIELDS == frozenset({
+        "params_hash", "projected_high", "projected_low", "projected_median",
+        "top_k_count", "trend", "query_ts", "created_at",
+    })
+    assert FIRESTORE_ACTUAL_FIELDS == frozenset({
+        "high_hit", "low_hit", "mae", "rmse",
+        "actual_high", "actual_low", "computed_at",
+    })
+    assert FIRESTORE_BACKTEST_SUMMARY_FIELDS == frozenset({
+        "hit_rate_high", "hit_rate_low", "avg_mae", "avg_rmse",
+        "sample_size", "per_trend", "window_days", "computed_at",
+    })

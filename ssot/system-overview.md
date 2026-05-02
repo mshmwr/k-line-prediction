@@ -28,21 +28,51 @@ ETH/USDT K-line candlestick pattern similarity prediction system. User uploads r
 
 ---
 
-## Firestore Config Layer (K-078)
+## Firestore Config Layer (K-078/K-080)
 
 | Collection | Doc | Purpose |
 |---|---|---|
 | `predictor_params` | `active` | Current predictor params (window, pearson, top_k, optimized_at, params_hash) |
 | `predictor_params` | `history/{run_id}` | K-081: Bayesian run winners |
-| `predictions` | `{YYYY-MM-DD-HH}` | K-079: daily prediction records |
-| `actuals` | `{YYYY-MM-DD-HH}` | K-079: realized 72h windows |
-| `backtest_summaries` | `{YYYY-MM-DD}` | K-079: rolling 30-day accuracy summaries |
+| `predictions` | `{YYYY-MM-DD-HH}` | K-080: daily prediction records (fields: `FIRESTORE_PREDICTION_FIELDS`) |
+| `actuals` | `{YYYY-MM-DD-HH}` | K-080: realized 72h windows (fields: `FIRESTORE_ACTUAL_FIELDS`) |
+| `backtest_summaries` | `{YYYY-MM-DD}` | K-080: rolling 30-day accuracy summaries (fields: `FIRESTORE_BACKTEST_SUMMARY_FIELDS`) |
 | `optimize_runs` | `{run_id}` | K-081: Bayesian optimizer run metadata |
 
 Backend reads `predictor_params/active` once at boot via `backend/firestore_config.py::load_active_params()`.
 `predictor.params` is the single `ParamSnapshot` namespace object; atomically replaced at startup.
 Firestore calls are NOT made per-request — `/api/health` reads the cached `predictor.params`.
 Security: client-facing writes denied; Admin SDK (Cloud Run runtime SA) bypasses client rules.
+
+### Daily Workflow (K-080)
+
+```
+GitHub Actions — 04:00 UTC daily (after scrape-history.yml at 03:00 UTC)
+─────────────────────────────────────────────────────────────────────────
+.github/workflows/daily-predict.yml
+  │
+  ├─ CSV freshness gate: history_database/Binance_ETHUSDT_1h.csv mtime ≤ 90 min
+  │    └─ stale → log warning, exit 0 (graceful skip)
+  │
+  ├─ load_active_params() → predictor.params = <ParamSnapshot>
+  │
+  ├─ load_csv_history → build_query_window (24 × 1H bars ending yesterday 23:00 UTC)
+  │
+  ├─ run_prediction(query_df, params, full_df)
+  │    └─ find_top_matches() + compute_stats() → prediction dict
+  │
+  ├─ write_prediction(client, ts, prediction) → predictions/{YYYY-MM-DD-HH}
+  │
+  ├─ backfill_actuals(client, df, cutoff_ts=now-72h)
+  │    └─ list_predictions_older_than() → compute_outcome() → write_actual()
+  │
+  └─ compute_backtest_summary(client, today) → write_summary()
+       └─ backtest_summaries/{YYYY-MM-DD} (30-day rolling window)
+
+Contract: `per_trend` sub-keys ("up"/"down"/"flat") are only written when sample_size > 0
+for that trend. K-081 (frontend) must handle missing trend keys gracefully.
+─────────────────────────────────────────────────────────────────────────
+```
 
 ---
 
