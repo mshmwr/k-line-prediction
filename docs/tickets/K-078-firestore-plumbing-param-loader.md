@@ -17,7 +17,6 @@ base-commit: be349d4
 epic: backtest-self-tuning
 epic-tickets: [K-078, K-079, K-080, K-081]
 spec: ~/.claude/plans/pm-app-jaunty-wren.md
-modifies-sacred: [K-015-sacred-floor]
 ---
 
 ## Summary
