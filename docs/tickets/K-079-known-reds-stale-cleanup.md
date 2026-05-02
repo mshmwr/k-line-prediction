@@ -5,7 +5,7 @@ type: ops
 status: closed
 opened: 2026-05-02
 closed: 2026-05-02
-closed-commit: TBD
+closed-commit: edf94fe
 qa-early-consultation: ✓
 visual-delta: no
 content-delta: no
