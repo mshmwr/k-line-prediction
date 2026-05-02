@@ -68,6 +68,30 @@ FIRESTORE_BACKTEST_SUMMARY_FIELDS: frozenset = frozenset({
     "computed_at",     # str   — ISO8601 UTC datetime when this doc was written
 })
 
+# K-083 schema additions — optimizer run metadata and params history audit trail.
+FIRESTORE_OPTIMIZE_RUN_FIELDS: frozenset = frozenset({
+    "run_id",            # str   — "optimize-{YYYY-MM-DD}" (ISO date of run; overwrites on same-day re-run)
+    "best_score",        # float — max objective (0.5·high_hit_rate + 0.5·low_hit_rate), range 0.0–1.0
+    "best_params",       # dict  — {"window_days": int, "pearson_threshold": float, "top_k": int}
+    "iterations_run",    # int   — actual count of Bayesian evaluations (≤ MAX_ITERATIONS=50)
+    "early_exit",        # bool  — True if cost guard fired before MAX_ITERATIONS
+    "data_window_days",  # int   — always 90 (CORPUS_WINDOW_DAYS constant)
+    "sample_size",       # int   — len(completed_pairs) used in this run (≥ MIN_SAMPLES=30)
+    "started_at",        # str   — ISO8601 UTC when optimizer loop began
+    "completed_at",      # str   — ISO8601 UTC when winner was selected
+})
+
+FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS: frozenset = frozenset({
+    "window_days",        # int   — winning window value
+    "pearson_threshold",  # float — winning pearson value
+    "top_k",              # int   — winning top_k value
+    "optimized_at",       # str   — ISO8601 UTC (same as optimize_run.completed_at)
+    "best_score",         # float — winning objective score (same as optimize_run.best_score)
+    "run_id",             # str   — "optimize-{YYYY-MM-DD}" (links to optimize_runs/{run_id})
+    "git_sha",            # str   — first 8 chars of HEAD SHA at optimizer run time
+    "corpus_size",        # int   — sample_size alias (number of scored pairs)
+})
+
 __all__ = [
     "FIRESTORE_COLLECTION",
     "FIRESTORE_DOCUMENT",
@@ -75,12 +99,19 @@ __all__ = [
     "FIRESTORE_PREDICTION_FIELDS",
     "FIRESTORE_ACTUAL_FIELDS",
     "FIRESTORE_BACKTEST_SUMMARY_FIELDS",
+    "FIRESTORE_OPTIMIZE_RUN_FIELDS",
+    "FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS",
     "ParamSnapshot",
     "DEFAULT_PARAMS",
     "load_active_params",
     "write_prediction",
     "write_actual",
     "write_summary",
+    "write_predictor_params_active",
+    "write_predictor_params_history",
+    "write_optimize_run",
+    "read_predictions_corpus",
+    "read_actuals_corpus",
     "list_predictions_older_than",
     "_read_firestore_doc",
     "_compute_params_hash",
@@ -264,6 +295,113 @@ def list_predictions_older_than(client, cutoff_ts: datetime) -> list:
     docs = (
         client.collection("predictions")
         .where("query_ts", "<", cutoff_str)
+        .stream()
+    )
+    results = []
+    for doc in docs:
+        data = doc.to_dict()
+        if data:
+            data["_doc_id"] = doc.id
+            results.append(data)
+    return results
+
+
+# ---------------------------------------------------------------------------
+# K-083 writer helpers — optimizer params + run metadata
+# ---------------------------------------------------------------------------
+
+
+def write_predictor_params_active(client, data: dict) -> None:
+    """Write winning optimizer params to predictor_params/active.
+
+    data keys must exactly match FIRESTORE_PREDICTOR_PARAMS_FIELDS.
+    Raises ValueError on frozenset contract violation.
+    Retries once after _WRITE_RETRY_DELAY_SECONDS on Firestore failure.
+    """
+    if set(data.keys()) != FIRESTORE_PREDICTOR_PARAMS_FIELDS:
+        raise ValueError(
+            f"write_predictor_params_active: field mismatch. "
+            f"expected={FIRESTORE_PREDICTOR_PARAMS_FIELDS}, got={set(data.keys())}"
+        )
+    doc_ref = client.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOCUMENT)
+    _write_with_retry(doc_ref, data)
+
+
+def write_predictor_params_history(client, run_id: str, data: dict) -> None:
+    """Write history snapshot to predictor_params/history/{run_id}.
+
+    data keys must exactly match FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS.
+    Raises ValueError on frozenset contract violation.
+    Retries once after _WRITE_RETRY_DELAY_SECONDS on Firestore failure.
+    """
+    if set(data.keys()) != FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS:
+        raise ValueError(
+            f"write_predictor_params_history: field mismatch. "
+            f"expected={FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS}, got={set(data.keys())}"
+        )
+    doc_ref = (
+        client.collection(FIRESTORE_COLLECTION)
+        .document("history")
+        .collection("runs")
+        .document(run_id)
+    )
+    _write_with_retry(doc_ref, data)
+
+
+def write_optimize_run(client, run_id: str, data: dict) -> None:
+    """Write optimizer run metadata to optimize_runs/{run_id}.
+
+    data keys must exactly match FIRESTORE_OPTIMIZE_RUN_FIELDS.
+    Raises ValueError on frozenset contract violation.
+    Retries once after _WRITE_RETRY_DELAY_SECONDS on Firestore failure.
+    """
+    if set(data.keys()) != FIRESTORE_OPTIMIZE_RUN_FIELDS:
+        raise ValueError(
+            f"write_optimize_run: field mismatch. "
+            f"expected={FIRESTORE_OPTIMIZE_RUN_FIELDS}, got={set(data.keys())}"
+        )
+    doc_ref = client.collection("optimize_runs").document(run_id)
+    _write_with_retry(doc_ref, data)
+
+
+# ---------------------------------------------------------------------------
+# K-083 corpus reader helpers — 90-day window fetch for optimizer
+# ---------------------------------------------------------------------------
+
+
+def read_predictions_corpus(client, cutoff_ts: datetime) -> list:
+    """Query predictions collection for docs where created_at >= cutoff_ts.
+
+    Returns list of dicts (including _doc_id). Used by weekly_optimize to
+    build the completed_pairs corpus (joined with read_actuals_corpus output).
+    cutoff_ts: datetime at 90-day lookback boundary (UTC).
+    """
+    cutoff_str = cutoff_ts.strftime("%Y-%m-%dT%H:%M:%SZ")
+    docs = (
+        client.collection("predictions")
+        .where("created_at", ">=", cutoff_str)
+        .stream()
+    )
+    results = []
+    for doc in docs:
+        data = doc.to_dict()
+        if data:
+            data["_doc_id"] = doc.id
+            results.append(data)
+    return results
+
+
+def read_actuals_corpus(client, cutoff_ts: datetime) -> list:
+    """Query actuals collection for docs where computed_at >= cutoff_ts.
+
+    Returns list of dicts (including _doc_id). Used by weekly_optimize to
+    build the completed_pairs corpus (joined with read_predictions_corpus output).
+    cutoff_ts: datetime at 90-day lookback boundary (UTC).
+    """
+    cutoff_str = cutoff_ts.strftime("%Y-%m-%dT%H:%M:%SZ")
+    docs = (
+        client.collection("actuals")
+        .where("computed_at", ">=", cutoff_str)
         .stream()
     )
     results = []

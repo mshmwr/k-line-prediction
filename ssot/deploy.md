@@ -70,3 +70,23 @@ Must run before deploy:
    - Firestore console → `predictions` collection → new doc `YYYY-MM-DD-23` visible with `top_k_count > 0`
 
    Known Gap: first run will fail at "Write GCP service account key" step if `GCP_SA_KEY` secret is not yet set — this is expected behavior (not a regression). The secret must be a JSON string of a GCP service account key with `roles/datastore.user` (see step 5 above for IAM setup). This `workflow_dispatch` verification is the post-deploy confirmation gate, NOT a pre-merge gate.
+
+8. **weekly-optimize.yml manual verification (K-083, post-deploy gate)** — after ≥ 30 completed prediction+actual pairs have accumulated in Firestore (typically 30+ weeks after K-080 deploy, or manually seeded for testing):
+   ```
+   GitHub UI → Actions → Weekly Optimize → Run workflow (workflow_dispatch)
+   ```
+   Expected outcome:
+   - Job completes green (exit 0)
+   - GHA log shows `weekly_optimize: corpus = N predictions, N actuals, N completed pairs` with N ≥ 30
+   - GHA log shows `weekly_optimize: starting Bayesian search (max_iterations=50)`
+   - GHA log shows ≥ 1 iteration logged; `winner params:` line visible before any write
+   - Firestore console → `predictor_params/history` sub-collection → new doc `optimize-YYYY-MM-DD` visible
+   - Firestore console → `optimize_runs` collection → new doc `optimize-YYYY-MM-DD` with `sample_size ≥ 30`
+   - Cloud Run `/api/health` → `params_hash` field reflects new `params_hash` within 5 minutes (new revision boots)
+
+   Expected outcome when corpus < 30 pairs (early accumulation period):
+   - Job completes green (exit 0)
+   - GHA log shows `insufficient data: N completed pairs found, minimum 30 required — exiting without optimization`
+   - No Firestore doc written, no Cloud Run redeploy triggered
+
+   Known Gap: `GCP_SA_KEY` must have `roles/datastore.user` (Firestore read+write) AND `roles/run.admin` or equivalent (Cloud Run update). If `gcloud run services update` fails with permission error, check IAM binding for the service account.

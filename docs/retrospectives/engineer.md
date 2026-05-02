@@ -1,5 +1,15 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-02 — K-083
+
+**What went well:** Design doc §4 pseudocode was precise enough to translate directly to code with no ambiguity; param_override context manager + EarlyExitSignal pattern landed cleanly on first attempt.
+
+**What went wrong:** Two test failures required iteration: (1) `patch("weekly_optimize.google")` failed because `google` is not a module-level attribute in weekly_optimize — it is dynamically imported inside `main()`; fixed by injecting into `sys.modules` directly. (2) `patch("optimizer.find_top_matches")` failed because evaluate_corpus uses a local `from predictor import` — fixed by switching to `predictor.find_top_matches` module-level call in optimizer.py so `patch("predictor.find_top_matches")` works correctly.
+
+**Next time improvement:** When a function uses late `from <module> import <func>` inside a loop, prefer `import <module>; <module>.<func>()` so tests can patch at the module level without tracking each call site.
+
+**Slowest step:** Test iteration for test_data_sufficiency_guard_fires_at_29 — patching a dynamically imported Google Cloud module required sys.modules injection pattern.
+
 ## 2026-05-02 — K-081
 
 **What went well:** Design doc §3–§5 type contract + component boundary table were completely implementable as written; no ambiguity forced mid-implementation stops. Pre-existing firestore.rules + firebase.json already satisfied AC-081-FIRESTORE-RULES — no merge conflict.
