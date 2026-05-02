@@ -209,13 +209,6 @@ test.describe('AC-022-SUBTITLE — Section italic subtitles', () => {
 // Then:  at least one redaction bar exists with charcoal bg + 10px height
 
 test.describe('AC-022-REDACTION-BAR — Redaction bars', () => {
-  test('at least one data-redaction element exists', async ({ page }) => {
-    await page.goto('/about')
-    const bars = page.locator('[data-redaction]')
-    const count = await bars.count()
-    expect(count).toBeGreaterThanOrEqual(1)
-  })
-
   test('redaction bar background is bg-charcoal and height is 10px', async ({ page }) => {
     await page.goto('/about')
     const bar = page.locator('[data-redaction]').first()
