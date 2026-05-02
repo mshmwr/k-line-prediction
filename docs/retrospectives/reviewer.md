@@ -1,3 +1,10 @@
+## 2026-05-02 — K-080
+
+**What went well:** Frozenset contract test, idempotency via set(), sacred/predictor invariants, YAML cron/dispatch all verified clean in one pass.
+**What went wrong:** Test item 6 asserts `Exception` propagation at write_prediction level instead of `SystemExit` at main() level — AC-080-TESTS §8.1 specifies `SystemExit with non-zero code`; the test passes but does not prove the script exits non-zero.
+**Next time improvement:** When AC specifies `exits non-zero`, verify the test calls `main()` (or the top-level entry point) with `pytest.raises(SystemExit)`, not just the helper function.
+**Slowest step:** Tracing the trend derivation heuristic (win_rate proxy) vs design doc spec (_classify_trend_by_pearson) — design §3.1 says trend extracted from _classify_trend_by_pearson, implementation uses win_rate proxy; this needed careful reading of both files before ruling.
+
 ## 2026-05-02 — K-078
 
 **What went well:** AC-trace and field-mapping verified cleanly via direct code read; sacred-registry confirmed no retired clauses touched.
