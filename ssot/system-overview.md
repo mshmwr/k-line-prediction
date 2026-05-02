@@ -2,14 +2,14 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-05-02 (K-078)
+updated: 2026-05-02 (K-081)
 ---
 
 ## Summary
 
 ETH/USDT K-line candlestick pattern similarity prediction system. User uploads recent OHLC; backend finds the most similar historical segments, computes MA99, and returns projection statistics.
 
-- **Frontend:** 5 SPA routes (`/` `/app` `/about` `/diary` `/business-logic`) + Unified NavBar. `/about` is a portfolio-oriented recruiter page with 8 sections (K-058, 2026-04-28). `/diary` is a v2 timeline with infinite-scroll pagination (K-024/K-059).
+- **Frontend:** 6 SPA routes (`/` `/app` `/about` `/diary` `/business-logic` `/backtest`) + Unified NavBar. `/about` is a portfolio-oriented recruiter page with 8 sections (K-058, 2026-04-28). `/diary` is a v2 timeline with infinite-scroll pagination (K-024/K-059). `/backtest` is a read-only Firestore consumer showing 30-day rolling prediction accuracy (K-081).
 - **Backend:** FastAPI single-file `main.py`; 2 in-memory history stores (`_history_1h` / `_history_1d`); auto-scraper via K-048 Cloud Run cron keeps history current.
 - **Stats SSOT (TD-008 Option C, K-013 closed 2026-04-21):** frontend computes subset stats (`statsComputation.ts`); backend computes full-set baseline; drift locked by `backend/tests/fixtures/stats_contract_cases.json`.
 - **Content SSOT (K-052/K-062):** `content/site-content.json` is the hand-edit source for stack[], processRules[], renderSlots; generator (`scripts/build-ticket-derived-ssot.mjs`) auto-fills metrics and emits `docs/sacred-registry.md` + README marker blocks.
@@ -21,7 +21,7 @@ ETH/USDT K-line candlestick pattern similarity prediction system. User uploads r
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | TypeScript + React + Recharts + lightweight-charts + Vite + react-router-dom |
+| Frontend | TypeScript + React + lightweight-charts + Vite + react-router-dom |
 | Backend | Python + FastAPI + python-jose |
 | Tests (FE) | Vitest + Playwright |
 | Tests (BE) | pytest |
@@ -43,6 +43,19 @@ Backend reads `predictor_params/active` once at boot via `backend/firestore_conf
 `predictor.params` is the single `ParamSnapshot` namespace object; atomically replaced at startup.
 Firestore calls are NOT made per-request — `/api/health` reads the cached `predictor.params`.
 Security: client-facing writes denied; Admin SDK (Cloud Run runtime SA) bypasses client rules.
+
+### Frontend Firestore Read (K-081)
+
+```
+Browser /backtest  →  useBacktestData.ts
+  ├─ GET .../backtest_summaries?pageSize=1&orderBy=__name__%20desc  → BacktestSummary
+  ├─ GET .../predictor_params/active                                 → ActiveParams
+  ├─ POST .../runQuery  (predictions, query_ts >= 30-days-ago)       → Prediction[]
+  └─ POST .../runQuery  (actuals,     query_ts >= 30-days-ago)       → ActualOutcome[]
+
+Join: predictions + actuals by doc-id → ChartPoint[] for TimeSeriesChart
+Public-read enforced by firestore.rules; write-deny for all client paths.
+```
 
 ### Daily Workflow (K-080)
 
@@ -161,12 +174,14 @@ ClaudeCodeProject/
 │   │       ├── AppPage.tsx      ← K-Line 預測主頁（TD-005：責任過多，待拆分）
 │   │       ├── types.ts         ← MatchCase / PredictStats / ProjectionBar 等
 │   │       ├── types/
-│   │       │   └── diary.ts     ← `DiaryEntry { ticketId?, title, date, text }` + zod `.strict()` schema export (replaces DiaryItem / DiaryMilestone)
+│   │       │   ├── diary.ts     ← `DiaryEntry { ticketId?, title, date, text }` + zod `.strict()` schema export (replaces DiaryItem / DiaryMilestone)
+│   │       │   └── backtest.ts  ← K-081; TypeScript mirror types for K-080 frozensets: Prediction, ActualOutcome, BacktestSummary, ActiveParams, ChartPoint
 │   │       ├── hooks/
 │   │       │   ├── useAsyncState.ts
 │   │       │   ├── usePrediction.ts    ← predict + computeMa99 呼叫封裝
 │   │       │   ├── useDiary.ts         ← K-024; fetches /diary.json + AsyncState; returns sorted `DiaryEntry[]` (date desc + array-index tie-break); see Changelog K-024
-│   │       │   └── useDiaryPagination.ts ← client-side slicing pagination (5-per-click) + inFlight concurrency gate (`queueMicrotask` flush + `hasMore` / `loadMore` / `visibleCount` return shape), DiaryPage only
+│   │       │   ├── useDiaryPagination.ts ← client-side slicing pagination (5-per-click) + inFlight concurrency gate (`queueMicrotask` flush + `hasMore` / `loadMore` / `visibleCount` return shape), DiaryPage only
+│   │       │   └── useBacktestData.ts  ← K-081; Firestore REST read hook (backtest_summaries + predictor_params + predictions/actuals 30-day series); retry-once; state machine loading|ready|error; assembles ChartPoint[]
 │   │       ├── utils/
 │   │       │   ├── aggregation.ts      ← 1H → 1D bar 聚合、time formatter
 │   │       │   ├── analytics.ts        ← K-018；GA4 initGA / trackPageview / trackCtaClick
@@ -179,7 +194,8 @@ ClaudeCodeProject/
 │   │       │   ├── HomePage.tsx
 │   │       │   ├── AboutPage.tsx
 │   │       │   ├── DiaryPage.tsx
-│   │       │   └── BusinessLogicPage.tsx
+│   │       │   ├── BusinessLogicPage.tsx
+│   │       │   └── BacktestPage.tsx             ← K-081; /backtest read-only dashboard; layout shell; mounts useBacktestData + 4 child components
 │   │       ├── __tests__/
 │   │       │   ├── AppPage.test.tsx         ← Vitest（K-010 修復中）
 │   │       │   ├── MatchList.test.tsx

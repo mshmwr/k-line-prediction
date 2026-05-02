@@ -18,6 +18,16 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-02 — K-081
+
+**What went well:** All 10 mandatory input files read before writing; `actual_close` derivation gap caught at design time (field absent from `ActualOutcome` frozenset), preventing Engineer from discovering it mid-implementation.
+
+**What went wrong:** QA Challenge #6 ruling ("Recharts confirmed present") was accepted without immediately grepping `package.json`; discovered Recharts is absent only after completing the rest of the design, requiring a §0 blocker to PM.
+
+**Next time improvement:** When any QA ruling asserts a dependency "is confirmed present," grep `package.json` in the same read batch as the ticket — do not defer to the ruling's stated evidence.
+
+**Slowest step:** Tracing the "actual_close" derivation — `ActualOutcome` has `actual_high` + `actual_low` but no close; ruling on midpoint proxy required re-reading the K-080 frozenset.
+
 ## 2026-05-02 — K-080
 
 **What went well:** All 5 input files read before design started; `find_top_matches` signature read in full before specifying the `run_prediction` wrapper — caught the need for a `full_df` parameter at design time, not during Engineer implementation.

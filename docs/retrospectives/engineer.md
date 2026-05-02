@@ -1,5 +1,23 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-02 — K-081
+
+**What went well:** Design doc §3–§5 type contract + component boundary table were completely implementable as written; no ambiguity forced mid-implementation stops. Pre-existing firestore.rules + firebase.json already satisfied AC-081-FIRESTORE-RULES — no merge conflict.
+
+**What went wrong:** NavBar test used `screen.getByRole('link', { name: 'Backtest' })` without scoping to desktop nav container — UnifiedNavBar renders both desktop + mobile lists, so two matching elements caused "multiple elements found" error. Caught by Vitest run before commit.
+
+**Next time improvement:** Whenever testing a component that renders duplicate DOM for responsive breakpoints (desktop/mobile nav), always scope `getByRole` with `within(container)` from the first write rather than discovering the error at test run.
+
+**Slowest step:** Resolving the worktree node_modules symlink (needed `ln -sfn` to canonical path) before tsc could run — worktree pre-flight symlink step from pm.md should be checked at worktree entry, not discovered at first `npx tsc`.
+
+### Post-Review Fixes — 2026-05-02
+
+**C-1 root cause:** `runQueryBody` used `query_ts` field path for the WHERE filter on both collections; `actuals` collection has no `query_ts` field (only `computed_at`), so the query silently returned 0 docs. Should have cross-checked the filter field against each collection's frozenset before writing the query.
+
+**C-2 root cause:** `ActiveParams` interface fields were named after Python `ParamSnapshot` dataclass attributes (`ma_trend_window_days`, `ma_trend_pearson_threshold`) instead of the Firestore wire-format keys (`window_days`, `pearson_threshold`). The type comment even stated the correct wire keys but the interface itself used the wrong names — comment and code diverged.
+
+**Next time improvement:** When writing a TypeScript interface for a Firestore document, derive field names by reading the WRITE-side frozenset constant in `firestore_config.py`, not the Python dataclass or any hook mapping. If the frozenset and the dataclass differ, the frozenset is the wire contract.
+
 跨 ticket 累積式反省記錄。每次任務結束前由 engineer agent append 一筆，最新在上。
 
 ## 寫入格式

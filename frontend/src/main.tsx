@@ -19,6 +19,7 @@ const HomePage = lazy(() => import('./pages/HomePage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const DiaryPage = lazy(() => import('./pages/DiaryPage'))
 const BusinessLogicPage = lazy(() => import('./pages/BusinessLogicPage'))
+const BacktestPage = lazy(() => import('./pages/BacktestPage'))
 
 function GATracker() {
   useGAPageview()
@@ -40,6 +41,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="/about" element={<AboutPage />} />
             <Route path="/diary" element={<DiaryPage />} />
             <Route path="/business-logic" element={<BusinessLogicPage />} />
+            <Route path="/backtest" element={<BacktestPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
