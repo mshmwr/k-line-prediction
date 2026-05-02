@@ -18,6 +18,13 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-02 — K-078
+
+**What went well:** All six inline constant read sites in predictor.py identified upfront; sacred test import chain traced before writing the rewrite plan, avoiding a mid-Engineer surprise.
+**What went wrong:** The existing `test_min_daily_bars_constant_is_imported_not_magic` imports `MA_TREND_WINDOW_DAYS` directly from predictor — this import becomes incorrect after K-078 because the operative value moves to `predictor.params.ma_trend_window_days`. This constraint should have been surfaced in the ticket as a sacred-import dependency before QA consultation, not discovered during design.
+**Next time improvement:** When a ticket replaces module-level constants with a namespace object, grep all test files for direct constant imports (`from <module> import <CONSTANT>`) at design start — list each as a "test import that must change" in the design doc before writing the sacred-test rewrite plan.
+**Slowest step:** Confirming the exact lines in predictor.py where `MA_TREND_WINDOW_DAYS` and `MA_TREND_PEARSON_THRESHOLD` are read (required reading predictor.py in three offset passes to cover the full 440-line file).
+
 ## 2026-05-02 — K-075 Phase 1 (Architect RFC)
 
 **What went well:** Cross-hook dependency graph (resetPredictionState / setQueryMa99 setter injection) was identified before finalizing hook interfaces, avoiding a design revision after handoff.

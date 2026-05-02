@@ -4,6 +4,13 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-078 PM: Firestore param-loader epic foundation shipped
+
+**What went well:** All 9 ACs verified through Architect → Engineer → Reviewer (W1+D-1+D-3 all addressed) → QA (95 passed, 3 canonical-identical hydration drift) chain; sacred K-015 floor preserved; cross-ticket K-079 schema contract exported via `FIRESTORE_PREDICTOR_PARAMS_FIELDS` frozenset.
+**What went wrong:** Sacred-lifecycle `modifies-sacred:` frontmatter missing from initial ticket open — Reviewer caught D-1; D-3 (no exported schema for K-079) only surfaced at depth-review. Both should be PM-checklist items at ticket-open time when `epic-tickets` references downstream consumers.
+**Next time improvement:** Ticket-open checklist for `feat` tickets in a multi-ticket epic — (a) verify `modifies-sacred:` for any ticket touching sacred-anchor test names; (b) when `epic-tickets:` lists a downstream writer/reader, declare the cross-ticket contract surface (frozenset / dataclass / typed protocol) in this ticket's design doc § "Exported contract" before Architect handoff.
+**Slowest step:** Compaction-resume coherence — re-verifying merge state of K-079 (already merged in #114/#115) before resuming K-078 wrap-up to avoid duplicate-pipeline anti-pattern from K-075.
+
 ## 2026-05-02 — K-077 PM: E2E test cleanup — 4 deferred items resolved
 
 **What went well:** All 4 ACs verified cleanly. Scroll-to-top threshold self-healed (diary page grew; no assertion change needed). Full suite showed only 2 failures, both in known-reds. Discovery: 20+ previously known-red tests (ma99/K-013/upload) now pass — stale entries to clean in follow-up ticket.

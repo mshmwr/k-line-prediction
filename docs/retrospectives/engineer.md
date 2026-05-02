@@ -12,6 +12,27 @@
 **下次改善：**（具體可執行的行動）
 ```
 
+## 2026-05-02 — K-078 Post-Review Fixes (W1, D-1, D-3)
+
+**What went well:** All three Reviewer findings addressed in one session; `test_truncated_db_raises_sacred_value_error` (sacred floor regression) now green after fixing a pre-existing CSV date-format bug in `_write_truncated_daily_db`.
+**What went wrong:**
+- W1: AST Layer 1 only checked `ast.Constant` nodes, leaving an `ast.Name` bypass vector (engineer writing `if r >= MA_TREND_PEARSON_THRESHOLD` would evade the guard). Pre-implementation challenge sheet would have caught "what AST node types represent name references?".
+- D-1: `modifies-sacred:` frontmatter was missing from K-078 ticket. Sacred Reconcile Workflow requires this field when a sacred test body is rewritten — should be part of the ticket authoring checklist.
+- D-3: No exported schema artifact for K-079 to import. Cross-ticket contract surface should be exported as a frozenset constant immediately when the writer ticket (K-079) is identified at planning time.
+- Pre-existing: `_write_truncated_daily_db` assumed CryptoDataDownload format (URL line + descending) but the actual DB is plain ascending CSV. Test comment said "descending" and used `cols[1]` (open column) instead of `cols[0]` (date column).
+**Next time improvement:** When writing a "sacred test rewrite" ticket, check `modifies-sacred:` frontmatter as part of the file-change checklist. When adding cross-ticket contract surfaces (writer in K-N+1 reads from module written in K-N), export the field-name set as a frozenset immediately.
+**Slowest step:** Diagnosing the CSV format mismatch in `_write_truncated_daily_db` — reading `load_csv_history` and the actual CSV header was required to see that the CryptoDataDownload assumption was wrong.
+
+## 2026-05-02 — K-078 Phase 1
+
+**What went well:** All 13 new tests pass; 0 regression vs canonical baseline.
+**What went wrong:** Three issues discovered during implementation:
+1. `str | None` union syntax in `ParamSnapshot` failed on Python 3.9 (runtime is 3.9, design doc assumed 3.10+ syntax) — fixed with `Optional[str]`.
+2. `ThreadPoolExecutor` context manager (`with executor:`) blocks on `__exit__` until all workers complete, defeating the timeout. Design doc spec was correct but used `with executor:` pattern. Fixed by explicit `executor.shutdown(wait=False)`.
+3. AST walk for magic literals: `0.4` in `find_top_matches` is the MA blend weight (not the pearson threshold), needed per-function forbidden sets rather than one shared set.
+**Next time improvement:** When design doc cites Python type syntax, verify target runtime version first. When design doc uses `ThreadPoolExecutor` for timeout, confirm context manager exit behavior before implementation.
+**Slowest step:** Debugging the `concurrent.futures` timeout issue — ThreadPoolExecutor `__exit__` blocking was non-obvious from the design doc's `with executor:` snippet.
+
 ## 2026-05-02 — K-077: E2E test cleanup — T14 fix, data-redaction, Footer baselines
 
 **What went well:** FooterDisclaimer DOM analysis was accurate (`<section id="disclaimer">`, not `<footer>`); node_modules symlink to worktree was fast; code-reviewer caught `toBeVisible()` vs `waitFor({state:'attached'})` idiom mismatch before ship; discovered 20+ stale known-reds entries (ma99/K-013/upload all pass with mocks — prior failures were state contamination).

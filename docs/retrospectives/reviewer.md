@@ -1,3 +1,10 @@
+## 2026-05-02 — K-078
+
+**What went well:** AC-trace and field-mapping verified cleanly via direct code read; sacred-registry confirmed no retired clauses touched.
+**What went wrong:** Sacred-lifecycle frontmatter (`modifies-sacred:`) missing from K-078 ticket — the 2-layer rewrite replaces a function from the K-015 sacred regression anchor but no frontmatter was declared, bypassing the generator lifecycle gate.
+**Next time improvement:** Before reviewing any ticket that touches a test function named in a sacred-regression comment, grep `sacred-clauses` / `modifies-sacred` in the ticket frontmatter as the first step; absence = immediate Warning.
+**Slowest step:** Tracing the Layer 1 AST walk false-negative scope (the `0.4` blend-weight exception comment vs. the `0.4` Pearson threshold) required reading both predictor.py and the test comment to confirm correctness.
+
 ## 2026-05-02 — K-075 AppPage decomp (Step 2 depth review; CODE-PASS, COMMIT-BLOCKED)
 
 **What went well:** Hook interface tables matched design doc §1 exactly; K-013 spirit verified via workspaceComputation.ts call chain; useRef circular-dep pattern documented.

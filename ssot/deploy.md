@@ -44,3 +44,17 @@ Must run before deploy:
 3. **build** — `npm run build` (in `frontend/` directory)
 
 4. **deploy** — `firebase deploy --only hosting` (in project root)
+
+5. **Firestore IAM (one-time per project)** — grant Cloud Run runtime SA Datastore user role:
+   ```bash
+   gcloud projects add-iam-policy-binding <PROJECT_ID> \
+     --member="serviceAccount:<CLOUD_RUN_SA>@<PROJECT_ID>.iam.gserviceaccount.com" \
+     --role="roles/datastore.user"
+   ```
+   Verify: GET /api/health returns `params_source` without error.
+
+6. **Firestore security rules deploy** — run from K-Line-Prediction repo root:
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
+   Lint before deploy: `firebase firestore:rules:validate`

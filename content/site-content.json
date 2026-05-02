@@ -134,7 +134,7 @@
       }
     ]
   },
-  "lastUpdated": "2026-05-02T14:59:03+08:00",
+  "lastUpdated": "2026-05-02T15:00:44+08:00",
   "metrics": {
     "acCoverage": {
       "covered": 75,
@@ -144,7 +144,7 @@
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 56
+      "value": 57
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
@@ -152,7 +152,7 @@
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
-      "value": 38
+      "value": 39
     }
   },
   "pipeline": {
