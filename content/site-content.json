@@ -134,7 +134,7 @@
       }
     ]
   },
-  "lastUpdated": "2026-05-02T16:43:12+08:00",
+  "lastUpdated": "2026-05-02T17:16:02+08:00",
   "metrics": {
     "acCoverage": {
       "covered": 77,
@@ -144,7 +144,7 @@
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 58
+      "value": 59
     },
     "lessonsCodified": {
       "label": "Lessons Codified",

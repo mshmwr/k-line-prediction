@@ -1,8 +1,10 @@
 ---
 id: K-081
 title: Frontend /backtest route — read-only consumer of Firestore predictions/actuals/summaries
-status: open
+status: closed
 created: 2026-05-02
+closed: 2026-05-02
+closed-commit: 1388b51
 type: feat
 priority: high
 size: medium
