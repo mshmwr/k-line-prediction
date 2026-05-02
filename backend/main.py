@@ -5,7 +5,7 @@ import math
 from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
@@ -39,6 +39,12 @@ app = FastAPI()
 # browser never issues cross-origin requests to the backend. Dev-server
 # still talks to backend via vite.config.ts proxy (server-to-server).
 app.include_router(auth_router, prefix="/api")
+
+# K-078: load active predictor params from Firestore at boot.
+# Single atomic swap; fallback to DEFAULT_PARAMS on any error (warning emitted by loader).
+import predictor as _predictor
+from firestore_config import load_active_params as _load_active_params
+_predictor.params = _load_active_params()
 
 _dist_assets = DIST_DIR / "assets"
 if _dist_assets.exists():
@@ -311,6 +317,22 @@ def predict(req: PredictRequest) -> PredictResponse:
             query_ma99_1h=query_ma99,
             query_ma99_gap_1h=query_ma99_gap,
         )
+
+
+@app.get("/api/health")
+def health():
+    snap = _predictor.params
+    return JSONResponse({
+        "status": "ok",
+        "params_source": snap.source,
+        "params_hash": snap.params_hash[:12],
+        "optimized_at": snap.optimized_at,
+        "active_params": {
+            "ma_trend_window_days": snap.ma_trend_window_days,
+            "ma_trend_pearson_threshold": snap.ma_trend_pearson_threshold,
+            "top_k_matches": snap.top_k_matches,
+        },
+    })
 
 
 # SPA fallback — must be the LAST route in main.py
