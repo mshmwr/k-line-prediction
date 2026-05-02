@@ -1,3 +1,10 @@
+## 2026-05-02 — K-083
+
+**What went well:** All 10 tests pass, predictor.py + main.py byte-equal to origin/main, skopt callback exception propagation verified empirically, hash precision safe at 6dp.
+**What went wrong:** Test 6 calls write helper directly (asserts raw Exception) instead of calling main() with pytest.raises(SystemExit) — same pattern as K-080 retro lesson; AC specifies sys.exit(1) + capsys stdout check; both assertions missing.
+**Next time improvement:** Already codified in K-080 retro — "when AC specifies exits non-zero, verify test calls main() via pytest.raises(SystemExit)"; recurring violation suggests a test-checklist item to grep for 'sys.exit' in AC then confirm test uses SystemExit.
+**Slowest step:** Verifying RANDOM_STATE placement (AC says weekly_optimize.py; implementation puts it in optimizer.py and imports it) — required reading both files and cross-checking AC line 80 text.
+
 ## 2026-05-02 — K-081
 
 **What went well:** Two-step depth review (breadth scan + depth) caught C-1 (actuals runQuery used `query_ts` filter on a collection without that field — chart would have been empty in production) and C-2 (ActiveParams TS interface used Python attribute names instead of Firestore wire keys, breaking the cross-ticket type contract) before merge. Both fixes verified in re-review.

@@ -4,6 +4,13 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-02 — K-083 close: Weekly Bayesian optimizer shipped — epic backtest-self-tuning complete
+
+**What went well:** Engineer interception protocol surfaced the Firestore path ambiguity (`predictor_params/history/{run_id}` from epic spec is not a valid doc path under Firestore's collection/doc alternation rule) before any data was written; PM ruled `predictor_params/history/runs/{run_id}` as canonical. Depth review caught W-1 (gcloud CLI auth missing — Python ADC ≠ gcloud credential store) which would have made the first real Monday cron fail at redeploy step.
+**What went wrong:** AC-083-SEARCH-SPACE specified `RANDOM_STATE` placement in `weekly_optimize.py` but engineer placed it in `backend/optimizer.py` (the helper module that owns the search loop) — depth-review W-2 flagged the literal AC drift. PM amended the AC instead of moving the constant; the consumer-owns-constant pattern is cleaner. Lesson: don't pin module-internal constant placement in AC text — pin behavior, not file location.
+**Next time improvement:** When epic spec describes a Firestore path informally, design doc must validate the path against Firestore's collection/doc alternation rule before locking it into AC text. Add this as Architect §0 SQ checklist item.
+**Slowest step:** Validating the cost-guard early-exit semantics — `EarlyExitSignal` raised inside a `gp_minimize` callback is non-obvious behavior (most skopt examples use `callback returns True` to abort). Required reading scikit-optimize source to confirm exception propagates through the BFGS inner loop.
+
 ## 2026-05-02 — K-083 ticket open: Weekly Bayesian optimizer (epic K-D final ticket)
 
 **What went well:** QA Early Consultation proxy surfaced 9 challenges; cost-guard epsilon ambiguity (Challenge #2) and redeploy idempotency (Challenge #3) were the highest-value findings — both would have reached Engineer underdefined without the proxy pass. Atomicity Known Gap (Challenge #9) is correctly scoped as a Phase-1 trade-off rather than a blocker. All spec gaps resolved from `pm-app-jaunty-wren.md §C3` + K-078 / K-080 frozenset inspection; zero user escalations needed.
