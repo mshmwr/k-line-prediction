@@ -39,3 +39,6 @@ frontend/public/docs/
 
 # Pencil MCP generated temp images (not design artefacts)
 frontend/design/images/
+
+# Graphify AST cache (regenerable, ~500KB)
+graphify-out/cache/

@@ -1,0 +1,5827 @@
+{
+  "nodes": [
+    {
+      "id": "main_tsx",
+      "label": "main.tsx",
+      "file_type": "code",
+      "source_file": "main.tsx",
+      "source_location": "L1",
+      "community": 8
+    },
+    {
+      "id": "src_main_gatracker",
+      "label": "GATracker()",
+      "file_type": "code",
+      "source_file": "main.tsx",
+      "source_location": "L23",
+      "community": 8
+    },
+    {
+      "id": "apppage_tsx",
+      "label": "AppPage.tsx",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L1",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_emptyrows",
+      "label": "emptyRows()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L22",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_parseexchangetimestamp",
+      "label": "parseExchangeTimestamp()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L26",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_parseofficialcsvfile",
+      "label": "parseOfficialCsvFile()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L50",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_isrowcomplete",
+      "label": "isRowComplete()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L86",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_computestatsbyday",
+      "label": "computeStatsByDay()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L92",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_resetpredictionstate",
+      "label": "resetPredictionState()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L295",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_handleofficialfilesupload",
+      "label": "handleOfficialFilesUpload()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L304",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_handlecellchange",
+      "label": "handleCellChange()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L342",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_handletimeframechange",
+      "label": "handleTimeframeChange()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L346",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_handletoggle",
+      "label": "handleToggle()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L367",
+      "community": 2
+    },
+    {
+      "id": "src_apppage_handlepredict",
+      "label": "handlePredict()",
+      "file_type": "code",
+      "source_file": "AppPage.tsx",
+      "source_location": "L375",
+      "community": 3
+    },
+    {
+      "id": "setuptests_ts",
+      "label": "setupTests.ts",
+      "file_type": "code",
+      "source_file": "setupTests.ts",
+      "source_location": "L1",
+      "community": 9
+    },
+    {
+      "id": "src_setuptests_observe",
+      "label": "observe()",
+      "file_type": "code",
+      "source_file": "setupTests.ts",
+      "source_location": "L6",
+      "community": 9
+    },
+    {
+      "id": "src_setuptests_unobserve",
+      "label": "unobserve()",
+      "file_type": "code",
+      "source_file": "setupTests.ts",
+      "source_location": "L7",
+      "community": 9
+    },
+    {
+      "id": "src_setuptests_disconnect",
+      "label": "disconnect()",
+      "file_type": "code",
+      "source_file": "setupTests.ts",
+      "source_location": "L8",
+      "community": 9
+    },
+    {
+      "id": "types_ts",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "types.ts",
+      "source_location": "L1",
+      "community": 63
+    },
+    {
+      "id": "vite_env_d_ts",
+      "label": "vite-env.d.ts",
+      "file_type": "code",
+      "source_file": "vite-env.d.ts",
+      "source_location": "L1",
+      "community": 64
+    },
+    {
+      "id": "types_diary_ts",
+      "label": "diary.ts",
+      "file_type": "code",
+      "source_file": "types/diary.ts",
+      "source_location": "L1",
+      "community": 65
+    },
+    {
+      "id": "content_site_content_types_ts",
+      "label": "site-content.types.ts",
+      "file_type": "code",
+      "source_file": "content/site-content.types.ts",
+      "source_location": "L1",
+      "community": 66
+    },
+    {
+      "id": "utils_statscomputation_ts",
+      "label": "statsComputation.ts",
+      "file_type": "code",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L1",
+      "community": 6
+    },
+    {
+      "id": "utils_statscomputation_buildprojectedsuggestion",
+      "label": "buildProjectedSuggestion()",
+      "file_type": "code",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L48",
+      "community": 6
+    },
+    {
+      "id": "utils_statscomputation_computestatsfrommatches",
+      "label": "computeStatsFromMatches()",
+      "file_type": "code",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L94",
+      "community": 6
+    },
+    {
+      "id": "utils_statscomputation_snakesuggestiontocamel",
+      "label": "snakeSuggestionToCamel()",
+      "file_type": "code",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L188",
+      "community": 6
+    },
+    {
+      "id": "utils_statscomputation_snakestatstocamel",
+      "label": "snakeStatsToCamel()",
+      "file_type": "code",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L210",
+      "community": 6
+    },
+    {
+      "id": "utils_analytics_ts",
+      "label": "analytics.ts",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L1",
+      "community": 3
+    },
+    {
+      "id": "utils_analytics_consentga",
+      "label": "consentGA()",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L23",
+      "community": 3
+    },
+    {
+      "id": "utils_analytics_initga",
+      "label": "initGA()",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L34",
+      "community": 3
+    },
+    {
+      "id": "utils_analytics_trackpageview",
+      "label": "trackPageview()",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L63",
+      "community": 3
+    },
+    {
+      "id": "utils_analytics_trackctaclick",
+      "label": "trackCtaClick()",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L75",
+      "community": 3
+    },
+    {
+      "id": "utils_analytics_trackdemostarted",
+      "label": "trackDemoStarted()",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L85",
+      "community": 3
+    },
+    {
+      "id": "utils_analytics_trackcsvuploaded",
+      "label": "trackCsvUploaded()",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L90",
+      "community": 3
+    },
+    {
+      "id": "utils_analytics_trackmatchrun",
+      "label": "trackMatchRun()",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L95",
+      "community": 3
+    },
+    {
+      "id": "utils_analytics_trackresultviewed",
+      "label": "trackResultViewed()",
+      "file_type": "code",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L100",
+      "community": 3
+    },
+    {
+      "id": "utils_api_ts",
+      "label": "api.ts",
+      "file_type": "code",
+      "source_file": "utils/api.ts",
+      "source_location": "L1",
+      "community": 67
+    },
+    {
+      "id": "utils_aggregation_ts",
+      "label": "aggregation.ts",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L1",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_parseutctime",
+      "label": "parseUtcTime()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L30",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_formatutc",
+      "label": "formatUtc()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L37",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_formatutcdateonly",
+      "label": "formatUtcDateOnly()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L47",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_addhours",
+      "label": "addHours()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L51",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_median",
+      "label": "median()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L57",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_groupbyutc8day",
+      "label": "groupByUtc8Day()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L66",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_aggregatenumericbarsto1d",
+      "label": "aggregateNumericBarsTo1D()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L88",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_aggregaterowsto1d",
+      "label": "aggregateRowsTo1D()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L104",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_aggregatemaseriesto1d",
+      "label": "aggregateMaSeriesTo1D()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L124",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_aggregatemavaluesto1d",
+      "label": "aggregateMaValuesTo1D()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L135",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_matchbarswithtime",
+      "label": "matchBarsWithTime()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L140",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_calculatereturnpct",
+      "label": "calculateReturnPct()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L148",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_todisplaymatch",
+      "label": "toDisplayMatch()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L155",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_addhourstoutc8",
+      "label": "addHoursToUtc8()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L164",
+      "community": 1
+    },
+    {
+      "id": "utils_aggregation_computeprojectedfuturebars",
+      "label": "computeProjectedFutureBars()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L176",
+      "community": 6
+    },
+    {
+      "id": "utils_aggregation_aggregateprojectedbarsto1d",
+      "label": "aggregateProjectedBarsTo1D()",
+      "file_type": "code",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L213",
+      "community": 1
+    },
+    {
+      "id": "utils_diarysort_ts",
+      "label": "diarySort.ts",
+      "file_type": "code",
+      "source_file": "utils/diarySort.ts",
+      "source_location": "L1",
+      "community": 19
+    },
+    {
+      "id": "utils_diarysort_sortdiary",
+      "label": "sortDiary()",
+      "file_type": "code",
+      "source_file": "utils/diarySort.ts",
+      "source_location": "L9",
+      "community": 19
+    },
+    {
+      "id": "utils_auth_ts",
+      "label": "auth.ts",
+      "file_type": "code",
+      "source_file": "utils/auth.ts",
+      "source_location": "L1",
+      "community": 10
+    },
+    {
+      "id": "utils_auth_gettokenexp",
+      "label": "getTokenExp()",
+      "file_type": "code",
+      "source_file": "utils/auth.ts",
+      "source_location": "L3",
+      "community": 10
+    },
+    {
+      "id": "utils_auth_istokenvalid",
+      "label": "isTokenValid()",
+      "file_type": "code",
+      "source_file": "utils/auth.ts",
+      "source_location": "L12",
+      "community": 10
+    },
+    {
+      "id": "utils_auth_isloggedin",
+      "label": "isLoggedIn()",
+      "file_type": "code",
+      "source_file": "utils/auth.ts",
+      "source_location": "L18",
+      "community": 10
+    },
+    {
+      "id": "utils_time_ts",
+      "label": "time.ts",
+      "file_type": "code",
+      "source_file": "utils/time.ts",
+      "source_location": "L1",
+      "community": 0
+    },
+    {
+      "id": "utils_time_toutc8display",
+      "label": "toUTC8Display()",
+      "file_type": "code",
+      "source_file": "utils/time.ts",
+      "source_location": "L2",
+      "community": 0
+    },
+    {
+      "id": "utils_time_fromutc8input",
+      "label": "fromUTC8Input()",
+      "file_type": "code",
+      "source_file": "utils/time.ts",
+      "source_location": "L18",
+      "community": 0
+    },
+    {
+      "id": "components_mainchart_tsx",
+      "label": "MainChart.tsx",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L1",
+      "community": 4
+    },
+    {
+      "id": "components_mainchart_parselocalizeddatetime",
+      "label": "parseLocalizedDateTime()",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L31",
+      "community": 4
+    },
+    {
+      "id": "components_mainchart_totimestamp",
+      "label": "toTimestamp()",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L49",
+      "community": 4
+    },
+    {
+      "id": "components_mainchart_totime",
+      "label": "toTime()",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L72",
+      "community": 4
+    },
+    {
+      "id": "components_mainchart_isrowcomplete",
+      "label": "isRowComplete()",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L77",
+      "community": 4
+    },
+    {
+      "id": "components_mainchart_sortdata",
+      "label": "sortData()",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L83",
+      "community": 4
+    },
+    {
+      "id": "components_mainchart_formatprice",
+      "label": "formatPrice()",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L91",
+      "community": 4
+    },
+    {
+      "id": "components_mainchart_formataxistime",
+      "label": "formatAxisTime()",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L96",
+      "community": 4
+    },
+    {
+      "id": "components_mainchart_buildsma",
+      "label": "buildSma()",
+      "file_type": "code",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L107",
+      "community": 4
+    },
+    {
+      "id": "components_scrolltotop_tsx",
+      "label": "ScrollToTop.tsx",
+      "file_type": "code",
+      "source_file": "components/ScrollToTop.tsx",
+      "source_location": "L1",
+      "community": 20
+    },
+    {
+      "id": "components_scrolltotop_scrolltotop",
+      "label": "ScrollToTop()",
+      "file_type": "code",
+      "source_file": "components/ScrollToTop.tsx",
+      "source_location": "L15",
+      "community": 20
+    },
+    {
+      "id": "components_unifiednavbar_tsx",
+      "label": "UnifiedNavBar.tsx",
+      "file_type": "code",
+      "source_file": "components/UnifiedNavBar.tsx",
+      "source_location": "L1",
+      "community": 21
+    },
+    {
+      "id": "components_unifiednavbar_navlinkclass",
+      "label": "navLinkClass()",
+      "file_type": "code",
+      "source_file": "components/UnifiedNavBar.tsx",
+      "source_location": "L32",
+      "community": 21
+    },
+    {
+      "id": "components_topbar_tsx",
+      "label": "TopBar.tsx",
+      "file_type": "code",
+      "source_file": "components/TopBar.tsx",
+      "source_location": "L1",
+      "community": 22
+    },
+    {
+      "id": "components_topbar_topbar",
+      "label": "TopBar()",
+      "file_type": "code",
+      "source_file": "components/TopBar.tsx",
+      "source_location": "L5",
+      "community": 22
+    },
+    {
+      "id": "components_ohlceditor_tsx",
+      "label": "OHLCEditor.tsx",
+      "file_type": "code",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L1",
+      "community": 0
+    },
+    {
+      "id": "components_ohlceditor_isrowcomplete",
+      "label": "isRowComplete()",
+      "file_type": "code",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L10",
+      "community": 0
+    },
+    {
+      "id": "components_ohlceditor_toinputvalue",
+      "label": "toInputValue()",
+      "file_type": "code",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L16",
+      "community": 0
+    },
+    {
+      "id": "components_ohlceditor_frominputvalue",
+      "label": "fromInputValue()",
+      "file_type": "code",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L22",
+      "community": 0
+    },
+    {
+      "id": "components_statspanel_tsx",
+      "label": "StatsPanel.tsx",
+      "file_type": "code",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L1",
+      "community": 7
+    },
+    {
+      "id": "components_statspanel_tochartts",
+      "label": "toChartTs()",
+      "file_type": "code",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L15",
+      "community": 7
+    },
+    {
+      "id": "components_statspanel_buildfooterlabels",
+      "label": "buildFooterLabels()",
+      "file_type": "code",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L24",
+      "community": 7
+    },
+    {
+      "id": "components_statspanel_statsprojectionchart",
+      "label": "StatsProjectionChart()",
+      "file_type": "code",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L41",
+      "community": 7
+    },
+    {
+      "id": "components_statspanel_daystatsrow",
+      "label": "DayStatsRow()",
+      "file_type": "code",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L139",
+      "community": 7
+    },
+    {
+      "id": "components_matchlist_tsx",
+      "label": "MatchList.tsx",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L1",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_addstep",
+      "label": "addStep()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L24",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_starttime",
+      "label": "startTime()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L38",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_serializetimekey",
+      "label": "serializeTimeKey()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L58",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_tosortablevalue",
+      "label": "toSortableValue()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L63",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_dedupeandsort",
+      "label": "dedupeAndSort()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L68",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_formatinterval",
+      "label": "formatInterval()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L79",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_disposechart",
+      "label": "disposeChart()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L136",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_toggleopen",
+      "label": "toggleOpen()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L325",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_expandall",
+      "label": "expandAll()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L333",
+      "community": 0
+    },
+    {
+      "id": "components_matchlist_collapseall",
+      "label": "collapseAll()",
+      "file_type": "code",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L337",
+      "community": 0
+    },
+    {
+      "id": "components_predictbutton_tsx",
+      "label": "PredictButton.tsx",
+      "file_type": "code",
+      "source_file": "components/PredictButton.tsx",
+      "source_location": "L1",
+      "community": 23
+    },
+    {
+      "id": "components_predictbutton_predictbutton",
+      "label": "PredictButton()",
+      "file_type": "code",
+      "source_file": "components/PredictButton.tsx",
+      "source_location": "L19",
+      "community": 23
+    },
+    {
+      "id": "components_routesuspense_tsx",
+      "label": "RouteSuspense.tsx",
+      "file_type": "code",
+      "source_file": "components/RouteSuspense.tsx",
+      "source_location": "L1",
+      "community": 24
+    },
+    {
+      "id": "components_routesuspense_routesuspense",
+      "label": "RouteSuspense()",
+      "file_type": "code",
+      "source_file": "components/RouteSuspense.tsx",
+      "source_location": "L20",
+      "community": 24
+    },
+    {
+      "id": "components_errorboundary_tsx",
+      "label": "ErrorBoundary.tsx",
+      "file_type": "code",
+      "source_file": "components/ErrorBoundary.tsx",
+      "source_location": "L1",
+      "community": 11
+    },
+    {
+      "id": "components_errorboundary_errorboundary",
+      "label": "ErrorBoundary",
+      "file_type": "code",
+      "source_file": "components/ErrorBoundary.tsx",
+      "source_location": "L6",
+      "community": 11
+    },
+    {
+      "id": "components_errorboundary_errorboundary_getderivedstatefromerror",
+      "label": ".getDerivedStateFromError()",
+      "file_type": "code",
+      "source_file": "components/ErrorBoundary.tsx",
+      "source_location": "L9",
+      "community": 11
+    },
+    {
+      "id": "components_errorboundary_errorboundary_render",
+      "label": ".render()",
+      "file_type": "code",
+      "source_file": "components/ErrorBoundary.tsx",
+      "source_location": "L13",
+      "community": 11
+    },
+    {
+      "id": "components_home_devdiarysection_tsx",
+      "label": "DevDiarySection.tsx",
+      "file_type": "code",
+      "source_file": "components/home/DevDiarySection.tsx",
+      "source_location": "L1",
+      "community": 68
+    },
+    {
+      "id": "components_home_projectlogicsection_tsx",
+      "label": "ProjectLogicSection.tsx",
+      "file_type": "code",
+      "source_file": "components/home/ProjectLogicSection.tsx",
+      "source_location": "L1",
+      "community": 69
+    },
+    {
+      "id": "components_home_builtbyaibanner_tsx",
+      "label": "BuiltByAIBanner.tsx",
+      "file_type": "code",
+      "source_file": "components/home/BuiltByAIBanner.tsx",
+      "source_location": "L1",
+      "community": 25
+    },
+    {
+      "id": "home_builtbyaibanner_builtbyaibanner",
+      "label": "BuiltByAIBanner()",
+      "file_type": "code",
+      "source_file": "components/home/BuiltByAIBanner.tsx",
+      "source_location": "L9",
+      "community": 25
+    },
+    {
+      "id": "components_home_herosection_tsx",
+      "label": "HeroSection.tsx",
+      "file_type": "code",
+      "source_file": "components/home/HeroSection.tsx",
+      "source_location": "L1",
+      "community": 70
+    },
+    {
+      "id": "components_shared_pagehero_tsx",
+      "label": "PageHero.tsx",
+      "file_type": "code",
+      "source_file": "components/shared/PageHero.tsx",
+      "source_location": "L1",
+      "community": 71
+    },
+    {
+      "id": "components_shared_footer_tsx",
+      "label": "Footer.tsx",
+      "file_type": "code",
+      "source_file": "components/shared/Footer.tsx",
+      "source_location": "L1",
+      "community": 26
+    },
+    {
+      "id": "shared_footer_footer",
+      "label": "Footer()",
+      "file_type": "code",
+      "source_file": "components/shared/Footer.tsx",
+      "source_location": "L26",
+      "community": 26
+    },
+    {
+      "id": "components_shared_disclaimerbanner_tsx",
+      "label": "DisclaimerBanner.tsx",
+      "file_type": "code",
+      "source_file": "components/shared/DisclaimerBanner.tsx",
+      "source_location": "L1",
+      "community": 27
+    },
+    {
+      "id": "shared_disclaimerbanner_disclaimerbanner",
+      "label": "DisclaimerBanner()",
+      "file_type": "code",
+      "source_file": "components/shared/DisclaimerBanner.tsx",
+      "source_location": "L9",
+      "community": 27
+    },
+    {
+      "id": "components_shared_footerdisclaimer_tsx",
+      "label": "FooterDisclaimer.tsx",
+      "file_type": "code",
+      "source_file": "components/shared/FooterDisclaimer.tsx",
+      "source_location": "L1",
+      "community": 28
+    },
+    {
+      "id": "shared_footerdisclaimer_footerdisclaimer",
+      "label": "FooterDisclaimer()",
+      "file_type": "code",
+      "source_file": "components/shared/FooterDisclaimer.tsx",
+      "source_location": "L11",
+      "community": 28
+    },
+    {
+      "id": "components_shared_consentbanner_tsx",
+      "label": "ConsentBanner.tsx",
+      "file_type": "code",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L1",
+      "community": 12
+    },
+    {
+      "id": "shared_consentbanner_readconsentstorage",
+      "label": "readConsentStorage()",
+      "file_type": "code",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L7",
+      "community": 12
+    },
+    {
+      "id": "shared_consentbanner_writeconsentstorage",
+      "label": "writeConsentStorage()",
+      "file_type": "code",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L16",
+      "community": 12
+    },
+    {
+      "id": "shared_consentbanner_consentbanner",
+      "label": "ConsentBanner()",
+      "file_type": "code",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L28",
+      "community": 12
+    },
+    {
+      "id": "components_about_sectionlabelrow_tsx",
+      "label": "SectionLabelRow.tsx",
+      "file_type": "code",
+      "source_file": "components/about/SectionLabelRow.tsx",
+      "source_location": "L1",
+      "community": 29
+    },
+    {
+      "id": "about_sectionlabelrow_sectionlabelrow",
+      "label": "SectionLabelRow()",
+      "file_type": "code",
+      "source_file": "components/about/SectionLabelRow.tsx",
+      "source_location": "L17",
+      "community": 29
+    },
+    {
+      "id": "components_about_archpillarblock_tsx",
+      "label": "ArchPillarBlock.tsx",
+      "file_type": "code",
+      "source_file": "components/about/ArchPillarBlock.tsx",
+      "source_location": "L1",
+      "community": 72
+    },
+    {
+      "id": "components_about_filenobar_tsx",
+      "label": "FileNoBar.tsx",
+      "file_type": "code",
+      "source_file": "components/about/FileNoBar.tsx",
+      "source_location": "L1",
+      "community": 73
+    },
+    {
+      "id": "components_about_ticketanatomysection_tsx",
+      "label": "TicketAnatomySection.tsx",
+      "file_type": "code",
+      "source_file": "components/about/TicketAnatomySection.tsx",
+      "source_location": "L1",
+      "community": 74
+    },
+    {
+      "id": "components_about_rolecardssection_tsx",
+      "label": "RoleCardsSection.tsx",
+      "file_type": "code",
+      "source_file": "components/about/RoleCardsSection.tsx",
+      "source_location": "L1",
+      "community": 75
+    },
+    {
+      "id": "components_about_metricsstripsection_tsx",
+      "label": "MetricsStripSection.tsx",
+      "file_type": "code",
+      "source_file": "components/about/MetricsStripSection.tsx",
+      "source_location": "L1",
+      "community": 76
+    },
+    {
+      "id": "components_about_pageheadersection_tsx",
+      "label": "PageHeaderSection.tsx",
+      "file_type": "code",
+      "source_file": "components/about/PageHeaderSection.tsx",
+      "source_location": "L1",
+      "community": 30
+    },
+    {
+      "id": "about_pageheadersection_pageheadersection",
+      "label": "PageHeaderSection()",
+      "file_type": "code",
+      "source_file": "components/about/PageHeaderSection.tsx",
+      "source_location": "L19",
+      "community": 30
+    },
+    {
+      "id": "components_about_projectarchitecturesection_tsx",
+      "label": "ProjectArchitectureSection.tsx",
+      "file_type": "code",
+      "source_file": "components/about/ProjectArchitectureSection.tsx",
+      "source_location": "L1",
+      "community": 31
+    },
+    {
+      "id": "about_projectarchitecturesection_projectarchitecturesection",
+      "label": "ProjectArchitectureSection()",
+      "file_type": "code",
+      "source_file": "components/about/ProjectArchitectureSection.tsx",
+      "source_location": "L21",
+      "community": 31
+    },
+    {
+      "id": "components_about_whereisteppedinsection_tsx",
+      "label": "WhereISteppedInSection.tsx",
+      "file_type": "code",
+      "source_file": "components/about/WhereISteppedInSection.tsx",
+      "source_location": "L1",
+      "community": 77
+    },
+    {
+      "id": "components_about_rolepipelinesection_tsx",
+      "label": "RolePipelineSection.tsx",
+      "file_type": "code",
+      "source_file": "components/about/RolePipelineSection.tsx",
+      "source_location": "L1",
+      "community": 32
+    },
+    {
+      "id": "about_rolepipelinesection_rolepipelinesection",
+      "label": "RolePipelineSection()",
+      "file_type": "code",
+      "source_file": "components/about/RolePipelineSection.tsx",
+      "source_location": "L1",
+      "community": 32
+    },
+    {
+      "id": "components_about_redactionbar_tsx",
+      "label": "RedactionBar.tsx",
+      "file_type": "code",
+      "source_file": "components/about/RedactionBar.tsx",
+      "source_location": "L1",
+      "community": 33
+    },
+    {
+      "id": "about_redactionbar_redactionbar",
+      "label": "RedactionBar()",
+      "file_type": "code",
+      "source_file": "components/about/RedactionBar.tsx",
+      "source_location": "L12",
+      "community": 33
+    },
+    {
+      "id": "components_about_metriccard_tsx",
+      "label": "MetricCard.tsx",
+      "file_type": "code",
+      "source_file": "components/about/MetricCard.tsx",
+      "source_location": "L1",
+      "community": 78
+    },
+    {
+      "id": "components_about_rolecard_tsx",
+      "label": "RoleCard.tsx",
+      "file_type": "code",
+      "source_file": "components/about/RoleCard.tsx",
+      "source_location": "L1",
+      "community": 34
+    },
+    {
+      "id": "about_rolecard_rolecard",
+      "label": "RoleCard()",
+      "file_type": "code",
+      "source_file": "components/about/RoleCard.tsx",
+      "source_location": "L27",
+      "community": 34
+    },
+    {
+      "id": "components_about_ticketanatomycard_tsx",
+      "label": "TicketAnatomyCard.tsx",
+      "file_type": "code",
+      "source_file": "components/about/TicketAnatomyCard.tsx",
+      "source_location": "L1",
+      "community": 35
+    },
+    {
+      "id": "about_ticketanatomycard_ticketanatomycard",
+      "label": "TicketAnatomyCard()",
+      "file_type": "code",
+      "source_file": "components/about/TicketAnatomyCard.tsx",
+      "source_location": "L30",
+      "community": 35
+    },
+    {
+      "id": "components_about_reliabilitypillarssection_tsx",
+      "label": "ReliabilityPillarsSection.tsx",
+      "file_type": "code",
+      "source_file": "components/about/ReliabilityPillarsSection.tsx",
+      "source_location": "L1",
+      "community": 36
+    },
+    {
+      "id": "about_reliabilitypillarssection_reliabilitypillarssection",
+      "label": "ReliabilityPillarsSection()",
+      "file_type": "code",
+      "source_file": "components/about/ReliabilityPillarsSection.tsx",
+      "source_location": "L25",
+      "community": 36
+    },
+    {
+      "id": "components_about_roles_ts",
+      "label": "roles.ts",
+      "file_type": "code",
+      "source_file": "components/about/roles.ts",
+      "source_location": "L1",
+      "community": 79
+    },
+    {
+      "id": "components_about_pillarcard_tsx",
+      "label": "PillarCard.tsx",
+      "file_type": "code",
+      "source_file": "components/about/PillarCard.tsx",
+      "source_location": "L1",
+      "community": 37
+    },
+    {
+      "id": "about_pillarcard_pillarcard",
+      "label": "PillarCard()",
+      "file_type": "code",
+      "source_file": "components/about/PillarCard.tsx",
+      "source_location": "L46",
+      "community": 37
+    },
+    {
+      "id": "components_primitives_externallink_tsx",
+      "label": "ExternalLink.tsx",
+      "file_type": "code",
+      "source_file": "components/primitives/ExternalLink.tsx",
+      "source_location": "L1",
+      "community": 38
+    },
+    {
+      "id": "primitives_externallink_externallink",
+      "label": "ExternalLink()",
+      "file_type": "code",
+      "source_file": "components/primitives/ExternalLink.tsx",
+      "source_location": "L11",
+      "community": 38
+    },
+    {
+      "id": "components_primitives_cardshell_tsx",
+      "label": "CardShell.tsx",
+      "file_type": "code",
+      "source_file": "components/primitives/CardShell.tsx",
+      "source_location": "L1",
+      "community": 39
+    },
+    {
+      "id": "primitives_cardshell_cardshell",
+      "label": "CardShell()",
+      "file_type": "code",
+      "source_file": "components/primitives/CardShell.tsx",
+      "source_location": "L11",
+      "community": 39
+    },
+    {
+      "id": "components_common_ctabutton_tsx",
+      "label": "CtaButton.tsx",
+      "file_type": "code",
+      "source_file": "components/common/CtaButton.tsx",
+      "source_location": "L1",
+      "community": 40
+    },
+    {
+      "id": "common_ctabutton_ctabutton",
+      "label": "CtaButton()",
+      "file_type": "code",
+      "source_file": "components/common/CtaButton.tsx",
+      "source_location": "L15",
+      "community": 40
+    },
+    {
+      "id": "components_common_errormessage_tsx",
+      "label": "ErrorMessage.tsx",
+      "file_type": "code",
+      "source_file": "components/common/ErrorMessage.tsx",
+      "source_location": "L1",
+      "community": 80
+    },
+    {
+      "id": "components_common_sectionheader_tsx",
+      "label": "SectionHeader.tsx",
+      "file_type": "code",
+      "source_file": "components/common/SectionHeader.tsx",
+      "source_location": "L1",
+      "community": 41
+    },
+    {
+      "id": "common_sectionheader_sectionheader",
+      "label": "SectionHeader()",
+      "file_type": "code",
+      "source_file": "components/common/SectionHeader.tsx",
+      "source_location": "L12",
+      "community": 41
+    },
+    {
+      "id": "components_common_loadingspinner_tsx",
+      "label": "LoadingSpinner.tsx",
+      "file_type": "code",
+      "source_file": "components/common/LoadingSpinner.tsx",
+      "source_location": "L1",
+      "community": 42
+    },
+    {
+      "id": "common_loadingspinner_loadingspinner",
+      "label": "LoadingSpinner()",
+      "file_type": "code",
+      "source_file": "components/common/LoadingSpinner.tsx",
+      "source_location": "L5",
+      "community": 42
+    },
+    {
+      "id": "components_common_sectionlabel_tsx",
+      "label": "SectionLabel.tsx",
+      "file_type": "code",
+      "source_file": "components/common/SectionLabel.tsx",
+      "source_location": "L1",
+      "community": 43
+    },
+    {
+      "id": "common_sectionlabel_sectionlabel",
+      "label": "SectionLabel()",
+      "file_type": "code",
+      "source_file": "components/common/SectionLabel.tsx",
+      "source_location": "L14",
+      "community": 43
+    },
+    {
+      "id": "components_icons_mailicon_tsx",
+      "label": "MailIcon.tsx",
+      "file_type": "code",
+      "source_file": "components/icons/MailIcon.tsx",
+      "source_location": "L1",
+      "community": 44
+    },
+    {
+      "id": "icons_mailicon_mailicon",
+      "label": "MailIcon()",
+      "file_type": "code",
+      "source_file": "components/icons/MailIcon.tsx",
+      "source_location": "L5",
+      "community": 44
+    },
+    {
+      "id": "components_icons_linkedinicon_tsx",
+      "label": "LinkedinIcon.tsx",
+      "file_type": "code",
+      "source_file": "components/icons/LinkedinIcon.tsx",
+      "source_location": "L1",
+      "community": 45
+    },
+    {
+      "id": "icons_linkedinicon_linkedinicon",
+      "label": "LinkedinIcon()",
+      "file_type": "code",
+      "source_file": "components/icons/LinkedinIcon.tsx",
+      "source_location": "L5",
+      "community": 45
+    },
+    {
+      "id": "components_icons_githubicon_tsx",
+      "label": "GithubIcon.tsx",
+      "file_type": "code",
+      "source_file": "components/icons/GithubIcon.tsx",
+      "source_location": "L1",
+      "community": 46
+    },
+    {
+      "id": "icons_githubicon_githubicon",
+      "label": "GithubIcon()",
+      "file_type": "code",
+      "source_file": "components/icons/GithubIcon.tsx",
+      "source_location": "L5",
+      "community": 46
+    },
+    {
+      "id": "components_diary_diaryentryv2_tsx",
+      "label": "DiaryEntryV2.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryEntryV2.tsx",
+      "source_location": "L1",
+      "community": 47
+    },
+    {
+      "id": "diary_diaryentryv2_diaryentryv2",
+      "label": "DiaryEntryV2()",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryEntryV2.tsx",
+      "source_location": "L21",
+      "community": 47
+    },
+    {
+      "id": "components_diary_diaryerror_tsx",
+      "label": "DiaryError.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryError.tsx",
+      "source_location": "L1",
+      "community": 48
+    },
+    {
+      "id": "diary_diaryerror_diaryerror",
+      "label": "DiaryError()",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryError.tsx",
+      "source_location": "L15",
+      "community": 48
+    },
+    {
+      "id": "components_diary_diaryloading_tsx",
+      "label": "DiaryLoading.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryLoading.tsx",
+      "source_location": "L1",
+      "community": 49
+    },
+    {
+      "id": "diary_diaryloading_diaryloading",
+      "label": "DiaryLoading()",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryLoading.tsx",
+      "source_location": "L9",
+      "community": 49
+    },
+    {
+      "id": "components_diary_diaryhero_tsx",
+      "label": "DiaryHero.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryHero.tsx",
+      "source_location": "L1",
+      "community": 50
+    },
+    {
+      "id": "diary_diaryhero_diaryhero",
+      "label": "DiaryHero()",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryHero.tsx",
+      "source_location": "L3",
+      "community": 50
+    },
+    {
+      "id": "components_diary_diarytimeline_tsx",
+      "label": "DiaryTimeline.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryTimeline.tsx",
+      "source_location": "L1",
+      "community": 51
+    },
+    {
+      "id": "diary_diarytimeline_diarytimeline",
+      "label": "DiaryTimeline()",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryTimeline.tsx",
+      "source_location": "L16",
+      "community": 51
+    },
+    {
+      "id": "components_diary_timelineprimitives_ts",
+      "label": "timelinePrimitives.ts",
+      "file_type": "code",
+      "source_file": "components/diary/timelinePrimitives.ts",
+      "source_location": "L1",
+      "community": 81
+    },
+    {
+      "id": "components_diary_diaryemptystate_tsx",
+      "label": "DiaryEmptyState.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryEmptyState.tsx",
+      "source_location": "L1",
+      "community": 52
+    },
+    {
+      "id": "diary_diaryemptystate_diaryemptystate",
+      "label": "DiaryEmptyState()",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryEmptyState.tsx",
+      "source_location": "L4",
+      "community": 52
+    },
+    {
+      "id": "components_diary_infinitescrollsentinel_tsx",
+      "label": "InfiniteScrollSentinel.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/InfiniteScrollSentinel.tsx",
+      "source_location": "L1",
+      "community": 53
+    },
+    {
+      "id": "diary_infinitescrollsentinel_infinitescrollsentinel",
+      "label": "InfiniteScrollSentinel()",
+      "file_type": "code",
+      "source_file": "components/diary/InfiniteScrollSentinel.tsx",
+      "source_location": "L29",
+      "community": 53
+    },
+    {
+      "id": "components_diary_diarymarker_tsx",
+      "label": "DiaryMarker.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryMarker.tsx",
+      "source_location": "L1",
+      "community": 54
+    },
+    {
+      "id": "diary_diarymarker_diarymarker",
+      "label": "DiaryMarker()",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryMarker.tsx",
+      "source_location": "L17",
+      "community": 54
+    },
+    {
+      "id": "components_diary_diaryrail_tsx",
+      "label": "DiaryRail.tsx",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryRail.tsx",
+      "source_location": "L1",
+      "community": 55
+    },
+    {
+      "id": "diary_diaryrail_diaryrail",
+      "label": "DiaryRail()",
+      "file_type": "code",
+      "source_file": "components/diary/DiaryRail.tsx",
+      "source_location": "L14",
+      "community": 55
+    },
+    {
+      "id": "components_business_logic_businesslogiccontent_tsx",
+      "label": "BusinessLogicContent.tsx",
+      "file_type": "code",
+      "source_file": "components/business-logic/BusinessLogicContent.tsx",
+      "source_location": "L1",
+      "community": 56
+    },
+    {
+      "id": "business_logic_businesslogiccontent_businesslogiccontent",
+      "label": "BusinessLogicContent()",
+      "file_type": "code",
+      "source_file": "components/business-logic/BusinessLogicContent.tsx",
+      "source_location": "L7",
+      "community": 56
+    },
+    {
+      "id": "components_business_logic_errorbanner_tsx",
+      "label": "ErrorBanner.tsx",
+      "file_type": "code",
+      "source_file": "components/business-logic/ErrorBanner.tsx",
+      "source_location": "L1",
+      "community": 57
+    },
+    {
+      "id": "business_logic_errorbanner_errorbanner",
+      "label": "ErrorBanner()",
+      "file_type": "code",
+      "source_file": "components/business-logic/ErrorBanner.tsx",
+      "source_location": "L6",
+      "community": 57
+    },
+    {
+      "id": "tests_apppage_test_tsx",
+      "label": "AppPage.test.tsx",
+      "file_type": "code",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L1",
+      "community": 13
+    },
+    {
+      "id": "tests_apppage_test_mockfilereader",
+      "label": "mockFileReader()",
+      "file_type": "code",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L41",
+      "community": 13
+    },
+    {
+      "id": "tests_apppage_test_uploadofficialcsv",
+      "label": "uploadOfficialCsv()",
+      "file_type": "code",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L59",
+      "community": 13
+    },
+    {
+      "id": "tests_diary_english_test_ts",
+      "label": "diary.english.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/diary.english.test.ts",
+      "source_location": "L1",
+      "community": 82
+    },
+    {
+      "id": "tests_statscomputation_test_ts",
+      "label": "statsComputation.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L1",
+      "community": 14
+    },
+    {
+      "id": "tests_statscomputation_test_bar",
+      "label": "bar()",
+      "file_type": "code",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L51",
+      "community": 14
+    },
+    {
+      "id": "tests_statscomputation_test_matchtocamel",
+      "label": "matchToCamel()",
+      "file_type": "code",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L61",
+      "community": 14
+    },
+    {
+      "id": "tests_usediarypagination_test_ts",
+      "label": "useDiaryPagination.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L1",
+      "community": 15
+    },
+    {
+      "id": "tests_usediarypagination_test_mk",
+      "label": "mk()",
+      "file_type": "code",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L6",
+      "community": 15
+    },
+    {
+      "id": "tests_usediarypagination_test_flushmicrotasks",
+      "label": "flushMicrotasks()",
+      "file_type": "code",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L15",
+      "community": 15
+    },
+    {
+      "id": "tests_validate_env_test_ts",
+      "label": "validate-env.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/validate-env.test.ts",
+      "source_location": "L1",
+      "community": 58
+    },
+    {
+      "id": "tests_validate_env_test_runvalidateenv",
+      "label": "runValidateEnv()",
+      "file_type": "code",
+      "source_file": "__tests__/validate-env.test.ts",
+      "source_location": "L17",
+      "community": 58
+    },
+    {
+      "id": "tests_ohlceditor_test_tsx",
+      "label": "OHLCEditor.test.tsx",
+      "file_type": "code",
+      "source_file": "__tests__/OHLCEditor.test.tsx",
+      "source_location": "L1",
+      "community": 59
+    },
+    {
+      "id": "tests_ohlceditor_test_emptyrows",
+      "label": "emptyRows()",
+      "file_type": "code",
+      "source_file": "__tests__/OHLCEditor.test.tsx",
+      "source_location": "L5",
+      "community": 59
+    },
+    {
+      "id": "tests_statspanel_test_tsx",
+      "label": "StatsPanel.test.tsx",
+      "file_type": "code",
+      "source_file": "__tests__/StatsPanel.test.tsx",
+      "source_location": "L1",
+      "community": 83
+    },
+    {
+      "id": "tests_diary_schema_test_ts",
+      "label": "diary.schema.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/diary.schema.test.ts",
+      "source_location": "L1",
+      "community": 84
+    },
+    {
+      "id": "tests_diary_legacy_merge_test_ts",
+      "label": "diary.legacy-merge.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/diary.legacy-merge.test.ts",
+      "source_location": "L1",
+      "community": 85
+    },
+    {
+      "id": "tests_diarysort_test_ts",
+      "label": "diarySort.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/diarySort.test.ts",
+      "source_location": "L1",
+      "community": 60
+    },
+    {
+      "id": "tests_diarysort_test_mk",
+      "label": "mk()",
+      "file_type": "code",
+      "source_file": "__tests__/diarySort.test.ts",
+      "source_location": "L9",
+      "community": 60
+    },
+    {
+      "id": "tests_parseofficialcsvfile_test_ts",
+      "label": "parseOfficialCsvFile.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/parseOfficialCsvFile.test.ts",
+      "source_location": "L1",
+      "community": 86
+    },
+    {
+      "id": "tests_matchlist_test_tsx",
+      "label": "MatchList.test.tsx",
+      "file_type": "code",
+      "source_file": "__tests__/MatchList.test.tsx",
+      "source_location": "L1",
+      "community": 61
+    },
+    {
+      "id": "tests_matchlist_test_makematch",
+      "label": "makeMatch()",
+      "file_type": "code",
+      "source_file": "__tests__/MatchList.test.tsx",
+      "source_location": "L5",
+      "community": 61
+    },
+    {
+      "id": "tests_predictbutton_test_tsx",
+      "label": "PredictButton.test.tsx",
+      "file_type": "code",
+      "source_file": "__tests__/PredictButton.test.tsx",
+      "source_location": "L1",
+      "community": 87
+    },
+    {
+      "id": "tests_aggregation_test_ts",
+      "label": "aggregation.test.ts",
+      "file_type": "code",
+      "source_file": "__tests__/aggregation.test.ts",
+      "source_location": "L1",
+      "community": 88
+    },
+    {
+      "id": "hooks_useasyncstate_ts",
+      "label": "useAsyncState.ts",
+      "file_type": "code",
+      "source_file": "hooks/useAsyncState.ts",
+      "source_location": "L1",
+      "community": 16
+    },
+    {
+      "id": "hooks_useasyncstate_initialstate",
+      "label": "initialState()",
+      "file_type": "code",
+      "source_file": "hooks/useAsyncState.ts",
+      "source_location": "L18",
+      "community": 16
+    },
+    {
+      "id": "hooks_useasyncstate_useasyncstate",
+      "label": "useAsyncState()",
+      "file_type": "code",
+      "source_file": "hooks/useAsyncState.ts",
+      "source_location": "L24",
+      "community": 16
+    },
+    {
+      "id": "hooks_useprediction_ts",
+      "label": "usePrediction.ts",
+      "file_type": "code",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L1",
+      "community": 17
+    },
+    {
+      "id": "hooks_useprediction_mapgap",
+      "label": "mapGap()",
+      "file_type": "code",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L13",
+      "community": 17
+    },
+    {
+      "id": "hooks_useprediction_useprediction",
+      "label": "usePrediction()",
+      "file_type": "code",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L17",
+      "community": 17
+    },
+    {
+      "id": "hooks_usediarypagination_ts",
+      "label": "useDiaryPagination.ts",
+      "file_type": "code",
+      "source_file": "hooks/useDiaryPagination.ts",
+      "source_location": "L1",
+      "community": 5
+    },
+    {
+      "id": "hooks_usediarypagination_usediarypagination",
+      "label": "useDiaryPagination()",
+      "file_type": "code",
+      "source_file": "hooks/useDiaryPagination.ts",
+      "source_location": "L22",
+      "community": 5
+    },
+    {
+      "id": "hooks_usegapageview_ts",
+      "label": "useGAPageview.ts",
+      "file_type": "code",
+      "source_file": "hooks/useGAPageview.ts",
+      "source_location": "L1",
+      "community": 8
+    },
+    {
+      "id": "hooks_usegapageview_usegapageview",
+      "label": "useGAPageview()",
+      "file_type": "code",
+      "source_file": "hooks/useGAPageview.ts",
+      "source_location": "L13",
+      "community": 8
+    },
+    {
+      "id": "hooks_usediary_ts",
+      "label": "useDiary.ts",
+      "file_type": "code",
+      "source_file": "hooks/useDiary.ts",
+      "source_location": "L1",
+      "community": 5
+    },
+    {
+      "id": "hooks_usediary_usediary",
+      "label": "useDiary()",
+      "file_type": "code",
+      "source_file": "hooks/useDiary.ts",
+      "source_location": "L26",
+      "community": 5
+    },
+    {
+      "id": "pages_aboutpage_tsx",
+      "label": "AboutPage.tsx",
+      "file_type": "code",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L1",
+      "community": 62
+    },
+    {
+      "id": "pages_aboutpage_aboutpage",
+      "label": "AboutPage()",
+      "file_type": "code",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L28",
+      "community": 62
+    },
+    {
+      "id": "pages_diarypage_tsx",
+      "label": "DiaryPage.tsx",
+      "file_type": "code",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L1",
+      "community": 5
+    },
+    {
+      "id": "pages_diarypage_diarypage",
+      "label": "DiaryPage()",
+      "file_type": "code",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L37",
+      "community": 5
+    },
+    {
+      "id": "pages_businesslogicpage_tsx",
+      "label": "BusinessLogicPage.tsx",
+      "file_type": "code",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L1",
+      "community": 18
+    },
+    {
+      "id": "pages_businesslogicpage_handlepasswordsubmit",
+      "label": "handlePasswordSubmit()",
+      "file_type": "code",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L56",
+      "community": 18
+    },
+    {
+      "id": "pages_businesslogicpage_handleretry",
+      "label": "handleRetry()",
+      "file_type": "code",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L83",
+      "community": 18
+    },
+    {
+      "id": "pages_homepage_tsx",
+      "label": "HomePage.tsx",
+      "file_type": "code",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L1",
+      "community": 5
+    },
+    {
+      "id": "pages_homepage_homepage",
+      "label": "HomePage()",
+      "file_type": "code",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L10",
+      "community": 5
+    }
+  ],
+  "edges": [
+    {
+      "source": "main_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_errorboundary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_routesuspense",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_hooks_usegapageview",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_scrolltotop",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_disclaimerbanner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_consentbanner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_index_css",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "main_tsx",
+      "target": "src_main_gatracker",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main.tsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_ohlceditor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_topbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_predictbutton",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_matchlist",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_statspanel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_mainchart",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_hooks_useprediction",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_aggregation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_statscomputation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_analytics",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_emptyrows",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_parseexchangetimestamp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_parseofficialcsvfile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_isrowcomplete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_computestatsbyday",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_resetpredictionstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_handleofficialfilesupload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_handlecellchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L342",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_handletimeframechange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L346",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_handletoggle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L367",
+      "weight": 1.0
+    },
+    {
+      "source": "apppage_tsx",
+      "target": "src_apppage_handlepredict",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L375",
+      "weight": 1.0
+    },
+    {
+      "source": "src_apppage_handletimeframechange",
+      "target": "src_apppage_resetpredictionstate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "AppPage.tsx",
+      "source_location": "L349",
+      "weight": 1.0
+    },
+    {
+      "source": "setuptests_ts",
+      "target": "jest_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "setupTests.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "setuptests_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "setupTests.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "setuptests_ts",
+      "target": "src_setuptests_observe",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "setupTests.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "setuptests_ts",
+      "target": "src_setuptests_unobserve",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "setupTests.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "setuptests_ts",
+      "target": "src_setuptests_disconnect",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "setupTests.ts",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "types_diary_ts",
+      "target": "zod",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "types/diary.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_aggregation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_ts",
+      "target": "utils_statscomputation_buildprojectedsuggestion",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_ts",
+      "target": "utils_statscomputation_computestatsfrommatches",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_ts",
+      "target": "utils_statscomputation_snakesuggestiontocamel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L188",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_ts",
+      "target": "utils_statscomputation_snakestatstocamel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_computestatsfrommatches",
+      "target": "utils_statscomputation_buildprojectedsuggestion",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_snakestatstocamel",
+      "target": "utils_statscomputation_snakesuggestiontocamel",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L214",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_ts",
+      "target": "utils_analytics_consentga",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_ts",
+      "target": "utils_analytics_initga",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_ts",
+      "target": "utils_analytics_trackpageview",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_ts",
+      "target": "utils_analytics_trackctaclick",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_ts",
+      "target": "utils_analytics_trackdemostarted",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_ts",
+      "target": "utils_analytics_trackcsvuploaded",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_ts",
+      "target": "utils_analytics_trackmatchrun",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_ts",
+      "target": "utils_analytics_trackresultviewed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_analytics_consentga",
+      "target": "utils_analytics_initga",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/analytics.ts",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_parseutctime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_formatutc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_formatutcdateonly",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_addhours",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_median",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_groupbyutc8day",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_aggregatenumericbarsto1d",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_aggregaterowsto1d",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_aggregatemaseriesto1d",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_aggregatemavaluesto1d",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_matchbarswithtime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_calculatereturnpct",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L148",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_todisplaymatch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_addhourstoutc8",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_computeprojectedfuturebars",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L176",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_ts",
+      "target": "utils_aggregation_aggregateprojectedbarsto1d",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L213",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_formatutcdateonly",
+      "target": "utils_aggregation_formatutc",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_addhours",
+      "target": "utils_aggregation_parseutctime",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_addhours",
+      "target": "utils_aggregation_formatutc",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_aggregatenumericbarsto1d",
+      "target": "utils_aggregation_groupbyutc8day",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_aggregaterowsto1d",
+      "target": "utils_aggregation_aggregatenumericbarsto1d",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_aggregatemaseriesto1d",
+      "target": "utils_aggregation_groupbyutc8day",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_aggregatemavaluesto1d",
+      "target": "utils_aggregation_aggregatemaseriesto1d",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L137",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_todisplaymatch",
+      "target": "utils_aggregation_calculatereturnpct",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L160",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_addhourstoutc8",
+      "target": "utils_aggregation_parseutctime",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L165",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_aggregation_aggregateprojectedbarsto1d",
+      "target": "utils_aggregation_groupbyutc8day",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/aggregation.ts",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_diarysort_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/diarySort.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_diarysort_ts",
+      "target": "utils_diarysort_sortdiary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/diarySort.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_auth_ts",
+      "target": "utils_auth_gettokenexp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/auth.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_auth_ts",
+      "target": "utils_auth_istokenvalid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/auth.ts",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_auth_ts",
+      "target": "utils_auth_isloggedin",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/auth.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_auth_istokenvalid",
+      "target": "utils_auth_gettokenexp",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/auth.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_auth_isloggedin",
+      "target": "utils_auth_istokenvalid",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/auth.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_time_ts",
+      "target": "utils_time_toutc8display",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/time.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_time_ts",
+      "target": "utils_time_fromutc8input",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "utils/time.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "lightweight_charts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "components_mainchart_parselocalizeddatetime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "components_mainchart_totimestamp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "components_mainchart_totime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "components_mainchart_isrowcomplete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "components_mainchart_sortdata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "components_mainchart_formatprice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "components_mainchart_formataxistime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_tsx",
+      "target": "components_mainchart_buildsma",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_totimestamp",
+      "target": "components_mainchart_parselocalizeddatetime",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "components_mainchart_totime",
+      "target": "components_mainchart_totimestamp",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MainChart.tsx",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "components_scrolltotop_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/ScrollToTop.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_scrolltotop_tsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/ScrollToTop.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_scrolltotop_tsx",
+      "target": "components_scrolltotop_scrolltotop",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/ScrollToTop.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "components_unifiednavbar_tsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/UnifiedNavBar.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_unifiednavbar_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/UnifiedNavBar.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_unifiednavbar_tsx",
+      "target": "components_unifiednavbar_navlinkclass",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/UnifiedNavBar.tsx",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "components_topbar_tsx",
+      "target": "components_topbar_topbar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/TopBar.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_ohlceditor_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_ohlceditor_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_ohlceditor_tsx",
+      "target": "components_ohlceditor_isrowcomplete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "components_ohlceditor_tsx",
+      "target": "components_ohlceditor_toinputvalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "components_ohlceditor_tsx",
+      "target": "components_ohlceditor_frominputvalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "components_statspanel_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_statspanel_tsx",
+      "target": "lightweight_charts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_statspanel_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_statspanel_tsx",
+      "target": "components_statspanel_tochartts",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "components_statspanel_tsx",
+      "target": "components_statspanel_buildfooterlabels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "components_statspanel_tsx",
+      "target": "components_statspanel_statsprojectionchart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "components_statspanel_tsx",
+      "target": "components_statspanel_daystatsrow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/StatsPanel.tsx",
+      "source_location": "L139",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "lightweight_charts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_addstep",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_starttime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_serializetimekey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_tosortablevalue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_dedupeandsort",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_formatinterval",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L79",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_disposechart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_toggleopen",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L325",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_expandall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L333",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_tsx",
+      "target": "components_matchlist_collapseall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L337",
+      "weight": 1.0
+    },
+    {
+      "source": "components_predictbutton_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/PredictButton.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_predictbutton_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_common_loadingspinner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/PredictButton.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_predictbutton_tsx",
+      "target": "components_predictbutton_predictbutton",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/PredictButton.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "components_routesuspense_tsx",
+      "target": "components_routesuspense_routesuspense",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/RouteSuspense.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "components_errorboundary_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/ErrorBoundary.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_errorboundary_tsx",
+      "target": "components_errorboundary_errorboundary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/ErrorBoundary.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "components_errorboundary_errorboundary",
+      "target": "components_errorboundary_errorboundary_getderivedstatefromerror",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "components/ErrorBoundary.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "components_errorboundary_errorboundary",
+      "target": "components_errorboundary_errorboundary_render",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "components/ErrorBoundary.tsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_devdiarysection_tsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/DevDiarySection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_devdiarysection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/DevDiarySection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_devdiarysection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_common_loadingspinner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/DevDiarySection.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_devdiarysection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_common_errormessage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/DevDiarySection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_devdiarysection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diaryrail",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/DevDiarySection.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_devdiarysection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diarymarker",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/DevDiarySection.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_projectlogicsection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_content_site_content_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/ProjectLogicSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_projectlogicsection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_content_site_content_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/ProjectLogicSection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_builtbyaibanner_tsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/BuiltByAIBanner.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_builtbyaibanner_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_analytics",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/BuiltByAIBanner.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_builtbyaibanner_tsx",
+      "target": "home_builtbyaibanner_builtbyaibanner",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/BuiltByAIBanner.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "components_home_herosection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_pagehero",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/home/HeroSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_pagehero_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/PageHero.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_footer_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/Footer.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_footer_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_analytics",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/Footer.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_footer_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_icons_githubicon",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/Footer.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_footer_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_icons_linkedinicon",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/Footer.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_footer_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_icons_mailicon",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/Footer.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_footer_tsx",
+      "target": "shared_footer_footer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/Footer.tsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_disclaimerbanner_tsx",
+      "target": "shared_disclaimerbanner_disclaimerbanner",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/DisclaimerBanner.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_footerdisclaimer_tsx",
+      "target": "shared_footerdisclaimer_footerdisclaimer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/FooterDisclaimer.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_consentbanner_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_consentbanner_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_analytics",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_consentbanner_tsx",
+      "target": "shared_consentbanner_readconsentstorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_consentbanner_tsx",
+      "target": "shared_consentbanner_writeconsentstorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "components_shared_consentbanner_tsx",
+      "target": "shared_consentbanner_consentbanner",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/shared/ConsentBanner.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_sectionlabelrow_tsx",
+      "target": "about_sectionlabelrow_sectionlabelrow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/SectionLabelRow.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_archpillarblock_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_primitives_cardshell",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/ArchPillarBlock.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_archpillarblock_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_filenobar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/ArchPillarBlock.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_ticketanatomysection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_ticketanatomycard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/TicketAnatomySection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_ticketanatomysection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_content_ticket_cases_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/TicketAnatomySection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_rolecardssection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_rolecard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/RoleCardsSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_rolecardssection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_roles",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/RoleCardsSection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_metricsstripsection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_metriccard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/MetricsStripSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_metricsstripsection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_content_site_content_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/MetricsStripSection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_pageheadersection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_pagehero",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/PageHeaderSection.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_pageheadersection_tsx",
+      "target": "about_pageheadersection_pageheadersection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/PageHeaderSection.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_projectarchitecturesection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_archpillarblock",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/ProjectArchitectureSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_projectarchitecturesection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_content_site_content_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/ProjectArchitectureSection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_projectarchitecturesection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_content_site_content_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/ProjectArchitectureSection.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_projectarchitecturesection_tsx",
+      "target": "about_projectarchitecturesection_projectarchitecturesection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/ProjectArchitectureSection.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_whereisteppedinsection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_primitives_cardshell",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/WhereISteppedInSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_whereisteppedinsection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_filenobar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/WhereISteppedInSection.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_whereisteppedinsection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_content_site_content_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/WhereISteppedInSection.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_whereisteppedinsection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_content_site_content_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/WhereISteppedInSection.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_rolepipelinesection_tsx",
+      "target": "about_rolepipelinesection_rolepipelinesection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/RolePipelineSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_redactionbar_tsx",
+      "target": "about_redactionbar_redactionbar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/RedactionBar.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_metriccard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_primitives_cardshell",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/MetricCard.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_metriccard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_filenobar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/MetricCard.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_metriccard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_redactionbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/MetricCard.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_rolecard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_primitives_cardshell",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/RoleCard.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_rolecard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_filenobar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/RoleCard.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_rolecard_tsx",
+      "target": "about_rolecard_rolecard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/RoleCard.tsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_ticketanatomycard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_primitives_cardshell",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/TicketAnatomyCard.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_ticketanatomycard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_primitives_externallink",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/TicketAnatomyCard.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_ticketanatomycard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_filenobar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/TicketAnatomyCard.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_ticketanatomycard_tsx",
+      "target": "about_ticketanatomycard_ticketanatomycard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/TicketAnatomyCard.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_reliabilitypillarssection_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_pillarcard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/ReliabilityPillarsSection.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_reliabilitypillarssection_tsx",
+      "target": "about_reliabilitypillarssection_reliabilitypillarssection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/ReliabilityPillarsSection.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_roles_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_content_roles_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/roles.ts",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_pillarcard_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/PillarCard.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_pillarcard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_primitives_cardshell",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/PillarCard.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_pillarcard_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_filenobar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/PillarCard.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_about_pillarcard_tsx",
+      "target": "about_pillarcard_pillarcard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/about/PillarCard.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "components_primitives_externallink_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/primitives/ExternalLink.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_primitives_externallink_tsx",
+      "target": "primitives_externallink_externallink",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/primitives/ExternalLink.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "components_primitives_cardshell_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/primitives/CardShell.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_primitives_cardshell_tsx",
+      "target": "primitives_cardshell_cardshell",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/primitives/CardShell.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "components_common_ctabutton_tsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/common/CtaButton.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_common_ctabutton_tsx",
+      "target": "common_ctabutton_ctabutton",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/common/CtaButton.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "components_common_sectionheader_tsx",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/common/SectionHeader.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_common_sectionheader_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_common_sectionlabel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/common/SectionHeader.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_common_sectionheader_tsx",
+      "target": "common_sectionheader_sectionheader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/common/SectionHeader.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "components_common_loadingspinner_tsx",
+      "target": "common_loadingspinner_loadingspinner",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/common/LoadingSpinner.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_common_sectionlabel_tsx",
+      "target": "common_sectionlabel_sectionlabel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/common/SectionLabel.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "components_icons_mailicon_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_design_brand_assets_mail_svg_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/icons/MailIcon.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_icons_mailicon_tsx",
+      "target": "icons_mailicon_mailicon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/icons/MailIcon.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_icons_linkedinicon_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_design_brand_assets_linkedin_svg_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/icons/LinkedinIcon.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_icons_linkedinicon_tsx",
+      "target": "icons_linkedinicon_linkedinicon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/icons/LinkedinIcon.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_icons_githubicon_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_design_brand_assets_github_svg_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/icons/GithubIcon.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_icons_githubicon_tsx",
+      "target": "icons_githubicon_githubicon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/icons/GithubIcon.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryentryv2_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryEntryV2.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryentryv2_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diarymarker",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryEntryV2.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryentryv2_tsx",
+      "target": "diary_diaryentryv2_diaryentryv2",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryEntryV2.tsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryerror_tsx",
+      "target": "diary_diaryerror_diaryerror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryError.tsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryloading_tsx",
+      "target": "diary_diaryloading_diaryloading",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryLoading.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryhero_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_pagehero",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryHero.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryhero_tsx",
+      "target": "diary_diaryhero_diaryhero",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryHero.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diarytimeline_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryTimeline.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diarytimeline_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diaryrail",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryTimeline.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diarytimeline_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diaryentryv2",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryTimeline.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diarytimeline_tsx",
+      "target": "diary_diarytimeline_diarytimeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryTimeline.tsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryemptystate_tsx",
+      "target": "diary_diaryemptystate_diaryemptystate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryEmptyState.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_infinitescrollsentinel_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/InfiniteScrollSentinel.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_infinitescrollsentinel_tsx",
+      "target": "diary_infinitescrollsentinel_infinitescrollsentinel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/InfiniteScrollSentinel.tsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diarymarker_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_timelineprimitives",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryMarker.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diarymarker_tsx",
+      "target": "diary_diarymarker_diarymarker",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryMarker.tsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryrail_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_timelineprimitives",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryRail.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_diary_diaryrail_tsx",
+      "target": "diary_diaryrail_diaryrail",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/diary/DiaryRail.tsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "components_business_logic_businesslogiccontent_tsx",
+      "target": "react_markdown",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "components/business-logic/BusinessLogicContent.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_business_logic_businesslogiccontent_tsx",
+      "target": "business_logic_businesslogiccontent_businesslogiccontent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/business-logic/BusinessLogicContent.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "components_business_logic_errorbanner_tsx",
+      "target": "business_logic_errorbanner_errorbanner",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/business-logic/ErrorBanner.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_apppage_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_apppage_test_tsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_apppage_test_tsx",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_apppage_test_tsx",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_apppage_test_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_apppage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_apppage_test_tsx",
+      "target": "tests_apppage_test_mockfilereader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_apppage_test_tsx",
+      "target": "tests_apppage_test_uploadofficialcsv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_apppage_test_uploadofficialcsv",
+      "target": "tests_apppage_test_mockfilereader",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/AppPage.test.tsx",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_english_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.english.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_english_test_ts",
+      "target": "node_fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.english.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_english_test_ts",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.english.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_english_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.english.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statscomputation_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statscomputation_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statscomputation_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_statscomputation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statscomputation_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_backend_tests_fixtures_stats_contract_cases_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statscomputation_test_ts",
+      "target": "tests_statscomputation_test_bar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statscomputation_test_ts",
+      "target": "tests_statscomputation_test_matchtocamel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/statsComputation.test.ts",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_usediarypagination_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_usediarypagination_test_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_usediarypagination_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_hooks_usediarypagination",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_usediarypagination_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_usediarypagination_test_ts",
+      "target": "tests_usediarypagination_test_mk",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_usediarypagination_test_ts",
+      "target": "tests_usediarypagination_test_flushmicrotasks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/useDiaryPagination.test.ts",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_validate_env_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/validate-env.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_validate_env_test_ts",
+      "target": "node_child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/validate-env.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_validate_env_test_ts",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/validate-env.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_validate_env_test_ts",
+      "target": "tests_validate_env_test_runvalidateenv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/validate-env.test.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_ohlceditor_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/OHLCEditor.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_ohlceditor_test_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_ohlceditor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/OHLCEditor.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_ohlceditor_test_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/OHLCEditor.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_ohlceditor_test_tsx",
+      "target": "tests_ohlceditor_test_emptyrows",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/OHLCEditor.test.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statspanel_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/StatsPanel.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statspanel_test_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_statspanel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/StatsPanel.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_statspanel_test_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/StatsPanel.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_schema_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.schema.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_schema_test_ts",
+      "target": "node_fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.schema.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_schema_test_ts",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.schema.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_schema_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.schema.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_legacy_merge_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.legacy-merge.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_legacy_merge_test_ts",
+      "target": "node_fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.legacy-merge.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_legacy_merge_test_ts",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.legacy-merge.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diary_legacy_merge_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diary.legacy-merge.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diarysort_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diarySort.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diarysort_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_diarysort",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diarySort.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diarysort_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diarySort.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_diarysort_test_ts",
+      "target": "tests_diarysort_test_mk",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/diarySort.test.ts",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_parseofficialcsvfile_test_ts",
+      "target": "vitest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/parseOfficialCsvFile.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_parseofficialcsvfile_test_ts",
+      "target": "node_fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/parseOfficialCsvFile.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_parseofficialcsvfile_test_ts",
+      "target": "node_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/parseOfficialCsvFile.test.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_parseofficialcsvfile_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_apppage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/parseOfficialCsvFile.test.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_matchlist_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/MatchList.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_matchlist_test_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_matchlist",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/MatchList.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_matchlist_test_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/MatchList.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_matchlist_test_tsx",
+      "target": "tests_matchlist_test_makematch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/MatchList.test.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_predictbutton_test_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/PredictButton.test.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_predictbutton_test_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_predictbutton",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/PredictButton.test.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_aggregation_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_aggregation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/aggregation.test.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_aggregation_test_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "__tests__/aggregation.test.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useasyncstate_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useAsyncState.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useasyncstate_ts",
+      "target": "hooks_useasyncstate_initialstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useAsyncState.ts",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useasyncstate_ts",
+      "target": "hooks_useasyncstate_useasyncstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useAsyncState.ts",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useprediction_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useprediction_ts",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useprediction_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useprediction_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useprediction_ts",
+      "target": "hooks_useprediction_mapgap",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_useprediction_ts",
+      "target": "hooks_useprediction_useprediction",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/usePrediction.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediarypagination_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiaryPagination.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediarypagination_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiaryPagination.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediarypagination_ts",
+      "target": "hooks_usediarypagination_usediarypagination",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiaryPagination.ts",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usegapageview_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useGAPageview.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usegapageview_ts",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useGAPageview.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usegapageview_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_analytics",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useGAPageview.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usegapageview_ts",
+      "target": "hooks_usegapageview_usegapageview",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useGAPageview.ts",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediary_ts",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiary.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediary_ts",
+      "target": "zod",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiary.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediary_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiary.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediary_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_types_diary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiary.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediary_ts",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_diarysort",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiary.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "hooks_usediary_ts",
+      "target": "hooks_usediary_usediary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "hooks/useDiary.ts",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_unifiednavbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_pageheadersection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_metricsstripsection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_whereisteppedinsection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_rolepipelinesection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_rolecardssection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_reliabilitypillarssection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_ticketanatomysection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_projectarchitecturesection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_about_sectionlabelrow",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_footer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_footerdisclaimer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_aboutpage_tsx",
+      "target": "pages_aboutpage_aboutpage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/AboutPage.tsx",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_hooks_usediary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_hooks_usediarypagination",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_unifiednavbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diaryhero",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diarytimeline",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diaryloading",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diaryerror",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_diaryemptystate",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_diary_infinitescrollsentinel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_footer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_footerdisclaimer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_tsx",
+      "target": "pages_diarypage_diarypage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_common_loadingspinner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_business_logic_passwordform",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_business_logic_errorbanner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_business_logic_businesslogiccontent",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_unifiednavbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_footer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_utils_auth",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "pages_businesslogicpage_handlepasswordsubmit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_businesslogicpage_tsx",
+      "target": "pages_businesslogicpage_handleretry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/BusinessLogicPage.tsx",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_hooks_usediary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_home_herosection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_home_projectlogicsection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_home_devdiarysection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_home_builtbyaibanner",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_footer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_shared_footerdisclaimer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "users_yclee_diary_claudecodeproject_k_line_prediction_frontend_src_components_unifiednavbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_tsx",
+      "target": "pages_homepage_homepage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main_gatracker",
+      "target": "hooks_usegapageview_usegapageview",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "main.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "src_apppage_handletimeframechange",
+      "target": "utils_aggregation_aggregaterowsto1d",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "AppPage.tsx",
+      "source_location": "L354",
+      "weight": 1.0
+    },
+    {
+      "source": "src_apppage_handlepredict",
+      "target": "utils_analytics_trackmatchrun",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "AppPage.tsx",
+      "source_location": "L384",
+      "weight": 1.0
+    },
+    {
+      "source": "src_apppage_handlepredict",
+      "target": "utils_analytics_trackresultviewed",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "AppPage.tsx",
+      "source_location": "L385",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_statscomputation_computestatsfrommatches",
+      "target": "utils_aggregation_computeprojectedfuturebars",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "utils/statsComputation.ts",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "components_ohlceditor_toinputvalue",
+      "target": "utils_time_toutc8display",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "components_ohlceditor_frominputvalue",
+      "target": "utils_time_fromutc8input",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "components/OHLCEditor.tsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "components_matchlist_formatinterval",
+      "target": "utils_time_toutc8display",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "components/MatchList.tsx",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_diarypage",
+      "target": "hooks_usediary_usediary",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_diarypage_diarypage",
+      "target": "hooks_usediarypagination_usediarypagination",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "pages/DiaryPage.tsx",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "pages_homepage_homepage",
+      "target": "hooks_usediary_usediary",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "pages/HomePage.tsx",
+      "source_location": "L11",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "meta": {
+    "source": "graphify",
+    "path": "frontend/src"
+  },
+  "communities": {
+    "0": [
+      "components_matchlist_addstep",
+      "components_matchlist_collapseall",
+      "components_matchlist_dedupeandsort",
+      "components_matchlist_disposechart",
+      "components_matchlist_expandall",
+      "components_matchlist_formatinterval",
+      "components_matchlist_serializetimekey",
+      "components_matchlist_starttime",
+      "components_matchlist_toggleopen",
+      "components_matchlist_tosortablevalue",
+      "components_matchlist_tsx",
+      "components_ohlceditor_frominputvalue",
+      "components_ohlceditor_isrowcomplete",
+      "components_ohlceditor_toinputvalue",
+      "components_ohlceditor_tsx",
+      "utils_time_fromutc8input",
+      "utils_time_toutc8display",
+      "utils_time_ts"
+    ],
+    "1": [
+      "utils_aggregation_addhours",
+      "utils_aggregation_addhourstoutc8",
+      "utils_aggregation_aggregatemaseriesto1d",
+      "utils_aggregation_aggregatemavaluesto1d",
+      "utils_aggregation_aggregatenumericbarsto1d",
+      "utils_aggregation_aggregateprojectedbarsto1d",
+      "utils_aggregation_aggregaterowsto1d",
+      "utils_aggregation_calculatereturnpct",
+      "utils_aggregation_formatutc",
+      "utils_aggregation_formatutcdateonly",
+      "utils_aggregation_groupbyutc8day",
+      "utils_aggregation_matchbarswithtime",
+      "utils_aggregation_median",
+      "utils_aggregation_parseutctime",
+      "utils_aggregation_todisplaymatch",
+      "utils_aggregation_ts"
+    ],
+    "2": [
+      "apppage_tsx",
+      "src_apppage_computestatsbyday",
+      "src_apppage_emptyrows",
+      "src_apppage_handlecellchange",
+      "src_apppage_handleofficialfilesupload",
+      "src_apppage_handletimeframechange",
+      "src_apppage_handletoggle",
+      "src_apppage_isrowcomplete",
+      "src_apppage_parseexchangetimestamp",
+      "src_apppage_parseofficialcsvfile",
+      "src_apppage_resetpredictionstate"
+    ],
+    "3": [
+      "src_apppage_handlepredict",
+      "utils_analytics_consentga",
+      "utils_analytics_initga",
+      "utils_analytics_trackcsvuploaded",
+      "utils_analytics_trackctaclick",
+      "utils_analytics_trackdemostarted",
+      "utils_analytics_trackmatchrun",
+      "utils_analytics_trackpageview",
+      "utils_analytics_trackresultviewed",
+      "utils_analytics_ts"
+    ],
+    "4": [
+      "components_mainchart_buildsma",
+      "components_mainchart_formataxistime",
+      "components_mainchart_formatprice",
+      "components_mainchart_isrowcomplete",
+      "components_mainchart_parselocalizeddatetime",
+      "components_mainchart_sortdata",
+      "components_mainchart_totime",
+      "components_mainchart_totimestamp",
+      "components_mainchart_tsx"
+    ],
+    "5": [
+      "hooks_usediary_ts",
+      "hooks_usediary_usediary",
+      "hooks_usediarypagination_ts",
+      "hooks_usediarypagination_usediarypagination",
+      "pages_diarypage_diarypage",
+      "pages_diarypage_tsx",
+      "pages_homepage_homepage",
+      "pages_homepage_tsx"
+    ],
+    "6": [
+      "utils_aggregation_computeprojectedfuturebars",
+      "utils_statscomputation_buildprojectedsuggestion",
+      "utils_statscomputation_computestatsfrommatches",
+      "utils_statscomputation_snakestatstocamel",
+      "utils_statscomputation_snakesuggestiontocamel",
+      "utils_statscomputation_ts"
+    ],
+    "7": [
+      "components_statspanel_buildfooterlabels",
+      "components_statspanel_daystatsrow",
+      "components_statspanel_statsprojectionchart",
+      "components_statspanel_tochartts",
+      "components_statspanel_tsx"
+    ],
+    "8": [
+      "hooks_usegapageview_ts",
+      "hooks_usegapageview_usegapageview",
+      "main_tsx",
+      "src_main_gatracker"
+    ],
+    "9": [
+      "setuptests_ts",
+      "src_setuptests_disconnect",
+      "src_setuptests_observe",
+      "src_setuptests_unobserve"
+    ],
+    "10": [
+      "utils_auth_gettokenexp",
+      "utils_auth_isloggedin",
+      "utils_auth_istokenvalid",
+      "utils_auth_ts"
+    ],
+    "11": [
+      "components_errorboundary_errorboundary",
+      "components_errorboundary_errorboundary_getderivedstatefromerror",
+      "components_errorboundary_errorboundary_render",
+      "components_errorboundary_tsx"
+    ],
+    "12": [
+      "components_shared_consentbanner_tsx",
+      "shared_consentbanner_consentbanner",
+      "shared_consentbanner_readconsentstorage",
+      "shared_consentbanner_writeconsentstorage"
+    ],
+    "13": [
+      "tests_apppage_test_mockfilereader",
+      "tests_apppage_test_tsx",
+      "tests_apppage_test_uploadofficialcsv"
+    ],
+    "14": [
+      "tests_statscomputation_test_bar",
+      "tests_statscomputation_test_matchtocamel",
+      "tests_statscomputation_test_ts"
+    ],
+    "15": [
+      "tests_usediarypagination_test_flushmicrotasks",
+      "tests_usediarypagination_test_mk",
+      "tests_usediarypagination_test_ts"
+    ],
+    "16": [
+      "hooks_useasyncstate_initialstate",
+      "hooks_useasyncstate_ts",
+      "hooks_useasyncstate_useasyncstate"
+    ],
+    "17": [
+      "hooks_useprediction_mapgap",
+      "hooks_useprediction_ts",
+      "hooks_useprediction_useprediction"
+    ],
+    "18": [
+      "pages_businesslogicpage_handlepasswordsubmit",
+      "pages_businesslogicpage_handleretry",
+      "pages_businesslogicpage_tsx"
+    ],
+    "19": [
+      "utils_diarysort_sortdiary",
+      "utils_diarysort_ts"
+    ],
+    "20": [
+      "components_scrolltotop_scrolltotop",
+      "components_scrolltotop_tsx"
+    ],
+    "21": [
+      "components_unifiednavbar_navlinkclass",
+      "components_unifiednavbar_tsx"
+    ],
+    "22": [
+      "components_topbar_topbar",
+      "components_topbar_tsx"
+    ],
+    "23": [
+      "components_predictbutton_predictbutton",
+      "components_predictbutton_tsx"
+    ],
+    "24": [
+      "components_routesuspense_routesuspense",
+      "components_routesuspense_tsx"
+    ],
+    "25": [
+      "components_home_builtbyaibanner_tsx",
+      "home_builtbyaibanner_builtbyaibanner"
+    ],
+    "26": [
+      "components_shared_footer_tsx",
+      "shared_footer_footer"
+    ],
+    "27": [
+      "components_shared_disclaimerbanner_tsx",
+      "shared_disclaimerbanner_disclaimerbanner"
+    ],
+    "28": [
+      "components_shared_footerdisclaimer_tsx",
+      "shared_footerdisclaimer_footerdisclaimer"
+    ],
+    "29": [
+      "about_sectionlabelrow_sectionlabelrow",
+      "components_about_sectionlabelrow_tsx"
+    ],
+    "30": [
+      "about_pageheadersection_pageheadersection",
+      "components_about_pageheadersection_tsx"
+    ],
+    "31": [
+      "about_projectarchitecturesection_projectarchitecturesection",
+      "components_about_projectarchitecturesection_tsx"
+    ],
+    "32": [
+      "about_rolepipelinesection_rolepipelinesection",
+      "components_about_rolepipelinesection_tsx"
+    ],
+    "33": [
+      "about_redactionbar_redactionbar",
+      "components_about_redactionbar_tsx"
+    ],
+    "34": [
+      "about_rolecard_rolecard",
+      "components_about_rolecard_tsx"
+    ],
+    "35": [
+      "about_ticketanatomycard_ticketanatomycard",
+      "components_about_ticketanatomycard_tsx"
+    ],
+    "36": [
+      "about_reliabilitypillarssection_reliabilitypillarssection",
+      "components_about_reliabilitypillarssection_tsx"
+    ],
+    "37": [
+      "about_pillarcard_pillarcard",
+      "components_about_pillarcard_tsx"
+    ],
+    "38": [
+      "components_primitives_externallink_tsx",
+      "primitives_externallink_externallink"
+    ],
+    "39": [
+      "components_primitives_cardshell_tsx",
+      "primitives_cardshell_cardshell"
+    ],
+    "40": [
+      "common_ctabutton_ctabutton",
+      "components_common_ctabutton_tsx"
+    ],
+    "41": [
+      "common_sectionheader_sectionheader",
+      "components_common_sectionheader_tsx"
+    ],
+    "42": [
+      "common_loadingspinner_loadingspinner",
+      "components_common_loadingspinner_tsx"
+    ],
+    "43": [
+      "common_sectionlabel_sectionlabel",
+      "components_common_sectionlabel_tsx"
+    ],
+    "44": [
+      "components_icons_mailicon_tsx",
+      "icons_mailicon_mailicon"
+    ],
+    "45": [
+      "components_icons_linkedinicon_tsx",
+      "icons_linkedinicon_linkedinicon"
+    ],
+    "46": [
+      "components_icons_githubicon_tsx",
+      "icons_githubicon_githubicon"
+    ],
+    "47": [
+      "components_diary_diaryentryv2_tsx",
+      "diary_diaryentryv2_diaryentryv2"
+    ],
+    "48": [
+      "components_diary_diaryerror_tsx",
+      "diary_diaryerror_diaryerror"
+    ],
+    "49": [
+      "components_diary_diaryloading_tsx",
+      "diary_diaryloading_diaryloading"
+    ],
+    "50": [
+      "components_diary_diaryhero_tsx",
+      "diary_diaryhero_diaryhero"
+    ],
+    "51": [
+      "components_diary_diarytimeline_tsx",
+      "diary_diarytimeline_diarytimeline"
+    ],
+    "52": [
+      "components_diary_diaryemptystate_tsx",
+      "diary_diaryemptystate_diaryemptystate"
+    ],
+    "53": [
+      "components_diary_infinitescrollsentinel_tsx",
+      "diary_infinitescrollsentinel_infinitescrollsentinel"
+    ],
+    "54": [
+      "components_diary_diarymarker_tsx",
+      "diary_diarymarker_diarymarker"
+    ],
+    "55": [
+      "components_diary_diaryrail_tsx",
+      "diary_diaryrail_diaryrail"
+    ],
+    "56": [
+      "business_logic_businesslogiccontent_businesslogiccontent",
+      "components_business_logic_businesslogiccontent_tsx"
+    ],
+    "57": [
+      "business_logic_errorbanner_errorbanner",
+      "components_business_logic_errorbanner_tsx"
+    ],
+    "58": [
+      "tests_validate_env_test_runvalidateenv",
+      "tests_validate_env_test_ts"
+    ],
+    "59": [
+      "tests_ohlceditor_test_emptyrows",
+      "tests_ohlceditor_test_tsx"
+    ],
+    "60": [
+      "tests_diarysort_test_mk",
+      "tests_diarysort_test_ts"
+    ],
+    "61": [
+      "tests_matchlist_test_makematch",
+      "tests_matchlist_test_tsx"
+    ],
+    "62": [
+      "pages_aboutpage_aboutpage",
+      "pages_aboutpage_tsx"
+    ],
+    "63": [
+      "types_ts"
+    ],
+    "64": [
+      "vite_env_d_ts"
+    ],
+    "65": [
+      "types_diary_ts"
+    ],
+    "66": [
+      "content_site_content_types_ts"
+    ],
+    "67": [
+      "utils_api_ts"
+    ],
+    "68": [
+      "components_home_devdiarysection_tsx"
+    ],
+    "69": [
+      "components_home_projectlogicsection_tsx"
+    ],
+    "70": [
+      "components_home_herosection_tsx"
+    ],
+    "71": [
+      "components_shared_pagehero_tsx"
+    ],
+    "72": [
+      "components_about_archpillarblock_tsx"
+    ],
+    "73": [
+      "components_about_filenobar_tsx"
+    ],
+    "74": [
+      "components_about_ticketanatomysection_tsx"
+    ],
+    "75": [
+      "components_about_rolecardssection_tsx"
+    ],
+    "76": [
+      "components_about_metricsstripsection_tsx"
+    ],
+    "77": [
+      "components_about_whereisteppedinsection_tsx"
+    ],
+    "78": [
+      "components_about_metriccard_tsx"
+    ],
+    "79": [
+      "components_about_roles_ts"
+    ],
+    "80": [
+      "components_common_errormessage_tsx"
+    ],
+    "81": [
+      "components_diary_timelineprimitives_ts"
+    ],
+    "82": [
+      "tests_diary_english_test_ts"
+    ],
+    "83": [
+      "tests_statspanel_test_tsx"
+    ],
+    "84": [
+      "tests_diary_schema_test_ts"
+    ],
+    "85": [
+      "tests_diary_legacy_merge_test_ts"
+    ],
+    "86": [
+      "tests_parseofficialcsvfile_test_ts"
+    ],
+    "87": [
+      "tests_predictbutton_test_tsx"
+    ],
+    "88": [
+      "tests_aggregation_test_ts"
+    ]
+  }
+}
