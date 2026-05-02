@@ -100,7 +100,7 @@ K-078 (param loader) + K-080 (daily predict + storage) deliver the plumbing and 
 - Given: the optimizer loop completes (either full 50 iterations or early-exit)
 - When: the winner candidate is selected (max objective over all evaluated candidates)
 - Then: the script writes `predictor_params/active` Firestore document with fields matching `FIRESTORE_PREDICTOR_PARAMS_FIELDS` frozenset (from K-078: `window_days`, `pearson_threshold`, `top_k`, `optimized_at`)
-- And: the script writes `predictor_params/history/{run_id}` document where `run_id` is a deterministic string `"optimize-{YYYY-MM-DD}"` (ISO8601 date of the run)
+- And: the script writes `predictor_params/history/runs/{run_id}` document where `run_id` is a deterministic string `"optimize-{YYYY-MM-DD}"` (ISO8601 date of the run); `predictor_params/history` is a parent doc whose `runs` sub-collection holds per-run history docs (Firestore requires collection/doc path alternation, so the bare `predictor_params/history/{run_id}` from the epic spec resolves to this canonical sub-collection form)
 - And: the script writes `optimize_runs/{run_id}` document with fields matching `FIRESTORE_OPTIMIZE_RUN_FIELDS` frozenset (to be exported from `backend/firestore_config.py` by this ticket); the doc contains at minimum: `run_id` (str), `best_score` (float), `best_params` (dict with `window_days`, `pearson_threshold`, `top_k`), `iterations_run` (int), `early_exit` (bool), `data_window_days` (int, 90), `sample_size` (int), `started_at` (ISO8601 str), `completed_at` (ISO8601 str)
 - And: all three writes are attempted sequentially; if any write fails after one retry (5s wait), the script logs the failure and exits non-zero — no partial-success silent continue
 
