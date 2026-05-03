@@ -14,6 +14,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-03 — K-084
+
+**What went well:** 132 passed / 3 known-reds identity-matched on first run; all 11 ACs confirmed via code-read and targeted test grep; no regressions introduced.
+**What went wrong:** N/A — no sign-off blockers found.
+**Next time improvement:** N/A
+**Slowest step:** Full pytest suite (~130s) — CSV-based integration tests dominate; no mitigation needed.
+
 ## 2026-05-02 — K-083
 
 **What went well:** All 10 K-083 pytest cases green on first run; sacred floor 4/4; full suite 3 failures identity-matched known-reds (strptime mismatch on test_history_db_contiguity.py); optimizer.py reader fields match daily_predict.py writer fields exactly.
