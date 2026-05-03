@@ -73,16 +73,15 @@ export function HistoryRangePicker({ onLoad }: Props) {
   const canLoad = !loading && !!start && !!end && start <= end
 
   return (
-    <div className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
-      <div className="text-xs uppercase tracking-wider text-gray-400">從資料庫載入</div>
+    <div className="flex flex-col gap-2">
       <div className="text-xs text-gray-500">
         {rangeInfo
-          ? `可選範圍：${rangeInfo.earliest} — ${rangeInfo.latest} UTC+0（${rangeInfo.count.toLocaleString()} 筆）`
-          : '載入中…'}
+          ? `Available: ${rangeInfo.earliest} — ${rangeInfo.latest} UTC+0 (${rangeInfo.count.toLocaleString()} bars)`
+          : 'Loading…'}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-gray-400">開始時間 (UTC+0)</label>
+        <label className="text-xs text-gray-400">Start (UTC+0)</label>
         <input
           type="datetime-local"
           value={start}
@@ -93,7 +92,7 @@ export function HistoryRangePicker({ onLoad }: Props) {
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-gray-400">結束時間 (UTC+0)</label>
+        <label className="text-xs text-gray-400">End (UTC+0)</label>
         <input
           type="datetime-local"
           value={end}
@@ -105,7 +104,7 @@ export function HistoryRangePicker({ onLoad }: Props) {
       </div>
 
       {barCount !== null && !error && (
-        <div className="text-xs text-green-400">已載入 {barCount} 根 K 線</div>
+        <div className="text-xs text-green-400">{barCount} bars loaded</div>
       )}
       {error && (
         <div className="text-xs text-red-400">{error}</div>
@@ -116,7 +115,7 @@ export function HistoryRangePicker({ onLoad }: Props) {
         disabled={!canLoad}
         className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {loading ? '載入中…' : '載入並分析'}
+        {loading ? 'Loading…' : 'Load & Analyze'}
       </button>
     </div>
   )

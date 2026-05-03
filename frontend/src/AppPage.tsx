@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { OHLCEditor } from './components/OHLCEditor'
 import { HistoryRangePicker } from './components/HistoryRangePicker'
 import { TopBar } from './components/TopBar'
@@ -56,6 +56,8 @@ export default function AppPage() {
     return false
   }, [ws.tempSelection, ws.appliedSelection, ws.appliedData.stats])
 
+  const [inputTab, setInputTab] = useState<'upload' | 'db'>('upload')
+
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gray-950 text-gray-100">
       <TopBar rowCount={oi.ohlcData.filter(isRowComplete).length} />
@@ -64,26 +66,47 @@ export default function AppPage() {
       )}
       <div className="flex flex-1 gap-4 px-4 pb-4 pt-3 min-h-0">
         <div className="w-80 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2 pb-20">
-          <div data-testid="official-input-section" className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
-            <div className="text-xs uppercase tracking-wider text-gray-400">Official Input</div>
-            <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300">
-              <div className="text-gray-500">Source file</div>
-              <div className="mt-1 break-all font-mono text-[11px]">{oi.sourcePath || 'No file uploaded yet.'}</div>
+          <div data-testid="official-input-section" className="rounded border border-gray-700 bg-gray-900/70 flex flex-col">
+            <div className="flex border-b border-gray-700">
+              {(['upload', 'db'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setInputTab(tab)}
+                  className={`px-3 py-2 text-xs font-medium transition-colors ${
+                    inputTab === tab
+                      ? 'text-orange-400 border-b-2 border-orange-400 -mb-px'
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  {tab === 'upload' ? 'Upload CSV' : 'Load from DB'}
+                </button>
+              ))}
             </div>
-            <label className="flex cursor-pointer items-center justify-center rounded border border-dashed border-gray-600 px-3 py-4 text-center text-xs text-gray-300 transition-colors hover:border-orange-400 hover:text-white">
-              Upload 1H CSV (multi-select)
-              <input type="file" accept=".csv,text/csv" multiple className="hidden" onChange={e => { const f = e.target.files; if (f && f.length > 0) oi.handleOfficialFilesUpload(f); e.currentTarget.value = '' }} />
-            </label>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div data-testid="official-input-expected-format" className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
-                <div className="text-gray-500">Expected format</div>
-                <div className="mt-1 text-gray-200">Merged multi-file · 24 x 1H bars per file · UTC+0</div>
-                <a href="/examples/ETHUSDT_1h_test.csv" download="ETHUSDT_1h_test.csv" className="mt-1 inline-block text-xs text-gray-400 hover:text-blue-400">Don't have a CSV? Download example →</a>
-              </div>
-              <div className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
-                <div className="text-gray-500">Displayed timezone</div>
-                <div className="mt-1 text-gray-200">UTC+8</div>
-              </div>
+            <div className="p-3 flex flex-col gap-2">
+              {inputTab === 'upload' && (
+                <>
+                  <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300">
+                    <div className="text-gray-500">Source file</div>
+                    <div className="mt-1 break-all font-mono text-[11px]">{oi.sourcePath || 'No file uploaded yet.'}</div>
+                  </div>
+                  <label className="flex cursor-pointer items-center justify-center rounded border border-dashed border-gray-600 px-3 py-4 text-center text-xs text-gray-300 transition-colors hover:border-orange-400 hover:text-white">
+                    Upload 1H CSV (multi-select)
+                    <input type="file" accept=".csv,text/csv" multiple className="hidden" onChange={e => { const f = e.target.files; if (f && f.length > 0) oi.handleOfficialFilesUpload(f); e.currentTarget.value = '' }} />
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div data-testid="official-input-expected-format" className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
+                      <div className="text-gray-500">Expected format</div>
+                      <div className="mt-1 text-gray-200">Merged multi-file · 24 x 1H bars per file · UTC+0</div>
+                      <a href="/examples/ETHUSDT_1h_test.csv" download="ETHUSDT_1h_test.csv" className="mt-1 inline-block text-xs text-gray-400 hover:text-blue-400">Don't have a CSV? Download example →</a>
+                    </div>
+                    <div className="rounded border border-gray-700 bg-gray-950/70 px-2 py-2">
+                      <div className="text-gray-500">Displayed timezone</div>
+                      <div className="mt-1 text-gray-200">UTC+8</div>
+                    </div>
+                  </div>
+                </>
+              )}
+              {inputTab === 'db' && <HistoryRangePicker onLoad={oi.loadFromHistory} />}
             </div>
           </div>
           <div data-testid="history-reference-section" className="rounded border border-gray-700 bg-gray-900/70 p-3 flex flex-col gap-2">
@@ -106,7 +129,6 @@ export default function AppPage() {
               <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">Loading...</div>
             )}
           </div>
-          <HistoryRangePicker onLoad={oi.loadFromHistory} />
           <OHLCEditor rows={oi.ohlcData} timeframe={'1H'} onChange={oi.handleCellChange} />
           <div className="h-[360px]">
             <MainChart key={oi.viewTimeframe} userOhlc={oi.apiRows} timeframe={oi.viewTimeframe} ma99Values={oi.queryMa99} ma99Gap={oi.queryMa99Gap} maLoading={oi.maLoading} onTimeframeChange={oi.handleTimeframeChange} />
