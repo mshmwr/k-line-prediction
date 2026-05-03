@@ -9,6 +9,7 @@ Dependency graph (unidirectional):
     weekly_optimize.py → optimizer.py → predictor.py (find_top_matches, compute_stats)
 """
 import hashlib
+import random
 from contextlib import contextmanager
 from datetime import datetime
 from typing import List, Optional
@@ -79,12 +80,14 @@ def evaluate_corpus(
             if query_bars is None:
                 continue  # timestamp not found in CSV — skip pair silently
 
+            hour_start = random.randint(0, 17)   # AC-084-OPTIMIZER-RANDOM: per-pair independent sample
             try:
                 matches = _pred_mod.find_top_matches(
                     input_bars=query_bars,
                     history=history_1h,
                     ma_history=history_1h,  # 1H used as ma_history; 1D overlay optional
                     history_1d=history_1d,
+                    hour_start=hour_start,  # K-084
                 )
                 stats = _pred_mod.compute_stats(matches, current_close=query_bars[-1].close)
             except (ValueError, Exception):

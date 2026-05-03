@@ -13,6 +13,7 @@ Exits 0 on graceful skip (stale CSV). Exits non-zero on unretriable Firestore fa
 import logging
 import math
 import os
+import random
 import statistics
 import sys
 from datetime import date, datetime, timedelta
@@ -87,6 +88,36 @@ def build_query_window(df: pd.DataFrame, anchor_ts: datetime) -> pd.DataFrame:
     return subset.reset_index(drop=True)
 
 
+def build_6h_query_window(df: pd.DataFrame, hour_start: int) -> pd.DataFrame:
+    """Return exactly 6 × 1H bars whose window starts at hour_start.
+
+    Finds the most recent bar in df where the hour == hour_start (anchor),
+    then takes df.iloc[anchor_idx - 5 : anchor_idx + 1] — a 6-bar slice
+    ending at the anchor.
+
+    Raises ValueError if no bar with hour_start exists, or if fewer than 6
+    bars are available before (and including) the anchor.
+
+    K-084: replaces build_query_window for daily prediction runs.
+    build_query_window (24-bar) is NOT modified — optimizer replay depends on it.
+    """
+    filtered = df[df["time"].str[11:13].astype(int) == hour_start]
+    if filtered.empty:
+        raise ValueError(
+            f"No bars found at hour_start={hour_start} in CSV. "
+            "CSV may be stale or missing that time slot."
+        )
+    anchor_idx = filtered.index[-1]
+    # Locate positional index in df (not label-based) for clean iloc slice
+    pos_idx = df.index.get_loc(anchor_idx)
+    result = df.iloc[max(0, pos_idx - 5) : pos_idx + 1]
+    if len(result) < 6:
+        raise ValueError(
+            f"Fewer than 6 bars available at hour_start={hour_start}; found {len(result)}."
+        )
+    return result.reset_index(drop=True)
+
+
 # ---------------------------------------------------------------------------
 # Prediction
 # ---------------------------------------------------------------------------
@@ -95,10 +126,12 @@ def run_prediction(
     query_df: pd.DataFrame,
     params: ParamSnapshot,
     full_df: pd.DataFrame,
+    hour_start: int,        # K-084: sampled window start hour; written to Firestore prediction doc
 ) -> dict:
     """Convert query_df to List[OHLCBar], call find_top_matches + compute_stats.
 
     full_df provides full 1H history as context (history + ma_history args).
+    hour_start: passed to find_top_matches as the intraday slot filter.
     Returns assembled prediction dict matching FIRESTORE_PREDICTION_FIELDS shape.
     Zero-match case: catches ValueError, returns prediction with top_k_count=0 and null prices.
     """
@@ -136,6 +169,7 @@ def run_prediction(
             history=full_bars_list,
             ma_history=full_bars_list,  # 1H history used as ma_history (1D resampling inside predictor)
             history_1d=None,            # 1D path optional; skips 1D MA overlay without error
+            hour_start=hour_start,      # K-084: intraday slot filter
         )
         stats = compute_stats(matches, current_close)
 
@@ -168,6 +202,7 @@ def run_prediction(
             "trend": trend,
             "query_ts": anchor_ts_str,
             "created_at": created_at,
+            "hour_start": hour_start,   # K-084
         }
 
     except ValueError as exc:
@@ -182,6 +217,7 @@ def run_prediction(
             "trend": "unknown",
             "query_ts": anchor_ts_str,
             "created_at": created_at,
+            "hour_start": hour_start,   # K-084
         }
 
 
@@ -428,20 +464,26 @@ def main() -> None:
     df = load_csv_history_as_df(csv_path)
     logger.info("loaded %d bars from %s", len(df), csv_path)
 
-    # Anchor: yesterday's 23:00 UTC
+    # Anchor: yesterday's 23:00 UTC (used for ts label and fallback)
     now_utc = datetime.utcnow()
     anchor_ts = (now_utc - timedelta(days=1)).replace(hour=23, minute=0, second=0, microsecond=0)
     logger.info("anchor_ts: %s", anchor_ts.strftime("%Y-%m-%d %H:%M"))
 
-    # Build 24-bar query window
+    # K-084: sample a random 6H window start hour [0, 17] and build 6-bar query
+    hour_start = random.randint(0, 17)   # AC-084-HOUR-PICK
+    logger.info("hour_start: %d", hour_start)
+
     try:
-        query_df = build_query_window(df, anchor_ts)
+        query_df = build_6h_query_window(df, hour_start)
     except ValueError as exc:
-        logger.error("build_query_window failed: %s", exc)
-        sys.exit(1)
+        logger.warning(
+            "build_6h_query_window failed for hour_start=%d (range %d:00–%d:00): %s",
+            hour_start, hour_start, hour_start + 5, exc,
+        )
+        sys.exit(0)  # graceful skip — same contract as stale CSV
 
     # Run prediction
-    prediction = run_prediction(query_df, params, df)
+    prediction = run_prediction(query_df, params, df, hour_start)
     ts = anchor_ts.strftime("%Y-%m-%d-%H")
     logger.info(
         "prediction ts=%s top_k_count=%d trend=%s",

@@ -45,6 +45,7 @@ FIRESTORE_PREDICTION_FIELDS: frozenset = frozenset({
     "trend",              # str  — "up" | "down" | "flat" | "unknown" (0-match case)
     "query_ts",           # str  — ISO8601 UTC datetime of the anchor bar
     "created_at",         # str  — ISO8601 UTC datetime when this doc was written
+    "hour_start",         # int  — K-084: 0–17, the randomly sampled 6H window start hour
 })
 
 FIRESTORE_ACTUAL_FIELDS: frozenset = frozenset({

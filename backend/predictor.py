@@ -42,6 +42,24 @@ def _bar_time(bar) -> str:
         return str(bar.get('date') or bar.get('time') or '')
     return str(getattr(bar, 'time', '') or '')
 
+def _get_bar_hour(bar) -> int:
+    """Extract integer hour (0–23) from a bar's time field.
+
+    Accepts bar dict (key 'date' or 'time') or OHLCBar object.
+    Time string format: 'YYYY-MM-DD HH:MM' or 'YYYY-MM-DD HH:MM:SS'.
+    Raises ValueError for empty/missing time or unrecognised format.
+    """
+    raw = _bar_time(bar)
+    if not raw:
+        raise ValueError("bar has no time field")
+    try:
+        hour = int(raw[11:13])
+    except (ValueError, IndexError):
+        raise ValueError(f"unrecognised time format: {raw!r}")
+    if not (0 <= hour <= 23):
+        raise ValueError(f"unrecognised time format: {raw!r}")
+    return hour
+
 def _safe_pct(numerator: float, denominator: float) -> float:
     if denominator == 0:
         return 0.0
@@ -323,6 +341,7 @@ def find_top_matches(
     timeframe: str = '1H',
     ma_history=None,
     history_1d=None,
+    hour_start: Optional[int] = None,   # K-084: intraday 6H window filter; None = pre-K-084 behavior
 ) -> List[MatchCase]:
     if history is None:
         history = MOCK_HISTORY
@@ -344,6 +363,9 @@ def find_top_matches(
     results = []
     for i in range(0, len(history) - n - future_n):
         window = history[i:i + n]
+        # K-084: skip positions where the window start hour != hour_start (when set)
+        if hour_start is not None and _get_bar_hour(history[i]) != hour_start:
+            continue
         candidate_end_time = _normalize_time(_bar_time(window[-1]), '1D')
         candidate_30d_ma = _fetch_30d_ma_series(candidate_end_time, ma_history, _1d_index)
         if not candidate_30d_ma:
