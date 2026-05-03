@@ -1,5 +1,15 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-03 — K-084
+
+**What went well:** Design §2 signatures were precise; _get_bar_hour string-slice approach (raw[11:13]) cleanly handles both HH:MM and HH:MM:SS formats without regex.
+
+**What went wrong:** Two existing tests (`test_firestore_permanent_failure_exits_nonzero` in test_daily_predict.py, `test_prediction_frozenset_contract` in test_firestore_config.py) were not listed in design §5 File Change List but required updates — the frozenset test hardcoded the old field set, and the main() test mocked `build_query_window` which is no longer called after K-084.
+
+**Next time improvement:** When main() route changes (old function replaced by new function), grep for all tests that mock the OLD function and update them in the same Pass; do not wait for test runner to catch it.
+
+**Slowest step:** Identifying the two unlisted test files that needed updating (test_firestore_config.py + the mock in test_firestore_permanent_failure) — next time, grep for all mocks of replaced functions before committing.
+
 ## 2026-05-02 — K-083 fix-up (W1/W2/O1)
 
 **What went well:** W1 (gcloud auth step) and W2 (Literal type) were 1-line fixes; test 8 passed on first attempt after rewrite.
