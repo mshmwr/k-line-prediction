@@ -1,5 +1,11 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-03 — K-085
+
+**What went well:** Pre-read of `daily_predict.py` before writing revealed `run_prediction()`, `compute_outcome()`, `build_6h_query_window()`, `compute_backtest_summary()` were all importable — script reduced to a thin date-walk loop with a history slice; no new abstraction required.
+**What went wrong:** n/a
+**Next-time improvement:** For scripts that extend existing pipeline logic, always read the existing script's public surface before writing a single line — it almost always has the functions you need.
+
 ## 2026-05-03 — K-084
 
 **What went well:** Design §2 signatures were precise; _get_bar_hour string-slice approach (raw[11:13]) cleanly handles both HH:MM and HH:MM:SS formats without regex.

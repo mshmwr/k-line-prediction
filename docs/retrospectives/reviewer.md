@@ -1,3 +1,9 @@
+## 2026-05-03 — K-085
+
+**What went well:** Three independent correctness properties (lookahead safety, idempotency, write isolation) all held; design doc's function-import strategy mapped cleanly to implementation.
+**What went wrong:** Engineer missed two Important issues — unguarded Firestore write crashing the 365-day loop on any single failure, and summary recompute silently skipping on full re-run — both from not tracing the failure path end-to-end.
+**Next time improvement:** For scripts with a long outer loop, explicitly trace "what happens if a single write fails?" before sign-off; one unguarded exception silently discards all remaining iterations.
+
 ## 2026-05-02 — K-083
 
 **What went well:** All 10 tests pass, predictor.py + main.py byte-equal to origin/main, skopt callback exception propagation verified empirically, hash precision safe at 6dp.
