@@ -35,6 +35,7 @@ interface UseOfficialInputReturn {
   setQueryMa99: (vals: (number | null)[]) => void
   setQueryMa99Gap: (gap: Ma99Gap | null) => void
   handleOfficialFilesUpload: (files: FileList) => void
+  loadFromHistory: (rows: OHLCRow[], label: string) => Promise<void>
   handleCellChange: (rowIdx: number, field: keyof OHLCRow, value: string) => void
   handleTimeframeChange: (nextTimeframe: '1H' | '1D') => Promise<void>
 }
@@ -148,6 +149,26 @@ export function useOfficialInput({
     }).catch(err => setLoadError((err as Error).message))
   }
 
+  async function loadFromHistory(rows: OHLCRow[], label: string) {
+    const nextApiRows = viewTimeframe === '1D' ? aggregateRowsTo1D(rows) : rows
+    setOhlcData(rows)
+    setSourcePath(label)
+    setLoadError(null)
+    resetPredictionState()
+    setQueryMa99([])
+    setQueryMa99Gap(null)
+    setMaLoading(true)
+    try {
+      const ma99Result = await computeMa99(nextApiRows, viewTimeframe)
+      setQueryMa99(viewTimeframe === '1D' ? (ma99Result.queryMa991d ?? []) : (ma99Result.queryMa991h ?? []))
+      setQueryMa99Gap(viewTimeframe === '1D' ? (ma99Result.queryMa99Gap1d ?? null) : (ma99Result.queryMa99Gap1h ?? null))
+    } catch (err) {
+      setLoadError((err as Error).message)
+    } finally {
+      setMaLoading(false)
+    }
+  }
+
   function handleCellChange(rowIdx: number, field: keyof OHLCRow, value: string) {
     setOhlcData(prev => prev.map((row, index) => index === rowIdx ? { ...row, [field]: value } : row))
   }
@@ -187,6 +208,7 @@ export function useOfficialInput({
     setQueryMa99,
     setQueryMa99Gap,
     handleOfficialFilesUpload,
+    loadFromHistory,
     handleCellChange,
     handleTimeframeChange,
   }

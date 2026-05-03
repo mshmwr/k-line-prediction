@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-087",
+    "title": "History range picker — load bars from DB CSV by time range directly into OHLC editor",
+    "date": "2026-05-03",
+    "text": "Added start/end datetime pickers that query the in-memory history CSV and load selected bars straight into the OHLC editor for immediate prediction."
+  },
+  {
     "ticketId": "K-085",
     "title": "Historical backtest init — bootstrap Firestore from CSV so Bayesian optimizer runs on day 0",
     "date": "2026-05-03",
