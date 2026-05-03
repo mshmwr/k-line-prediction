@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-085",
+    "title": "Historical backtest init — bootstrap Firestore from CSV so Bayesian optimizer runs on day 0",
+    "date": "2026-05-03",
+    "text": "Added a one-time script that walks 365 days of historical OHLC data, simulates lookahead-safe predictions, and writes prediction + actual pairs to Firestore — eliminating the 30-day live-prediction wait before the first optimizer run."
+  },
+  {
     "ticketId": "K-083",
     "title": "Weekly Bayesian optimizer — scikit-optimize tunes (window, pearson, top_k) from 90-day Firestore corpus + Cloud Run redeploy",
     "date": "2026-05-02",

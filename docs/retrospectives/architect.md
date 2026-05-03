@@ -18,6 +18,12 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-03 — K-085
+
+**What went well:** Pre-read of `find_top_matches()` and `daily_predict.py` before designing revealed that `history=`, `run_prediction()`, `compute_outcome()`, `build_6h_query_window()` are all already composable — design reduced to a thin loop with a slice, zero predictor changes required.
+**What went wrong:** n/a
+**Next-time improvement:** When designing a new script that wraps existing backend logic, always read the existing script's public function list first — it frequently eliminates the need for new abstraction.
+
 ## 2026-05-03 — K-084
 
 **What went well:** Identified two distinct ValueError catch sites (build_6h_query_window vs find_top_matches) before drafting; this prevented a design that would mis-handle the graceful-exit contract. Read `_build_query_bars_from_prediction` in full before deciding whether to change it — confirmed it must stay at 24 bars for optimizer replay correctness.

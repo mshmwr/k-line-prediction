@@ -14,6 +14,12 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-03 — K-085
+
+**What went well:** Compile gate + 132 backend tests + 20 diary Vitest tests all pass; 1 known-red (AC-024 legacy word count, pre-K-085) confirmed unchanged.
+**What went wrong:** n/a — script-only ticket with no frontend src changes; Playwright not required.
+**Next time improvement:** For one-time scripts with no unit tests, confirm QA sign-off criterion is explicitly stated in ticket ACs (AC-085-COMPILE sufficed here; acceptable for CLI-only bootstrap scripts).
+
 ## 2026-05-03 — K-084
 
 **What went well:** 132 passed / 3 known-reds identity-matched on first run; all 11 ACs confirmed via code-read and targeted test grep; no regressions introduced.
