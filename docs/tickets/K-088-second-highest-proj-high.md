@@ -1,10 +1,10 @@
 ---
 ticket: K-088
 title: Use second_highest as projected_high
-status: open
+status: closed
 phase: 1
 opened: 2026-05-04
-closed-commit: ~
+closed-commit: 1af115f
 depends-on: []
 qa-early-consultation: ✓
 sacred-clauses: []
