@@ -132,6 +132,49 @@ def get_history_info():
     }
 
 
+@app.get("/api/history/range-info")
+def get_history_range_info():
+    """Return earliest/latest timestamps available in the 1H history CSV."""
+    if not _history_1h:
+        raise HTTPException(status_code=404, detail="No 1H history loaded")
+    return {
+        "earliest": _history_1h[0]["date"],
+        "latest": _history_1h[-1]["date"],
+        "count": len(_history_1h),
+    }
+
+
+@app.get("/api/history/bars")
+def get_history_bars(start: str = Query(...), end: str = Query(...)):
+    """Return 1H bars within [start, end] inclusive (UTC+0).
+
+    start/end accept 'YYYY-MM-DDTHH:MM' or 'YYYY-MM-DD HH:MM'.
+    Returns 422 if fewer than 2 bars found.
+    """
+    start_norm = start[:16].replace("T", " ")
+    end_norm = end[:16].replace("T", " ")
+    if start_norm > end_norm:
+        raise HTTPException(status_code=422, detail="start must be before end")
+
+    bars = [
+        {
+            "open": str(b["open"]),
+            "high": str(b["high"]),
+            "low": str(b["low"]),
+            "close": str(b["close"]),
+            "time": str(b["date"]),
+        }
+        for b in _history_1h
+        if start_norm <= str(b["date"])[:16] <= end_norm
+    ]
+    if len(bars) < 2:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Only {len(bars)} bar(s) found in range — select at least 2 hours",
+        )
+    return {"bars": bars, "count": len(bars)}
+
+
 @app.post("/api/upload-history")
 async def upload_history_file(file: UploadFile = File(...)):
     global _history_1h, _history_1d

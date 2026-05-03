@@ -1,5 +1,6 @@
 import { useMemo, useRef } from 'react'
 import { OHLCEditor } from './components/OHLCEditor'
+import { HistoryRangePicker } from './components/HistoryRangePicker'
 import { TopBar } from './components/TopBar'
 import { PredictButton } from './components/PredictButton'
 import { MatchList } from './components/MatchList'
@@ -105,6 +106,7 @@ export default function AppPage() {
               <div className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono">Loading...</div>
             )}
           </div>
+          <HistoryRangePicker onLoad={oi.loadFromHistory} />
           <OHLCEditor rows={oi.ohlcData} timeframe={'1H'} onChange={oi.handleCellChange} />
           <div className="h-[360px]">
             <MainChart key={oi.viewTimeframe} userOhlc={oi.apiRows} timeframe={oi.viewTimeframe} ma99Values={oi.queryMa99} ma99Gap={oi.queryMa99Gap} maLoading={oi.maLoading} onTimeframeChange={oi.handleTimeframeChange} />
