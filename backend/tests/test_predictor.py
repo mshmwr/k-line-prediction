@@ -813,6 +813,16 @@ def test_get_bar_hour_ohlcbar_object():
     assert _get_bar_hour(bar) == 17
 
 
+def test_get_bar_hour_datetime_object_bar():
+    """AC-084-BAR-HOUR-FORMAT: bar dict where 'date' is a native datetime object.
+
+    _bar_time() wraps via str(), yielding '2026-04-07 14:00:00'; slice [11:13] = '14'.
+    """
+    from datetime import datetime as dt
+    bar = {"date": dt(2026, 4, 7, 14, 0, 0)}
+    assert _get_bar_hour(bar) == 14
+
+
 # ──────────────────────────────────────────────
 # K-084: find_top_matches hour filter tests (AC-084-HISTORY-FILTER + AC-084-FALLBACK-NONE)
 # ──────────────────────────────────────────────
