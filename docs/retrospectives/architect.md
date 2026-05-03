@@ -18,6 +18,18 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-03 — K-084
+
+**What went well:** Identified two distinct ValueError catch sites (build_6h_query_window vs find_top_matches) before drafting; this prevented a design that would mis-handle the graceful-exit contract. Read `_build_query_bars_from_prediction` in full before deciding whether to change it — confirmed it must stay at 24 bars for optimizer replay correctness.
+
+**What went wrong:** None this session.
+
+**Next time improvement:** When a ticket adds a parameter to an existing function, immediately list all callers (grep) to confirm None-default backward-compat holds across all call sites — not just the two explicitly mentioned in the ticket scope.
+
+**Slowest step:** Confirming the correct filter insertion point within the `find_top_matches` loop — needed to read the full loop body to confirm `history[i]` vs `window[0]` equivalence and that inserting the filter before existing `continue` guards avoids wasted computation.
+
+---
+
 ## 2026-05-02 — K-083
 
 **What went well:** All required source files read before drafting (firestore_config.py, predictor.py signatures, daily_predict.py patterns, test_daily_predict.py import conventions); `param_override` context manager designed before writing test cases, preventing spec drift between §4 and §10.
