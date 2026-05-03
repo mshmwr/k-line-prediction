@@ -4,6 +4,12 @@ Cross-ticket cumulative reflection log. Each role agent appends one entry before
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
 
+## 2026-05-03 — K-084 close: Intraday 6H window random sampling shipped
+
+**What went well:** QA Early Consultation surfaced two non-obvious risks (sparse-hour zero-match crashing daily_predict; frozenset + writer atomicity) that were codified into ACs before implementation. Code review caught the AC-084-BAR-HOUR-FORMAT datetime coverage gap cleanly — one test added post-review, no AC amendment needed.
+**What went wrong:** Engineer pushed implementation commits directly to origin/main, bypassing the PR flow. Root cause: Engineer prompted without explicit branch/push instructions and defaulted to main. Lesson: always specify `git push origin <branch-name>` explicitly in Engineer handoff prompt, not just "push".
+**Workflow violation logged:** Engineer direct-to-main push will be codified as a feedback rule so future Engineer prompts include the push-to-branch gate explicitly.
+
 ## 2026-05-02 — K-083 close: Weekly Bayesian optimizer shipped — epic backtest-self-tuning complete
 
 **What went well:** Engineer interception protocol surfaced the Firestore path ambiguity (`predictor_params/history/{run_id}` from epic spec is not a valid doc path under Firestore's collection/doc alternation rule) before any data was written; PM ruled `predictor_params/history/runs/{run_id}` as canonical. Depth review caught W-1 (gcloud CLI auth missing — Python ADC ≠ gcloud credential store) which would have made the first real Monday cron fail at redeploy step.

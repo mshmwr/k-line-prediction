@@ -1,8 +1,10 @@
 ---
 id: K-084
 title: Intraday 6H window random sampling for similarity matching
-status: open
+status: closed
 created: 2026-05-03
+closed: 2026-05-03
+closed-commit: 16819bd
 type: feat
 priority: medium
 size: medium
