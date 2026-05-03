@@ -1,5 +1,15 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-03 — K-086 + K-087
+
+**What went well:** Threshold diagnosis was correct first try — 69/72 bar gap traced to missing 00:00 rows (2025-03-12→2026-04-01); 65-bar floor recovered 362/362 days. `pairs_out` collect mode was a minimal 3-line diff. Parallelization with pre-computed query bars reduced 75min optimizer to ~10min.
+
+**What went wrong:** Two issues on the Playwright gate: (1) `npx playwright test ... 2>&1 | tail -30` auto-backgrounded; re-issuing the command immediately launched a second concurrent run — both shared the same dev server port, causing `toHaveCount` failures in the second run. (2) Worktree has no node_modules — tsc had to run via temporary file copy to canonical, leaving canonical dirty mid-session.
+
+**Next-time improvement:** When a Bash command auto-backgrounds, wait for the completion notification before re-issuing — never launch a second Playwright run while the first is in flight. For tsc in worktrees, copy files to canonical once, run tsc, then `git checkout --` canonical before any further edits — don't leave canonical dirty between copy and cleanup.
+
+**Slowest step:** Optimizer runtime discovery — 41-min background run elapsed before the bottleneck (326 pairs × 50 iterations × 0.69s) was diagnosed; estimating N×K×t upfront would have set `--n-calls 20` from the start.
+
 ## 2026-05-03 — K-085
 
 **What went well:** Pre-read of `daily_predict.py` before writing revealed `run_prediction()`, `compute_outcome()`, `build_6h_query_window()`, `compute_backtest_summary()` were all importable — script reduced to a thin date-walk loop with a history slice; no new abstraction required.

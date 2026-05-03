@@ -1,5 +1,15 @@
 # PM Retrospective Log — K-Line Prediction
 
+## 2026-05-03 — K-086 + K-087 close
+
+**What went well:** K-086 full pipeline (collect→optimize) ran to completion on first full run (326 pairs, 20 iterations, 8 workers); best params `window=59, pearson=0.68, top_k=30, score=0.77` printed cleanly. K-087 backend+frontend shipped in one session with 0 tsc errors.
+
+**What went wrong:** Ticket docs for both K-086 and K-087 were not written at ticket-open time — only authored at close. This means any scope drift during implementation was undetectable against AC text.
+
+**Next-time improvement:** Create the ticket `.md` file (with Problem, Goal, §AC stubs) at ticket-open, not at close — even a partial stub is better than nothing; it forces PM to articulate acceptance criteria before implementation begins.
+
+**Slowest step:** Discovering the Firestore write was blocked by missing GCP credentials only after the 10-min optimizer run — diagnosing `DefaultCredentialsError` before running the optimizer would have saved the wait.
+
 Cross-ticket cumulative reflection log. Each role agent appends one entry before declaring task complete, newest first.
 
 Entry brevity rules (hard cap, 2026-04-27): see `ssot/workflow.md §Retrospective Entry Brevity` — ≤30 lines per entry, one sentence per field, no verbatim dumps, codify-and-retire same-commit gate.
