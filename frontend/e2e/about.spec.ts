@@ -109,7 +109,7 @@ test.describe('AC-017-ROLES — Role Cards 6 × 3 assertions', () => {
     await page.goto('/about')
     const article = page.locator('[data-role="PM"]')
     await expect(article.getByText('PM', { exact: true })).toBeVisible()
-    await expect(article.getByText('Requirements, AC, phase gating', { exact: true })).toBeVisible()
+    await expect(article.getByText('Requirements, AC, phase gating')).toBeVisible()
     await expect(article.getByText('PRD + ticket + retrospective', { exact: true })).toBeVisible()
   })
 
@@ -369,12 +369,10 @@ test.describe('AC-017-BANNER — Homepage BuiltByAIBanner', () => {
 // ── AC-058 — "One operator, six AI agents" framing batch ─────────────────────
 
 test.describe('AC-058-ROLE-PIPELINE — Role pipeline SVG section', () => {
-  test('role pipeline section and SVG visible with all 6 role names', async ({ page }) => {
+  test('role pipeline img visible and paragraph contains four-source priority stack', async ({ page }) => {
     await page.goto('/about')
     await expect(page.locator('[data-testid="role-pipeline-svg"]')).toBeVisible()
-    for (const role of ['PM', 'Architect', 'Engineer', 'Reviewer', 'QA', 'Designer']) {
-      await expect(page.locator('[data-section="role-pipeline"]').getByText(role, { exact: true }).first()).toBeVisible()
-    }
+    await expect(page.locator('[data-section="role-pipeline"] p')).toContainText('four-source priority stack')
   })
 })
 

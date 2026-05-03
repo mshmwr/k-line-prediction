@@ -59,7 +59,7 @@ test.describe('AboutPage — AC-ABOUT-1 (K-017)', () => {
 
   test('Role Cards section visible with 6 roles', async ({ page }) => {
     await page.goto('/about')
-    // K-058: role names also appear in RolePipelineSection SVG text nodes; scope to #roles
+    // K-082: RolePipelineSection is now an <img>; role names no longer in pipeline section DOM; scope to #roles
     const roles = page.locator('#roles')
     await expect(roles.getByText('PM', { exact: true })).toBeVisible()
     await expect(roles.getByText('Architect', { exact: true })).toBeVisible()

@@ -381,16 +381,26 @@ test.describe('AC-022-ROLE-GRID-HEIGHT — Role Cards grid height', () => {
     await expect(cards).toHaveCount(6)
   })
 
-  test('6 role card heights differ by ≤ 2px (desktop)', async ({ page }) => {
+  test('cards in same grid row differ by ≤ 2px height (desktop)', async ({ page }) => {
     await page.goto('/about')
     const cards = page.locator('[data-role]')
-    await expect(cards).toHaveCount(6)  // auto-wait + count gate before evaluateAll (K-049 N-1 — symmetric with sibling at line 341 under React.lazy chunk-load race)
-    const heights = await cards.evaluateAll(els =>
-      els.map(el => el.getBoundingClientRect().height)
+    await expect(cards).toHaveCount(6)  // auto-wait + count gate before evaluateAll (K-049 N-1)
+    // K-082: CSS grid stretches cards within a row to equal height; across rows heights
+    // may differ (e.g. PM owns text is longer than other roles). Group by top offset,
+    // then assert within-row height uniformity only.
+    const rects = await cards.evaluateAll(els =>
+      els.map(el => ({ top: Math.round(el.getBoundingClientRect().top), height: el.getBoundingClientRect().height }))
     )
-    const maxH = Math.max(...heights)
-    const minH = Math.min(...heights)
-    expect(maxH - minH).toBeLessThanOrEqual(2)
+    const rows = new Map<number, number[]>()
+    for (const { top, height } of rects) {
+      const key = [...rows.keys()].find(k => Math.abs(k - top) <= 4) ?? top
+      rows.set(key, [...(rows.get(key) ?? []), height])
+    }
+    for (const heights of rows.values()) {
+      const maxH = Math.max(...heights)
+      const minH = Math.min(...heights)
+      expect(maxH - minH).toBeLessThanOrEqual(2)
+    }
   })
 
   for (const width of [375, 390, 414]) {

@@ -2,7 +2,7 @@
   {
     "fileNo": 1,
     "role": "PM",
-    "owns": "Requirements, AC, phase gating",
+    "owns": "Requirements, AC, phase gating; self-arbitrates at 5 named pipeline positions via 4-source priority stack (Pencil → ticket AC → memory rules → codebase); escalates to operator only when all sources are ambiguous",
     "artefact": "PRD + ticket + retrospective"
   },
   {
