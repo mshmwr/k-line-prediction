@@ -20,7 +20,7 @@ This document describes the structured protocols used to build the K-Line Predic
 <!-- ROLES:start -->
 | Role | Owns | Artefact |
 |---|---|---|
-| PM | Requirements, AC, phase gating | PRD + ticket + retrospective |
+| PM | Requirements, AC, phase gating; self-arbitrates at 5 named pipeline positions via 4-source priority stack (Pencil → ticket AC → memory rules → codebase); escalates to operator only when all sources are ambiguous | PRD + ticket + retrospective |
 | Architect | Design, API contract, component tree | Design doc + retrospective |
 | Engineer | Implementation | Code + retrospective |
 | Reviewer | Code review, Bug Found Protocol | Review report + retrospective |

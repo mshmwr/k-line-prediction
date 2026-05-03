@@ -2,7 +2,7 @@
 
 <!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
 <!-- METRICS:start -->
-61+ tickets shipped · 79/79 AC covered · 42 post-mortems · 219 lessons codified
+61+ tickets shipped · 80/80 AC covered · 43 post-mortems · 222 lessons codified
 <!-- METRICS:end -->
 
 <!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
@@ -33,23 +33,14 @@ One human operator redesigned and shipped a 5-page portfolio site using a team o
 
 ## Role pipeline
 
-Automatic handoffs between roles; operator checkpoints are explicit and named (see Content-Alignment Gate below).
+Automatic handoffs between roles. PM self-arbitrates at five positions in the pipeline — before releasing Architect, before releasing Engineer, after Design Challenge Sheet, after Reviewer, and after QA — using a four-source priority stack: Pencil SSOT → ticket AC → memory rules → codebase. The single operator pause point is the Content-Alignment Gate: any ticket with user-visible copy stops at Architect → Engineer until the operator approves the verbatim draft.
 
-```mermaid
-flowchart LR
-    PM[PM] --> Architect[Architect]
-    Architect --> Engineer[Engineer]
-    Engineer --> Reviewer[Reviewer]
-    Reviewer --> QA[QA]
-    QA --> PM
-    PM -.->|on-demand| Designer[Designer]
-    Designer -.-> Architect
-```
+<img src="./frontend/public/pipeline.svg" alt="Role pipeline: PM (arbitrates) → Architect → [Content-Alignment Gate] → Engineer → Reviewer → QA → PM; Designer on-demand" width="100%" />
 
 <!-- ROLES:start -->
 | Role | Owns | Artefact |
 |---|---|---|
-| PM | Requirements, AC, phase gating | PRD + ticket + retrospective |
+| PM | Requirements, AC, phase gating; self-arbitrates at 5 named pipeline positions via 4-source priority stack (Pencil → ticket AC → memory rules → codebase); escalates to operator only when all sources are ambiguous | PRD + ticket + retrospective |
 | Architect | Design, API contract, component tree | Design doc + retrospective |
 | Engineer | Implementation | Code + retrospective |
 | Reviewer | Code review, Bug Found Protocol | Review report + retrospective |

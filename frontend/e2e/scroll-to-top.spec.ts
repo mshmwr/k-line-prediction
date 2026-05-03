@@ -59,20 +59,25 @@ test.describe('K-053 — Scroll-to-top on route change', () => {
     await page.goto('/diary')
     await page.waitForSelector('[data-testid="diary-entry"]')
 
-    // Inject a known anchor target mid-page (programmatic — keeps fixture clean)
+    // Inject a known anchor target at body bottom with a 2000px spacer so the
+    // document is tall enough for scrollY to exceed 700 after anchor navigation.
+    // Original fixture used position:absolute top:800px — document body was only
+    // ~1419px tall, clamping scrollY to 699 (max = bodyHeight - viewportHeight).
+    // Appending a tall spacer extends body to ~3419px, enabling scrollY > 700. (K-082)
     await page.evaluate(() => {
+      const spacer = document.createElement('div')
+      spacer.style.cssText = 'height: 2000px;'
+      document.body.appendChild(spacer)
       const target = document.createElement('div')
       target.id = 'test-hash-target'
-      target.style.cssText = 'height: 1px; position: absolute; top: 800px;'
       document.body.appendChild(target)
     })
 
-    // Navigate to hash — browser scrolls to anchor (~800px); ScrollToTop early-returns
+    // Navigate to hash — browser scrolls to anchor (near bottom of spacer); ScrollToTop early-returns
     await page.evaluate(() => { window.location.hash = 'test-hash-target' })
 
-    // Assert scroll did NOT reset to 0 (browser anchor put us near 800).
-    // Lower bound 700 leaves 100px headroom for browser anchor settle while
-    // proving the early-return fired (a reset would land at exactly 0).
+    // Assert scroll did NOT reset to 0 (browser anchor put us near 3419-720 ≈ 2699).
+    // Lower bound 700 proves the early-return fired (a reset would land at exactly 0).
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThanOrEqual(700)
   })
 
