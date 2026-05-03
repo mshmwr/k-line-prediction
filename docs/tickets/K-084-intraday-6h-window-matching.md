@@ -9,7 +9,7 @@ size: medium
 owner: engineer
 dependencies: [K-080, K-083]
 epic: backtest-self-tuning
-qa-early-consultation: "pending"
+qa-early-consultation: "complete — 5 challenges raised, 4 supplemented to AC, 1 declared Known Gap"
 ---
 
 # K-084 — Intraday 6H window random sampling for similarity matching
@@ -77,9 +77,24 @@ The current daily predictor uses all 24 bars of the previous day as the query, s
 - **Then** each pair independently samples `hour_start = random.randint(0, 17)` and passes it to `find_top_matches`
 
 ### AC-084-NO-MATCH-GRACEFUL
-- **Given** `find_top_matches` is called with `hour_start` set
-- **When** no historical windows exist at that hour slot (e.g., sparse history)
-- **Then** raises `ValueError` with a message that includes the hour range — same error contract as current no-match path
+- **Given** `daily_predict.py` samples `hour_start` and calls `find_top_matches`
+- **When** `find_top_matches` raises `ValueError` because no historical windows exist at that hour slot
+- **Then** `daily_predict.py` catches the `ValueError`, logs a warning with the hour range, and exits 0 (graceful skip — same contract as stale-CSV skip); the `ValueError` from `find_top_matches` itself is unchanged
+
+### AC-084-BAR-HOUR-FORMAT
+- **Given** `_get_bar_hour(bar)` is called on a history bar
+- **When** the bar's time field is a string `"YYYY-MM-DD HH:MM"` or a datetime object
+- **Then** returns the correct integer hour in both cases; raises `ValueError` for unrecognised formats
+
+### AC-084-FROZENSET-ATOMIC
+- **Given** `FIRESTORE_PREDICTION_FIELDS` frozenset and `write_prediction()` dict
+- **When** K-084 changes are committed
+- **Then** both `"hour_start"` additions land in the **same commit**; no intermediate state where frozenset and writer are out of sync
+
+### AC-084-CORPUS-TEST-DETERMINISM
+- **Given** `test_weekly_optimize.py` tests that call `evaluate_corpus()`
+- **When** tests assert on `hour_start` passed to `find_top_matches`
+- **Then** tests patch `random.randint` (via `unittest.mock.patch`) with a fixed return value; no test relies on live random output
 
 ### AC-084-SACRED-FLOOR
 - **Given** all existing sacred ACs (129-bar minimum, all K-0xx ACs)
@@ -91,3 +106,17 @@ The current daily predictor uses all 24 bars of the previous day as the query, s
 **KG-084-1: Sparse-hour degradation** — For `hour_start` values with few historical occurrences (e.g., hour_start=3 in low-liquidity periods), top-K candidates may be fewer than `params.top_k_matches`. The existing `results[:params.top_k_matches]` slice already handles this gracefully (returns fewer matches). No guard added — acceptable per Phase 1 scope.
 
 **KG-084-2: Optimizer noise from per-pair randomness** — `evaluate_corpus()` using a different `hour_start` per pair adds stochastic noise to the Bayesian objective function. This is acceptable because the goal is to prove robustness across all windows, not to find the best window. If optimizer convergence degrades in practice, promoting `hour_start` to a search-space parameter is the Phase 2 fix.
+
+**KG-084-3: CSV gap contamination in 6H window** — If the 1H CSV has missing bars (exchange downtime), `history[i:i+6]` may not be a clean contiguous 6H block even though `history[i]` passes the hour check. Existing code has no window-contiguity validation; K-084 does not add one. Acceptable for Phase 1.
+
+## QA Early Consultation
+
+5 challenges raised, 4 supplemented to AC, 1 declared Known Gap.
+
+| # | Challenge | Resolution |
+|---|---|---|
+| QC-1 | `_get_bar_hour()` must handle string `"YYYY-MM-DD HH:MM"` and datetime; silent wrong extraction if not handled | → AC-084-BAR-HOUR-FORMAT |
+| QC-2 | Sparse hours (e.g., 00:00–06:00 UTC) may yield 0 historical matches → `ValueError` propagates and crashes `daily_predict.py` run | → AC-084-NO-MATCH-GRACEFUL (catch + graceful exit 0) |
+| QC-3 | `evaluate_corpus()` random per pair → non-deterministic → flaky tests without mock | → AC-084-CORPUS-TEST-DETERMINISM |
+| QC-4 | `FIRESTORE_PREDICTION_FIELDS` frozenset and `write_prediction()` must both add `hour_start` atomically | → AC-084-FROZENSET-ATOMIC |
+| QC-5 | CSV gap → `history[i:i+6]` may span a gap even when `history[i]` hour matches | → KG-084-3 |
