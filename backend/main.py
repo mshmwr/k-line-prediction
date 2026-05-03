@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
-from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap
+from predictor import find_top_matches, compute_stats, get_prefix_bars, _compute_ma99_for_window, _extract_ma99_gap, _get_bar_hour
 from mock_data import MOCK_HISTORY, load_csv_history, load_official_day_csv
 from time_utils import normalize_bar_time
 from history_utils import _merge_bars
@@ -167,10 +167,10 @@ def get_history_bars(start: str = Query(...), end: str = Query(...)):
         for b in _history_1h
         if start_norm <= str(b["date"])[:16] <= end_norm
     ]
-    if len(bars) < 2:
+    if len(bars) < 12:
         raise HTTPException(
             status_code=422,
-            detail=f"Only {len(bars)} bar(s) found in range — select at least 2 hours",
+            detail=f"Only {len(bars)} bar(s) found in range — select at least 12 hours",
         )
     return {"bars": bars, "count": len(bars)}
 
@@ -307,6 +307,9 @@ def predict(req: PredictRequest) -> PredictResponse:
     if input_bars_with_time:
         history = _merge_bars(history, input_bars_with_time)
 
+    # Extract start hour from the first input bar for same-timeslot filtering (1H only).
+    hour_start = _get_bar_hour(req.ohlc_data[0]) if (not is_1d and req.ohlc_data) else None
+
     try:
         if is_1d:
             all_matches = find_top_matches(
@@ -326,6 +329,7 @@ def predict(req: PredictRequest) -> PredictResponse:
                 timeframe=req.timeframe,
                 ma_history=_history_1d,
                 history_1d=_history_1d,
+                hour_start=hour_start,
             )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc

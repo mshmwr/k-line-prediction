@@ -482,7 +482,8 @@ def test_predict_1h_passes_history_1d_as_ma_history(make_client, monkeypatch):
     captured = {}
 
     def _fake_find_top_matches(input_bars, future_n=72, history=None,
-                               timeframe='1H', ma_history=None, history_1d=None):
+                               timeframe='1H', ma_history=None, history_1d=None,
+                               hour_start=None):
         captured['ma_history'] = ma_history
         captured['history'] = history
         captured['timeframe'] = timeframe
