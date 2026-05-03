@@ -24,6 +24,7 @@ sys.path.insert(0, str(_REPO_ROOT / "backend"))
 
 from daily_predict import (  # noqa: E402
     backfill_actuals,
+    build_6h_query_window,
     build_query_window,
     compute_backtest_summary,
     compute_outcome,
@@ -123,6 +124,7 @@ def test_prediction_write_field_set(mock_client):
         "trend": "up",
         "query_ts": "2026-04-07 23:00",
         "created_at": "2026-04-08T04:00:00Z",
+        "hour_start": 14,               # K-084
     }
 
     write_prediction(client, "2026-04-07-23", prediction)
@@ -133,6 +135,7 @@ def test_prediction_write_field_set(mock_client):
     assert written_data["params_hash"] == "b" * 64
     assert "projected_high" in written_data
     assert "created_at" in written_data
+    assert "hour_start" in written_data  # K-084
 
 
 # ---------------------------------------------------------------------------
@@ -378,6 +381,7 @@ def test_firestore_permanent_failure_exits_nonzero(tmp_path):
         "trend": "flat",
         "query_ts": "2026-04-07 23:00",
         "created_at": "2026-04-08T04:00:00Z",
+        "hour_start": 14,               # K-084
     }
 
     # Build a minimal stub for the google.cloud.firestore namespace so the
@@ -402,7 +406,8 @@ def test_firestore_permanent_failure_exits_nonzero(tmp_path):
         patch.object(google, "cloud", mock_cloud, create=True),
         patch("daily_predict.load_active_params", return_value=DEFAULT_PARAMS),
         patch("daily_predict.load_csv_history_as_df", return_value=df),
-        patch("daily_predict.build_query_window", return_value=df.head(24)),
+        # K-084: main() now calls build_6h_query_window instead of build_query_window
+        patch("daily_predict.build_6h_query_window", return_value=df.head(6)),
         patch("daily_predict.run_prediction", return_value=fake_prediction),
         # Patch write_prediction in daily_predict's own namespace: this is the symbol
         # main() calls after the client is created. Raising here simulates both retry
@@ -457,12 +462,89 @@ def test_zero_match_prediction_fields():
     from firestore_config import DEFAULT_PARAMS
 
     with patch("daily_predict.find_top_matches", side_effect=ValueError("No historical matches found...")):
-        prediction = run_prediction(query_df, DEFAULT_PARAMS, df)
+        prediction = run_prediction(query_df, DEFAULT_PARAMS, df, hour_start=7)
 
     assert prediction["top_k_count"] == 0
     assert prediction["projected_high"] is None
     assert prediction["projected_low"] is None
     assert prediction["projected_median"] is None
     assert prediction["trend"] == "unknown"
+    assert prediction["hour_start"] == 7  # K-084: must be present in zero-match case
     # Field set must still exactly match contract (minus nullability)
     assert set(prediction.keys()) == FIRESTORE_PREDICTION_FIELDS
+
+
+# ---------------------------------------------------------------------------
+# K-084 Tests
+# ---------------------------------------------------------------------------
+
+def test_hour_start_written_to_prediction():
+    """K-084 AC-084-FIRESTORE-FIELD: run_prediction with hour_start=14 produces dict containing 'hour_start': 14."""
+    base = datetime(2025, 6, 1, 0, 0)
+    rows = []
+    for i in range(24):
+        t = (base + timedelta(hours=i)).strftime("%Y-%m-%d %H:%M")
+        rows.append({"time": t, "open": 2000.0, "high": 2010.0, "low": 1990.0, "close": 2000.0})
+    df = pd.DataFrame(rows)
+    query_df = df.head(6).copy()
+
+    from firestore_config import DEFAULT_PARAMS
+
+    with patch("daily_predict.find_top_matches", side_effect=ValueError("no matches")):
+        prediction = run_prediction(query_df, DEFAULT_PARAMS, df, hour_start=14)
+
+    assert prediction["hour_start"] == 14
+
+
+def test_zero_match_prediction_includes_hour_start():
+    """K-084 AC-084-FIRESTORE-FIELD: zero-match prediction dict contains 'hour_start'."""
+    base = datetime(2025, 7, 1, 0, 0)
+    rows = []
+    for i in range(24):
+        t = (base + timedelta(hours=i)).strftime("%Y-%m-%d %H:%M")
+        rows.append({"time": t, "open": 1500.0, "high": 1510.0, "low": 1490.0, "close": 1500.0})
+    df = pd.DataFrame(rows)
+    query_df = df.head(6).copy()
+
+    from firestore_config import DEFAULT_PARAMS
+
+    with patch("daily_predict.find_top_matches", side_effect=ValueError("No historical matches found...")):
+        prediction = run_prediction(query_df, DEFAULT_PARAMS, df, hour_start=3)
+
+    assert "hour_start" in prediction
+    assert prediction["hour_start"] == 3
+    assert prediction["top_k_count"] == 0
+
+
+def test_build_6h_query_window_returns_6_bars():
+    """K-084 AC-084-HOUR-PICK: build_6h_query_window returns exactly 6 rows for a valid hour."""
+    base = datetime(2025, 8, 1, 0, 0)
+    rows = []
+    for i in range(48):
+        t = (base + timedelta(hours=i)).strftime("%Y-%m-%d %H:%M")
+        rows.append({"time": t, "open": 1800.0, "high": 1810.0, "low": 1790.0, "close": 1800.0})
+    df = pd.DataFrame(rows)
+
+    # hour_start=14: there are 2 bars at hour 14 (index 14 and 38); anchor = index 38
+    result = build_6h_query_window(df, 14)
+
+    assert len(result) == 6
+    # All returned bars should have hour 9–14 (the 6-bar window ending at 14:00)
+    assert result.iloc[-1]["time"][11:13] == "14"
+
+
+def test_build_6h_query_window_missing_hour_raises():
+    """K-084 AC-084-NO-MATCH-GRACEFUL: no bars at hour_start=3 raises ValueError."""
+    # Build 48 bars spanning hours 0–23 twice, but skip hour 3
+    base = datetime(2025, 9, 1, 0, 0)
+    rows = []
+    for i in range(48):
+        dt = base + timedelta(hours=i)
+        if dt.hour == 3:
+            continue  # skip hour 3 deliberately
+        t = dt.strftime("%Y-%m-%d %H:%M")
+        rows.append({"time": t, "open": 1700.0, "high": 1710.0, "low": 1690.0, "close": 1700.0})
+    df = pd.DataFrame(rows)
+
+    with pytest.raises(ValueError, match="hour_start=3"):
+        build_6h_query_window(df, 3)

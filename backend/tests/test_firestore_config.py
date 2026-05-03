@@ -182,6 +182,7 @@ def test_prediction_frozenset_contract():
     assert FIRESTORE_PREDICTION_FIELDS == frozenset({
         "params_hash", "projected_high", "projected_low", "projected_median",
         "top_k_count", "trend", "query_ts", "created_at",
+        "hour_start",   # K-084: sampled 6H window start hour
     })
     assert FIRESTORE_ACTUAL_FIELDS == frozenset({
         "high_hit", "low_hit", "mae", "rmse",

@@ -623,3 +623,84 @@ def test_frozenset_contract_no_extra_fields():
     assert isinstance(doc["sample_size"], int)
     assert isinstance(doc["started_at"], str)
     assert isinstance(doc["completed_at"], str)
+
+
+# ---------------------------------------------------------------------------
+# K-084 Tests — AC-084-OPTIMIZER-RANDOM + AC-084-CORPUS-TEST-DETERMINISM
+# ---------------------------------------------------------------------------
+
+def test_evaluate_corpus_passes_hour_start():
+    """K-084 AC-084-OPTIMIZER-RANDOM: with patch("random.randint", return_value=10),
+    find_top_matches is called with hour_start=10 for each pair."""
+    pair1 = _make_pair()
+    pair2 = _make_pair()
+    corpus = [pair1, pair2]
+
+    snapshot = ParamSnapshot(
+        ma_trend_window_days=30,
+        ma_trend_pearson_threshold=0.4,
+        top_k_matches=10,
+        params_hash=_compute_params_hash(30, 0.4, 10),
+        optimized_at=None,
+        source="optimizer",
+    )
+
+    mock_stats = MagicMock()
+    mock_stats.highest.price = 2050.0
+    mock_stats.lowest.price = 1860.0
+
+    with patch("predictor.find_top_matches", return_value=[MagicMock()]) as mock_ftm, \
+         patch("predictor.compute_stats", return_value=mock_stats), \
+         patch("optimizer._build_query_bars_from_prediction") as mock_build, \
+         patch("random.randint", return_value=10):
+
+        mock_ohlc = MagicMock()
+        mock_ohlc.close = 1980.0
+        mock_build.return_value = [mock_ohlc] * 24
+
+        evaluate_corpus(corpus, snapshot, history_1h=[], history_1d=[])
+
+    # Both pairs must have been called with hour_start=10
+    assert mock_ftm.call_count == 2
+    for c in mock_ftm.call_args_list:
+        assert c.kwargs.get("hour_start") == 10 or c[1].get("hour_start") == 10, (
+            f"find_top_matches not called with hour_start=10; kwargs={c.kwargs}, args={c[1]}"
+        )
+
+
+def test_evaluate_corpus_hour_start_per_pair_independent():
+    """K-084 AC-084-CORPUS-TEST-DETERMINISM: with side_effect=[5, 12, 3],
+    find_top_matches receives hour_start=5, 12, 3 in order for 3 pairs."""
+    corpus = [_make_pair(), _make_pair(), _make_pair()]
+
+    snapshot = ParamSnapshot(
+        ma_trend_window_days=30,
+        ma_trend_pearson_threshold=0.4,
+        top_k_matches=10,
+        params_hash=_compute_params_hash(30, 0.4, 10),
+        optimized_at=None,
+        source="optimizer",
+    )
+
+    mock_stats = MagicMock()
+    mock_stats.highest.price = 2050.0
+    mock_stats.lowest.price = 1860.0
+
+    with patch("predictor.find_top_matches", return_value=[MagicMock()]) as mock_ftm, \
+         patch("predictor.compute_stats", return_value=mock_stats), \
+         patch("optimizer._build_query_bars_from_prediction") as mock_build, \
+         patch("random.randint", side_effect=[5, 12, 3]):
+
+        mock_ohlc = MagicMock()
+        mock_ohlc.close = 1980.0
+        mock_build.return_value = [mock_ohlc] * 24
+
+        evaluate_corpus(corpus, snapshot, history_1h=[], history_1d=[])
+
+    assert mock_ftm.call_count == 3
+    expected_hours = [5, 12, 3]
+    for idx, c in enumerate(mock_ftm.call_args_list):
+        actual_hour = c.kwargs.get("hour_start") if c.kwargs else c[1].get("hour_start")
+        assert actual_hour == expected_hours[idx], (
+            f"pair {idx}: expected hour_start={expected_hours[idx]}, got {actual_hour}"
+        )
