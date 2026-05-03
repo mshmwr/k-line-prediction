@@ -3,91 +3,91 @@
     "ticketId": "K-083",
     "title": "Weekly Bayesian optimizer — scikit-optimize tunes (window, pearson, top_k) from 90-day Firestore corpus + Cloud Run redeploy",
     "date": "2026-05-02",
-    "text": "GitHub Actions cron at Mondays 05:00 UTC reads last 90 days of predictions + actuals from Firestore, runs Bayesian search (scikit-optimize gp_minimize) over (window 14-60, pearson 0.2-0.7, top_k 5-30) with RANDOM_STATE=42. Objective is 0.5·high_hit_rate + 0.5·low_hit_rate over the corpus; cost guard early-exits via EarlyExitSignal after 20 iterations with no improvement (epsilon 1e-4). Idempotency hash check skips writes + redeploy if winner equals current params_hash. On winner selection, sequentially writes predictor_params/active + predictor_params/history/runs/{run_id} + optimize_runs/{run_id} (two new frozenset contracts: FIRESTORE_OPTIMIZE_RUN_FIELDS 9 fields, FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS 8 fields), then triggers Cloud Run redeploy via gcloud run services update. Data-sufficiency guard exits 0 if <30 completed pairs (graceful skip). Sacred K-015 floor intact — backend/predictor.py untouched; param_override context manager swaps + restores predictor.params unconditionally. Final ticket of backtest-self-tuning epic."
+    "text": "Added weekly Bayesian optimizer that auto-tunes predictor parameters from a 90-day corpus; idempotent — skips redeploy if winner matches current params."
   },
   {
     "ticketId": "K-081",
     "title": "/backtest route — Firestore read dashboard: summary card, per-trend table, lightweight-charts time-series, params card",
     "date": "2026-05-02",
-    "text": "New /backtest SPA route reads Firestore backtest_summaries/{latest} + predictor_params/active + 30-day predictions/actuals via public-read REST endpoint. useBacktestData hook handles fetch, retry-once on error, and ChartPoint assembly (actualClose = midpoint of actual_high + actual_low). Four child components: SummaryCard (hit rates / MAE / RMSE), PerTrendTable (up/down/flat with N/A for missing trends), TimeSeriesChart (lightweight-charts line overlay — projected_median vs actual_close), ActiveParamsCard (window/pearson/top_k/hash prefix). Firestore rules already enforced write-deny; firebase.json already had the deploy target. Playwright E2E mocks all Firestore REST traffic via route.fulfill()."
+    "text": "Added /backtest page showing hit rates, per-trend table, time-series chart, and active parameter card; all Firestore data mocked in E2E tests."
   },
   {
     "ticketId": "K-080",
     "title": "Daily predict + storage workflow — Firestore writes + 3 schema frozensets exported",
     "date": "2026-05-02",
-    "text": "GitHub Actions cron at 04:00 UTC reads latest CSV, calls predictor with active Firestore params, writes predictions/{ts} doc, backfills actuals/{ts} for predictions older than 72h, recomputes backtest_summaries/{today} over last 30 days. Exported FIRESTORE_PREDICTION_FIELDS / FIRESTORE_ACTUAL_FIELDS / FIRESTORE_BACKTEST_SUMMARY_FIELDS frozensets as cross-ticket schema contract for K-081 (frontend reader) and K-082 (optimizer reader). Idempotent set() overwrite + retry-once with 5s sleep; 90-min CSV freshness gate; permanent failure exits non-zero."
+    "text": "Added daily predict-and-store workflow that writes predictions and actuals to Firestore and recomputes a 30-day backtest summary."
   },
   {
     "ticketId": "K-079",
     "title": "Known-reds manifest cleanup — 20 stale entries removed (22→2 active)",
     "date": "2026-05-02",
-    "text": "Dropped 20 known-red entries whose route.fulfill() mocks were already wired; K-013×4, ma99×13, upload×3 all pass 20/20. Prior failures were state contamination from backgrounded Playwright runs. Remaining manifest: ga-spa-pageview + visual-report."
+    "text": "Removed 20 stale known-red entries that were already passing; remaining manifest has 2 active entries."
   },
   {
     "ticketId": "K-078",
     "title": "Firestore plumbing + backend predictor-param loader for self-tuning epic",
     "date": "2026-05-02",
-    "text": "Stood up Firestore as shared config store; refactored backend boot so MA_TREND_WINDOW_DAYS / MA_TREND_PEARSON_THRESHOLD / top_k read from ParamSnapshot at runtime. Atomic GIL-safe module-level swap; 5s ThreadPoolExecutor timeout with graceful default fallback. /health exposes allow-listed ParamSnapshot fields only. Sacred 2-layer rewrite replaces brittle constant assertion with AST structure + behavior floor invariants."
+    "text": "Added Firestore-backed parameter store; backend reads predictor params at runtime from snapshots with graceful fallback."
   },
   {
     "ticketId": "K-077",
     "title": "E2E test cleanup — T14 DOM fix, data-redaction removal, Footer baselines regen",
     "date": "2026-05-02",
-    "text": "Fixed 4 deferred known-red E2E tests: T14 timing gate + FooterDisclaimer assertion, data-redaction obsolete removal, 3 Footer snapshot baselines regenerated, scroll threshold self-healed."
+    "text": "Fixed 4 deferred E2E failures covering timing gates, obsolete assertions, and stale snapshots; scroll threshold self-healed."
   },
   {
     "ticketId": "K-073",
     "title": "Content SSOT externalize — 3 component arrays to site-content.json + README METRICS marker",
     "date": "2026-05-01",
-    "text": "Externalized ProjectLogicSection STEPS (3 items), ProjectArchitectureSection layers (3 items), and WhereISteppedInSection ROWS (3 items) from inline TypeScript constants to site-content.json. Added README METRICS marker block so featuresShipped/acCoverage/postMortems/lessonsCodified auto-update via generator. Added shared site-content.types.ts. QA fixed two known-reds manifest gaps (Footer snapshot on /, ga-spa test title)."
+    "text": "Externalized three component arrays from inline constants to the content config; added README auto-update markers and shared types."
   },
   {
     "ticketId": "K-066",
     "title": "K-066 Designer close — homepage-v2.pen narrative + feature count + stack row updated",
     "date": "2026-05-01",
-    "text": "Updated homepage-v2.pen frame GMEdT: narrative rewritten to single-operator arc, bottom bar updated to 50 features shipped, THE ROLES pill row deleted. Frame 4CsvQ: hero subtext updated to K-057 approved copy, stack row corrected to TypeScript·React·Vite·Python·FastAPI·Playwright, hero-product-shot placeholder added (960×540)."
+    "text": "Updated homepage design frames: rewrote operator narrative, corrected feature count and stack row, added hero-shot placeholder."
   },
   {
     "ticketId": "K-072",
     "title": "renderSlots.about.processRules corrected from placeholder 5 to 0",
     "date": "2026-05-01",
-    "text": "Confirmed no React component reads siteContent.processRules[]; renderSlots.about.processRules was an unrealized placeholder set to 5. Corrected to 0 to accurately reflect that the About page does not render the processRules array."
+    "text": "Corrected About page process-rules render slot from unrealized placeholder to 0; no component reads that array."
   },
   {
     "ticketId": "K-071",
     "title": "processRules PM query tool + systematic backfill 5→17 entries",
     "date": "2026-05-01",
-    "text": "Added npm run rules query script and backfilled processRules from 5 to 17 entries covering critical-blocker, warning, and advisory tiers. K-063 Release Status corrected from no-change to added."
+    "text": "Added process-rules query script and backfilled rules from 5 to 17 entries across three severity tiers."
   },
   {
     "ticketId": "K-069",
     "title": "Architecture SSOT cleanup — 22 stale annotations cleared, changelog collapsed 53%",
     "date": "2026-05-01",
-    "text": "Cleared 22 stale pending annotations accumulated since K-024, removed a prohibited Retrospective section, added missing content/ directory to the tree, closed TD-008 (implemented K-013 2026-04-21), rewrote the Summary to 5 current-state bullets, collapsed pre-K-063 Changelog entries from 123 KB to 58 KB, and relocated the GA4 test matrix and QA artifacts sections to their canonical SSOT files."
+    "text": "Cleared 22 stale annotations, collapsed changelog by half, rewrote Summary to current state, and relocated test-matrix sections to SSOT."
   },
   {
     "ticketId": "K-048",
     "title": "Auto-scraper complete — Binance Vision S3 + Cloud Run deploy verified end-to-end",
     "date": "2026-04-30",
-    "text": "Switched data source from geo-blocked api.binance.com to data.binance.vision (AWS S3, no geo-restriction); fixed µs timestamp parsing and numpy import isolation; committed frontend/.env.production so Cloud Build can read VITE_GA_MEASUREMENT_ID. Workflow ran end-to-end: scraped 504 1H bars, committed, deployed Cloud Run revision f093027."
+    "text": "Fixed geo-blocked data source, timestamp parsing, and build config; verified end-to-end scrape and deploy."
   },
   {
     "ticketId": "K-048",
     "title": "Auto-scraper Phase 2 — GitHub Actions daily cron + Binance klines fetch",
     "date": "2026-04-30",
-    "text": "Implemented scrape_history.py (Binance klines API, pagination loop, closed-only filter, idempotent exit) and .github/workflows/scrape-history.yml (cron 03:00 UTC, commit [skip ci], Cloud Run deploy). Three unit tests cover closed-only/pagination/idempotent ACs. GH_PAT + GCP_SA_KEY secrets required in repo settings before first cron run."
+    "text": "Implemented daily scraper script and GitHub Actions cron workflow; three unit tests cover all acceptance criteria."
   },
   {
     "ticketId": "K-048",
     "title": "Auto-scraper foundation — history DB freshness API + stale indicator UI",
     "date": "2026-04-30",
-    "text": "Added freshness_hours to /api/history-info response and a stale indicator (≥48h) to the History Reference UI section; extracted history_utils.py for Phase 2 scraper use."
+    "text": "Added freshness hours to the history API and a stale indicator to the History Reference UI."
   },
   {
     "ticketId": "K-068",
     "title": "Designer JSON SSOT — responsive + tailwindHint schema enforcement",
     "date": "2026-04-30",
-    "text": "Added a JSON schema + validator that requires every horizontal-with-multiple-children frame spec to declare its mobile + desktop Tailwind classes, closing the K-067 layout gap."
+    "text": "Added JSON schema and validator requiring frame specs to declare responsive layout classes; closes the K-067 layout gap."
   },
   {
     "ticketId": "K-067",
