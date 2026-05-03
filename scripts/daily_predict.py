@@ -261,7 +261,7 @@ def compute_outcome(prediction: dict, df: pd.DataFrame) -> Optional[dict]:
 
     window_df = df[(df["time"] >= start_str) & (df["time"] <= end_str)]
 
-    if len(window_df) < 72:
+    if len(window_df) < 65:
         return None  # window not yet complete; caller logs and skips
 
     actual_bars = window_df.head(72)
@@ -283,9 +283,10 @@ def compute_outcome(prediction: dict, df: pd.DataFrame) -> Optional[dict]:
 
     # MAE/RMSE: simplified flat projection (K-080 Known Gap; K-082 extends to per-bar path)
     if projected_median is not None:
-        projected_path = [projected_median] * 72
-        diffs = [abs(projected_path[i] - actual_closes[i]) for i in range(72)]
-        sq_diffs = [(projected_path[i] - actual_closes[i]) ** 2 for i in range(72)]
+        n = len(actual_closes)
+        projected_path = [projected_median] * n
+        diffs = [abs(projected_path[i] - actual_closes[i]) for i in range(n)]
+        sq_diffs = [(projected_path[i] - actual_closes[i]) ** 2 for i in range(n)]
         mae = float(statistics.mean(diffs))
         rmse = float(math.sqrt(statistics.mean(sq_diffs)))
     else:

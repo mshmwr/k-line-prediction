@@ -61,14 +61,17 @@ def _process_day(
     params,
     client,
     dry_run: bool,
+    pairs_out: "list | None" = None,
 ) -> str:
-    """Simulate prediction for day D and write to Firestore.
+    """Simulate prediction for day D.
 
+    When pairs_out is provided: append {"prediction": ..., "actual": ...} to it (CSV-only mode).
+    When pairs_out is None and not dry_run: write to Firestore.
     Returns one of: 'wrote' | 'skip-exists' | 'skip-no-data' | 'skip-no-actuals' | 'error'.
     """
     ts = _date_to_ts(d)
 
-    if not dry_run and _prediction_exists(client, ts):
+    if pairs_out is None and not dry_run and _prediction_exists(client, ts):
         logger.info("SKIP %s — already present", d.isoformat())
         return "skip-exists"
 
@@ -118,7 +121,9 @@ def _process_day(
         prediction.get("projected_low") or 0.0,
     )
 
-    if not dry_run:
+    if pairs_out is not None:
+        pairs_out.append({"prediction": prediction, "actual": outcome})
+    elif not dry_run:
         try:
             write_prediction(client, ts, prediction)
             write_actual(client, ts, outcome)
