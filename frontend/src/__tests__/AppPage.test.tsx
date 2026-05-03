@@ -1,12 +1,24 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { vi } from 'vitest'
+import { vi, beforeEach } from 'vitest'
 import axios from 'axios'
 import AppPage from '../AppPage'
 
 const OFFICIAL_CSV = Array.from({ length: 24 }, (_, i) =>
   `${1775088000000000 + i * 3600_000_000},${2000 + i},${2010 + i},${1990 + i},${2005 + i},0,0,0,0,0,0,0`
 ).join('\n')
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn((url: string) => {
+    if (url.includes('/api/history/range-info')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ earliest: '2017-08-17 04:00', latest: '2026-05-02 23:00', count: 74566 }),
+      })
+    }
+    return Promise.reject(new Error(`Unmocked fetch: ${url}`))
+  }))
+})
 
 vi.mock('axios', () => ({
   default: {
