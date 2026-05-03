@@ -1,10 +1,10 @@
 ---
 ticket: K-085
 title: Historical Backtest Initialization
-status: open
+status: closed
 phase: 1
 opened: 2026-05-03
-closed-commit: ~
+closed-commit: 5ed3880
 depends-on: K-083, K-084
 qa-early-consultation: ✓
 sacred-clauses: []
