@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-05-02 (K-083)
+updated: 2026-05-03 (K-084)
 ---
 
 ## Summary
@@ -69,12 +69,14 @@ GitHub Actions — 04:00 UTC daily (after scrape-history.yml at 03:00 UTC)
   │
   ├─ load_active_params() → predictor.params = <ParamSnapshot>
   │
-  ├─ load_csv_history → build_query_window (24 × 1H bars ending yesterday 23:00 UTC)
+  ├─ sample hour_start = random.randint(0, 17)  (K-084)
+  ├─ load_csv_history → build_6h_query_window (6 × 1H bars at hour_start)
   │
-  ├─ run_prediction(query_df, params, full_df)
-  │    └─ find_top_matches() + compute_stats() → prediction dict
+  ├─ run_prediction(query_df, params, full_df, hour_start)  (K-084: hour_start added)
+  │    └─ find_top_matches(hour_start=hour_start) + compute_stats() → prediction dict
   │
   ├─ write_prediction(client, ts, prediction) → predictions/{YYYY-MM-DD-HH}
+  │    fields include hour_start: int (K-084, FIRESTORE_PREDICTION_FIELDS)
   │
   ├─ backfill_actuals(client, df, cutoff_ts=now-72h)
   │    └─ list_predictions_older_than() → compute_outcome() → write_actual()
@@ -741,6 +743,9 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 ---
 
 ## Changelog
+
+**2026-05-03 — K-084 — Intraday 6H window random sampling: `find_top_matches` gains `hour_start: Optional[int]`; new `_get_bar_hour()` helper; `build_6h_query_window()` in daily_predict.py; `evaluate_corpus` samples per-pair; `hour_start` added to `FIRESTORE_PREDICTION_FIELDS`.**
+Design doc: [docs/designs/K-084-design.md](../docs/designs/K-084-design.md)
 
 **2026-05-02 — K-083 — Weekly Bayesian optimizer design: new `scripts/weekly_optimize.py` + `backend/optimizer.py` + `.github/workflows/weekly-optimize.yml`; added `FIRESTORE_OPTIMIZE_RUN_FIELDS` + `FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS` frozensets; weekly optimizer workflow added to system-overview.md.**
 Design doc: [docs/designs/K-083-design.md](../docs/designs/K-083-design.md)
