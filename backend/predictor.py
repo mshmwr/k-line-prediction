@@ -10,6 +10,7 @@ MIN_BARS_FOR_MA_TREND = 2
 FUTURE_LOOKAHEAD_BARS = 72
 MA_TREND_WINDOW_DAYS = 30
 MA_TREND_PEARSON_THRESHOLD = 0.4
+TOP_K_DISPLAY = 5   # max matches returned by find_top_matches (display + backtest)
 
 # K-078: single-namespace param object; default preserves byte-identical behavior.
 # Replaced atomically at boot via main.py startup hook.
@@ -387,7 +388,7 @@ def find_top_matches(
             "Try a different input range."
         )
     results.sort(key=lambda x: x[0], reverse=True)
-    top = results[:params.top_k_matches]
+    top = results[:TOP_K_DISPLAY]
     matches = []
     for r, i, window, future in top:
         prefix = history[:i]
