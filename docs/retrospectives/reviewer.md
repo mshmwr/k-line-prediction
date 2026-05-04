@@ -1,3 +1,10 @@
+## 2026-05-04 — K-092
+
+**What went well:** Gate predicate logic, ordering vs 1D gate, and no-regression baseline verified cleanly via live test run.
+**What went wrong:** Design doc specified 7 test functions (4 predicate-unit + 2 _trend_direction + 1 integration); implementation shipped 6 (2 _trend_direction + 4 integration); flat-query predicate unit test not present — gap surfaced at review, not design stage.
+**Next time improvement:** Design doc test spec table should distinguish unit vs integration test type per row; Engineer cross-checks count at implementation time.
+**Slowest step:** Establishing pre/post failure baseline required canonical-repo stash dance; could be avoided by running baseline on worktree's parent SHA directly with `git stash` on the canonical checkout.
+
 ## 2026-05-03 — K-085
 
 **What went well:** Three independent correctness properties (lookahead safety, idempotency, write isolation) all held; design doc's function-import strategy mapped cleanly to implementation.
