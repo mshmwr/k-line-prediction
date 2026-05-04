@@ -1,9 +1,14 @@
 # backend/predictor.py
+import json as _json
 import numpy as np
 import statistics
+from pathlib import Path as _Path
 from typing import List, Optional, Tuple
 from models import OHLCBar, MatchCase, OrderSuggestion, PredictStats
 from mock_data import MOCK_HISTORY
+
+_MA99_CACHE_PATH = _Path(__file__).resolve().parents[1] / "history_database" / "ma99_1d_cache.json"
+_MA99_CACHE: dict = {}  # date_str → float; populated by build_ma99_cache()
 
 MA_WINDOW = 99
 MIN_BARS_FOR_MA_TREND = 2
@@ -72,6 +77,42 @@ def _rolling_mean(values: List[float], window: int) -> List[float]:
     arr = np.array(values, dtype=float)
     kernel = np.ones(window, dtype=float) / window
     return np.convolve(arr, kernel, mode='valid').tolist()
+
+def build_ma99_cache(history_1d: list, csv_path=None) -> None:
+    """Pre-compute MA99 for every date in history_1d and persist to _MA99_CACHE_PATH.
+
+    Sets the module-level _MA99_CACHE so _fetch_30d_ma_series can use the fast path.
+    csv_path: used for mtime-based cache invalidation; pass None to skip mtime check.
+    """
+    global _MA99_CACHE
+    csv_mtime = float(_Path(csv_path).stat().st_mtime) if csv_path and _Path(csv_path).exists() else None
+
+    if _MA99_CACHE_PATH.exists():
+        try:
+            cached = _json.loads(_MA99_CACHE_PATH.read_text())
+            if csv_mtime is None or cached.get("csv_mtime") == csv_mtime:
+                _MA99_CACHE = cached["values"]
+                return
+        except Exception:
+            pass
+
+    closes = _extract_closes(history_1d)
+    ma_values = _rolling_mean(closes, MA_WINDOW)
+    # _rolling_mean with 'valid' mode: ma_values[j] = MA99 for history_1d[j + MA_WINDOW - 1]
+
+    values: dict = {}
+    for j, ma_val in enumerate(ma_values):
+        bar = history_1d[j + MA_WINDOW - 1]
+        date_str = _normalize_time(bar.get("date", ""), "1D")
+        if date_str:
+            values[date_str] = float(ma_val)
+
+    try:
+        _MA99_CACHE_PATH.write_text(_json.dumps({"csv_mtime": csv_mtime, "values": values}))
+    except Exception:
+        pass
+    _MA99_CACHE = values
+
 
 def _ma_trend_series(bars, window: int = MA_WINDOW) -> List[float]:
     closes = _extract_closes(bars)
@@ -155,15 +196,18 @@ def get_prefix_bars(history: list, first_time: str, timeframe: str) -> list:
 
 
 def _fetch_30d_ma_series(anchor_end_time: str, ma_history_1d: list, time_index: Optional[dict] = None) -> List[float]:
-    """Fetch trailing 30-day MA99 series ending at anchor_end_time from 1D history.
-    Returns 30 floats, or [] if history is insufficient or anchor not found.
-    time_index: pre-built {date_str -> idx} for ma_history_1d; built on-demand if not provided.
+    """Fetch trailing MA99 series (ma_trend_window_days long) ending at anchor_end_time.
+
+    Fast path: reads from _MA99_CACHE when populated by build_ma99_cache().
+    Slow path: computes on-the-fly from ma_history_1d (original behaviour).
+    time_index: pre-built {date_str -> idx}; built on-demand if not provided.
     """
     if not anchor_end_time or not ma_history_1d:
         return []
 
     norm = _normalize_time(anchor_end_time, '1D')
-    idx = (time_index if time_index is not None else _history_time_index(ma_history_1d, '1D')).get(norm)
+    _tidx = time_index if time_index is not None else _history_time_index(ma_history_1d, '1D')
+    idx = _tidx.get(norm)
     if idx is None:
         return []
 
@@ -173,6 +217,16 @@ def _fetch_30d_ma_series(anchor_end_time: str, ma_history_1d: list, time_index: 
     if not window_bars:
         return []
 
+    # Fast path: look up pre-computed MA99 values from cache
+    if _MA99_CACHE:
+        result = []
+        for b in window_bars:
+            d = _normalize_time(b.get("date", ""), "1D")
+            if d in _MA99_CACHE:
+                result.append(_MA99_CACHE[d])
+        return result
+
+    # Slow path: compute MA99 on-the-fly
     prefix_start = max(0, window_start - MA_WINDOW)
     prefix_bars = ma_history_1d[prefix_start:window_start]
 

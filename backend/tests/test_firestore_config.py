@@ -38,7 +38,7 @@ def _make_mock_doc(window=14, pearson=0.5, top_k=5, optimized_at="2026-05-01T00:
     doc = MagicMock()
     doc.exists = True
     doc.to_dict.return_value = {
-        "window_days": window,
+        "ma_trend_window_days": window,
         "pearson_threshold": pearson,
         "top_k": top_k,
         "optimized_at": optimized_at,
@@ -107,7 +107,7 @@ def test_load_active_params_import_error():
 
 def test_default_params_values():
     """PREDICTOR-CONSTANTS-EXPOSED: DEFAULT_PARAMS fields match expected seed values."""
-    assert DEFAULT_PARAMS.ma_trend_window_days == 30
+    assert DEFAULT_PARAMS.ma_trend_window_days == 180
     assert DEFAULT_PARAMS.ma_trend_pearson_threshold == 0.4
     assert DEFAULT_PARAMS.top_k_matches == 10
     assert DEFAULT_PARAMS.source == "default"
@@ -126,7 +126,7 @@ def test_params_hash_deterministic():
 def test_firestore_predictor_params_fields_contract():
     """D-3 contract: FIRESTORE_PREDICTOR_PARAMS_FIELDS is the exact frozenset K-079 must write."""
     assert FIRESTORE_PREDICTOR_PARAMS_FIELDS == frozenset({
-        "window_days",
+        "ma_trend_window_days",
         "pearson_threshold",
         "top_k",
         "optimized_at",
@@ -145,7 +145,7 @@ def test_read_firestore_doc_only_reads_contract_fields():
     mock_doc.exists = True
     # Provide exactly the contract fields (plus no extras)
     mock_doc.to_dict.return_value = {
-        "window_days": 14,
+        "ma_trend_window_days": 14,
         "pearson_threshold": 0.6,
         "top_k": 7,
         "optimized_at": "2026-05-02T00:00:00Z",

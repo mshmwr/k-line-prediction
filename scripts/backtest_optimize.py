@@ -53,23 +53,28 @@ logger = logging.getLogger("backtest_optimize")
 # ---------------------------------------------------------------------------
 _WORKER_H1H: list = []
 _WORKER_H1D: list = []
+_WORKER_MA_TREND_WINDOW: int = 180
+_WORKER_MA99_CACHE: dict = {}
 
 
-def _worker_init(sys_path: list, h1h: list, h1d: list) -> None:
+def _worker_init(sys_path: list, h1h: list, h1d: list, ma_trend_window: int, ma99_cache: dict) -> None:
     """Called once per worker process — loads sys.path + history bar lists."""
-    global _WORKER_H1H, _WORKER_H1D
+    global _WORKER_H1H, _WORKER_H1D, _WORKER_MA_TREND_WINDOW, _WORKER_MA99_CACHE
     import sys as _sys
     for p in reversed(sys_path):
         if p not in _sys.path:
             _sys.path.insert(0, p)
     _WORKER_H1H = h1h
     _WORKER_H1D = h1d
+    _WORKER_MA_TREND_WINDOW = ma_trend_window
+    _WORKER_MA99_CACHE = ma99_cache
 
 
 def _eval_pair_worker(args: tuple):
     """Evaluate one pair under candidate params.
 
-    args: (bar_dicts_or_None, actual_doc, (window_days, pearson, top_k))
+    args: (bar_dicts_or_None, actual_doc, (pearson, top_k))
+    Uses _WORKER_MA_TREND_WINDOW (fixed) and _WORKER_MA99_CACHE (pre-computed).
     Returns (high_hit: 0|1, low_hit: 0|1, scored: 0|1).
     """
     bar_dicts, actual_doc, snapshot_tuple = args
@@ -80,17 +85,20 @@ def _eval_pair_worker(args: tuple):
     from firestore_config import ParamSnapshot, _compute_params_hash
     from models import OHLCBar
 
-    window_days, pearson, top_k = snapshot_tuple
+    pearson, top_k = snapshot_tuple
+    ma_window = _WORKER_MA_TREND_WINDOW
     snapshot = ParamSnapshot(
-        ma_trend_window_days=int(window_days),
+        ma_trend_window_days=ma_window,
         ma_trend_pearson_threshold=float(pearson),
         top_k_matches=int(top_k),
-        params_hash=_compute_params_hash(int(window_days), float(pearson), int(top_k)),
+        params_hash=_compute_params_hash(ma_window, float(pearson), int(top_k)),
         optimized_at=None,
         source="optimizer",
     )
     original = _pred.params
+    original_cache = _pred._MA99_CACHE
     _pred.params = snapshot
+    _pred._MA99_CACHE = _WORKER_MA99_CACHE
     try:
         query_bars = [
             OHLCBar(
@@ -108,8 +116,8 @@ def _eval_pair_worker(args: tuple):
             hour_start=hour_start,
         )
         stats = _pred.compute_stats(matches, current_close=query_bars[-1].close)
-        projected_high = stats.highest.price if stats.highest else None
-        projected_low = stats.lowest.price if stats.lowest else None
+        projected_high = stats.second_highest.price if stats.second_highest else None
+        projected_low = stats.second_lowest.price if stats.second_lowest else None
 
         high_hit = (
             projected_high is not None
@@ -126,6 +134,7 @@ def _eval_pair_worker(args: tuple):
         return (0, 0, 0)
     finally:
         _pred.params = original
+        _pred._MA99_CACHE = original_cache
 
 
 # ---------------------------------------------------------------------------
@@ -187,8 +196,8 @@ def _make_parallel_objective(pairs: list, precomputed_bars: list, pool: multipro
     actuals = [p["actual"] for p in pairs]
 
     def objective(params_list):
-        window, pearson, top_k = params_list
-        snapshot_tuple = (int(window), float(pearson), int(top_k))
+        pearson, top_k = params_list
+        snapshot_tuple = (float(pearson), int(top_k))
         task_args = [
             (bar_dicts, actual, snapshot_tuple)
             for bar_dicts, actual in zip(precomputed_bars, actuals)
@@ -261,23 +270,26 @@ def main() -> None:
           f"top_k={params.top_k_matches}) ===")
     print(f"  high_hit={base_high:.1%}  low_hit={base_low:.1%}  score={base_score:.4f}")
 
-    # [3] Load history bar lists + pre-compute query bars
+    # [3] Load history bar lists + pre-compute query bars + MA99 cache
     logger.info("loading history bar lists")
     history_1h = load_csv_history(HISTORY_1H_PATH)
     history_1d = load_csv_history(_HISTORY_1D_PATH) if _HISTORY_1D_PATH.exists() else []
     logger.info("bars: %d 1H  %d 1D", len(history_1h), len(history_1d))
 
+    predictor.build_ma99_cache(history_1d, _HISTORY_1D_PATH)
+    logger.info("MA99 cache: %d entries", len(predictor._MA99_CACHE))
+
     precomputed_bars = _precompute_bars(pairs, history_1h)
 
-    # [4] Bayesian optimization — parallel
-    space = [Integer(14, 60), Real(0.2, 0.7), Integer(5, 30)]
+    # [4] Bayesian optimization — parallel (pearson + top_k only; ma_trend_window_days is fixed)
+    space = [Real(0.2, 0.7), Integer(5, 30)]
     logger.info("Bayesian search: n_calls=%d  pairs=%d  workers=%d",
                 args.n_calls, len(pairs), n_workers)
 
     with multiprocessing.Pool(
         processes=n_workers,
         initializer=_worker_init,
-        initargs=(_SYS_PATH, history_1h, history_1d),
+        initargs=(_SYS_PATH, history_1h, history_1d, params.ma_trend_window_days, predictor._MA99_CACHE),
     ) as pool:
         result = gp_minimize(
             func=_make_parallel_objective(pairs, precomputed_bars, pool),
@@ -289,13 +301,12 @@ def main() -> None:
     best_idx     = int(result.func_vals.argmin())
     winner       = result.x_iters[best_idx]
     winner_score = -result.func_vals[best_idx]
-    winner_window  = int(winner[0])
-    winner_pearson = float(winner[1])
-    winner_top_k   = int(winner[2])
-    winner_hash = _compute_params_hash(winner_window, winner_pearson, winner_top_k)
+    winner_pearson = float(winner[0])
+    winner_top_k   = int(winner[1])
+    winner_hash = _compute_params_hash(params.ma_trend_window_days, winner_pearson, winner_top_k)
 
     print(f"\n=== Optimizer result ({args.n_calls} iterations  {n_workers} workers) ===")
-    print(f"  window={winner_window}  pearson={winner_pearson:.4f}  top_k={winner_top_k}")
+    print(f"  ma_trend_window={params.ma_trend_window_days}  pearson={winner_pearson:.4f}  top_k={winner_top_k}")
     print(f"  score={winner_score:.4f}  (baseline {base_score:.4f}  Δ{winner_score - base_score:+.4f})")
     print(f"  hash={winner_hash[:12]}")
 
