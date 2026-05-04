@@ -14,6 +14,14 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-04 — K-092
+
+**What went well:** All 7 new tests (test_local_ma_gate_* + test_trend_direction_*) pass; 10 pre-existing failures confirmed byte-equal to canonical main, no new regressions.
+**What went wrong:** 10 pre-existing test_predictor.py failures not in known-reds manifest (manifest last updated at K-082); PM explicitly authorised baseline=10 in sign-off instructions.
+**Next time improvement:** When PM states baseline=N in sign-off instructions, add corresponding known-reds entries in the same PR to prevent manifest drift.
+**Slowest step:** Canonical comparison run (~20s) — necessary for manifest gap confirmation; no mitigation.
+
+
 ## 2026-05-03 — K-085
 
 **What went well:** Compile gate + 132 backend tests + 20 diary Vitest tests all pass; 1 known-red (AC-024 legacy word count, pre-K-085) confirmed unchanged.

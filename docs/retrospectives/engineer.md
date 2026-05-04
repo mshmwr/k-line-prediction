@@ -1,5 +1,13 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-04 — K-092
+
+**What went well:** Two-site injection (+6 lines) was precisely scoped — pre-loop query direction extracted once via `_query_ma_series` + `_trend_direction`, candidate direction computed per iteration with `_aligned_ma_series`. Flat-compatibility condition (`!= 0` guard on both sides) correctly passes flat through without branching. Code review caught two gaps (_trend_direction unit tests missing; flat-candidate test used predicate assertion instead of find_top_matches integration) — both fixed same session. W-1 flat-query gap caught by depth reviewer and fixed in Phase 1.
+
+**What went wrong:** Initial implementation did not include `_trend_direction` unit tests despite arch doc specifying them in the 7-test suite. Had to add `test_trend_direction_up_window_returns_1` and `test_trend_direction_down_window_returns_neg1` as a code-review fix. Also, flat-candidate test initially only asserted Boolean predicate (`query_local_direction != 0 and ...`) rather than calling `find_top_matches` — missed the integration level the arch doc specified.
+
+**Next-time improvement:** When arch doc specifies N tests with specific names, enumerate them before writing code and verify the list is exhausted before committing. A unit test for a helper function named in the spec is not optional.
+
 ## 2026-05-04 — K-091c hotfix (diary.json schema violation)
 
 **What went wrong:** Wrote `ticketId: "K-091c"` in diary.json. The Zod schema (`DiaryEntrySchema`) enforces `^K-\d{3}$` (exactly 3 digits, no suffix). The "c" sub-ticket suffix broke the regex → ZodError → /diary page rendered "Invalid diary data format" in production.

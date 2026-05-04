@@ -1,8 +1,9 @@
 ---
 ticket: K-092
 title: Add local 1H MA slope direction gate to match filter
-status: open
+status: closed
 phase: 1
+closed-commit: d18a440
 opened: 2026-05-04
 depends-on: [K-090]
 qa-early-consultation: "✓ — 2026-05-04 K-092; 2 challenges raised: AC-092-QUERY-EXTEND demoted to Design Note (implementation detail, not testable behavior); AC-092-MATCH-COUNT moved to Manual Verification (requires real history CSV, cannot be automated)"
