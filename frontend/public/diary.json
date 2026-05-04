@@ -1,5 +1,17 @@
 [
   {
+    "ticketId": "K-091",
+    "title": "Latest Prediction button — one-click display of saved Firestore prediction stats",
+    "date": "2026-05-04",
+    "text": "Added Latest Prediction button to Statistics panel; fetches query_ts, projected high/low/median, trend, and match count from Firestore via new backend endpoint."
+  },
+  {
+    "ticketId": "K-090",
+    "title": "Decouple ma_trend_window_days=180, MA99 cache, 2D optimizer search space",
+    "date": "2026-05-04",
+    "text": "Fixed MA trend window at 180 days, added MA99 precompute cache, and reduced optimizer search to 2D; 60-day backtest improved score from 0.58 to 0.63."
+  },
+  {
     "ticketId": "K-087",
     "title": "History range picker — load bars from DB CSV by time range directly into OHLC editor",
     "date": "2026-05-03",

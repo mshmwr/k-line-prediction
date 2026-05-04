@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { API_BASE } from './utils/api'
 import { OHLCEditor } from './components/OHLCEditor'
 import { HistoryRangePicker } from './components/HistoryRangePicker'
 import { TopBar } from './components/TopBar'
@@ -17,7 +18,37 @@ import { computeStatsByDay } from './utils/statsByDay'
 import { isRowComplete } from './utils/officialCsvParsing'
 import { computeWorkspace } from './utils/workspaceComputation'
 
+interface LatestPrediction {
+  query_ts: string
+  projected_high: number | null
+  projected_low: number | null
+  projected_median: number | null
+  trend: string | null
+  top_k_count: number | null
+  created_at: string | null
+  params_hash: string | null
+}
+
 export default function AppPage() {
+  const [latestPred, setLatestPred] = useState<LatestPrediction | null>(null)
+  const [latestPredLoading, setLatestPredLoading] = useState(false)
+  const [latestPredError, setLatestPredError] = useState<string | null>(null)
+
+  async function fetchLatestPrediction() {
+    setLatestPredLoading(true)
+    setLatestPredError(null)
+    try {
+      const res = await fetch(`${API_BASE}/api/latest-prediction`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data: LatestPrediction = await res.json()
+      setLatestPred(data)
+    } catch (e) {
+      setLatestPredError(e instanceof Error ? e.message : 'Failed to fetch')
+    } finally {
+      setLatestPredLoading(false)
+    }
+  }
+
   const { predict, computeMa99, loading, error: predictionError } = usePrediction()
   const { historyInfo } = useHistoryUpload()
   // Stable ref breaks circular dep: useOfficialInput needs resetPredictionState
@@ -143,7 +174,40 @@ export default function AppPage() {
             <MatchList matches={ws.displayMatches} selected={ws.tempSelection} onToggle={ws.handleToggle} timeframe={oi.viewTimeframe} />
           </div>
           <div className="max-h-[48vh] flex-shrink-0 overflow-y-auto pr-1">
-            <h3 className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Statistics</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm text-gray-400 uppercase tracking-wider">Statistics</h3>
+              <button
+                onClick={fetchLatestPrediction}
+                disabled={latestPredLoading}
+                className="text-xs px-2 py-1 rounded border border-gray-600 text-gray-300 hover:border-orange-400 hover:text-orange-300 disabled:opacity-50 transition-colors"
+              >
+                {latestPredLoading ? 'Loading…' : 'Latest Prediction'}
+              </button>
+            </div>
+            {latestPredError && (
+              <div className="mb-2 text-xs text-red-400 border border-red-800 rounded px-2 py-1 bg-red-950/50">
+                {latestPredError}
+              </div>
+            )}
+            {latestPred && (
+              <div className="mb-3 rounded border border-gray-700 bg-gray-900/80 px-3 py-2 text-xs font-mono grid grid-cols-2 gap-x-4 gap-y-1">
+                <div className="col-span-2 text-gray-400 mb-0.5">
+                  Input: <span className="text-gray-200">{latestPred.query_ts}</span>
+                  <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-sans ${latestPred.trend === 'up' ? 'bg-green-900 text-green-300' : latestPred.trend === 'down' ? 'bg-red-900 text-red-300' : 'bg-gray-800 text-gray-400'}`}>
+                    {latestPred.trend?.toUpperCase() ?? '—'}
+                  </span>
+                </div>
+                <div className="text-gray-500">High</div>
+                <div className="text-green-300">{latestPred.projected_high != null ? latestPred.projected_high.toFixed(2) : '—'}</div>
+                <div className="text-gray-500">Low</div>
+                <div className="text-red-300">{latestPred.projected_low != null ? latestPred.projected_low.toFixed(2) : '—'}</div>
+                <div className="text-gray-500">Median</div>
+                <div className="text-gray-200">{latestPred.projected_median != null ? latestPred.projected_median.toFixed(2) : '—'}</div>
+                <div className="text-gray-500">Matches</div>
+                <div className="text-gray-200">{latestPred.top_k_count ?? '—'}</div>
+                <div className="col-span-2 text-gray-600 mt-0.5">params: {latestPred.params_hash}</div>
+              </div>
+            )}
             <StatsPanel stats={workspace.displayStats} dayStats={displayStatsByDay} isDirty={isDirty} selectedCount={ws.appliedSelection.size} totalCount={ws.matches.length} />
           </div>
         </div>
