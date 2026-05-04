@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState } from 'react'
-import { API_BASE } from './utils/api'
 import { OHLCEditor } from './components/OHLCEditor'
 import { HistoryRangePicker } from './components/HistoryRangePicker'
 import { TopBar } from './components/TopBar'
@@ -16,28 +15,10 @@ import { usePredictionWorkspace } from './hooks/usePredictionWorkspace'
 import { computeStatsFromMatches } from './utils/statsComputation'
 import { computeStatsByDay } from './utils/statsByDay'
 import { computeWorkspace } from './utils/workspaceComputation'
-
-interface LatestPrediction {
-  query_ts: string
-  projected_high: number | null
-  projected_low: number | null
-  projected_median: number | null
-  trend: string | null
-  top_k_count: number | null
-  params_hash: string | null
-}
-
-function formatPredBanner(d: LatestPrediction, inputRange?: string): string {
-  const trend = (d.trend ?? '—').toUpperCase()
-  const h = d.projected_high != null ? d.projected_high.toFixed(2) : '—'
-  const l = d.projected_low  != null ? d.projected_low.toFixed(2)  : '—'
-  const m = d.projected_median != null ? d.projected_median.toFixed(2) : '—'
-  const inputLine = inputRange ? `Input: ${inputRange}\n` : ''
-  return `${inputLine}[ETH/USDT 72H | ${d.query_ts} | ${trend}]\nHigh: ${h}  Low: ${l}  Med: ${m}  k=${d.top_k_count ?? '—'}`
-}
+import { toUTC8Display } from './utils/time'
 
 export default function AppPage() {
-  const [copyLabel, setCopyLabel] = useState<'idle' | 'loading' | 'copied' | 'error'>('idle')
+  const [copyLabel, setCopyLabel] = useState<'idle' | 'copied' | 'error'>('idle')
 
   const { predict, computeMa99, loading, error: predictionError } = usePrediction()
   const { historyInfo } = useHistoryUpload()
@@ -48,28 +29,6 @@ export default function AppPage() {
   const oi = useOfficialInput({ computeMa99, resetPredictionState: () => resetPredWsRef.current() })
   const ws = usePredictionWorkspace({ predict, apiRows: oi.apiRows, viewTimeframe: oi.viewTimeframe, setQueryMa99: oi.setQueryMa99, setQueryMa99Gap: oi.setQueryMa99Gap })
   resetPredWsRef.current = ws.resetPredictionState
-
-  async function copyLatestPrediction() {
-    setCopyLabel('loading')
-    try {
-      const res = await fetch(`${API_BASE}/api/latest-prediction`)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data: LatestPrediction = await res.json()
-      const rows = oi.apiRows
-      let inputRange: string | undefined
-      if (rows.length > 0) {
-        const first = rows[0].time
-        const last = rows[rows.length - 1].time
-        inputRange = first === last ? first : `${first} ~ ${last}`
-      }
-      await navigator.clipboard.writeText(formatPredBanner(data, inputRange))
-      setCopyLabel('copied')
-      setTimeout(() => setCopyLabel('idle'), 2000)
-    } catch {
-      setCopyLabel('error')
-      setTimeout(() => setCopyLabel('idle'), 2500)
-    }
-  }
 
   const errorMessage = oi.loadError ?? predictionError
   const hasSelection = ws.tempSelection.size > 0
@@ -98,6 +57,32 @@ export default function AppPage() {
     for (const id of ws.tempSelection) if (!ws.appliedSelection.has(id)) return true
     return false
   }, [ws.tempSelection, ws.appliedSelection, ws.appliedData.stats])
+
+  function copyLatestPrediction() {
+    if (displayStatsByDay.length === 0) {
+      setCopyLabel('error')
+      setTimeout(() => setCopyLabel('idle'), 2500)
+      return
+    }
+    const rows = oi.apiRows
+    const lines: string[] = []
+    if (rows.length > 0) {
+      const first = toUTC8Display(rows[0].time)
+      const last = toUTC8Display(rows[rows.length - 1].time)
+      lines.push(`Input: ${first === last ? first : `${first} ~ ${last}`}`)
+    }
+    const pct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`
+    for (const day of displayStatsByDay) {
+      lines.push(`${day.label}: H ${day.highest.price} (${pct(day.highest.pct)}) @${day.highest.time}  L ${day.lowest.price} (${pct(day.lowest.pct)}) @${day.lowest.time}`)
+    }
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setCopyLabel('copied')
+      setTimeout(() => setCopyLabel('idle'), 2000)
+    }).catch(() => {
+      setCopyLabel('error')
+      setTimeout(() => setCopyLabel('idle'), 2500)
+    })
+  }
 
   const [inputTab, setInputTab] = useState<'upload' | 'db'>('upload')
 
