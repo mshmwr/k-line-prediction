@@ -11,7 +11,7 @@ from mock_data import generate_mock_history
 from models import MatchCase, OHLCBar
 from predictor import MA_WINDOW, compute_stats, find_top_matches, pearson_correlation, z_score_normalize
 from predictor import _classify_trend_by_pearson, _fetch_30d_ma_series, _get_bar_hour
-from predictor import _aligned_ma_series, _trend_direction
+from predictor import _aligned_ma_series, _trend_direction, _query_ma_series
 
 
 client = TestClient(app)
@@ -928,6 +928,20 @@ def test_find_top_matches_hour_start_none_unchanged():
 
 
 # ──────────────────────────────────────────────
+# K-092: _trend_direction unit tests
+# ──────────────────────────────────────────────
+
+def test_trend_direction_up_window_returns_1():
+    series = [100.0 + i for i in range(24)]
+    assert _trend_direction(series) == 1
+
+
+def test_trend_direction_down_window_returns_neg1():
+    series = [100.0 - i for i in range(24)]
+    assert _trend_direction(series) == -1
+
+
+# ──────────────────────────────────────────────
 # AC-092-LOCAL-MA-GATE: local 1H MA slope direction gate tests
 # ──────────────────────────────────────────────
 
@@ -964,7 +978,7 @@ def test_local_ma_gate_rejects_query_up_candidate_down():
         for b in input_slice
     ]
     # Compute query local direction — should be +1 (up)
-    query_local_ma, _ = __import__('predictor')._query_ma_series(input_bars, history, '1D')
+    query_local_ma, _ = _query_ma_series(input_bars, history, '1D')
     assert _trend_direction(query_local_ma) == 1, "query should be up"
     # Check that down-region windows have local direction -1
     n = len(input_bars)
@@ -985,7 +999,6 @@ def test_local_ma_gate_rejects_query_up_candidate_down():
             input_bars, future_n=5, history=history,
             timeframe='1D', ma_history=history,
         )
-        import predictor as _pred
         for m in matches:
             window_dicts = [
                 {'open': b.open, 'high': b.high, 'low': b.low,
@@ -1019,7 +1032,7 @@ def test_local_ma_gate_rejects_query_down_candidate_up():
         for b in input_slice
     ]
     # Verify query is down
-    query_local_ma, _ = __import__('predictor')._query_ma_series(input_bars, history, '1D')
+    query_local_ma, _ = _query_ma_series(input_bars, history, '1D')
     assert _trend_direction(query_local_ma) == -1, "query should be down"
     # find_top_matches must not return any candidate with local MA direction +1
     try:
@@ -1067,25 +1080,36 @@ def test_local_ma_gate_accepts_query_up_candidate_up():
 
 
 def test_local_ma_gate_accepts_query_up_candidate_flat():
-    """AC-092-LOCAL-MA-GATE case 4: query +1 (up), candidate flat (0) → accepted (flat compatible)."""
-    # Build history: 200 flat bars then 200 up bars
+    """AC-092-LOCAL-MA-GATE case 4: query +1 (up), candidate flat (0) → accepted (flat compatible).
+
+    Builds a history of 200 flat bars (step=0) followed by 400 up bars (step=1).
+    The query comes from the up region; flat candidates must not be rejected.
+    find_top_matches must return at least one result and raise no ValueError.
+    """
+    # Flat segment: 200 bars at constant price
     flat_bars = _make_monotone_history(200, "2020-01-01", step=0.0)
-    up_bars = _make_monotone_history(200, "2020-07-19", step=1.0)
+    # Up segment: 400 bars so the query anchor (at index 300) has 300 prior bars
+    # satisfying the ma_trend_window_days + MA_WINDOW floor (~129 bars).
+    up_bars = _make_monotone_history(400, "2020-07-19", step=1.0)
     history = flat_bars + up_bars
-    # Verify flat bars produce _trend_direction == 0
+
+    # Verify flat bars produce _trend_direction == 0 (fixture sanity check)
     sample_window = flat_bars[50:74]
     flat_ma = _aligned_ma_series(sample_window, flat_bars[:50])
     assert _trend_direction(flat_ma) == 0, "flat bars should produce direction 0"
-    # Query from up region
-    input_slice = up_bars[100:124]
+
+    # Query from deep inside the up region so MA99 floor is satisfied
+    input_slice = up_bars[300:324]
     input_bars = [
         OHLCBar(open=b['open'], high=b['high'], low=b['low'],
                 close=b['close'], time=b['date'])
         for b in input_slice
     ]
-    # Gate logic: query=+1, candidate=0 → should_reject = (1!=0 and 0!=0 and ...) = False
-    # So flat candidates must NOT be filtered out
-    q = 1
-    c = 0
-    should_reject = q != 0 and c != 0 and q != c
-    assert not should_reject, "flat candidate must not be rejected by gate when query is up"
+
+    # find_top_matches must not raise ValueError and must return matches —
+    # flat candidates (direction 0) must pass the gate when query direction is +1.
+    matches = find_top_matches(
+        input_bars, future_n=5, history=history,
+        timeframe='1D', ma_history=history,
+    )
+    assert matches, "up query against mixed flat+up history must return at least one match"
