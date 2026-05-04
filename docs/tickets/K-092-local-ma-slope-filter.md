@@ -5,7 +5,7 @@ status: open
 phase: 1
 opened: 2026-05-04
 depends-on: [K-090]
-qa-early-consultation: ✗
+qa-early-consultation: "✓ — 2026-05-04 K-092; 2 challenges raised: AC-092-QUERY-EXTEND demoted to Design Note (implementation detail, not testable behavior); AC-092-MATCH-COUNT moved to Manual Verification (requires real history CSV, cannot be automated)"
 sacred-clauses: []
 ---
 
@@ -35,14 +35,8 @@ query's local 1H MA slope direction is rejected.
   direction (`_trend_direction`) is opposite to the query's local 1H MA slope direction.
   - "Opposite" = one is `+1` and the other is `-1`; mismatches against `0` (flat) are **not**
     rejected (flat is compatible with either direction).
-- **AC-092-QUERY-EXTEND**: The query's local MA is computed via `_aligned_ma_series` using
-  available history prefix bars (same approach as candidates), not just the raw 24-bar input.
-  This ensures both sides have equivalent MA context depth.
 - **AC-092-NO-REGRESSION**: All existing backend unit tests pass. The new gate does not break
   any currently-passing prediction flows.
-- **AC-092-MATCH-COUNT**: A smoke run on the 2026-05-04 query (2026-05-03 08:00 ~ 2026-05-04
-  07:00 UTC+8, 24 bars) must still return at least 1 match (the filter narrows but must not
-  empty the result set for real inputs).
 
 ## Design Notes
 
@@ -55,6 +49,24 @@ history prefix context. Extract its direction with `_trend_direction`.
 For candidates: in the search loop, `_aligned_ma_series(window, history[:i])` gives the local
 1H MA. Extract its direction. One extra O(n) call per candidate — acceptable cost relative to
 the existing `_fetch_30d_ma_series` call already in the loop.
+
+**Implementation note (demoted from AC — QA challenge 2026-05-04):** The query's local MA must
+be computed via `_aligned_ma_series` using available history prefix bars (same approach as
+candidates), not just the raw 24-bar input. This ensures both sides have equivalent MA context
+depth. Code review will verify this implementation detail during Phase 1 review.
+
+## Manual Verification
+
+These steps require real history CSV and cannot be automated as unit tests. Run manually before
+marking the ticket accepted.
+
+**MV-092-01 — Smoke run with real 2026-05-04 query data**
+- Given: the history CSV for 2026-05-03 08:00 ~ 2026-05-04 07:00 UTC+8 (24 bars) is available
+- When: a prediction run is executed against the full history database
+- Then: the result must contain at least 1 match (the local MA gate narrows but must not empty
+  the result set for a real query with genuine market data)
+- Note: demoted from AC (QA challenge 2026-05-04) — requires real data CSV, cannot be
+  automated as a unit test
 
 ## File Change List
 
