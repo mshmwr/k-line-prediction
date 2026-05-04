@@ -140,17 +140,17 @@
       }
     ]
   },
-  "lastUpdated": "2026-05-04T21:41:54+08:00",
+  "lastUpdated": "2026-05-04T22:22:10+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 88,
+      "covered": 89,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 88
+      "total": 89
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 69
+      "value": 70
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
