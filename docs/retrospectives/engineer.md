@@ -1,5 +1,15 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-04 — K-091c hotfix (diary.json schema violation)
+
+**What went wrong:** Wrote `ticketId: "K-091c"` in diary.json. The Zod schema (`DiaryEntrySchema`) enforces `^K-\d{3}$` (exactly 3 digits, no suffix). The "c" sub-ticket suffix broke the regex → ZodError → /diary page rendered "Invalid diary data format" in production.
+
+**Root cause:** Did not verify the ticketId value against the schema regex before writing diary.json. Sub-ticket identifiers (K-091c, K-091a, etc.) are not representable in the current schema; the field must be omitted for sub-tickets.
+
+**Fix:** Remove ticketId from the K-091c diary entry (field is optional; omitting is correct when the ticket ID is not a plain `K-NNN`).
+
+**Next-time improvement:** Before writing any diary.json entry, check `types/diary.ts` DiaryEntrySchema for allowed values. For sub-ticket IDs (K-NNN + letter suffix), always omit ticketId — do not write the raw ticket identifier verbatim.
+
 ## 2026-05-03 — K-086 + K-087
 
 **What went well:** Threshold diagnosis was correct first try — 69/72 bar gap traced to missing 00:00 rows (2025-03-12→2026-04-01); 65-bar floor recovered 362/362 days. `pairs_out` collect mode was a minimal 3-line diff. Parallelization with pre-computed query bars reduced 75min optimizer to ~10min.
