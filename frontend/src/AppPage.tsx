@@ -15,7 +15,6 @@ import { usePredictionWorkspace } from './hooks/usePredictionWorkspace'
 // Actual call site is workspaceComputation.ts — this import is the AC-075-K013-CONTRACT grep anchor.
 import { computeStatsFromMatches } from './utils/statsComputation'
 import { computeStatsByDay } from './utils/statsByDay'
-import { isRowComplete } from './utils/officialCsvParsing'
 import { computeWorkspace } from './utils/workspaceComputation'
 
 interface LatestPrediction {
@@ -28,31 +27,17 @@ interface LatestPrediction {
   params_hash: string | null
 }
 
-function formatPredBanner(d: LatestPrediction): string {
+function formatPredBanner(d: LatestPrediction, inputRange?: string): string {
   const trend = (d.trend ?? '—').toUpperCase()
   const h = d.projected_high != null ? d.projected_high.toFixed(2) : '—'
   const l = d.projected_low  != null ? d.projected_low.toFixed(2)  : '—'
   const m = d.projected_median != null ? d.projected_median.toFixed(2) : '—'
-  return `[ETH/USDT 72H | ${d.query_ts} | ${trend}]\nHigh: ${h}  Low: ${l}  Med: ${m}  k=${d.top_k_count ?? '—'}`
+  const inputLine = inputRange ? `Input: ${inputRange}\n` : ''
+  return `${inputLine}[ETH/USDT 72H | ${d.query_ts} | ${trend}]\nHigh: ${h}  Low: ${l}  Med: ${m}  k=${d.top_k_count ?? '—'}`
 }
 
 export default function AppPage() {
   const [copyLabel, setCopyLabel] = useState<'idle' | 'loading' | 'copied' | 'error'>('idle')
-
-  async function copyLatestPrediction() {
-    setCopyLabel('loading')
-    try {
-      const res = await fetch(`${API_BASE}/api/latest-prediction`)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data: LatestPrediction = await res.json()
-      await navigator.clipboard.writeText(formatPredBanner(data))
-      setCopyLabel('copied')
-      setTimeout(() => setCopyLabel('idle'), 2000)
-    } catch {
-      setCopyLabel('error')
-      setTimeout(() => setCopyLabel('idle'), 2500)
-    }
-  }
 
   const { predict, computeMa99, loading, error: predictionError } = usePrediction()
   const { historyInfo } = useHistoryUpload()
@@ -63,6 +48,28 @@ export default function AppPage() {
   const oi = useOfficialInput({ computeMa99, resetPredictionState: () => resetPredWsRef.current() })
   const ws = usePredictionWorkspace({ predict, apiRows: oi.apiRows, viewTimeframe: oi.viewTimeframe, setQueryMa99: oi.setQueryMa99, setQueryMa99Gap: oi.setQueryMa99Gap })
   resetPredWsRef.current = ws.resetPredictionState
+
+  async function copyLatestPrediction() {
+    setCopyLabel('loading')
+    try {
+      const res = await fetch(`${API_BASE}/api/latest-prediction`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data: LatestPrediction = await res.json()
+      const rows = oi.apiRows
+      let inputRange: string | undefined
+      if (rows.length > 0) {
+        const first = rows[0].time
+        const last = rows[rows.length - 1].time
+        inputRange = first === last ? first : `${first} ~ ${last}`
+      }
+      await navigator.clipboard.writeText(formatPredBanner(data, inputRange))
+      setCopyLabel('copied')
+      setTimeout(() => setCopyLabel('idle'), 2000)
+    } catch {
+      setCopyLabel('error')
+      setTimeout(() => setCopyLabel('idle'), 2500)
+    }
+  }
 
   const errorMessage = oi.loadError ?? predictionError
   const hasSelection = ws.tempSelection.size > 0
@@ -96,7 +103,7 @@ export default function AppPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gray-950 text-gray-100">
-      <TopBar rowCount={oi.ohlcData.filter(isRowComplete).length} />
+      <TopBar onCopyPrediction={copyLatestPrediction} copyLabel={copyLabel} />
       {errorMessage && (
         <div data-testid="error-toast" className="mx-4 mt-1 text-red-400 text-xs border border-red-700 rounded px-3 py-1.5 bg-red-950 flex-shrink-0">✗ {errorMessage}</div>
       )}
@@ -179,20 +186,7 @@ export default function AppPage() {
             <MatchList matches={ws.displayMatches} selected={ws.tempSelection} onToggle={ws.handleToggle} timeframe={oi.viewTimeframe} />
           </div>
           <div className="max-h-[48vh] flex-shrink-0 overflow-y-auto pr-1">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm text-gray-400 uppercase tracking-wider">Statistics</h3>
-              <button
-                onClick={copyLatestPrediction}
-                disabled={copyLabel === 'loading'}
-                className={`text-xs px-2 py-1 rounded border transition-colors disabled:opacity-50 ${
-                  copyLabel === 'copied' ? 'border-green-600 text-green-400' :
-                  copyLabel === 'error'  ? 'border-red-600 text-red-400' :
-                  'border-gray-600 text-gray-300 hover:border-orange-400 hover:text-orange-300'
-                }`}
-              >
-                {copyLabel === 'loading' ? 'Loading…' : copyLabel === 'copied' ? 'Copied ✓' : copyLabel === 'error' ? 'Error ✗' : 'Copy Prediction'}
-              </button>
-            </div>
+            <h3 className="text-sm text-gray-400 uppercase tracking-wider mb-2">Statistics</h3>
             <StatsPanel stats={workspace.displayStats} dayStats={displayStatsByDay} isDirty={isDirty} selectedCount={ws.appliedSelection.size} totalCount={ws.matches.length} />
           </div>
         </div>

@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-091c",
+    "title": "Copy Prediction — include input OHLC time range in banner",
+    "date": "2026-05-04",
+    "text": "Banner now prepends 'Input: start ~ end' from the current OHLC editor rows so copied text includes the query window alongside the 72H forecast stats."
+  },
+  {
     "ticketId": "K-091",
     "title": "Latest Prediction button — one-click display of saved Firestore prediction stats",
     "date": "2026-05-04",
