@@ -382,6 +382,37 @@ def health():
     })
 
 
+@app.get("/api/latest-prediction")
+def get_latest_prediction():
+    """Return the most recent saved prediction from Firestore."""
+    try:
+        import google.cloud.firestore as _fs
+        client = _fs.Client()
+        docs = (
+            client.collection("predictions")
+            .order_by("created_at", direction=_fs.Query.DESCENDING)
+            .limit(1)
+            .get()
+        )
+        if not docs:
+            raise HTTPException(status_code=404, detail="No predictions found")
+        d = docs[0].to_dict()
+        return JSONResponse({
+            "query_ts": d.get("query_ts"),
+            "projected_high": d.get("projected_high"),
+            "projected_low": d.get("projected_low"),
+            "projected_median": d.get("projected_median"),
+            "trend": d.get("trend"),
+            "top_k_count": d.get("top_k_count"),
+            "created_at": d.get("created_at"),
+            "params_hash": (d.get("params_hash") or "")[:12],
+        })
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 # SPA fallback — must be the LAST route in main.py
 @app.get("/{full_path:path}")
 async def spa_fallback(full_path: str):
