@@ -1,4 +1,4 @@
-type CopyLabel = 'idle' | 'loading' | 'copied' | 'error'
+type CopyLabel = 'idle' | 'copied' | 'error'
 
 interface Props {
   onCopyPrediction: () => void
@@ -15,14 +15,13 @@ export function TopBar({ onCopyPrediction, copyLabel }: Props) {
       <div className="flex-1" />
       <button
         onClick={onCopyPrediction}
-        disabled={copyLabel === 'loading'}
-        className={`text-xs px-2 py-1 rounded border transition-colors disabled:opacity-50 ${
+        className={`text-xs px-2 py-1 rounded border transition-colors ${
           copyLabel === 'copied' ? 'border-green-600 text-green-400' :
           copyLabel === 'error'  ? 'border-red-600 text-red-400' :
           'border-gray-600 text-gray-300 hover:border-orange-400 hover:text-orange-300'
         }`}
       >
-        {copyLabel === 'loading' ? 'Loading…' : copyLabel === 'copied' ? 'Copied ✓' : copyLabel === 'error' ? 'Error ✗' : 'Copy Prediction'}
+        {copyLabel === 'copied' ? 'Copied ✓' : copyLabel === 'error' ? 'Error ✗' : 'Copy Prediction'}
       </button>
     </div>
   )
