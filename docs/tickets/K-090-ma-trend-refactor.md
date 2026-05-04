@@ -4,7 +4,7 @@ title: Decouple ma_trend_window_days — fix to 180, MA99 cache, 2D optimizer
 status: closed
 phase: 1
 opened: 2026-05-03
-closed-commit: pending
+closed-commit: 11b3b8f
 depends-on: [K-088]
 qa-early-consultation: ✓
 sacred-clauses: []
