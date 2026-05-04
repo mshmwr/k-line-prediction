@@ -5,7 +5,7 @@ Weekly Bayesian optimizer entry script.
 
 Schedule: GitHub Actions cron Mon 05:00 UTC (weekly-optimize.yml).
 Reads last 90 days of predictions + actuals from Firestore, runs Bayesian
-search over (window, pearson, top_k), writes winner to Firestore, triggers
+search over (pearson, top_k) with ma_trend_window_days fixed at 180, writes winner to Firestore, triggers
 Cloud Run redeploy.
 
 Exit codes:
@@ -119,19 +119,20 @@ def build_completed_pairs(predictions: list, actuals: list) -> list:
 # Objective closure factory
 # ---------------------------------------------------------------------------
 
-def make_objective(completed_pairs: list, history_1h: list, history_1d: list):
+def make_objective(completed_pairs: list, history_1h: list, history_1d: list, ma_trend_window_days: int):
     """Return a closure over completed_pairs for skopt.gp_minimize.
 
-    The closure receives a params_list [window, pearson, top_k] from skopt
-    and returns the negated objective score (gp_minimize minimizes).
+    The closure receives a params_list [pearson, top_k] from skopt;
+    ma_trend_window_days is fixed (not tuned by optimizer — K-090).
+    Returns negated objective score (gp_minimize minimizes).
     """
     def objective(params_list):
-        window, pearson, top_k = params_list
+        pearson, top_k = params_list
         snapshot = ParamSnapshot(
-            ma_trend_window_days=int(window),
+            ma_trend_window_days=ma_trend_window_days,
             ma_trend_pearson_threshold=float(pearson),
             top_k_matches=int(top_k),
-            params_hash=_compute_params_hash(int(window), float(pearson), int(top_k)),
+            params_hash=_compute_params_hash(ma_trend_window_days, float(pearson), int(top_k)),
             optimized_at=None,
             source="optimizer",
         )
@@ -220,10 +221,13 @@ def main() -> None:  # noqa: C901 — orchestrator; complexity is necessary
         len(history_1d),
     )
 
+    _predictor.build_ma99_cache(history_1d, HISTORY_1D_PATH)
+    logger.info("weekly_optimize: MA99 cache: %d entries", len(_predictor._MA99_CACHE))
+
     # ------------------------------------------------------------------
     # [5] Bayesian optimization (AC-083-SEARCH-SPACE, AC-083-COST-GUARD)
     # ------------------------------------------------------------------
-    space = [Integer(14, 60), Real(0.2, 0.7), Integer(5, 30)]
+    space = [Real(0.2, 0.7), Integer(5, 30)]
 
     # Cost guard state (closure over mutable lists for Python 2-compat pattern)
     no_improve_streak = [0]
@@ -255,7 +259,7 @@ def main() -> None:  # noqa: C901 — orchestrator; complexity is necessary
 
     try:
         result = gp_minimize(
-            func=make_objective(completed_pairs, history_1h, history_1d),
+            func=make_objective(completed_pairs, history_1h, history_1d, current_params.ma_trend_window_days),
             dimensions=space,
             n_calls=MAX_ITERATIONS,
             random_state=RANDOM_STATE,
@@ -279,18 +283,17 @@ def main() -> None:  # noqa: C901 — orchestrator; complexity is necessary
     winner_params = result.x_iters[best_idx]
     winner_score = -result.func_vals[best_idx]  # negate back to positive
 
-    winner_window = int(winner_params[0])
-    winner_pearson = float(winner_params[1])
-    winner_top_k = int(winner_params[2])
-    winner_hash = _compute_params_hash(winner_window, winner_pearson, winner_top_k)
+    winner_pearson = float(winner_params[0])
+    winner_top_k = int(winner_params[1])
+    winner_hash = _compute_params_hash(current_params.ma_trend_window_days, winner_pearson, winner_top_k)
 
     completed_at = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # Log winning params BEFORE any write (AC-083-FIRESTORE-FAILURE-MID-RUN stdout requirement)
     logger.info(
-        "weekly_optimize: winner params: window=%d pearson=%.4f top_k=%d "
+        "weekly_optimize: winner params: ma_trend_window=%d pearson=%.4f top_k=%d "
         "score=%.4f hash=%s iterations=%d early_exit=%s",
-        winner_window, winner_pearson, winner_top_k,
+        current_params.ma_trend_window_days, winner_pearson, winner_top_k,
         winner_score, winner_hash[:8], iterations_run, early_exit,
     )
 
@@ -321,13 +324,13 @@ def main() -> None:  # noqa: C901 — orchestrator; complexity is necessary
         git_sha = "unknown"
 
     active_doc = build_predictor_params_doc(
-        window_days=winner_window,
+        ma_trend_window_days=current_params.ma_trend_window_days,
         pearson_threshold=winner_pearson,
         top_k=winner_top_k,
         optimized_at=optimized_at,
     )
     history_doc = build_predictor_params_history_doc(
-        window_days=winner_window,
+        ma_trend_window_days=current_params.ma_trend_window_days,
         pearson_threshold=winner_pearson,
         top_k=winner_top_k,
         optimized_at=optimized_at,
@@ -340,7 +343,7 @@ def main() -> None:  # noqa: C901 — orchestrator; complexity is necessary
         run_id=run_id,
         best_score=winner_score,
         best_params={
-            "window_days": winner_window,
+            "ma_trend_window_days": current_params.ma_trend_window_days,
             "pearson_threshold": winner_pearson,
             "top_k": winner_top_k,
         },

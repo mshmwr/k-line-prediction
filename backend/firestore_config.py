@@ -28,7 +28,7 @@ FIRESTORE_DOCUMENT = "active"
 # K-079 contract: the four expected keys in the predictor_params/active document.
 # K-079 writer must use this set so field names stay in sync with the reader above.
 FIRESTORE_PREDICTOR_PARAMS_FIELDS: frozenset = frozenset({
-    "window_days",
+    "ma_trend_window_days",
     "pearson_threshold",
     "top_k",
     "optimized_at",
@@ -83,7 +83,7 @@ FIRESTORE_OPTIMIZE_RUN_FIELDS: frozenset = frozenset({
 })
 
 FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS: frozenset = frozenset({
-    "window_days",        # int   — winning window value
+    "ma_trend_window_days",  # int   — MA trend window (fixed 180 days)
     "pearson_threshold",  # float — winning pearson value
     "top_k",              # int   — winning top_k value
     "optimized_at",       # str   — ISO8601 UTC (same as optimize_run.completed_at)
@@ -138,10 +138,10 @@ def _compute_params_hash(window: int, pearson: float, top_k: int) -> str:
 
 # Module-level constant — computed once at import time.
 DEFAULT_PARAMS = ParamSnapshot(
-    ma_trend_window_days=30,
+    ma_trend_window_days=180,
     ma_trend_pearson_threshold=0.4,
     top_k_matches=10,
-    params_hash=_compute_params_hash(30, 0.4, 10),
+    params_hash=_compute_params_hash(180, 0.4, 10),
     optimized_at=None,
     source="default",
 )
@@ -194,7 +194,7 @@ def load_active_params(timeout_seconds: float = 5.0) -> ParamSnapshot:
             )
 
         data = doc.to_dict()
-        loaded_window = int(data["window_days"])
+        loaded_window = int(data["ma_trend_window_days"])
         loaded_pearson = float(data["pearson_threshold"])
         loaded_top_k = int(data["top_k"])
         loaded_optimized_at = data.get("optimized_at")

@@ -186,7 +186,7 @@ def _normalize_ts(ts_str: str) -> Optional[str]:
 # ---------------------------------------------------------------------------
 
 def build_predictor_params_doc(
-    window_days: int,
+    ma_trend_window_days: int,
     pearson_threshold: float,
     top_k: int,
     optimized_at: str,
@@ -196,7 +196,7 @@ def build_predictor_params_doc(
     Keys match FIRESTORE_PREDICTOR_PARAMS_FIELDS exactly.
     """
     return {
-        "window_days": window_days,
+        "ma_trend_window_days": ma_trend_window_days,
         "pearson_threshold": pearson_threshold,
         "top_k": top_k,
         "optimized_at": optimized_at,
@@ -204,7 +204,7 @@ def build_predictor_params_doc(
 
 
 def build_predictor_params_history_doc(
-    window_days: int,
+    ma_trend_window_days: int,
     pearson_threshold: float,
     top_k: int,
     optimized_at: str,
@@ -218,7 +218,7 @@ def build_predictor_params_history_doc(
     Keys match FIRESTORE_PREDICTOR_PARAMS_HISTORY_FIELDS exactly.
     """
     return {
-        "window_days": window_days,
+        "ma_trend_window_days": ma_trend_window_days,
         "pearson_threshold": pearson_threshold,
         "top_k": top_k,
         "optimized_at": optimized_at,

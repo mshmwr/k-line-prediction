@@ -271,10 +271,10 @@ def test_winner_write_order_and_field_sets():
     """All three Firestore writes must use correct field sets matching their frozensets."""
     # Build each doc via the builder helpers
     active_doc = build_predictor_params_doc(
-        window_days=30, pearson_threshold=0.45, top_k=12, optimized_at="2026-05-05T05:07:00Z"
+        ma_trend_window_days=30, pearson_threshold=0.45, top_k=12, optimized_at="2026-05-05T05:07:00Z"
     )
     history_doc = build_predictor_params_history_doc(
-        window_days=30, pearson_threshold=0.45, top_k=12,
+        ma_trend_window_days=30, pearson_threshold=0.45, top_k=12,
         optimized_at="2026-05-05T05:07:00Z",
         best_score=0.72,
         run_id="optimize-2026-05-05",
@@ -284,7 +284,7 @@ def test_winner_write_order_and_field_sets():
     run_doc = build_optimize_run_doc(
         run_id="optimize-2026-05-05",
         best_score=0.72,
-        best_params={"window_days": 30, "pearson_threshold": 0.45, "top_k": 12},
+        best_params={"ma_trend_window_days": 30, "pearson_threshold": 0.45, "top_k": 12},
         iterations_run=35,
         early_exit=False,
         data_window_days=90,
@@ -331,7 +331,7 @@ def test_firestore_transient_failure_retry_succeeds():
     from firestore_config import write_predictor_params_active
 
     active_doc = build_predictor_params_doc(
-        window_days=30, pearson_threshold=0.45, top_k=12, optimized_at="2026-05-05T05:07:00Z"
+        ma_trend_window_days=30, pearson_threshold=0.45, top_k=12, optimized_at="2026-05-05T05:07:00Z"
     )
 
     client = MagicMock()
@@ -358,7 +358,7 @@ def test_firestore_permanent_failure_exit_nonzero(capsys):
     from firestore_config import write_predictor_params_active, _write_with_retry
 
     active_doc = build_predictor_params_doc(
-        window_days=30, pearson_threshold=0.45, top_k=12, optimized_at="2026-05-05T05:07:00Z"
+        ma_trend_window_days=30, pearson_threshold=0.45, top_k=12, optimized_at="2026-05-05T05:07:00Z"
     )
 
     client = MagicMock()
@@ -421,15 +421,15 @@ def test_predictor_params_restored_after_objective_eval():
 # Shared helper for tests 8 + 9: build a fake gp_minimize result
 # ---------------------------------------------------------------------------
 
-def _make_fake_gp_result(window: int, pearson: float, top_k: int, score: float):
+def _make_fake_gp_result(pearson: float, top_k: int, score: float):
     """Return a mock OptimizeResult with a single iteration at the given params.
 
     func_vals stores the NEGATED score (gp_minimize minimizes).
-    x_iters stores the corresponding params list.
+    x_iters stores [pearson, top_k] (2D space — K-090: window_days fixed, not tuned).
     """
     result = MagicMock()
     result.func_vals = [-score]          # negated; best index = 0
-    result.x_iters = [[window, pearson, top_k]]
+    result.x_iters = [[pearson, top_k]]
     return result
 
 
@@ -450,7 +450,7 @@ def test_hash_equal_early_exit():
     winner_window, winner_pearson, winner_top_k = 30, 0.4, 10
     winner_hash = _compute_params_hash(winner_window, winner_pearson, winner_top_k)
 
-    gp_result = _make_fake_gp_result(winner_window, winner_pearson, winner_top_k, score=0.65)
+    gp_result = _make_fake_gp_result(winner_pearson, winner_top_k, score=0.65)
 
     # load_active_params returns a Firestore-sourced snapshot whose hash == winner_hash
     # → current_hash is NOT None → idempotency check fires → sys.exit(0)
@@ -485,6 +485,7 @@ def test_hash_equal_early_exit():
              patch("weekly_optimize.load_active_params", return_value=matching_params), \
              patch("weekly_optimize.gp_minimize", return_value=gp_result), \
              patch("weekly_optimize.subprocess", mock_subprocess), \
+             patch("weekly_optimize._predictor.build_ma99_cache"), \
              patch("weekly_optimize.write_predictor_params_active", mock_write_active), \
              patch("weekly_optimize.write_predictor_params_history", mock_write_history), \
              patch("weekly_optimize.write_optimize_run", mock_write_run):
@@ -524,7 +525,7 @@ def test_gcloud_failure_exits_nonzero():
     winner_window, winner_pearson, winner_top_k = 30, 0.4, 10
     winner_hash = _compute_params_hash(winner_window, winner_pearson, winner_top_k)
 
-    gp_result = _make_fake_gp_result(winner_window, winner_pearson, winner_top_k, score=0.65)
+    gp_result = _make_fake_gp_result(winner_pearson, winner_top_k, score=0.65)
 
     # Active params differ → current_hash != winner_hash → writes proceed
     different_hash = _compute_params_hash(20, 0.3, 5)
@@ -565,6 +566,7 @@ def test_gcloud_failure_exits_nonzero():
              patch("weekly_optimize.load_active_params", return_value=different_params), \
              patch("weekly_optimize.gp_minimize", return_value=gp_result), \
              patch("weekly_optimize.subprocess", mock_subprocess), \
+             patch("weekly_optimize._predictor.build_ma99_cache"), \
              patch("weekly_optimize.write_predictor_params_active", mock_write_active), \
              patch("weekly_optimize.write_predictor_params_history", mock_write_history), \
              patch("weekly_optimize.write_optimize_run", mock_write_run):
@@ -596,7 +598,7 @@ def test_frozenset_contract_no_extra_fields():
     doc = build_optimize_run_doc(
         run_id="optimize-2026-05-05",
         best_score=0.72,
-        best_params={"window_days": 30, "pearson_threshold": 0.45, "top_k": 12},
+        best_params={"ma_trend_window_days": 30, "pearson_threshold": 0.45, "top_k": 12},
         iterations_run=35,
         early_exit=False,
         data_window_days=90,

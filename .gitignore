@@ -40,6 +40,9 @@ frontend/public/docs/
 # Pencil MCP generated temp images (not design artefacts)
 frontend/design/images/
 
+# MA99 daily cache (regenerable from 1D CSV)
+history_database/ma99_1d_cache.json
+
 # Graphify AST cache (regenerable, ~500KB)
 graphify-out/cache/
 
