@@ -140,21 +140,21 @@
       }
     ]
   },
-  "lastUpdated": "2026-05-04T17:12:50+08:00",
+  "lastUpdated": "2026-05-04T21:13:34+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 86,
+      "covered": 87,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 86
+      "total": 87
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 67
+      "value": 68
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
-      "value": 236
+      "value": 239
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",

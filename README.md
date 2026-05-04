@@ -2,7 +2,7 @@
 
 <!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
 <!-- METRICS:start -->
-67+ tickets shipped · 86/86 AC covered · 43 post-mortems · 236 lessons codified
+68+ tickets shipped · 87/87 AC covered · 43 post-mortems · 239 lessons codified
 <!-- METRICS:end -->
 
 <!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
