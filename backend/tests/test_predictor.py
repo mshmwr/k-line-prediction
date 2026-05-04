@@ -1113,3 +1113,56 @@ def test_local_ma_gate_accepts_query_up_candidate_flat():
         timeframe='1D', ma_history=history,
     )
     assert matches, "up query against mixed flat+up history must return at least one match"
+
+
+def test_local_ma_gate_accepts_flat_query():
+    """AC-092-LOCAL-MA-GATE W-1: query direction == 0 (flat) → gate must not block.
+
+    When _trend_direction(query_local_ma) == 0, the gate condition
+    `query_local_direction != 0 and candidate_local_direction != 0` is False
+    regardless of candidate direction, so no candidate is rejected by the gate.
+
+    Strategy:
+    - 400 flat bars (step=0) → 200 up bars (step=1) total 600-bar history.
+    - Query comes from flat region index 370..394 (24 bars); preceding 99 bars
+      are all flat → aligned MA series = constant → _trend_direction == 0.
+    - ma_history = same 600 bars; anchor at index 393 has 393 prior bars,
+      satisfying the MA99 floor (~129 bars) for the global-MA99 gate.
+    - Up region provides candidates with direction +1 that would be rejected
+      if the gate incorrectly fired on flat query — but the gate must NOT fire.
+
+    find_top_matches must return at least one match OR raise only the
+    "No historical matches found" ValueError (data-driven, not gate-caused).
+    """
+    # 400 flat bars then 200 up bars
+    flat_bars = _make_monotone_history(400, "2020-01-01", step=0.0)
+    up_bars = _make_monotone_history(200, "2021-02-04", step=1.0)  # date after flat end
+    history = flat_bars + up_bars
+
+    # Query slice: 24 bars deep inside flat region (index 370..394)
+    input_slice = flat_bars[370:394]
+    input_bars = [
+        OHLCBar(open=b['open'], high=b['high'], low=b['low'],
+                close=b['close'], time=b['date'])
+        for b in input_slice
+    ]
+
+    # Fixture sanity: query local MA must be direction 0
+    query_local_ma, mode = _query_ma_series(input_bars, history, '1D')
+    assert _trend_direction(query_local_ma) == 0, (
+        f"flat query (mode={mode}) must yield direction 0; "
+        f"first={query_local_ma[0]:.6f} last={query_local_ma[-1]:.6f}"
+    )
+
+    # find_top_matches must not raise gate-caused ValueError.
+    # "No historical matches found" is acceptable (data-driven).
+    try:
+        matches = find_top_matches(
+            input_bars, future_n=5, history=history,
+            timeframe='1D', ma_history=history,
+        )
+        assert matches, "flat query must return at least one match (gate should not block)"
+    except ValueError as exc:
+        assert "No historical matches found" in str(exc), (
+            f"ValueError must be data-driven, not gate-caused; got: {exc}"
+        )
