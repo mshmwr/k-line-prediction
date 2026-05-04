@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { OHLCRow } from '../types'
+import { toUTC8Display, fromUTC8Input } from '../utils/time'
 
 interface RangeInfo {
   earliest: string
@@ -34,13 +35,13 @@ export function HistoryRangePicker({ onLoad }: Props) {
       .then(r => r.json())
       .then((data: RangeInfo) => {
         setRangeInfo(data)
-        // default to last 24 hours of available data
-        const endVal = toInputValue(data.latest)
+        // default to last 24 hours; compute window in UTC+0, then convert to UTC+8 for display
         const endDt = new Date(data.latest.replace(' ', 'T') + ':00Z')
-        endDt.setUTCHours(endDt.getUTCHours() - 23)
-        const startVal = endDt.toISOString().slice(0, 16)
-        setStart(startVal)
-        setEnd(endVal)
+        const startDt = new Date(endDt.getTime() - 23 * 3600000)
+        const toUtc0Str = (d: Date) =>
+          `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`
+        setStart(toInputValue(toUTC8Display(toUtc0Str(startDt))))
+        setEnd(toInputValue(toUTC8Display(toUtc0Str(endDt))))
       })
       .catch(() => setError('Failed to load history range'))
   }, [])
@@ -51,7 +52,9 @@ export function HistoryRangePicker({ onLoad }: Props) {
     setError(null)
     setBarCount(null)
     try {
-      const params = new URLSearchParams({ start, end })
+      const startUtc0 = fromUTC8Input(toDisplayLabel(start))
+      const endUtc0 = fromUTC8Input(toDisplayLabel(end))
+      const params = new URLSearchParams({ start: startUtc0, end: endUtc0 })
       const res = await fetch(`/api/history/bars?${params}`)
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
@@ -59,7 +62,7 @@ export function HistoryRangePicker({ onLoad }: Props) {
       }
       const data = await res.json() as { bars: OHLCRow[]; count: number }
       setBarCount(data.count)
-      const label = `DB ${toDisplayLabel(start)} → ${toDisplayLabel(end)} (${data.count} bars, UTC+0)`
+      const label = `DB ${toDisplayLabel(start)} → ${toDisplayLabel(end)} (${data.count} bars)`
       await onLoad(data.bars, label)
     } catch (err) {
       setError((err as Error).message)
@@ -68,36 +71,38 @@ export function HistoryRangePicker({ onLoad }: Props) {
     }
   }
 
-  const minVal = rangeInfo ? toInputValue(rangeInfo.earliest) : ''
-  const maxVal = rangeInfo ? toInputValue(rangeInfo.latest) : ''
+  const minVal = rangeInfo ? toInputValue(toUTC8Display(rangeInfo.earliest)) : ''
+  const maxVal = rangeInfo ? toInputValue(toUTC8Display(rangeInfo.latest)) : ''
   const canLoad = !loading && !!start && !!end && start <= end
 
   return (
     <div className="flex flex-col gap-2">
       <div className="text-xs text-gray-500">
         {rangeInfo
-          ? `Available: ${rangeInfo.earliest} — ${rangeInfo.latest} UTC+0 (${rangeInfo.count.toLocaleString()} bars)`
+          ? `Available: ${toUTC8Display(rangeInfo.earliest)} — ${toUTC8Display(rangeInfo.latest)} UTC+8 (${rangeInfo.count.toLocaleString()} bars)`
           : 'Loading…'}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-gray-400">Start (UTC+0)</label>
+        <label className="text-xs text-gray-400">Start (UTC+8)</label>
         <input
           type="datetime-local"
           value={start}
           min={minVal}
           max={maxVal}
+          step="3600"
           onChange={e => setStart(e.target.value)}
           className="rounded border border-gray-600 bg-gray-950 px-2 py-1 text-xs text-gray-200 focus:border-orange-400 focus:outline-none"
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-gray-400">End (UTC+0)</label>
+        <label className="text-xs text-gray-400">End (UTC+8)</label>
         <input
           type="datetime-local"
           value={end}
           min={start || minVal}
           max={maxVal}
+          step="3600"
           onChange={e => setEnd(e.target.value)}
           className="rounded border border-gray-600 bg-gray-950 px-2 py-1 text-xs text-gray-200 focus:border-orange-400 focus:outline-none"
         />

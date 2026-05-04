@@ -148,7 +148,7 @@ export default function AppPage() {
                   const isStale = fh != null && fh >= 48
                   return (
                     <div key={tf} className="rounded border border-gray-700 bg-gray-950/70 p-2 text-xs text-gray-300 font-mono" {...(isStale ? { 'data-testid': 'history-freshness-stale' } : {})}>
-                      {`${entry.filename} (latest: ${entry.latest ?? 'N/A'} UTC+0${freshnessStr})`}
+                      {`${entry.filename} (latest: ${entry.latest != null ? toUTC8Display(entry.latest) : 'N/A'}${freshnessStr})`}
                     </div>
                   )
                 })}
