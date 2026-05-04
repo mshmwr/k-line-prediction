@@ -18,6 +18,12 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-04 — K-092
+
+**What went well:** Pre-read of `find_top_matches` loop body confirmed that `_aligned_ma_series(window, history[:i])` is already the established pattern for per-candidate prefix context; the new gate reuses it with zero new helpers.
+**What went wrong:** Hook blocked the initial Write because the design doc was attempted in the canonical repo (main branch) rather than in the worktree, despite the PM note saying "no worktree needed." The hook takes precedence — always create the worktree first.
+**Next-time improvement:** PM "docs-only, no worktree needed" instructions do not override the pre-edit-branch-check hook; always create the worktree first, even for docs-only tasks.
+
 ## 2026-05-03 — K-085
 
 **What went well:** Pre-read of `find_top_matches()` and `daily_predict.py` before designing revealed that `history=`, `run_prediction()`, `compute_outcome()`, `build_6h_query_window()` are all already composable — design reduced to a thin loop with a slice, zero predictor changes required.
