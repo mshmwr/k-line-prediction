@@ -414,6 +414,8 @@ def find_top_matches(
             f"ma_history requires at least {params.ma_trend_window_days + MA_WINDOW} daily bars ending at that date."
         )
     query_direction = _classify_trend_by_pearson(query_30d_ma)
+    query_local_ma, _ = _query_ma_series(input_bars, history, timeframe)
+    query_local_direction = _trend_direction(query_local_ma)
     _1d_index = _history_time_index(ma_history, '1D')
     results = []
     for i in range(0, len(history) - n - future_n):
@@ -427,6 +429,11 @@ def find_top_matches(
             continue
         if _classify_trend_by_pearson(candidate_30d_ma) != query_direction:
             continue
+        candidate_local_ma = _aligned_ma_series(window, history[:i])
+        candidate_local_direction = _trend_direction(candidate_local_ma)
+        if query_local_direction != 0 and candidate_local_direction != 0:
+            if query_local_direction != candidate_local_direction:
+                continue
         candle_score = _normalized_similarity(query_candle_features, _candle_feature_vector(window))
         if len(candidate_30d_ma) != len(query_30d_ma):
             r = round(candle_score, 4)

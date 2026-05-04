@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-05-03 (K-084)
+updated: 2026-05-04 (K-092)
 ---
 
 ## Summary
@@ -743,6 +743,9 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 ---
 
 ## Changelog
+
+**2026-05-04 — K-092 — Add local 1H MA slope direction gate in `find_top_matches`: pre-loop query direction via `_query_ma_series` + `_trend_direction`; per-candidate gate rejects opposite-direction segments; flat (0) compatible with both.**
+Design doc: [docs/architecture/K-092-local-ma-slope-filter.md](../docs/architecture/K-092-local-ma-slope-filter.md)
 
 **2026-05-03 — K-084 — Intraday 6H window random sampling: `find_top_matches` gains `hour_start: Optional[int]`; new `_get_bar_hour()` helper; `build_6h_query_window()` in daily_predict.py; `evaluate_corpus` samples per-pair; `hour_start` added to `FIRESTORE_PREDICTION_FIELDS`.**
 Design doc: [docs/designs/K-084-design.md](../docs/designs/K-084-design.md)
