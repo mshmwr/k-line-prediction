@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-092",
+    "title": "Local 1H MA slope direction gate — filter out opposite-trend matches",
+    "date": "2026-05-04",
+    "text": "Added a local 1H MA99 slope consistency check inside find_top_matches: candidates whose local MA direction is opposite to the query's are now rejected, reducing visually contradictory matches while keeping flat-slope windows compatible with either direction."
+  },
+  {
     "title": "Copy Prediction — include input OHLC time range in banner",
     "date": "2026-05-04",
     "text": "Banner now prepends 'Input: start ~ end' from the current OHLC editor rows so copied text includes the query window alongside the 72H forecast stats."
