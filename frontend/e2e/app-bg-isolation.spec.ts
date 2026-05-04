@@ -62,8 +62,8 @@ test.describe('AC-030-NO-NAVBAR — /app page has no UnifiedNavBar', () => {
     await expect(page.getByRole('link', { name: 'About', exact: true })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'App', exact: true })).toHaveCount(0)
 
-    // TopBar tool chrome still renders: `Loaded rows:` label (TopBar.tsx)
-    await expect(page.getByText('Loaded rows:')).toBeVisible()
+    // TopBar tool chrome still renders: Copy Prediction button (TopBar.tsx)
+    await expect(page.getByRole('button', { name: 'Copy Prediction', exact: true })).toBeVisible()
   })
 })
 

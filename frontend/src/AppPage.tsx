@@ -15,7 +15,6 @@ import { usePredictionWorkspace } from './hooks/usePredictionWorkspace'
 // Actual call site is workspaceComputation.ts — this import is the AC-075-K013-CONTRACT grep anchor.
 import { computeStatsFromMatches } from './utils/statsComputation'
 import { computeStatsByDay } from './utils/statsByDay'
-import { isRowComplete } from './utils/officialCsvParsing'
 import { computeWorkspace } from './utils/workspaceComputation'
 
 interface LatestPrediction {
@@ -104,7 +103,7 @@ export default function AppPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gray-950 text-gray-100">
-      <TopBar rowCount={oi.ohlcData.filter(isRowComplete).length} />
+      <TopBar onCopyPrediction={copyLatestPrediction} copyLabel={copyLabel} />
       {errorMessage && (
         <div data-testid="error-toast" className="mx-4 mt-1 text-red-400 text-xs border border-red-700 rounded px-3 py-1.5 bg-red-950 flex-shrink-0">✗ {errorMessage}</div>
       )}
@@ -187,20 +186,7 @@ export default function AppPage() {
             <MatchList matches={ws.displayMatches} selected={ws.tempSelection} onToggle={ws.handleToggle} timeframe={oi.viewTimeframe} />
           </div>
           <div className="max-h-[48vh] flex-shrink-0 overflow-y-auto pr-1">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm text-gray-400 uppercase tracking-wider">Statistics</h3>
-              <button
-                onClick={copyLatestPrediction}
-                disabled={copyLabel === 'loading'}
-                className={`text-xs px-2 py-1 rounded border transition-colors disabled:opacity-50 ${
-                  copyLabel === 'copied' ? 'border-green-600 text-green-400' :
-                  copyLabel === 'error'  ? 'border-red-600 text-red-400' :
-                  'border-gray-600 text-gray-300 hover:border-orange-400 hover:text-orange-300'
-                }`}
-              >
-                {copyLabel === 'loading' ? 'Loading…' : copyLabel === 'copied' ? 'Copied ✓' : copyLabel === 'error' ? 'Error ✗' : 'Copy Prediction'}
-              </button>
-            </div>
+            <h3 className="text-sm text-gray-400 uppercase tracking-wider mb-2">Statistics</h3>
             <StatsPanel stats={workspace.displayStats} dayStats={displayStatsByDay} isDirty={isDirty} selectedCount={ws.appliedSelection.size} totalCount={ws.matches.length} />
           </div>
         </div>
