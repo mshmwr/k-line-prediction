@@ -4,7 +4,7 @@ title: Use second_lowest as projected_low
 status: closed
 phase: 1
 opened: 2026-05-04
-closed-commit: pending
+closed-commit: 0439c00
 depends-on: [K-088]
 qa-early-consultation: "N/A — symmetric follow-up to K-088"
 sacred-clauses: []
