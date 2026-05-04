@@ -12,6 +12,7 @@
     "text": "Added Latest Prediction button to Statistics panel; fetches query_ts, projected high/low/median, trend, and match count from Firestore via new backend endpoint."
   },
   {
+    "ticketId": "K-093",
     "title": "Copy Prediction — include input OHLC time range in banner",
     "date": "2026-05-04",
     "text": "Banner now prepends 'Input: start ~ end' from the current OHLC editor rows so copied text includes the query window alongside the 72H forecast stats."
