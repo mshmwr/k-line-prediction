@@ -24,6 +24,12 @@
     "text": "Added a local 1H MA99 slope consistency check inside find_top_matches: candidates whose local MA direction is opposite to the query's are now rejected, reducing visually contradictory matches while keeping flat-slope windows compatible with either direction."
   },
   {
+    "ticketId": "K-089",
+    "title": "Use second_lowest as projected_low",
+    "date": "2026-05-04",
+    "text": "Switched projected_low from stats.lowest to stats.second_lowest, symmetric follow-up to K-088; absolute minimum is rarely hit so second_lowest gives a more realistic downside forecast."
+  },
+  {
     "ticketId": "K-087",
     "title": "History range picker — load bars from DB CSV by time range directly into OHLC editor",
     "date": "2026-05-03",

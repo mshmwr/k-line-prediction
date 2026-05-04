@@ -196,7 +196,7 @@ def run_prediction(
         return {
             "params_hash": params.params_hash,
             "projected_high": stats.second_highest.price,
-            "projected_low": stats.lowest.price,
+            "projected_low": stats.second_lowest.price,
             "projected_median": projected_median,
             "top_k_count": len(matches),
             "trend": trend,
