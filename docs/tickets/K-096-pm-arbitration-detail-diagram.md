@@ -63,3 +63,12 @@ These gaps make the /about diagram misleading about PM's actual arbitration role
 **Regression tests that were insufficient:** AC-096 test block used bare `describe` instead of `test.describe` — parse error prevents entire about.spec.ts from collecting; Reviewer did not catch it before QA.
 **Edge cases not covered:** None beyond known-reds manifest.
 **Next time improvement:** Engineer must run `npx playwright test about.spec.ts --list` (collection dry-run) before handoff to confirm no parse errors.
+
+### Deploy Record
+
+**Deploy date:** 2026-05-06 00:47 (Asia/Taipei)
+**Git SHA at deploy:** `3e76931833ea7fc37baf0857804904ddc9c244e6`
+**Hosting URL:** https://k-line-prediction-app.web.app
+**Bundle hash:** `assets/page-aboutpage-CA4EEGVy.js`
+**Verification probe (executed):** `curl https://k-line-prediction-app.web.app/assets/page-aboutpage-CA4EEGVy.js | grep "QA Early Consultation\|veto"` → `veto`, `QA Early Consultation`
+**Status:** Live
