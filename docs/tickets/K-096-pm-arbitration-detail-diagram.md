@@ -31,7 +31,7 @@ These gaps make the /about diagram misleading about PM's actual arbitration role
 
 - **AC-096-OVERVIEW-QA-EC**: Pipeline Overview SVG contains a visible element (text or marker) indicating QA Early Consultation occurs before Architect. Verifiable via DOM text search on `[data-testid="role-pipeline-svg"]`.
 - **AC-096-DETAIL-SECTION**: `RolePipelineSection` renders a heading with text "PM Arbitration Detail" below the existing pipeline SVG. Verifiable via `getByRole('heading')` or `getByText`.
-- **AC-096-DETAIL-CAG**: PM Arbitration Detail SVG shows the CAG flow — `content-delta: yes + user-voice → PM presents to user → user approves → Engineer`. (Manual Verification)
+- **AC-096-DETAIL-CAG**: PM Arbitration Detail SVG shows the CAG flow — `Architect → PM (presents) → User (approves/vetoes) → PM (releases) → Engineer`; veto arc from User back to Architect; PM (releases) node is distinct from PM (presents) node. (Manual Verification)
 - **AC-096-DETAIL-REVIEWER-LOOP**: PM Arbitration Detail SVG shows Reviewer → PM → Engineer escalation path. (Manual Verification)
 - **AC-096-DETAIL-QA-INTERCEPT**: PM Arbitration Detail SVG shows QA Interception mid-Engineer. (Manual Verification)
 
