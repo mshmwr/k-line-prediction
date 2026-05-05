@@ -1,4 +1,5 @@
 import PipelineSvg from '../../assets/pipeline.svg?react'
+import PmArbitrationDetailSvg from '../../assets/pm-arbitration-detail.svg?react'
 
 export default function RolePipelineSection() {
   return (
@@ -11,6 +12,16 @@ export default function RolePipelineSection() {
         width="100%"
         data-testid="role-pipeline-svg"
         aria-label="Role pipeline: PM (arbitrates) → Architect → [Content-Alignment Gate] → Engineer → Reviewer → QA → PM; Designer on-demand"
+        className="block h-auto"
+      />
+
+      <h3 className="text-[13px] font-bold text-ink mt-8 mb-4 tracking-widest uppercase">
+        PM Arbitration Detail
+      </h3>
+      <PmArbitrationDetailSvg
+        width="100%"
+        data-testid="pm-arbitration-detail-svg"
+        aria-label="PM arbitration detail: CAG flow, Reviewer escalation, QA Interception"
         className="block h-auto"
       />
     </div>

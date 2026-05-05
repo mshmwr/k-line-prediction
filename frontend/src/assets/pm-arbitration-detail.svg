@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  viewBox="0 0 900 320"
+  width="900"
+  height="320"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-label="PM arbitration detail: CAG flow, Reviewer escalation, QA Interception"
+>
+  <defs>
+    <marker id="arrowhead2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#8B7A6B" />
+    </marker>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- Lane 1 — CAG flow (y-center=67) -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- Lane 1 title -->
+  <text x="450" y="30" fontFamily="Geist Mono, monospace" fontSize="9" fill="#8B7A6B" textAnchor="middle">CAG — content-delta: yes + user-voice</text>
+
+  <!-- Lane 1 boxes: Architect(80), PM(235), User(390), Engineer(545) -->
+  <rect x="30" y="50" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="185" y="50" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="340" y="50" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="495" y="50" width="100" height="34" rx="5" fill="#2A2520" />
+
+  <!-- Lane 1 labels -->
+  <text x="80" y="67" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">Architect</text>
+  <text x="235" y="67" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">PM</text>
+  <text x="390" y="67" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">User</text>
+  <text x="545" y="67" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">Engineer</text>
+
+  <!-- Lane 1 forward arrows -->
+  <line x1="130" y1="67" x2="185" y2="67" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+  <line x1="285" y1="67" x2="340" y2="67" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+  <line x1="440" y1="67" x2="495" y2="67" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+
+  <!-- Lane 1 dashed veto arc: User back to Architect (path below the lane) -->
+  <path d="M 390,84 C 390,107 80,107 80,84" stroke="#8B7A6B" strokeWidth="1" strokeDasharray="4 3" fill="none" markerEnd="url(#arrowhead2)" />
+  <text x="235" y="107" fontFamily="Geist Mono, monospace" fontSize="9" fill="#8B7A6B" textAnchor="middle">veto → revise</text>
+
+  <!-- Lane separator 1 -->
+  <line x1="20" y1="112" x2="880" y2="112" stroke="#8B7A6B" strokeWidth="0.5" strokeOpacity="0.4" />
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- Lane 2 — Reviewer escalation (y-center=157) -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- Lane 2 title -->
+  <text x="450" y="120" fontFamily="Geist Mono, monospace" fontSize="9" fill="#8B7A6B" textAnchor="middle">Reviewer escalation — Critical / Warning</text>
+
+  <!-- Lane 2 boxes: Reviewer(80), PM(235), Engineer(390), Reviewer★(545) -->
+  <rect x="30" y="140" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="185" y="140" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="340" y="140" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="495" y="140" width="100" height="34" rx="5" fill="#2A2520" />
+
+  <!-- Lane 2 labels -->
+  <text x="80" y="157" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">Reviewer</text>
+  <text x="235" y="157" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">PM</text>
+  <text x="390" y="157" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">Engineer</text>
+  <text x="545" y="152" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">Reviewer</text>
+  <text x="545" y="166" fontFamily="Geist Mono, monospace" fontSize="9" fill="#8B7A6B" textAnchor="middle">✓</text>
+
+  <!-- Lane 2 forward arrows -->
+  <line x1="130" y1="157" x2="185" y2="157" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+  <line x1="285" y1="157" x2="340" y2="157" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+  <line x1="440" y1="157" x2="495" y2="157" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+
+  <!-- Lane separator 2 -->
+  <line x1="20" y1="202" x2="880" y2="202" stroke="#8B7A6B" strokeWidth="0.5" strokeOpacity="0.4" />
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- Lane 3 — QA Interception (y-center=247) -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- Lane 3 title -->
+  <text x="450" y="210" fontFamily="Geist Mono, monospace" fontSize="9" fill="#8B7A6B" textAnchor="middle">QA Interception — mid-implementation</text>
+
+  <!-- Lane 3 boxes: Engineer(80), QA(235), PM(390), Engineer★(545) -->
+  <rect x="30" y="230" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="185" y="230" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="340" y="230" width="100" height="34" rx="5" fill="#2A2520" />
+  <rect x="495" y="230" width="100" height="34" rx="5" fill="#2A2520" />
+
+  <!-- Lane 3 labels -->
+  <text x="80" y="247" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">Engineer</text>
+  <text x="235" y="247" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">QA</text>
+  <text x="390" y="247" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">PM</text>
+  <text x="545" y="242" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#F4EFE5" textAnchor="middle" dominantBaseline="middle">Engineer</text>
+  <text x="545" y="256" fontFamily="Geist Mono, monospace" fontSize="9" fill="#8B7A6B" textAnchor="middle">(resumes)</text>
+
+  <!-- Lane 3 forward arrows -->
+  <line x1="130" y1="247" x2="185" y2="247" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+  <line x1="285" y1="247" x2="340" y2="247" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+  <line x1="440" y1="247" x2="495" y2="247" stroke="#8B7A6B" strokeWidth="1.5" fill="none" markerEnd="url(#arrowhead2)" />
+
+  <!-- Dashed interrupt marker on Engineer box left edge (Lane 3) -->
+  <line x1="30" y1="230" x2="30" y2="264" stroke="#8B7A6B" strokeWidth="1.5" strokeDasharray="3 2" />
+
+</svg>
