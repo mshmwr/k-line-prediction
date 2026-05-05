@@ -1,5 +1,15 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-05 — K-095
+
+**What went well:** Three-file change (new SVG asset, public patch, TSX component) all completed without new deps; `tsc --noEmit` passed clean on first run.
+
+**What went wrong:** Ticket stub was untracked (not in HEAD); K-042 gate blocked feat commit. Required an extra docs-only commit to land the ticket first.
+
+**Next-time improvement:** Verify ticket file appears in `git show HEAD:docs/tickets/K-XXX-*.md` at Step 0 before writing any implementation files — not just checking disk presence.
+
+**Slowest step:** node_modules symlink setup — worktree lacked it and `npx tsc` hit the "not the command you're looking for" shim; symlink from canonical resolved it in one command.
+
 ## 2026-05-05 — K-094
 
 **What went well:** Volatility gate was minimal (~15 lines): two module-level constants, `query_vol` computed once before loop, 5-line ratio check per candidate. Code review (2 rounds) surfaced 3 violations — all fixed same session.
