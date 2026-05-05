@@ -64,6 +64,7 @@ Sacred clauses are regression-invariant ACs declared in ticket frontmatter. Thre
 | Implementing new frontend page | Run new-page checklist (PRD AC + Tailwind plugins + Playwright `{ exact: true }`) | [ssot/frontend-checklist.md §Frontend Page Implementation Checklist](./ssot/frontend-checklist.md#frontend-page-implementation-checklist) |
 | PR touches `Dockerfile` / `package*.json` / `.gcloudignore` / `.dockerignore` / `frontend/scripts/*.mjs` | Run `docker build -f Dockerfile .` locally before `gh pr create` | [ssot/deploy.md §Step 0](./ssot/deploy.md#deploy-checklist-firebase-hosting--cloud-run) |
 | Role finishes task | Prepend entry to `docs/retrospectives/<role>.md` | [ssot/workflow.md §Per-Role Retrospective Logs](./ssot/workflow.md#per-role-retrospective-logs-enabled-from-k-008) |
+| Edit to `frontend/src/assets/pipeline.svg` or `frontend/src/assets/pm-arbitration-detail.svg` | Re-screenshot `docs/images/pipeline-overview.png` and `docs/images/pm-arbitration-detail.png` from dev server (localhost:5173/about); update README with new PNGs | K-096 process rule |
 
 ## Persona Overrides
 

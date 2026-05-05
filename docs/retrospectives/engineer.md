@@ -1,5 +1,12 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-05 — K-096 Phase 1
+
+**What went well:** Three-task scope (SVG patch, new SVG, TSX update) completed cleanly; tsc exit 0 on first run.
+**What went wrong:** node_modules symlink missing in fresh worktree; resolved with ln -sfn per engineer.md §Step 0 pre-flight.
+**Next time improvement:** Check node_modules symlink immediately after worktree creation before running any tsc/npx command.
+**Slowest step:** Identifying that npx tsc shadowed a non-TypeScript binary — resolved by using ./node_modules/.bin/tsc directly.
+
 ## 2026-05-05 — K-095
 
 **What went well:** Three-file change (new SVG asset, public patch, TSX component) all completed without new deps; `tsc --noEmit` passed clean on first run.
