@@ -372,7 +372,7 @@ test.describe('AC-058-ROLE-PIPELINE — Role pipeline SVG section', () => {
   test('role pipeline img visible and paragraph contains four-source priority stack', async ({ page }) => {
     await page.goto('/about')
     await expect(page.locator('[data-testid="role-pipeline-svg"]')).toBeVisible()
-    await expect(page.locator('[data-section="role-pipeline"] p')).toContainText('four-source priority stack')
+    await expect(page.locator('[data-section="role-pipeline"] p').first()).toContainText('four-source priority stack')
   })
 })
 
