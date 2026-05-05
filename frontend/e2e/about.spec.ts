@@ -428,6 +428,21 @@ test.describe('AC-058-TICKET-CASES-GITHUB-LINKS — ticket case GitHub URLs verb
   })
 })
 
+// ── AC-096 — PM Arbitration Detail Diagram ────────────────────────────────────
+
+describe('AC-096 — Pipeline PM Arbitration Detail', () => {
+  test('AC-096-OVERVIEW-QA-EC — "QA Early" text present inside role-pipeline-svg', async ({ page }) => {
+    await page.goto('/about')
+    const svgEl = page.locator('[data-testid="role-pipeline-svg"]')
+    await expect(svgEl.getByText('QA Early')).toBeVisible()
+  })
+
+  test('AC-096-DETAIL-SECTION — "PM Arbitration Detail" heading visible', async ({ page }) => {
+    await page.goto('/about')
+    await expect(page.getByRole('heading', { name: /PM Arbitration Detail/i })).toBeVisible()
+  })
+})
+
 // AC-017-FOOTER deleted per K-034 §PM ruling on BQ-034-P1-01 — Sacred retired per §1.4 Pencil SSOT verdict
 // Pencil frames 86psQ + 1BGtd contain no <a> anchors on /about Footer; the K-017 email/GitHub/LinkedIn
 // href+target+rel assertions (5 tests) and `Let's talk →` / `Or see the source:` string literals are retired.

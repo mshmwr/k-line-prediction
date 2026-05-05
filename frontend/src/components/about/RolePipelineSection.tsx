@@ -15,7 +15,7 @@ export default function RolePipelineSection() {
         className="block h-auto"
       />
 
-      <h3 className="text-[13px] font-bold text-ink mt-8 mb-4 tracking-widest uppercase">
+      <h3 className="text-[13px] font-mono font-bold text-ink mt-8 mb-4 tracking-widest uppercase">
         PM Arbitration Detail
       </h3>
       <PmArbitrationDetailSvg
