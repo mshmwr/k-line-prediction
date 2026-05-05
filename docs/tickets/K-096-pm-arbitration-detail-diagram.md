@@ -1,9 +1,10 @@
 ---
 ticket: K-096
 title: /about pipeline section — add QA Early Consultation to Overview + new PM Arbitration Detail diagram
-status: open
+status: closed
 phase: 1
 opened: 2026-05-05
+closed-commit: b6f7d5a
 depends-on: [K-095]
 qa-early-consultation: "✓ — 2026-05-05 K-096; AC-096-OVERVIEW-QA-EC and AC-096-DETAIL-SECTION automatable via DOM; AC-096-DETAIL-CAG / AC-096-DETAIL-REVIEWER-LOOP / AC-096-DETAIL-QA-INTERCEPT demoted to Manual Verification (SVG content, screenshot only)"
 sacred-clauses: []
@@ -48,3 +49,17 @@ These gaps make the /about diagram misleading about PM's actual arbitration role
 | `frontend/public/pipeline.svg` | Same patch (README embed copy) |
 | `frontend/src/assets/pm-arbitration-detail.svg` | **new** — PM Arbitration Detail diagram |
 | `frontend/src/components/about/RolePipelineSection.tsx` | Add "PM Arbitration Detail" heading + `<PmArbitrationSvg>` component below existing pipeline |
+
+## Retrospective
+
+### Engineer
+
+**AC judgments that were wrong:** none
+**Edge cases not anticipated:** node_modules symlink absent in fresh worktree; npx tsc resolved to wrong binary until symlink created.
+**Next time improvement:** Run `ls frontend/node_modules` as first step immediately after worktree checkout, before any tsc/npx invocation.
+
+### QA
+
+**Regression tests that were insufficient:** AC-096 test block used bare `describe` instead of `test.describe` — parse error prevents entire about.spec.ts from collecting; Reviewer did not catch it before QA.
+**Edge cases not covered:** None beyond known-reds manifest.
+**Next time improvement:** Engineer must run `npx playwright test about.spec.ts --list` (collection dry-run) before handoff to confirm no parse errors.
