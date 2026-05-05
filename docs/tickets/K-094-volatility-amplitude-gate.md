@@ -1,11 +1,12 @@
 ---
 ticket: K-094
 title: Add volatility amplitude gate to match filter
-status: open
+status: closed
 phase: 1
 opened: 2026-05-05
+closed-commit: 57515dc
 depends-on: [K-092]
-qa-early-consultation: "✗"
+qa-early-consultation: "✓ — 2026-05-05 K-094; both ACs automatable; no demotion needed"
 sacred-clauses: []
 ---
 
