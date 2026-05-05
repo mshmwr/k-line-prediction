@@ -430,7 +430,7 @@ test.describe('AC-058-TICKET-CASES-GITHUB-LINKS — ticket case GitHub URLs verb
 
 // ── AC-096 — PM Arbitration Detail Diagram ────────────────────────────────────
 
-describe('AC-096 — Pipeline PM Arbitration Detail', () => {
+test.describe('AC-096 — Pipeline PM Arbitration Detail', () => {
   test('AC-096-OVERVIEW-QA-EC — "QA Early" text present inside role-pipeline-svg', async ({ page }) => {
     await page.goto('/about')
     const svgEl = page.locator('[data-testid="role-pipeline-svg"]')
