@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-095",
+    "title": "Fix pipeline diagram font truncation — inline SVG via SVGR + CAG label reposition",
+    "date": "2026-05-05",
+    "text": "Converted /about pipeline diagram from <img> embed to inline SVGR component so Geist Mono loads correctly; all role labels now fully visible. Repositioned CAG label above box row."
+  },
+  {
     "ticketId": "K-094",
     "title": "Add volatility amplitude gate to match filter",
     "date": "2026-05-05",

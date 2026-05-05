@@ -449,3 +449,41 @@ test.describe('AC-017-BUILD — docs/ai-collab-protocols.md accessible as static
     expect(body).toContain('AI Collaboration Protocols')
   })
 })
+
+// ── AC-095-INLINE-SVG ─────────────────────────────────────────────────────────
+// Given: user visits /about at 1280×800 viewport
+// When:  page loads RolePipelineSection
+// Then:  [data-testid="role-pipeline-svg"] is an inline <svg> element (not <img>)
+//        AND SVG text elements "Architect", "Engineer", "Reviewer" are accessible as DOM text
+
+test.describe('AC-095-INLINE-SVG — pipeline renders as inline SVG, not img', () => {
+  test('role-pipeline-svg is tagName SVG (not IMG) at 1280px', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/about')
+    const tagName = await page.locator('[data-testid="role-pipeline-svg"]').evaluate(
+      el => el.tagName.toLowerCase()
+    )
+    expect(tagName).toBe('svg')
+  })
+
+  test('"Architect" text accessible as DOM text node inside SVG section', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/about')
+    const svgSection = page.locator('[data-section="role-pipeline"]')
+    await expect(svgSection.locator('text, tspan').filter({ hasText: /Architect/i }).first()).toBeVisible()
+  })
+
+  test('"Engineer" text accessible as DOM text node inside SVG section', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/about')
+    const svgSection = page.locator('[data-section="role-pipeline"]')
+    await expect(svgSection.locator('text, tspan').filter({ hasText: /Engineer/i }).first()).toBeVisible()
+  })
+
+  test('"Reviewer" text accessible as DOM text node inside SVG section', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/about')
+    const svgSection = page.locator('[data-section="role-pipeline"]')
+    await expect(svgSection.locator('text, tspan').filter({ hasText: /Reviewer/i }).first()).toBeVisible()
+  })
+})

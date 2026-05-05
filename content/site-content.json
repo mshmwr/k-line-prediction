@@ -140,21 +140,21 @@
       }
     ]
   },
-  "lastUpdated": "2026-05-05T13:50:52+08:00",
+  "lastUpdated": "2026-05-05T20:02:19+08:00",
   "metrics": {
     "acCoverage": {
-      "covered": 90,
+      "covered": 91,
       "format": "{covered} / {total} ({percent}%)",
       "label": "Documented AC Coverage",
-      "total": 90
+      "total": 91
     },
     "featuresShipped": {
       "label": "Features Shipped",
-      "value": 72
+      "value": 73
     },
     "lessonsCodified": {
       "label": "Lessons Codified",
-      "value": 241
+      "value": 245
     },
     "postMortemsWritten": {
       "label": "Post-mortems Written",
@@ -431,6 +431,6 @@
   ],
   "ticketRange": {
     "first": "K-001",
-    "last": "K-094"
+    "last": "K-095"
   }
 }
