@@ -18,6 +18,13 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-05 — K-096
+
+**What went well:** All SVG coordinates derived purely from reading `pipeline.svg` source — no ambiguity; lane separation math (85px lanes, 15px gaps) produced a clean, non-overlapping layout without iteration.
+**What went wrong:** None in this session; no revisions needed.
+**Next time improvement:** For pure-SVG diagram tickets with no Pencil frame, start with the coordinate scratch-pad (lane table + box position table) as the first artifact — it forces all spatial decisions before prose and eliminates backtracking.
+**Slowest step:** Deriving the three-lane y-coordinate grid from scratch; next time use a fixed lane-height template (e.g. 85px/lane + 15px gap) from the outset.
+
 ## 2026-05-05 — K-095
 
 **What went well:** All confirmed facts sourced from tool inspection (vite.config.ts, vite-env.d.ts, MailIcon.tsx) before writing — no fabricated specifics; zero research loops.

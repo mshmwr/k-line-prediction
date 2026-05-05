@@ -372,7 +372,7 @@ test.describe('AC-058-ROLE-PIPELINE — Role pipeline SVG section', () => {
   test('role pipeline img visible and paragraph contains four-source priority stack', async ({ page }) => {
     await page.goto('/about')
     await expect(page.locator('[data-testid="role-pipeline-svg"]')).toBeVisible()
-    await expect(page.locator('[data-section="role-pipeline"] p')).toContainText('four-source priority stack')
+    await expect(page.locator('[data-section="role-pipeline"] p').first()).toContainText('four-source priority stack')
   })
 })
 
@@ -425,6 +425,21 @@ test.describe('AC-058-TICKET-CASES-GITHUB-LINKS — ticket case GitHub URLs verb
   test('K-009 GitHub link present with verbatim URL', async ({ page }) => {
     await page.goto('/about')
     await expect(page.locator('a[href="https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-009-1h-ma-history-fix.md"]')).toBeVisible()
+  })
+})
+
+// ── AC-096 — PM Arbitration Detail Diagram ────────────────────────────────────
+
+test.describe('AC-096 — Pipeline PM Arbitration Detail', () => {
+  test('AC-096-OVERVIEW-QA-EC — "QA Early" text present inside role-pipeline-svg', async ({ page }) => {
+    await page.goto('/about')
+    const svgEl = page.locator('[data-testid="role-pipeline-svg"]')
+    await expect(svgEl.getByText('QA Early')).toBeVisible()
+  })
+
+  test('AC-096-DETAIL-SECTION — "PM Arbitration Detail" heading visible', async ({ page }) => {
+    await page.goto('/about')
+    await expect(page.getByRole('heading', { name: /PM Arbitration Detail/i })).toBeVisible()
   })
 })
 

@@ -54,4 +54,9 @@
 
   <!-- Designer label -->
   <text x="157" y="150" fontFamily="Geist Mono, monospace" fontSize="12" fontWeight="700" fill="#1A1814" textAnchor="middle" dominantBaseline="middle">Designer</text>
+
+  <!-- QA Early Consultation marker on PM→Architect segment -->
+  <line x1="157" y1="20" x2="157" y2="43" stroke="#8B7A6B" strokeWidth="1" strokeDasharray="3 2" />
+  <rect x="120" y="4" width="74" height="14" rx="2" fill="#F4EFE5" />
+  <text x="157" y="13" fontFamily="Geist Mono, monospace" fontSize="9" fill="#8B7A6B" textAnchor="middle">QA Early</text>
 </svg>

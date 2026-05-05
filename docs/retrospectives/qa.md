@@ -14,6 +14,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-05 — K-096
+
+**What went well:** about.spec.ts parsed cleanly after `describe` → `test.describe` fix; AC-096-OVERVIEW-QA-EC and AC-096-DETAIL-SECTION both passed first run.
+**What went wrong:** `Footer snapshot on /about` not in known-reds.md — worktree snapshot baseline stale; canonical PASS confirmed hydration drift.
+**Next time improvement:** After worktree checkout, run `npx playwright test shared-components.spec.ts --update-snapshots` to sync baselines before sign-off run, or accept worktree snapshot drift as a known class and add a standing known-reds entry for all Footer snapshot tests in worktrees.
+**Slowest step:** Canonical drift verification for `Footer snapshot on /about` — avoidable if known-reds.md covered all three routes from K-082 instead of only `/diary` (K-059 gap repeated here for `/about`).
+
 ## 2026-05-04 — K-092
 
 **What went well:** All 7 new tests (test_local_ma_gate_* + test_trend_direction_*) pass; 10 pre-existing failures confirmed byte-equal to canonical main, no new regressions.

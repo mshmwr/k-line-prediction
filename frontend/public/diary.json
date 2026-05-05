@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-096",
+    "title": "/about pipeline — QA Early Consultation marker + PM Arbitration Detail diagram",
+    "date": "2026-05-05",
+    "text": "Added QA Early Consultation annotation to pipeline Overview; added new PM Arbitration Detail section below with three-lane SVG showing CAG flow, Reviewer escalation, and QA Interception."
+  },
+  {
     "ticketId": "K-095",
     "title": "Fix pipeline diagram font truncation — inline SVG via SVGR + CAG label reposition",
     "date": "2026-05-05",

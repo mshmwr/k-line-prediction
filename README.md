@@ -2,7 +2,7 @@
 
 <!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
 <!-- METRICS:start -->
-73+ tickets shipped · 91/91 AC covered · 43 post-mortems · 245 lessons codified
+74+ tickets shipped · 92/92 AC covered · 44 post-mortems · 248 lessons codified
 <!-- METRICS:end -->
 
 <!-- DO NOT EDIT inside markers — generator overwrites. Edit content/site-content.json instead. -->
@@ -35,7 +35,11 @@ One human operator redesigned and shipped a 5-page portfolio site using a team o
 
 Automatic handoffs between roles. PM self-arbitrates at five positions in the pipeline — before releasing Architect, before releasing Engineer, after Design Challenge Sheet, after Reviewer, and after QA — using a four-source priority stack: Pencil SSOT → ticket AC → memory rules → codebase. The single operator pause point is the Content-Alignment Gate: any ticket with user-visible copy stops at Architect → Engineer until the operator approves the verbatim draft.
 
-<img src="./frontend/public/pipeline.svg" alt="Role pipeline: PM (arbitrates) → Architect → [Content-Alignment Gate] → Engineer → Reviewer → QA → PM; Designer on-demand" width="100%" />
+![Pipeline Overview](docs/images/pipeline-overview.png)
+
+**PM Arbitration Detail**
+
+![PM Arbitration Detail](docs/images/pm-arbitration-detail.png)
 
 <!-- ROLES:start -->
 | Role | Owns | Artefact |

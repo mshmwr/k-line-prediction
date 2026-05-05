@@ -2,7 +2,7 @@
 title: K-Line Prediction — System Architecture
 type: reference
 tags: [K-Line-Prediction, Architecture, API]
-updated: 2026-05-04 (K-092)
+updated: 2026-05-05 (K-096)
 ---
 
 ## Summary
@@ -269,7 +269,7 @@ ClaudeCodeProject/
 │   │           │   ├── MetricsStripSection.tsx           ← S2 4 narrative metrics container; SectionLabelRow only heading (K-034)
 │   │           │   ├── MetricCard.tsx                    ← K-034; FileNoBar + Bodoni number + italic title + Newsreader subtext/note; m2 shows redaction bar
 │   │           │   ├── WhereISteppedInSection.tsx        ← K-058; Nº 02.5 A+C+B comparison table (AI Did / I Decided / Outcome); testids: where-i-narrative/table/outcome
-│   │           │   ├── RolePipelineSection.tsx           ← K-058; Nº 03 inline SVG pipeline diagram; viewBox 0 0 900 200; data-testid="role-pipeline-svg"
+│   │           │   ├── RolePipelineSection.tsx           ← K-058; Nº 03 inline SVG pipeline diagram; viewBox 0 0 900 200; data-testid="role-pipeline-svg"; K-096 adds QA Early annotation + "PM Arbitration Detail" h3 heading + PmArbitrationDetailSvg below
 │   │           │   ├── RoleCardsSection.tsx              ← Nº 04 6-role container; K-034 removed h2; K-058 updated intro to compact format
 │   │           │   ├── RoleCard.tsx                      ← K-034; interface `{ role, owns, artefact, fileNo }`; Bodoni font-size 36/32 by length; K-058 compact format α (padding sm)
 │   │           │   ├── ReliabilityPillarsSection.tsx     ← S4 3 pillars + anchor quotes; h2 "How AI Stays Reliable" Bodoni 30 italic (K-034)
@@ -743,6 +743,9 @@ SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
 ---
 
 ## Changelog
+
+**2026-05-05 — K-096 — /about pipeline section: QA Early Consultation annotation added to `pipeline.svg`; new `pm-arbitration-detail.svg` (3-lane CAG/Reviewer/QA-Interception flows); `RolePipelineSection.tsx` gains "PM Arbitration Detail" h3 + second SVG.**
+Design doc: [docs/designs/K-096-pm-arbitration-detail-diagram.md](../docs/designs/K-096-pm-arbitration-detail-diagram.md)
 
 **2026-05-04 — K-092 — Add local 1H MA slope direction gate in `find_top_matches`: pre-loop query direction via `_query_ma_series` + `_trend_direction`; per-candidate gate rejects opposite-direction segments; flat (0) compatible with both.**
 Design doc: [docs/architecture/K-092-local-ma-slope-filter.md](../docs/architecture/K-092-local-ma-slope-filter.md)
