@@ -1,5 +1,13 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-05 — K-094
+
+**What went well:** Volatility gate was minimal (~15 lines): two module-level constants, `query_vol` computed once before loop, 5-line ratio check per candidate. Code review (2 rounds) surfaced 3 violations — all fixed same session.
+
+**What went wrong:** First test fixture placed query at idx 150..174; `_fetch_30d_ma_series` silently returns `[]` and raises `ValueError` before any candidates are evaluated — test passed vacuously via `except ValueError: pass`. Root cause: `ma_history` needs `ma_trend_window_days + MA_WINDOW = 279` bars ending at query's last bar (idx ≥ 278, 0-indexed). Also duplicated `[b['close'] if isinstance(b, dict) else b.close for b in X]` inline instead of calling `_extract_closes(X)` — caught in code review round 1.
+
+**Next-time improvement:** For `find_top_matches` integration tests, query's last bar must be at idx ≥ `ma_trend_window_days + MA_WINDOW − 1` (currently 278) in `ma_history`. Lower index → `_fetch_30d_ma_series` returns `[]` → `ValueError` → vacuous pass.
+
 ## 2026-05-04 — K-092
 
 **What went well:** Two-site injection (+6 lines) was precisely scoped — pre-loop query direction extracted once via `_query_ma_series` + `_trend_direction`, candidate direction computed per iteration with `_aligned_ma_series`. Flat-compatibility condition (`!= 0` guard on both sides) correctly passes flat through without branching. Code review caught two gaps (_trend_direction unit tests missing; flat-candidate test used predicate assertion instead of find_top_matches integration) — both fixed same session. W-1 flat-query gap caught by depth reviewer and fixed in Phase 1.

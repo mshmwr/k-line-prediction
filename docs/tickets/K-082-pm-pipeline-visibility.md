@@ -1,17 +1,13 @@
 ---
-id: K-082
+ticket: K-082
 title: Surface PM autonomous arbitration in README pipeline + /about architecture
-status: open
-created: 2026-05-02
-type: content
-priority: medium
-size: small
-visual-delta: no
-content-delta: yes
-design-locked: false
-qa-early-consultation: ✗
-dependencies: []
-base-commit: fdb6539
+status: closed
+phase: 1
+opened: 2026-05-02
+closed-commit: 26ff9cc
+depends-on: []
+qa-early-consultation: "✓ — 2026-05-02 K-082; all ACs testable; VISUAL-ACCEPTANCE accepted as Designer-session scope dependency"
+sacred-clauses: []
 ---
 
 ## Summary
