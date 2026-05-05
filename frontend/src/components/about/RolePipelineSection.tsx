@@ -9,10 +9,10 @@ export default function RolePipelineSection() {
       </p>
       <ul className="mb-6 space-y-1 list-disc list-inside marker:text-ink/40">
         <li className="text-[11px] font-mono text-ink/50 leading-[1.5]">
-          <strong className="text-ink/70">Content-Alignment Gate (CAG):</strong>{' '}any ticket that changes user-visible text stops here — PM presents the Architect&apos;s draft verbatim; the user approves before Engineer begins.
+          <strong>Content-Alignment Gate (CAG):</strong>{' '}any ticket that changes user-visible text stops here — PM presents the Architect&apos;s draft verbatim; the user approves before Engineer begins.
         </li>
         <li className="text-[11px] font-mono text-ink/50 leading-[1.5]">
-          <strong className="text-ink/70">QA Early Consultation:</strong>{' '}before Architect starts, QA reviews the ticket scope and flags which acceptance criteria can be automated — so testability is built into the design, not retrofitted.
+          <strong>QA Early Consultation:</strong>{' '}before Architect starts, QA reviews the ticket scope and flags which acceptance criteria can be automated — so testability is built into the design, not retrofitted.
         </li>
       </ul>
 
