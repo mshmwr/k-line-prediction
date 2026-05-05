@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-094",
+    "title": "Add volatility amplitude gate to match filter",
+    "date": "2026-05-05",
+    "text": "Added amplitude filter to match search: rejects historical candidates whose price volatility differs more than 4× from the query, fixing visually incomparable K-bar matches."
+  },
+  {
     "ticketId": "K-090",
     "title": "Decouple ma_trend_window_days=180, MA99 cache, 2D optimizer search space",
     "date": "2026-05-04",
