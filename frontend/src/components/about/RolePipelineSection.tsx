@@ -9,10 +9,9 @@ export default function RolePipelineSection() {
 
       <PipelineSvg
         width="100%"
-        height="auto"
         data-testid="role-pipeline-svg"
         aria-label="Role pipeline: PM (arbitrates) → Architect → [Content-Alignment Gate] → Engineer → Reviewer → QA → PM; Designer on-demand"
-        className="block"
+        className="block h-auto"
       />
     </div>
   )
