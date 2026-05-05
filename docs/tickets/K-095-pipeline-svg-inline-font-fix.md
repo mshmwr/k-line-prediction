@@ -1,9 +1,10 @@
 ---
 ticket: K-095
 title: Fix pipeline diagram font truncation — inline SVG via SVGR + CAG label reposition
-status: open
+status: closed
 phase: 1
 opened: 2026-05-05
+closed-commit: 7517fdf
 depends-on: []
 qa-early-consultation: "✓ — 2026-05-05 K-095; AC-095-INLINE-SVG automatable via Playwright SVG text selector; AC-095-CAG-VISIBLE screenshot-only, demoted to Manual Verification"
 sacred-clauses: []

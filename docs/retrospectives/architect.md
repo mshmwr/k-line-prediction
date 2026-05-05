@@ -18,6 +18,12 @@ Cross-ticket cumulative retrospective log. The senior-architect agent appends on
 
 ---
 
+## 2026-05-05 — K-095
+
+**What went well:** All confirmed facts sourced from tool inspection (vite.config.ts, vite-env.d.ts, MailIcon.tsx) before writing — no fabricated specifics; zero research loops.
+**What went wrong:** n/a
+**Next-time improvement:** For any SVGR migration ticket, check `vite-env.d.ts` for the `vite-plugin-svgr/client` reference before any other research step — eliminates the type-declaration question in one read.
+
 ## 2026-05-04 — K-092
 
 **What went well:** Pre-read of `find_top_matches` loop body confirmed that `_aligned_ma_series(window, history[:i])` is already the established pattern for per-candidate prefix context; the new gate reuses it with zero new helpers.
