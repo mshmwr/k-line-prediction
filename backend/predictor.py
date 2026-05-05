@@ -16,6 +16,8 @@ FUTURE_LOOKAHEAD_BARS = 72
 MA_TREND_WINDOW_DAYS = 30
 MA_TREND_PEARSON_THRESHOLD = 0.4
 TOP_K_DISPLAY = 5   # max matches returned by find_top_matches (display + backtest)
+VOL_RATIO_MIN = 0.25   # K-094: reject candidate if std(pct) < VOL_RATIO_MIN * query std
+VOL_RATIO_MAX = 4.0    # K-094: reject candidate if std(pct) > VOL_RATIO_MAX * query std
 
 # K-078: single-namespace param object; default preserves byte-identical behavior.
 # Replaced atomically at boot via main.py startup hook.
@@ -416,6 +418,9 @@ def find_top_matches(
     query_direction = _classify_trend_by_pearson(query_30d_ma)
     query_local_ma, _ = _query_ma_series(input_bars, history, timeframe)
     query_local_direction = _trend_direction(query_local_ma)
+    _query_closes = np.array(_extract_closes(input_bars), dtype=float)
+    _query_pct = np.diff(_query_closes) / _query_closes[:-1]
+    query_vol = float(_query_pct.std()) if len(_query_pct) > 0 else 0.0
     _1d_index = _history_time_index(ma_history, '1D')
     results = []
     for i in range(0, len(history) - n - future_n):
@@ -433,6 +438,13 @@ def find_top_matches(
         candidate_local_direction = _trend_direction(candidate_local_ma)
         if query_local_direction != 0 and candidate_local_direction != 0:
             if query_local_direction != candidate_local_direction:
+                continue
+        if query_vol > 0:
+            _cand_closes = np.array(_extract_closes(window), dtype=float)
+            _cand_pct = np.diff(_cand_closes) / _cand_closes[:-1]
+            cand_vol = float(_cand_pct.std()) if len(_cand_pct) > 0 else 0.0
+            ratio = cand_vol / query_vol
+            if not (VOL_RATIO_MIN <= ratio <= VOL_RATIO_MAX):
                 continue
         candle_score = _normalized_similarity(query_candle_features, _candle_feature_vector(window))
         if len(candidate_30d_ma) != len(query_30d_ma):

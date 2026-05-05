@@ -12,6 +12,7 @@ from models import MatchCase, OHLCBar
 from predictor import MA_WINDOW, compute_stats, find_top_matches, pearson_correlation, z_score_normalize
 from predictor import _classify_trend_by_pearson, _fetch_30d_ma_series, _get_bar_hour
 from predictor import _aligned_ma_series, _trend_direction, _query_ma_series
+from predictor import VOL_RATIO_MIN, VOL_RATIO_MAX
 
 
 client = TestClient(app)
@@ -1165,4 +1166,83 @@ def test_local_ma_gate_accepts_flat_query():
     except ValueError as exc:
         assert "No historical matches found" in str(exc), (
             f"ValueError must be data-driven, not gate-caused; got: {exc}"
+        )
+
+
+# ──────────────────────────────────────────────
+# K-094: volatility amplitude gate unit tests
+# ──────────────────────────────────────────────
+
+def _make_zigzag_bars(n: int, start_date: str, amp: float, trend_step: float) -> list:
+    """Bars with close = trend + alternating ±amp. amp controls pct_change std."""
+    from datetime import datetime, timedelta
+    base = datetime.fromisoformat(start_date)
+    bars = []
+    price = 1000.0
+    for i in range(n):
+        d = (base + timedelta(days=i)).strftime('%Y-%m-%d')
+        trend = price + trend_step * i
+        close = trend + (amp if i % 2 == 0 else -amp)
+        bars.append({'date': d, 'open': close, 'high': close + 1, 'low': close - 1, 'close': close})
+    return bars
+
+
+def test_vol_gate_rejects_low_vol_candidates():
+    """AC-094-VOL-GATE: candidates with std(pct) far below query's are rejected.
+
+    high-vol: amp=50 → pct_change std ≈ 10%; low-vol: amp=0.01 → std ≈ 0.001%
+    ratio ≈ 0.0001 << VOL_RATIO_MIN (0.25) → low-vol candidates must be rejected.
+    Query placed at idx 300..323 so MA99 computation has ≥ 279 bars available.
+    """
+    high_vol = _make_zigzag_bars(400, "2020-01-01", amp=50.0, trend_step=1.0)
+    # Low-vol starts the day after high-vol ends: 2020-01-01 + 400 days = 2021-02-04
+    low_vol_start_date = "2021-02-04"
+    low_vol = _make_zigzag_bars(200, low_vol_start_date, amp=0.01, trend_step=1.0)
+    history = high_vol + low_vol
+
+    input_slice = high_vol[300:324]
+    input_bars = [
+        OHLCBar(open=b['open'], high=b['high'], low=b['low'],
+                close=b['close'], time=b['date'])
+        for b in input_slice
+    ]
+
+    low_vol_start = low_vol[0]['date']
+    try:
+        matches = find_top_matches(
+            input_bars, future_n=5, history=history,
+            timeframe='1D', ma_history=history,
+        )
+        assert all(m.start_date < low_vol_start for m in matches), (
+            f"Low-vol candidates must be rejected; found match starting at "
+            f"{[m.start_date for m in matches if m.start_date >= low_vol_start]}"
+        )
+    except ValueError as exc:
+        assert "No historical matches found" in str(exc), (
+            f"ValueError must be data-driven, not vol-gate-caused; got: {exc}"
+        )
+
+
+def test_vol_gate_passes_similar_vol_candidates():
+    """AC-094-VOL-GATE: candidates within VOL_RATIO bounds are not rejected.
+
+    Uniform-volatility history — all candidates have same amp as query → ratio ≈ 1.0.
+    Query at idx 300..323 so MA99 has ≥ 279 bars available.
+    """
+    history = _make_zigzag_bars(600, "2020-01-01", amp=20.0, trend_step=1.0)
+    input_slice = history[300:324]
+    input_bars = [
+        OHLCBar(open=b['open'], high=b['high'], low=b['low'],
+                close=b['close'], time=b['date'])
+        for b in input_slice
+    ]
+    try:
+        matches = find_top_matches(
+            input_bars, future_n=5, history=history,
+            timeframe='1D', ma_history=history,
+        )
+        assert matches, "Uniform-vol history must yield at least one match"
+    except ValueError as exc:
+        assert "No historical matches found" in str(exc), (
+            f"ValueError must be data-driven, not vol-gate-caused; got: {exc}"
         )
