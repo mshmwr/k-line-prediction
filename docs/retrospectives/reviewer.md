@@ -1,3 +1,21 @@
+## 2026-05-05 — K-096
+
+**What went well:** All four checklist gates (AC alignment, Playwright selector correctness, font-mono, commit-block) resolved cleanly in one pass.
+**What went wrong:** None — design doc and implementation were consistent; no Critical or Warning findings.
+**Next time improvement:** SVG-only tickets with no Pencil frame should explicitly list the design-spec-filename cross-check as N/A in the design doc to save Reviewer scan time.
+**Slowest step:** Cross-checking design doc §5.4 `tracking-[0.06em]` vs impl `tracking-widest` — confirmed both are non-AC visual style (AC only mandates heading text and role, not Tailwind token).
+
+## 2026-05-05 — K-095
+
+**What went well:** All four AC items verified clean in one pass; SVG fill-current audit correctly resolved as not-applicable.
+**What went wrong:** None.
+**Next time improvement:** N/A.
+**Slowest step:** Tracing `#roles` vs `#role-pipeline` section split required reading AboutPage.tsx to confirm E2E assertions still reach card-layer role names.
+
+
+
+
+
 ## 2026-05-04 — K-092
 
 **What went well:** Gate predicate logic, ordering vs 1D gate, and no-regression baseline verified cleanly via live test run.
