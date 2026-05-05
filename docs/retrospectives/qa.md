@@ -21,6 +21,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 **Next time improvement:** After worktree checkout, run `npx playwright test shared-components.spec.ts --update-snapshots` to sync baselines before sign-off run, or accept worktree snapshot drift as a known class and add a standing known-reds entry for all Footer snapshot tests in worktrees.
 **Slowest step:** Canonical drift verification for `Footer snapshot on /about` — avoidable if known-reds.md covered all three routes from K-082 instead of only `/diary` (K-059 gap repeated here for `/about`).
 
+## 2026-05-05 — K-096
+
+**What went well:** DOM assertions confirmed both automatable ACs (QA-EC, DETAIL-SECTION) pass; MV-096-01 screenshot shows all three arbitration lanes legible with consistent visual style.
+**What went wrong:** Engineer used bare `describe` (not `test.describe`) in the AC-096 test block, causing `ReferenceError: describe is not defined` at parse time — the entire about.spec.ts failed to collect, and Reviewer missed this syntax defect.
+**Next time improvement:** After writing new test blocks, always run `npx playwright test about.spec.ts --list` (dry-run collection) to catch parse errors before handing off to QA.
+**Slowest step:** Confirming parse error was not hydration drift required running shared-components.spec.ts in isolation and comparing canonical vs worktree about.spec.ts line counts.
+
 ## 2026-05-04 — K-092
 
 **What went well:** All 7 new tests (test_local_ma_gate_* + test_trend_direction_*) pass; 10 pre-existing failures confirmed byte-equal to canonical main, no new regressions.
