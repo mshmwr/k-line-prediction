@@ -5,8 +5,8 @@ Positive case: K-051 user-visible bug shape (uploading 2026-04-07 1H CSV against
 post-K-051 daily DB -> find_top_matches succeeds with >=1 match).
 
 Negative case (K-015 sacred regression anchor): DB truncated to SACRED_FLOOR - 1
-= 128 bars ending at 2026-04-07 -> ValueError with the exact substring K-051
-user-retest SOP greps. After K-051 Phase 4 the gate aligns: SACRED_FLOOR = 129
+= 278 bars ending at 2026-04-07 -> ValueError with the exact substring K-051
+user-retest SOP greps. After K-097 the gate aligns: SACRED_FLOOR = 279
 matches the user-facing message integer.
 
 Drift guard: MIN_DAILY_BARS = DEFAULT_PARAMS.ma_trend_window_days + MA_WINDOW
@@ -37,12 +37,12 @@ REAL_1H_CSV_FIXTURE = Path(__file__).parent / "fixtures" / "ETHUSDT-1h-2026-04-0
 # and MIN_DAILY_BARS are now the same number; both names retained for callsite
 # readability (truncation arithmetic uses SACRED_FLOOR; drift-guard uses
 # MIN_DAILY_BARS to assert the derived sum).
-MIN_DAILY_BARS = DEFAULT_PARAMS.ma_trend_window_days + MA_WINDOW  # 30 + 99 = 129
-SACRED_FLOOR = MIN_DAILY_BARS  # 129
+MIN_DAILY_BARS = DEFAULT_PARAMS.ma_trend_window_days + MA_WINDOW  # 180 + 99 = 279
+SACRED_FLOOR = MIN_DAILY_BARS  # 279
 
-# Exact substring from predictor.py:335 (K-015 sacred + K-051 user-message stability)
+# Exact substring from predictor.py (K-015 sacred + K-051 user-message stability)
 SACRED_VALUE_ERROR_SUBSTRING = (
-    "ma_history requires at least 129 daily bars ending at that date"
+    "ma_history requires at least 279 daily bars ending at that date"
 )
 
 
@@ -107,11 +107,11 @@ def _write_truncated_daily_db(dst: Path, bars_to_keep: int, end_date: str) -> Pa
 
 def test_real_db_real_csv_returns_matches() -> None:
     """
-    B2 positive: live DB (>=129 daily bars ending 2026-04-08) + real 24-bar 1H CSV
+    B2 positive: live DB (>=279 daily bars ending 2026-04-08) + real 24-bar 1H CSV
     ending 2026-04-07 -> find_top_matches returns >=1 match without raising.
 
     Pins the exact failure mode of K-051 in CI permanently. If the DB shrinks
-    below the 129-bar floor ending at the input date, this test fails with the
+    below the 279-bar floor ending at the input date, this test fails with the
     Sacred ValueError — ratifying both the regression and the user-message.
     """
     input_bars = _load_real_1h_input_bars()
@@ -135,20 +135,20 @@ def test_real_db_real_csv_returns_matches() -> None:
 def test_truncated_db_raises_sacred_value_error(tmp_path: Path) -> None:
     """
     B3 negative (K-015 sacred regression): copy live DB to tmp_path, truncate to
-    SACRED_FLOOR - 1 = 128 bars ending 2026-04-07, call find_top_matches -> must
+    SACRED_FLOOR - 1 = 278 bars ending 2026-04-07, call find_top_matches -> must
     raise ValueError whose message contains SACRED_VALUE_ERROR_SUBSTRING
     (verbatim).
 
     Uses ``re.escape()`` in ``pytest.raises(match=...)`` since the substring
     contains no regex metacharacters but defensive escape avoids future drift.
 
-    After K-051 Phase 4 the gate aligns with the message: SACRED_FLOOR = 129,
-    bars_to_keep = 128 = SACRED_FLOOR - 1, exactly one short of the floor.
+    After K-097 the gate aligns with the message: SACRED_FLOOR = 279,
+    bars_to_keep = 278 = SACRED_FLOOR - 1, exactly one short of the floor.
     """
     input_bars = _load_real_1h_input_bars()
     truncated_db = _write_truncated_daily_db(
         tmp_path / "Binance_ETHUSDT_d_truncated.csv",
-        bars_to_keep=SACRED_FLOOR - 1,  # 128 = one short of the post-Phase-4 floor
+        bars_to_keep=SACRED_FLOOR - 1,  # 278 = one short of the floor
         end_date="2026-04-07",
     )
     daily_history = load_csv_history(truncated_db)
@@ -240,8 +240,8 @@ def test_params_floor_recomputes_from_runtime_values() -> None:
         # Step A — default params path
         predictor.params = DEFAULT_PARAMS
         expected_floor = predictor.params.ma_trend_window_days + predictor.MA_WINDOW
-        assert expected_floor == 129, (
-            f"Default floor expected 129, got {expected_floor}. "
+        assert expected_floor == 279, (
+            f"Default floor expected 279, got {expected_floor}. "
             "DEFAULT_PARAMS.ma_trend_window_days or MA_WINDOW has drifted."
         )
 
