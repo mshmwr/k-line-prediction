@@ -1,5 +1,12 @@
 # PM Retrospective Log — K-Line Prediction
 
+## 2026-05-06 — K-097 close + K-098 full pipeline
+
+**What went well:** K-098 two-layer code review (breadth + depth) passed first attempt with zero rework — simple numeric-constant swap had clear AC scope; reviewer output confirmed all three ACs in one pass. QA Early Consultation for K-098 was handled inline (proxy PM pass) because ticket scope was fully self-contained with no hidden test surface.
+**What went wrong:** SSOT generator ran in canonical CWD instead of worktree on first several invocations (required `bash -c "cd <abs-path> && node ..."` fix — wasted 2–3 Bash calls). Depth reviewer agent wrote K-098 retro directly to canonical `reviewer.md`; `git pull --ff-only` aborted on K-098 docs PR sync; required `git checkout --` before pull.
+**Next-time improvement:** Before merging a docs PR that includes reviewer retro, check `git status --short` in canonical for `M docs/retrospectives/reviewer.md`; if dirty, discard with `git checkout -- docs/retrospectives/reviewer.md` before pull. For SSOT regen in worktrees, use `bash -c "cd <abs-worktree-path> && node scripts/build-ticket-derived-ssot.mjs"`.
+**Slowest step:** Discovering the reviewer-writes-to-canonical pattern and diagnosing the ff-only abort — two-step fix (copy retro content to worktree, discard from canonical) added one sync-local round-trip.
+
 ## 2026-05-03 — K-086 + K-087 close
 
 **What went well:** K-086 full pipeline (collect→optimize) ran to completion on first full run (326 pairs, 20 iterations, 8 workers); best params `window=59, pearson=0.68, top_k=30, score=0.77` printed cleanly. K-087 backend+frontend shipped in one session with 0 tsc errors.
