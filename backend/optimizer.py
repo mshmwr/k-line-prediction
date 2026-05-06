@@ -19,6 +19,8 @@ from typing import List, Optional
 # ---------------------------------------------------------------------------
 
 RANDOM_STATE: int = 42  # fixed seed for deterministic candidate sequence per session
+HIGH_HIT_WEIGHT: float = 0.3  # projected_high is only ~+2% above close; inflated by normal ETH vol
+LOW_HIT_WEIGHT: float = 0.7   # projected_low requires a genuine directional move; stronger edge signal
 
 
 # ---------------------------------------------------------------------------
@@ -55,7 +57,8 @@ def evaluate_corpus(
 ) -> float:
     """Re-run find_top_matches + compute_stats for each completed pair under snapshot params.
 
-    Returns objective score = 0.5 * high_hit_rate + 0.5 * low_hit_rate over all scoreable pairs.
+    Returns objective score = HIGH_HIT_WEIGHT * high_hit_rate + LOW_HIT_WEIGHT * low_hit_rate (0.3/0.7).
+    high_hit_rate is inflated by normal ETH volatility; low_hit_rate is the stronger edge signal.
     Returns 0.0 when no pairs are scoreable (degenerate corpus — optimizer explores further).
 
     completed_pairs: list of {"prediction": dict, "actual": dict}
@@ -107,7 +110,7 @@ def evaluate_corpus(
     if total == 0:
         return 0.0
 
-    return 0.5 * (high_hits / total) + 0.5 * (low_hits / total)
+    return HIGH_HIT_WEIGHT * (high_hits / total) + LOW_HIT_WEIGHT * (low_hits / total)
 
 
 def _build_query_bars_from_prediction(pred_doc: dict, history_1h: list):
