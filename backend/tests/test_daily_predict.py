@@ -555,38 +555,50 @@ def test_build_6h_query_window_missing_hour_raises():
 # K-097 circuit breaker tests
 # ---------------------------------------------------------------------------
 
-def test_circuit_breaker_trigger():
+def test_circuit_breaker_trigger(caplog):
     """AC-097-TRIGGER: hit_rate_low below threshold with sample_size >= 20 → sys.exit(0)."""
+    import logging
     mock_client = MagicMock()
     mock_doc = MagicMock()
     mock_doc.to_dict.return_value = {"hit_rate_low": 0.35, "sample_size": 25}
     mock_client.collection.return_value.order_by.return_value.limit.return_value.stream.return_value = iter([mock_doc])
 
-    with pytest.raises(SystemExit) as exc_info:
-        check_circuit_breaker(mock_client)
+    with caplog.at_level(logging.WARNING, logger="daily_predict"):
+        with pytest.raises(SystemExit) as exc_info:
+            check_circuit_breaker(mock_client)
 
     assert exc_info.value.code == 0
+    assert any("circuit breaker" in r.message and "triggered" in r.message for r in caplog.records)
+    assert any(r.levelno == logging.WARNING for r in caplog.records)
 
 
-def test_circuit_breaker_pass():
+def test_circuit_breaker_pass(caplog):
     """AC-097-PASS: hit_rate_low above threshold with sample_size >= 20 → returns normally."""
+    import logging
     mock_client = MagicMock()
     mock_doc = MagicMock()
     mock_doc.to_dict.return_value = {"hit_rate_low": 0.45, "sample_size": 30}
     mock_client.collection.return_value.order_by.return_value.limit.return_value.stream.return_value = iter([mock_doc])
 
     # Should return None without raising SystemExit
-    result = check_circuit_breaker(mock_client)
+    with caplog.at_level(logging.INFO, logger="daily_predict"):
+        result = check_circuit_breaker(mock_client)
+
     assert result is None
+    assert any("circuit breaker" in r.message and "passed" in r.message for r in caplog.records)
 
 
-def test_circuit_breaker_fail_open():
+def test_circuit_breaker_fail_open(caplog):
     """AC-097-FAILOPEN: Firestore exception → returns normally without exiting."""
+    import logging
     mock_client = MagicMock()
     mock_client.collection.return_value.order_by.return_value.limit.return_value.stream.side_effect = Exception(
         "Firestore unavailable"
     )
 
     # Should return None without raising SystemExit
-    result = check_circuit_breaker(mock_client)
+    with caplog.at_level(logging.WARNING, logger="daily_predict"):
+        result = check_circuit_breaker(mock_client)
+
     assert result is None
+    assert any("circuit breaker" in r.message and "skipped" in r.message for r in caplog.records)

@@ -85,7 +85,7 @@ def check_circuit_breaker(client) -> None:
     sample_size = data.get("sample_size", 0)
 
     if hit_rate_low < CIRCUIT_BREAKER_LOW_HIT_THRESHOLD and sample_size >= 20:
-        logger.info(
+        logger.warning(
             "circuit breaker: hit_rate_low=%.3f sample_size=%d → triggered",
             hit_rate_low,
             sample_size,
