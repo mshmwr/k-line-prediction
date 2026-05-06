@@ -14,6 +14,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-06 — K-098
+
+**What went well:** All 3 ACs verified from source in one pass; test suite 12+17 clean.
+**What went wrong:** None — pure constant-swap ticket; no edge case gaps.
+**Next time improvement:** For pure-constant reweight tickets, add a dedicated pytest assertion on the constant values themselves (e.g. `assert optimizer.HIGH_HIT_WEIGHT == 0.3`) so AC-WEIGHT is machine-checked, not just eyeballed.
+**Slowest step:** python3 discovery (command not found on first attempt); use `python3` explicitly in all future backend pytest invocations.
+
 ## 2026-05-06 — K-097
 
 **What went well:** Both suites passed 21/21 after pre-existing test fix landed in 6984de6.
