@@ -1,3 +1,10 @@
+## 2026-05-06 — K-097
+
+**What went well:** Field-name cross-check (`hit_rate_low` vs `compute_backtest_summary` output) confirmed clean before any AC review — zero naming drift.
+**What went wrong:** AC-097-LOG format is impossible to satisfy in the fail-open path because `hit_rate_low`/`sample_size` are unavailable at exception time; AC authoring should have carved out the exception-path format separately.
+**Next time improvement:** When AC specifies a log format with data fields, PM should annotate which execution paths can supply all fields; exception-path exemptions are common and need explicit AC wording.
+**Slowest step:** Verifying `run_prediction` vs `check_circuit_breaker` call order (W-1) — required reading main() source line-by-line in the worktree.
+
 ## 2026-05-05 — K-096
 
 **What went well:** All four checklist gates (AC alignment, Playwright selector correctness, font-mono, commit-block) resolved cleanly in one pass.

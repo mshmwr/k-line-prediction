@@ -14,6 +14,13 @@ Cross-ticket cumulative retrospective log. The QA agent appends one entry before
 
 - Newest first (reverse chronological)
 
+## 2026-05-06 — K-097
+
+**What went well:** Both suites passed 21/21 after pre-existing test fix landed in 6984de6.
+**What went wrong:** First QA sign-off attempt was blocked by a pre-existing fixture failure unrelated to K-097 scope; classification was correct but added one round-trip.
+**Next time improvement:** When QA is invoked post-fix, confirm commit SHA presence in worktree before re-running rather than re-reading ACs.
+**Slowest step:** Identifying the pre-existing failure as out-of-scope took one extra turn; canonical-run check per Hydration Drift Protocol resolves this faster.
+
 ## 2026-05-05 — K-096
 
 **What went well:** about.spec.ts parsed cleanly after `describe` → `test.describe` fix; AC-096-OVERVIEW-QA-EC and AC-096-DETAIL-SECTION both passed first run.

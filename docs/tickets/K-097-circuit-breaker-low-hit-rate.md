@@ -1,9 +1,10 @@
 ---
 ticket: K-097
 title: daily_predict — circuit breaker on low_hit_rate edge threshold
-status: open
+status: closed
 phase: 1
 opened: 2026-05-06
+closed-commit: b783985
 depends-on: []
 qa-early-consultation: "docs/retrospectives/pm.md 2026-05-06 K-097 (QA proxy by PM, 6 challenges)"
 sacred-clauses: []
