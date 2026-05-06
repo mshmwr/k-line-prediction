@@ -1,3 +1,10 @@
+## 2026-05-06 — K-098
+
+**What went well:** All three ACs verified clean in one pass; behavior-diff table (0.5/0.5 → 0.3/0.7) confirmed immediately from git show baseline.
+**What went wrong:** Nothing — simple numeric-constant swap with full test coverage update.
+**Next time improvement:** NA — no structural miss.
+**Slowest step:** Confirming worktree-vs-canonical status split (canonical had unrelated site-content.json M); resolved by checking both paths.
+
 ## 2026-05-06 — K-097
 
 **What went well:** Field-name cross-check (`hit_rate_low` vs `compute_backtest_summary` output) confirmed clean before any AC review — zero naming drift.

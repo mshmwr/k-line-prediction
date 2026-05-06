@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-098",
+    "title": "optimizer — reweight objective to 0.3 high + 0.7 low hit rate",
+    "date": "2026-05-06",
+    "text": "Reweighted evaluate_corpus() Bayesian optimizer objective from 0.5/0.5 to 0.3 high / 0.7 low hit rate. projected_high is only ~+2% above close (inflated by normal ETH vol); low_hit_rate requires a genuine directional move and is the stronger edge signal."
+  },
+  {
     "ticketId": "K-097",
     "title": "daily_predict — circuit breaker on low_hit_rate edge threshold",
     "date": "2026-05-06",

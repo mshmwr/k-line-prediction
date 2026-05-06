@@ -1,9 +1,10 @@
 ---
 ticket: K-098
 title: optimizer — reweight objective to 0.3 high + 0.7 low hit rate
-status: open
+status: closed
 phase: 1
 opened: 2026-05-06
+closed-commit: 4012efc
 depends-on: [K-097]
 qa-early-consultation: "2026-05-06 K-098 — scope: optimizer.py line 110 weight change + docstring; test_weekly_optimize.py line 223 expected value update pre-authorized; no hidden test surface. PASS."
 sacred-clauses: []
