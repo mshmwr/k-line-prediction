@@ -50,6 +50,59 @@ logger = logging.getLogger("daily_predict")
 HISTORY_1H_PATH = _REPO_ROOT / "history_database" / "Binance_ETHUSDT_1h.csv"
 HISTORY_1D_PATH = _REPO_ROOT / "history_database" / "Binance_ETHUSDT_d.csv"
 CSV_FRESHNESS_THRESHOLD_SECONDS = 90 * 60  # 90 minutes
+CIRCUIT_BREAKER_LOW_HIT_THRESHOLD = 0.40
+
+
+# ---------------------------------------------------------------------------
+# Circuit breaker
+# ---------------------------------------------------------------------------
+
+def check_circuit_breaker(client) -> None:
+    """Read latest backtest_summaries doc; sys.exit(0) if low-edge condition met.
+
+    Condition: hit_rate_low < CIRCUIT_BREAKER_LOW_HIT_THRESHOLD AND sample_size >= 20.
+    Fail-open: any Firestore exception → log WARNING + return (do not exit).
+    Empty collection (0 docs) → log INFO + return normally.
+    """
+    try:
+        docs = (
+            client.collection("backtest_summaries")
+            .order_by("computed_at", direction="DESCENDING")
+            .limit(1)
+            .stream()
+        )
+        doc_list = list(docs)
+    except Exception as exc:
+        logger.warning("circuit breaker: Firestore error %s → skipped", exc)
+        return
+
+    if not doc_list:
+        logger.info("circuit breaker: no backtest_summaries doc found → proceed")
+        return
+
+    data = doc_list[0].to_dict()
+    hit_rate_low = data.get("hit_rate_low", 1.0)
+    sample_size = data.get("sample_size", 0)
+
+    if hit_rate_low < CIRCUIT_BREAKER_LOW_HIT_THRESHOLD and sample_size >= 20:
+        logger.info(
+            "circuit breaker: hit_rate_low=%.3f sample_size=%d → triggered",
+            hit_rate_low,
+            sample_size,
+        )
+        sys.exit(0)
+    elif sample_size < 20:
+        logger.info(
+            "circuit breaker: hit_rate_low=%.3f sample_size=%d → passed (cold-start guard)",
+            hit_rate_low,
+            sample_size,
+        )
+    else:
+        logger.info(
+            "circuit breaker: hit_rate_low=%.3f sample_size=%d → passed",
+            hit_rate_low,
+            sample_size,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -496,6 +549,7 @@ def main() -> None:
     # Write prediction to Firestore (retry once on failure)
     import google.cloud.firestore
     client = google.cloud.firestore.Client()
+    check_circuit_breaker(client)   # K-097: circuit breaker gate
 
     try:
         write_prediction(client, ts, prediction)

@@ -1,5 +1,12 @@
 # Engineer Retrospective Log — K-Line Prediction
 
+## 2026-05-06 — K-097
+
+**What went well:** Spec field names (`hit_rate_low`, `sample_size`) verified against `compute_backtest_summary` before writing — no naming drift.
+**What went wrong:** Initial test run showed 14 collected in canonical (old file) vs 17 in worktree; clarified that worktree test isolation is expected pre-merge behavior.
+**Next time improvement:** When spec says "run from canonical repo root", interpret as post-merge verification; worktree run is the pre-merge gate.
+**Slowest step:** Verifying `_REPO_ROOT` path resolution in worktree vs canonical to confirm import path was correct — resolved by reading existing test infrastructure.
+
 ## 2026-05-05 — K-096 Phase 1
 
 **What went well:** Three-task scope (SVG patch, new SVG, TSX update) completed cleanly; tsc exit 0 on first run.
