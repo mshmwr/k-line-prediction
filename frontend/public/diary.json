@@ -1,5 +1,11 @@
 [
   {
+    "ticketId": "K-097",
+    "title": "daily_predict — circuit breaker on low_hit_rate edge threshold",
+    "date": "2026-05-06",
+    "text": "Added circuit breaker to daily_predict: skips prediction when latest backtest hit_rate_low < 0.40 and sample_size >= 20, protecting against publishing low-edge forecasts. Fail-open on Firestore exception."
+  },
+  {
     "ticketId": "K-096",
     "title": "/about pipeline — QA Early Consultation marker + PM Arbitration Detail diagram",
     "date": "2026-05-05",
