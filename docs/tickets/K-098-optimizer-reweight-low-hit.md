@@ -5,7 +5,7 @@ status: open
 phase: 1
 opened: 2026-05-06
 depends-on: [K-097]
-qa-early-consultation: "✗"
+qa-early-consultation: "2026-05-06 K-098 — scope: optimizer.py line 110 weight change + docstring; test_weekly_optimize.py line 223 expected value update pre-authorized; no hidden test surface. PASS."
 sacred-clauses: []
 ---
 

@@ -175,7 +175,7 @@ def test_data_sufficiency_guard_fires_at_29():
 # ---------------------------------------------------------------------------
 
 def test_objective_function_known_corpus():
-    """evaluate_corpus over a known 3-pair corpus returns the expected 0.5·high_hit + 0.5·low_hit.
+    """evaluate_corpus over a known 3-pair corpus returns the expected 0.3·high_hit + 0.7·low_hit.
 
     Setup:
       pair 1: actual_high >= projected_high (high hit), actual_low <= projected_low (low hit)
@@ -183,7 +183,7 @@ def test_objective_function_known_corpus():
       pair 3: actual_high < projected_high  (high miss), actual_low <= projected_low (low hit)
 
     Expected: high_hit_rate = 2/3, low_hit_rate = 2/3
-              objective = 0.5 * (2/3) + 0.5 * (2/3) = 2/3 ≈ 0.6667
+              objective = 0.3 * (2/3) + 0.7 * (2/3) = 2/3 ≈ 0.6667
     """
     pair1 = _make_pair(projected_high=2000.0, projected_low=1900.0, actual_high=2100.0, actual_low=1850.0)
     pair2 = _make_pair(projected_high=2000.0, projected_low=1900.0, actual_high=2100.0, actual_low=1950.0)
@@ -220,7 +220,7 @@ def test_objective_function_known_corpus():
     # pair1: actual_high=2100 >= 2050 (high hit), actual_low=1850 <= 1860 (low hit) → both
     # pair2: actual_high=2100 >= 2050 (high hit), actual_low=1950 > 1860 (low miss)
     # pair3: actual_high=1999 < 2050 (high miss), actual_low=1850 <= 1860 (low hit)
-    expected = 0.5 * (2 / 3) + 0.5 * (2 / 3)
+    expected = 0.3 * (2 / 3) + 0.7 * (2 / 3)
     assert abs(score - expected) < 1e-9, f"Expected {expected:.6f}, got {score:.6f}"
 
 
