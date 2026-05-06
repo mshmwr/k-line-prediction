@@ -5,7 +5,7 @@ status: open
 phase: 1
 opened: 2026-05-06
 depends-on: []
-qa-early-consultation: "✗"
+qa-early-consultation: "docs/retrospectives/pm.md 2026-05-06 K-097 (QA proxy by PM, 6 challenges)"
 sacred-clauses: []
 ---
 
@@ -31,19 +31,21 @@ and exit 0 with a WARNING log. Fail-open if Firestore read fails.
 
 ## Acceptance Criteria
 
-- **AC-097-TRIGGER**: When the latest `backtest_summaries` doc has `low_hit_rate < 0.40`
+- **AC-097-TRIGGER**: When the latest `backtest_summaries` doc has `hit_rate_low < 0.40`
   AND `sample_size >= 20`, `main()` logs a WARNING containing `"circuit breaker triggered"` and
-  exits 0 without calling `write_prediction`. Verifiable via pytest mock of Firestore + exit code check.
+  exits 0 (SystemExit code 0) without calling `write_prediction`. Verifiable via pytest mock of
+  Firestore + `pytest.raises(SystemExit)` with `exc_info.value.code == 0`.
 
-- **AC-097-PASS**: When `low_hit_rate >= 0.40` OR `sample_size < 20`, prediction proceeds normally —
+- **AC-097-PASS**: When `hit_rate_low >= 0.40` OR `sample_size < 20`, prediction proceeds normally —
   no change to existing flow. Verifiable via existing `test_daily_predict.py` regression.
 
-- **AC-097-FAILOPEN**: When Firestore read for `backtest_summaries` raises any exception,
-  `main()` logs a WARNING containing `"circuit breaker skipped"` and proceeds with prediction.
-  Verifiable via pytest mock of Firestore exception.
+- **AC-097-FAILOPEN**: When Firestore read for `backtest_summaries` raises any exception
+  (including `google.cloud.exceptions.FailedPrecondition` for missing index), `main()` logs a
+  WARNING containing `"circuit breaker skipped"` and proceeds with prediction. Verifiable via
+  pytest mock raising Exception on the Firestore query.
 
 - **AC-097-LOG**: Every run logs circuit breaker outcome at INFO level:
-  `"circuit breaker: low_hit_rate={x:.3f} sample_size={n} → triggered/passed/skipped"`.
+  `"circuit breaker: hit_rate_low={x:.3f} sample_size={n} → triggered/passed/skipped"`.
 
 ## File Change List
 
@@ -59,3 +61,10 @@ and exit 0 with a WARNING log. Fail-open if Firestore read fails.
 - Threshold `0.40` is the initial value; the constant should be named `CIRCUIT_BREAKER_LOW_HIT_THRESHOLD`
   for future tuning.
 - `sample_size >= 20` guard prevents false triggering during cold-start (< 20 completed pairs).
+- The Firestore field written by `compute_backtest_summary()` is `hit_rate_low` (not `low_hit_rate`);
+  `check_circuit_breaker` must read `doc.get("hit_rate_low")`.
+- Empty `backtest_summaries` collection (0 docs returned, no exception) → treat as no-data → proceed
+  normally; this is the same code path as `sample_size < 20`. Only a raised exception triggers fail-open.
+- `check_circuit_breaker` runs after `client = google.cloud.firestore.Client()` (currently line ~498
+  in `main()`) and before `write_prediction`. Prediction computation (`run_prediction`) may have already
+  run at that point; the gate controls only whether the result is written.
