@@ -15,17 +15,20 @@ export default function HeroSection() {
         <p className="text-[16px] leading-[1.5] text-[#1A1814]">
           Search past ETH/USDT formations that resemble any candlestick window. Inspect what came after — for learning, not for trading signals.
         </p>
-        <img
-          src="/hero-shot.png"
-          alt="Screenshot of the K-Line Prediction app showing a similarity match result for an ETH/USDT 1H window"
-          width={1280}
-          height={720}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          className="w-full max-w-[960px] rounded-[8px] border border-[#2A2520] shadow-[0_2px_0_#2A2520]"
-          data-testid="hero-product-shot"
-        />
+        <picture>
+          <source srcSet="/hero-shot.webp" type="image/webp" />
+          <img
+            src="/hero-shot.png"
+            alt="Screenshot of the K-Line Prediction app showing a similarity match result for an ETH/USDT 1H window"
+            width={1280}
+            height={720}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="w-full max-w-[960px] rounded-[8px] border border-[#2A2520] shadow-[0_2px_0_#2A2520]"
+            data-testid="hero-product-shot"
+          />
+        </picture>
         <div className="flex gap-[14px]">
           <a
             href="/app?sample=ethusdt"

@@ -34,6 +34,14 @@ export default defineConfig({
           if (id.includes('lightweight-charts')) {
             return 'vendor-charts'
           }
+          // ops-web-perf: extract analytics util to break eager vendor-charts preload.
+          // ConsentBanner (shell) imports analytics → was pulling page-apppage into the
+          // initial preload chain → vendor-charts preloaded on every route unnecessarily.
+          // Extracting analytics to its own ~3KB chunk removes vendor-charts + 85KB of
+          // page-apppage from the critical preload path. K-ops-web-perf 2026-05-07.
+          if (id.includes('/frontend/src/utils/analytics')) {
+            return 'utils-analytics'
+          }
           if (
             id.includes('node_modules/react/') ||
             id.includes('node_modules/react-dom/') ||
