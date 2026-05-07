@@ -119,7 +119,11 @@ Run `npm run build` → inspect `stats.html` in browser.
 ### Changes
 Depends on analysis findings. Pattern: replace `import lib from 'lib'` → `import { fn } from 'lib'` for tree-shaking to work. May also involve removing unused imports entirely.
 
-`rollup-plugin-visualizer` is dev-only — remove from `vite.config.ts` before final commit. Do not ship it to production.
+`rollup-plugin-visualizer` is dev-only. Capture two screenshots before removing it:
+- **stats-before.png**: after adding visualizer, before any import changes
+- **stats-after.png**: after import changes, before removing visualizer
+
+Both screenshots go into `docs/images/` and are referenced in the final report for the technical article. Then remove visualizer from `vite.config.ts` before final commit.
 
 ### Measurement
 Compare `dist/` bundle sizes before/after (use `du -sh dist/assets/*.js`). Run Lighthouse after deploy.
@@ -151,6 +155,8 @@ After all three optimizations are deployed and measured, produce a report at `ra
 
 ## Optimization 3: Unused JS
 [analysis findings, what was removed, bundle size delta]
+![stats before](../images/stats-before.png)
+![stats after](../images/stats-after.png)
 
 ## Summary & Next Steps
 ```
