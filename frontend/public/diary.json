@@ -1,5 +1,10 @@
 [
   {
+    "title": "Docs sweep — purge Chinese from 38 K-Line design/SSOT/retro markdowns",
+    "date": "2026-05-09",
+    "text": "Bulk-translated all remaining Chinese in K-Line .md files to comply with the all-English rule: PRD, tech-debt, system-overview, conventions, 6 role retrospectives, and 28 design docs. Documented exceptions retained for CJK regex char classes, before-change source-code literals, and grep-search demonstrations."
+  },
+  {
     "title": "Docs sweep — translate 44 ticket files from mixed CN/EN to all-English",
     "date": "2026-05-09",
     "text": "Bulk-translated 44 K-Line ticket markdowns to comply with the all-English .md rule; protected regex char classes and cross-doc URL anchors left as documented exceptions."

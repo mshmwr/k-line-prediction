@@ -130,23 +130,23 @@ Helper module: backend/optimizer.py (param_override, evaluate_corpus, doc builde
 ```
 ClaudeCodeProject/
 ├── agent-context/
-│   ├── architecture.md          ← monorepo 層級 overview
-│   └── conventions.md           ← 通用規範
-├── PM-dashboard.md              ← 跨專案 ticket 進度表
-├── CLAUDE.md                    ← Claude Code 專案指令
-├── AGENTS.md                    ← Codex 專案指令
+│   ├── architecture.md          ← monorepo-level overview
+│   └── conventions.md           ← General conventions
+├── PM-dashboard.md              ← Cross-project ticket progress table
+├── CLAUDE.md                    ← Claude Code project instructions
+├── AGENTS.md                    ← Codex project instructions
 ├── K-Line-Prediction/
 │   ├── agent-context/
-│   │   ├── architecture.md      ← 本檔
-│   │   └── conventions.md       ← K-Line 專屬規範（命名、pre-commit、history DB）
+│   │   ├── architecture.md      ← This file
+│   │   └── conventions.md       ← K-Line-specific conventions (naming, pre-commit, history DB)
 │   ├── docs/
-│   │   ├── tickets/             ← K-001 ~ K-017 ticket
-│   │   ├── tech-debt.md         ← TD-001 ~ TD-008 登記簿
-│   │   ├── designs/             ← RFC + ticket design（TD-008 / K-017 等）
-│   │   ├── reviews/             ← Codex / senior-engineer review 紀錄
-│   │   ├── retrospectives/      ← per-role 跨 ticket 累積反省（K-008 起）
-│   │   ├── reports/             ← Playwright visual-report 產出
-│   │   └── ai-collab-protocols.md ← K-017 公開版協議文件（英文，對外 recruiter 可見）
+│   │   ├── tickets/             ← K-001 ~ K-017 tickets
+│   │   ├── tech-debt.md         ← TD-001 ~ TD-008 registry
+│   │   ├── designs/             ← RFC + ticket designs (TD-008 / K-017 etc.)
+│   │   ├── reviews/             ← Codex / senior-engineer review records
+│   │   ├── retrospectives/      ← Per-role cross-ticket accumulated retros (since K-008)
+│   │   ├── reports/             ← Playwright visual-report outputs
+│   │   └── ai-collab-protocols.md ← K-017 public protocol document (English, recruiter-visible)
 │   ├── scripts/                 ← K-017; portfolio demo scripts
 │   │   ├── audit-ticket.sh      ← A–G check group audit (portfolio demo, not CI gate)
 │   │   └── build-ticket-derived-ssot.mjs ← K-052/K-062; reads ticket corpus + README markers; emits site-content.json metrics/ticketRange, sacred-registry.md, README STACK + NAMED-ARTEFACTS blocks
@@ -155,27 +155,27 @@ ClaudeCodeProject/
 │   │   ├── ticket-cases.json    ← K-058 SSOT for TicketAnatomySection (K-002/K-008/K-009 trio)
 │   │   └── roles.json           ← K-058 SSOT for RoleCards (6 roles × Owns/Artefact)
 │   ├── backend/
-│   │   ├── main.py              ← FastAPI app + 所有 /api route + SPA fallback（最後一個 route）
+│   │   ├── main.py              ← FastAPI app + all /api routes + SPA fallback (last route)
 │   │   ├── models.py            ← Pydantic request/response models
-│   │   ├── predictor.py         ← 相似度搜尋 + MA99 + trend classify + stats 計算
-│   │   ├── time_utils.py        ← 時間 normalize（統一 UTC+0 `YYYY-MM-DD HH:MM`）
-│   │   ├── mock_data.py         ← 測試用假資料 + CSV loader
+│   │   ├── predictor.py         ← Similarity search + MA99 + trend classify + stats computation
+│   │   ├── time_utils.py        ← Time normalize (unified UTC+0 `YYYY-MM-DD HH:MM`)
+│   │   ├── mock_data.py         ← Test fake data + CSV loader
 │   │   ├── auth.py              ← APIRouter: POST /api/auth + GET /api/business-logic + require_jwt
-│   │   ├── business_logic.md    ← JWT 保護的交易邏輯內容
+│   │   ├── business_logic.md    ← JWT-protected business logic content
 │   │   └── tests/
 │   │       ├── conftest.py
 │   │       ├── test_auth.py     ← AC-AUTH-1/2/4 + AC-TEST-AUTH-3/5
-│   │       ├── test_main.py     ← main.py route integration（K-001 補齊 coverage）
-│   │       ├── test_predictor.py ← predictor 純函式測試（含 K-013 contract parametrize + fixture coverage + realism rule）
-│   │       └── fixtures/                              ← K-013 跨層 contract fixture 目錄
-│   │           ├── __init__.py                        ← 空檔；讓 fixtures 成為 importable package
-│   │           ├── stats_contract_cases.json         ← （all_matches_full_set / subset_deselect_one / single_match_two_bars）；snake_case expected；前後端共吃
-│   │           └── generate_stats_contract_cases.py  ← deterministic generator；呼叫現有 `compute_stats` 產 ground truth；後端改算法時一鍵重跑
+│   │       ├── test_main.py     ← main.py route integration (K-001 coverage backfill)
+│   │       ├── test_predictor.py ← predictor pure function tests (incl. K-013 contract parametrize + fixture coverage + realism rule)
+│   │       └── fixtures/                              ← K-013 cross-layer contract fixture directory
+│   │           ├── __init__.py                        ← Empty file; makes fixtures an importable package
+│   │           ├── stats_contract_cases.json         ← (all_matches_full_set / subset_deselect_one / single_match_two_bars); snake_case expected; consumed by both frontend and backend
+│   │           └── generate_stats_contract_cases.py  ← deterministic generator; calls existing `compute_stats` to produce ground truth; one-click regen when backend algorithm changes
 │   ├── frontend/
 │   │   ├── public/
 │   │   │   ├── diary.json       ← flat DiaryEntry[] static data ({ ticketId?, title, date, text }, all English, zod .strict() validated at fetch time)
 │   │   │   └── docs/
-│   │   │       └── ai-collab-protocols.md  ← K-017 起；copy from docs/，讓 SPA Hosting 可直接訪問 `/docs/ai-collab-protocols.md`（避免 SPA fallback 吞 .md）
+│   │   │       └── ai-collab-protocols.md  ← Since K-017; copy from docs/, so SPA Hosting can directly access `/docs/ai-collab-protocols.md` (avoids SPA fallback swallowing .md)
 │   │   ├── e2e/
 │   │   │   ├── business-logic.spec.ts
 │   │   │   ├── pages.spec.ts
@@ -183,7 +183,7 @@ ClaudeCodeProject/
 │   │   │   ├── navbar.spec.ts
 │   │   │   ├── diary-page.spec.ts          ← K-024 Phase 3; DIARY-PAGE-CURATION + TIMELINE + ENTRY-LAYOUT + PAGE-HERO + CONTENT-WIDTH
 │   │   │   ├── diary-homepage.spec.ts      ← K-024 Phase 3; HOMEPAGE-CURATION (0/1/2/3-entry + tie-break)
-│   │   │   ├── visual-report.ts          ← K-008 視覺報告 script（env var TICKET_ID → docs/reports/K-XXX-visual-report.html）
+│   │   │   ├── visual-report.ts          ← K-008 visual report script (env var TICKET_ID → docs/reports/K-XXX-visual-report.html)
 │   │   │   ├── K-013-consensus-stats-ssot.spec.ts ← K-013 cross-layer contract fixture E2E guard
 │   │   │   ├── K-046-example-upload.spec.ts    ← K-046; example CSV download link + upload-hidden E2E
 │   │   │   ├── about-layout.spec.ts            ← K-045; container width / section gap / hero / section-label-x / sm-boundary / K031-adjacency
@@ -206,26 +206,26 @@ ClaudeCodeProject/
 │   │   │   └── fixtures/
 │   │   │       └── expired-token.ts
 │   │   └── src/
-│   │       ├── main.tsx         ← BrowserRouter + Routes 入口
-│   │       ├── AppPage.tsx      ← K-Line 預測主頁（TD-005：責任過多，待拆分）
-│   │       ├── types.ts         ← MatchCase / PredictStats / ProjectionBar 等
+│   │       ├── main.tsx         ← BrowserRouter + Routes entrypoint
+│   │       ├── AppPage.tsx      ← K-Line prediction main page (TD-005: too much responsibility, pending split)
+│   │       ├── types.ts         ← MatchCase / PredictStats / ProjectionBar etc.
 │   │       ├── types/
 │   │       │   ├── diary.ts     ← `DiaryEntry { ticketId?, title, date, text }` + zod `.strict()` schema export (replaces DiaryItem / DiaryMilestone)
 │   │       │   └── backtest.ts  ← K-081; TypeScript mirror types for K-080 frozensets: Prediction, ActualOutcome, BacktestSummary, ActiveParams, ChartPoint
 │   │       ├── hooks/
 │   │       │   ├── useAsyncState.ts
-│   │       │   ├── usePrediction.ts    ← predict + computeMa99 呼叫封裝
+│   │       │   ├── usePrediction.ts    ← predict + computeMa99 call wrapper
 │   │       │   ├── useDiary.ts         ← K-024; fetches /diary.json + AsyncState; returns sorted `DiaryEntry[]` (date desc + array-index tie-break); see Changelog K-024
 │   │       │   ├── useDiaryPagination.ts ← client-side slicing pagination (5-per-click) + inFlight concurrency gate (`queueMicrotask` flush + `hasMore` / `loadMore` / `visibleCount` return shape), DiaryPage only
 │   │       │   └── useBacktestData.ts  ← K-081; Firestore REST read hook (backtest_summaries + predictor_params + predictions/actuals 30-day series); retry-once; state machine loading|ready|error; assembles ChartPoint[]
 │   │       ├── utils/
-│   │       │   ├── aggregation.ts      ← 1H → 1D bar 聚合、time formatter
-│   │       │   ├── analytics.ts        ← K-018；GA4 initGA / trackPageview / trackCtaClick
+│   │       │   ├── aggregation.ts      ← 1H → 1D bar aggregation, time formatter
+│   │       │   ├── analytics.ts        ← K-018; GA4 initGA / trackPageview / trackCtaClick
 │   │       │   ├── api.ts              ← API_BASE env
 │   │       │   ├── auth.ts             ← localStorage bl_token helper
 │   │       │   ├── diarySort.ts        ← pure `sortDiary(entries)`: date desc + array-index tie-break (later index = newer within same date); called by useDiary
-│   │       │   ├── statsComputation.ts ← K-013；`computeStatsFromMatches` 純 util（subset stats，與 backend `compute_stats` 由 `backend/tests/fixtures/stats_contract_cases.json` 鎖 bit-exact <=1e-6）；另 export `snakeSuggestionToCamel` / `snakeStatsToCamel` / `aggregateProjectedBarsTo1D`
-│   │       │   └── time.ts             ← toUTC8Display（render-only）
+│   │       │   ├── statsComputation.ts ← K-013; `computeStatsFromMatches` pure util (subset stats, locked bit-exact <=1e-6 with backend `compute_stats` via `backend/tests/fixtures/stats_contract_cases.json`); also exports `snakeSuggestionToCamel` / `snakeStatsToCamel` / `aggregateProjectedBarsTo1D`
+│   │       │   └── time.ts             ← toUTC8Display (render-only)
 │   │       ├── pages/
 │   │       │   ├── HomePage.tsx
 │   │       │   ├── AboutPage.tsx
@@ -233,13 +233,13 @@ ClaudeCodeProject/
 │   │       │   ├── BusinessLogicPage.tsx
 │   │       │   └── BacktestPage.tsx             ← K-081; /backtest read-only dashboard; layout shell; mounts useBacktestData + 4 child components
 │   │       ├── __tests__/
-│   │       │   ├── AppPage.test.tsx         ← Vitest（K-010 修復中）
+│   │       │   ├── AppPage.test.tsx         ← Vitest (K-010 fix in progress)
 │   │       │   ├── MatchList.test.tsx
 │   │       │   ├── OHLCEditor.test.tsx
 │   │       │   ├── PredictButton.test.tsx
 │   │       │   ├── StatsPanel.test.tsx
 │   │       │   ├── aggregation.test.ts
-│   │       │   ├── statsComputation.test.ts ← K-013；relative path import `../../../backend/tests/fixtures/stats_contract_cases.json`，對 fixture case 跑 `computeStatsFromMatches` 並 assert bit-exact (`toBeCloseTo(value, 6)`) + error contract + key mapping
+│   │       │   ├── statsComputation.test.ts ← K-013; relative path import `../../../backend/tests/fixtures/stats_contract_cases.json`, runs `computeStatsFromMatches` against fixture cases and asserts bit-exact (`toBeCloseTo(value, 6)`) + error contract + key mapping
 │   │       │   ├── diary.schema.test.ts     ← zod `.strict()` schema validation (valid / extra-key reject / missing-required reject / ticketId optional)
 │   │       │   ├── diary.english.test.ts    ← CJK regex sweep (no `/[一-鿿]/` in text+title per entry), AC-024-ENGLISH
 │   │       │   ├── diary.legacy-merge.test.ts ← verifies legacy entries (pre-K-001) merged into single "Early project phases and deployment setup" (date=2026-04-16), AC-024-LEGACY-MERGE
@@ -248,19 +248,19 @@ ClaudeCodeProject/
 │   │       └── components/
 │   │           ├── ErrorBoundary.tsx
 │   │           ├── ScrollToTop.tsx          ← K-053; sitewide scroll-reset on route change; `useEffect` on `[pathname, hash]`, hash-link early-return, returns null
-│   │           ├── MainChart.tsx            ← 主圖（歷史 + 預測 + MA99 疊加）
-│   │           ├── MatchList.tsx            ← 相似案例列表 + 展開 PredictorChart（TD-004）
-│   │           ├── OHLCEditor.tsx           ← OHLC 輸入表格
-│   │           ├── StatsPanel.tsx           ← 統計面板
+│   │           ├── MainChart.tsx            ← Main chart (history + prediction + MA99 overlay)
+│   │           ├── MatchList.tsx            ← Similar case list + expandable PredictorChart (TD-004)
+│   │           ├── OHLCEditor.tsx           ← OHLC input table
+│   │           ├── StatsPanel.tsx           ← Statistics panel
 │   │           ├── PredictButton.tsx
-│   │           ├── TopBar.tsx               ← /app 上方 bar（K-030 起 /app 不渲染 UnifiedNavBar，TopBar 為 /app 實際頂端 bar）
-│   │           ├── UnifiedNavBar.tsx        ← K-005 統一 NavBar（所有頁面）
-│   │           ├── NavBar.tsx               ← legacy，保留相容
+│   │           ├── TopBar.tsx               ← /app top bar (since K-030, /app does not render UnifiedNavBar; TopBar is the actual top bar of /app)
+│   │           ├── UnifiedNavBar.tsx        ← K-005 unified NavBar (all pages)
+│   │           ├── NavBar.tsx               ← legacy, kept for compatibility
 │   │           ├── home/
 │   │           │   ├── HeroSection.tsx
 │   │           │   ├── ProjectLogicSection.tsx
 │   │           │   ├── DevDiarySection.tsx      ← Home page Diary preview; consumes `useDiary(3)` flat `DiaryEntry[]`; flex-col flow layout + shared `timelinePrimitives.ts` rail/marker constants (K-024/K-028)
-│   │           │   └── BuiltByAIBanner.tsx      ← K-017 新增；Homepage 最上方 thin banner → /about（DiaryPreviewEntry.tsx 刪除，被 P4 取代）
+│   │           │   └── BuiltByAIBanner.tsx      ← Added in K-017; Homepage top thin banner → /about (DiaryPreviewEntry.tsx deleted, replaced by P4)
 │   │           ├── about/                        ← /about portfolio page components; K-017 initial, K-022/K-034/K-045/K-058 progressively refactored; see Changelog
 │   │           │   ├── FileNoBar.tsx                     ← K-034; dark charcoal header bar (FILE/LAYER/CASE variant); props { fileNo, rightSlot?, variant?, cardPaddingSize? }; 5 card consumers
 │   │           │   ├── RedactionBar.tsx                  ← K-022; black redaction bar (`data-redaction` testid); used only in MetricCard m2
@@ -278,7 +278,7 @@ ClaudeCodeProject/
 │   │           │   ├── TicketAnatomyCard.tsx             ← K-034; FileNoBar (CASE FILE) + Bodoni 26 title + OUTCOME/LEARNING labels + ExternalLink
 │   │           │   ├── ProjectArchitectureSection.tsx    ← S6 Monorepo / Docs-driven / Testing pyramid; K-034 ARCH_PILLARS uses structured `fields` array
 │   │           │   └── ArchPillarBlock.tsx               ← K-034; interface `{ layerNo, category, title, fields }`; LAYER Nº FileNoBar + Bodoni 24 title + field pattern
-│   │           │   （`DossierHeader.tsx` RETIRED K-034; `FooterCtaSection.tsx` deleted K-035）
+│   │           │   (`DossierHeader.tsx` RETIRED K-034; `FooterCtaSection.tsx` deleted K-035)
 │   │           ├── diary/                                 ← K-024 Phase 3; flat `<ol role="list">` timeline; rail + marker redesign; 7 components + timelinePrimitives.ts constants module
 │   │           │   ├── DiaryTimeline.tsx                  ← K-024; flat `<ol role="list">` renderer for DiaryEntryV2 + DiaryRail + InfiniteScrollSentinel
 │   │           │   ├── DiaryHero.tsx                      ← K-024; page hero heading + 1px divider + subtitle
@@ -290,19 +290,19 @@ ClaudeCodeProject/
 │   │           │   ├── DiaryEmptyState.tsx                ← K-024; empty state literal "No entries yet. Check back soon."
 │   │           │   ├── InfiniteScrollSentinel.tsx         ← K-059; IntersectionObserver-based sentinel replacing LoadMoreButton; fade-in via transition-opacity
 │   │           │   └── timelinePrimitives.ts              ← K-024; constants module: RAIL / MARKER / ENTRY_TYPE; shared by DevDiarySection + diary/ components to prevent drift
-│   │           ├── primitives/                            ← K-017 Pass 2 新目錄；cross-page primitive 抽出（/about 專用；diary/ 重構未落地）
-│   │           │   ├── CardShell.tsx                      ← P2；MetricCard / RoleCard / PillarCard / TicketAnatomyCard / ArchPillarBlock 共用（K-022：dark class 遷 paper palette；PillarCard consumer 加 overflow-hidden）
-│   │           │   └── ExternalLink.tsx                   ← P3；target=_blank + rel=noopener noreferrer 寫死
-│   │           │   （SectionContainer.tsx P1 — **K-045 2026-04-24 RETIRED (git rm)**；單一 consumer 清空；AboutPage.tsx 改寫為 per-section root-child 容器替代，primitive 抽象不再需要）
-│   │           │   （MilestoneAccordion.tsx / DiaryEntryRow.tsx / VerticalRail.tsx / TimelineMarker.tsx — K-017 Pass 2 P4/P5/P6/P7 未落地，磁碟不存在；K-024 結構重做時重新設計）
-│   │           ├── shared/                                 ← K-035 新目錄（2026-04-22 落地）；sitewide page-level chrome canonical registry（Footer / 未來 NavBar 搬入 per TD-K035-01）
+│   │           ├── primitives/                            ← K-017 Pass 2 new directory; cross-page primitive extraction (/about-only; diary/ refactor not landed)
+│   │           │   ├── CardShell.tsx                      ← P2; shared by MetricCard / RoleCard / PillarCard / TicketAnatomyCard / ArchPillarBlock (K-022: dark class migrated to paper palette; PillarCard consumer adds overflow-hidden)
+│   │           │   └── ExternalLink.tsx                   ← P3; target=_blank + rel=noopener noreferrer hardcoded
+│   │           │   (SectionContainer.tsx P1 — **K-045 2026-04-24 RETIRED (git rm)**; sole consumer cleared; AboutPage.tsx rewritten with per-section root-child containers, primitive abstraction no longer needed)
+│   │           │   (MilestoneAccordion.tsx / DiaryEntryRow.tsx / VerticalRail.tsx / TimelineMarker.tsx — K-017 Pass 2 P4/P5/P6/P7 not landed, do not exist on disk; redesigned during K-024 structural rework)
+│   │           ├── shared/                                 ← K-035 new directory (landed 2026-04-22); sitewide page-level chrome canonical registry (Footer / future NavBar moves in per TD-K035-01)
 │   │           │   └── Footer.tsx                          ← K-034/K-050; zero-prop shared Footer; 3 brand-asset SVG anchors + click-to-copy email; rendered across 4 routes, byte-identical DOM (Sacred)
 │   │           ├── business-logic/
 │   │           │   ├── PasswordForm.tsx
 │   │           │   ├── BusinessLogicContent.tsx
 │   │           │   └── ErrorBanner.tsx
 │   │           └── common/
-│   │               ├── LoadingSpinner.tsx   ← 接受 `label?: string` prop，各呼叫處傳入情境文案；無 label 時只顯示 spinner 不顯示文字（K-011 完成 2026-04-18）
+│   │               ├── LoadingSpinner.tsx   ← Accepts `label?: string` prop; each callsite passes context-specific copy; without label, only spinner is rendered without text (K-011 completed 2026-04-18)
 │   │               ├── ErrorMessage.tsx
 │   │               ├── SectionHeader.tsx
 │   │               ├── SectionLabel.tsx
@@ -316,11 +316,11 @@ ClaudeCodeProject/
 
 ## API Endpoints
 
-實際 route 在 `backend/main.py`（外加 `auth.py` router）。全部以 `/api/*` prefix。
+Actual routes live in `backend/main.py` (plus `auth.py` router). All prefixed with `/api/*`.
 
 ### `POST /api/predict`
 
-主預測端點。
+Main prediction endpoint.
 
 **Request** (`PredictRequest`):
 ```json
@@ -344,71 +344,71 @@ ClaudeCodeProject/
 }
 ```
 
-**注意事項（K-009 修復中）：** `find_top_matches()` 目前在 1H 路徑下未傳 `ma_history=_history_1d`，導致 fallback 為 `history=_history_1h`，MA99 filter 與 ranking 資料源錯誤。AC-009-FIX 鎖定此行為。
+**Caveat (K-009 fix in progress):** `find_top_matches()` currently does not pass `ma_history=_history_1d` on the 1H path, causing the fallback to be `history=_history_1h`, which makes the MA99 filter and ranking data source incorrect. AC-009-FIX locks this behavior.
 
 ---
 
 ### `POST /api/merge-and-compute-ma99`
 
-僅計算 MA99（前端早期載入 MA99 用，UX：Predict 按鈕先 disabled，MA99 算好後 enable）。
+Computes MA99 only (frontend uses this for early MA99 load; UX: Predict button is initially disabled and enables once MA99 is ready).
 
 **Request** (`Ma99Request`): `{ ohlc_data, timeframe }`
 **Response** (`Ma99Response`): `{ query_ma99_1h, query_ma99_1d, query_ma99_gap_1h, query_ma99_gap_1d }`
 
-**In-memory only**：不寫入 history database。
+**In-memory only**: does not write to the history database.
 
 ---
 
 ### `POST /api/upload-history`
 
-上傳 CSV 歷史資料，解析後回傳 observable DB state。**Write path commented-out 2026-04-24（K-046）pending K-048 auto-scraper** — parse + response payload 仍正常，但不觸寫 `history_database/` 也不更新 `_history_1h` / `_history_1d` module state；response 中 `bar_count` 與 `latest` 反映 existing authoritative state（`len(existing)` / `existing[-1]['date']`），`added_count` 永遠 `0`。支援三種 CSV 格式不變：CryptoDataDownload、標準 header、Binance raw API。
+Uploads CSV history data; after parsing returns observable DB state. **Write path commented-out 2026-04-24 (K-046) pending K-048 auto-scraper** — parse + response payload still work, but `history_database/` is not written and `_history_1h` / `_history_1d` module state is not updated; the response's `bar_count` and `latest` reflect existing authoritative state (`len(existing)` / `existing[-1]['date']`), and `added_count` is always `0`. Three CSV formats remain supported: CryptoDataDownload, standard header, Binance raw API.
 
-**Timeframe 偵測：** 檔名含 `_d` / `_1d` → 1D，否則 1H。
-**Response：** `{ filename, latest, bar_count, added_count, timeframe }` — schema 不變；post-K-046 `added_count` 恆為 0。
+**Timeframe detection:** filename containing `_d` / `_1d` → 1D, otherwise 1H.
+**Response:** `{ filename, latest, bar_count, added_count, timeframe }` — schema unchanged; post-K-046 `added_count` is always 0.
 
-**已知風險（TD-003）：** 用 module globals（`_history_1h` / `_history_1d`）做 read-merge-write-swap，無同步機制，併發上傳可能遺失 bars。**Post-K-046 write path 註解後 race surface 移除**，直到 K-048 重啟 write path 再回到此風險面；revisit 於 K-048 Architect design phase。
+**Known risk (TD-003):** uses module globals (`_history_1h` / `_history_1d`) for read-merge-write-swap with no synchronization mechanism; concurrent uploads may lose bars. **After K-046 commented out the write path, the race surface is removed**; once K-048 restarts the write path the risk surface returns; revisit during K-048 Architect design phase.
 
 ---
 
 ### `GET /api/history-info`
 
-回傳 1H / 1D 歷史資料的最新日期、筆數、filename。
+Returns latest date, bar count, and filename for 1H / 1D history data.
 
 ### `GET /api/example?n=5&timeframe=1H`
 
-從歷史資料庫讀取前 N 筆作為範例輸入。
+Reads the first N bars from the history database as example input.
 
 ### `GET /api/official-input`
 
-從 env var `OFFICIAL_INPUT_CSV_PATH` 指定的路徑載入官方輸入 CSV。
+Loads the official input CSV from the path specified by env var `OFFICIAL_INPUT_CSV_PATH`.
 
 ### `POST /api/auth`
 
-密碼驗證，回傳 JWT token（`auth.py` router）。
+Password authentication; returns JWT token (`auth.py` router).
 
-- Payload: `{ password }` → Response: `{ token }` 或 401
-- 密碼來源：env var `BUSINESS_LOGIC_PASSWORD`，用 `hmac.compare_digest` 防 timing attack
-- JWT secret：env var `JWT_SECRET`
+- Payload: `{ password }` → Response: `{ token }` or 401
+- Password source: env var `BUSINESS_LOGIC_PASSWORD`, compared via `hmac.compare_digest` to prevent timing attack
+- JWT secret: env var `JWT_SECRET`
 - Payload: `{ sub: "business-logic-access", iat, exp: iat + 86400 }`
-- `jwt.decode` 必須 pin `algorithms=["HS256"]`
+- `jwt.decode` must pin `algorithms=["HS256"]`
 
 ### `GET /api/business-logic`
 
-密碼保護內容（`auth.py` router，同一個 APIRouter）。
+Password-protected content (`auth.py` router, same APIRouter).
 
-- Header: `Authorization: Bearer <token>`，用 `HTTPBearer` + `Depends(require_jwt)` 驗證
-- 內容從 `Path(__file__).parent / "business_logic.md"` 讀取（避免 Railway/CR 工作目錄不一致）
-- 200 → `{ content }`；401 token 無效；404 檔案不存在
+- Header: `Authorization: Bearer <token>`, validated via `HTTPBearer` + `Depends(require_jwt)`
+- Content read from `Path(__file__).parent / "business_logic.md"` (avoids Railway/CR working directory inconsistency)
+- 200 → `{ content }`; 401 invalid token; 404 file not found
 
 ### SPA Fallback
 
-`GET /{full_path:path}` → `FileResponse("dist/index.html")`。**必須是 main.py 最後一個 route**，在所有 `include_router()` 之後，讓前端 BrowserRouter 的路由由客戶端接管。
+`GET /{full_path:path}` → `FileResponse("dist/index.html")`. **Must be the last route in main.py**, after all `include_router()` calls, so that the frontend BrowserRouter routes are taken over by the client.
 
 ---
 
 ## Key Data Models
 
-**後端 Pydantic Models (`backend/models.py`)**
+**Backend Pydantic Models (`backend/models.py`)**
 ```python
 OHLCBar:       open, high, low, close: float; time: str (ISO UTC)
 MatchCase:     id, correlation, historical_ohlc, future_ohlc,
@@ -418,13 +418,13 @@ MatchCase:     id, correlation, historical_ohlc, future_ohlc,
                historical_ma99_1d, future_ma99_1d
 PredictStats:  highest/second_highest/second_lowest/lowest: OrderSuggestion,
                win_rate, mean_correlation,
-               consensus_forecast_1h, consensus_forecast_1d  # 全集 baseline（TD-008 Option C 語意）
+               consensus_forecast_1h, consensus_forecast_1d  # full-set baseline (TD-008 Option C semantics)
 Ma99Gap:       from_date, to_date
 AuthRequest:   password: str
 AuthResponse:  token: str
 ```
 
-**前端 TypeScript Types (`frontend/src/types.ts` + `types/diary.ts`)**
+**Frontend TypeScript Types (`frontend/src/types.ts` + `types/diary.ts`)**
 ```typescript
 interface DiaryEntry       { ticketId?: string; title: string; date: string; text: string }
 // DiaryItem / DiaryMilestone retired K-024; all consumers (useDiary / DevDiarySection / DiaryTimeline / DiaryEntryV2) use DiaryEntry
@@ -448,37 +448,37 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 **Call-chain detail (below).**
 
 ```
-使用者輸入 OHLC（編輯表格 / CSV upload / JSON import / example）
-  → OHLCEditor (前端)
-  → POST /api/merge-and-compute-ma99 (預先算 MA99，Predict 按鈕 disable)
-  → POST /api/predict (按下 Predict)
+User inputs OHLC (edit table / CSV upload / JSON import / example)
+  → OHLCEditor (frontend)
+  → POST /api/merge-and-compute-ma99 (pre-compute MA99, Predict button disabled)
+  → POST /api/predict (press Predict)
     → find_top_matches(history, ma_history, history_1d, timeframe) [predictor.py]
-        ├─ _candle_feature_vector() 產 candle shape 特徵
-        ├─ _normalized_similarity() 算 similarity score
-        ├─ _fetch_30d_ma_series() 從 ma_history（應為 1D）取 30 天 MA series
-        ├─ _classify_trend_by_pearson() 判 MA99 方向
-        ├─ MA99 方向 gate（direction mismatch 排除）
-        └─ 回 top N matches + 1D aggregation
+        ├─ _candle_feature_vector() generates candle shape features
+        ├─ _normalized_similarity() computes similarity score
+        ├─ _fetch_30d_ma_series() fetches 30-day MA series from ma_history (should be 1D)
+        ├─ _classify_trend_by_pearson() determines MA99 direction
+        ├─ MA99 direction gate (direction mismatch excluded)
+        └─ Returns top N matches + 1D aggregation
     → compute_stats(matches, current_close, timeframe)
-        ├─ _projected_future_bars() → consensus forecast（全集）
+        ├─ _projected_future_bars() → consensus forecast (full set)
         └─ OrderSuggestion × 4 + win_rate + mean_correlation
   → PredictResponse
   → frontend displayStats useMemo
-    ├─ appliedSelection == 全集 → 用 appliedData.stats（後端算好）
-    └─ appliedSelection ⊂ 全集 → utils/statsComputation.ts::computeStatsFromMatches() 前端算 subset（K-013 落地）
-  → MainChart + MatchList + StatsPanel 渲染
+    ├─ appliedSelection == full set → use appliedData.stats (computed by backend)
+    └─ appliedSelection ⊂ full set → utils/statsComputation.ts::computeStatsFromMatches() frontend computes subset (landed in K-013)
+  → MainChart + MatchList + StatsPanel render
 ```
 
 ---
 
 ## Consensus Stats Source of Truth
 
-**決策來源：** TD-008 RFC Option C（accepted 2026-04-18，見 `docs/designs/TD-008-rfc-consensus-source-of-truth.md`）。實作 ticket：[K-013](../docs/tickets/K-013-consensus-stats-contract.md)。
+**Decision source:** TD-008 RFC Option C (accepted 2026-04-18, see `docs/designs/TD-008-rfc-consensus-source-of-truth.md`). Implementation ticket: [K-013](../docs/tickets/K-013-consensus-stats-contract.md).
 
-**核心規則：**
+**Core rules:**
 
-1. **全集 stats（all top-N matches）由後端算**：`/api/predict` 回傳的 `stats.consensus_forecast_1h/1d` 與 4 檔 OrderSuggestion 是「全集 baseline」。前端拿到時若 `appliedSelection == 全部 matches`，直接用，不重算。
-2. **Subset stats（使用者 deselect 部分 matches）由前端算**：不回後端 round-trip（保留零 latency UX）。純函式抽至 `frontend/src/utils/statsComputation.ts`，簽名：
+1. **Full-set stats (all top-N matches) computed by backend**: the `stats.consensus_forecast_1h/1d` and 4 OrderSuggestions returned by `/api/predict` are the "full-set baseline". When the frontend receives them and `appliedSelection == all matches`, use them directly; do not recompute.
+2. **Subset stats (user deselects some matches) computed by frontend**: no backend round-trip (preserves zero-latency UX). Pure function extracted into `frontend/src/utils/statsComputation.ts`, signature:
    ```ts
    computeStatsFromMatches(
      matches: MatchCase[],
@@ -487,37 +487,37 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
      lastBarTime?: string,
    ): StatsComputationResult
    // StatsComputationResult = { stats: Omit<PredictStats, 'consensusForecast1h' | 'consensusForecast1d'>, projectedFutureBars: ProjectionBar[] }
-   // consensusForecast1h/1d 由 AppPage 以 projectedFutureBars + aggregateProjectedBarsTo1D 於 util 外組合
+   // consensusForecast1h/1d is composed outside the util by AppPage from projectedFutureBars + aggregateProjectedBarsTo1D
    ```
-3. **雙實作由 contract fixture 鎖漂移**：
-   - Fixture：`backend/tests/fixtures/stats_contract_cases.json`（array of `{name, input, expected}`，涵蓋全集 / subset / single-match 邊界）
-   - 產生器：`backend/tests/fixtures/generate_stats_contract_cases.py`（入版 script，以當前 `compute_stats` 輸出作 ground truth；後端改算法時重跑一鍵重生）
-   - 後端 `test_predictor.py` 加 parametrize test：讀 fixture，assert `compute_stats(**input)` == `expected`（容忍 1e-6）
-   - 前端 `__tests__/statsComputation.test.ts`：relative path `../../../backend/tests/fixtures/stats_contract_cases.json`，build-time JSON import（需 `tsconfig.json::resolveJsonModule: true`），對 3 case 跑 `computeStatsFromMatches(...)` 並經 snake→camel whitelist 轉換後 assert bit-exact
-   - 後端改算法但未同步 fixture → 後端測試失敗；前端算法漂移 → 前端測試失敗。兩端任一破漂移立即 CI red。
-   - Contract test 比對範圍：4 檔 OrderSuggestion + `win_rate` + `mean_correlation`。**不比對** `consensus_forecast_1h/1d`（見 Known Gap）。
-4. **API payload 不變**：`/api/predict` 回傳 schema 完全不動；現有 E2E mock 不需改。
-5. **CI contract drift job 暫緩**：本 cycle 靠 PR reviewer 人工把關 + 測試同吃 fixture 作為安全網，K-013 驗收後下個 cycle 再評估是否加獨立 drift job。
+3. **Dual implementations locked against drift by contract fixture**:
+   - Fixture: `backend/tests/fixtures/stats_contract_cases.json` (array of `{name, input, expected}`, covers full-set / subset / single-match boundaries)
+   - Generator: `backend/tests/fixtures/generate_stats_contract_cases.py` (versioned script; uses current `compute_stats` output as ground truth; one-click regen when backend algorithm changes)
+   - Backend `test_predictor.py` adds a parametrize test: reads fixture, asserts `compute_stats(**input)` == `expected` (tolerance 1e-6)
+   - Frontend `__tests__/statsComputation.test.ts`: relative path `../../../backend/tests/fixtures/stats_contract_cases.json`, build-time JSON import (requires `tsconfig.json::resolveJsonModule: true`); runs `computeStatsFromMatches(...)` against 3 cases and asserts bit-exact after snake→camel whitelist conversion
+   - Backend algorithm change without fixture sync → backend test fails; frontend algorithm drift → frontend test fails. Either side breaking the contract turns CI red immediately.
+   - Contract test comparison scope: 4 OrderSuggestions + `win_rate` + `mean_correlation`. **Does not compare** `consensus_forecast_1h/1d` (see Known Gap).
+4. **API payload unchanged**: `/api/predict` response schema is untouched; existing E2E mocks need no changes.
+5. **CI contract drift job deferred**: this cycle relies on PR reviewer manual gating + tests consuming the same fixture as a safety net. After K-013 acceptance, evaluate next cycle whether to add a standalone drift job.
 
-**為什麼不選 Option A / B**（節錄，完整論證見 RFC）：
-- A（backend-only，每次 deselect 打 API）：每次 click 100~300ms round-trip，what-if 分析情境 UX 退步
-- B（frontend-only，刪 backend stats）：作廢 `test_predictor.py` 相當比例的既有測試，負投資
+**Why Options A / B were not chosen** (excerpt; full argument in the RFC):
+- A (backend-only, hits API on every deselect): each click incurs 100–300ms round-trip; UX regresses for what-if analysis scenarios
+- B (frontend-only, delete backend stats): invalidates a substantial portion of existing `test_predictor.py` tests; negative investment
 
-**Wire-level vs Observable contract（2026-04-21 Round 2 Fix 1 `853a8aa` 更正，原 Known Gap 撤回）：** 後端 `PredictStats.consensus_forecast_1h/1d` wire-level 永遠是 `[]`（`compute_stats` 從未填入；`models.py` 預設 `[]`）— 此為 backend API schema 事實。**Observable chart render 由前端 `AppPage.tsx` `displayStats` useMemo 無條件注入** `projectedFutureBars` / `projectedFutureBars1D` 保證（full-set 與 subset 兩分支皆注入），故 `StatsPanel::ConsensusForecastChart` 兩種選擇狀態皆可見。OLD base `b0212bb` L224-226 即為此無條件注入行為，K-013 Round 1 `8442966` 把注入誤綁 subset 分支 → 全集分支 chart 消失 → 觸發 C-1 Critical；Round 2 Fix 1 `853a8aa` 恢復無條件注入。早期設計文件敘述「全集下無 consensus 圖 pre-existing gap」為 Architect Pre-Design Audit 只讀 backend schema 未 cross-verify OLD frontend observable 所致誤判，已於 K-013 設計文件 §0.3 以 "RETRACTED" 標記留底並更正。若未來要讓 `consensus_forecast_*` 成為 backend-computed 而非 frontend-injected，需另開 ticket。
+**Wire-level vs Observable contract (2026-04-21 Round 2 Fix 1 `853a8aa` correction; original Known Gap retracted):** Backend `PredictStats.consensus_forecast_1h/1d` is always `[]` at wire level (`compute_stats` never populates them; `models.py` default `[]`) — this is a backend API schema fact. **Observable chart rendering is unconditionally injected by the frontend `AppPage.tsx` `displayStats` useMemo** with `projectedFutureBars` / `projectedFutureBars1D` (injected on both full-set and subset branches), so `StatsPanel::ConsensusForecastChart` is visible in both selection states. OLD base `b0212bb` L224-226 already had this unconditional injection behavior; K-013 Round 1 `8442966` mistakenly bound the injection to the subset branch only → full-set branch chart disappeared → triggered C-1 Critical; Round 2 Fix 1 `853a8aa` restored unconditional injection. The earlier design-doc statement "no consensus chart in full-set, pre-existing gap" was a misjudgment by Architect Pre-Design Audit which only read the backend schema without cross-verifying the OLD frontend observable; this has been marked "RETRACTED" in K-013 design doc §0.3 and corrected. Making `consensus_forecast_*` backend-computed instead of frontend-injected in the future would require a separate ticket.
 
 ---
 
 ## Known Architecture Debt
 
-完整登記於 [`docs/tech-debt.md`](../docs/tech-debt.md)，以下是結構性技術債與 Architect 預定拆分方向。
+Full registry in [`docs/tech-debt.md`](../docs/tech-debt.md); below are the structural tech-debt items and Architect's planned split directions.
 
-| ID | 區塊 | 問題 | 預定方向 | 排期觸發 |
-|----|------|------|---------|---------|
-| TD-003 | `backend/main.py` | upload history 用 module globals，併發 race | `asyncio.Lock` 或 `history_repository` atomic write（建議併入 TD-006 RFC） | 多 worker 部署 / TD-006 啟動 |
-| TD-004 | `frontend/src/components/MatchList.tsx` | `PredictorChart` effect deps 不含 candle values，長度相同但內容不同 → 殘留舊 chart | 改用 memoized chart input 或 data identity hash，同時移除 exhaustive-deps suppression | 與 TD-005 同梯次 |
-| TD-005 | `frontend/src/AppPage.tsx` | 22 KB 單檔，責任含 official CSV parse / upload workflow / MA99 loading / prediction orchestration / derived stats / selection state / layout | 拆 `useOfficialInput()` / `useHistoryUpload()` / `usePredictionWorkspace()` + 左右 rail 抽 presentational sub-section | K-013 驗收後 → Architect RFC |
-| TD-006 | `backend/main.py` | 12 KB 單檔，FastAPI wiring / CSV parse / mutable state / 持久化 / prediction orchestration / SPA fallback 全混 | 拆 `history_repository.py` / `history_service.py` / `prediction_service.py`，`main.py` 僅留薄路由層；建議併 TD-003 | K-013 驗收後 → Architect RFC（併 TD-003） |
-| TD-007 | `backend/predictor.py` | 17 KB 單檔，time normalize / MA99 helpers / similarity / trend classify / 1D aggregation / stats generation 全混 | 拆 `predictor_ma.py` / `predictor_similarity.py` / `predictor_stats.py`，`predictor.py` 作 orchestration entrypoint。`compute_stats` 搬進 `predictor_stats.py` 時 K-013 contract fixture 需同步遷移 | K-013 驗收後 → Architect RFC |
+| ID | Area | Problem | Planned direction | Schedule trigger |
+|----|------|---------|-------------------|------------------|
+| TD-003 | `backend/main.py` | upload history uses module globals, concurrent race | `asyncio.Lock` or `history_repository` atomic write (suggest folding into TD-006 RFC) | multi-worker deploy / TD-006 start |
+| TD-004 | `frontend/src/components/MatchList.tsx` | `PredictorChart` effect deps do not include candle values; same length but different content → stale chart remains | switch to memoized chart input or data identity hash, also remove exhaustive-deps suppression | same batch as TD-005 |
+| TD-005 | `frontend/src/AppPage.tsx` | 22 KB single file; responsibilities include official CSV parse / upload workflow / MA99 loading / prediction orchestration / derived stats / selection state / layout | split into `useOfficialInput()` / `useHistoryUpload()` / `usePredictionWorkspace()` + extract left/right rails as presentational sub-sections | After K-013 acceptance → Architect RFC |
+| TD-006 | `backend/main.py` | 12 KB single file; FastAPI wiring / CSV parse / mutable state / persistence / prediction orchestration / SPA fallback all mixed | split into `history_repository.py` / `history_service.py` / `prediction_service.py`; `main.py` keeps only a thin routing layer; suggest folding TD-003 | After K-013 acceptance → Architect RFC (with TD-003) |
+| TD-007 | `backend/predictor.py` | 17 KB single file; time normalize / MA99 helpers / similarity / trend classify / 1D aggregation / stats generation all mixed | split into `predictor_ma.py` / `predictor_similarity.py` / `predictor_stats.py`; `predictor.py` becomes orchestration entrypoint. When `compute_stats` moves to `predictor_stats.py`, the K-013 contract fixture must be migrated in sync | After K-013 acceptance → Architect RFC |
 | TD-008 | cross-layer stats | frontend/backend double-compute drift risk | Option C implemented (K-013, closed 2026-04-21); contract fixture locks drift | closed |
 
 **RFC ordering (PM confirmed):**
@@ -529,14 +529,14 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 ## Time Format Convention
 
-**傳輸/儲存層統一 UTC+0 `YYYY-MM-DD HH:MM`（16 字元）。Render 層才轉 UTC+8。**
+**Transport/storage layer unifies on UTC+0 `YYYY-MM-DD HH:MM` (16 chars). Convert to UTC+8 only at render layer.**
 
-- 後端：`time_utils.normalize_bar_time()` 負責統一轉換（ISO、Unix ms、ISO with `HH:MM:SS` 都接受）
-- 前端 API payload：UTC+0
-- 前端 render：`utils/time.ts::toUTC8Display()` 在顯示前轉 UTC+8 `MM/DD HH:mm`
-- Chart（lightweight-charts）：timestamp 先 +8h 再餵給 library，讓 UTC-based x-axis 顯示 UTC+8 labels
+- Backend: `time_utils.normalize_bar_time()` handles unified conversion (accepts ISO, Unix ms, ISO with `HH:MM:SS`)
+- Frontend API payload: UTC+0
+- Frontend render: `utils/time.ts::toUTC8Display()` converts to UTC+8 `MM/DD HH:mm` before display
+- Chart (lightweight-charts): timestamps are shifted +8h before being fed into the library, so the UTC-based x-axis displays UTC+8 labels
 
-> 此規範源自 2026-04 bug fix：UTC vs UTC+8 混用導致 MA99 方向判斷錯誤。
+> This convention originated from a 2026-04 bug fix: mixing UTC vs UTC+8 caused incorrect MA99 direction classification.
 
 ---
 
@@ -570,18 +570,18 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 ## Frontend Routing
 
-使用 `react-router-dom` BrowserRouter，路由定義於 `main.tsx`。
+Uses `react-router-dom` BrowserRouter; routes defined in `main.tsx`.
 
-| Path | Component | 說明 |
-|------|-----------|------|
-| `/` | `HomePage` | Hero + ProjectLogic + DevDiary 預覽（K-024 Phase 2：DevDiarySection 消費 `useDiary(3)` 回傳的 flat `DiaryEntry[]`，前 3 筆 sorted by date desc + array-index tie-break，共用 `timelinePrimitives.ts` rail/marker 常數） |
-| `/app` | `AppPage` | K-Line 預測功能（原 App.tsx；TD-005 待拆分）。**K-030 isolation**：不渲染 UnifiedNavBar、不渲染 Footer（K-035 統一後為 `components/shared/Footer.tsx`；pre-K-035 為 `components/home/HomeFooterBar.tsx`）；根 div 套 `bg-gray-950 text-gray-100` 覆蓋 body paper；視為獨立 tool viewport（由 marketing 頁 NavBar 的 App link 開 new tab 進入） |
-| `/about` | `AboutPage` | Portfolio-oriented recruiter page — 8 sections: PageHeader（One operator 聲明）+ MetricsStrip + WhereISteppedIn (Nº 02.5, A+C+B comparison) + RolePipeline (Nº 03, inline SVG diagram) + RoleCards (Nº 04, 6 roles × Owns/Artefact) + ReliabilityPillars (Nº 05, 3 pillars + anchor quotes) + TicketAnatomy (Nº 06, K-002/K-008/K-009, SSOT→content/ticket-cases.json) + ProjectArchitecture (Nº 07) + Footer（shared，email/GitHub/LinkedIn 單行）。`BuiltByAIBanner` 放 `/` homepage；`/about` 不含 banner showcase（K-031 移除 S7 BuiltByAIShowcaseSection）。**K-058（2026-04-28）加 2 sections + RoleCard compact format α + processRules weight formula**。K-017 重寫（2026-04-19），K-031 移除 S7 showcase（2026-04-21）。**K-034 Phase 2（2026-04-23）全頁 Pencil SSOT 對齊**：5 card 類型（Metric/Role/Pillar/TicketAnatomy/Arch）統一經 `FileNoBar` primitive 套 dark charcoal FILE Nº/LAYER Nº header bar；`DossierHeader` 退役（Pencil 無對應 frame）；S2/S3/S5/S6 h2 刪除（SectionLabelRow 為唯一標題，S4 h2 "How AI Stays Reliable" per Pencil s4Intro 保留改 Bodoni 30）；3 section subtitle 改 Pencil em-dash literal；S1 hero 改 2-line 左對齊 + 全寬 divider；ROLE_ANNOTATIONS (POSITION/BEHAVIOUR) + redactArtefact 退役；role font-size Bodoni 36/32 by length；40px charcoal rule 進 Role/Pillar/Ticket/Arch card body。**K-045（2026-04-24 Engineer 交付）desktop layout consistency**：AboutPage.tsx 重寫為 6 `<section>` 直接為 root `<div className="min-h-screen">` 子元素（per-section container classes，per ticket §4a pattern A 強制，K-031 `#architecture.nextElementSibling === <footer>` Sacred runtime 驗 pass）；每 section inline `max-w-[1248px] mx-auto px-6 sm:px-24 w-full` + 垂直節奏 `mt-6 sm:mt-[72px]`（S2–S6）/ `pt-8 sm:pt-[72px]`（S1）/ `mb-8 sm:mb-[96px]`（S6 before footer）；對齊 Pencil frame 35VCj `Y80Iv padding:[72,96,96,96], gap:72`；hero BQ-045-05 Option A 升 1248 落地；SectionContainer.tsx primitive DELETED（git rm，單一 consumer 清空）；SectionLabelRow 抽至 `components/about/SectionLabelRow.tsx` 獨立 file；PageHeaderSection 去除 `py-20`。**K-058（2026-04-28 Engineer）拓展為 8 `<section>`**：新增 `WhereISteppedInSection`（Nº 02.5，A+C+B 三欄比較表）+ `RolePipelineSection`（Nº 03，inline SVG pipeline diagram）；RoleCards 升 Nº 04，Pillars→05，TicketAnatomy→06（SSOT 移至 `content/ticket-cases.json`），Architecture→07；`processRules` weight 公式進 `build-ticket-derived-ssot.mjs`；`CardShell padding='sm'` + `FileNoBar cardPaddingSize='sm'` 新增（RoleCard compact format α） |
-| `/diary` | `DiaryPage` | K-024 Phase 3 v2 timeline：讀 `public/diary.json`（flat `DiaryEntry[]`）→ `<DiaryHero />` + `<DiaryTimeline />` (`<ol role="list">` flat renderer) + `<LoadMoreButton />`；Hero + rail + marker + 3-layer entry (title em-dash / date Geist Mono / body Newsreader italic)；初始 5 筆，Load more 每 click +5 (`useDiaryPagination` client-side slicing + inFlight 併發 gate)；content maxWidth 1248px；mobile < 640px rail/marker 隱藏、fonts 縮放；loading / error / empty-state 各有獨立 component + literal copy。**K-034 Phase 3（2026-04-23）加入 shared Footer**（AC-034-P3-DIARY-FOOTER-RENDERS）：`<Footer />` 為 root `<div className="min-h-screen">` 最末 sibling（/about / /business-logic 同 pattern）；4 個 terminal state（loading / error / empty / timeline）皆渲染 Footer（AC-034-P3-DIARY-FOOTER-LOADING-VISIBLE Option A）；K-017 AC-017-FOOTER /diary 負斷言 + K-024 /diary no-footer Sacred + K-034 Phase 1 T4 AC-034-P1-NO-FOOTER-ROUTES /diary row 三條全退役（BQ-034-P3-03）；Pencil provenance 沿用 homepage-v2.pen `86psQ` + `1BGtd`（無新 .pen frame 需求，BQ-034-P3-01 裁決）；Footer ancestor-padding seam 640–768px 為 Known Gap（TD-K034-P3-02） |
-| `/business-logic` | `BusinessLogicPage` | 交易邏輯（密碼保護，JWT 驗證後顯示） |
-| `*` | `Navigate to /` | 未匹配路徑一律導回首頁 |
+| Path | Component | Description |
+|------|-----------|-------------|
+| `/` | `HomePage` | Hero + ProjectLogic + DevDiary preview (K-024 Phase 2: DevDiarySection consumes the flat `DiaryEntry[]` returned by `useDiary(3)`, top 3 sorted by date desc + array-index tie-break, sharing `timelinePrimitives.ts` rail/marker constants) |
+| `/app` | `AppPage` | K-Line prediction tool (formerly App.tsx; TD-005 pending split). **K-030 isolation**: does not render UnifiedNavBar or Footer (post-K-035 unified to `components/shared/Footer.tsx`; pre-K-035 was `components/home/HomeFooterBar.tsx`); root div applies `bg-gray-950 text-gray-100` overriding body paper; treated as an isolated tool viewport (entered via the App link in the marketing-page NavBar opening a new tab) |
+| `/about` | `AboutPage` | Portfolio-oriented recruiter page — 8 sections: PageHeader (One operator declaration) + MetricsStrip + WhereISteppedIn (Nº 02.5, A+C+B comparison) + RolePipeline (Nº 03, inline SVG diagram) + RoleCards (Nº 04, 6 roles × Owns/Artefact) + ReliabilityPillars (Nº 05, 3 pillars + anchor quotes) + TicketAnatomy (Nº 06, K-002/K-008/K-009, SSOT→content/ticket-cases.json) + ProjectArchitecture (Nº 07) + Footer (shared; email/GitHub/LinkedIn one-liner). `BuiltByAIBanner` lives on the `/` homepage; `/about` does not contain a banner showcase (K-031 removed the S7 BuiltByAIShowcaseSection). **K-058 (2026-04-28) adds 2 sections + RoleCard compact format α + processRules weight formula**. K-017 rewrite (2026-04-19); K-031 removed S7 showcase (2026-04-21). **K-034 Phase 2 (2026-04-23) full-page Pencil SSOT alignment**: the 5 card types (Metric/Role/Pillar/TicketAnatomy/Arch) all go through the `FileNoBar` primitive applying a dark charcoal FILE Nº/LAYER Nº header bar; `DossierHeader` retired (no corresponding Pencil frame); S2/S3/S5/S6 h2 deleted (SectionLabelRow is the sole heading; S4 h2 "How AI Stays Reliable" preserved per Pencil s4Intro, switched to Bodoni 30); 3 section subtitles switched to the Pencil em-dash literal; S1 hero switched to 2-line left-aligned + full-width divider; ROLE_ANNOTATIONS (POSITION/BEHAVIOUR) + redactArtefact retired; role font-size Bodoni 36/32 by length; 40px charcoal rule added to Role/Pillar/Ticket/Arch card body. **K-045 (2026-04-24 Engineer delivery) desktop layout consistency**: AboutPage.tsx rewritten as 6 `<section>` directly children of root `<div className="min-h-screen">` (per-section container classes, per ticket §4a pattern A enforced; K-031 `#architecture.nextElementSibling === <footer>` Sacred runtime check passes); each section inline `max-w-[1248px] mx-auto px-6 sm:px-24 w-full` + vertical rhythm `mt-6 sm:mt-[72px]` (S2–S6) / `pt-8 sm:pt-[72px]` (S1) / `mb-8 sm:mb-[96px]` (S6 before footer); aligned to Pencil frame 35VCj `Y80Iv padding:[72,96,96,96], gap:72`; hero BQ-045-05 Option A widened to 1248; SectionContainer.tsx primitive DELETED (git rm; sole consumer cleared); SectionLabelRow extracted into standalone file `components/about/SectionLabelRow.tsx`; PageHeaderSection drops `py-20`. **K-058 (2026-04-28 Engineer) expansion to 8 `<section>`**: adds `WhereISteppedInSection` (Nº 02.5, A+C+B three-column comparison table) + `RolePipelineSection` (Nº 03, inline SVG pipeline diagram); RoleCards promoted to Nº 04; Pillars→05; TicketAnatomy→06 (SSOT moved to `content/ticket-cases.json`); Architecture→07; `processRules` weight formula moved into `build-ticket-derived-ssot.mjs`; `CardShell padding='sm'` + `FileNoBar cardPaddingSize='sm'` added (RoleCard compact format α) |
+| `/diary` | `DiaryPage` | K-024 Phase 3 v2 timeline: reads `public/diary.json` (flat `DiaryEntry[]`) → `<DiaryHero />` + `<DiaryTimeline />` (`<ol role="list">` flat renderer) + `<LoadMoreButton />`; Hero + rail + marker + 3-layer entry (title em-dash / date Geist Mono / body Newsreader italic); 5 entries initially, Load more adds +5 per click (`useDiaryPagination` client-side slicing + inFlight concurrency gate); content maxWidth 1248px; on mobile < 640px the rail/marker is hidden and fonts scale down; loading / error / empty-state each have a dedicated component + literal copy. **K-034 Phase 3 (2026-04-23) adopts shared Footer** (AC-034-P3-DIARY-FOOTER-RENDERS): `<Footer />` is the last sibling of root `<div className="min-h-screen">` (same pattern as /about / /business-logic); all 4 terminal states (loading / error / empty / timeline) render the Footer (AC-034-P3-DIARY-FOOTER-LOADING-VISIBLE Option A); K-017 AC-017-FOOTER /diary negative assertion + K-024 /diary no-footer Sacred + K-034 Phase 1 T4 AC-034-P1-NO-FOOTER-ROUTES /diary row — all three retired (BQ-034-P3-03); Pencil provenance reuses homepage-v2.pen `86psQ` + `1BGtd` (no new .pen frame needed, BQ-034-P3-01 ruling); Footer ancestor-padding seam at 640–768px is a Known Gap (TD-K034-P3-02) |
+| `/business-logic` | `BusinessLogicPage` | Trading logic (password-protected, displayed after JWT validation) |
+| `*` | `Navigate to /` | Unmatched paths redirect to home |
 
-**NavBar：** `UnifiedNavBar` 掛在 4 個 marketing 頁面頂端（`/` / `/about` / `/diary` / `/business-logic`；K-005 統一方案 → K-021 設計系統對齊 → K-030 從 `/app` 撤除 → K-025 hex → token 遷移規劃中）。左側 home icon 連 `/`，右側 TEXT_LINKS：App / Diary / About（Prediction 暫隱藏，以常數註解保留）；active 狀態用 `aria-current="page"` + class `text-brick-dark`（#9C4A3B，K-025 落地後；pre-K-025 為 arbitrary-value `text-[#9C4A3B]`），非 active `text-ink/60`（#1A1814 @ 60% opacity，K-025 落地後；pre-K-025 為 `text-[#1A1814]/60`）。背景 `bg-paper`（#F4EFE5）。**K-030 起** `App` entry 於 TEXT_LINKS 標 `external: true`，改渲染原生 `<a target="_blank" rel="noopener noreferrer">` 而非 `<Link>`，使點擊於新 tab 開 `/app`。
+**NavBar:** `UnifiedNavBar` is mounted at the top of the 4 marketing pages (`/` / `/about` / `/diary` / `/business-logic`; K-005 unification → K-021 design system alignment → K-030 removed from `/app` → K-025 hex → token migration in planning). Left-side home icon links to `/`; right-side TEXT_LINKS: App / Diary / About (Prediction temporarily hidden, preserved as a commented-out constant); active state uses `aria-current="page"` + class `text-brick-dark` (#9C4A3B, post-K-025 landing; pre-K-025 was the arbitrary-value `text-[#9C4A3B]`); non-active `text-ink/60` (#1A1814 @ 60% opacity, post-K-025 landing; pre-K-025 was `text-[#1A1814]/60`). Background `bg-paper` (#F4EFE5). **Since K-030**, the `App` entry in TEXT_LINKS is marked `external: true` and renders a native `<a target="_blank" rel="noopener noreferrer">` instead of `<Link>`, so clicking it opens `/app` in a new tab.
 
 **Sitewide scroll behavior：** `<ScrollToTop />` (`components/ScrollToTop.tsx`, K-053 2026-04-26) mounted inside `<BrowserRouter>` resets `window.scrollY` to 0 on every pathname change, with hash-link early-return to preserve browser anchor behavior. Mirrors `useGAPageview` pattern (sibling component, `useEffect` on `[pathname, hash]`). Sets `history.scrollRestoration = 'manual'` once on mount (BQ-K053-04 ruling) to suppress browser POP-restore single-frame flicker. Same-route NavBar re-click preserves scroll (dep array unchanged); query-only nav preserves scroll (`search` not in dep array); hash navigation preserves scroll (early-return on `hash` truthy).
 
@@ -589,35 +589,35 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 
 ## Design System (K-021)
 
-**設計稿來源：** `frontend/design/homepage-v2.pen`（4 個 top-level frames：Homepage 4CsvQ / About 35VCj / Diary wiDSi / Business Logic VSwW9）
-**設計文件：** [K-021-sitewide-design-system.md](../docs/designs/K-021-sitewide-design-system.md)
+**Design source:** `frontend/design/homepage-v2.pen` (4 top-level frames: Homepage 4CsvQ / About 35VCj / Diary wiDSi / Business Logic VSwW9)
+**Design doc:** [K-021-sitewide-design-system.md](../docs/designs/K-021-sitewide-design-system.md)
 
 ### Tokens
 
-**Tailwind `theme.extend.colors`（K-021 註冊，替代目前 inline `[#XXXXXX]`）：**
+**Tailwind `theme.extend.colors` (registered in K-021, replacing the current inline `[#XXXXXX]`):**
 
-| Token | Value | 用途 |
-|-------|-------|------|
-| `paper` | `#F4EFE5` | 全站底色 body bg |
-| `ink` | `#1A1814` | 主文字 |
-| `brick` | `#B43A2C` | Logo / brand 主色 |
-| `brick-dark` | `#9C4A3B` | NavBar active link + CTA 按鈕 |
-| `charcoal` | `#2A2520` | 次文字 / 輔助元素 |
+| Token | Value | Purpose |
+|-------|-------|---------|
+| `paper` | `#F4EFE5` | Sitewide body bg |
+| `ink` | `#1A1814` | Primary text |
+| `brick` | `#B43A2C` | Logo / brand primary |
+| `brick-dark` | `#9C4A3B` | NavBar active link + CTA buttons |
+| `charcoal` | `#2A2520` | Secondary text / accents |
 | `muted` | `#6B5F4E` | Footer / meta / NavBar non-active |
 
-**Tailwind `theme.extend.fontFamily`：**
+**Tailwind `theme.extend.fontFamily`:**
 
-| Token | Stack | 用途 |
-|-------|-------|------|
+| Token | Stack | Purpose |
+|-------|-------|---------|
 | `display` | `['"Bodoni Moda"', 'serif']` | H1 / hero / section title |
 | `italic` | `['Newsreader', 'serif']` | italic emphasis / blockquote |
-| `mono` | `['"Geist Mono"', 'monospace']` | 程式碼 / 數據 / Footer meta |
+| `mono` | `['"Geist Mono"', 'monospace']` | Code / data / Footer meta |
 
-**字型載入：** Google Fonts CDN via `index.html` preconnect + stylesheet link（既有，無需改）。
+**Font loading:** Google Fonts CDN via `index.html` preconnect + stylesheet link (existing; no change needed).
 
-### 全站 Body CSS 入口
+### Sitewide Body CSS Entry
 
-`frontend/src/index.css` 採 `@layer base` 註冊 body 預設：
+`frontend/src/index.css` registers the body default via `@layer base`:
 
 ```
 @layer base {
@@ -625,32 +625,32 @@ type AsyncStatus           = 'idle' | 'loading' | 'success' | 'error'
 }
 ```
 
-所有頁面的外層 `<div className="min-h-screen bg-[#0D0D0D] text-white">` 包 wrap（AboutPage / DiaryPage / AppPage / BusinessLogicPage）於 K-021 移除，改由 body 底色承接。HomePage 已是 `bg-[#F4EFE5]` 直接轉為繼承 body。
+All pages' outer `<div className="min-h-screen bg-[#0D0D0D] text-white">` wrappers (AboutPage / DiaryPage / AppPage / BusinessLogicPage) were removed in K-021; body bg is now inherited. HomePage was already `bg-[#F4EFE5]` and is now inherited from body directly.
 
-**例外（K-030）：** `/app` 於 wrapper 層 override（`h-screen` 根 div 套 `bg-gray-950 text-gray-100`），body paper 規則對 `/app` 的視覺效果被完全覆蓋。`/app` 不屬 sitewide paper design system（tool page，非 marketing page）；此例外獨立守護於 `frontend/e2e/app-bg-isolation.spec.ts`。
+**Exception (K-030):** `/app` overrides at the wrapper layer (`h-screen` root div applies `bg-gray-950 text-gray-100`); the body paper rule has no visible effect on `/app`. `/app` is not part of the sitewide paper design system (tool page, not marketing page); this exception is independently guarded by `frontend/e2e/app-bg-isolation.spec.ts`.
 
-### Footer 放置策略
+### Footer Placement Strategy
 
-**決策：per-page import（非 Layout slot）**，原因：AppPage `h-screen overflow-hidden` 與 Layout slot 模型衝突，per-page 才能讓各頁獨立決定是否渲染 Footer 與放置位置（/diary 本票不決定、由 K-024 處理）。
+**Decision: per-page import (not a Layout slot).** Reason: AppPage `h-screen overflow-hidden` conflicts with the Layout slot model; per-page allows each page to independently decide whether to render the Footer and its placement (this ticket does not decide /diary; that is handled by K-024).
 
-| 頁面 | Footer |
+| Page | Footer |
 |------|--------|
-| `/` | `<Footer />`（**K-050 design 2026-04-25**：brand-asset SVG anchor triad + click-to-copy email `<button>` + sr-only aria-live status；supersedes K-034 Phase 1 plain-text inline one-liner；Pencil SSOT frame 1BGtd flat-text 為 layout-placeholder，runtime divergence 由 `design-exemptions.md §2 BRAND-ASSET` 背書） |
-| `/about` | `<Footer />`（**K-050 design 2026-04-25**：同上 shared DOM；K-017 AC-017-FOOTER 部分恢復（anchor href + testid，`Let's talk →` copy 不恢復）；K-018 AC-018-CLICK 完整恢復；Pencil SSOT frame 86psQ flat-text 為 layout-placeholder） |
-| `/diary` | `<Footer />`（**K-050 design 2026-04-25**：同上 shared DOM；continues K-034 Phase 3 root `<div className="min-h-screen">` 最末 sibling 配置；4 個 terminal state（loading / error / empty / timeline）皆渲染；640–768px viewport padding seam Known Gap TD-K034-P3-02 不動；Pencil SSOT frame ei7cl flat-text 為 layout-placeholder） |
-| `/app` | 無 footer（K-030 isolation — `/app` 為獨立 tool viewport，撤除 NavBar 與 Footer 使其不繼承 marketing site chrome；K-050 不動） |
-| `/business-logic` | `<Footer />`（**K-050 design 2026-04-25**：同上 shared DOM；Pencil SSOT frame 2ASmw flat-text 為 layout-placeholder） |
+| `/` | `<Footer />` (**K-050 design 2026-04-25**: brand-asset SVG anchor triad + click-to-copy email `<button>` + sr-only aria-live status; supersedes the K-034 Phase 1 plain-text inline one-liner; Pencil SSOT frame 1BGtd flat-text serves as layout-placeholder; runtime divergence is endorsed by `design-exemptions.md §2 BRAND-ASSET`) |
+| `/about` | `<Footer />` (**K-050 design 2026-04-25**: same shared DOM as above; K-017 AC-017-FOOTER partially restored (anchor href + testid; `Let's talk →` copy not restored); K-018 AC-018-CLICK fully restored; Pencil SSOT frame 86psQ flat-text serves as layout-placeholder) |
+| `/diary` | `<Footer />` (**K-050 design 2026-04-25**: same shared DOM; continues K-034 Phase 3 placement as last sibling of root `<div className="min-h-screen">`; rendered in all 4 terminal states (loading / error / empty / timeline); 640–768px viewport padding seam Known Gap TD-K034-P3-02 untouched; Pencil SSOT frame ei7cl flat-text serves as layout-placeholder) |
+| `/app` | No footer (K-030 isolation — `/app` is an isolated tool viewport; NavBar and Footer are removed so it does not inherit marketing site chrome; K-050 leaves this unchanged) |
+| `/business-logic` | `<Footer />` (**K-050 design 2026-04-25**: same shared DOM; Pencil SSOT frame 2ASmw flat-text serves as layout-placeholder) |
 
-### Shared Components 邊界
+### Shared Components Boundary
 
-| 組件 | 位置 | 用於 |
-|------|------|------|
-| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | `/` `/about` `/diary` `/business-logic`（K-030 起 `/app` 不渲染；TEXT_LINKS 的 `App` entry 標 `external: true`，於 4 marketing 頁點擊時開 new tab 載入 `/app`）。**TD-K035-01 追蹤** 後續搬 `components/shared/NavBar.tsx`（blocked-by K-025 close） |
-| `Footer` | `components/shared/Footer.tsx` | `/` / `/about` / `/business-logic` / `/diary` **四路由** render 同一 zero-prop `<Footer />`，DOM 跨 4 路由 byte-identical（K-034 P1 T1 Sacred 守護）。**K-050 (2026-04-25) supersedes K-034 Phase 1 plain-text framing** — runtime DOM 為 3 brand-asset SVG anchor triad（MailIcon / GithubIcon / LinkedinIcon，CC0/MIT mirror at `frontend/design/brand-assets/`，`?react` SVGR import）+ click-to-copy email `<button>`（`navigator.clipboard.writeText` + range-selection fallback + 1500ms revert + sr-only `role="status" aria-live="polite"` 狀態廣播）+ K-018 REGULATORY GA disclosure `<p>`。Pencil SSOT = frames `1BGtd` (/) + `86psQ` (/about) + `ei7cl` (/diary) + `2ASmw` (/business-logic) flat-text 為 layout-placeholder，runtime divergence 由 `design-exemptions.md §2 BRAND-ASSET` 背書（4 個 frame JSON 各帶 `_design-divergence` (kebab) / `_designDivergence` (camel) 欄位）。K-017 AC-017-FOOTER 部分恢復（anchor href + testid；`Let's talk →` copy 不恢復）；K-018 AC-018-CLICK 完整恢復 + 1 cross-route sanity；K-022 italic/underline 不恢復；K-034 P1 T1 byte-identity + K-045 T18/T19 width parity 全保留（單一 Footer DOM 4 路由）。/app K-030 isolation preserved 不渲染 per AC-030-NO-FOOTER Sacred（K-050 不動）。|
+| Component | Location | Used in |
+|-----------|----------|---------|
+| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | `/` `/about` `/diary` `/business-logic` (since K-030, `/app` does not render it; the `App` entry in TEXT_LINKS is marked `external: true` and opens `/app` in a new tab when clicked from any of the 4 marketing pages). **Tracked by TD-K035-01** for a future move to `components/shared/NavBar.tsx` (blocked-by K-025 close) |
+| `Footer` | `components/shared/Footer.tsx` | `/` / `/about` / `/business-logic` / `/diary` — **all 4 routes** render the same zero-prop `<Footer />`, with DOM byte-identical across the 4 routes (guarded by K-034 P1 T1 Sacred). **K-050 (2026-04-25) supersedes K-034 Phase 1 plain-text framing** — runtime DOM is 3 brand-asset SVG anchors (MailIcon / GithubIcon / LinkedinIcon, CC0/MIT mirror at `frontend/design/brand-assets/`, `?react` SVGR import) + click-to-copy email `<button>` (`navigator.clipboard.writeText` + range-selection fallback + 1500ms revert + sr-only `role="status" aria-live="polite"` status broadcast) + K-018 REGULATORY GA disclosure `<p>`. Pencil SSOT = frames `1BGtd` (/) + `86psQ` (/about) + `ei7cl` (/diary) + `2ASmw` (/business-logic) flat-text as layout-placeholder; runtime divergence endorsed by `design-exemptions.md §2 BRAND-ASSET` (each of the 4 frame JSONs carries `_design-divergence` (kebab) / `_designDivergence` (camel) fields). K-017 AC-017-FOOTER partially restored (anchor href + testid; `Let's talk →` copy not restored); K-018 AC-018-CLICK fully restored + 1 cross-route sanity; K-022 italic/underline not restored; K-034 P1 T1 byte-identity + K-045 T18/T19 width parity all preserved (single Footer DOM across 4 routes). /app K-030 isolation preserved — does not render per AC-030-NO-FOOTER Sacred (K-050 unchanged). |
 
 ### Legacy NavBar
 
-`components/NavBar.tsx`（legacy）於 K-021 驗收後若無 consumer 則刪除（Engineer grep 確認）。
+`components/NavBar.tsx` (legacy) — to be deleted after K-021 acceptance if no consumer (Engineer grep to confirm).
 
 ---
 
@@ -685,59 +685,59 @@ E2E test matrix and GA4 intercept contract: see `ssot/conventions.md §GA4 E2E T
 
 ---
 
-## Scripts & Public Protocols Doc（K-017 起）
+## Scripts & Public Protocols Doc (since K-017)
 
 ### `scripts/audit-ticket.sh`
 
-**定位：** Portfolio demo script，展示 6-role + doc trail 機制的可驗證性；**不是 CI gate**（不接 pre-commit / GitHub Actions）。
+**Positioning:** portfolio demo script that demonstrates the verifiability of the 6-role + doc-trail mechanism; **not a CI gate** (not wired into pre-commit / GitHub Actions).
 
-**Usage：** `./scripts/audit-ticket.sh K-XXX`（從專案根目錄執行；script 內含 `cd` 保險）
+**Usage:** `./scripts/audit-ticket.sh K-XXX` (run from project root; script includes a `cd` safeguard)
 
-**Check groups：** A. Ticket file frontmatter / B. AC + PRD mapping / C. Architecture design / D. Commit trail / E. Code Review 反省 / F. 5 角色反省 + per-role log（K-008+ 才含）/ G. Playwright spec + visual report HTML（K-008+ 才含）
+**Check groups:** A. Ticket file frontmatter / B. AC + PRD mapping / C. Architecture design / D. Commit trail / E. Code Review retro / F. 5-role retros + per-role log (K-008+ only) / G. Playwright spec + visual report HTML (K-008+ only)
 
-**Date-based skip：** `created < 2026-04-18` 的 ticket F/G 直接 SKIP（per-role retro 機制啟用前）
+**Date-based skip:** tickets `created < 2026-04-18` SKIP F/G outright (before per-role retro mechanism was enabled)
 
-**Exit codes：** 0 = all pass / 1 = warning / 2 = critical missing
+**Exit codes:** 0 = all pass / 1 = warning / 2 = critical missing
 
-**實作約束：** bash only（不依賴 node / python / jq），ANSI escape 上色（TTY detect），shebang `#!/usr/bin/env bash`
+**Implementation constraints:** bash only (no node / python / jq dependency); ANSI escape coloring (TTY detect); shebang `#!/usr/bin/env bash`
 
 ### `docs/ai-collab-protocols.md`
 
-**定位：** 公開版協議文件，對外 recruiter 可讀；從 `/about` Section 4「How AI Stays Reliable」三個 pillar inline link 進入。
+**Positioning:** public-facing protocol document, recruiter-readable; entered from the three pillar inline links in `/about` Section 4 "How AI Stays Reliable".
 
-**結構：** 三個主 section — `Role Flow` / `Bug Found Protocol` / `Per-role Retrospective Log` —  每個含 stable anchor（`{#role-flow}` / `{#bug-found-protocol}` / `{#per-role-retrospective-log}`）讓 `/about` pillar 深度連結。附 curated retrospective 節選 2–3 條。
+**Structure:** three main sections — `Role Flow` / `Bug Found Protocol` / `Per-role Retrospective Log` — each with a stable anchor (`{#role-flow}` / `{#bug-found-protocol}` / `{#per-role-retrospective-log}`) so the `/about` pillars can deep-link. Includes 2–3 curated retrospective excerpts.
 
-**部署：** Copy / symlink 到 `frontend/public/docs/ai-collab-protocols.md`，避免 Firebase SPA fallback 吞 `.md` 路徑。
+**Deployment:** copy / symlink to `frontend/public/docs/ai-collab-protocols.md` to avoid Firebase SPA fallback swallowing the `.md` path.
 
 ---
 
 ## Auth Flow（Business Logic）
 
-`BusinessLogicPage` 掛載時的 token 狀態機：
+Token state machine on `BusinessLogicPage` mount:
 
 ```
-mount → 讀 localStorage('bl_token')
-  ├─ 無 token
+mount → read localStorage('bl_token')
+  ├─ no token
   │   └─ → SHOW_PASSWORD_FORM
-  ├─ 有 token，exp ≤ now（已過期）
-  │   └─ 清除 localStorage → SHOW_PASSWORD_FORM + 過期提示
-  └─ 有 token，exp > now（有效）
+  ├─ token present, exp ≤ now (expired)
+  │   └─ clear localStorage → SHOW_PASSWORD_FORM + expired notice
+  └─ token present, exp > now (valid)
       └─ → LOADING_CONTENT → GET /api/business-logic
-            ├─ 200 → SHOW_CONTENT（渲染 Markdown）
-            └─ 401 → 清除 localStorage → SHOW_ERROR
+            ├─ 200 → SHOW_CONTENT (render Markdown)
+            └─ 401 → clear localStorage → SHOW_ERROR
 
-SHOW_PASSWORD_FORM → 使用者輸入密碼 → POST /api/auth
-  ├─ 200 → 存 token 至 localStorage → LOADING_CONTENT（接上面流程）
-  └─ 401 → SHOW_ERROR（密碼錯誤提示）
+SHOW_PASSWORD_FORM → user enters password → POST /api/auth
+  ├─ 200 → save token to localStorage → LOADING_CONTENT (continues above flow)
+  └─ 401 → SHOW_ERROR (incorrect password notice)
 ```
 
-**環境變數：**
-- `BUSINESS_LOGIC_PASSWORD` — 驗證密碼
-- `JWT_SECRET` — JWT 簽名 secret
+**Environment variables:**
+- `BUSINESS_LOGIC_PASSWORD` — authentication password
+- `JWT_SECRET` — JWT signing secret
 
-**Token 規格：**
+**Token spec:**
 - Algorithm: HS256
-- 有效期：24 小時（`exp = iat + 86400`）
+- Validity: 24 hours (`exp = iat + 86400`)
 - Subject: `"business-logic-access"`
 
 ---

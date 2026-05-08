@@ -98,13 +98,13 @@ Raw count pre-K-035 is non-zero (39 total hits across 10 files) — the 0-hit po
 
 Executed on `agent-context/architecture.md` per design doc §11 post-edit target state.
 
-- **Footer 放置策略 table (L510-L516):** 5 rows (`/`, `/about`, `/diary`, `/app`, `/business-logic`). All 5 cells verified against design doc §11.1: `/` = `<Footer variant="home" />` ✓, `/about` = `<Footer variant="about" />` ✓, `/diary` = 無 footer（K-024）✓, `/app` = 無 footer（K-030）✓, `/business-logic` = `<Footer variant="home" />` ✓.
-- **Shared Components 邊界 table (L520-L523):** 2 rows (UnifiedNavBar + Footer), consolidating pre-K-035's 3 rows (UnifiedNavBar + HomeFooterBar + FooterCtaSection). Matches design doc §11.2 exactly.
+- **Footer placement strategy table (L510-L516):** 5 rows (`/`, `/about`, `/diary`, `/app`, `/business-logic`). All 5 cells verified against design doc §11.1: `/` = `<Footer variant="home" />` ✓, `/about` = `<Footer variant="about" />` ✓, `/diary` = no footer (K-024) ✓, `/app` = no footer (K-030) ✓, `/business-logic` = `<Footer variant="home" />` ✓.
+- **Shared Components boundary table (L520-L523):** 2 rows (UnifiedNavBar + Footer), consolidating pre-K-035's 3 rows (UnifiedNavBar + HomeFooterBar + FooterCtaSection). Matches design doc §11.2 exactly.
 - **Directory Structure snippet (L178-L180):** new `shared/` subdir under `components/`, resident `Footer.tsx`. HomeFooterBar.tsx + FooterCtaSection.tsx deletion properly reflected (only 4 files in `components/home/` post-edit, only 13 files in `components/about/` post-edit).
 - **Frontmatter (L5):** `updated:` entry updated to "K-035 Engineer landed — shared Footer migration + components/shared/ canonical registry".
 - **Changelog (L652-L653):** Engineer landing entry prepended above Architect design entry (correct ordering, newest-on-top).
 
-**Cross-reference sanity:** `grep -n "HomeFooterBar\|FooterCtaSection" architecture.md` → no hits in live tables; L454 / L512 / L513 / L516 / L523 / L652 / L664 / L670 / L672 / L675 all wrap the old names in explicit "pre-K-035 為" / "已刪除" / historical context — these are Changelog / Frontend Routing retirement notes, expected and correct.
+**Cross-reference sanity:** `grep -n "HomeFooterBar\|FooterCtaSection" architecture.md` → no hits in live tables; L454 / L512 / L513 / L516 / L523 / L652 / L664 / L670 / L672 / L675 all wrap the old names in explicit "pre-K-035 was" / "deleted" / historical context — these are Changelog / Frontend Routing retirement notes, expected and correct.
 
 **Minor M-1 (non-blocking, PM awareness):** Architect design-phase Changelog entry at L653 still claims `shared-components.spec.ts` has **4 cases** including `/business-logic`. Engineer's landing entry at L652 supersedes and corrects this to 3 cases. The old Architect line is retained for history, which is fine per newest-on-top convention; however, a passing reader skimming from L650 downward sees the corrected entry first. No action required — Engineer already flagged this gap in their retro (L27-L31) and codified the preventive rule. Flagged here so PM can acknowledge the drift was caught + fixed, not missed.
 

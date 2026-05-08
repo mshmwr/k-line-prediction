@@ -1,5 +1,5 @@
 ---
-title: K-021 全站設計系統基建 — 配色 + 字型 + NavBar + Footer
+title: K-021 Sitewide Design System Foundation — Palette + Fonts + NavBar + Footer
 type: design
 ticket: K-021
 owner: senior-architect
@@ -10,156 +10,156 @@ pencil-frames-confirmed:
   - "wiDSi — Diary /diary (v2 Dossier)"
   - "VSwW9 — Business Logic /business-logic (v2 Dossier)"
 pencil-frames-missing:
-  - "/login（設計稿未含此頁面 frame — 見 §0 Scope Question Q1）"
+  - "/login (no frame in design source — see §0 Scope Question Q1)"
 ---
 
-## 0. Scope Questions 回報 PM（設計前必讀）
+## 0. Scope Questions for PM (read before design)
 
-Architect persona 禁止自行裁定需求；以下兩項為 ticket 文字與實際 codebase / 設計稿矛盾處，需 PM 在放行 Engineer **之前**裁決。本設計文件以「PM 可能裁決方向」預設規劃，Engineer 收到前需先看 PM 回覆。
+Architect persona cannot rule on requirements. The following two items are contradictions between ticket text and actual codebase / design source; PM must rule **before** releasing Engineer. Design below proceeds with assumed PM rulings. Engineer must check PM reply before acting.
 
-### 裁決狀態（2026-04-20 PM agent 裁決）
+### Ruling status (2026-04-20 PM agent ruling)
 
-| Question | PM 裁決 | Pre-Verdict 矩陣分數 | 載點 |
-|----------|---------|---------------------|------|
-| Q1 — `/login` 路由 | **Option A — 替換為 `/business-logic`**（不新建 /login 路由） | 10/10（A vs B=1, C=4） | ticket §3 + AC-021-BODY-PAPER + AC-021-FOOTER + 設計決策表 |
-| Q2 — NavBar active 色 | **Option C — 兩色並存**（`brick = #B43A2C` 給 K-023 Hero；`brick-dark = #9C4A3B` 給 NavBar active） | 10/10（C vs B=9, A=3） | ticket AC-021-NAVBAR + 設計決策表 |
+| Question | PM Ruling | Pre-Verdict Matrix Score | Anchor |
+|----------|-----------|--------------------------|--------|
+| Q1 — `/login` route | **Option A — Replace with `/business-logic`** (no new /login route) | 10/10 (A vs B=1, C=4) | ticket §3 + AC-021-BODY-PAPER + AC-021-FOOTER + design decision table |
+| Q2 — NavBar active color | **Option C — Two colors coexist** (`brick = #B43A2C` for K-023 Hero; `brick-dark = #9C4A3B` for NavBar active) | 10/10 (C vs B=9, A=3) | ticket AC-021-NAVBAR + design decision table |
 
-Engineer 以 ticket 新版文字為準接手。設計文件以下段落仍以「Q1=A / Q2=C」為預設前提，Architect 推薦與 PM 裁決一致。
+Engineer takes over per ticket revised text. Design below assumes "Q1=A / Q2=C"; Architect recommendation matches PM ruling.
 
-### Q1 — `/login` 路由不存在，AC 5 頁斷言覆蓋衝突
+### Q1 — `/login` route does not exist; AC 5-page assertion coverage conflict
 
-**事實：**
-- Ticket AC-021-BODY-PAPER / AC-021-FOOTER 明文列 5 個路由：`/` / `/about` / `/diary` / `/app` / `/login`
-- `frontend/src/main.tsx` 實際註冊 5 條路由：`/` / `/app` / `/about` / `/diary` / `/business-logic`
-- `frontend/design/homepage-v2.pen` top-level frame 含 4 頁：Homepage / About / Diary / Business Logic（無 Login frame）
-- codebase 全局 grep `login` → 0 match（只有 e2e spec 含 `localStorage` 邏輯的 `bl_token`，與 login 頁面無關）
-- 既有 `BusinessLogicPage` 本身是 auth-gated page，掛載時若無 token 即渲染 `<PasswordForm />`（實質扮演 login 頁面角色）
+**Facts:**
+- Ticket AC-021-BODY-PAPER / AC-021-FOOTER list 5 routes: `/` / `/about` / `/diary` / `/app` / `/login`
+- `frontend/src/main.tsx` registers 5 routes: `/` / `/app` / `/about` / `/diary` / `/business-logic`
+- `frontend/design/homepage-v2.pen` top-level frames cover 4 pages: Homepage / About / Diary / Business Logic (no Login frame)
+- Codebase grep `login` → 0 match (only e2e spec contains `bl_token` localStorage logic, unrelated to login page)
+- Existing `BusinessLogicPage` is itself an auth-gated page rendering `<PasswordForm />` when no token (acts as the de-facto login page)
 
-**兩種可能解讀：**
+**Two interpretations:**
 
-| 解讀 | 含義 | 影響 |
-|------|------|------|
-| A | Ticket 筆誤，`/login` 應為 `/business-logic` | 5 頁 = 現有 5 條路由；本票 scope 不變，實作路徑清晰 |
-| B | `/login` 為未來獨立路由，本票要求先建立空殼頁面 | 本票 scope 擴大，需新增 `frontend/src/pages/LoginPage.tsx` + main.tsx 註冊路由；但 ticket「範圍」段落未列此工作 |
+| Interpretation | Meaning | Impact |
+|----------------|---------|--------|
+| A | Ticket typo, `/login` should be `/business-logic` | 5 pages = current 5 routes; ticket scope unchanged, implementation path clear |
+| B | `/login` is a future standalone route; ticket asks to scaffold an empty page | Ticket scope expands; need new `frontend/src/pages/LoginPage.tsx` + main.tsx route registration; but ticket "scope" section did not list this work |
 
-**Architect 推薦解讀：A（ticket 筆誤）**。理由：
-1. Ticket「範圍」§1 配色 token、§2 字型、§3 body 配色、§4 NavBar、§5 Footer 所有具體工作項都基於「現有 5 條路由」框架；若要新增 `/login` 路由會是獨立的 feat ticket（`frontend/src/pages/LoginPage.tsx` + main.tsx 註冊），但完全未提
-2. ticket §3 明列「`/` / `/about` / `/diary` / `/app` / `/login`」緊接著下一句「不含 `/business-logic`」——這個「不含」本身即洩漏 ticket 作者原本認知中 `/business-logic` 被排除，但 PM 採納解讀 A 時會意識到 business-logic 其實是 auth-gated page，auth gate 狀態即為實質 login 狀態。AC-021-BODY-PAPER 要求 `/login` body 米白化，如採解讀 A，即 `/business-logic` 頁也須米白化，才能涵蓋「未登入狀態的登入表單」與「登入後的交易邏輯內容」兩個 UI 狀態
-3. 設計稿 VSwW9 frame 名稱「Business Logic /business-logic (v2 Dossier)」已含 /business-logic 的米白版面設計；無 /login frame
+**Architect recommendation: A (ticket typo).** Reasons:
+1. All concrete work items in ticket "Scope" §1 palette token, §2 fonts, §3 body palette, §4 NavBar, §5 Footer assume the existing 5-route frame; adding `/login` would be a separate feat ticket
+2. Ticket §3 lists "`/` / `/about` / `/diary` / `/app` / `/login`" then says "excluding `/business-logic`" — the "excluding" reveals the author originally treated /business-logic as out of scope. Under interpretation A, PM realises business-logic is auth-gated; auth gate state is the de-facto login state. AC-021-BODY-PAPER requires `/login` body to go paper, so under A, `/business-logic` must also go paper, covering both "unauthenticated form" and "authenticated trade logic" UI states
+3. Pencil frame VSwW9 named "Business Logic /business-logic (v2 Dossier)" already contains the paper version of /business-logic; no /login frame
 
-**PM 需回答：**
-- A 或 B？
-- 若 A：AC-021-BODY-PAPER / AC-021-FOOTER 中 `/login` 替換為 `/business-logic`，5 頁定義 = `/` / `/app` / `/about` / `/diary` / `/business-logic`（含 /business-logic 即符合「跳過 /business-logic」字面矛盾——但 ticket §3 的「不含 `/business-logic`」原文與解讀 A 衝突，需 PM 決定：把 /business-logic 納回還是真的跳過改成 4 頁？）
-- 若 B：要求 Architect 另開 scope 擴充票 K-021-B，本票先不納
+**PM must answer:**
+- A or B?
+- If A: in AC-021-BODY-PAPER / AC-021-FOOTER replace `/login` with `/business-logic`. 5 pages = `/` / `/app` / `/about` / `/diary` / `/business-logic` (literal contradiction with ticket §3 "excluding /business-logic" — PM must decide: include /business-logic, or actually skip it making it 4 pages?)
+- If B: ask Architect to open scope-extension ticket K-021-B; this ticket excludes /login
 
-**以下設計文件以「PM 採納解讀 A 且把 `/business-logic` 納回 5 頁（含 auth gate state）」為假設前提**，Q1 PM 確定之前 Engineer 不得動工。
+**Design below assumes "PM adopts A and includes `/business-logic` in 5 pages (with auth gate state)".** Engineer must not start until Q1 confirmed.
 
-### Q2 — NavBar active state 色碼與 ticket AC 不一致
+### Q2 — NavBar active state color does not match ticket AC
 
-**事實：**
-- Ticket AC-021-NAVBAR：active 狀態 `text-brick` = `#B43A2C`
-- Ticket 範圍 §1 配色 token：`brick` = `#B43A2C`，`brick-dark` = `#9C4A3B`
-- 既有 `UnifiedNavBar.tsx` + `frontend/e2e/navbar.spec.ts` 實作 active 使用 `#9C4A3B`（brick-dark）
-- K-017 Pass 2 Reviewer 反省已將色彩系統更新為 `#9C4A3B`（見 ticket `## AC-NAV-4 — Active link highlighted`）
+**Facts:**
+- Ticket AC-021-NAVBAR: active state `text-brick` = `#B43A2C`
+- Ticket scope §1 palette tokens: `brick` = `#B43A2C`, `brick-dark` = `#9C4A3B`
+- Existing `UnifiedNavBar.tsx` + `frontend/e2e/navbar.spec.ts` use `#9C4A3B` (brick-dark) for active
+- K-017 Pass 2 Reviewer retrospective updated palette to `#9C4A3B` (see ticket `## AC-NAV-4 — Active link highlighted`)
 
-**兩種解讀：**
+**Two interpretations:**
 
-| 解讀 | 含義 |
-|------|------|
-| A | Ticket AC 為真理，active 應改為 `#B43A2C`，既有 navbar.spec.ts active 斷言一併更新 |
-| B | 既有實作為真理（K-017 已驗收通過 brick-dark），Ticket AC 筆誤，應將 AC-021-NAVBAR 中 `text-brick` 改為 `text-brick-dark` 或維持 `#9C4A3B` |
+| Interpretation | Meaning |
+|----------------|---------|
+| A | Ticket AC is truth; active should change to `#B43A2C`; existing navbar.spec.ts active assertion updates accordingly |
+| B | Existing implementation is truth (K-017 accepted brick-dark); ticket AC is typo; AC-021-NAVBAR `text-brick` should change to `text-brick-dark` or stay `#9C4A3B` |
 
-**Architect 推薦解讀：B（既有實作為真理）**。理由：設計稿 homepage-v2.pen 中 NavBar active 渲染色與 `#9C4A3B` 更一致（brick-dark 在米白底視覺對比更佳，#B43A2C 在 #F4EFE5 上偏亮過度），且既有 Playwright 斷言已落地 K-017 驗收通過。PM 改色等於回退 K-017 視覺決策。
+**Architect recommendation: B (existing implementation is truth).** Reasons: design source homepage-v2.pen renders NavBar active closer to `#9C4A3B` (brick-dark contrasts better on paper; #B43A2C on #F4EFE5 is too bright). Existing Playwright assertion already accepted in K-017. Changing color regresses K-017 visual decision.
 
-**PM 需回答：** A 或 B？若 B，本設計文件中 NavBar active 一律採 `text-brick-dark`，`brick` token 保留但不在本票使用（留給未來高對比 accent 場景）。
+**PM must answer:** A or B? If B, design below uses `text-brick-dark` for NavBar active throughout; `brick` token reserved but not used in this ticket (kept for future high-contrast accent use).
 
-**以下設計文件以解讀 B 為假設前提。**
-
----
-
-## 1. 決策摘要（三項裁決 + 一致性備忘）
-
-| 項目 | 裁決 | 章節 |
-|------|------|------|
-| 字型載入方式 | **追認既有 Google Fonts CDN（index.html preconnect + stylesheet link）**，不切本地 `@font-face` | §3 |
-| 全站 body 配色 CSS 入口 | **Option A：`frontend/src/index.css` 全域 `body { @apply bg-paper text-ink; }`**，同步移除 4 個 Page component 的 `bg-[#0D0D0D] text-white` dark wrapper | §6 |
-| Footer 放置策略 | **各頁面在 Page component 末端自行引入 `<HomeFooterBar />` / `<FooterCtaSection />`**，不新建 Layout component 插槽 | §5 |
-| NavBar active state 色碼 | `#9C4A3B`（brick-dark），待 Q2 PM 裁決確認 | §4 |
+**Design below assumes interpretation B.**
 
 ---
 
-## 2. Pencil frame 完整性稽核（persona 強制）
+## 1. Decision summary (three rulings + consistency notes)
 
-本節對應 `~/.claude/agents/senior-architect.md` 的 Pencil Frame Completeness Check 規則（K-017 遺漏 Homepage v2 的根因防護）。
-
-**已 batch_get 確認 frame 清單（homepage-v2.pen）：**
-
-| Frame ID | 名稱 | 對應路由 | 本票是否受影響 |
-|----------|------|----------|---------------|
-| `4CsvQ` | Homepage / (v2 Dossier) | `/` | 是（body bg / NavBar / HomeFooterBar） |
-| `35VCj` | About /about (K-017 v2) | `/about` | 是（body bg 覆蓋 dark / NavBar / FooterCtaSection 維持） |
-| `wiDSi` | Diary /diary (v2 Dossier) | `/diary` | 是（body bg 覆蓋 dark / NavBar；K-024 決定 Footer） |
-| `VSwW9` | Business Logic /business-logic (v2 Dossier) | `/business-logic` | 是（body bg 覆蓋 dark / NavBar / HomeFooterBar）假設 Q1 解讀 A |
-
-**AppPage (`/app`) 無對應 .pen frame：** 設計稿僅含 4 個公開展示頁，`/app` 為工具頁（predictor UI），其配色處理需依本票「全站統一 paper/ink」原則**強制套用**，不另做 frame 等設計稿驗證。Engineer 實作時須 dev server 目視 `/app` 四個操作狀態（empty / uploading / predicting / results），不得僅依賴 Playwright class-name 斷言（memory `feedback_shared_component_all_routes_visual_check.md`）。
-
-**PM scope 對照：** ticket §3 列 5 頁（假設 Q1=A 後含 /business-logic）。4 個 .pen frame + AppPage = 5 頁，吻合。無遺漏頁面。
+| Item | Ruling | Section |
+|------|--------|---------|
+| Font loading | **Confirm existing Google Fonts CDN (index.html preconnect + stylesheet link)**; do not switch to local `@font-face` | §3 |
+| Sitewide body palette CSS entry | **Option A: `frontend/src/index.css` global `body { @apply bg-paper text-ink; }`**; remove dark wrapper `bg-[#0D0D0D] text-white` from 4 Page components | §6 |
+| Footer placement | **Each Page component imports `<HomeFooterBar />` / `<FooterCtaSection />` at its end**; no Layout slot | §5 |
+| NavBar active state color | `#9C4A3B` (brick-dark), pending Q2 PM ruling | §4 |
 
 ---
 
-## 3. 字型載入方式裁決
+## 2. Pencil frame completeness audit (persona-mandated)
 
-### 3.1 現況查證
+This section satisfies `~/.claude/agents/senior-architect.md` Pencil Frame Completeness Check rule (root-cause guard against K-017 missing Homepage v2).
 
-- `frontend/index.html` line 7–9 已含 preconnect + stylesheet `<link>` to Google Fonts，載入 IBM Plex Mono / Bodoni Moda / Newsreader / Geist Mono 四字型
-- `frontend/src/components/home/HeroSection.tsx` 已 inline `style={{ fontFamily: '"Bodoni Moda", serif' }}` 等三字型使用，K-017 QA 視覺報告 PASS 代表 Google Fonts 在 production 已 serve
-- `frontend/tailwind.config.js` 目前 `theme.extend` 為空 `{}`，`fontFamily` 未註冊 → 無法使用 `font-display` / `font-italic` / `font-mono` Tailwind class，Engineer 只能 inline style
+**Confirmed frame list via batch_get (homepage-v2.pen):**
 
-### 3.2 方案對比
+| Frame ID | Name | Route | Affected by this ticket |
+|----------|------|-------|-------------------------|
+| `4CsvQ` | Homepage / (v2 Dossier) | `/` | Yes (body bg / NavBar / HomeFooterBar) |
+| `35VCj` | About /about (K-017 v2) | `/about` | Yes (body bg overrides dark / NavBar / FooterCtaSection unchanged) |
+| `wiDSi` | Diary /diary (v2 Dossier) | `/diary` | Yes (body bg overrides dark / NavBar; K-024 decides Footer) |
+| `VSwW9` | Business Logic /business-logic (v2 Dossier) | `/business-logic` | Yes (body bg overrides dark / NavBar / HomeFooterBar) assuming Q1=A |
 
-**方案 A：維持 Google Fonts CDN**（現況延伸）
+**AppPage (`/app`) has no .pen frame:** design source contains only the 4 public-facing pages; `/app` is a tool page (predictor UI). Its palette must follow the sitewide unified paper/ink rule **mandatorily** without separate design-source verification. Engineer must dev-server-inspect `/app` in 4 states (empty / uploading / predicting / results); Playwright class-name assertion alone is insufficient (memory `feedback_shared_component_all_routes_visual_check.md`).
 
-- 實作：保留 index.html 的 `<link>`，僅新增 tailwind `fontFamily` 條目把 `font-display/italic/mono` class 綁定到 `Bodoni Moda/Newsreader/Geist Mono`
-- 追加：index.html `<link>` 加 `media="print" onload="this.media='all'"` 非阻塞載入模式（optional，FOUC 最佳化）
-
-**方案 B：切本地 `@font-face`**
-
-- 實作：下載四個字型 woff2 檔到 `frontend/public/fonts/`，`index.css` 加 `@font-face` 區塊，index.html 移除 Google Fonts `<link>`
-- 新增檔案：`public/fonts/BodoniModa-Italic.woff2`、`public/fonts/Newsreader-Italic.woff2`、`public/fonts/GeistMono-Regular.woff2` + `GeistMono-Bold.woff2` + `public/fonts/IBMPlexMono-Regular.woff2` + `IBMPlexMono-Bold.woff2`（約 6 個 woff2）
-
-### 3.3 評分矩陣（Pre-Verdict）
-
-| 維度 | 權重 | Option A — CDN | Option B — 本地 |
-|------|------|----------------|------------------|
-| 效能（首屏 load） | 20% | 7/10（CDN edge cache 熱，但 cross-origin handshake + preconnect 已優化） | 8/10（同源 HTTP/2 multiplex，但首次 load 增加 bundle body） |
-| 離線可靠度 | 20% | 4/10（Google Fonts 掛掉或被牆時失效；fallback 生效 但視覺降級） | 10/10（完全可控） |
-| 實作成本 | 20% | 10/10（現況即是，只加 tailwind tokens） | 4/10（下載授權合規、檔案命名、@font-face 5 個區塊、`font-display: swap`、subsetting 全自理） |
-| 維護成本 | 20% | 9/10（Google 自動推新版 + subsetting） | 5/10（字型升版需手動 re-subset + 更新） |
-| 隱私 GDPR | 20% | 5/10（Google Fonts CDN 向 Google 回報 IP/User-Agent；GDPR 灰色地帶，部分 EU 企業禁用） | 10/10（完全自持） |
-| **加權總分** | | **7.0** | **7.4** |
-
-### 3.4 紅隊自檢（≥3 條）
-
-1. **「CDN 已上線 K-017 已 PASS，為何不直接 Option A？」** — Option A 效能/成本得分合理，總分落後 Option B 0.4 主因為 GDPR。本專案目標受眾是求職 portfolio（recruiter），非 EU B2B 合約客戶，GDPR 在目前用戶規模屬 over-engineering。
-2. **「Option B 的 woff2 下載流量會超過 CDN？」** — 四字型 woff2 全 subset 後約 80–120 kB total，CDN 一樣是 80 kB 級；Option B 同源 HTTP/2 multiplex 與 main bundle 一起下載，實際 TTFP 可能更快。但 Firebase Hosting 單 bundle 大小目前已接近 500 kB warning line（見 ticket AC-021-REGRESSION 提及），再增 120 kB 會觸警告；需 Engineer 額外調 `vite build` chunk split，超出本票範圍。
-3. **「Google Fonts 被牆情境？」** — 目標 production（Firebase Hosting + global CDN）rarely 命中此情境，開發環境（Taipei / Taiwan）不受影響。若 recruiter 在中國大陸開啟，可能字型失效 → fallback `serif`/`monospace`，視覺降級但非 crash。此風險以 Tech Debt 登記（見 §11 TD-K021-01）不阻擋本票。
-4. **「index.html preconnect 已生效，為何還要指定 stylesheet link?」** — preconnect 只建立 TCP+TLS，stylesheet 還是要下載 CSS。現況寫法正確，Option A 不需動。
-
-### 3.5 裁決宣告
-
-**採 Option A — 維持 Google Fonts CDN。** Tailwind config 新增 `fontFamily` 映射，Engineer 本票不新增 woff2 檔、不改 index.html `<link>`。Fallback 策略：Tailwind tokens 寫 `['Bodoni Moda', 'serif']` 等含 fallback 的 array，若 Google Fonts 載入失敗則系統 serif / monospace 渲染，body 不 crash。GDPR / 牆內風險以 Tech Debt 登記，不阻擋本票。
-
-### 3.6 既有 inline fontFamily 的遷移（tech debt 清理）
-
-`HeroSection.tsx` 4 處 inline `style={{ fontFamily: ... }}` **建議 Engineer 本票一併改為 Tailwind class**（`font-display italic` / `font-italic` / `font-mono`）— 因 K-022 Homepage v2 改版會大量動此檔，先統一 class 慣例減少 K-022 衝突。此工作屬本票 scope（配色 token 同時套用 class），不新增 TD。
+**PM scope match:** ticket §3 lists 5 pages (assuming Q1=A includes /business-logic). 4 .pen frames + AppPage = 5, matches. No missing pages.
 
 ---
 
-## 4. Tailwind config 結構（完整 before/after diff）
+## 3. Font loading ruling
 
-### 4.1 Before（現況）
+### 3.1 Current state
 
-檔案：`/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/frontend/tailwind.config.js`
+- `frontend/index.html` line 7–9 already contains preconnect + stylesheet `<link>` to Google Fonts loading IBM Plex Mono / Bodoni Moda / Newsreader / Geist Mono
+- `frontend/src/components/home/HeroSection.tsx` uses inline `style={{ fontFamily: '"Bodoni Moda", serif' }}` etc. for 3 fonts; K-017 QA visual report PASS confirms Google Fonts already serves in production
+- `frontend/tailwind.config.js` `theme.extend` is empty `{}`; `fontFamily` not registered → cannot use `font-display` / `font-italic` / `font-mono` Tailwind classes; Engineer can only use inline style
+
+### 3.2 Option comparison
+
+**Option A: Keep Google Fonts CDN** (extend current state)
+
+- Implementation: keep index.html `<link>`, only add tailwind `fontFamily` entries binding `font-display/italic/mono` classes to `Bodoni Moda/Newsreader/Geist Mono`
+- Optional: add `media="print" onload="this.media='all'"` non-blocking load mode to index.html `<link>` (FOUC optimisation)
+
+**Option B: Switch to local `@font-face`**
+
+- Implementation: download 4 woff2 files to `frontend/public/fonts/`, add `@font-face` block to `index.css`, remove Google Fonts `<link>` from index.html
+- New files: `public/fonts/BodoniModa-Italic.woff2`, `public/fonts/Newsreader-Italic.woff2`, `public/fonts/GeistMono-Regular.woff2` + `GeistMono-Bold.woff2` + `public/fonts/IBMPlexMono-Regular.woff2` + `IBMPlexMono-Bold.woff2` (~6 woff2 files)
+
+### 3.3 Scoring matrix (Pre-Verdict)
+
+| Dimension | Weight | Option A — CDN | Option B — Local |
+|-----------|--------|----------------|------------------|
+| Performance (first-paint load) | 20% | 7/10 (CDN edge cache hot, but cross-origin handshake; preconnect optimised) | 8/10 (same-origin HTTP/2 multiplex, but first load increases bundle body) |
+| Offline reliability | 20% | 4/10 (Google Fonts down or blocked = fails; fallback active but visual degrades) | 10/10 (fully controlled) |
+| Implementation cost | 20% | 10/10 (already in place; only add tailwind tokens) | 4/10 (download licence compliance, file naming, 5 @font-face blocks, `font-display: swap`, subsetting all manual) |
+| Maintenance cost | 20% | 9/10 (Google auto-updates + subsetting) | 5/10 (font upgrades need manual re-subset + update) |
+| Privacy GDPR | 20% | 5/10 (Google Fonts CDN reports IP/User-Agent to Google; GDPR grey area; some EU enterprises ban) | 10/10 (fully self-hosted) |
+| **Weighted total** | | **7.0** | **7.4** |
+
+### 3.4 Red-team self-check (≥3 items)
+
+1. **"CDN is live and K-017 has PASSED, why not just Option A?"** — Option A perf/cost scores reasonable; total trails B by 0.4 mainly on GDPR. Target audience is recruiter portfolio, not EU B2B contract clients; GDPR at current user scale is over-engineering.
+2. **"Will Option B woff2 download exceed CDN traffic?"** — 4 fonts subset total ~80–120 kB, CDN similar 80 kB level; Option B same-origin HTTP/2 multiplex with main bundle may yield faster TTFP. But Firebase Hosting single-bundle size already near 500 kB warning line (per AC-021-REGRESSION); +120 kB triggers warning, requires Engineer to adjust `vite build` chunk split, out of ticket scope.
+3. **"Google Fonts blocked scenario?"** — Production target (Firebase Hosting + global CDN) rarely hits this; dev environment (Taipei / Taiwan) unaffected. If recruiter opens from mainland China, fonts may fail → fallback `serif`/`monospace`, visual degrades but no crash. Risk logged as Tech Debt (§11 TD-K021-01); not blocker.
+4. **"index.html preconnect already active, why need stylesheet link?"** — preconnect only establishes TCP+TLS; stylesheet still requires CSS download. Current implementation correct; Option A unchanged.
+
+### 3.5 Ruling
+
+**Adopt Option A — keep Google Fonts CDN.** Tailwind config adds `fontFamily` mapping; Engineer this ticket: no woff2 files, no index.html `<link>` edit. Fallback strategy: Tailwind tokens use `['Bodoni Moda', 'serif']` arrays with fallback; if Google Fonts fails to load, system serif / monospace renders, body does not crash. GDPR / firewall risk logged as Tech Debt; not blocker.
+
+### 3.6 Migrating existing inline fontFamily (tech debt cleanup)
+
+`HeroSection.tsx` 4 inline `style={{ fontFamily: ... }}` instances **recommended for Engineer to convert to Tailwind class in this ticket** (`font-display italic` / `font-italic` / `font-mono`) — K-022 Homepage v2 redesign will heavily edit this file; standardising class convention now reduces K-022 conflict. This work is in ticket scope (palette tokens applied via class concurrently); no new TD.
+
+---
+
+## 4. Tailwind config structure (full before/after diff)
+
+### 4.1 Before (current)
+
+File: `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/frontend/tailwind.config.js`
 
 ```js
 export default {
@@ -169,7 +169,7 @@ export default {
 }
 ```
 
-### 4.2 After（Engineer 需實作的形狀）
+### 4.2 After (Engineer target shape)
 
 ```js
 export default {
@@ -195,77 +195,77 @@ export default {
 }
 ```
 
-### 4.3 JIT 可用性驗證
+### 4.3 JIT availability verification
 
-- Tailwind v3.4.4（見 package.json）預設啟用 JIT；`content` glob 已涵蓋 `src/**/*.{ts,tsx}`，新 token 一旦出現在 tsx class 即被編譯
-- `bg-paper` / `text-ink` / `text-brick` / `text-brick-dark` / `bg-charcoal` / `text-muted` / `font-display` / `font-italic` / `font-mono` 九個 class 將可用
-- 驗證步驟（Engineer checklist）：
-  1. 改 tailwind.config.js
-  2. 在任一 component 試加 `<div className="bg-paper text-ink">` → dev server 熱更新看是否正確渲染
+- Tailwind v3.4.4 (per package.json) JIT enabled by default; `content` glob covers `src/**/*.{ts,tsx}`; new tokens compile once they appear in tsx class
+- `bg-paper` / `text-ink` / `text-brick` / `text-brick-dark` / `bg-charcoal` / `text-muted` / `font-display` / `font-italic` / `font-mono` — 9 classes available
+- Verification steps (Engineer checklist):
+  1. Edit tailwind.config.js
+  2. Add `<div className="bg-paper text-ink">` in any component → dev server hot reload renders correctly
   3. `npx tsc --noEmit` exit 0
-  4. `npm run build` 成功，確認 `dist/assets/index-*.css` 含 `.bg-paper{background-color:#F4EFE5}` 等規則
+  4. `npm run build` succeeds; verify `dist/assets/index-*.css` contains `.bg-paper{background-color:#F4EFE5}` etc.
 
-### 4.4 既有 hardcoded hex 的遷移策略
+### 4.4 Existing hardcoded hex migration strategy
 
-grep 到既有 codebase 已有多處 hardcode `#F4EFE5` / `#1A1814` / `#9C4A3B`（NavBar、HomeFooterBar、HeroSection、BuiltByAIBanner），**本票不強制 Engineer 全量遷移**（超出 scope，K-022/K-023/K-024 頁面改版時再一併處理），僅要求：
+Codebase grep finds multiple hardcoded `#F4EFE5` / `#1A1814` / `#9C4A3B` instances (NavBar, HomeFooterBar, HeroSection, BuiltByAIBanner). **This ticket does not force full migration** (out of scope; K-022/K-023/K-024 page-redesigns will handle progressively). Only require:
 
-- 本票新增或改寫的檔案（主要是 `index.css`、`tailwind.config.js`、`UnifiedNavBar.tsx`、`HomeFooterBar.tsx` + 5 Page wrapper）採用新 class（`bg-paper` / `text-ink` / `text-brick-dark` / `text-muted` 等）
-- 既有 inline hex 保持不動，由後續 ticket 漸進遷移（TD 登記見 §11 TD-K021-02）
+- Files newly added or rewritten in this ticket (mainly `index.css`, `tailwind.config.js`, `UnifiedNavBar.tsx`, `HomeFooterBar.tsx` + 5 Page wrappers) use new classes (`bg-paper` / `text-ink` / `text-brick-dark` / `text-muted` etc.)
+- Existing inline hex untouched; subsequent tickets migrate progressively (TD logged as §11 TD-K021-02)
 
 ---
 
-## 5. NavBar 組件重構方案
+## 5. NavBar component refactor
 
-### 5.1 既有實作現況（已 Read）
+### 5.1 Existing implementation (Read confirmed)
 
-檔案：`/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/frontend/src/components/UnifiedNavBar.tsx`
+File: `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/frontend/src/components/UnifiedNavBar.tsx`
 
-- **項目順序（現況）：** 左側 `⌂` icon Link / 右側 `App | About | Diary | Logic 🔒`（`Logic` 含 LockIcon）
-- **配色（現況）：** `bg-[#F4EFE5]` / `border-[#1A1814]` / inactive text `text-[#1A1814]/60` / active text `text-[#9C4A3B]` / Logic purple `text-purple-500`
-- **Height / padding：** `h-[56px] md:h-[72px]` / `px-6 md:px-[120px]`
-- **Active 判定：** `pathname === path`（`useLocation()` hook）
-- **Mobile / Desktop：** 兩 container 分別帶 `data-testid="navbar-desktop"` / `data-testid="navbar-mobile"`，用 `hidden md:flex` / `flex md:hidden` 切換
+- **Item order (current):** left `⌂` icon Link / right `App | About | Diary | Logic 🔒` (`Logic` includes LockIcon)
+- **Palette (current):** `bg-[#F4EFE5]` / `border-[#1A1814]` / inactive text `text-[#1A1814]/60` / active text `text-[#9C4A3B]` / Logic purple `text-purple-500`
+- **Height / padding:** `h-[56px] md:h-[72px]` / `px-6 md:px-[120px]`
+- **Active detection:** `pathname === path` (`useLocation()` hook)
+- **Mobile / Desktop:** two containers tagged `data-testid="navbar-desktop"` / `data-testid="navbar-mobile"`, toggled via `hidden md:flex` / `flex md:hidden`
 
-### 5.2 Ticket §4 要求（與現況差異）
+### 5.2 Ticket §4 requirements (delta from current)
 
-| 項目 | 現況 | Ticket 要求 | 差異 |
-|------|------|-------------|------|
-| 項目順序 | ⌂ / App / About / Diary / Logic 🔒 | ⌂ / App / Diary / Prediction(hidden) / About | 需調：About → 最右，Diary 提前，Logic → Prediction（hidden） |
-| `Logic` 命名 | `Logic` | `Prediction`（hidden） | 改字樣 |
-| Prediction 連結渲染 | `Logic` 顯示（含 LockIcon，text-purple-500） | `Prediction` hidden（不渲染至 DOM） | 改 `hidden` attribute 或 conditional false |
-| Active state | `text-[#9C4A3B]`（brick-dark） | `text-brick`（#B43A2C） | Q2 待 PM 裁決；本文件假設 B（維持 brick-dark） |
+| Item | Current | Ticket required | Delta |
+|------|---------|-----------------|-------|
+| Item order | ⌂ / App / About / Diary / Logic 🔒 | ⌂ / App / Diary / Prediction(hidden) / About | Reorder: About → rightmost; Diary moves up; Logic → Prediction (hidden) |
+| `Logic` label | `Logic` | `Prediction` (hidden) | Rename |
+| Prediction link rendering | `Logic` rendered (with LockIcon, text-purple-500) | `Prediction` hidden (not rendered to DOM) | Change to `hidden` attribute or conditional false |
+| Active state | `text-[#9C4A3B]` (brick-dark) | `text-brick` (#B43A2C) | Q2 pending PM ruling; design assumes B (keep brick-dark) |
 
-### 5.3 Props interface（before / after diff）
+### 5.3 Props interface (before / after diff)
 
-**Before：** `UnifiedNavBar` 無 props（零 props）。
+**Before:** `UnifiedNavBar` has no props (zero props).
 
-**After：** `UnifiedNavBar` 維持零 props（所有邏輯由 `useLocation()` 推得），**不新增 props**。項目順序與命名由組件內 `TEXT_LINKS` 常數重排，`Prediction` 項以 `hidden: true` 標記過濾。
+**After:** `UnifiedNavBar` keeps zero props (all logic derived from `useLocation()`), **no new props**. Item order and labels reordered via internal `TEXT_LINKS` constant; `Prediction` flagged `hidden: true` and filtered.
 
 ```ts
-// 組件內部 constant（非 exported API）重新定義：
-// 假設 Q2=B（active=brick-dark 維持）
+// Internal constant (non-exported API) redefined:
+// Assuming Q2=B (active=brick-dark unchanged)
 
 const TEXT_LINKS: Array<{ label: string; path: string; hidden?: boolean }> = [
   { label: 'App', path: '/app' },
   { label: 'Diary', path: '/diary' },
-  { label: 'Prediction', path: '/business-logic', hidden: true }, // K-021 隱藏
+  { label: 'Prediction', path: '/business-logic', hidden: true }, // K-021 hidden
   { label: 'About', path: '/about' },
 ]
 ```
 
-組件 render 時 `TEXT_LINKS.filter(link => !link.hidden).map(...)`，`Prediction` 連結與 LockIcon 完全不渲染至 DOM。現有 desktop/mobile 雙 container 結構維持。
+Component renders via `TEXT_LINKS.filter(link => !link.hidden).map(...)`; `Prediction` link and LockIcon never reach DOM. Existing desktop/mobile dual-container structure unchanged.
 
-### 5.4 項目順序遷移策略（逐步驟）
+### 5.4 Item-order migration steps
 
-1. 重排 `TEXT_LINKS` 陣列：`App / Diary / Prediction(hidden) / About`
-2. 刪除原 `<Link to="/business-logic">...LockIcon...</Link>` 獨立 JSX 區塊（desktop + mobile 各一處），改由 map 渲染（filter hidden 掉）
-3. 刪除 `lucide-react` 的 `LockIcon` import（不再使用）
-4. 維持 `HomeIcon` 為左側 Home link
-5. 若 Q2=A，color class 改為 `text-[#B43A2C]`；若 Q2=B，維持 `text-[#9C4A3B]`
+1. Reorder `TEXT_LINKS` array: `App / Diary / Prediction(hidden) / About`
+2. Delete original `<Link to="/business-logic">...LockIcon...</Link>` standalone JSX block (one each in desktop + mobile); render via map (filter hidden)
+3. Remove `LockIcon` import from `lucide-react` (unused)
+4. Keep `HomeIcon` as left Home link
+5. If Q2=A, change color class to `text-[#B43A2C]`; if Q2=B, keep `text-[#9C4A3B]`
 
-### 5.5 Active state 判定方式
+### 5.5 Active state detection
 
-**維持 class 比對 + 新增 `aria-current="page"` 雙機制**（之前僅 class 比對，不利 screen reader 與未來測試斷言彈性）：
+**Keep class comparison + add `aria-current="page"` (dual mechanism)** — previously class-only, suboptimal for screen reader and future test assertion flexibility:
 
 ```tsx
 <Link
@@ -275,48 +275,48 @@ const TEXT_LINKS: Array<{ label: string; path: string; hidden?: boolean }> = [
 >
 ```
 
-- 既有 Playwright 斷言 `toHaveClass(/text-\[#9C4A3B\]/)` 照常通過
-- 新增 `aria-current="page"` 屬性讓 AC-021-NAVBAR 的 4 個 active-state test case 可改用更穩定的 `[aria-current="page"]` selector（Engineer 本票同步新增斷言，見 §9）
+- Existing Playwright assertion `toHaveClass(/text-\[#9C4A3B\]/)` continues to pass
+- New `aria-current="page"` attribute lets AC-021-NAVBAR's 4 active-state test cases use the more stable `[aria-current="page"]` selector (Engineer adds assertion in this ticket; see §9)
 
-### 5.6 Consumer 影響清單（grep 結果）
+### 5.6 Consumer impact (grep results)
 
-`UnifiedNavBar` 當前 consumer（5 處 import + 5 處 JSX 使用）：
+Current `UnifiedNavBar` consumers (5 imports + 5 JSX usages):
 
-| 檔案 | 使用行 | 本票是否動到 |
-|------|--------|-------------|
-| `frontend/src/pages/HomePage.tsx` | L7 import / L14 `<UnifiedNavBar />` | 否（NavBar 內部改，consumer 不動） |
-| `frontend/src/pages/AboutPage.tsx` | L1 import / L15 | 否 |
-| `frontend/src/pages/DiaryPage.tsx` | L5 import / L12 | 否 |
-| `frontend/src/pages/BusinessLogicPage.tsx` | L6 import / L89 | 否 |
-| `frontend/src/AppPage.tsx` | L9 import / L368 | 否 |
+| File | Usage line | Affected |
+|------|------------|----------|
+| `frontend/src/pages/HomePage.tsx` | L7 import / L14 `<UnifiedNavBar />` | No (NavBar internals change; consumer unchanged) |
+| `frontend/src/pages/AboutPage.tsx` | L1 import / L15 | No |
+| `frontend/src/pages/DiaryPage.tsx` | L5 import / L12 | No |
+| `frontend/src/pages/BusinessLogicPage.tsx` | L6 import / L89 | No |
+| `frontend/src/AppPage.tsx` | L9 import / L368 | No |
 
-**結論：** NavBar 內部 refactor 不影響任何 consumer 的 JSX 使用方式。唯一潛在影響是 `LockIcon` 不再渲染 → e2e/navbar.spec.ts 的 AC-NAV-6「Logic link with LockIcon」test case 必失敗（必須更新 spec 或直接刪該 test group，見 §9 REGRESSION）。
+**Conclusion:** NavBar internal refactor does not affect any consumer JSX usage. Only potential impact: `LockIcon` no longer rendered → e2e/navbar.spec.ts AC-NAV-6 "Logic link with LockIcon" test must fail (must update spec or delete test group; see §9 REGRESSION).
 
-### 5.7 Legacy `NavBar.tsx` 處理
+### 5.7 Legacy `NavBar.tsx` handling
 
-檔案：`frontend/src/components/NavBar.tsx`（已標 `@deprecated`，從未被 import，5 個 link 順序還是舊版 Home/App/About/Diary/Business Logic）。
+File: `frontend/src/components/NavBar.tsx` (marked `@deprecated`, never imported, 5-link order is old Home/App/About/Diary/Business Logic).
 
-**建議本票一併刪除** `NavBar.tsx`（死檔 0 consumer，K-017 Code Reviewer 已識別為 dead file），理由：
-- 刪死檔成本極低（1 行 git rm）
-- 保留舊檔案反而讓新 Engineer 誤讀
-- AC-021-NAVBAR 本身涉及 NavBar refactor，順手處理是常理
+**Recommend deleting in this ticket** (dead file, 0 consumers; K-017 Code Reviewer already flagged dead file). Reasons:
+- Dead file removal cost is trivial (1 git rm)
+- Keeping old file misleads new Engineer
+- AC-021-NAVBAR involves NavBar refactor; cleaning up alongside is reasonable
 
-若 PM 不允許擴大 scope，本項可改登記為 TD（§11 TD-K021-03）留給後續。
+If PM disallows scope expansion, log as TD (§11 TD-K021-03) for future.
 
 ---
 
-## 6. 全站 body 配色 CSS 入口裁決
+## 6. Sitewide body palette CSS entry ruling
 
-### 6.1 現況查證
+### 6.1 Current state
 
-- `frontend/index.html` body 已 `class="bg-[#F4EFE5]"` → 米白底已生效
-- `frontend/src/index.css` 當前僅含 `@tailwind base; @tailwind components; @tailwind utilities;`，無 body 規則
-- 4 個 Page component 內層 `<div className="min-h-screen bg-[#0D0D0D] text-white">` 覆蓋 body 為 dark（AboutPage / DiaryPage / BusinessLogicPage / AppPage 的 `h-screen bg-gray-950 text-gray-100`）
-- HomePage 已 `<div className="min-h-screen bg-[#F4EFE5] text-[#1A1814]">`（米白，K-017 已完成）
+- `frontend/index.html` body already has `class="bg-[#F4EFE5]"` → paper bg active
+- `frontend/src/index.css` currently only `@tailwind base; @tailwind components; @tailwind utilities;`; no body rule
+- 4 Page components inner `<div className="min-h-screen bg-[#0D0D0D] text-white">` overrides body to dark (AboutPage / DiaryPage / BusinessLogicPage / AppPage's `h-screen bg-gray-950 text-gray-100`)
+- HomePage already `<div className="min-h-screen bg-[#F4EFE5] text-[#1A1814]">` (paper, K-017 done)
 
-### 6.2 方案對比
+### 6.2 Option comparison
 
-**Option A — `frontend/src/index.css` 全域 `body` 規則**
+**Option A — `frontend/src/index.css` global `body` rule**
 
 ```css
 /* index.css after */
@@ -331,11 +331,11 @@ const TEXT_LINKS: Array<{ label: string; path: string; hidden?: boolean }> = [
 }
 ```
 
-+ 4 個 Page component（AboutPage / DiaryPage / BusinessLogicPage / AppPage）**移除** inner `<div className="min-h-screen bg-[#0D0D0D] text-white">` 包裝；改成 `<div className="min-h-screen">`（或直接 `<></>`）讓 body bg 透過。
++ 4 Page components (AboutPage / DiaryPage / BusinessLogicPage / AppPage) **remove** inner `<div className="min-h-screen bg-[#0D0D0D] text-white">` wrapper; change to `<div className="min-h-screen">` (or `<></>`) so body bg shows through.
 
-**Option B — Layout component / Route wrapper 套 `div.bg-paper`**
+**Option B — Layout component / Route wrapper with `div.bg-paper`**
 
-新建 `frontend/src/layouts/AppLayout.tsx`：
+New `frontend/src/layouts/AppLayout.tsx`:
 
 ```tsx
 // pseudo
@@ -345,99 +345,99 @@ const TEXT_LINKS: Array<{ label: string; path: string; hidden?: boolean }> = [
 </div>
 ```
 
-main.tsx routes 用 `<Route element={<AppLayout />}>` 嵌套，5 個 Page component 移除各自的 `<UnifiedNavBar />` 與外層 `<div>`。
+main.tsx routes wrap with `<Route element={<AppLayout />}>`; 5 Page components remove their `<UnifiedNavBar />` and outer `<div>`.
 
-**Option C — 頁面各自 `<div className="bg-paper text-ink">`**
+**Option C — Each page `<div className="bg-paper text-ink">`**
 
-不動 index.css 和 layout，只改 4 個 Page component 的外層 `<div>` class 從 `bg-[#0D0D0D] text-white` 改為 `bg-paper text-ink`。HomePage 已是此狀態。
+Do not touch index.css or layout; only change the 4 Page components' outer `<div>` class from `bg-[#0D0D0D] text-white` to `bg-paper text-ink`. HomePage already in this state.
 
-### 6.3 評分矩陣（Pre-Verdict，4 維度）
+### 6.3 Scoring matrix (Pre-Verdict, 4 dimensions)
 
-| 維度 | 權重 | Option A（index.css） | Option B（Layout） | Option C（各頁） |
-|------|------|----------------------|---------------------|-------------------|
-| 實作成本 | 25% | 9/10（1 行 CSS + 4 page 刪 dark wrapper） | 4/10（新建 AppLayout + 改 main.tsx routes 結構 + 5 page 重構 + Outlet pattern） | 8/10（只改 4 page class） |
-| 污染面（不預期影響） | 25% | 7/10（body 全局改；若未來某頁要 dark 需 inline 覆寫） | 9/10（Layout 層獨立） | 10/10（完全局部） |
-| tsc / 可驗證度 | 25% | 8/10（CSS class 不過 tsc，但 Playwright body computed bg 斷言可驗） | 9/10（TS route 結構變更，tsc 全量檢查） | 9/10（class 改動 tsc + Playwright 同時驗） |
-| 未來 dark-mode 回退成本 | 25% | 6/10（未來要 dark-mode 需 body `dark:bg-*` + 每頁確認不覆蓋） | 9/10（Layout 單點切換 dark/light 最簡） | 5/10（5 page 逐一改最費工） |
-| **加權總分** | | **7.5** | **7.75** | **8.0** |
+| Dimension | Weight | Option A (index.css) | Option B (Layout) | Option C (per-page) |
+|-----------|--------|----------------------|-------------------|---------------------|
+| Implementation cost | 25% | 9/10 (1 line CSS + 4 page dark wrapper removal) | 4/10 (new AppLayout + main.tsx routes restructure + 5 page refactor + Outlet pattern) | 8/10 (only 4 page class change) |
+| Pollution surface (unintended impact) | 25% | 7/10 (body global change; future dark-need page must inline override) | 9/10 (Layout layer isolated) | 10/10 (fully local) |
+| tsc / verifiability | 25% | 8/10 (CSS class doesn't pass tsc, but Playwright body computed bg assertion verifies) | 9/10 (TS route structure changes; tsc full check) | 9/10 (class change verified by tsc + Playwright simultaneously) |
+| Future dark-mode rollback cost | 25% | 6/10 (future dark-mode requires body `dark:bg-*` + per-page non-override check) | 9/10 (Layout single-point dark/light toggle simplest) | 5/10 (5 page individual edit most laborious) |
+| **Weighted total** | | **7.5** | **7.75** | **8.0** |
 
-### 6.4 紅隊自檢（≥3 條）
+### 6.4 Red-team self-check (≥3 items)
 
-1. **「Option C 得分最高為何不選？」** — Option C 得分高但違反 ticket「全站共用設計系統基建」意圖（ticket §3 標題是「全站 body 配色米白化」，若只改各頁 class，token 與實際渲染之間無 single source of truth，未來新增第 6 頁時容易漏）。Option A 的 body base 規則讓「新頁面預設米白」成為 framework 行為，對齊 token 命名精神。Option C 的污染面得分 10/10 是因為「只影響目前 4 頁」，未來擴充頁面不受保護。選型應以「token 集中管理精神」為 tiebreaker。
-2. **「Option B 為何 tsc 可驗證度 9？」** — Layout component + Outlet pattern 會強制 route 結構重構，tsc 對 Outlet 的 children 推導較嚴格；但成本 4/10 已反映此複雜度。實作成本 > 效益。
-3. **「Option A 的 `@layer base body` 會不會被 Tailwind preflight 覆蓋？」** — `@tailwind base` 載入 preflight 預設 `body { line-height: inherit; }` 等；`@layer base` 寫在 tailwind import 之後可正確疊加（Tailwind v3 JIT 合併策略 `base` layer 內同 selector 以最後定義為準）。Engineer 需驗證：寫完 `index.css` 後 `npm run build`，grep `dist/assets/index-*.css` 確認 body 規則含 `background-color:#F4EFE5` 出現在 preflight 之後。
-4. **「AppPage 的 `h-screen overflow-hidden` flex layout 會不會壞？」** — AppPage 特殊使用 `h-screen bg-gray-950 text-gray-100 flex flex-col overflow-hidden`（全螢幕 grid layout）。Option A 後需改為 `h-screen flex flex-col overflow-hidden`（維持 h-screen + flex，移 dark class）；body 層 bg-paper 會透過 AppPage 外層看到。但 AppPage 內層 `bg-gray-900/70` / `bg-gray-950/70` 等 panel 樣式與米白 body 對比刺眼。**AppPage 視覺系統需 K-022/K-023/K-024 級別的頁面級改版才能完整對齊，本票僅要求 body bg 透過但不強求 panel 重配色**（AC-021-BODY-PAPER 斷言僅驗 body computed bg，不驗 panel 子層 bg）。此限制登記為 Tech Debt TD-K021-04。
+1. **"Option C scores highest, why not adopt?"** — Option C scores high but violates ticket "sitewide shared design system foundation" intent (ticket §3 heading is "sitewide body paper-isation"). Per-page class lacks single source of truth between token and rendering; new pages may miss it. Option A's body base rule makes "new pages default to paper" framework behavior, aligning with token-naming spirit. Option C's pollution score 10/10 reflects "only affects current 4 pages"; future pages unprotected. Tiebreaker: token-centralised management spirit.
+2. **"Why is Option B tsc verifiability 9?"** — Layout component + Outlet pattern forces route restructure; tsc enforces stricter Outlet children inference. But cost 4/10 reflects this complexity. Cost > benefit.
+3. **"Will Option A's `@layer base body` be overridden by Tailwind preflight?"** — `@tailwind base` loads preflight defaults `body { line-height: inherit; }` etc.; `@layer base` written after tailwind import correctly stacks (Tailwind v3 JIT merge strategy: `base` layer same selector takes last definition). Engineer verification: after writing `index.css`, `npm run build`, grep `dist/assets/index-*.css` to confirm body rule containing `background-color:#F4EFE5` appears after preflight.
+4. **"Will AppPage `h-screen overflow-hidden` flex layout break?"** — AppPage uses `h-screen bg-gray-950 text-gray-100 flex flex-col overflow-hidden` (full-screen grid layout). Under Option A, change to `h-screen flex flex-col overflow-hidden` (keep h-screen + flex; remove dark class); body bg-paper shows through AppPage outer. But AppPage inner `bg-gray-900/70` / `bg-gray-950/70` panels contrast harshly with paper body. **AppPage visual system requires K-022/K-023/K-024-level page redesign for full alignment; this ticket only requires body bg show-through, not panel re-palette** (AC-021-BODY-PAPER assertion verifies body computed bg only, not panel sublayer bg). Limit logged as Tech Debt TD-K021-04.
 
-### 6.5 裁決宣告
+### 6.5 Ruling
 
-**採 Option A — `frontend/src/index.css` 全域 `body` 規則。** 搭配 4 個 Page component 的 dark wrapper 刪除（AppPage 需保留 h-screen/flex/overflow 但移 bg/text class）。`index.html` body 的 `class="bg-[#F4EFE5]"` 可保留作 preload hint（避免 CSS parse 前的 FOUC white flash），不衝突。
+**Adopt Option A — `frontend/src/index.css` global `body` rule.** Together with 4 Page components' dark wrapper removal (AppPage keeps h-screen/flex/overflow but removes bg/text class). `index.html` body's `class="bg-[#F4EFE5]"` retained as preload hint (avoid pre-CSS-parse FOUC white flash); no conflict.
 
-### 6.6 4 個 Page component 的確切改法（pseudo diff，非 code）
+### 6.6 Exact 4 Page component edits (pseudo diff, not code)
 
-| 檔案 | Before（line / class） | After |
-|------|----------------------|-------|
+| File | Before (line / class) | After |
+|------|------------------------|-------|
 | `AboutPage.tsx` | L14 `<div className="min-h-screen bg-[#0D0D0D] text-white">` | `<div className="min-h-screen">` |
 | `DiaryPage.tsx` | L11 `<div className="min-h-screen bg-[#0D0D0D] text-white">` | `<div className="min-h-screen">` |
 | `BusinessLogicPage.tsx` | L88 `<div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col">` | `<div className="min-h-screen flex flex-col">` |
-| `AppPage.tsx` | L367 `<div className="h-screen bg-gray-950 text-gray-100 flex flex-col overflow-hidden">` | `<div className="h-screen flex flex-col overflow-hidden">`（panel 子層維持 dark gray，屬 TD-K021-04） |
-| `HomePage.tsx` | L13 `<div className="min-h-screen bg-[#F4EFE5] text-[#1A1814]">` | `<div className="min-h-screen">`（可一併清理冗餘 class；body 層已管） |
+| `AppPage.tsx` | L367 `<div className="h-screen bg-gray-950 text-gray-100 flex flex-col overflow-hidden">` | `<div className="h-screen flex flex-col overflow-hidden">` (panel sublayers stay dark gray; TD-K021-04) |
+| `HomePage.tsx` | L13 `<div className="min-h-screen bg-[#F4EFE5] text-[#1A1814]">` | `<div className="min-h-screen">` (clean redundant class; body manages) |
 
 ---
 
-## 7. Footer 放置策略裁決
+## 7. Footer placement ruling
 
-### 7.1 現況查證
+### 7.1 Current state
 
-- `HomeFooterBar.tsx`（`components/home/HomeFooterBar.tsx`）：目前單一 consumer = HomePage，class `font-mono text-[11px] tracking-[1px] text-[#6B5F4E] px-[72px] py-5 border-t border-[#1A1814] w-full`
-- `FooterCtaSection.tsx`（`components/about/FooterCtaSection.tsx`）：目前單一 consumer = AboutPage，含 email + GitHub + LinkedIn 三個連結 + GA tracking onClick + GA 聲明文字；**內部 class 含 `text-white` / `text-purple-400` / `text-gray-500` 等 dark-theme 遺留**（與米白頁面不協調，屬 K-017 遺留，但 K-017 已驗收通過；本票不動）
-- `/app` / `/business-logic`（假設 Q1=A 納入 Footer）目前 **無 Footer**
-- `/diary` 本票明文不決定（K-024 處理）
+- `HomeFooterBar.tsx` (`components/home/HomeFooterBar.tsx`): single consumer = HomePage; class `font-mono text-[11px] tracking-[1px] text-[#6B5F4E] px-[72px] py-5 border-t border-[#1A1814] w-full`
+- `FooterCtaSection.tsx` (`components/about/FooterCtaSection.tsx`): single consumer = AboutPage; contains email + GitHub + LinkedIn links + GA tracking onClick + GA disclaimer; **internal class includes `text-white` / `text-purple-400` / `text-gray-500` dark-theme legacy** (clashes with paper page; K-017 legacy but K-017 accepted; this ticket does not touch)
+- `/app` / `/business-logic` (assuming Q1=A includes Footer): currently **no Footer**
+- `/diary`: this ticket does not decide (K-024 handles)
 
-### 7.2 方案對比
+### 7.2 Option comparison
 
-**Option A — 各頁面自行 import 引入**（現況延伸）
+**Option A — Each page imports independently** (extend current state)
 
-- HomePage.tsx 維持 `<HomeFooterBar />`
-- AboutPage.tsx 維持 `<FooterCtaSection />`
-- AppPage.tsx 末端新增 `<HomeFooterBar />`（Q1=A 後若含 /business-logic）
-- BusinessLogicPage.tsx 末端新增 `<HomeFooterBar />`
-- DiaryPage.tsx 本票不動
-- `HomeFooterBar.tsx` 位置維持 `components/home/`（TD-K017-01 已登記建議搬 common/，但本票不改）
+- HomePage.tsx keeps `<HomeFooterBar />`
+- AboutPage.tsx keeps `<FooterCtaSection />`
+- AppPage.tsx adds `<HomeFooterBar />` at end (Q1=A includes /business-logic)
+- BusinessLogicPage.tsx adds `<HomeFooterBar />` at end
+- DiaryPage.tsx untouched
+- `HomeFooterBar.tsx` location stays `components/home/` (TD-K017-01 logged moving to common/, but this ticket skips)
 
-**Option B — Layout component 插槽**
+**Option B — Layout component slot**
 
-`AppLayout.tsx` 含一個 `footer` prop 或 conditional：依 route 決定 render `HomeFooterBar` / `FooterCtaSection` / `null`
+`AppLayout.tsx` with `footer` prop or conditional: per route render `HomeFooterBar` / `FooterCtaSection` / `null`
 
-### 7.3 評分矩陣（Pre-Verdict，3 維度）
+### 7.3 Scoring matrix (Pre-Verdict, 3 dimensions)
 
-| 維度 | 權重 | Option A（頁面各自） | Option B（Layout 插槽） |
-|------|------|---------------------|--------------------------|
-| 實作成本 | 34% | 9/10（各頁加一行 import + 一行 JSX） | 3/10（同 §6.2 Option B，整個 route 結構重構） |
-| 變更局部性 | 33% | 10/10（只動 2 個 Page 檔案 + `HomeFooterBar.tsx` class） | 6/10（Layout + 5 Page 同時動） |
-| 未來擴充（K-024 決定 /diary） | 33% | 9/10（K-024 只需改 DiaryPage.tsx 加一行） | 7/10（K-024 需修改 AppLayout 的 conditional + DiaryPage） |
-| **加權總分** | | **9.33** | **5.33** |
+| Dimension | Weight | Option A (per-page) | Option B (Layout slot) |
+|-----------|--------|---------------------|------------------------|
+| Implementation cost | 34% | 9/10 (each page +1 import line + 1 JSX line) | 3/10 (same as §6.2 Option B; full route restructure) |
+| Locality | 33% | 10/10 (only 2 Page files + `HomeFooterBar.tsx` class) | 6/10 (Layout + 5 Page edited together) |
+| Future extension (K-024 decides /diary) | 33% | 9/10 (K-024 only edits DiaryPage.tsx +1 line) | 7/10 (K-024 must edit AppLayout conditional + DiaryPage) |
+| **Weighted total** | | **9.33** | **5.33** |
 
-### 7.4 紅隊自檢（≥3 條）
+### 7.4 Red-team self-check (≥3 items)
 
-1. **「K-022/K-023/K-024 要統一改 Footer 時 Option A 是不是要改 N 檔？」** — 若 K-024 決定 Diary 也用 `<HomeFooterBar />`，Option A 要改 DiaryPage.tsx 一行；Option B 要改 AppLayout 的 conditional + DiaryPage。Option A 反而更乾淨（DiaryPage 的「是否 Footer」決策就近貼在 DiaryPage 檔案內）。
-2. **「Option B 的 sticky footer 佈局可控性比較好？」** — Layout pattern 對 sticky footer 確實是 canonical 做法，但本票 ticket §3 並未要求 sticky（AC-021-FOOTER 只說「頁面滾動至底部 Then 顯示」，即 natural document flow bottom）。AppPage 的 `h-screen overflow-hidden` 反而 **不允許** footer 在滾動底部出現（整頁不滾），Footer 需放哪個位置待 §7.5 處理。
-3. **「`HomeFooterBar.tsx` 搬到 `common/` 才能跨頁 import 嗎？」** — 不需要。TypeScript import path 無位置限制，現況就能 `import from '../components/home/HomeFooterBar'`。「共用組件該放 common/」是團隊命名慣例而非技術要求，TD-K017-01 可晚點處理。本票維持原路徑，降低 diff 干擾。
+1. **"Will K-022/K-023/K-024 unified Footer change require N file edits in Option A?"** — If K-024 decides Diary uses `<HomeFooterBar />`, Option A requires DiaryPage.tsx +1 line; Option B requires AppLayout conditional + DiaryPage. Option A is cleaner (DiaryPage's "has Footer?" decision lives in DiaryPage file).
+2. **"Is Option B sticky-footer layout more controllable?"** — Layout pattern is canonical for sticky footer, but ticket §3 doesn't require sticky (AC-021-FOOTER says "Then displayed when page scrolls to bottom" = natural document flow bottom). AppPage `h-screen overflow-hidden` actually **forbids** footer at scroll bottom (page doesn't scroll); footer placement TBD in §7.5.
+3. **"Must `HomeFooterBar.tsx` move to `common/` to be cross-page importable?"** — No. TypeScript import path has no location restriction; current `import from '../components/home/HomeFooterBar'` works. "Shared component should be in common/" is team naming convention, not technical requirement; TD-K017-01 handles later. This ticket keeps original path; reduces diff noise.
 
-### 7.5 裁決宣告
+### 7.5 Ruling
 
-**採 Option A — 各頁面自行 import 引入。** 具體放置：
+**Adopt Option A — each page imports independently.** Specific placement:
 
-| 路由 | 頁面檔 | Footer 組件 | 放置位置（JSX 層級） |
-|------|--------|-------------|---------------------|
-| `/` | `HomePage.tsx` | `<HomeFooterBar />` | 頁面 flex vertical column 最後子節點（現況） |
-| `/about` | `AboutPage.tsx` | `<FooterCtaSection />` | `<SectionContainer id="footer-cta">` 內（現況維持，K-017 鎖定） |
-| `/app` | `AppPage.tsx` | `<HomeFooterBar />` | **特殊：** AppPage `h-screen overflow-hidden` 不滾動，Footer 不可放 `</div>` 末端（會被 flex 壓掉）。**方案：** AppPage 現有 `flex flex-col` 最外層加 `<HomeFooterBar />` 作最後子節點，讓它出現在 viewport 最底部（需要 Engineer 把 predictor UI 的 `flex-1` 容器高度略減）。視覺上等同 sticky bottom。Engineer 實作時需 dev server 目視 `/app` 頁面 Footer 未遮蓋操作區 |
-| `/diary` | `DiaryPage.tsx` | 無（本票不動，K-024 決定） | — |
-| `/business-logic` | `BusinessLogicPage.tsx`（假設 Q1=A） | `<HomeFooterBar />` | 頁面 flex vertical column 最後子節點 |
+| Route | Page file | Footer component | Placement (JSX hierarchy) |
+|-------|-----------|------------------|---------------------------|
+| `/` | `HomePage.tsx` | `<HomeFooterBar />` | Last child of page flex vertical column (current) |
+| `/about` | `AboutPage.tsx` | `<FooterCtaSection />` | Inside `<SectionContainer id="footer-cta">` (current; K-017 locked) |
+| `/app` | `AppPage.tsx` | `<HomeFooterBar />` | **Special:** AppPage `h-screen overflow-hidden` doesn't scroll; Footer cannot go at `</div>` end (flex squashes it). **Approach:** add `<HomeFooterBar />` as last child of AppPage outer `flex flex-col`, appearing at viewport bottom (Engineer must reduce predictor UI `flex-1` container height slightly). Visually equivalent to sticky bottom. Engineer must dev-server-inspect `/app` Footer not occluding work area |
+| `/diary` | `DiaryPage.tsx` | None (this ticket skips; K-024 decides) | — |
+| `/business-logic` | `BusinessLogicPage.tsx` (assuming Q1=A) | `<HomeFooterBar />` | Last child of page flex vertical column |
 
-### 7.6 `<HomeFooterBar />` 樣式 diff（現況 vs 本票規格）
+### 7.6 `<HomeFooterBar />` style diff (current vs ticket spec)
 
-**現況（已讀）：**
+**Current (Read confirmed):**
 
 ```tsx
 <footer className="font-mono text-[11px] tracking-[1px] text-[#6B5F4E] px-[72px] py-5 border-t border-[#1A1814] w-full">
@@ -450,95 +450,95 @@ main.tsx routes 用 `<Route element={<AppLayout />}>` 嵌套，5 個 Page compon
 </footer>
 ```
 
-**Ticket AC-021-FOOTER 要求：**
-- 字型 Geist Mono ✅（已 `font-mono`，配 §4 tailwind fontFamily 新 token 不變行為）
-- 字級 11px ✅（已 `text-[11px]`）
-- 顏色 `text-muted` = `#6B5F4E` ✅（已 `text-[#6B5F4E]`，改為 `text-muted` class 即符合 token 規範）
-- border-top ✅（已 `border-t border-[#1A1814]`）
+**Ticket AC-021-FOOTER requires:**
+- Font Geist Mono ✅ (already `font-mono`; §4 tailwind fontFamily new token does not change behavior)
+- Size 11px ✅ (already `text-[11px]`)
+- Color `text-muted` = `#6B5F4E` ✅ (already `text-[#6B5F4E]`; switching to `text-muted` class meets token convention)
+- border-top ✅ (already `border-t border-[#1A1814]`)
 
-**結論：功能全符，只需 token class migration**（`text-[#6B5F4E]` → `text-muted`；`border-[#1A1814]` → `border-ink`；可選）。GA 聲明段保留。
+**Conclusion: functionally compliant; only token class migration needed** (`text-[#6B5F4E]` → `text-muted`; `border-[#1A1814]` → `border-ink`; optional). GA disclaimer retained.
 
-**唯一新規格差異：** `px-[72px]` 在 mobile viewport（< 768px）過寬，會導致 mobile 內容水平擠壓。建議 Engineer 改為 `px-6 md:px-[72px]`（響應式），此為本票範圍內的小改動。
-
----
-
-## 8. 5 頁視覺驗證 checklist
-
-對應 memory `feedback_shared_component_all_routes_visual_check.md`。Engineer/Reviewer/QA 三角色按此 checklist 逐頁 dev server 目視 + Playwright 斷言。
-
-### 8.1 每頁驗證項目
-
-**頁 `/`（HomePage）**
-- 目視：body 米白（#F4EFE5）、NavBar 米白、Hero 米白、Banner 紅字 See how、HomeFooterBar 11px muted + border-top
-- Playwright selector：
-  - body bg：`await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 239, 229)')`
-  - body text：via `document.documentElement` computed color via `page.evaluate`
-  - HomeFooterBar：`page.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true })`
-  - NavBar active：`page.locator('[data-testid="navbar-desktop"] [aria-current="page"]')` — 在 `/` 路由下應為 Home icon 的父 Link
-- Viewport：1280×800 desktop + 375×667 mobile 雙截圖
-
-**頁 `/app`（AppPage）**
-- 目視：body 米白（透過 AppPage 外層 `h-screen flex flex-col`）、NavBar 米白、predictor panel（gray-900/70 灰）與米白 body 對比醒目但不刺眼（TD-K021-04 待修）、HomeFooterBar 顯示在 viewport 底部
-- Playwright selector：同 body bg + HomeFooterBar 文案 + NavBar active（App 項 `text-[#9C4A3B]`）
-- Viewport：1280×800 desktop（不做 mobile 截圖，AppPage 本來就不 mobile 友好）
-
-**頁 `/about`（AboutPage）**
-- 目視：body 米白、NavBar 米白、PageHeaderSection 文字深色可讀、FooterCtaSection `text-white` 字在米白底上 **不可見** → 需連同本票一併把 FooterCtaSection 的 inline dark class 刪掉；**但 K-017 鎖定 `FooterCtaSection` 不動**。此矛盾登記為 TD-K021-05 或本票強制修（Engineer 實作時若用 `text-white` 不可見，目視會失敗）
-- Playwright selector：body bg + `page.getByText("Let's talk →", { exact: true })`
-- Viewport：1280×800 desktop + 375×667 mobile
-
-**頁 `/diary`（DiaryPage）**
-- 目視：body 米白、NavBar 米白、DiaryTimeline 內容深色可讀、**無 Footer**（K-017 AC-017-FOOTER 負斷言）
-- Playwright selector：body bg + `page.getByText("Let's talk →")` toHaveCount(0) + `page.getByText('yichen.lee.20@gmail.com', { exact: true })` toHaveCount(0)
-- Viewport：1280×800 desktop
-
-**頁 `/business-logic`（假設 Q1=A）**
-- 目視：body 米白、NavBar 米白、PasswordForm 內容（input / button）與米白 body 對比可讀、HomeFooterBar 在底部
-- Playwright selector：body bg + HomeFooterBar 文案；Prediction 連結 NOT 在 NavBar DOM（toHaveCount 0）
-- Viewport：1280×800 desktop + 375×667 mobile
-
-### 8.2 目視 checklist（手動執行，Code Reviewer + QA）
-
-```
-Dev server 啟動：cd frontend && npm run dev
-依序訪問：
-  [ ] http://localhost:5173/        body 米白 + NavBar 米白 + footer 米白 + banner 可見
-  [ ] http://localhost:5173/app     body 米白 + NavBar 米白 + footer 在底部
-  [ ] http://localhost:5173/about   body 米白 + NavBar 米白 + FooterCta 米白底文字可讀
-  [ ] http://localhost:5173/diary   body 米白 + NavBar 米白 + 無 footer
-  [ ] http://localhost:5173/business-logic  body 米白 + NavBar 米白 + PasswordForm 可讀 + footer 在底部
-
-每頁額外確認：
-  [ ] NavBar 項目順序：⌂ / App / Diary / About（Prediction 不可見）
-  [ ] 當前頁 NavBar 項 active 色（brick-dark #9C4A3B）
-  [ ] 其他項 inactive 色（#1A1814/60）
-  [ ] body default text 色深色（#1A1814）非白
-```
+**Only new spec delta:** `px-[72px]` is too wide on mobile viewport (< 768px), causing horizontal squeeze. Recommend Engineer change to `px-6 md:px-[72px]` (responsive); small in-scope edit.
 
 ---
 
-## 9. Test 規劃章節（對應 PM 追加量化要求）
+## 8. 5-page visual verification checklist
 
-### 9.1 Playwright spec 檔名建議
+Per memory `feedback_shared_component_all_routes_visual_check.md`. Engineer/Reviewer/QA run per-page dev-server visual + Playwright assertion via this checklist.
 
-| 目的 | 建議檔名 | 新檔 / 擴充 |
-|------|----------|-------------|
-| AC-021-BODY-PAPER（5 test case） | `frontend/e2e/sitewide-body-paper.spec.ts` | 新檔 |
-| AC-021-FOOTER（5 test case） | `frontend/e2e/sitewide-footer.spec.ts` | 新檔 |
-| AC-021-NAVBAR（4 active-state case + 其他）| 擴充 `frontend/e2e/navbar.spec.ts` | 擴充（既有檔） |
-| AC-021-TOKEN | 與 BODY-PAPER 合併，smoke test bg-paper 等 class render 正確 | 合併 `sitewide-body-paper.spec.ts` |
-| AC-021-FONTS | `frontend/e2e/sitewide-fonts.spec.ts`（2 斷言：任頁 font-display / font-mono computed fontFamily 含 "Bodoni Moda" / "Geist Mono"） | 新檔 |
-| AC-021-REGRESSION | 跑既有整 suite + 視覺報告 | 不新增 spec |
+### 8.1 Per-page verification items
 
-### 9.2 AC-021-BODY-PAPER — 5 獨立 test case 骨架
+**Page `/` (HomePage)**
+- Visual: body paper (#F4EFE5), NavBar paper, Hero paper, Banner red "See how", HomeFooterBar 11px muted + border-top
+- Playwright selector:
+  - body bg: `await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 239, 229)')`
+  - body text: via `document.documentElement` computed color via `page.evaluate`
+  - HomeFooterBar: `page.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true })`
+  - NavBar active: `page.locator('[data-testid="navbar-desktop"] [aria-current="page"]')` — on `/` route should be Home icon parent Link
+- Viewport: 1280×800 desktop + 375×667 mobile dual screenshot
 
-檔案：`frontend/e2e/sitewide-body-paper.spec.ts`
+**Page `/app` (AppPage)**
+- Visual: body paper (via AppPage outer `h-screen flex flex-col`), NavBar paper, predictor panel (gray-900/70 gray) contrasts paper body sharply but not jarring (TD-K021-04 pending), HomeFooterBar at viewport bottom
+- Playwright selector: body bg + HomeFooterBar copy + NavBar active (App link `text-[#9C4A3B]`)
+- Viewport: 1280×800 desktop only (no mobile screenshot; AppPage not mobile-friendly)
+
+**Page `/about` (AboutPage)**
+- Visual: body paper, NavBar paper, PageHeaderSection text dark-readable, FooterCtaSection `text-white` text **invisible** on paper bg → needs cleaning FooterCtaSection inline dark class in this ticket; **but K-017 locks `FooterCtaSection` from edit**. This conflict logged as TD-K021-05 or this-ticket force-fix (Engineer dev-server visual fails on `text-white` invisibility otherwise)
+- Playwright selector: body bg + `page.getByText("Let's talk →", { exact: true })`
+- Viewport: 1280×800 desktop + 375×667 mobile
+
+**Page `/diary` (DiaryPage)**
+- Visual: body paper, NavBar paper, DiaryTimeline content dark-readable, **no Footer** (K-017 AC-017-FOOTER negative assertion)
+- Playwright selector: body bg + `page.getByText("Let's talk →")` toHaveCount(0) + `page.getByText('yichen.lee.20@gmail.com', { exact: true })` toHaveCount(0)
+- Viewport: 1280×800 desktop
+
+**Page `/business-logic` (assuming Q1=A)**
+- Visual: body paper, NavBar paper, PasswordForm content (input / button) readable on paper, HomeFooterBar at bottom
+- Playwright selector: body bg + HomeFooterBar copy; Prediction link NOT in NavBar DOM (toHaveCount 0)
+- Viewport: 1280×800 desktop + 375×667 mobile
+
+### 8.2 Visual checklist (manual; Code Reviewer + QA)
+
+```
+Dev server: cd frontend && npm run dev
+Visit in order:
+  [ ] http://localhost:5173/        body paper + NavBar paper + footer paper + banner visible
+  [ ] http://localhost:5173/app     body paper + NavBar paper + footer at bottom
+  [ ] http://localhost:5173/about   body paper + NavBar paper + FooterCta text readable on paper
+  [ ] http://localhost:5173/diary   body paper + NavBar paper + no footer
+  [ ] http://localhost:5173/business-logic  body paper + NavBar paper + PasswordForm readable + footer at bottom
+
+Per-page additional:
+  [ ] NavBar item order: ⌂ / App / Diary / About (Prediction not visible)
+  [ ] Current page NavBar item active color (brick-dark #9C4A3B)
+  [ ] Other items inactive color (#1A1814/60)
+  [ ] body default text color dark (#1A1814) not white
+```
+
+---
+
+## 9. Test plan (per PM quantitative requirement)
+
+### 9.1 Playwright spec filename suggestions
+
+| Purpose | Suggested filename | New / extend |
+|---------|---------------------|--------------|
+| AC-021-BODY-PAPER (5 test cases) | `frontend/e2e/sitewide-body-paper.spec.ts` | New |
+| AC-021-FOOTER (5 test cases) | `frontend/e2e/sitewide-footer.spec.ts` | New |
+| AC-021-NAVBAR (4 active-state cases + others) | extend `frontend/e2e/navbar.spec.ts` | Extend (existing) |
+| AC-021-TOKEN | merge with BODY-PAPER; smoke test bg-paper class renders correctly | merge into `sitewide-body-paper.spec.ts` |
+| AC-021-FONTS | `frontend/e2e/sitewide-fonts.spec.ts` (2 assertions: any page font-display / font-mono computed fontFamily contains "Bodoni Moda" / "Geist Mono") | New |
+| AC-021-REGRESSION | run full existing suite + visual report | no new spec |
+
+### 9.2 AC-021-BODY-PAPER — 5 independent test case skeletons
+
+File: `frontend/e2e/sitewide-body-paper.spec.ts`
 
 ```ts
 import { test, expect } from '@playwright/test'
 
-// Mock 所有 /api/* 避免後端依賴（沿用 pages.spec.ts 的 mockApis helper）
-async function mockApis(page) { /* 同 navbar.spec.ts */ }
+// Mock all /api/* to avoid backend dependency (reuse pages.spec.ts mockApis helper)
+async function mockApis(page) { /* same as navbar.spec.ts */ }
 
 test.describe('AC-021-BODY-PAPER — body paper bg on 5 routes', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
@@ -548,20 +548,20 @@ test.describe('AC-021-BODY-PAPER — body paper bg on 5 routes', () => {
     { path: '/about',           name: 'AboutPage' },
     { path: '/diary',           name: 'DiaryPage' },
     { path: '/app',             name: 'AppPage' },
-    { path: '/business-logic',  name: 'BusinessLogicPage' }, // 假設 Q1=A
+    { path: '/business-logic',  name: 'BusinessLogicPage' }, // assuming Q1=A
   ]
 
   for (const { path, name } of routes) {
     test(`${name} (${path}) — body bg=#F4EFE5 + text=#1A1814`, async ({ page }) => {
       await mockApis(page)
       await page.goto(path)
-      // 等 render 完成
+      // wait for render
       await page.waitForLoadState('networkidle')
 
       // body computed background
       await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 239, 229)')
 
-      // body computed text color（via document.documentElement 或 body computed style）
+      // body computed text color (via document.documentElement or body computed style)
       const bodyColor = await page.evaluate(() => getComputedStyle(document.body).color)
       expect(bodyColor).toBe('rgb(26, 24, 20)')
     })
@@ -569,20 +569,20 @@ test.describe('AC-021-BODY-PAPER — body paper bg on 5 routes', () => {
 })
 ```
 
-**注意事項：**
-- 每個 route 獨立 test case（非 parametrize 內合併），符合 PM 「5 個獨立 test case」要求
-- `page.waitForLoadState('networkidle')` 確保 CSS 完全 apply（Tailwind base layer body 規則）
-- `toHaveCSS('color', ...)` 對 body 可能回傳 inherit；改用 `page.evaluate` 讀 `getComputedStyle(document.body).color` 更可靠
+**Notes:**
+- Each route an independent test case (not parametrize-merged), satisfying PM "5 independent test cases" requirement
+- `page.waitForLoadState('networkidle')` ensures CSS fully applied (Tailwind base layer body rule)
+- `toHaveCSS('color', ...)` on body may return inherit; use `page.evaluate` reading `getComputedStyle(document.body).color` for reliability
 
-### 9.3 AC-021-FOOTER — 5 獨立 test case 骨架
+### 9.3 AC-021-FOOTER — 5 independent test case skeletons
 
-檔案：`frontend/e2e/sitewide-footer.spec.ts`
+File: `frontend/e2e/sitewide-footer.spec.ts`
 
 ```ts
 test.describe('AC-021-FOOTER — footer per route', () => {
   test.use({ viewport: { width: 1280, height: 800 } })
 
-  // 以下 3 頁驗 <HomeFooterBar />
+  // 3 pages verify <HomeFooterBar />
   for (const path of ['/', '/app', '/business-logic']) {
     test(`${path} — HomeFooterBar present with 11px muted + border-top`, async ({ page }) => {
       await mockApis(page)
@@ -593,17 +593,17 @@ test.describe('AC-021-FOOTER — footer per route', () => {
       )
       await expect(footerText).toBeVisible()
 
-      // 字級 11px
+      // size 11px
       const fs = await footerText.evaluate(el => getComputedStyle(el).fontSize)
       expect(fs).toBe('11px')
 
-      // 顏色 muted
+      // color muted
       const color = await footerText.evaluate(el => getComputedStyle(el).color)
       expect(color).toBe('rgb(107, 95, 78)')
     })
   }
 
-  // /about 驗 <FooterCtaSection /> 存在 + <HomeFooterBar /> 不存在
+  // /about verifies <FooterCtaSection /> present + <HomeFooterBar /> absent
   test('/about — FooterCtaSection present, HomeFooterBar absent', async ({ page }) => {
     await mockApis(page)
     await page.goto('/about')
@@ -613,13 +613,13 @@ test.describe('AC-021-FOOTER — footer per route', () => {
     ).toHaveCount(0)
   })
 
-  // /diary 不強制（K-024 決定）— 本票不寫斷言；K-017 AC-017-FOOTER 已有負斷言（pages.spec.ts 內），不重複
+  // /diary not enforced (K-024 decides) — this ticket no assertion; K-017 AC-017-FOOTER already has negative assertion in pages.spec.ts; no duplication
 })
 ```
 
-### 9.4 AC-021-NAVBAR — 4 獨立 active-state test case 骨架
+### 9.4 AC-021-NAVBAR — 4 independent active-state test case skeletons
 
-**擴充** `frontend/e2e/navbar.spec.ts`（既有檔已有 AC-NAV-4 active 斷言，本票新增 4 個顯式 per-route active case）：
+**Extend** `frontend/e2e/navbar.spec.ts` (existing file has AC-NAV-4 active assertion; this ticket adds 4 explicit per-route active cases):
 
 ```ts
 test.describe('AC-021-NAVBAR — active state per route', () => {
@@ -628,7 +628,7 @@ test.describe('AC-021-NAVBAR — active state per route', () => {
   test('on / — Home icon active', async ({ page }) => {
     await mockApis(page)
     await page.goto('/')
-    // aria-current=page 用於 Home icon link
+    // aria-current=page on Home icon link
     const homeLink = page.getByRole('link', { name: 'Home', exact: true })
     await expect(homeLink).toHaveAttribute('aria-current', 'page')
   })
@@ -668,231 +668,231 @@ test.describe('AC-021-NAVBAR — Prediction hidden', () => {
 })
 ```
 
-### 9.5 REGRESSION — 既有 spec 需更新 / 確認
+### 9.5 REGRESSION — existing spec updates / confirmations
 
-| 既有 spec | 狀態 | 本票需動 |
-|-----------|------|----------|
-| `e2e/navbar.spec.ts` AC-NAV-1 (Desktop 5 pages home icon+links) | 斷言 `Logic` link → 現況 `nav.getByRole('link', { name: /Logic/ })` → Prediction hidden 後 0 match | **需改**：刪 Logic link 斷言，改為 `expect Prediction link toHaveCount(0)` |
-| `e2e/navbar.spec.ts` AC-NAV-2 (Mobile 5 pages) | 同上 | 同上 |
-| `e2e/navbar.spec.ts` AC-NAV-4 (Logic link → /business-logic navigate) | Prediction hidden 後無此連結可 click | **需刪**：刪此 test |
-| `e2e/navbar.spec.ts` AC-NAV-6 (Logic link LockIcon) | Prediction hidden 後 LockIcon 不渲染 | **需刪** AC-NAV-6 全段 |
-| `e2e/navbar.spec.ts` AC-NAV-4 active-state test | 現用 `toHaveClass(/text-\[#9C4A3B\]/)` | **維持**（Q2=B）；若 Q2=A 需改 regex |
-| `e2e/pages.spec.ts` AC-ABOUT-1 PageHeader | 不依賴 bg class，文字斷言 | 不改 |
-| `e2e/pages.spec.ts` AC-ABOUT-1 Footer CTA | `Let's talk →` 文字 | 不改 |
-| `e2e/about.spec.ts` 全檔 | K-017 主要 spec | 不改（AC-017 鎖定） |
-| `e2e/ga-tracking.spec.ts` | K-018 | 不改 |
-| `e2e/ma99-chart.spec.ts` | K-009 | 不改 |
-| `e2e/business-logic.spec.ts` | 原 AuthState spec | 若 body 從 dark 改米白，內部 assertion 可能 break — Engineer 跑完後看 |
+| Existing spec | Status | This ticket action |
+|---------------|--------|--------------------|
+| `e2e/navbar.spec.ts` AC-NAV-1 (Desktop 5 pages home icon+links) | Asserts `Logic` link → `nav.getByRole('link', { name: /Logic/ })` → 0 match after Prediction hidden | **Edit:** delete Logic link assertion; add `expect Prediction link toHaveCount(0)` |
+| `e2e/navbar.spec.ts` AC-NAV-2 (Mobile 5 pages) | Same | Same |
+| `e2e/navbar.spec.ts` AC-NAV-4 (Logic link → /business-logic navigate) | After Prediction hidden, no link to click | **Delete:** remove this test |
+| `e2e/navbar.spec.ts` AC-NAV-6 (Logic link LockIcon) | After Prediction hidden, LockIcon not rendered | **Delete** AC-NAV-6 entire block |
+| `e2e/navbar.spec.ts` AC-NAV-4 active-state test | Currently uses `toHaveClass(/text-\[#9C4A3B\]/)` | **Keep** (Q2=B); if Q2=A, change regex |
+| `e2e/pages.spec.ts` AC-ABOUT-1 PageHeader | Doesn't depend on bg class; text assertion | No change |
+| `e2e/pages.spec.ts` AC-ABOUT-1 Footer CTA | `Let's talk →` text | No change |
+| `e2e/about.spec.ts` whole file | K-017 main spec | No change (AC-017 locked) |
+| `e2e/ga-tracking.spec.ts` | K-018 | No change |
+| `e2e/ma99-chart.spec.ts` | K-009 | No change |
+| `e2e/business-logic.spec.ts` | original AuthState spec | If body changes from dark to paper, internal assertion may break — Engineer reviews after run |
 
-**REGRESSION gate：**
+**REGRESSION gate:**
 1. `npx tsc --noEmit` exit 0
-2. `npm run build` 成功（無新增 > 500 kB chunk warning，對應 AC-021-REGRESSION）
-3. 整 Playwright suite `npm run test:e2e` chromium project 全綠（除可能預期刪除 / 更新的 AC-NAV-6 區塊）
-4. visual-report：`TICKET_ID=K-021 npx playwright test visual-report.ts` 產出 `docs/reports/K-021-visual-report.html`
+2. `npm run build` succeeds (no new > 500 kB chunk warning, per AC-021-REGRESSION)
+3. Full Playwright suite `npm run test:e2e` chromium project all green (except expected delete / update of AC-NAV-6 block)
+4. visual-report: `TICKET_ID=K-021 npx playwright test visual-report.ts` produces `docs/reports/K-021-visual-report.html`
 
 ---
 
-## 10. Engineer 實作順序建議
+## 10. Engineer implementation order
 
-分 6 階段，每階段為一個 stable checkpoint（對應 engineer.md 紀律），每階段交付後跑 §9 對應驗證。
+6 stages; each stage = stable checkpoint (per engineer.md discipline); each stage delivers then runs §9 corresponding verification.
 
-### Stage 1 — Tailwind token + fontFamily 註冊
+### Stage 1 — Tailwind token + fontFamily registration
 
-**交付單位：** `frontend/tailwind.config.js` 新增 extend（§4.2）
-**驗證：** `npx tsc --noEmit` exit 0 + `npm run build` 成功 + dev server 熱更新 + 手動在任一 component 試 `<div className="bg-paper text-ink">` 確認渲染正確
-**對應 AC：** AC-021-TOKEN
+**Deliverable:** `frontend/tailwind.config.js` add extend (§4.2)
+**Verification:** `npx tsc --noEmit` exit 0 + `npm run build` succeeds + dev server hot reload + manually try `<div className="bg-paper text-ink">` in any component to verify rendering
+**AC:** AC-021-TOKEN
 
-### Stage 2 — `index.css` body base 規則 + 4 Page dark wrapper 移除
+### Stage 2 — `index.css` body base rule + 4 Page dark wrapper removal
 
-**交付單位：** `frontend/src/index.css` 加 `@layer base body`；AboutPage / DiaryPage / BusinessLogicPage / AppPage 四個檔外層 `<div>` 移除 dark bg/text class（§6.6）
-**驗證：** dev server 目視 5 頁（按 §8.2 checklist）+ Playwright `sitewide-body-paper.spec.ts` 跑過
-**對應 AC：** AC-021-BODY-PAPER
-**建議 spec：** `frontend/e2e/sitewide-body-paper.spec.ts`（新檔，§9.2）
+**Deliverable:** `frontend/src/index.css` add `@layer base body`; AboutPage / DiaryPage / BusinessLogicPage / AppPage 4 files outer `<div>` remove dark bg/text class (§6.6)
+**Verification:** dev server visual 5 pages (per §8.2 checklist) + Playwright `sitewide-body-paper.spec.ts` pass
+**AC:** AC-021-BODY-PAPER
+**Suggested spec:** `frontend/e2e/sitewide-body-paper.spec.ts` (new, §9.2)
 
-### Stage 3 — UnifiedNavBar 重構
+### Stage 3 — UnifiedNavBar refactor
 
-**交付單位：** `components/UnifiedNavBar.tsx` 重排 `TEXT_LINKS` + Prediction hidden + aria-current + 刪 LockIcon import + 刪 legacy `NavBar.tsx`（若 PM 允許）
-**驗證：** dev server 目視 5 頁 NavBar 項目順序 + active state + Prediction 不在 DOM + 刪既有 navbar.spec.ts 不相關 test（AC-NAV-6 Logic LockIcon）
-**對應 AC：** AC-021-NAVBAR
-**建議 spec：** 擴充 `frontend/e2e/navbar.spec.ts`（§9.4 AC-021-NAVBAR + Prediction hidden），刪 AC-NAV-6 block + AC-NAV-4 Logic navigate test
+**Deliverable:** `components/UnifiedNavBar.tsx` reorder `TEXT_LINKS` + Prediction hidden + aria-current + remove LockIcon import + delete legacy `NavBar.tsx` (if PM allows)
+**Verification:** dev server visual 5 pages NavBar item order + active state + Prediction not in DOM + delete unrelated existing navbar.spec.ts tests (AC-NAV-6 Logic LockIcon)
+**AC:** AC-021-NAVBAR
+**Suggested spec:** extend `frontend/e2e/navbar.spec.ts` (§9.4 AC-021-NAVBAR + Prediction hidden); delete AC-NAV-6 block + AC-NAV-4 Logic navigate test
 
-### Stage 4 — Footer 放置（`/app` / `/business-logic` 加 `<HomeFooterBar />`）
+### Stage 4 — Footer placement (`/app` / `/business-logic` add `<HomeFooterBar />`)
 
-**交付單位：** AppPage.tsx + BusinessLogicPage.tsx（假設 Q1=A）末端加 `<HomeFooterBar />`；`HomeFooterBar.tsx` 小改 `px-6 md:px-[72px]` 響應式 padding
-**驗證：** dev server 目視 5 頁 Footer（§8.1）+ Playwright `sitewide-footer.spec.ts` 跑過
-**對應 AC：** AC-021-FOOTER
-**建議 spec：** `frontend/e2e/sitewide-footer.spec.ts`（新檔，§9.3）
+**Deliverable:** AppPage.tsx + BusinessLogicPage.tsx (assuming Q1=A) end add `<HomeFooterBar />`; `HomeFooterBar.tsx` minor edit `px-6 md:px-[72px]` responsive padding
+**Verification:** dev server visual 5 pages Footer (§8.1) + Playwright `sitewide-footer.spec.ts` pass
+**AC:** AC-021-FOOTER
+**Suggested spec:** `frontend/e2e/sitewide-footer.spec.ts` (new, §9.3)
 
-### Stage 5 — 字型 Tailwind class 遷移（可選，次要 cleanup）
+### Stage 5 — Font Tailwind class migration (optional, secondary cleanup)
 
-**交付單位：** `HeroSection.tsx` 4 處 inline `style={{ fontFamily: ... }}` 改為 `font-display italic` / `font-italic` / `font-mono` class
-**驗證：** dev server 目視 Hero 字型不變 + Playwright `sitewide-fonts.spec.ts` 跑過
-**對應 AC：** AC-021-FONTS
-**建議 spec：** `frontend/e2e/sitewide-fonts.spec.ts`（新檔，§9.1）
+**Deliverable:** `HeroSection.tsx` 4 inline `style={{ fontFamily: ... }}` → `font-display italic` / `font-italic` / `font-mono` class
+**Verification:** dev server visual Hero font unchanged + Playwright `sitewide-fonts.spec.ts` pass
+**AC:** AC-021-FONTS
+**Suggested spec:** `frontend/e2e/sitewide-fonts.spec.ts` (new, §9.1)
 
 ### Stage 6 — Full regression + visual report
 
-**交付單位：** 跑整 suite + 產 visual-report + 手動 §8.2 checklist 目視 5 頁
-**驗證：** `npx tsc --noEmit` + `npm run build` + `npm run test:e2e` + `TICKET_ID=K-021 npx playwright test visual-report.ts`
-**對應 AC：** AC-021-REGRESSION
+**Deliverable:** run full suite + produce visual-report + manual §8.2 checklist 5-page visual
+**Verification:** `npx tsc --noEmit` + `npm run build` + `npm run test:e2e` + `TICKET_ID=K-021 npx playwright test visual-report.ts`
+**AC:** AC-021-REGRESSION
 
 ---
 
-## 11. Tech Debt / 風險登記
+## 11. Tech Debt / risk register
 
-| ID | 描述 | 優先級 | 預定處理 |
-|----|------|--------|----------|
-| TD-K021-01 | Google Fonts CDN 在 GFW 牆內環境載入失敗，fallback serif/monospace 視覺降級 | low | 目前 portfolio 情境不影響；若將來 target 中國市場再評估切本地 |
-| TD-K021-02 | 既有 codebase 多處 hardcode hex（`#F4EFE5` / `#1A1814` / `#9C4A3B`）未遷移至 token class | medium | K-022 / K-023 / K-024 頁面改版時順手遷移；本票不強制 |
-| TD-K021-03 | Legacy `components/NavBar.tsx`（@deprecated 死檔） | low | 若 PM 不允許本票刪，獨立 cleanup ticket；推薦本票順手刪 |
-| TD-K021-04 | `/app` AppPage 內層 panel 使用 `bg-gray-900/70` 系 dark 樣式，與 body 米白對比刺眼 | medium | `/app` 需頁面級重配色（K-022 / K-023 / K-024 未含 /app，建議另開 K-025 AppPage redesign） |
-| TD-K021-05 | `/about` FooterCtaSection 內用 `text-white` / `text-gray-500` dark 遺留，米白 body 下文字不可見 | **high** | K-017 鎖定不動，但與 K-021 body 米白化視覺衝突；PM 需裁決：本票一併修還是另開 ticket。若不修，Stage 2 dev server 目視 /about 會直接看到「Let's talk →」白字看不見 |
-| TD-K021-06 | Q1 解讀 A 仍未解決 /login 語意矛盾（ticket §3 明文「不含 /business-logic」） | **blocker** | PM 必回覆 Q1 + Q2 才能 Engineer 動工 |
+| ID | Description | Priority | Disposition |
+|----|-------------|----------|-------------|
+| TD-K021-01 | Google Fonts CDN load fail in GFW environment; fallback serif/monospace visual degrade | low | Current portfolio scenario unaffected; reassess local-fonts switch if China target |
+| TD-K021-02 | Existing codebase multiple hardcoded hex (`#F4EFE5` / `#1A1814` / `#9C4A3B`) not migrated to token class | medium | K-022 / K-023 / K-024 page-redesigns migrate alongside; this ticket does not enforce |
+| TD-K021-03 | Legacy `components/NavBar.tsx` (@deprecated dead file) | low | If PM disallows this-ticket delete, separate cleanup ticket; recommend this-ticket cleanup |
+| TD-K021-04 | `/app` AppPage inner panels use `bg-gray-900/70` dark style; jarring contrast with paper body | medium | `/app` requires page-level re-palette (K-022 / K-023 / K-024 don't cover /app; recommend K-025 AppPage redesign) |
+| TD-K021-05 | `/about` FooterCtaSection contains `text-white` / `text-gray-500` dark legacy; invisible on paper body | **high** | K-017 locked; conflicts with K-021 paper body; PM must rule: this-ticket fix or separate ticket. If unfixed, Stage 2 dev-server visual /about shows "Let's talk →" white-on-paper invisible |
+| TD-K021-06 | Q1 interpretation A unresolved; /login semantic contradiction (ticket §3 explicit "exclude /business-logic") | **blocker** | PM must answer Q1 + Q2 before Engineer starts |
 
-**Tech Debt 建議：** 以上 6 項待 PM 在本設計文件批准時逐條裁決（此刻 fix / 本票不修登記 / 延後開獨立 ticket），此裁決寫回本設計文件 §11 表格 `預定處理` 欄。
+**Tech Debt advice:** PM rules on each item upon approving this design (fix now / log unfixed / separate later); ruling written back to §11 `Disposition` column.
 
 ---
 
-## 12. 共用組件邊界（persona 強制）
+## 12. Shared component boundary (persona-mandated)
 
-對應 memory `feedback_architect_shared_components.md`。
+Per memory `feedback_architect_shared_components.md`.
 
-### 12.1 本票影響共用組件
+### 12.1 Affected shared components
 
-| 組件 | 檔案 | Consumer | 本票改動 | Props interface |
-|------|------|----------|----------|-----------------|
-| `<UnifiedNavBar />` | `components/UnifiedNavBar.tsx` | HomePage / AboutPage / DiaryPage / BusinessLogicPage / AppPage | TEXT_LINKS 重排 + Prediction hidden + aria-current + 刪 LockIcon | **零 props**（before/after 相同，見 §5.3） |
-| `<HomeFooterBar />` | `components/home/HomeFooterBar.tsx` | HomePage（現況）+ AppPage（新增）+ BusinessLogicPage（新增，假設 Q1=A） | 擴增 consumer + `px-6 md:px-[72px]` 響應式 padding | **零 props**（無改動） |
-| `<FooterCtaSection />` | `components/about/FooterCtaSection.tsx` | AboutPage | **本票鎖定不動**（K-017 決定） | **零 props** |
+| Component | File | Consumers | This ticket | Props interface |
+|-----------|------|-----------|--------------|-----------------|
+| `<UnifiedNavBar />` | `components/UnifiedNavBar.tsx` | HomePage / AboutPage / DiaryPage / BusinessLogicPage / AppPage | TEXT_LINKS reorder + Prediction hidden + aria-current + remove LockIcon | **Zero props** (before/after same; see §5.3) |
+| `<HomeFooterBar />` | `components/home/HomeFooterBar.tsx` | HomePage (current) + AppPage (new) + BusinessLogicPage (new, assuming Q1=A) | extend consumers + `px-6 md:px-[72px]` responsive padding | **Zero props** (no change) |
+| `<FooterCtaSection />` | `components/about/FooterCtaSection.tsx` | AboutPage | **This ticket locks** (K-017 decision) | **Zero props** |
 
-### 12.2 頁面專屬改動（非共用）
+### 12.2 Page-specific edits (non-shared)
 
-| 頁面組件 | 本票改動 |
-|---------|---------|
-| `HomePage.tsx` | 外層 `<div>` class 清理（body 管 bg/text，HomePage 僅留 `min-h-screen`） |
-| `AboutPage.tsx` | 外層 `<div>` class 移除 dark wrapper |
-| `DiaryPage.tsx` | 外層 `<div>` class 移除 dark wrapper |
-| `BusinessLogicPage.tsx` | 外層 `<div>` class 移除 dark wrapper + 末端新增 `<HomeFooterBar />` |
-| `AppPage.tsx` | 外層 `<div>` class 移除 dark wrapper（保留 h-screen/flex/overflow）+ 末端新增 `<HomeFooterBar />` |
-| `HeroSection.tsx` | 4 處 inline `style={{ fontFamily }}` → Tailwind class（可選，Stage 5） |
+| Page component | This ticket |
+|----------------|-------------|
+| `HomePage.tsx` | outer `<div>` class cleanup (body manages bg/text; HomePage keeps `min-h-screen`) |
+| `AboutPage.tsx` | outer `<div>` class remove dark wrapper |
+| `DiaryPage.tsx` | outer `<div>` class remove dark wrapper |
+| `BusinessLogicPage.tsx` | outer `<div>` class remove dark wrapper + end add `<HomeFooterBar />` |
+| `AppPage.tsx` | outer `<div>` class remove dark wrapper (keep h-screen/flex/overflow) + end add `<HomeFooterBar />` |
+| `HeroSection.tsx` | 4 inline `style={{ fontFamily }}` → Tailwind class (optional, Stage 5) |
 
-### 12.3 CSS / 配置層改動
+### 12.3 CSS / config layer edits
 
-| 檔案 | 改動 |
+| File | Edit |
 |------|------|
 | `frontend/tailwind.config.js` | `theme.extend.colors` + `theme.extend.fontFamily` |
 | `frontend/src/index.css` | `@layer base body { @apply bg-paper text-ink; }` |
 
-**不改動：** `frontend/index.html`（preconnect + Google Fonts `<link>` 維持）、`frontend/vite.config.ts`、`frontend/playwright.config.ts`、`frontend/package.json`
+**Unchanged:** `frontend/index.html` (preconnect + Google Fonts `<link>` keep), `frontend/vite.config.ts`, `frontend/playwright.config.ts`, `frontend/package.json`
 
 ---
 
-## 13. Architect → Engineer 交付前檢查清單
+## 13. Architect → Engineer pre-handoff checklist
 
-對應 Architect persona「Pencil Frame Completeness Check」+「Cross-Page Duplicate Audit」+「Triage 無需 Architecture 時的 Drift 檢查」。
+Per Architect persona "Pencil Frame Completeness Check" + "Cross-Page Duplicate Audit" + "Drift check when Triage doesn't need Architecture".
 
-- [x] Pencil frame 完整性稽核（§2）— 4 frame 確認，無遺漏
-- [x] Cross-page duplicate audit（§13.1）— 下方
-- [x] architecture.md 同步（§14）— 下方待 Write
-- [x] 設計文件末 `## Retrospective` 段（§15）— 下方待 Write
-- [ ] PM 回覆 Q1 + Q2（§0）— **BLOCKER，未完成不得交付 Engineer**
-- [ ] Per-project retrospective log（§15.2）— 下方寫入 architect.md
+- [x] Pencil frame completeness audit (§2) — 4 frames confirmed, no missing
+- [x] Cross-page duplicate audit (§13.1) — below
+- [x] architecture.md sync (§14) — pending Write below
+- [x] Design doc end `## Retrospective` section (§15) — pending Write below
+- [ ] PM answer Q1 + Q2 (§0) — **BLOCKER, no Engineer handoff until done**
+- [ ] Per-project retrospective log (§15.2) — write into architect.md below
 
-### 13.1 Cross-Page Duplicate Audit（強制）
+### 13.1 Cross-Page Duplicate Audit (mandatory)
 
-本票有新加組件/section：Prediction 隱藏項、Footer 放置 2 頁。對本票 scope 內「新增組件」grep 既有 codebase：
+This ticket adds component/section: Prediction hidden item, Footer placement on 2 pages. Grep existing codebase for in-scope "new components":
 
 ```
-# 已 grep
-grep -rn "HomeFooterBar" frontend/src/        → HomePage + home/HomeFooterBar.tsx（1 consumer）
-grep -rn "FooterCtaSection" frontend/src/    → AboutPage + about/FooterCtaSection.tsx（1 consumer）
-grep -rn "UnifiedNavBar" frontend/src/       → 5 Page consumers（正確共用）
+# Grepped
+grep -rn "HomeFooterBar" frontend/src/        → HomePage + home/HomeFooterBar.tsx (1 consumer)
+grep -rn "FooterCtaSection" frontend/src/    → AboutPage + about/FooterCtaSection.tsx (1 consumer)
+grep -rn "UnifiedNavBar" frontend/src/       → 5 Page consumers (correct shared)
 ```
 
-**無重複 pattern，無需抽新 primitive。** 本票純屬現有組件的 consumer 擴增 + 配色系統基建，無新組件。
+**No duplicate pattern; no new primitive needed.** This ticket is purely existing component consumer extension + palette system foundation; no new component.
 
 ---
 
-## 14. architecture.md 同步（本設計文件產出後 Edit）
+## 14. architecture.md sync (after design doc Write)
 
-本票結構變更：
-- Tailwind config 新增 `colors` + `fontFamily` token（配色與字型 API 現在是全站約定）
-- body 配色 CSS 入口改 `index.css` `@layer base`
-- `HomeFooterBar.tsx` consumer 從 1 增至 3
-- legacy `NavBar.tsx` 可能刪（待 PM 決）
+This ticket structural changes:
+- Tailwind config adds `colors` + `fontFamily` token (palette and font API now sitewide convention)
+- body palette CSS entry changes to `index.css` `@layer base`
+- `HomeFooterBar.tsx` consumers grow from 1 to 3
+- legacy `NavBar.tsx` may be deleted (TBD by PM)
 
-**Architect 已規劃更新 architecture.md 四處：**
+**Architect plans 4 architecture.md edits:**
 
-1. `## Directory Structure` 段：`frontend/src/components/NavBar.tsx` 標註 `(to be removed K-021)` 或直接刪（待 PM）
-2. **新增 `## Design System (K-021)` 段**，定義 paper / ink / brick / brick-dark / charcoal / muted 6 色 token + 3 字型 token + body base 規則
-3. `## Frontend Routing` 段 NavBar 描述更新：「左側 ⌂ / 右側 App / Diary / About（Prediction hidden）」+ active 用 aria-current
-4. `## Changelog` append 一筆 `2026-04-20 (Architect, K-021 設計) — ...`
+1. `## Directory Structure` section: `frontend/src/components/NavBar.tsx` flag `(to be removed K-021)` or delete (TBD by PM)
+2. **Add `## Design System (K-021)` section** defining paper / ink / brick / brick-dark / charcoal / muted 6 color tokens + 3 font tokens + body base rule
+3. `## Frontend Routing` NavBar description update: "left ⌂ / right App / Diary / About (Prediction hidden)" + active uses aria-current
+4. `## Changelog` append entry `2026-04-20 (Architect, K-021 design) — ...`
 
-實際 Edit 操作見本文件寫入完成後的 architecture.md 更新動作。
+Actual Edit operation occurs after this doc Write; see architecture.md update.
 
 ---
 
 ## 15. Retrospective
 
-### 15.1 本次設計 Retrospective（Architect）
+### 15.1 Architect retrospective for this design
 
-**做得好：**
-- 在設計前就用 `grep Login` + `grep /login` + batch_get .pen frame 清單雙驗證 `/login` 路由不存在，於 §0 Scope Questions 回報 PM 而非自行裁定，避免 Architect 做需求決策
-- 用 `git status / codebase read` 確認 Google Fonts CDN 已在 index.html 存在，避免重新走「CDN vs 本地 @font-face」全新評估（此資訊在 ticket 未明寫，Ticket 作者可能以為字型全新引入）
-- 逐項 Pre-Verdict 評分 + 紅隊 ≥3 條：字型載入 / body CSS 入口 / Footer 放置 三項都走了完整裁決程序
-- Tech Debt 清單（§11）辨識出 TD-K021-05（FooterCtaSection dark 遺留）為 high priority blocker，避免 Engineer dev server 目視時被 `/about` Let's talk 白字看不見嚇到
+**Done well:**
+- Pre-design used `grep Login` + `grep /login` + batch_get .pen frame list double-verified `/login` route absence; reported in §0 Scope Questions to PM rather than self-ruling, avoiding Architect requirement-decision
+- Used `git status / codebase read` to confirm Google Fonts CDN already in index.html, avoiding redundant "CDN vs local @font-face" full re-evaluation (this info not in ticket; ticket author may have assumed font is fully new)
+- Item-by-item Pre-Verdict scoring + red-team ≥3: font loading / body CSS entry / Footer placement all walked complete ruling procedure
+- Tech Debt list (§11) flagged TD-K021-05 (FooterCtaSection dark legacy) as high-priority blocker; prevents Engineer from being surprised by /about Let's talk white-on-paper invisibility on dev-server visual
 
-**沒做好：**
-- 未在設計一開始立即 ScheduleWakeup 或主動停下回報 PM Q1/Q2 後再繼續，而是用「假設解讀 A/B」貫穿文件——若 PM 最終裁決與假設不同，§5/§6/§9 大段要回頭重寫。根因：Architect persona 禁止決策但未明文要求「遇 scope question 必 pause 等 PM」，我自行選擇「先產完整框架讓 PM 一次看 + 一次裁決」，但這違背「不做需求決策」的邊界模糊處（即「哪些條款假設也算隱性決策」）
-- §6 Option A vs C 評分矩陣 Option C 總分最高（8.0 > 7.5），但最終選 A——用「token 精神」tiebreaker 選項，此 tiebreaker 並未預先寫在評分維度內。理論上應該把「token 集中管理度」加入評分 5 維度，而非事後用 tiebreaker 覆寫總分
+**Done poorly:**
+- Did not ScheduleWakeup or actively pause to report PM Q1/Q2 at design start; instead used "interpretation A/B assumption" throughout. If PM rules differ from assumption, large §5/§6/§9 sections require rewrite. Root cause: Architect persona forbids decision but does not explicitly require "pause to wait for PM on scope questions"; I chose "produce complete framework so PM rules once on full picture", but this blurs "no requirement decision" boundary (which assumed clauses are implicit decisions)
+- §6 Option A vs C scoring matrix Option C scored highest (8.0 > 7.5), but final pick was A — using "token spirit" tiebreaker not pre-listed in scoring dimensions. Theoretically should add "token-centralised management" as scoring dimension 5, not retroactive tiebreaker overriding total
 
-**下次改善：**
-1. **Architect 遇到 scope question（如 Q1/Q2 這類 ticket 與 codebase 矛盾）必須立即 ScheduleWakeup 停止 + 回報 PM，不貫穿整份設計文件用「假設」推進**——此條 rule 寫入本 persona 作為硬步驟（見 §15.3 persona edit）
-2. **Pre-Verdict 評分矩陣必須預先列滿所有 tiebreaker 維度**，不得事後用「精神」/「意圖」覆寫總分。若某維度難以量化（如 token 集中管理度），至少命名該維度並給 1–10 分，接受「整體加權可能偏差」而非「隱藏 tiebreaker」——此條亦寫入 persona
+**Improvements:**
+1. **Architect must immediately ScheduleWakeup pause + report PM upon scope question (e.g. Q1/Q2 ticket-codebase contradiction); not run "assumption" through full design doc** — write rule into persona as hard step (see §15.3 persona edit)
+2. **Pre-Verdict scoring matrix must pre-list all tiebreaker dimensions; no retroactive "spirit"/"intent" overriding total.** If a dimension is hard to quantify (e.g. token-centralised management), at least name it and give 1–10 score; accept "weighted total may be biased" rather than "hidden tiebreaker" — this rule also into persona
 
-### 15.2 per-project retrospective log
+### 15.2 Per-project retrospective log
 
-寫入 `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/docs/retrospectives/architect.md` 最上方一筆，見檔案內容。
+Write top entry into `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/docs/retrospectives/architect.md`; see file content.
 
-### 15.3 Persona 落地
+### 15.3 Persona update
 
-本設計文件的「下次改善」第 1 點（Architect 遇 scope question 必停）將 Edit 進 `~/.claude/agents/senior-architect.md`，作為硬步驟加入新的章節「Scope Question Pause Rule」。
+§15.1 "Improvements" item 1 (Architect must pause on scope question) Edit into `~/.claude/agents/senior-architect.md` as new "Scope Question Pause Rule" section (hard step).
 
 ---
 
-## 附錄 A — 檔案異動清單（Engineer 交付）
+## Appendix A — file change list (Engineer deliverable)
 
-### 新增
+### Add
 
 - `frontend/e2e/sitewide-body-paper.spec.ts`
 - `frontend/e2e/sitewide-footer.spec.ts`
 - `frontend/e2e/sitewide-fonts.spec.ts`
 
-### 修改
+### Edit
 
-- `frontend/tailwind.config.js`（§4.2）
-- `frontend/src/index.css`（§6.2 Option A）
-- `frontend/src/components/UnifiedNavBar.tsx`（§5）
-- `frontend/src/components/home/HomeFooterBar.tsx`（響應式 padding + 可選 token class 遷移）
-- `frontend/src/pages/AboutPage.tsx`（外層 div class）
-- `frontend/src/pages/DiaryPage.tsx`（外層 div class）
-- `frontend/src/pages/BusinessLogicPage.tsx`（外層 div class + 末端 `<HomeFooterBar />`）
-- `frontend/src/pages/HomePage.tsx`（外層 div class 清理，可選）
-- `frontend/src/AppPage.tsx`（外層 div class + 末端 `<HomeFooterBar />`）
-- `frontend/src/components/home/HeroSection.tsx`（Stage 5，可選）
-- `frontend/e2e/navbar.spec.ts`（§9.5 更新 / 刪除 test groups；§9.4 新增 active-state 4 test + Prediction hidden）
+- `frontend/tailwind.config.js` (§4.2)
+- `frontend/src/index.css` (§6.2 Option A)
+- `frontend/src/components/UnifiedNavBar.tsx` (§5)
+- `frontend/src/components/home/HomeFooterBar.tsx` (responsive padding + optional token class migration)
+- `frontend/src/pages/AboutPage.tsx` (outer div class)
+- `frontend/src/pages/DiaryPage.tsx` (outer div class)
+- `frontend/src/pages/BusinessLogicPage.tsx` (outer div class + end `<HomeFooterBar />`)
+- `frontend/src/pages/HomePage.tsx` (outer div class cleanup, optional)
+- `frontend/src/AppPage.tsx` (outer div class + end `<HomeFooterBar />`)
+- `frontend/src/components/home/HeroSection.tsx` (Stage 5, optional)
+- `frontend/e2e/navbar.spec.ts` (§9.5 update / delete test groups; §9.4 add active-state 4 test + Prediction hidden)
 
-### 刪除（PM 裁決）
+### Delete (PM rules)
 
-- `frontend/src/components/NavBar.tsx`（legacy dead code，K-017 Reviewer 已識別）
-  - 若 PM 不允許擴 scope → 改登記 TD-K021-03 保留
+- `frontend/src/components/NavBar.tsx` (legacy dead code, K-017 Reviewer flagged)
+  - If PM disallows scope expansion → log TD-K021-03
 
-### 文件同步
+### Doc sync
 
-- `ClaudeCodeProject/K-Line-Prediction/agent-context/architecture.md`（§14）
-- `ClaudeCodeProject/K-Line-Prediction/docs/retrospectives/architect.md`（§15.2）
-- `~/.claude/agents/senior-architect.md`（§15.3）
+- `ClaudeCodeProject/K-Line-Prediction/agent-context/architecture.md` (§14)
+- `ClaudeCodeProject/K-Line-Prediction/docs/retrospectives/architect.md` (§15.2)
+- `~/.claude/agents/senior-architect.md` (§15.3)
 
 ---
 
-**Architect 本設計文件完成，等 PM 回覆 Q1 + Q2 + §11 Tech Debt 裁決後放行 Engineer。**
+**Architect this design doc complete; awaits PM ruling on Q1 + Q2 + §11 Tech Debt before releasing Engineer.**

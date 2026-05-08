@@ -7,18 +7,18 @@
 
 ## Overview
 
-兩個獨立但相關的功能：
+Two independent but related features:
 
-1. **Early MA99**：用戶上傳 24h 資料後，立即（不等按預測按鈕）計算 MA99 並顯示在 MainChart，期間預測按鈕 disabled
-2. **Match Trend Label**：MatchList 每個 card 的日期後方顯示該次歷史 match 的未來 MA99 走勢（漲/跌 + 百分比）
+1. **Early MA99**: After the user uploads 24h data, immediately (without waiting for the predict button) compute MA99 and show on MainChart; predict button disabled during computation.
+2. **Match Trend Label**: Each card in MatchList shows the future MA99 trend (up/down + percentage) of that historical match after the date.
 
 ---
 
-## 1. 後端：新 Endpoint
+## 1. Backend: New Endpoint
 
 ### `POST /api/merge-and-compute-ma99`
 
-**Request（新 `Ma99Request` model）：**
+**Request (new `Ma99Request` model):**
 ```json
 {
   "ohlc_data": [{ "open": 1, "high": 2, "low": 0.9, "close": 1.1, "time": "2024-01-01 08:00" }],
@@ -26,9 +26,9 @@
 }
 ```
 
-新增獨立的 `Ma99Request` model（只含 `ohlc_data` + `timeframe`），不混用 `PredictRequest`。
+Add a standalone `Ma99Request` model (only `ohlc_data` + `timeframe`); do not reuse `PredictRequest`.
 
-**Response（新 model `Ma99Response`）：**
+**Response (new `Ma99Response` model):**
 ```json
 {
   "query_ma99": [null, null, 1850.23, 1851.10],
@@ -36,32 +36,32 @@
 }
 ```
 
-**邏輯（全部複用 predictor.py 現有函式）：**
-1. `_merge_bars` 把 input bars 合進 `_history_1h`，存檔
-2. `get_prefix_bars` 取得 input 之前的歷史前置資料
-3. `_compute_ma99_for_window(input_bars, prefix_bars)` 計算 MA99
-4. `_extract_ma99_gap` 找出 null 缺口範圍
-5. 回傳結果（不做任何 K 線相似度搜尋）
+**Logic (all reuse predictor.py existing functions):**
+1. `_merge_bars` merges input bars into `_history_1h`, persists
+2. `get_prefix_bars` retrieves prefix history before input
+3. `_compute_ma99_for_window(input_bars, prefix_bars)` computes MA99
+4. `_extract_ma99_gap` finds null-gap range
+5. Return result (no K-line similarity search)
 
-**Warning 行為：** 即使 `query_ma99_gap != null`（歷史前置資料不足），仍正常回傳，不拋 error。前端顯示 warning banner。
+**Warning behavior:** Even if `query_ma99_gap != null` (insufficient prefix history), return normally without throwing error. Frontend shows warning banner.
 
 ---
 
-## 2. 前端：Early MA99 Flow
+## 2. Frontend: Early MA99 Flow
 
 ### App.tsx
 
-新增狀態：
-- `maLoading: boolean`（初始 `false`）
+New state:
+- `maLoading: boolean` (initial `false`)
 
-`handleOfficialFilesUpload` 成功設完 `ohlcData` 後，立即：
-1. 設 `maLoading = true`
-2. 清空 `queryMa99`、`queryMa99Gap`
-3. 呼叫 `POST /api/merge-and-compute-ma99`
-4. 回傳後：設 `queryMa99`、`queryMa99Gap`，設 `maLoading = false`
-5. 失敗後：設 `maLoading = false`，顯示錯誤訊息
+After `handleOfficialFilesUpload` successfully sets `ohlcData`, immediately:
+1. Set `maLoading = true`
+2. Clear `queryMa99`, `queryMa99Gap`
+3. Call `POST /api/merge-and-compute-ma99`
+4. On response: set `queryMa99`, `queryMa99Gap`; set `maLoading = false`
+5. On failure: set `maLoading = false`; show error message
 
-**`disabledReason` 擴充順序（優先序由高到低）：**
+**`disabledReason` extension order (priority high to low):**
 ```ts
 if (maLoading) return 'maLoading'
 if (!ohlcComplete) return 'ohlcIncomplete'
@@ -71,26 +71,26 @@ return null
 
 ### PredictButton.tsx
 
-新增 `'maLoading'` case，顯示文字：「MA99 計算中，請稍候…」
+Add `'maLoading'` case with text: "MA99 computing, please wait…"
 
 ### MainChart.tsx
 
-新增 `maLoading?: boolean` prop。當 `maLoading = true` 時，在 MA99 標籤旁顯示 loading 狀態文字（例如 `MA(99) 計算中…`），蓋住原本的數值顯示。
+Add `maLoading?: boolean` prop. When `maLoading = true`, show loading status text next to the MA99 label (e.g. `MA(99) computing…`), overriding the original numeric display.
 
 ---
 
-## 3. 前端：MatchList Match Trend Label
+## 3. Frontend: MatchList Match Trend Label
 
-### 計算邏輯（純前端，不動後端）
+### Computation Logic (pure frontend, no backend change)
 
-每個 `MatchCase` 已有 `futureMa99: (number | null)[]`。
+Each `MatchCase` already has `futureMa99: (number | null)[]`.
 
 ```ts
 function computeMaTrend(futureMa99: (number | null)[]): { direction: 'up' | 'down'; pct: number } | null {
   const valid = futureMa99.filter((v): v is number => v !== null)
   if (valid.length < 2) return null
 
-  // 線性迴歸取斜率
+  // Linear regression slope
   const n = valid.length
   const xs = valid.map((_, i) => i)
   const meanX = (n - 1) / 2
@@ -98,29 +98,29 @@ function computeMaTrend(futureMa99: (number | null)[]): { direction: 'up' | 'dow
   const slope = xs.reduce((sum, x, i) => sum + (x - meanX) * (valid[i] - meanY), 0) /
                 xs.reduce((sum, x) => sum + (x - meanX) ** 2, 0)
 
-  // 百分比 = 首尾變化
+  // Percentage = first-to-last change
   const pct = ((valid[valid.length - 1] - valid[0]) / valid[0]) * 100
 
   return { direction: slope >= 0 ? 'up' : 'down', pct }
 }
 ```
 
-### 顯示位置
+### Display Location
 
-MatchList 每個 card header，日期後方插入趨勢標籤：
+In each MatchList card header, insert trend label after the date:
 
 ```
 r = 0.9123  |  2024-01-15 08:00 ~ 02-20 08:00  ↑ +2.34%  ▼
 ```
 
-樣式：
-- `↑ +X.XX%`：綠色（`text-green-400`）
-- `↓ -X.XX%`：紅色（`text-red-400`）
-- 資料不足（`valid.length < 2`）：不顯示標籤
+Style:
+- `↑ +X.XX%`: green (`text-green-400`)
+- `↓ -X.XX%`: red (`text-red-400`)
+- Insufficient data (`valid.length < 2`): hide label
 
 ---
 
-## 4. API Contract（snake_case ↔ camelCase 對照）
+## 4. API Contract (snake_case ↔ camelCase mapping)
 
 | Backend (snake_case) | Frontend (camelCase) |
 |---|---|
@@ -128,26 +128,26 @@ r = 0.9123  |  2024-01-15 08:00 ~ 02-20 08:00  ↑ +2.34%  ▼
 | `query_ma99_gap.from_date` | `queryMa99Gap.fromDate` |
 | `query_ma99_gap.to_date` | `queryMa99Gap.toDate` |
 
-`/api/merge-and-compute-ma99` 的 response mapping 與現有 `/api/predict` 的 `queryMa99` / `queryMa99Gap` 欄位完全一致，可共用 `usePrediction.ts` 中的 mapping 邏輯。
+`/api/merge-and-compute-ma99`'s response mapping is identical to existing `/api/predict`'s `queryMa99` / `queryMa99Gap` fields; can share mapping logic in `usePrediction.ts`.
 
 ---
 
-## 5. 不在此次範圍內
+## 5. Out of Scope
 
-- MatchList 中 `historicalMa99` 不完整時的特殊處理（已有 MA incomplete 顯示）
-- 1D timeframe 的 Early MA99（架構相同，此次先做 1H）
-- `/api/predict` 不做任何改動
+- Special handling when `historicalMa99` in MatchList is incomplete (existing MA incomplete display already in place)
+- Early MA99 for 1D timeframe (architecture identical; this round does 1H first)
+- `/api/predict` is not modified
 
 ---
 
-## 6. 受影響檔案清單
+## 6. Affected Files
 
-| 檔案 | 改動 |
+| File | Change |
 |---|---|
-| `backend/models.py` | 新增 `Ma99Request` + `Ma99Response` model |
-| `backend/main.py` | 新增 `/api/merge-and-compute-ma99` endpoint |
-| `frontend/src/hooks/usePrediction.ts` | 新增 `computeMa99` function |
-| `frontend/src/App.tsx` | 新增 `maLoading` state、觸發 early MA99、擴充 `disabledReason` |
-| `frontend/src/components/PredictButton.tsx` | 新增 `maLoading` disabled case |
-| `frontend/src/components/MainChart.tsx` | 新增 `maLoading` prop 與 loading 顯示 |
-| `frontend/src/components/MatchList.tsx` | 新增 `computeMaTrend` 與趨勢標籤顯示 |
+| `backend/models.py` | Add `Ma99Request` + `Ma99Response` models |
+| `backend/main.py` | Add `/api/merge-and-compute-ma99` endpoint |
+| `frontend/src/hooks/usePrediction.ts` | Add `computeMa99` function |
+| `frontend/src/App.tsx` | Add `maLoading` state, trigger early MA99, extend `disabledReason` |
+| `frontend/src/components/PredictButton.tsx` | Add `maLoading` disabled case |
+| `frontend/src/components/MainChart.tsx` | Add `maLoading` prop and loading display |
+| `frontend/src/components/MatchList.tsx` | Add `computeMaTrend` and trend label display |

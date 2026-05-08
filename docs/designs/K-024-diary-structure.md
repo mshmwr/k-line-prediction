@@ -1190,7 +1190,7 @@ All ✅ — no Phase released with blanks.
   - L91 (_fixtures/diary new) ✓
   - L99 (types/diary.ts reshape) ✓
   - L162–174 (diary/ block 12 entries) ✓
-  - L175 (primitives/ diary/ 未落地 historical comment — preserved per Same-File Cross-Table rule: statement was correct at K-017 Pass 2 time)
+  - L175 (primitives/ diary/ not-landed historical comment — preserved per Same-File Cross-Table rule: statement was correct at K-017 Pass 2 time)
   - L310–314 (§Key Data Models: OLD `DiaryItem`/`DiaryMilestone` kept visible + NEW `DiaryEntry` appended with migration note) ✓
   - L631 (Changelog new entry) ✓
   - L641 (K-027 Changelog — historical, preserved)

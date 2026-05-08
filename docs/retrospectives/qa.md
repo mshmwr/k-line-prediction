@@ -427,19 +427,19 @@ Total: 26 challenges raised → 26 ruled → 0 supplemented to AC as new gaps �
 
 **Tier:** Real-QA spawn. Phase 4 sign-off after Reviewer RELEASE-OK (0/0/2 Info, PM accept-as-is). 7-check matrix + 3 adversarial probes.
 
-**做得好：**
+**What went well:**
 - Backend pytest **79/0/0** in 40.18s — exact match to Architect §6.1 (76 baseline + 3 new boundary). New `_fetch_30d_ma_series` boundary trio (128 → []/129 → 30/130 → 30), reshaped drift-guard `SACRED_FLOOR == MA_TREND_WINDOW_DAYS + MA_WINDOW == 129`, truncated-DB Sacred negative at `bars_to_keep=128`, pre-existing `_fetch_30d_ma_series_*` family all green.
 - **Sacred substring runtime byte-identity:** subprocess eval → `'ma_history requires at least 129 daily bars ending at that date.'` — single-quoted, period-terminated, K-051 user-retest SOP grep substring bit-identical (30 + 99 = 129 interpolated).
 - `tsc --noEmit` exit 0. Targeted Playwright (ma99-chart + upload-real-1h-csv) **16/16 PASS** 10.8s — 6 i18n assertion edits + line-247 description + `getByTestId('error-toast')` swap all green first run.
 - Full Playwright **299/2/1** — 1 PASS BETTER than Engineer baseline (298/3/1). The 2 fails = documented pre-existing flakes only (`ga-spa-pageview AC-020-BEACON-SPA` + `shared-components AC-034-P1 Footer snapshot on /`); about.spec.ts:26 AC-017-NAVBAR did NOT recur, confirming Reviewer's parallel-execution flake claim. Zero new failures.
 - **Probe 6a (boundary subsumption):** synthetic `_fetch_30d_ma_series` calls with n ∈ {99,100,127,128} all returned `[]`; n=129 → 30 floats. New gate genuinely subsumes OLD 99-128 range — regression coverage extension real.
 - **Probe 6b (testid uniqueness):** `data-testid="error-toast"` = 1 source hit (AppPage.tsx:350) + 1 assertion hit (upload-real-1h-csv.spec.ts:164); zero collision with StatsPanel/MatchList/ErrorBoundary/ErrorBanner red surfaces. `AC-051-09-NO-ERROR-TOAST` green via `toHaveCount(0)`.
-- **Probe 6c (CJK enumeration):** `grep -rnP '[一-鿿㐀-䶿぀-ゟ゠-ヿ　-〿＀-￯]'` ~50 hits, every one in design doc §1.3 allow-list (MainChart.tsx:33,38 zh-TW regex; UnifiedNavBar comments; diary.english.test CJK_REGEX; K-046 Sacred; 7 spec-comment files K-021/22/40 cosmetics). Zero leak in Phase 4 scope; zero full-width punctuation per B4.
+- **Probe 6c (CJK enumeration):** CJK-range grep returned ~50 hits, every one in design doc §1.3 allow-list (MainChart.tsx:33,38 zh-TW regex; UnifiedNavBar comments; diary.english.test CJK_REGEX; K-046 Sacred; 7 spec-comment files K-021/22/40 cosmetics). Zero leak in Phase 4 scope; zero full-width punctuation per B4.
 - **Architecture.md gate:** frontmatter line 5 + Changelog line 683 both carry Phase 4 narrative. Doc-sync mandate satisfied.
 
-**沒做好：** TD-K030-03 (`visual-report.ts` throw-on-missing-TICKET_ID) still pending; lazy-eval guard held this pass (no `K-UNKNOWN-*.html` pollution), but root fix overdue. Pre-existing, not Phase 4 regression.
+**What went wrong:** TD-K030-03 (`visual-report.ts` throw-on-missing-TICKET_ID) still pending; lazy-eval guard held this pass (no `K-UNKNOWN-*.html` pollution), but root fix overdue. Pre-existing, not Phase 4 regression.
 
-**下次改善：** when Reviewer Info findings flag AC-text-vs-spec mismatch (F-N1: AC-051-11 says "both visible-true AND visible-false" but spec has only visible-false), QA should grep/Read verify at runtime + report `Info confirmed: <details>` in entry. Practiced this pass. Codify into `~/.claude/agents/qa.md` Mandatory Steps if K-052 surfaces second case (memory candidate `feedback_qa_verify_reviewer_info_findings.md`, low priority).
+**Next time improvement:** when Reviewer Info findings flag AC-text-vs-spec mismatch (F-N1: AC-051-11 says "both visible-true AND visible-false" but spec has only visible-false), QA should grep/Read verify at runtime + report `Info confirmed: <details>` in entry. Practiced this pass. Codify into `~/.claude/agents/qa.md` Mandatory Steps if K-052 surfaces second case (memory candidate `feedback_qa_verify_reviewer_info_findings.md`, low priority).
 
 **Verdict: RELEASE-OK** — 7 checks PASS, 3 probes negative, full Playwright 1 PASS better than baseline. PM cleared to ship K-051 Phase 4.
 
@@ -480,19 +480,19 @@ Total: 26 challenges raised → 26 ruled → 0 supplemented to AC as new gaps �
 **AC-051-12 (UI Chinese → English):**
 
 9. **Six string sites confirmed correct in AC; one MISSED string** at `BusinessLogicPage.tsx:106` is mentioned, but Chinese also appears at:
-   - `frontend/src/AppPage.tsx:399` — `(最新：${historyInfo['1H'].latest ?? 'N/A'} UTC+0)` ← AC mentions line 399 ✓
-   - `frontend/src/AppPage.tsx:363` — `Upload 1H CSV（可多選）` ← AC mentions line 363 ✓
-   - `frontend/src/AppPage.tsx:379` — `多檔合併 · 每檔 24 × 1H bars · UTC+0` ← AC mentions line 379 ✓
-   - `frontend/src/components/MainChart.tsx:264` — `'MA(99) 計算中…'` ← AC mentions line 264 ✓
-   - `frontend/src/components/MainChart.tsx:270` — `⚠ MA99 資料缺失：{...} ~ {...}（歷史前置資料不足 99 根）` ← AC mentions line 270 ✓ but **note** the surrounding template-literal punctuation `：` and `（…）` are full-width CJK chars; replacement must use ASCII `:` and `(…)` to truly be English (writing "MA99 missing：..." would still leave a CJK colon in DOM).
-   - `frontend/src/components/PredictButton.tsx:16` — `'MA99 計算中，請稍候…'` ← AC mentions line 16 ✓
-   - `frontend/src/pages/BusinessLogicPage.tsx:106` — `<LoadingSpinner label="載入內容中…" />` ← AC mentions line 106 ✓
+   - `frontend/src/AppPage.tsx:399` — Chinese "latest" prefix template literal ← AC mentions line 399 ✓
+   - `frontend/src/AppPage.tsx:363` — Chinese "Upload 1H CSV (multi-select)" label ← AC mentions line 363 ✓
+   - `frontend/src/AppPage.tsx:379` — Chinese "merge multiple files · 24 × 1H bars per file · UTC+0" label ← AC mentions line 379 ✓
+   - `frontend/src/components/MainChart.tsx:264` — Chinese "MA(99) computing..." label ← AC mentions line 264 ✓
+   - `frontend/src/components/MainChart.tsx:270` — Chinese "MA99 data missing: ... (insufficient prefix history; needs 99 bars)" template literal ← AC mentions line 270 ✓ but **note** the surrounding template-literal punctuation (full-width colon and parens) are full-width CJK chars; replacement must use ASCII `:` and `(...)` to truly be English (a half-translated string with a full-width colon would still leave a CJK char in DOM).
+   - `frontend/src/components/PredictButton.tsx:16` — Chinese "MA99 computing, please wait..." label ← AC mentions line 16 ✓
+   - `frontend/src/pages/BusinessLogicPage.tsx:106` — `<LoadingSpinner label="<Chinese loading...>" />` ← AC mentions line 106 ✓
 
-   **All seven sites covered.** No site missed in the AC — verified by grepping `[一-龥]` across `frontend/src/`.
+   **All seven sites covered.** No site missed in the AC — verified by CJK-range grep across `frontend/src/`.
 
-10. **Code-internal Chinese explicitly out-of-scope per AC text** — confirmed: `MainChart.tsx:33-42` (regex parsing zh-TW timestamps `上午|下午`) is functional and stays; `UnifiedNavBar.tsx:7-20` JS comments stay; `__tests__/diary.english.test.ts:9-16` CJK regex stays. **PM/Architect should verify** the i18n PR description explicitly calls out these intentional exclusions to head off Reviewer false-positive comments.
+10. **Code-internal Chinese explicitly out-of-scope per AC text** — confirmed: `MainChart.tsx:33-42` (regex parsing zh-TW AM/PM timestamps) is functional and stays; `UnifiedNavBar.tsx:7-20` JS comments stay; `__tests__/diary.english.test.ts:9-16` CJK regex stays. **PM/Architect should verify** the i18n PR description explicitly calls out these intentional exclusions to head off Reviewer false-positive comments.
 
-11. **Three E2E spec assertion sites at `ma99-chart.spec.ts` cited (188, 194, 238, 247, 268, 274) — that's six sites, not three. AC text matches the actual 6 sites (188, 194, 238, 247, 268, 274). Test name on line 247 includes Chinese in the `test(...)` description string itself: `test('MainChart shows MA99 計算中 label while loading, then value after load', ...)` — Engineer must update the test NAME too, not just the assertion. Otherwise Playwright HTML report will show mixed-language test names. **AC clarification needed:** does AC-051-12 require updating test descriptions, or only assertions? PM ruling.
+11. **Three E2E spec assertion sites at `ma99-chart.spec.ts` cited (188, 194, 238, 247, 268, 274) — that's six sites, not three. AC text matches the actual 6 sites (188, 194, 238, 247, 268, 274). Test name on line 247 includes Chinese in the `test(...)` description string itself (the test description embeds the Chinese "MA99 computing" label literally) — Engineer must update the test NAME too, not just the assertion. Otherwise Playwright HTML report will show mixed-language test names. **AC clarification needed:** does AC-051-12 require updating test descriptions, or only assertions? PM ruling.
 
 12. **diary.json content at `frontend/public/diary.json:6`** quotes the Sacred error string `'ma_history requires at least 129 daily bars'` in user-facing diary text. This is the AC-051-10 message AFTER alignment, so **no change needed** — but Engineer must verify the diary.json string still matches `predictor.py:335` post-edit byte-for-byte. If Engineer accidentally rewords (e.g. lowercase, extra punctuation), the diary entry becomes incorrect.
 
@@ -521,8 +521,8 @@ Total: 26 challenges raised → 26 ruled → 0 supplemented to AC as new gaps �
 
 - **B1 (AC-051-10):** add explicit AC clause "Engineer adds boundary unit tests at `test_predictor.py`: `test_fetch_30d_ma_series_at_floor_returns_30_points` (129 bars → 30 floats) + `test_fetch_30d_ma_series_below_floor_returns_empty` (128 bars → `[]`)". Without these, gate change has no unit-level proof at the exact threshold the AC mandates.
 - **B2 (AC-051-10):** add explicit AC clause "Engineer deletes the empirical-floor explanatory paragraph at `test_predict_real_csv_integration.py:33-43` and rewrites the SACRED_FLOOR comment to reference the post-fix `MA_TREND_WINDOW_DAYS + MA_WINDOW` sum". The current comment block becomes a misleading stale artifact.
-- **B3 (AC-051-12):** add explicit AC clause "test description names containing Chinese (e.g. `ma99-chart.spec.ts:247` `'MainChart shows MA99 計算中 label...'`) are also updated to English". Otherwise Playwright HTML report shows mixed-language names — visible inconsistency.
-- **B4 (AC-051-12):** add explicit AC clause "full-width CJK punctuation `（）：…，` adjacent to translated strings (e.g. `MainChart.tsx:270` `MA99 資料缺失：` and `（歷史前置資料不足 99 根）`) is replaced by ASCII `():,...`, not just the Chinese characters between them". Half-translated strings would still fail a `[一-龥]` post-grep.
+- **B3 (AC-051-12):** add explicit AC clause "test description names containing Chinese (e.g. `ma99-chart.spec.ts:247` 'MainChart shows MA99 [Chinese-computing] label ...') are also updated to English". Otherwise Playwright HTML report shows mixed-language names — visible inconsistency.
+- **B4 (AC-051-12):** add explicit AC clause "full-width CJK punctuation (parens, colon, ellipsis, comma) adjacent to translated strings (e.g. `MainChart.tsx:270` Chinese 'MA99 missing data:' prefix and Chinese parenthetical) is replaced by ASCII `():,...`, not just the Chinese characters between them". Half-translated strings would still fail a CJK-range post-grep.
 
 **Non-blocking notes (Engineer free to take, Reviewer free to require):**
 - N1: AC-051-11 could add `toContainText('✗')` to anchor the cross glyph alongside `getByTestId`.
@@ -535,7 +535,7 @@ Total: 26 challenges raised → 26 ruled → 0 supplemented to AC as new gaps �
 
 **Tier:** Real-QA spawn (post-implementation regression). Phase 3b/3c sign-off pass after Code Reviewer RELEASE-OK (0 Critical / 4 Warning / 5 Nit). Independently re-ran full backend pytest + frontend tsc + full Playwright + targeted K-051 spec; verified DB freshness anchor + Sacred substring drift-guard + fixture strict-gate via three adversarial probes.
 
-**做得好：**
+**What went well:**
 - Backend pytest 76/76 PASS; matches Engineer's reported baseline exactly. New tests `test_history_db_contiguity.py` (3) + `test_predict_real_csv_integration.py` (3) all green; freshness floor test passing on TODAY=2026-04-26 vs last_row.date=2026-04-25 (days_behind=1, well within 7-day SLA).
 - Frontend Playwright 299/2/1 (pass/fail/skip) — exactly matches Engineer's baseline. Both failures (`ga-spa-pageview AC-020-BEACON-SPA`, `shared-components AC-034-P1 Footer snapshot on /`) are pre-existing flakes documented in CLAUDE.md; orthogonal to K-051 scope. No new failures introduced.
 - Targeted spec `upload-real-1h-csv.spec.ts` 3/3 PASS in 2.6s. AC-051-09 toast bar negative assertion uses 3-class chain `.text-red-400.border-red-700.bg-red-950` with `toHaveCount(0)` (PM-accepted deviation per TD-K051-DATA-TESTID).
@@ -544,10 +544,10 @@ Total: 26 challenges raised → 26 ruled → 0 supplemented to AC as new gaps �
 - Adversarial probe 1 (DB drift mock): test uses `date.today()` directly (not parameterized clock). Mocking to 2026-05-04 (8 days past last_row=2026-04-25) → `(today - last) = 9 days > FRESHNESS_FLOOR_DAYS = 7` → assertion fires with explicit message including `last_row.date` and `days_behind`. Test would catch SLA breach. Caveat: K-048 auto-scraper SLA delay >7 days = legitimate failure, not test bug — desired behavior.
 - DB tail count `wc -l` = 3176 (Engineer's reported), max date = 2026-04-25 (after sort), strictly-monotonic + gap==1 contiguity holds end-to-end.
 
-**沒做好：**
+**What went wrong:**
 - `K-UNKNOWN-visual-report.html` was generated during full Playwright suite (visual-report.ts spec runs unconditionally without TICKET_ID env var); pollution required manual cleanup. K-051 ticket has `visual-delta: none` — visual-report should not have been written for this ticket. TD-K030-03 hardening (throw on missing TICKET_ID in `visual-report.ts`) still pending. Persona post-step verification (step 2a) was followed — pollution detected and cleaned before sign-off — so the gate worked, but the underlying root-cause fix is overdue.
 
-**下次改善：**
+**Next time improvement:**
 - Continue post-step `ls K-UNKNOWN-*.html 2>/dev/null` verification per persona step 2a; do not skip because "ticket is visual-delta: none".
 - For tickets with `visual-delta: none`, persona could grow an explicit pre-suite skip flag to prevent visual-report.ts from running at all. File as TD enhancement on top of TD-K030-03.
 
@@ -749,39 +749,39 @@ Phase 2 scope = CORS env var update (no image rebuild) + static CSV asset swap (
 **Tier:** real qa (visual/layout per `feedback_qa_early_proxy_tier.md`)
 **Verdict:** CHANGE-REQUESTED (5 blocker-class gaps, 7 edge cases raised, 6 new AC proposed, 2 REGRESSION additions)
 
-**做得好：**
-- 抓出 ticket Solution spec vs PM 對話 context 的色值矛盾（ticket: `#22C55E`/`#EF4444` 透明底無外框 vs 對話: `#EC4899`/`#10B981` 黑底圓角 20%）— 若未釐清 Designer Phase 1 會做錯方向，產出要重工；以 ticket 正文為 SSOT 並在 Findings 要求 PM 明確裁決。
-- 發現 AC-047-16PX-LEGIBILITY 驗證條件「人眼目視兩根 bar 分離」無硬數字 — 主觀判斷無法進 sign-off gate；提議 gap≥1px + 對比度 ≥ 4.5:1 (WCAG AA) 量化。
-- 抓出 `theme_color: "#F4EFE5"` 米黃底背景 context — Solution spec 要求透明底純色塊，在淺色分頁上紅(`#EF4444` vs `#F4EFE5`)/綠(`#22C55E` vs `#F4EFE5`) 邊緣對比可能不足；目前無 AC 覆蓋淺色分頁情境。
-- 提醒 AC-047-WIRE-UNCHANGED 的 `wc -l == 6` 已驗過現況 index.html 正好 6 行（grep 結果：4 icon links + 1 apple-touch + 1 manifest），但沒有人在寫 AC 時驗證 baseline — 硬編 6 沒 raw-count sanity 呼應 K-025 feedback。
+**What went well:**
+- Caught colour-value contradiction between ticket Solution spec and PM conversation context (ticket: `#22C55E` / `#EF4444` transparent background, no outline vs conversation: `#EC4899` / `#10B981` black background, rounded 20%) — if left unresolved, Designer Phase 1 would head the wrong direction and have to redo work; treated the ticket body as SSOT and required explicit PM ruling in Findings.
+- Found AC-047-16PX-LEGIBILITY's verification condition "two bars are visually separable to the human eye" had no hard number — subjective judgement cannot enter the sign-off gate; proposed quantification at gap ≥ 1px + contrast ≥ 4.5:1 (WCAG AA).
+- Caught `theme_color: "#F4EFE5"` (light beige background) context — Solution spec requires transparent-bg solid colour blocks, but on a light page red (`#EF4444` vs `#F4EFE5`) / green (`#22C55E` vs `#F4EFE5`) edge contrast may be insufficient; no current AC covers the light-page scenario.
+- Flagged AC-047-WIRE-UNCHANGED's `wc -l == 6`: did verify current index.html actually has exactly 6 lines (grep: 4 icon links + 1 apple-touch + 1 manifest), but nobody verified the baseline at AC-authoring time — hard-coded 6 lacks raw-count sanity, echoing K-025 feedback.
 
-**沒做好：**
-- （這是 Early Consultation，Final QA 尚未執行，故無 final-stage 事後 gap。）
+**What went wrong:**
+- (This is Early Consultation; Final QA has not yet run, so there is no final-stage post-hoc gap.)
 
-**下次改善：**
-- 針對「favicon/icon 類小尺寸 raster 資產」類 ticket，未來 Early Consultation 預設包含：(1) 硬數字 legibility 門檻（gap px、對比度 WCAG ratio）；(2) 全 browser matrix × 淺/深色主題；(3) Retina @2x 驗證；(4) 每個 raster 檔 sha256 對 HEAD diff 證明已 regen。把本次 checklist 轉為 `feedback_qa_favicon_raster_early_consultation_template.md`（K-048 後複用，省重推）。
+**Next time improvement:**
+- For "favicon/icon-class small-raster-asset" tickets, Early Consultation should default-include: (1) hard-number legibility thresholds (gap px, WCAG contrast ratio); (2) full browser matrix × light/dark theme; (3) Retina @2x verification; (4) sha256 diff per raster file against HEAD to prove regeneration. Convert this checklist into `feedback_qa_favicon_raster_early_consultation_template.md` (reusable after K-048, saves re-derivation).
 
 
 ## 2026-04-24 — K-045 Early Consultation (desktop layout consistency /about vs / vs /diary)
 
-**做得好：**
-- 針對 PM 初稿 §4 seed 邊界（640px、1248 hero、SectionLabelRow 位置、FileNoBar、grid flip）逐條展開成 10 個具體 Challenge；每個 Challenge 附建議 AC 草稿 + 驗證路徑 + Sacred cross-check 結果。
-- 主動抓出兩個 scope gap：(a) C-2 section-to-section vertical gap 不在 §2 scope（SectionContainer `py-16` 會貢獻 inter-section rhythm，只改 width 不改 py 會視覺仍不一致），(b) C-6 K-031 adjacency Sacred（`about-architecture-sibling.spec.ts` 硬斷 `#architecture.nextElementSibling === <footer>`）會被 body-wrapper pattern 破壞。兩者若到 Engineer 階段才發現會退回 Architect。
-- 發現 C-3 BQ-045-03：Pencil wwa0m 無 maxWidth constraint，K-022 legacy narrow=768 無 Sacred 鎖，建議依 Pencil SSOT 選 1248 — 把需要 PM ruling 的設計決策明確標出。
+**What went well:**
+- Expanded PM draft §4 seed boundaries (640px, 1248 hero, SectionLabelRow position, FileNoBar, grid flip) into 10 concrete Challenges; each Challenge attached with proposed AC draft + verification path + Sacred cross-check result.
+- Proactively surfaced two scope gaps: (a) C-2 section-to-section vertical gap is out of §2 scope (SectionContainer `py-16` contributes to inter-section rhythm; changing width without py change leaves visual inconsistency); (b) C-6 K-031 adjacency Sacred (`about-architecture-sibling.spec.ts` hard-asserts `#architecture.nextElementSibling === <footer>`) would be broken by the body-wrapper pattern. Both would force a return-to-Architect if discovered only at Engineer stage.
+- Discovered C-3 BQ-045-03: Pencil wwa0m has no maxWidth constraint; K-022 legacy narrow=768 has no Sacred lock; recommended choosing 1248 per Pencil SSOT — explicitly marking the design decisions that need PM ruling.
 
-**沒做好：**
-- Challenge 編號使用 C-N 而非 QA-045-CN，與 PM AC ID 前綴不一致（AC-045-XXX）；混用可能造成 Engineer 引用混淆。
-- C-9/C-10 標 N/A 後仍留在列表，沒有直接刪除 — PM 讀時需多 parse 兩條才知道不需 ruling。
+**What went wrong:**
+- Challenge numbering used C-N instead of QA-045-CN, mismatched with the PM AC ID prefix (AC-045-XXX); the mixed scheme risks Engineer citation confusion.
+- C-9/C-10 marked N/A but still left in the list — PM had to parse two extra rows to discover they need no ruling.
 
-**下次改善：**
-- Challenge ID 統一前綴 `QA-<ticket>-CN` 格式；N/A 條目合併成一行單獨段落列出（「Out-of-concern items: C-9, C-10」）避免 PM 誤判需 ruling。
+**Next time improvement:**
+- Standardise Challenge ID prefix as `QA-<ticket>-CN` format; collapse N/A items into a single dedicated paragraph line ("Out-of-concern items: C-9, C-10") to avoid PM mis-interpreting them as requiring ruling.
 
-- 與單票 `docs/tickets/K-XXX.md` 的 `## Retrospective` 段落 QA 反省並存，不互相取代
-- 啟用日：2026-04-18（K-008 起）
+- Coexists with the QA retrospective section in each ticket (`docs/tickets/K-XXX.md` `## Retrospective`); not a replacement.
+- Enabled: 2026-04-18 (from K-008).
 
 ---
 
-<!-- 新條目從此處往上 append -->
+<!-- New entries are appended above this line -->
 ## 2026-04-24 — K-045 Full Regression (QA sign-off)
 
 **What went well:**
@@ -801,7 +801,7 @@ Phase 2 scope = CORS env var update (no image rebuild) + static CSV asset swap (
 
 ## 2026-04-24 — K-041 QA Early Consultation (PM proxy tier — @qa-proxy)
 
-**Role:** PM proxy (not spawned QA agent). Invoked under user-approved `b + 不 deploy + 開工` directive (2026-04-24). Tier rationale: narrow scope (4 source files + 1 spec flip), Sacred invariants pre-locked in ticket table, no new runtime/schema introduced — layout class present but restoration-only (Homepage behavior already in production). FAIL-ONCE rule: any adversarial question below surfacing uncodified behavior or missing assertion forces escalation to real QA spawn.
+**Role:** PM proxy (not spawned QA agent). Invoked under user-approved "B + skip deploy + start work" directive (2026-04-24). Tier rationale: narrow scope (4 source files + 1 spec flip), Sacred invariants pre-locked in ticket table, no new runtime/schema introduced — layout class present but restoration-only (Homepage behavior already in production). FAIL-ONCE rule: any adversarial question below surfacing uncodified behavior or missing assertion forces escalation to real QA spawn.
 
 **Adversarial questions (5):**
 
@@ -895,7 +895,7 @@ Besides T-C6 (`diary-page.spec.ts:572`), any other spec asserting `/diary` mobil
 
 ### QA Challenge #4 — Boundary: role-specific characters (CJK, pipe, asterisk) break Markdown table rendering
 
-**Issue:** Current TSX `ROLES[3].artefact = "Review report + Reviewer 反省"` contains CJK characters. Markdown handles CJK fine, but if a future `owns` or `artefact` contains `|` (table-column delimiter), `*` (emphasis), backticks (inline code), or a newline, the generator must escape or reject. Plan §Format constraints says `owns ≤6 words, comma-separated` — but doesn't forbid special chars.
+**Issue:** Current TSX `ROLES[3].artefact` reads "Review report + Reviewer retrospective" (with the latter token in CJK characters at the time). Markdown handles CJK fine, but if a future `owns` or `artefact` contains `|` (table-column delimiter), `*` (emphasis), backticks (inline code), or a newline, the generator must escape or reject. Plan §Format constraints says `owns ≤6 words, comma-separated` — but doesn't forbid special chars.
 
 **Risk:** PM approves a phrase like `"code review | breadth + depth"` (pipe-separated); generator naïvely emits `| Reviewer | code review | breadth + depth | ... |` — 6-column row, breaks table rendering. README portfolio surface gets visual regression.
 
@@ -944,7 +944,7 @@ Besides T-C6 (`diary-page.spec.ts:572`), any other spec asserting `/diary` mobil
 
 ### QA Challenge #7 — AC-039-P3-SACRED-SPLIT — retirement scope granularity
 
-**Issue:** AC says "retire `content` portion of K-034 AC-034-P2-DRIFT-D5/D6/D7/D8/D26". But reading D-5 / D-6 / D-7 / D-8 / D-26 verbatim: D-5 mandates Reviewer `redactArtefact: false` AND "ARTEFACT text `"Review report + Reviewer 反省"` renders as plain" (content portion) AND "no RedactionBar, no sr-only" (visual portion). D-6 mandates role name font-size = 36/32 based on `role.length <= 2` (computed from content — blend of content + visual). D-26 mandates section subtitle verbatim from Pencil `s3Intro` (pure content).
+**Issue:** AC says "retire `content` portion of K-034 AC-034-P2-DRIFT-D5/D6/D7/D8/D26". But reading D-5 / D-6 / D-7 / D-8 / D-26 verbatim: D-5 mandates Reviewer `redactArtefact: false` AND "ARTEFACT text 'Review report + Reviewer retrospective' (with the latter token in CJK at the time) renders as plain" (content portion) AND "no RedactionBar, no sr-only" (visual portion). D-6 mandates role name font-size = 36/32 based on `role.length <= 2` (computed from content — blend of content + visual). D-26 mandates section subtitle verbatim from Pencil `s3Intro` (pure content).
 
 Scope of "content portion" is not 100% clean across these 5 ACs. Blanket retirement risks retiring a D-6 clause that actually depends on content-length even when content itself is TSX-SSOT.
 
@@ -1151,17 +1151,17 @@ Scope of "content portion" is not 100% clean across these 5 ACs. Blanket retirem
 
 ## 2026-04-23 — K-034 Phase 2 sign-off regression (Engineer fix-forward complete)
 
-**做得好：**
+**What went well:**
 - Full Playwright regression 251 passed / 1 failed / 1 skipped — single failure is the pre-existing K-032 GA gap `ga-spa-pageview.spec.ts:142` (AC-020-BEACON-SPA), matching Engineer's fix-forward expectation exactly; zero new regressions introduced by Phase 2 (19 AC).
 - tsc `--noEmit` exit 0; visual report regenerated with `TICKET_ID=K-034` to `docs/reports/K-034-visual-report.html` (all 4 marketing routes captured green); Sacred cross-check clean — `grep -rE "DossierHeader|dossier-header|data-annotation|ROLE_ANNOTATIONS"` against `frontend/src/` + `frontend/e2e/` returns zero live dependencies on the 4 retired K-022 Sacred clauses (only historical retirement comments remain).
 - Cross-route shared-component parity gate (`shared-components.spec.ts`) T1 byte-identity + T2 Pencil-canonical content + T3 no /about CTA + T4 /diary footer absence all pass — Phase 2 did not disturb Phase 1 Footer invariants.
 - Pencil parity spot-check on FileNoBar vs `BF4Xe m*Top/m*Lbl` + `8mqwX r*Top` + `UXy2o p*Top` + `EBC1e t*Top` + `JFizO arch*Top`: `padding [6,10] → px-[10px] py-[6px]`, `fill #2A2520 → bg-charcoal`, `Geist Mono 10 paper letterSpacing 2 → font-mono text-[10px] text-paper tracking-[2px]`, `label?` optional matching MetricCard bare `FILE Nº 0N` — all match, zero drift in 5 FileNoBar consumers.
 
-**沒做好：**
+**What went wrong:**
 - **New QA Flag (Minor, not a blocker)** — `MetricCard` m1Note + m4Note typography drift vs Pencil `BF4Xe.m1Note`/`m4Note`: Pencil specifies `fontSize: 13, fill: #1A1814 (ink)` (distinct from m2Note/m3Note which ARE `11px muted`), but code `MetricCard.tsx:56` renders ALL notes uniformly as `text-[11px] text-muted`. Reviewer §4.8 gate missed this because §5 drift row D-2 lumped all notes as "Newsreader 11 italic note" (design-doc level drift vs Pencil JSON) and no E2E `getComputedStyle` assertion exists on `17 tickets, K-001 → K-017` or `Bug Found Protocol, per-role retro logs, audit script` fontSize/color (only `toBeVisible` text-content gates). Recommend Engineer open TD-K034-P2-18 "MetricCard m1/m4 note: restore Pencil `fontSize: 13` + `fill: ink` (distinguish high-signal notes from low-signal muted classification lines)"; NOT a Phase 2 close blocker — pre-existing design-doc-vs-Pencil drift class, content verbatim, visually minor, caught at QA parity spot-check (which is what the gate is for).
 - AC-coverage audit: 16 / 19 Phase 2 new AC have direct E2E assertion coverage; 3 AC (AC-034-P2-AUDIT-DUMP revised, AC-034-P2-DRIFT-LIST revised, AC-034-P2-DESIGNER-ATOMICITY, AC-034-P2-SNAPSHOT-POLICY, AC-034-P2-SACRED-RETIRE, AC-034-P2-DEPLOY) are documentation/infra/deploy gates — not E2E-assertable by design; verified via filesystem + ticket content. AC-034-P2-DRIFT-D19-D21-HERO-REWRITE has `Bodoni Moda` + `text-brick` assertions in `about-v2.spec.ts:66-91` but no explicit `64px`/`left-align`/`fill_container divider` computed-style assertion — covered indirectly via `AC-022-HERO-TWO-LINE` snapshot baseline + font family check; tight enough for sign-off but TD-eligible for future hardening.
 
-**下次改善：**
+**Next time improvement:**
 - Add a Pencil-font-size parity sweep to QA sign-off checklist: for each `FileNoBar` / `MetricCard` / `RoleCard` / `PillarCard` / `TicketAnatomyCard` / `ArchPillarBlock` body text node, grep Pencil JSON `fontSize` + `fill` values, enumerate per-card (not per-card-type), and compare against code `text-[Npx]` / `text-ink|muted|brick|charcoal` — catches m1Note-class drifts that Reviewer's §5-table-scoped gate misses. Codify as new `qa.md` §Mandatory Task Completion step 0d "Pencil text-node typography sweep" so future `.pen`-backed UI tickets enumerate per-node typography, not per-component-class.
 
 ## 2026-04-23 — K-034 Phase 2 Early Consultation (/about visual audit)
@@ -1298,174 +1298,174 @@ Cross-ref: `docs/tickets/K-034-about-spec-audit-and-workflow-codification.md` §
 
 **Ticket (historical as-filed):** `docs/tickets/K-038-diary-shared-footer-adoption.md` — /diary adopts shared Footer; retire K-017 + K-024 + K-034 P1 half Sacred; /app (K-030) preserved. **Note:** file never landed on disk; content preserved below as historical Challenge record. Ongoing ticket tracking is now K-034 Phase 3.
 
-**Scope reviewed：** ticket AC-038-P0-* + AC-038-P1-* (10 AC total); Sacred retirement table (§3 BQ-038-03); affected spec files `shared-components.spec.ts` T1/T2/T4 + `pages.spec.ts` L152–164 + `sitewide-footer.spec.ts` L3–20 header comment + `sitewide-fonts.spec.ts` L9 comment; DiaryPage.tsx current structure (3 terminal states + loading); shared Footer component (`components/shared/Footer.tsx` prop-less); K-030 `/app` isolation preserved.
+**Scope reviewed:** ticket AC-038-P0-* + AC-038-P1-* (10 AC total); Sacred retirement table (§3 BQ-038-03); affected spec files `shared-components.spec.ts` T1/T2/T4 + `pages.spec.ts` L152–164 + `sitewide-footer.spec.ts` L3–20 header comment + `sitewide-fonts.spec.ts` L9 comment; DiaryPage.tsx current structure (3 terminal states + loading); shared Footer component (`components/shared/Footer.tsx` prop-less); K-030 `/app` isolation preserved.
 
-**Grep audit cross-reference：**
+**Grep audit cross-reference:**
 - `grep -rn "/diary" frontend/e2e/ | grep -iE "footer"` → 3 hits: `shared-components.spec.ts:99–100` (T4), `pages.spec.ts:152/158` (AC-017-FOOTER no-footer block). No hidden third spec.
 - `grep -rn "footer" frontend/e2e/ | grep -i diary` → same 3 hits + `visual-report.ts:38` (visual report route list, benign — will auto-pick up Footer render after Phase 1).
-- `grep -n "diary\|Footer" sitewide-fonts.spec.ts` → 零 `/diary`-specific 斷言（既有 shared Footer fontFamily 斷言只跑 `/`，不需要改）。
-- `sitewide-footer.spec.ts` 頂端 L7 註解 `Given: user visits /, /business-logic` — /about 已因 K-035 退役 Sacred 納入共用 Footer；此 spec 的兩個 `test()` 只跑 `/` 與 `/business-logic`，/diary 不在其覆蓋面。Phase 1 若決定納入必須顯式討論（Challenge #6 涵蓋）。
+- `grep -n "diary\|Footer" sitewide-fonts.spec.ts` → zero `/diary`-specific assertions (existing shared Footer fontFamily assertion only runs on `/`; no change needed).
+- `sitewide-footer.spec.ts` top-of-file L7 comment `Given: user visits /, /business-logic` — `/about` was absorbed into shared Footer once K-035 retired its Sacred; this spec's two `test()` invocations only run on `/` and `/business-logic`, `/diary` is outside coverage. If Phase 1 decides to include it, an explicit discussion is required (covered by Challenge #6).
 
-**QA Challenge 清單（9 條）：**
-
----
-
-### QA Challenge #1 — AC-038-P1-DIARY-FOOTER-LOADING-ABSENT：loading state Footer 行為交給 Engineer「自己決定」= untestable
-
-**AC 原文：** "Engineer self-decides — not a product decision; Playwright asserts whichever the implementation chooses"
-
-**Issue：** 這不是 AC，這是開罰單時才補規範的 post-hoc rationalization。"any of two branches OK" 使 Playwright 無法在 fail-if-gate-removed dry-run 中偵測 regression — 若未來 Engineer 刪掉 loading-branch Footer 渲染（或反向），沒有任何 spec 會 FAIL。loading state 可能停留 >1s（`useDiary` 串 fetch `/diary.json`，慢網路 3G 實測 2–4s），非 transient，User 看得到。
-
-**需補充（PM 裁決二選一）：**
-- Option A — **loading 時渲染 Footer**：AC 改寫為 `locator('footer').count() === 1 during loading`；Playwright 用 `page.route('**/diary.json', ...)` 人為延遲 2s 斷言 loading skeleton + Footer 同時在 DOM。與 `/business-logic` PasswordForm 預登入 state（Footer 有渲染）一致。**推薦**：此選項與其他 consumer route 行為一致，實作最簡單（`<Footer />` 放 `<main>` 同層就自動覆蓋所有 state）。
-- Option B — **loading 時不渲染 Footer**：AC 改寫為 `locator('footer').count() === 0 during loading, count === 1 after loading done`；Engineer 需 conditional render `{!loading && <Footer />}`。測試需延遲 fixture + 雙重斷言。
-
-**若不補充：** AC-038-P1-DIARY-FOOTER-LOADING-ABSENT sign-off 時 QA mark FAIL（原因：AC 無 falsifiable predicate）。
+**QA Challenge list (9 items):**
 
 ---
 
-### QA Challenge #2 — AC-038-P1-BYTE-IDENTITY-4-ROUTES 缺 mobile viewport 斷言
+### QA Challenge #1 — AC-038-P1-DIARY-FOOTER-LOADING-ABSENT: loading-state Footer behaviour delegated to Engineer "self-decision" = untestable
 
-**AC 原文：** T1 byte-identity matrix + viewport hardcoded `width: 1280, height: 800`（desktop only，繼承自 K-034 Phase 1）
+**AC verbatim:** "Engineer self-decides — not a product decision; Playwright asserts whichever the implementation chooses"
 
-**Issue：** DiaryPage `<main>` 用 `px-6 sm:px-24`（mobile 24px / desktop 96px）而 Footer 用 `px-6 md:px-[72px]`（mobile 24px / desktop 72px ≥ 768px）。兩者 horizontal padding 在 **640px–768px 區間**（Tailwind `sm` 斷點 640px vs `md` 斷點 768px）會發生 main 已經切到 desktop 但 Footer 還是 mobile 的 **viewport-padding seam**。K-034 Phase 1 shared-components-inventory.md §INHERITED exemption 允許 Footer padding 因祖先差異視覺表現不同，但此 seam 在 `/diary` 是新情境 — `/`、`/about`、`/business-logic` 祖先都沒有 `sm:px-24` 同時存在。
+**Issue:** This is not an AC; it is a post-hoc rationalisation invoked when the ticket is written. "Any of two branches OK" makes Playwright unable to detect regression in a fail-if-gate-removed dry-run — if a future Engineer deletes (or reverses) the loading-branch Footer render, no spec will FAIL. The loading state may sit >1s (`useDiary` chains a fetch on `/diary.json`; on slow 3G measured at 2–4s); this is not transient — the user can see it.
 
-**需補充（PM 裁決二選一）：**
-- Option A — **byte-identity 僅 desktop，視覺 seam 列 Known Gap**：保留 T1 只跑 1280×800，PM 顯式裁決 "640–768px seam 不測，因為 K-034 §INHERITED 已允許 padding variance"。**推薦**：最低成本，與既有 Sacred 一致。但 QA 要求 `design-exemptions.md §INHERITED` 追加一行明列 /diary 情境。
-- Option B — **T1 跑三 viewport（360 / 768 / 1280）**：成本上升，但覆蓋 seam 真實渲染。若選 B，`footer-diary-chromium-darwin.png` snapshot baseline 從 1 個變成 3 個。
+**Required addition (PM picks one):**
+- Option A — **render Footer during loading**: AC rewritten as `locator('footer').count() === 1 during loading`; Playwright uses `page.route('**/diary.json', ...)` with a 2s artificial delay to assert loading skeleton + Footer co-exist in DOM. Consistent with `/business-logic` PasswordForm pre-login state (Footer renders). **Recommended**: behaviour-consistent with other consumer routes; simplest implementation (`<Footer />` placed at the same level as `<main>` automatically covers all states).
+- Option B — **do NOT render Footer during loading**: AC rewritten as `locator('footer').count() === 0 during loading, count === 1 after loading done`; Engineer needs conditional render `{!loading && <Footer />}`. Test needs delay fixture + dual assertion.
 
-**若不補充：** 640px–768px 區間若存在視覺 regression，Phase 1 sign-off 時 QA 無 spec 可依；走 Known Gap 路徑 (PM 表態 "不測") 才算覆蓋。
-
----
-
-### QA Challenge #3 — AC-038-P1-DIARY-FOOTER-EMPTY-STATE / ERROR-STATE 缺 fixture 註冊機制
-
-**AC 原文：** "Given useDiary returns empty entries: []" / "Given useDiary returns error state"
-
-**Issue：** 未明說 Playwright 如何 **強制** 進入 empty / error state。`diary-page.spec.ts` 既有手法是 `page.route('**/diary.json', ...)` fulfill 空陣列或 status=500。AC 沒寫 → Engineer 可能漏寫 fixture 路由，測試跑 production `diary.json`（非空），empty-state 分支 0 coverage。K-024 Phase 3 AC-024-BOUNDARY 已確立 "boundary spec 用 `page.route` fulfill fixture、不改 production diary.json" — 此 AC 應引用既有 pattern。
-
-**需補充：** AC-038-P1-DIARY-FOOTER-EMPTY-STATE + ERROR-STATE 各加一行 `And Playwright uses page.route('**/diary.json', ...) to force the state (empty array / status=500) per K-024 Phase 3 boundary spec pattern`。且 Engineer 在 design doc 明列 fixture 檔名（`_fixtures/diary/empty.json` 已存在？）。**推薦**：直接複用既有 fixture，無新檔案。
-
-**若不補充：** Engineer 自創 state-mock 方式，test 可能誤 PASS（production `diary.json` 有資料 → 走 timeline 分支 → Footer 也在，斷言通過但沒驗到 empty/error 分支）。QA sign-off 時 FAIL。
+**If not added:** at AC-038-P1-DIARY-FOOTER-LOADING-ABSENT sign-off, QA marks FAIL (reason: AC has no falsifiable predicate).
 
 ---
 
-### QA Challenge #4 — `pages.spec.ts` L158–164 退役後 describe block 命名殘留
+### QA Challenge #2 — AC-038-P1-BYTE-IDENTITY-4-ROUTES missing mobile viewport assertion
 
-**AC 原文：** AC-038-P1-SACRED-RETIREMENT "the assertion block is deleted and a replacement inline comment reads ..."
+**AC verbatim:** T1 byte-identity matrix + viewport hardcoded `width: 1280, height: 800` (desktop only, inherited from K-034 Phase 1)
 
-**Issue：** `pages.spec.ts` L157 有 `test.describe('DiaryPage — AC-017-FOOTER no footer', () => {...})`。AC-038 只說「刪除 assertion block + 加 inline comment」，沒說 describe wrapper 怎麼處理。若只刪 `test()` 內容留 describe block 外殼，spec 會 discovery 到空 describe（Playwright 不 FAIL 但 test count 報表顯示 orphan block）；若連 describe 一起刪，K-024 retirement log 的行號引用會失效。
+**Issue:** DiaryPage `<main>` uses `px-6 sm:px-24` (mobile 24px / desktop 96px) while Footer uses `px-6 md:px-[72px]` (mobile 24px / desktop 72px ≥ 768px). The two horizontal-padding rules in the **640px–768px range** (Tailwind `sm` 640px vs `md` 768px) produce a **viewport-padding seam** where main has switched to desktop but Footer is still mobile. K-034 Phase 1 shared-components-inventory.md §INHERITED exemption permits Footer padding to differ visually due to ancestor variance, but this seam is a new scenario on `/diary` — `/`, `/about`, `/business-logic` ancestors do not have `sm:px-24` co-existing.
 
-**需補充：** AC-038-P1-SACRED-RETIREMENT 明列：
-- **刪除整個 describe block**（L157–164）
-- **replacement inline comment 放在刪除處原位**，內容 verbatim: `// AC-017-FOOTER /diary negative clause retired per K-038 §3 BQ-038-03 — user intent change 2026-04-23; Footer now covered by shared-components.spec.ts T1 (byte-identity 4 routes)`
-- **行號引用更新** K-017 + K-024 ticket 回指 K-038 §7（非回指被刪掉的 spec 行號）
+**Required addition (PM picks one):**
+- Option A — **byte-identity desktop only; visual seam logged as Known Gap**: keep T1 only at 1280×800, PM rules explicitly "640–768px seam not tested because K-034 §INHERITED already permits padding variance". **Recommended**: lowest cost, consistent with existing Sacred. But QA requires `design-exemptions.md §INHERITED` to add a line listing the `/diary` scenario.
+- Option B — **T1 runs three viewports (360 / 768 / 1280)**: cost rises but covers actual seam rendering. If B, `footer-diary-chromium-darwin.png` snapshot baseline grows from 1 to 3.
 
-**若不補充：** sign-off 時 QA 會發現 spec file 有 orphan describe 或 comment 位置錯亂；PM escalate。
-
----
-
-### QA Challenge #5 — AC-038-P1-SNAPSHOT-BASELINE：新 baseline 容許 0.1% 變異但沒定義「祖先 padding 差異」如何處理
-
-**AC 原文：** "all 4 PNGs visually identical (pixel-level diff ≤ 0.1%; Footer content and styling byte-identical modulo ancestor padding variance per design-exemptions §2 INHERITED category)"
-
-**Issue：** 兩層問題：
-1. **Playwright `toMatchSnapshot` 是 per-route 獨立 baseline**，不是 cross-route diff；AC 文字「4 PNGs visually identical」技術上不精確 — 實際運作是 `footer-diary-chromium-darwin.png` 獨立 baseline，未來 CI 只比自己 vs 自己。跨 route identity 由 T1 byte-identity 斷言承擔（outerHTML 等價），不是 snapshot 承擔。
-2. **祖先 padding variance** — `/diary` Footer 繼承 `<main className="px-6 sm:px-24">` 祖先的 horizontal padding。Footer 自己 `w-full` + `px-6 md:px-[72px]` 是 viewport 級、不受祖先 padding 影響，但 Footer 截圖範圍（`footer.screenshot()`）若 Playwright clip 到 Footer element box 就沒影響，若包含 overflow 影響的祖先 scroll bar 就可能有 1–2px 差。這是 Phase 1 Engineer dry-run 才會知道。
-
-**需補充：** AC-038-P1-SNAPSHOT-BASELINE 改寫為：
-- **Mandatory：** 新 baseline `footer-diary-chromium-darwin.png` generated；per-route snapshot 獨立檢查不回歸。
-- **Cross-route identity by T1, not snapshot**：AC 文字移除「4 PNGs visually identical」這句（誤導）；改為 "cross-route byte-identity asserted by T1 outerHTML diff（per AC-034-P1-ROUTE-DOM-PARITY）; this AC only locks per-route visual baseline."
-- Engineer 在 design doc 先跑 dry-run 確認 `<main>` 祖先 padding 不外溢到 `<footer>` 截圖；若外溢 → 列 BQ 回 PM。
-
-**若不補充：** 第一次 CI 跑 snapshot 若因祖先 padding 產生 2–3px 差，Engineer 會被迫 retrofit baseline 或質疑 AC；sign-off 出現反覆。
+**If not added:** if a visual regression exists in the 640px–768px range, QA has no spec to lean on at Phase 1 sign-off; Known Gap path (PM declaring "not tested") is the only valid coverage.
 
 ---
 
-### QA Challenge #6 — `sitewide-footer.spec.ts` 沒加 /diary 斷言 = Footer 各屬性斷言對 /diary 零覆蓋
+### QA Challenge #3 — AC-038-P1-DIARY-FOOTER-EMPTY-STATE / ERROR-STATE missing fixture-registration mechanism
 
-**Issue：** K-038 ticket 只規劃 `shared-components.spec.ts` T1 + snapshot；`sitewide-footer.spec.ts`（驗 fontSize 11px + color rgb(107, 95, 78) + border-top-width > 0）目前跑 `/`、`/business-logic` 兩 route（`/about` 由 K-035 退役後 K-034 Phase 1 rewrite 由 shared-components.spec.ts T1/T2 承擔）。
+**AC verbatim:** "Given useDiary returns empty entries: []" / "Given useDiary returns error state"
 
-- T1 byte-identity 只驗 outerHTML 字串完全相等，**不驗 computed style** — outerHTML 相等不保證 browser 實際 `getComputedStyle` 渲染出相同 `fontSize`（極端情境如 CSS inheritance 被 `<main>` 祖先某個 `font-size: 16px !important` override）。
-- T2 Pencil-canonical text 只跑 `/`（L58–73），單 route 抽樣。
-- `sitewide-footer.spec.ts` 的 computed-style 斷言才是 per-route defensive net，但 K-038 沒提。
+**Issue:** Does not specify how Playwright **forces** entry into empty / error state. The existing `diary-page.spec.ts` pattern is `page.route('**/diary.json', ...)` fulfilling an empty array or status=500. AC silent → Engineer may forget the fixture route and the test runs against production `diary.json` (non-empty), giving 0 coverage on the empty-state branch. K-024 Phase 3 AC-024-BOUNDARY already established "boundary spec uses `page.route` fulfill fixture; do not modify production diary.json" — this AC should reference the existing pattern.
 
-**需補充（PM 裁決）：**
-- Option A — **`sitewide-footer.spec.ts` 的 describe block 覆蓋 `/diary`**：新增 `test('/diary — shared Footer shows with 11px muted + border-top', ...)`，複用既有 `expectSharedFooterVisible()` helper，一行新增。**推薦**：成本極低，但覆蓋 T1 無法捕捉的 computed-style regression（CSS cascade 被破壞），與 /、/business-logic 對稱。
-- Option B — **不補充**：PM 顯式裁決 "T1 byte-identity 已涵蓋 `/diary` computed style"（理論上 outerHTML 相等 + 同一 CSS file → computed style 相等）；登 Known Gap，sign-off 時 QA 不 FAIL。
+**Required addition:** AC-038-P1-DIARY-FOOTER-EMPTY-STATE + ERROR-STATE each get a line `And Playwright uses page.route('**/diary.json', ...) to force the state (empty array / status=500) per K-024 Phase 3 boundary spec pattern`. Engineer also lists fixture filenames in the design doc (`_fixtures/diary/empty.json` already exists?). **Recommended**: reuse existing fixtures, no new files.
 
-**若不補充：** Sign-off 時 QA mark /diary computed-style regression 為 Known Gap（須 PM 表態），否則 FAIL。
+**If not added:** Engineer invents a state-mock approach; the test may falsely PASS (production `diary.json` has data → timeline branch → Footer renders → assertion passes without ever exercising empty/error branches). FAIL at QA sign-off.
 
 ---
 
-### QA Challenge #7 — `shared-components-inventory.md` Footer 行未涵蓋 Pencil frame ID 重用條款
+### QA Challenge #4 — `pages.spec.ts` L158–164 leaves describe-block scaffold after retirement
 
-**AC 原文：** AC-038-P0-INVENTORY "Footer row `Consuming routes` cell = `/`, `/about`, `/business-logic`, `/diary`"
+**AC verbatim:** AC-038-P1-SACRED-RETIREMENT "the assertion block is deleted and a replacement inline comment reads ..."
 
-**Issue：** inventory.md 現行 Footer 行的 "Pencil Source of truth" 欄列 `4CsvQ`, `86psQ`, `1BGtd`, `35VCj`（homepage-v2.pen）。/diary 被加入 consumer 後，讀者可能誤解「需要為 /diary 找一個 Pencil frame ID」。BQ-038-01 PM ruling 明說 `/diary` 不需要新 Pencil frame（shared Footer 的 Pencil 起源已明列），但 inventory.md 若只改 consuming routes 欄、不加註解說明 "/diary inherits Pencil provenance via shared component（BQ-038-01 ruling）"，3 個月後新加入專案的 reviewer 會困惑並可能發起反向 BQ。
+**Issue:** `pages.spec.ts` L157 has `test.describe('DiaryPage — AC-017-FOOTER no footer', () => {...})`. AC-038 only says "delete assertion block + add inline comment", it does not say what to do with the describe wrapper. If only `test()` contents are deleted leaving the describe shell, the spec discovers an empty describe (Playwright will not FAIL but the test-count report will show an orphan block); if describe is deleted too, K-024 retirement-log line-number references go stale.
 
-**需補充：** AC-038-P0-INVENTORY 加一條：
-- **And** inventory.md Footer 行加 footnote 或 "Notes" 欄：`/diary consumes shared Footer per K-038 §3 BQ-038-01 ruling — no dedicated Pencil frame; Pencil provenance inherited from 86psQ + 1BGtd sitewide one-liner.`
-- **And** "Routes with NO shared chrome" section 刪除 `/diary` bullet 時，行上方加 comment 引用 K-038 ticket id。
+**Required addition:** AC-038-P1-SACRED-RETIREMENT specifies:
+- **Delete the entire describe block** (L157–164)
+- **replacement inline comment placed at the deletion site**, content verbatim: `// AC-017-FOOTER /diary negative clause retired per K-038 §3 BQ-038-03 — user intent change 2026-04-23; Footer now covered by shared-components.spec.ts T1 (byte-identity 4 routes)`
+- **Line-number references updated** in K-017 + K-024 tickets to point at K-038 §7 (not at the deleted spec line numbers)
 
-**若不補充：** 未來維護者重複發起 BQ；本次 Sacred 退役記錄不完整。
-
----
-
-### QA Challenge #8 — AC-038-P1-FAIL-IF-GATE-REMOVED dry-run scope 不清
-
-**AC 原文：** "Engineer temporarily reverts `<Footer />` from DiaryPage.tsx as dry-run; ... dry-run is reverted before Phase 1 close; Engineer retro records stdout snippet"
-
-**Issue：** 三個 gap：
-1. **dry-run 要跑哪些 spec file？** 只跑 `shared-components.spec.ts`？還是全 Playwright suite？K-024 Phase 3 feedback_engineer_concurrency_gate_fail_dry_run 明確規定 fail-if-gate-removed 應「跑斷言直接相關的 spec subset」不跑全套。
-2. **"reverts Footer" 指哪種 revert？** (a) 刪 `import Footer`（tsc 會 FAIL）、(b) 刪 `<Footer />` JSX render 但保留 import、(c) 條件化 `{false && <Footer />}`。不同選法測試到的 failure mode 不同。
-3. **Engineer retro 要記什麼 stdout？** 只記 FAIL message？還是整個 test run summary？
-
-**需補充：** AC-038-P1-FAIL-IF-GATE-REMOVED 明列：
-- **Scope：** `npx playwright test shared-components.spec.ts` subset（3 個 test：T1、T4a `/app`、Footer snapshot on /diary），不跑全套
-- **Revert method：** (b) 只刪 `<Footer />` JSX（保留 import；tsc 不 FAIL；純 behavioral revert）
-- **Expected FAIL：** T1 `/diary` byte-identity assert FAIL + Footer snapshot baseline assert FAIL；T4a `/app` 應 PASS（不受影響，驗 `/diary` 與 `/app` 沒跨污染）
-- **Retro format：** 附 FAIL message + `Expected: <normalizedHtml>` vs `Received: <non-existent footer>` 前三行
-
-**若不補充：** Engineer 自定義 dry-run、Reviewer 深度 gate 可能放過 false-green（如沒跑到真正的 T1）。
+**If not added:** at sign-off, QA finds an orphan describe or misplaced comment; PM escalates.
 
 ---
 
-### QA Challenge #9 — Sacred 退役後 K-017 / K-024 / K-034 ticket 歷史記錄追溯更新未明
+### QA Challenge #5 — AC-038-P1-SNAPSHOT-BASELINE: new baseline allows 0.1% drift but does not define how "ancestor padding variance" is handled
 
-**AC 原文：** §7 Retired Items Log "K-024 ticket §Sacred table gets an appended retirement line pointing here" / "K-034 ticket §7 Sacred table gets an appended retirement line pointing here"
+**AC verbatim:** "all 4 PNGs visually identical (pixel-level diff ≤ 0.1%; Footer content and styling byte-identical modulo ancestor padding variance per design-exemptions §2 INHERITED category)"
 
-**Issue：** §7 說 K-024 + K-034 ticket 要回寫「retirement line pointing here」，但 K-017 ticket 沒提要不要回寫。§3 BQ-038-03 表格也只說 "ticket K-017 AC text left unchanged (historical record)"。不一致：
-- K-017 Sacred 原生來源 → 不回寫（AC text 不動），但歷史讀者找 K-017 AC-017-FOOTER 時如何知道已退役？
-- K-024 inheritor → 回寫
-- K-034 inheritor → 回寫
+**Issue:** Two layers:
+1. **Playwright `toMatchSnapshot` is per-route independent baseline**, not cross-route diff; the AC text "4 PNGs visually identical" is technically imprecise — what actually happens is `footer-diary-chromium-darwin.png` is its own baseline and CI compares each route to itself in the future. Cross-route identity is carried by T1 byte-identity (outerHTML equivalence), not by snapshot.
+2. **Ancestor padding variance** — `/diary` Footer inherits the horizontal padding of `<main className="px-6 sm:px-24">`. Footer itself uses `w-full` + `px-6 md:px-[72px]` at the viewport level, unaffected by ancestor padding; but the Footer screenshot range (`footer.screenshot()`), if Playwright clips to the Footer element box, is unaffected; if it includes the ancestor scroll bar where overflow influences layout, there may be a 1–2px diff. Only Phase 1 Engineer dry-run will reveal.
 
-**需補充：** §7 Retired Items Log 加一列 K-017 處理方式：
-- **Option A — 回寫 K-017**：於 K-017 AC-017-FOOTER `/diary` 負斷言區塊下方 append 一行 `> **Retired 2026-04-23 by K-038 §3 BQ-038-03** — user intent change; see K-038 ticket for new AC-038-P1-FOOTER-ON-DIARY.`。AC text 本體保留（historical record）。**推薦**：一致性，3 個 ticket 都有 retirement trail。
-- **Option B — 不回寫**：僅靠 K-038 §7 table 作為唯一追溯來源。節省 K-017 不動原則，但 K-017 讀者視角殘缺。
+**Required addition:** AC-038-P1-SNAPSHOT-BASELINE rewritten as:
+- **Mandatory**: new baseline `footer-diary-chromium-darwin.png` generated; per-route snapshot independent check, no regression.
+- **Cross-route identity by T1, not snapshot**: AC text removes the misleading "4 PNGs visually identical" sentence; replace with "cross-route byte-identity asserted by T1 outerHTML diff (per AC-034-P1-ROUTE-DOM-PARITY); this AC only locks per-route visual baseline."
+- Engineer dry-runs in the design doc to verify `<main>` ancestor padding does not bleed into the `<footer>` screenshot; if it does, raise BQ to PM.
 
-**若不補充：** Sign-off 時 PM retrospective 會發現 retirement trail 不一致；raise meta-BQ 回流 K-038。
-
----
-
-### QA Challenge — NOT RAISED（已確認在 AC 內）
-
-以下 boundary QA pre-check pass，不列 Challenge：
-- **Sticky footer / viewport-short content overlay：** shared Footer 非 sticky（`w-full` + `border-t` + `py-5` 自然 flow），DiaryPage `<main pb-24>` 已有 96px 底 padding，viewport 高 且 entries 少時 Footer 自然落在 `<main>` 下方 — 不會與 DiaryEmptyState / DiaryError 重疊。
-- **SEO / GA disclosure route-specific variant：** Footer 已含 GA disclosure `<p>` 子元素，byte-identical 跨 route；/diary 自動繼承，不需要新 variant。
-- **Footer accessibility landmark 衝突：** DiaryPage 無其他 `<footer>` 或 `role="contentinfo"`；`page.getByRole('contentinfo')` 斷言單一匹配 OK。
-- **K-018 GA click events regression：** 如 ticket §Non-Goals 4 所述，shared Footer 已是純文字無 `<a>` 錨點；/diary 採用後無新 click 追蹤可觸發，不需 K-018 擴充。
-- **K-028 Diary empty-state Sacred 衝突：** K-028 AC-028-DIARY-EMPTY-BOUNDARY 管的是 **homepage 的 diary section**（`DevDiarySection.tsx`），非 `/diary` 頁。`/diary` 採 `DiaryEmptyState` 是獨立組件；Footer 加到 `/diary` 不動 K-028。
+**If not added:** the first CI snapshot run, hit by ancestor-padding 2–3px drift, forces Engineer to retrofit the baseline or question the AC; sign-off goes back-and-forth.
 
 ---
 
-**總結：**
-- **Recommended additional AC / AC 強化：** 9 條（Challenge #1 / #3 / #4 / #5 / #7 / #8 / #9 各需直接補 AC 文字或 §7 table；Challenge #2 / #6 需 PM 二選一裁決 Option A/B）
-- **Known Gap 候選（若 PM 選 Option B）：** Challenge #2 mobile viewport seam、Challenge #6 /diary computed-style
-- **Sacred 退役無 regression risk：** 3 條退役 Sacred（K-017 `/diary` 負、K-024 `/diary` no-footer、K-034 P1 `/diary` half）與 1 條保留 Sacred（K-030 `/app` isolation）的 grep audit 無其他 hidden dependency；ticket §3 表格完整且與 spec 實際斷言 1:1 對應。K-017 AC-017-FOOTER about-page anchors 部分已由 K-034 Phase 1 另外退役，與 K-038 無交集。
-- **重大發現：** 無 regression-inducing Sacred conflict；K-030 `/app` isolation 完全不動、相關 spec (`app-bg-isolation.spec.ts`、`sitewide-fonts.spec.ts` L56 /app Footer removal comment) 與本 ticket 零交集。
+### QA Challenge #6 — `sitewide-footer.spec.ts` does not add a /diary assertion = Footer per-attribute assertions have zero `/diary` coverage
 
-**PM ruling required：** 9 條 QA Challenge 逐條回覆（補 AC / 選 Option / 登 Known Gap）；完成後 Phase 0 design-locked sign-off 方可放行 Architect。
+**Issue:** K-038 ticket only plans `shared-components.spec.ts` T1 + snapshot; `sitewide-footer.spec.ts` (verifies fontSize 11px + color rgb(107, 95, 78) + border-top-width > 0) currently runs `/`, `/business-logic` (after K-035 retired Sacred and K-034 Phase 1 rewrote, `/about` is carried by `shared-components.spec.ts` T1/T2).
+
+- T1 byte-identity only verifies outerHTML strings are exactly equal, **not computed style** — outerHTML equality does not guarantee the browser's `getComputedStyle` renders the same `fontSize` (extreme scenario: CSS inheritance overridden by a `<main>` ancestor's `font-size: 16px !important`).
+- T2 Pencil-canonical text only runs on `/` (L58–73), single-route sample.
+- `sitewide-footer.spec.ts` computed-style assertions are the per-route defensive net, but K-038 does not mention them.
+
+**Required addition (PM ruling):**
+- Option A — **`sitewide-footer.spec.ts` describe block covers `/diary`**: add `test('/diary — shared Footer shows with 11px muted + border-top', ...)`, reusing the existing `expectSharedFooterVisible()` helper, single line addition. **Recommended**: trivially cheap, covers the computed-style regression T1 cannot capture (CSS cascade broken), symmetric with /, /business-logic.
+- Option B — **do not add**: PM rules explicitly "T1 byte-identity already covers `/diary` computed style" (theoretically outerHTML equal + same CSS file → computed style equal); log as Known Gap, QA does not FAIL at sign-off.
+
+**If not added:** at sign-off, QA marks `/diary` computed-style regression as Known Gap (requires PM declaration); else FAIL.
+
+---
+
+### QA Challenge #7 — `shared-components-inventory.md` Footer row does not cover Pencil frame ID reuse clause
+
+**AC verbatim:** AC-038-P0-INVENTORY "Footer row `Consuming routes` cell = `/`, `/about`, `/business-logic`, `/diary`"
+
+**Issue:** inventory.md's current Footer-row "Pencil Source of truth" column lists `4CsvQ`, `86psQ`, `1BGtd`, `35VCj` (homepage-v2.pen). After `/diary` is added as a consumer, readers may misread "need to find a Pencil frame ID for /diary". BQ-038-01 PM ruling explicitly states `/diary` does not need a new Pencil frame (shared Footer's Pencil origin is already enumerated), but if inventory.md only changes the consuming-routes column without a note "/diary inherits Pencil provenance via shared component (BQ-038-01 ruling)", a reviewer joining the project 3 months later will be confused and may file a reverse BQ.
+
+**Required addition:** AC-038-P0-INVENTORY adds:
+- **And** inventory.md Footer row adds a footnote or "Notes" column: `/diary consumes shared Footer per K-038 §3 BQ-038-01 ruling — no dedicated Pencil frame; Pencil provenance inherited from 86psQ + 1BGtd sitewide one-liner.`
+- **And** when "Routes with NO shared chrome" section deletes the `/diary` bullet, add a line above referencing the K-038 ticket id.
+
+**If not added:** future maintainers re-file BQs; this Sacred-retirement record is incomplete.
+
+---
+
+### QA Challenge #8 — AC-038-P1-FAIL-IF-GATE-REMOVED dry-run scope unclear
+
+**AC verbatim:** "Engineer temporarily reverts `<Footer />` from DiaryPage.tsx as dry-run; ... dry-run is reverted before Phase 1 close; Engineer retro records stdout snippet"
+
+**Issue:** Three gaps:
+1. **Which spec files does dry-run run?** Only `shared-components.spec.ts`? Or the full Playwright suite? K-024 Phase 3 feedback_engineer_concurrency_gate_fail_dry_run explicitly mandates fail-if-gate-removed should "run the spec subset directly relevant to the assertion", not the full suite.
+2. **What does "reverts Footer" mean?** (a) delete `import Footer` (tsc FAIL), (b) delete `<Footer />` JSX render but keep import, (c) gate with `{false && <Footer />}`. Different choices test different failure modes.
+3. **What stdout does Engineer retro record?** Only the FAIL message? Or the entire test-run summary?
+
+**Required addition:** AC-038-P1-FAIL-IF-GATE-REMOVED specifies:
+- **Scope**: `npx playwright test shared-components.spec.ts` subset (3 tests: T1, T4a `/app`, Footer snapshot on /diary), not the full suite
+- **Revert method**: (b) delete only `<Footer />` JSX (keep import; tsc does not FAIL; pure behavioural revert)
+- **Expected FAIL**: T1 `/diary` byte-identity assert FAIL + Footer snapshot baseline assert FAIL; T4a `/app` should PASS (unaffected; verifies `/diary` and `/app` do not cross-pollute)
+- **Retro format**: attach FAIL message + first three lines of `Expected: <normalizedHtml>` vs `Received: <non-existent footer>`
+
+**If not added:** Engineer self-defines dry-run; Reviewer depth gate may pass false-greens (e.g. T1 not actually run).
+
+---
+
+### QA Challenge #9 — After Sacred retirement, retroactive update to K-017 / K-024 / K-034 ticket history is not specified
+
+**AC verbatim:** §7 Retired Items Log "K-024 ticket §Sacred table gets an appended retirement line pointing here" / "K-034 ticket §7 Sacred table gets an appended retirement line pointing here"
+
+**Issue:** §7 says K-024 + K-034 tickets receive a back-written "retirement line pointing here", but K-017 ticket has no instruction. §3 BQ-038-03 table only says "ticket K-017 AC text left unchanged (historical record)". Inconsistent:
+- K-017 Sacred origin → no back-write (AC text untouched), but how does a historical reader looking up K-017 AC-017-FOOTER know it has been retired?
+- K-024 inheritor → back-write
+- K-034 inheritor → back-write
+
+**Required addition:** §7 Retired Items Log adds a row for K-017 handling:
+- **Option A — back-write K-017**: under the `/diary` negative-assertion block of K-017 AC-017-FOOTER, append a line `> **Retired 2026-04-23 by K-038 §3 BQ-038-03** — user intent change; see K-038 ticket for new AC-038-P1-FOOTER-ON-DIARY.`. AC text body preserved (historical record). **Recommended**: consistency, all 3 tickets have a retirement trail.
+- **Option B — do not back-write**: rely on K-038 §7 table as the sole traceback source. Saves K-017's no-touch principle but leaves the K-017 reader's view incomplete.
+
+**If not added:** at sign-off, PM retrospective will find inconsistent retirement trail; raise meta-BQ back to K-038.
+
+---
+
+### QA Challenge — NOT RAISED (already confirmed in AC)
+
+The following boundary QA pre-checks pass; not listed as Challenges:
+- **Sticky footer / viewport-short content overlay**: shared Footer is not sticky (`w-full` + `border-t` + `py-5` natural flow); DiaryPage `<main pb-24>` already has 96px bottom padding; with tall viewport and few entries, Footer naturally lands below `<main>` — no overlap with DiaryEmptyState / DiaryError.
+- **SEO / GA disclosure route-specific variant**: Footer already contains the GA-disclosure `<p>` child, byte-identical across routes; `/diary` inherits automatically, no new variant needed.
+- **Footer accessibility landmark conflict**: DiaryPage has no other `<footer>` or `role="contentinfo"`; `page.getByRole('contentinfo')` assertion has a single match — OK.
+- **K-018 GA click events regression**: per ticket §Non-Goals 4, shared Footer is plain text with no `<a>` anchors; after `/diary` adopts it, no new click tracking fires, K-018 needs no extension.
+- **K-028 Diary empty-state Sacred conflict**: K-028 AC-028-DIARY-EMPTY-BOUNDARY governs the **homepage diary section** (`DevDiarySection.tsx`), not the `/diary` page. `/diary`'s `DiaryEmptyState` is a separate component; adding Footer to `/diary` does not affect K-028.
+
+---
+
+**Summary:**
+- **Recommended additional AC / AC strengthening:** 9 items (Challenges #1 / #3 / #4 / #5 / #7 / #8 / #9 each need direct AC text or §7 table additions; Challenges #2 / #6 need PM Option A/B ruling)
+- **Known Gap candidates (if PM picks Option B):** Challenge #2 mobile viewport seam, Challenge #6 /diary computed-style
+- **Sacred retirements have no regression risk:** the 3 retired Sacred (K-017 `/diary` negative, K-024 `/diary` no-footer, K-034 P1 `/diary` half) and 1 preserved Sacred (K-030 `/app` isolation) grep audit shows no other hidden dependency; ticket §3 table is complete and 1:1 with actual spec assertions. K-017 AC-017-FOOTER about-page anchors portion was already retired by K-034 Phase 1 separately, no overlap with K-038.
+- **Major finding:** no regression-inducing Sacred conflict; K-030 `/app` isolation completely untouched, related specs (`app-bg-isolation.spec.ts`, `sitewide-fonts.spec.ts` L56 /app Footer removal comment) have zero overlap with this ticket.
+
+**PM ruling required:** reply to all 9 QA Challenges (add AC / pick Option / log Known Gap); only then can Phase 0 design-locked sign-off release Architect.
 
 **PM ruling landed 2026-04-23:** All 9 Challenges resolved per K-034 Phase 3 AC block absorption (see heading block at top). Challenges #1/#2/#6/#9 each ruled Option A; Challenges #3/#4/#5/#7/#8 all ACCEPT with Phase 3 AC structure carrying the binding text. Cross-ref: `docs/tickets/K-034-about-spec-audit-and-workflow-codification.md` §4.4. Phase 3 Architect release still gated behind Phase 2 close (conservative sequencing per `depends-on: [K-034-phase-2-closed]`) + Designer OPTIONAL decision on `diary-v2.pen` (BQ-034-P3-02) + PM `design-locked: true` sign-off.
 
@@ -1474,80 +1474,80 @@ Cross-ref: `docs/tickets/K-034-about-spec-audit-and-workflow-codification.md` §
 
 ## 2026-04-23 — K-034 Phase 1 QA sign-off gap — TD-K030-03 recurrence
 
-**沒做好：** 兩層失誤：(a) K-034 Phase 1 QA sign-off 未以 `TICKET_ID=K-034` 前綴執行 `visual-report.ts`，直接跑 `npx playwright test visual-report.ts`，落入 TD-K030-03 已知 fallback 分支，寫出 `K-UNKNOWN-visual-report.html`；(b) 寫出後 QA 未察覺檔名不符，未依 persona §Sign-off step 1 硬規則（`K-UNKNOWN output = failure, must re-run`）重跑。Persona 規則明文存在，Phase 1 QA run 靜默 bypass；兩次同類汙染（K-030 一次、K-034 Phase 1 一次）= TD-K030-03 recurrence count 2。
+**What went wrong:** Two-layer miss: (a) K-034 Phase 1 QA sign-off did not prefix `visual-report.ts` execution with `TICKET_ID=K-034`, instead running `npx playwright test visual-report.ts` directly, falling into TD-K030-03's known fallback branch and writing `K-UNKNOWN-visual-report.html`; (b) after the write, QA did not catch the filename mismatch and did not re-run per persona §Sign-off step 1 hard rule (`K-UNKNOWN output = failure, must re-run`). Persona rule was explicit, but the Phase 1 QA run silently bypassed it; two identical contaminations (K-030 once, K-034 Phase 1 once) = TD-K030-03 recurrence count 2.
 
-**下次改善：** (1) Persona §Sign-off stage step 2 後新增 post-step filename verification 硬 gate —— `ls docs/reports/K-${TICKET_ID}-visual-report.html` 必成功 AND `ls docs/reports/K-UNKNOWN-visual-report.html` 必失敗；任一違反 = sign-off BLOCKED，須清除 K-UNKNOWN 汙染後以正確 TICKET_ID 重跑 step 1。Pre-step 指示不足（已證明兩次 bypass），需 post-step 主動驗證。(2) TD-K030-03 優先級 中 → 高（recurrence count 2 觸發 escalation），下次 visual-report tooling 調整時必處理 throw-on-missing-TICKET_ID（根因修復）。本 session 已在 persona 硬 gate 層補 compensating control，但 tooling 層 fix 仍是正解。
+**Next time improvement:** (1) After persona §Sign-off stage step 2, add a post-step filename-verification hard gate — `ls docs/reports/K-${TICKET_ID}-visual-report.html` must succeed AND `ls docs/reports/K-UNKNOWN-visual-report.html` must fail; any violation = sign-off BLOCKED, must remove K-UNKNOWN contamination and re-run step 1 with correct TICKET_ID. Pre-step instruction is insufficient (proved by two bypasses); active post-step verification is required. (2) Raise TD-K030-03 priority Medium → High (recurrence count 2 triggers escalation); next visual-report tooling change must handle throw-on-missing-TICKET_ID (root-cause fix). This session added a compensating control at the persona hard-gate layer, but the tooling-layer fix is still the right answer.
 
 ---
 
 
 ## 2026-04-23 — K-034 Phase 0 (BFP Round 2 for K-035 α-premise failure)
 
-**做得好：** 省略 — K-017 / K-021 / K-022 / K-035 全程 QA regression 皆未在結構層面挑戰 variant 軸的 Pencil-backing，無具體事件可列。
+**What went well:** Omitted — across K-017 / K-021 / K-022 / K-035 QA regression never structurally challenged the Pencil-backing of the variant axis; no concrete event to list.
 
-**沒做好：** `shared-components.spec.ts` K-035 一交付即 3/3 綠，但斷言契約是「DOM equivalence **modulo variant**」——variant 本身（home/about）被接受為「設計上 intentional 的分歧軸」而非須被挑戰的命題。K-034 §1.2 Pencil `batch_get` 現場證明 frame `86psQ`（/about）與 `1BGtd`（/home）為 byte-identical inline 單行（`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px），Pencil SSOT 只有一份 Footer 設計，不存在兩個 variant；K-035 的 Architect α-premise（「兩個 Pencil frame 各自的設計」）在 QA 側從未被要求以 Pencil content-parity 驗證過。QA 當時的 regression 維度為 AC-per-route / visual report per page / viewport sweep / cross-route DOM equivalence (K-035 首次加入)，但 cross-route equivalence **已含內建豁免**（variant axis）—spec 本身即為 drift carrier。QA persona 既無「shared-component Playwright spec 必須對照 Pencil `get_screenshot` PNG baseline」規則，也無「code-declared variant 必須對應 Pencil-declared divergence」檢查；QA 上游仰賴 Architect design doc + Reviewer depth review 作為品質閘，兩層皆靜默 propagate α-premise，QA 未在下游獨立挑戰。
+**What went wrong:** `shared-components.spec.ts` for K-035 was 3/3 green on delivery, but its assertion contract was "DOM equivalence **modulo variant**" — the variant itself (home/about) was accepted as "intentionally divergent by design" rather than a proposition to challenge. K-034 §1.2 Pencil `batch_get` proved on site that frame `86psQ` (/about) and `1BGtd` (/home) are byte-identical single-line inlines (`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px); Pencil SSOT has exactly one Footer design — no two variants exist. The K-035 Architect α-premise ("two Pencil frames each with its own design") was never required on the QA side to be verified via Pencil content-parity. QA's regression dimensions at the time were AC-per-route / visual report per page / viewport sweep / cross-route DOM equivalence (first added in K-035), but cross-route equivalence **already had a built-in exemption** (the variant axis) — the spec itself is the drift carrier. QA persona had neither a rule "shared-component Playwright spec must compare against Pencil `get_screenshot` PNG baseline" nor a check "code-declared variant must correspond to Pencil-declared divergence"; QA upstream relied on Architect design doc + Reviewer depth review as quality gates, both of which silently propagated the α-premise, and QA did not independently challenge it downstream.
 
-**下次改善：** （落地為 persona 硬 gate，Phase 0 由主 session Edit `~/.claude/agents/qa.md`；此處為 QA 同意的語意）(a) Q5a 硬 gate —— shared-component Playwright spec 必須以 `toMatchSnapshot()` + PNG baseline 位於 `frontend/e2e/__screenshots__/`，取代（或加成）現行 class/DOM-string 斷言；baseline 缺失時 spec 自動 fail，不得靠 `--update-snapshots` 靜默過。(b) Q5c 硬 gate —— sign-off 階段必須將 Designer 交付的 Pencil PNG（`frontend/design/screenshots/<page>-<frameid>.png`）與 dev-server PNG 做 pixel-diff（tolerance 由 Designer 在 design doc §Visual Acceptance 明列，預設 ≤0.5% RMS），任何超出 = regression fail，不得以「視覺相似」人眼判定。(c) 當 code 宣稱某組件有 N 個 variant，QA 必 grep `frontend/design/specs/` 對應頁面 JSON 驗證 N 個 variant 是否各自有獨立 Pencil frame ID + 非 byte-identical 的 content／layout／style key；若 N > Pencil divergence count，即 QA Challenge → PM（不得 sign-off）。(d) Cross-route spec 禁用「modulo variant」字樣當豁免語；divergence 必須以「frame-<idA> vs frame-<idB> 的 <key> 欄位 diff」具體列舉，沒有 frame-level 證據即 QA Challenge。
+**Next time improvement:** (Landed as persona hard gates; Phase 0 Edit on `~/.claude/agents/qa.md` driven by main session; this is the QA-agreed semantics) (a) Q5a hard gate — shared-component Playwright spec must use `toMatchSnapshot()` + PNG baseline at `frontend/e2e/__screenshots__/`, replacing (or augmenting) the current class/DOM-string assertions; spec auto-fails when baseline is missing, must not silently pass via `--update-snapshots`. (b) Q5c hard gate — sign-off stage must pixel-diff Designer-delivered Pencil PNG (`frontend/design/screenshots/<page>-<frameid>.png`) against dev-server PNG (tolerance explicitly listed by Designer in design doc §Visual Acceptance, default ≤0.5% RMS); any excess = regression fail; "visually similar" eyeballing not allowed. (c) When code claims a component has N variants, QA must grep the corresponding page JSON in `frontend/design/specs/` to verify each of the N variants has its own Pencil frame ID + non-byte-identical content/layout/style key; if N > Pencil divergence count, raise QA Challenge → PM (no sign-off allowed). (d) Cross-route specs must not use "modulo variant" wording as an exemption; divergence must be enumerated concretely as "frame-<idA> vs frame-<idB> diff on <key> field"; no frame-level evidence = QA Challenge.
 
 ---
 
 ## 2026-04-23 — K-034 Phase 0 Early Consultation (new sitewide design workflow)
 
-**Scope:** Challenge edge cases / boundary conditions for the new `.pen`-SSOT-via-JSON workflow being codified in Phase 0 (17-decision table Q1–Q8c). QA 角色評估所有 Q-cell 實作後 Phase 1+ 的 QA-facing 回歸風險與 sign-off gate 可行性。以下為本 Early Consultation 盤點出的 7 條 Challenge，含建議 AC 補強條文與 PM 裁決待填欄。
+**Scope:** Challenge edge cases / boundary conditions for the new `.pen`-SSOT-via-JSON workflow being codified in Phase 0 (17-decision table Q1–Q8c). QA role evaluates the QA-facing regression risk and sign-off-gate feasibility for Phase 1+ after every Q-cell is implemented. The 7 Challenges below were enumerated in this Early Consultation, each with a suggested AC supplement and a PM-ruling-pending column.
 
 **Challenges (7):**
 
-**Q1. [`.pen` ↔ specs JSON drift detection]** 當 Designer Edit `.pen` 但遺漏重生 `frontend/design/specs/<page>.frame-<id>.json`（例如忘了跑 export script、或 script 跑一半出 error 被忽略），下游 Engineer / Reviewer / QA 全部對著**過期 JSON**工作卻綠燈，drift 只能靠下一次 Designer 主動 batch_get 時才暴露。
-- **建議 AC 補強**：Phase 0 新增 AC-034-P0-DRIFT-GATE：(i) `frontend/design/specs/` 目錄下每個 `*.json` 頂層 frontmatter 必含 `pen-file: <relative-path>` + `pen-mtime-at-export: <ISO-8601>` + `exporter-version: <semver>`；(ii) CI/pre-commit hook `scripts/check-pen-json-parity.sh` 對每個 specs JSON 檢驗 `stat -f %m <pen-file>` 與 `pen-mtime-at-export` 一致，不一致即 exit 1；(iii) PR template 在 `.pen` 或 `specs/*.json` 任一改動時強制列出「我已跑 export script 並確認 JSON 與 .pen 同步」checkbox。
-- **PM ruling (2026-04-23):** **ACCEPT** doc-level AC → Phase 0 新增 **AC-034-P0-DRIFT-GATE**（`specs/*.json` 必帶 `pen-file` + `pen-mtime-at-export` + `exporter-version`；Designer persona 手動自查作為 Phase 0 enforcement）。Script 自動化 `scripts/check-pen-json-parity.sh` + pre-commit hook → **TD-K034-01**（Phase 0 non-blocker，待第二次 drift 事件後再自動化；現階段靠 Designer persona §Frame Artifact Export 硬 gate 人工兼顧）。
+**Q1. [`.pen` ↔ specs JSON drift detection]** When Designer Edits `.pen` but forgets to regenerate `frontend/design/specs/<page>.frame-<id>.json` (e.g. forgets to run the export script, or the script errors halfway and gets ignored), downstream Engineer / Reviewer / QA all work against the **stale JSON** while green-lighting; drift only surfaces on the next time Designer actively runs batch_get.
+- **Suggested AC supplement:** Phase 0 add AC-034-P0-DRIFT-GATE: (i) every `*.json` under `frontend/design/specs/` must carry top-level frontmatter `pen-file: <relative-path>` + `pen-mtime-at-export: <ISO-8601>` + `exporter-version: <semver>`; (ii) CI/pre-commit hook `scripts/check-pen-json-parity.sh` checks `stat -f %m <pen-file>` matches `pen-mtime-at-export` for every specs JSON, exits 1 on mismatch; (iii) PR template forces a checkbox "I have run the export script and confirmed JSON is in sync with .pen" whenever `.pen` or `specs/*.json` changes.
+- **PM ruling (2026-04-23):** **ACCEPT** doc-level AC → Phase 0 adds **AC-034-P0-DRIFT-GATE** (`specs/*.json` must carry `pen-file` + `pen-mtime-at-export` + `exporter-version`; Designer persona manual self-check as Phase 0 enforcement). Script automation `scripts/check-pen-json-parity.sh` + pre-commit hook → **TD-K034-01** (Phase 0 non-blocker; defer automation until second drift event; for now Designer persona §Frame Artifact Export hard gate covers it manually).
 
-**Q2. [Playwright snapshot baseline staleness vs Pencil re-export]** Q5a 引入 `toMatchSnapshot()` 後 baseline PNG 存於 `frontend/e2e/__screenshots__/`，但 Pencil 設計變更時 Designer 交付的 `frontend/design/screenshots/<page>-<frameid>.png` 會更新，而 Playwright baseline 不會自動追上——Engineer 只要跑 `--update-snapshots` 即可「通過」而實際上 live UI 與 Pencil 早已不一致。舊 baseline 反而形同 drift 的共犯。
-- **建議 AC 補強**：Phase 0 新增 AC-034-P0-SNAPSHOT-DUAL：(i) `frontend/e2e/__screenshots__/<component>-<route>.png` 與 `frontend/design/screenshots/<page>-<frameid>.png` 雙向比對為 QA sign-off 硬 gate（現行 Mandatory Task Completion Steps §0b 延伸）；(ii) QA sign-off 前跑 `scripts/compare-baselines.sh`，若 Playwright baseline hash ≠ Designer PNG hash 即 QA Challenge → PM（可能是 Pencil 改了 baseline 未重跑，也可能是 Engineer 跑 `--update-snapshots` 偷渡）；(iii) `package.json` script `test:e2e:update-snapshots` 新增 guard：只允許在 branch 名 `chore/baseline-refresh-*` 下執行，其他 branch 即 exit 1。
-- **PM ruling (2026-04-23):** **DEFER** → **TD-K034-05**。理由：Phase 1 Playwright baseline 尚未建立（`shared-components.spec.ts` `toMatchSnapshot()` 是 Phase 1 deliverable），Phase 0 加 dual-baseline script 為時過早；Phase 1 QA sign-off 步驟才是實際觸發點。執行時機：Phase 1 QA 首次跑完 baseline 時，QA 同步補 `scripts/compare-baselines.sh` + `package.json` `--update-snapshots` branch-name guard，並在 qa.md 登記此 TD 已實作。Phase 0 不為此阻塞。
+**Q2. [Playwright snapshot baseline staleness vs Pencil re-export]** After Q5a introduces `toMatchSnapshot()`, baseline PNG lives at `frontend/e2e/__screenshots__/`; but when Pencil design changes, the Designer-delivered `frontend/design/screenshots/<page>-<frameid>.png` updates while the Playwright baseline does not auto-follow — Engineer can simply run `--update-snapshots` to "pass" while the live UI has long diverged from Pencil. The stale baseline becomes a drift accomplice.
+- **Suggested AC supplement:** Phase 0 add AC-034-P0-SNAPSHOT-DUAL: (i) bidirectional compare of `frontend/e2e/__screenshots__/<component>-<route>.png` vs `frontend/design/screenshots/<page>-<frameid>.png` becomes a QA sign-off hard gate (extension of current Mandatory Task Completion Steps §0b); (ii) before QA sign-off run `scripts/compare-baselines.sh`; if Playwright baseline hash ≠ Designer PNG hash, raise QA Challenge → PM (could be Pencil changed baseline without re-run, or Engineer smuggled via `--update-snapshots`); (iii) `package.json` script `test:e2e:update-snapshots` adds a guard: only allowed on branch name `chore/baseline-refresh-*`, otherwise exit 1.
+- **PM ruling (2026-04-23):** **DEFER** → **TD-K034-05**. Rationale: Phase 1 Playwright baseline does not yet exist (`shared-components.spec.ts` `toMatchSnapshot()` is a Phase 1 deliverable); adding a dual-baseline script in Phase 0 is premature; Phase 1 QA sign-off is the real trigger point. Timing: when Phase 1 QA finishes baseline first run, QA simultaneously adds `scripts/compare-baselines.sh` + the `package.json` `--update-snapshots` branch-name guard and records this TD as landed in qa.md. Phase 0 is not blocked.
 
-**Q3. [`visual-delta: none` exemption abuse]** Q7b 的 `visual-delta: none` 讓 Designer-less ticket 成為可能，但沒有結構性阻擋「Phase 2 audit-heavy ticket / 新組件 ticket」被誤標為 `none` 以求快速出貨——PM Phase Gate 若只做「frontmatter 有沒有填」的 syntactic 檢查，無法攔截語意層面的誤標。
-- **建議 AC 補強**：Phase 0 新增 AC-034-P0-VISUAL-DELTA-VALIDATOR：(i) ticket template 要求 `visual-delta: none` 時必附 `visual-delta-rationale:` 欄位（單行，Example："pure backend fix, no frontend/src/** file change"）；(ii) pre-commit hook `scripts/validate-visual-delta.sh` 對 `none` ticket 跑 `git diff --name-only main..HEAD -- 'frontend/src/**' 'frontend/public/**'`，若有任何 match 即 block commit；(iii) PM Phase Gate `feedback_pm_all_phases_before_engineer` 延伸：放行前 grep ticket file `visual-delta:`，若 `none` 但 Phase 計畫出現 "new component" / "layout" / "style" / "Pencil" 字樣即降為 QA Challenge。
-- **PM ruling (2026-04-23):** **ACCEPT** doc-level AC → Phase 0 新增 **AC-034-P0-VISUAL-DELTA-VALIDATOR**（`visual-delta-rationale:` 欄位強制；PM Phase Gate 人工 grep 關鍵字）。Script `scripts/validate-visual-delta.sh` + pre-commit hook → **TD-K034-02**（待第二次 `visual-delta` 事件或有人第一次提 `none` 票時再自動化；現階段 PM 人工把關）。
+**Q3. [`visual-delta: none` exemption abuse]** Q7b's `visual-delta: none` makes Designer-less tickets possible, but there is no structural block against "Phase 2 audit-heavy ticket / new component ticket" being mislabelled `none` for fast shipping — if the PM Phase Gate only does syntactic "frontmatter present" checks, it cannot intercept semantic mislabelling.
+- **Suggested AC supplement:** Phase 0 add AC-034-P0-VISUAL-DELTA-VALIDATOR: (i) ticket template requires a `visual-delta-rationale:` field whenever `visual-delta: none` (single line, example: "pure backend fix, no frontend/src/** file change"); (ii) pre-commit hook `scripts/validate-visual-delta.sh` runs `git diff --name-only main..HEAD -- 'frontend/src/**' 'frontend/public/**'` for `none` tickets; any match blocks commit; (iii) extend PM Phase Gate `feedback_pm_all_phases_before_engineer`: before release grep the ticket file for `visual-delta:`; if `none` but Phase plan contains "new component" / "layout" / "style" / "Pencil" wording, downgrade to QA Challenge.
+- **PM ruling (2026-04-23):** **ACCEPT** doc-level AC → Phase 0 adds **AC-034-P0-VISUAL-DELTA-VALIDATOR** (`visual-delta-rationale:` field mandatory; PM Phase Gate manual keyword grep). Script `scripts/validate-visual-delta.sh` + pre-commit hook → **TD-K034-02** (defer automation until the second `visual-delta` event or first `none` ticket; for now PM does the manual gate).
 
-**Q4. [Pencil-Pencil internal drift (orphan frames / stale subtrees)]** Pencil `.pen` 本身可能含「設計意圖已經作廢但還沒刪除」的 orphan frame / 子節點（例如某 CTA block 曾被 remove 但仍存在於某 navigation map frame 裡）。Workflow 假設 Pencil SSOT 為無矛盾整體，但現實中 Designer 可能漸進重構、短暫 carry 過期 frame——任何下游從 orphan frame 生 spec 即將 dead design 當活。
-- **建議 AC 補強**：Phase 0 新增 AC-034-P0-PENCIL-AUDIT-CADENCE：(i) Designer persona 加 monthly audit step：`batch_get` 所有 top-level frames、列 orphan（無 incoming reference 且無 top-level frame status）；(ii) `.pen` 新增 schema version 欄位，任何 frame 被 mark deprecated 或 deleted 時版本 bump，觸發 `frontend/design/specs/` full re-export；(iii) Ticket 若涉及 cross-frame reference (e.g. Q1 的 Footer 共用)，Architect Pre-Design Audit 必須 `batch_get` 所有被 reference 的 frame 確認非 orphan 再下刀。
-- **PM ruling (2026-04-23):** **DEFER** → **TD-K034-06**。理由：目前無實證 orphan frame 導致誤設計的事件（K-035 α-premise 是「兩個 frame 內容相同」非「orphan」問題）；monthly audit cadence 尚無觸發點；`.pen` schema version 需 Pencil MCP 工具支援（非本倉決定權）。現階段 Architect Pre-Design Audit 既有 `feedback_architect_pre_design_audit_dry_run` + Pencil Frame Completeness 已涵蓋 cross-frame reference check 的最基本需求。第一次 orphan 事件發生時，TD-K034-06 升級為 Designer persona 硬 gate。
+**Q4. [Pencil-Pencil internal drift (orphan frames / stale subtrees)]** The Pencil `.pen` itself may contain "design intent retired but not deleted" orphan frames / sub-nodes (e.g. a CTA block once removed but still living inside some navigation-map frame). The workflow assumes Pencil SSOT is internally consistent, but in reality Designer may refactor incrementally and briefly carry stale frames — any downstream spec generated from an orphan frame treats dead design as live.
+- **Suggested AC supplement:** Phase 0 add AC-034-P0-PENCIL-AUDIT-CADENCE: (i) Designer persona adds a monthly audit step: `batch_get` all top-level frames, list orphans (no incoming reference and no top-level frame status); (ii) add a schema-version field to `.pen`, bump it whenever a frame is marked deprecated or deleted, triggering `frontend/design/specs/` full re-export; (iii) if a ticket involves cross-frame references (e.g. Q1's Footer sharing), Architect Pre-Design Audit must `batch_get` every referenced frame to confirm none are orphans before cutting in.
+- **PM ruling (2026-04-23):** **DEFER** → **TD-K034-06**. Rationale: no empirical event yet of orphan frame causing mis-design (K-035 α-premise was "two frames same content", not an "orphan" issue); monthly audit cadence has no trigger point yet; `.pen` schema version requires Pencil MCP tool support (out of this repo's authority). Architect Pre-Design Audit currently has `feedback_architect_pre_design_audit_dry_run` + Pencil Frame Completeness, covering the most basic cross-frame-reference check. On first orphan event, TD-K034-06 escalates to a Designer persona hard gate.
 
-**Q5. [Cross-page regression after Phase 1 Footer unification]** Phase 1 刪除 `variant` 後 `shared-components.spec.ts` 須由 DOM-equivalence-modulo-variant 升級為**byte-identical DOM across all consuming routes**。但現行 cross-route regression 只有 Footer 一處，NavBar / Hero / BuiltByAIBanner 等其他 shared chrome 未納入；未來任何 ticket 重新引入「針對某一 route 的共用組件 variant」（e.g. `<NavBar compact />` on /app），回歸 spec 仍可能通過。
-- **建議 AC 補強**：Phase 1 AC-034-P1-ROUTE-DOM-PARITY 擴充 + Phase 0 新增 AC-034-P0-SHARED-CHROME-INVENTORY：(i) `docs/designs/shared-components-inventory.md` 為 SSOT，列出全站所有 shared chrome 組件（Footer、NavBar、Hero、BuiltByAIBanner、PageHeader 等）+ 消費路由列表 + 允許的 variant（預設 0）；(ii) `shared-components.spec.ts` 為 inventory 的所有組件 × 所有路由自動生成 pairwise byte-identical 斷言；(iii) 任何 PR 引入新 variant prop 必先 Edit inventory + 得 PM 裁決 + 附 Pencil frame 證明 divergence。
-- **PM ruling (2026-04-23):** **SPLIT ACCEPT** → Phase 0 收 (i) **AC-034-P0-SHARED-CHROME-INVENTORY**（`docs/designs/shared-components-inventory.md` MVP：Footer + NavBar + BuiltByAIBanner 三組件 × 路由表 + allowed-variant=0）；Reviewer persona Structural Chrome Duplication Scan 已在 K-035 入規則，此 inventory 是 source-of-truth 補位。(ii) 全 inventory × 所有路由 auto-generated byte-diff matrix → **TD-K034-03**（Phase 2 執行，或下次 NavBar/Banner drift 時觸發，arriving sooner）。(iii) 新 variant prop PR gate：PM 人工把關 + inventory Edit 即可，不需自動化。
+**Q5. [Cross-page regression after Phase 1 Footer unification]** After Phase 1 removes `variant`, `shared-components.spec.ts` must upgrade from DOM-equivalence-modulo-variant to **byte-identical DOM across all consuming routes**. But current cross-route regression covers only Footer; NavBar / Hero / BuiltByAIBanner and other shared chrome are not included; any future ticket that reintroduces "a shared-component variant for a specific route" (e.g. `<NavBar compact />` on /app) could still pass the regression spec.
+- **Suggested AC supplement:** Extend Phase 1 AC-034-P1-ROUTE-DOM-PARITY + Phase 0 add AC-034-P0-SHARED-CHROME-INVENTORY: (i) `docs/designs/shared-components-inventory.md` becomes SSOT, listing every shared chrome component on the site (Footer, NavBar, Hero, BuiltByAIBanner, PageHeader, etc.) + consuming-route list + allowed variants (default 0); (ii) `shared-components.spec.ts` auto-generates pairwise byte-identical assertions for every inventory component × every route; (iii) any PR introducing a new variant prop must first Edit the inventory + get PM ruling + attach a Pencil frame proving divergence.
+- **PM ruling (2026-04-23):** **SPLIT ACCEPT** → Phase 0 takes (i) **AC-034-P0-SHARED-CHROME-INVENTORY** (`docs/designs/shared-components-inventory.md` MVP: Footer + NavBar + BuiltByAIBanner three components × route table + allowed-variant=0); Reviewer persona's Structural Chrome Duplication Scan was already added in K-035; this inventory backfills the source-of-truth. (ii) Full inventory × all routes auto-generated byte-diff matrix → **TD-K034-03** (execute in Phase 2, or trigger sooner on next NavBar/Banner drift). (iii) New variant prop PR gate: PM manual review + inventory Edit suffices, no automation needed.
 
-**Q6. [CI cost of PNG snapshot + per-route byte-diff budget]** Q5a `toMatchSnapshot()` PNG baseline + Q5 所有 shared chrome × 所有路由 byte-diff 會顯著增加 CI 時間（估：現行 full Playwright suite ~3 分鐘，若 + 5 shared × 4 routes × screenshot + pixel-diff 估加 2–4 分鐘）。若無預算框架，工程 pressure 下會傾向關閉 snapshot 或 sample-only。
-- **建議 AC 補強**：Phase 0 新增 AC-034-P0-CI-BUDGET：(i) `docs/reports/ci-budget.md` 記錄 full-suite 時間上限（建議 ≤8 分鐘），超出觸發 PM + Architect review；(ii) PNG snapshot **僅限** shared-components.spec.ts 啟用（頁面層級 visual report 維持 on-demand via `TICKET_ID=K-XXX npx playwright test visual-report.ts`，非 CI 常駐）；(iii) 若未來 CI 時間超預算，reduction 優先順序：viewport sweep > page visual report > shared-component snapshot（snapshot 為 Sacred）。
-- **PM ruling (2026-04-23):** **DEFER** → **TD-K034-07**。理由：目前 full Playwright suite ~3 分鐘，未近預算上限；Phase 1 snapshot 僅 Footer + 3 路由，估算增量 <30 秒，無迫切性；「snapshot 為 Sacred, viewport sweep / visual report 優先裁」的 reduction policy 當作 TD-K034-07 的 landing 內容，實際預算超出才寫 `docs/reports/ci-budget.md`。現階段僅在此 ruling block 錄此 policy 作為備忘：**若 full suite >6 分鐘，先關 visual-report.ts，再關 viewport sweep，snapshot 最後才考慮**。
+**Q6. [CI cost of PNG snapshot + per-route byte-diff budget]** Q5a `toMatchSnapshot()` PNG baseline + Q5 all shared chrome × all routes byte-diff will significantly increase CI time (estimate: current full Playwright suite ~3 min; +5 shared × 4 routes × screenshot + pixel-diff adds ~2–4 min). Without a budget framework, engineering pressure tends to disable snapshots or sample-only.
+- **Suggested AC supplement:** Phase 0 add AC-034-P0-CI-BUDGET: (i) `docs/reports/ci-budget.md` records full-suite time ceiling (suggest ≤8 min); breaching it triggers PM + Architect review; (ii) PNG snapshot is **enabled only** in shared-components.spec.ts (page-level visual report stays on-demand via `TICKET_ID=K-XXX npx playwright test visual-report.ts`, not in CI); (iii) if CI time exceeds budget in the future, reduction priority: viewport sweep > page visual report > shared-component snapshot (snapshot is Sacred).
+- **PM ruling (2026-04-23):** **DEFER** → **TD-K034-07**. Rationale: current full Playwright suite ~3 min, well within budget; Phase 1 snapshot is only Footer + 3 routes, estimated delta <30 s, not urgent; the "snapshot is Sacred, viewport sweep / visual report cut first" reduction policy becomes TD-K034-07 landing content; only when budget is actually breached do we write `docs/reports/ci-budget.md`. For now this ruling block records the policy as memo: **if full suite >6 min, disable visual-report.ts first, then viewport sweep, snapshots last**.
 
-**Q7. [New route onboarding checklist]** 當未來新增路由（e.g. /insights、/roadmap），workflow 需保證「Pencil frame 存在 + `frontend/design/specs/*.json` 導出 + `frontend/design/screenshots/*.png` 產出 + shared-components inventory 更新」四者皆 precede Engineer 動工，否則 new route 變成 SSOT 漏洞（無 Pencil backing 即可進 prod）。
-- **建議 AC 補強**：Phase 0 新增 AC-034-P0-NEW-ROUTE-GATE：(i) `docs/tickets/` template 新增「新路由 checklist」段落，列出 Pencil frame ID / specs JSON path / screenshots PNG path / inventory entry 四格，任一空即為 incomplete；(ii) PM Phase Gate 於釋出 Architect 前驗證四格皆填；(iii) Designer persona 新增「新路由 intake」流程：PM 提新路由需求時，Designer 先在 `.pen` 新增 frame + 產 specs JSON + 產 PNG + Edit inventory，再通知 PM 放行 Architect。
-- **PM ruling (2026-04-23):** **ACCEPT** doc-level AC → Phase 0 新增 **AC-034-P0-NEW-ROUTE-GATE**（新路由 ticket frontmatter 四格必填；PM Phase Gate 人工驗證）。Designer persona 「新路由 intake」流程 codification → **TD-K034-04**（待第一次新路由 ticket 出現時才 codify persona，避免純假設性規則）。
+**Q7. [New route onboarding checklist]** When future routes are added (e.g. /insights, /roadmap), the workflow must guarantee "Pencil frame exists + `frontend/design/specs/*.json` exported + `frontend/design/screenshots/*.png` produced + shared-components inventory updated" all four precede Engineer work; otherwise the new route becomes an SSOT hole (ships to prod without Pencil backing).
+- **Suggested AC supplement:** Phase 0 add AC-034-P0-NEW-ROUTE-GATE: (i) `docs/tickets/` template adds a "new-route checklist" section listing Pencil frame ID / specs JSON path / screenshots PNG path / inventory entry — any empty cell = incomplete; (ii) PM Phase Gate verifies all four cells filled before releasing Architect; (iii) Designer persona adds a "new-route intake" flow: when PM raises a new-route requirement, Designer first adds the frame in `.pen` + produces specs JSON + produces PNG + Edits inventory, then notifies PM to release Architect.
+- **PM ruling (2026-04-23):** **ACCEPT** doc-level AC → Phase 0 adds **AC-034-P0-NEW-ROUTE-GATE** (new-route ticket frontmatter four cells mandatory; PM Phase Gate verifies manually). Designer persona "new-route intake" flow codification → **TD-K034-04** (codify persona only when first new-route ticket appears, to avoid purely hypothetical rules).
 
-**Cross-reference:** 上述 7 條 Challenge 與 K-034 PRD §4 Phase 0 Deliverables 5–7 部分重疊（Q1/Q2/Q3/Q5 已有相關 persona edit 或 memory file 預計產出），但 Deliverables 未明列 CI/pre-commit hook、inventory 文件、ci-budget 規範、new-route checklist 等**結構性 gate** ——請 PM 裁決：(a) 是否納入 Phase 0 AC（建議 Q1、Q3、Q5、Q7 全納入；Q2、Q6 建議至少以 memory file 層級落地；Q4 建議列 Phase 2 後續 TD）；或 (b) 哪些降為 Known Gap 並記 `docs/tech-debt.md`。未得 PM 明確裁決前，QA 不對 Phase 1 AC 做最終 sign-off。
+**Cross-reference:** The 7 Challenges above partly overlap with K-034 PRD §4 Phase 0 Deliverables 5–7 (Q1/Q2/Q3/Q5 already have related persona Edits or memory files planned), but the Deliverables list does not explicitly enumerate **structural gates** like CI/pre-commit hooks, inventory documents, ci-budget specs, new-route checklists, etc. — PM ruling required: (a) which to fold into Phase 0 AC (suggest Q1/Q3/Q5/Q7 all fold in; Q2/Q6 suggest at least memory-file level; Q4 suggest list as Phase 2 follow-up TD); or (b) which to demote to Known Gap and log in `docs/tech-debt.md`. Until explicit PM ruling, QA will not give final sign-off on Phase 1 AC.
 
-**PM ruling (2026-04-23 — 綜合裁決):** 7 條 Challenge 按 doc-level vs automation-level + blocking vs non-blocking 二維切：
-- **ACCEPT doc-level Phase 0 AC (4 條)**：Q1 → AC-034-P0-DRIFT-GATE；Q3 → AC-034-P0-VISUAL-DELTA-VALIDATOR；Q5 (inventory 部分) → AC-034-P0-SHARED-CHROME-INVENTORY；Q7 → AC-034-P0-NEW-ROUTE-GATE。人工把關（Designer persona 已收 Q1；PM persona 已收 Q3/Q7；Reviewer persona 已收 Q5-inventory cross-ref）為 Phase 0 enforcement。
-- **DEFER 至 TD (3 條)**：Q2 → TD-K034-05（Phase 1 QA sign-off 觸發）；Q4 → TD-K034-06（首次 orphan 事件觸發）；Q6 → TD-K034-07（CI 破 6 分鐘觸發）。
-- **DEFER 至 TD 的自動化 (4 條腳本)**：TD-K034-01 (drift-gate script)、TD-K034-02 (visual-delta-validator script)、TD-K034-03 (Phase 2 pairwise matrix)、TD-K034-04 (Designer new-route intake persona codification)。
-- **Phase 0 增額 deliverable**：`docs/designs/shared-components-inventory.md` MVP（Footer + NavBar + BuiltByAIBanner 三組件 × 路由）為 Phase 0 必產文件，由 PM 本 session 直接產出（單檔小 doc，無需 Designer 介入）。
-- **Ticket 更新**：K-034 §4 Phase 0 AC block 新增四條 AC-034-P0-DRIFT-GATE / VISUAL-DELTA-VALIDATOR / SHARED-CHROME-INVENTORY / NEW-ROUTE-GATE + 新章節 §4.1 PM Rulings；`docs/tech-debt.md` append TD-K034-01 ~ TD-K034-07 七條；四條 Q1/Q3/Q5/Q7 ACCEPT 的 AC 於 K-034 Phase 0 commit 階段視為綁定，QA Phase 1 AC sign-off 以此四條 AC 存在為先決條件（詳 K-034 §4.1 最後一段）。
-- **QA Phase 1 sign-off 放行條件確認**：以上裁決 + 四條新 AC + TD-K034-01~07 + inventory doc 全部落地後，QA 即可放行 Phase 1 AC 草案至 Engineer dispatch。不需再次 Early Consultation。
+**PM ruling (2026-04-23 — combined ruling):** Cut the 7 Challenges along two dimensions: doc-level vs automation-level + blocking vs non-blocking:
+- **ACCEPT doc-level Phase 0 AC (4)**: Q1 → AC-034-P0-DRIFT-GATE; Q3 → AC-034-P0-VISUAL-DELTA-VALIDATOR; Q5 (inventory part) → AC-034-P0-SHARED-CHROME-INVENTORY; Q7 → AC-034-P0-NEW-ROUTE-GATE. Manual enforcement (Designer persona already absorbed Q1; PM persona already absorbed Q3/Q7; Reviewer persona already absorbed Q5-inventory cross-ref) as Phase 0 enforcement.
+- **DEFER to TD (3)**: Q2 → TD-K034-05 (triggered at Phase 1 QA sign-off); Q4 → TD-K034-06 (triggered at first orphan event); Q6 → TD-K034-07 (triggered when CI exceeds 6 min).
+- **DEFER to TD for automation (4 scripts)**: TD-K034-01 (drift-gate script), TD-K034-02 (visual-delta-validator script), TD-K034-03 (Phase 2 pairwise matrix), TD-K034-04 (Designer new-route intake persona codification).
+- **Phase 0 additional deliverable**: `docs/designs/shared-components-inventory.md` MVP (Footer + NavBar + BuiltByAIBanner × routes) is a mandatory Phase 0 doc, produced directly by PM in this session (small single-file doc, no Designer needed).
+- **Ticket updates**: K-034 §4 Phase 0 AC block adds the four AC-034-P0-DRIFT-GATE / VISUAL-DELTA-VALIDATOR / SHARED-CHROME-INVENTORY / NEW-ROUTE-GATE + new §4.1 PM Rulings; `docs/tech-debt.md` appends TD-K034-01 ~ TD-K034-07 (seven entries); the four ACCEPT'd ACs from Q1/Q3/Q5/Q7 are treated as bound at the K-034 Phase 0 commit stage; QA Phase 1 AC sign-off is preconditioned on the existence of these four ACs (see last paragraph of K-034 §4.1).
+- **QA Phase 1 sign-off release condition confirmed**: once the rulings above + four new ACs + TD-K034-01~07 + inventory doc all land, QA may release the Phase 1 AC draft to Engineer dispatch. No second Early Consultation required.
 
 ## 2026-04-22 — K-035 Phase 3 QA regression
 
-**做得好：** 全 Playwright suite 一把過 243 passed / 1 skipped / 1 failed（唯一 failure `ga-spa-pageview.spec.ts::AC-020-BEACON-SPA` 比對 K-033 tracker 症狀「SPA navigate 後 beacon count 維持 1 未增」完全相符，classify 為 pre-existing 非本票責任）；`shared-components.spec.ts` 3/3 綠 2.5 秒收工（/ variant="home" + /about variant="about" + /diary no-Footer 三向斷言 + 首 Cross-Page spec 首執行即穩定）；`ga-tracking.spec.ts` AC-018-CLICK 3 case 綠燈（contact_email / github_link / linkedin_link），Early Consultation Flag-1「GA click-event AC-visibility gap」以 spec 層面確認 trackCtaClick label 保留；Sacred 四 spec 全綠（sitewide-footer 3/3、pages.spec.ts L158 `/diary has no Footer`、app-bg-isolation AC-030-NO-FOOTER、sitewide-fonts font-mono on Footer variant="home"）；grep 掃 `HomeFooterBar|FooterCtaSection` 於 frontend/src + frontend/e2e = 0 hits，Engineer Step 6 刪除動作在 final commit 維持；visual-report.ts 以 `TICKET_ID=K-035` 跑出 `docs/reports/K-035-visual-report.html`（1.8MB；4 base64 PNG = /, /app, /about, /diary；/business-logic 依 `authRequired:true` 標 placeholder 符合 MVP 規範）；dev-server 多 viewport 手動 spot-check（375/390/414/1280）/ variant="home" Footer fontSize=11px + borderTop=1px + 文字基線一致、/about variant="about" email italic+underline + 所有 CTA href 正確、/diary + /app Sacred no-Footer（`<footer>` tag absent + `Let's talk →` absent + home-variant signature text absent）三條全滿。
+**What went well:** Full Playwright suite passed in one shot 243 passed / 1 skipped / 1 failed (the lone failure `ga-spa-pageview.spec.ts::AC-020-BEACON-SPA` exactly matches the K-033 tracker symptom "beacon count stays at 1 after SPA navigate, no increment", classified as pre-existing, not this ticket's responsibility); `shared-components.spec.ts` 3/3 green in 2.5 s (/ variant="home" + /about variant="about" + /diary no-Footer three-way assertion + first Cross-Page spec stable on first run); `ga-tracking.spec.ts` AC-018-CLICK 3 cases green (contact_email / github_link / linkedin_link), Early Consultation Flag-1 "GA click-event AC-visibility gap" confirmed at spec level that trackCtaClick label is preserved; the four Sacred specs all green (sitewide-footer 3/3, pages.spec.ts L158 `/diary has no Footer`, app-bg-isolation AC-030-NO-FOOTER, sitewide-fonts font-mono on Footer variant="home"); grep `HomeFooterBar|FooterCtaSection` across frontend/src + frontend/e2e = 0 hits, Engineer Step 6 delete action preserved in final commit; visual-report.ts ran with `TICKET_ID=K-035` producing `docs/reports/K-035-visual-report.html` (1.8MB; 4 base64 PNGs = /, /app, /about, /diary; /business-logic placeholder per `authRequired:true`, conforms to MVP spec); dev-server multi-viewport manual spot-check (375/390/414/1280) on / variant="home" Footer fontSize=11px + borderTop=1px + text baseline consistent, /about variant="about" email italic+underline + all CTA hrefs correct, /diary + /app Sacred no-Footer (`<footer>` tag absent + `Let's talk →` absent + home-variant signature text absent) all three conditions fully met.
 
-**下次改善：** 第一輪多 viewport 手動 spot-check script 用 `document.querySelector('footer')` 單一 selector 驗 `/about` Footer，誤判為「exists:false」卡 1 次；根因是未事先讀 Footer.tsx 確認 variant="about" 刻意 render `<div>` 非 `<footer>` tag（design doc §10.1 已明載）。Spot-check script v2 改用 `data-testid="cta-email/github/linkedin"` + `Let's talk →` 文字 + `class` 計算樣式三條斷言才通過。行為規則：QA 跑自製 spot-check script 前，若 target 組件有多 variant / 多 render 分支，應先 Read 該組件 source 或對照 shared-components.spec.ts 的官方 selector，再挑 selector；不可假設「Footer = `<footer>` tag」這類單一假設即涵蓋全 variant。
+**Next time improvement:** First-round multi-viewport manual spot-check script used `document.querySelector('footer')` single selector to verify `/about` Footer and misjudged "exists:false" once; root cause was not Reading Footer.tsx beforehand to confirm variant="about" intentionally renders `<div>` not `<footer>` tag (design doc §10.1 already states this). Spot-check script v2 switched to three assertions: `data-testid="cta-email/github/linkedin"` + `Let's talk →` text + `class` computed style. Behavior rule: before QA runs a self-authored spot-check script, if the target component has multiple variants / render branches, Read the component source or cross-reference the official selectors in shared-components.spec.ts before picking selectors; do not assume "Footer = `<footer>` tag" or any other single assumption covers all variants.
 
 ## 2026-04-22 — K-035 Phase 3 QA Early Consultation
 
-**做得好：** 對 Pure-refactor behavior-diff 表（design doc §3 17/0）直接跑 QA-側 AC×spec×mock 三維檢核，而非只讀 AC；mockApis fixture 確認 `/api/**` catch-all + `/api/history-info` 具體覆蓋，斷言 shared-components.spec.ts 3 cases 所需 API 已全覆蓋；對 `sitewide-footer.spec.ts`、`pages.spec.ts` L160、`app-bg-isolation.spec.ts`、`sitewide-fonts.spec.ts`、`ga-tracking.spec.ts` L212 逐一 grep 現況，確認 design doc §6 EDIT #9–#13 的 rename/comment-only edits 與斷言邏輯不變，未放掉可能殘留的「含 `FooterCtaSection` 字樣但仍斷言 literal 的地方」。對 AC-035-CROSS-PAGE-SPEC 的 §7.1 spec 契約做 selector 強度檢查，確認 `class` string 字面全等 + `getByText({exact:true})` + `data-testid` + `href` 屬性等值四者已組成充足的 DOM-equivalence contract（不需升級為 outerHTML snapshot）。
+**What went well:** Ran a 3-axis QA-side AC × spec × mock check against the Pure-refactor behavior-diff table (design doc §3 17/0), rather than only reading ACs; confirmed mockApis fixture covers `/api/**` catch-all + concrete `/api/history-info`, asserting all APIs needed by the 3 cases in shared-components.spec.ts are covered; grep'd `sitewide-footer.spec.ts`, `pages.spec.ts` L160, `app-bg-isolation.spec.ts`, `sitewide-fonts.spec.ts`, `ga-tracking.spec.ts` L212 one by one, confirming design doc §6 EDIT #9–#13 rename/comment-only edits did not change assertion logic, and did not let any "still asserting on `FooterCtaSection` literal" residue slip through. For AC-035-CROSS-PAGE-SPEC §7.1 selector-strength check, confirmed that `class` string full-equality + `getByText({exact:true})` + `data-testid` + `href` attribute equality form a sufficient DOM-equivalence contract (no need to upgrade to outerHTML snapshot).
 
-**沒做好：** GA click-event 回歸（`ga-tracking.spec.ts` AC-018-CLICK 3 個 email/github/linkedin case）在 design doc §3 diff table row 11 已宣稱 import path 與 `trackCtaClick` 呼叫保留但未在 AC-035-FOOTER-UNIFIED 的 AC 敘述裡以 And-clause 明載「GA click event 名稱（`contact_email` / `github_link` / `linkedin_link`）+ `page_location === '/about'` 不變」；僅靠現有 spec 綠燈等同於把 GA regression 藏在 ga-tracking.spec.ts 內而非明擺在 K-035 AC 上，AC-visibility 略低。依 `feedback_pm_ac_sacred_cross_check` 屬 AC↔Sacred 可並存非衝突，但若 Engineer 誤改 `trackCtaClick(label)` 的字串參數，ga-tracking.spec.ts 會 fail，但 K-035 AC 不會直接點名該失敗屬「AC-035-FOOTER-UNIFIED 違反」。
+**What went wrong:** The GA click-event regression (`ga-tracking.spec.ts` AC-018-CLICK 3 cases email/github/linkedin) is declared in design doc §3 diff table row 11 as "import path and `trackCtaClick` calls preserved", but the AC-035-FOOTER-UNIFIED AC narrative did not include an And-clause explicitly stating "GA click event names (`contact_email` / `github_link` / `linkedin_link`) + `page_location === '/about'` remain unchanged"; relying on existing spec greens hides GA regression inside ga-tracking.spec.ts rather than spelling it out on the K-035 AC, lowering AC-visibility. Per `feedback_pm_ac_sacred_cross_check` this is AC↔Sacred coexistence, not conflict, but if Engineer mistakenly changes the string argument of `trackCtaClick(label)`, ga-tracking.spec.ts will fail, yet K-035 AC will not directly name that failure as "AC-035-FOOTER-UNIFIED violation".
 
-**下次改善：** Early Consultation 在純 refactor 類 ticket 做 AC 覆盖盤點時，強制檢查「既有的非本票 spec 但斷言的行為是 refactor 必須保留」→ 建議 PM 在 AC-XXX-FOOTER-UNIFIED 這類 AC 加一條 And-clause `And existing <spec-file> <AC-ID> remains green without assertion text change`，讓 AC 層面直接鎖定跨 spec 的 Sacred 行為。
+**Next time improvement:** When Early Consultation does AC-coverage enumeration on pure-refactor tickets, enforce a check "existing non-this-ticket spec asserting behavior that refactor must preserve" → suggest PM add an And-clause to ACs like AC-XXX-FOOTER-UNIFIED: `And existing <spec-file> <AC-ID> remains green without assertion text change`, so the AC layer directly locks Sacred behavior across specs.
 
 ---
 
@@ -1556,7 +1556,7 @@ Cross-ref: `docs/tickets/K-034-about-spec-audit-and-workflow-codification.md` §
 **What went wrong (root cause):**
 User found on 2026-04-22 that `/about` renders `FooterCtaSection.tsx` while `/` and `/diary` render `HomeFooterBar`. Both K-017 (AC-017-FOOTER in `about.spec.ts` L306–346) and K-022 (AC-022-FOOTER-REGRESSION in `about-v2.spec.ts` L264–280) signed off because every footer assertion was **route-local** — they asserted "Let's talk →", `mailto:` link, "Or see the source:", GitHub / LinkedIn hrefs *on `/about` only*, never compared against the footer rendered on `/` or `/diary`.
 
-Worse, `sitewide-footer.spec.ts` (K-021) actively **codified the drift as intentional** at L10 (`/about 維持 <FooterCtaSection />（K-017 鎖定），不得渲染 HomeFooterBar`) and L88–101 (`/about renders FooterCtaSection, NOT HomeFooterBar`). A ticket-level decision ("K-017 is the About scope") was promoted into a sitewide regression assertion without anyone asking: *why does the "sitewide" footer have a one-route exception?* I treated the AC-017 boundary as ground truth and wrote a spec that pins `/about` away from the shared component — making the drift test-enforced.
+Worse, `sitewide-footer.spec.ts` (K-021) actively **codified the drift as intentional** at L10 (`/about keeps <FooterCtaSection /> (locked by K-017), must not render HomeFooterBar`) and L88–101 (`/about renders FooterCtaSection, NOT HomeFooterBar`). A ticket-level decision ("K-017 is the About scope") was promoted into a sitewide regression assertion without anyone asking: *why does the "sitewide" footer have a one-route exception?* I treated the AC-017 boundary as ground truth and wrote a spec that pins `/about` away from the shared component — making the drift test-enforced.
 
 Trace of "did I consider cross-page consistency when writing K-017 / K-022 specs?" — **No.** The QA regression dimensions at the time were: (1) AC-per-route visible text + style, (2) visual report per page, (3) viewport-boundary sweeps. Cross-route DOM equivalence for shared chrome (Footer, NavBar, Hero, CTA) was not a dimension. The cross-route matrix pattern *does* exist in `navbar.spec.ts` (`for (const {path, name} of pages)` loop over `/`, `/about`, `/diary`, `/business-logic`) but only asserts "NavBar links present" — not "NavBar DOM is the same shared component." The pattern was never extended to Footer, and the shape-of-assertion (presence vs equivalence) never asked "is this the same component instance on every route?"
 
@@ -1618,25 +1618,25 @@ Visual report (`visual-report.ts`) takes per-route screenshots side-by-side, but
 
 ## 2026-04-23 — K-037 Favicon Wiring Final Sign-off (post-Code-Review, post-Engineer-commit-pending)
 
-**做得好：** 三閘門機械驗證順序清晰 — (1) 完整 Playwright suite 257 passed / 1 skipped / 1 failed，唯一紅燈 `AC-020-BEACON-SPA` 透過 grep 確認是 `ga-spa-pageview.spec.ts` 檔案 L143 註解明文標註「K-033 TRACKER — currently RED on purpose」的預期紅，非 K-037 回歸；(2) favicon 獨立 suite 16/16 全綠（8 asset-200 + 6 link-tag + 1 manifest schema + 1 MIME accept-list）完全對齊 AC-037 四條可測 AC 結構；(3) 機械 AC-037-TAB-ICON-VISIBLE curl grep 驗證（rel="icon"×4 + apple-touch-icon×1 + manifest×1 + theme-color×1）全部吻合期望值，且 theme-color meta content `#F4EFE5` 與 manifest.json `theme_color` byte-for-byte 一致（Architect §3 binding contract #5 達成）。Sacred invariant 交叉比對零衝突 — K-037 scope 僅 `<head>` + `public/` + playwright config 三層（git diff --stat 確認 index.html +7 / playwright.config.ts +41-9 / diary.json +6），未觸及 K-028/K-035/K-021/K-024 shared chrome surfaces。Engineer 回報的 `diary-page T-L1` timing flake 本次 full-suite 未重現，與 Engineer retro「isolated re-run green」敘述一致（timing 類 flake 本質）。Visual report `TICKET_ID=K-037` 正確產生於 `docs/reports/K-037-visual-report.html`（1.8MB，5 captures），並主動清除先前 full-suite run 產生的 `K-UNKNOWN-visual-report.html` 殘檔，避免下游污染。
+**What went well:** Three-gate mechanical verification with a clear sequence — (1) full Playwright suite 257 passed / 1 skipped / 1 failed; the lone red `AC-020-BEACON-SPA` was confirmed via grep to be the expected red marked at `ga-spa-pageview.spec.ts` L143 comment "K-033 TRACKER — currently RED on purpose", not a K-037 regression; (2) favicon standalone suite 16/16 green (8 asset-200 + 6 link-tag + 1 manifest schema + 1 MIME accept-list), exactly aligning with the four testable ACs in AC-037; (3) mechanical AC-037-TAB-ICON-VISIBLE curl grep verification (rel="icon"×4 + apple-touch-icon×1 + manifest×1 + theme-color×1) all matched expected values, and theme-color meta content `#F4EFE5` is byte-for-byte equal to manifest.json `theme_color` (Architect §3 binding contract #5 achieved). Sacred-invariant cross-check: zero conflicts — K-037 scope is only `<head>` + `public/` + playwright config three layers (git diff --stat confirms index.html +7 / playwright.config.ts +41-9 / diary.json +6), did not touch K-028 / K-035 / K-021 / K-024 shared-chrome surfaces. Engineer-reported `diary-page T-L1` timing flake did not reproduce in this full-suite run, matching Engineer retro "isolated re-run green" (intrinsic to timing flakes). Visual report `TICKET_ID=K-037` correctly produced `docs/reports/K-037-visual-report.html` (1.8MB, 5 captures), and the leftover `K-UNKNOWN-visual-report.html` from a prior full-suite run was actively cleaned to avoid downstream contamination.
 
-**沒做好：** Playwright project-split 架構（`chromium` + `favicon-preview` + `visual-report` 三 project）首次出現，QA 未在 Early Consultation 時預先確認「full-suite 呼叫 `npx playwright test` 不帶 --project 參數是否會自動跑 favicon-preview 與 visual-report」— 實際行為是三 project 全跑（favicon 16 + visual 5 + chromium 核心），總數因此跳升到 257，與 Engineer pre-commit baseline 的 256 + 16 = 272 預期不完全一致（差異來自 visual-report 被無意間觸發 + 1 個 diary-page flake 未重現）。事後對照 playwright config 可推出（無 --project filter 時跑所有 project），但若 QA 在 Early Consultation 階段就預審 config 三 project 結構並書面化「full-suite 預期總數＝X（含 visual-report auto-run）」，可避免 sign-off 當下的瞬間困惑。另：mobile Safari iOS / Android Chrome 實機 tab icon 渲染仍為 ticket 內明示 Known Gap（AC-037-TAB-ICON-VISIBLE 條款），本次 sign-off 無法覆蓋 — 依賴 PM close-time 與 user 在真實裝置做側邊比對，非 QA 可機械驗。
+**What went wrong:** The Playwright project-split layout (`chromium` + `favicon-preview` + `visual-report` three projects) appeared for the first time; QA did not pre-confirm during Early Consultation "does full-suite invocation `npx playwright test` without --project auto-run favicon-preview and visual-report?" — actual behavior is all three projects run (favicon 16 + visual 5 + chromium core), bringing the total to 257, not exactly matching Engineer pre-commit baseline of 256 + 16 = 272 (the delta comes from inadvertently triggered visual-report + 1 diary-page flake that did not reproduce). The behavior is inferable from playwright config in hindsight (no --project filter ⇒ all projects run), but if QA had pre-audited the three-project config during Early Consultation and written down "full-suite expected total = X (including visual-report auto-run)", it would have avoided the moment-of-confusion at sign-off. Also: mobile Safari iOS / Android Chrome on-device tab-icon rendering remains the ticket's explicit Known Gap (AC-037-TAB-ICON-VISIBLE clause); this sign-off cannot cover it — depends on PM close-time + user side-by-side device comparison, not QA-mechanical-verifiable.
 
-**下次改善：** Early Consultation 階段若 Engineer 計畫引入新 Playwright project（測試隔離/附加 webServer/多 baseURL 等），QA 必須書面產出「full-suite invocation matrix」表格（欄：`npx playwright test` / `--project=X` / `<spec-file>`；列：三 project 是否會被觸發；格：預期 test count）貼回 ticket Release Status，作為 sign-off 時對照基線。本次 K-037 回溯補 matrix：`npx playwright test` = chromium(236) + favicon-preview(16) + visual-report(5) = 257 total（1 skipped 在 chromium 核心，屬既有 K-033 tracker）；`npx playwright test favicon-assets.spec.ts --project=favicon-preview` = 16；`TICKET_ID=K-037 npx playwright test --project=visual-report` = 5。已 codify 至 `~/.claude/agents/qa.md` §Mandatory Task Completion Steps — 新增「Step 0c: multi-project playwright config invocation matrix pre-flight」，當 `playwright.config.ts` 出現 ≥2 project 時必備。
+**Next time improvement:** During Early Consultation, if Engineer plans to introduce a new Playwright project (test isolation / attached webServer / multiple baseURL etc.), QA must produce a written "full-suite invocation matrix" table (cols: `npx playwright test` / `--project=X` / `<spec-file>`; rows: whether each of the 3 projects fires; cells: expected test count) and paste back into ticket Release Status as the sign-off baseline. Retroactive matrix for K-037: `npx playwright test` = chromium(236) + favicon-preview(16) + visual-report(5) = 257 total (1 skipped in chromium core, existing K-033 tracker); `npx playwright test favicon-assets.spec.ts --project=favicon-preview` = 16; `TICKET_ID=K-037 npx playwright test --project=visual-report` = 5. Codified into `~/.claude/agents/qa.md` §Mandatory Task Completion Steps — added "Step 0c: multi-project playwright config invocation matrix pre-flight", required whenever `playwright.config.ts` has ≥2 projects.
 
 ## 2026-04-22 — K-025 Final Sign-off (post-Code-Review)
 
-**做得好：** 三閘門串行驗證（tsc exit 0、`npm run build` exit 0、full Playwright suite 192 passed / 1 skipped / 0 failed、navbar.spec.ts 22/22）完全對齊 Engineer 實作回報；AC-025-NAVBAR-TOKEN 額外做 `grep -nE '#[0-9A-Fa-f]{6}' UnifiedNavBar.tsx` 並逐行驗證僅剩 L18–19 註解塊（K-017 legacy provenance 文字），runtime class literals 零 hex，未盲信 Engineer 宣稱。W-1 (TD-K025-01) PM 裁決 TD 入帳而非 sign-off blocker，因 behavior-diff truth table + dual-rail aria-current/computed color 斷言已獨立證明等價，CSS declaration grep 為冗餘 proxy 而非唯一證據。
-**沒做好：** 本票 visual verification 依 ticket frontmatter `visual-spec: N/A` + zero rendered-color change 豁免（SCHEMA.md §L124），未開 dev server 做全路由目視 — 對 zero-visual refactor 而言合理但仍屬 coverage 選擇；若未來有 NavBar class 同時跨 active/inactive/hover 三態的改動（非本票 scope），純 computed color 無法覆蓋 hover pseudo-state。
-**下次改善：** Sign-off 輸出強制段落化（Verdict / Evidence / Known Gap / Next-ticket-watch）於 persona `qa.md`「Mandatory Task Completion Steps」下加一條模板範例，避免未來 final sign-off 只寫結論不寫證據數字；並在 refactor 類 ticket sign-off 增列「hover/focus pseudo-state 未覆蓋」作為 Known Gap 顯式標示，不靠讀者自行推斷。
+**What went well:** Three-gate serial verification (tsc exit 0, `npm run build` exit 0, full Playwright suite 192 passed / 1 skipped / 0 failed, navbar.spec.ts 22/22) fully aligned with Engineer implementation report; AC-025-NAVBAR-TOKEN additionally ran `grep -nE '#[0-9A-Fa-f]{6}' UnifiedNavBar.tsx` and line-by-line verified only L18–19 comment block remained (K-017 legacy-provenance text), zero hex in runtime class literals — did not blindly trust Engineer claim. W-1 (TD-K025-01) PM ruled as TD ledger entry rather than sign-off blocker, since behavior-diff truth table + dual-rail aria-current / computed-color assertions had independently proved equivalence; CSS-declaration grep is a redundant proxy, not sole evidence.
+**What went wrong:** This ticket's visual verification relied on ticket frontmatter `visual-spec: N/A` + zero rendered-color-change exemption (SCHEMA.md §L124); no dev-server full-route eyeball check was performed — reasonable for a zero-visual refactor but still a coverage choice; if a future change touches NavBar class across active / inactive / hover three states (out of this ticket's scope), pure computed-color cannot cover the hover pseudo-state.
+**Next time improvement:** Force sign-off output into segments (Verdict / Evidence / Known Gap / Next-ticket-watch) by adding a template example under persona `qa.md` "Mandatory Task Completion Steps", avoiding future final sign-offs that write only conclusions without evidence numbers; for refactor tickets, add "hover/focus pseudo-state not covered" explicitly as Known Gap at sign-off, do not rely on the reader to infer.
 
 ---
 
 ## 2026-04-22 — K-025 Early Consultation
 
-**做得好：** Pre-Architect gate 即完成三題 Q1/Q2/Q3 審查，提前鎖定 refactor behavior-equivalence 風險（Tailwind arbitrary-value vs token compile 差異）、aria-current attribute-only selector 的視覺盲點、`/business-logic` route 覆蓋 gap；Q2 建議雙軌斷言（aria-current + computed color `rgb(156,74,59)`）而非單純保留 class regex，避免 refactor 後測試僅驗屬性不驗顏色渲染。
-**沒做好：** 諮詢時 spec 裡仍殘留「`toHaveClass(/text-\\[#1A1814\\]/)` 同時命中 active `/60` 變體 + inactive 兩種狀態」的寬鬆 regex（L178、L204），K-021 放行時未挑出，導致 K-025 本票 selector 遷移前 regression baseline 本身不嚴格；早期 consultation 第一次看到該 spec。
-**下次改善：** 未來 pre-Architect QA consultation 必含一步「baseline spec grep」— `grep -E 'toHaveClass\(/' frontend/e2e/<target>.spec.ts` 列所有 class regex 斷言，逐條檢查 regex 是否唯一命中目標 state（不會跨 active/inactive 同時匹配），有歧義先回 PM 要求 AC 升級為 aria-current + computed color 雙軌，再進 Architect。
+**What went well:** Pre-Architect gate completed three-question Q1/Q2/Q3 review, locking in refactor behavior-equivalence risks (Tailwind arbitrary-value vs token compile difference), the aria-current attribute-only-selector visual blind spot, and `/business-logic` route coverage gap; Q2 suggested dual-rail assertions (aria-current + computed color `rgb(156,74,59)`) rather than just preserving the class regex, to avoid post-refactor tests verifying only the attribute and not the rendered color.
+**What went wrong:** During consultation the spec still carried a loose regex `toHaveClass(/text-\\[#1A1814\\]/)` that simultaneously matches both active `/60` variant and inactive states (L178, L204); not caught at K-021 release, so the regression baseline for K-025 selector migration was itself not strict; first time the early consultation saw this spec.
+**Next time improvement:** Future pre-Architect QA consultation must include a "baseline spec grep" step — `grep -E 'toHaveClass\(/' frontend/e2e/<target>.spec.ts` to list all class-regex assertions, line-by-line check that each regex uniquely matches the target state (does not cross-match active and inactive); on ambiguity, return to PM and request the AC be upgraded to aria-current + computed-color dual rail before proceeding to Architect.
 
 ---
 
@@ -1677,7 +1677,7 @@ Visual report (`visual-report.ts`) takes per-route screenshots side-by-side, but
 
 2. **QA Challenge #6 — AC-020-SPA-NAV and AC-020-BEACON do not cross-verify.**  
    Issue: Phase 1 asserts dataLayer has a new entry after SPA navigate; Phase 2 asserts initial `/` load produces one `/g/collect` beacon. Neither AC asserts **SPA navigate produces a new `/g/collect` beacon**. This is the exact K-018 failure mode: `gtag('event', 'page_view', ...)` called but beacon never sent. If the helper internal implementation drifts (e.g. future refactor breaks the Arguments-object push), SPA-NAV will pass (dataLayer entry present) but no beacon leaves the page. AC currently has no test that catches this at the SPA layer.  
-   Needs supplementation: Add a third AC or extend AC-020-BEACON with a second test case — NavBar click to `/about` → `page.waitForRequest(/\/g\/collect/)` captures a second beacon whose path-key points to `/about`. BQ-3 in ticket alludes to this race but punts it ("Phase 2 初版只要求初始 load"). Punting it removes the only defense against K-018 shape drift in the SPA path.  
+   Needs supplementation: Add a third AC or extend AC-020-BEACON with a second test case — NavBar click to `/about` → `page.waitForRequest(/\/g\/collect/)` captures a second beacon whose path-key points to `/about`. BQ-3 in ticket alludes to this race but punts it ("Phase 2 first version only requires initial load"). Punting it removes the only defense against K-018 shape drift in the SPA path.  
    Recommendation: do NOT defer. Add as hard AC.
 
 3. **QA Challenge #7 — Same-route / query-only / hash-only navigation behavior undefined.**  
@@ -1758,7 +1758,7 @@ Visual report (`visual-report.ts`) takes per-route screenshots side-by-side, but
 **Divergences from simulated (acted on):**
 - C3 (selector stability): simulated declared Known Gap with Engineer discretion; verified flagged this contradicts existing about/ testid convention (DossierHeader, FooterCtaSection already use data-testid) — upgraded to Architect design-doc mandate with 4 prescribed testid names (arch-pillar-body / arch-pillar-layer / ticket-anatomy-body / ticket-anatomy-id-badge).
 - C6 (pyramid layer span text-ink): simulated left `<li>` detail under 3-token allow-list; verified flagged hierarchy inversion risk (if Engineer picks text-ink for both `<li>` and layer span, the "label more prominent than detail" intent collapses since child==parent) — AC tightened to pin `<li>` detail at text-muted fixed.
-- AC "at least one" clause: simulated accepted (and even main session's initial post-PM review agreed); verified showed Engineer could pick a color outside BOTH allow and disallow lists (e.g. text-blue-600) — passes disallow, and only 1 of 3 cards needs allow match, so 2 cards with wrong color slip through. Tightened to "三個皆須命中 allow-list".
+- AC "at least one" clause: simulated accepted (and even main session's initial post-PM review agreed); verified showed Engineer could pick a color outside BOTH allow and disallow lists (e.g. text-blue-600) — passes disallow, and only 1 of 3 cards needs allow match, so 2 cards with wrong color slip through. Tightened to "all three must hit the allow-list".
 
 **Confirmed (no action):**
 - No `darkMode` in tailwind.config + no `dark:` classes — PM's "no OS dark-mode boundary" claim VERIFIED.
@@ -1786,8 +1786,8 @@ text-muted on paper at 12px (text-xs) = 4.84:1 contrast — passes WCAG AA 4.5:1
 **What went well (simulated QA review):** PM-driven scope scan via `grep -rn "text-gray-\|text-purple-\|text-blue-" frontend/src/components/about/` confirmed dark-theme residuals exist only in `ArchPillarBlock.tsx` (3 sites: body div / pyramid li / pyramid layer span) and `TicketAnatomyCard.tsx` (4 sites: body div / Outcome span / Learning span / ticket ID badge). RoleCard + MetricCard + PillarCard + FooterCtaSection already on paper palette — no additional scope. WCAG AA contrast on paper `#F4EFE5`: text-muted `#6B5F4E` ≈ 4.84:1 (passes AA for body), text-charcoal `#2A2520` ≈ 11.9:1 (AAA), text-ink `#1A1814` ≈ 13.5:1 (AAA). All three palette tokens clear AA for `text-xs` body. No dark-mode / OS-preference boundary — body is hard-pinned `bg-paper`.
 
 **Challenges raised (and resolution):**
-1. **AC phrasing "可讀深色" / "或更深" ambiguous** — `deeper` in color space not deterministically verifiable. → **Supplement AC**: replace with explicit allow-list (text-ink / text-charcoal / text-muted RGB) + explicit disallow-list (gray-300/400/500 + purple-400 RGB). PM will patch AC-029-ARCH-BODY-TEXT + AC-029-TICKET-BODY-TEXT.
-2. **Ticket ID badge semantic color BQ** — PM-002 asks `text-charcoal` vs `text-muted`. → **PM rules text-charcoal** (see ticket §Architect Pre-check decisions): badge is an identifier / metadata label (Geist Mono mono-weight), not body prose; token table assigns `charcoal` to "次文字 / 輔助元素" — exactly this role. `text-muted` is for Footer / meta / NavBar non-active per architecture.md L453. text-charcoal also gives AAA contrast, preserving the "prominent identifier" visual weight the original `text-purple-400 font-bold` was trying to achieve.
+1. **AC phrasing "readable dark colour" / "or deeper" ambiguous** — `deeper` in color space not deterministically verifiable. → **Supplement AC**: replace with explicit allow-list (text-ink / text-charcoal / text-muted RGB) + explicit disallow-list (gray-300/400/500 + purple-400 RGB). PM will patch AC-029-ARCH-BODY-TEXT + AC-029-TICKET-BODY-TEXT.
+2. **Ticket ID badge semantic color BQ** — PM-002 asks `text-charcoal` vs `text-muted`. → **PM rules text-charcoal** (see ticket §Architect Pre-check decisions): badge is an identifier / metadata label (Geist Mono mono-weight), not body prose; token table assigns `charcoal` to "secondary text / supporting elements" — exactly this role. `text-muted` is for Footer / meta / NavBar non-active per architecture.md L453. text-charcoal also gives AAA contrast, preserving the "prominent identifier" visual weight the original `text-purple-400 font-bold` was trying to achieve.
 3. **Playwright selector stability** — ArchPillarBlock + TicketAnatomyCard have no `data-testid`; new color assertions must anchor via section heading descent (fragile if Section reshuffles). → **Known Gap declared (KG-029-01)**: Engineer may add `data-testid="arch-pillar-body"` / `data-testid="ticket-anatomy-body"` + `data-testid="ticket-anatomy-id-badge"` at implementation time for stable assertion, OR anchor via `section:has(h2:has-text("Project Architecture"))` + descendant. Not AC-required; Engineer discretion. QA at sign-off will verify whichever path was taken produces stable selectors.
 4. **Regression: new computed-color spec vs existing K-022 about-v2.spec.ts** — K-022 spec exists; AC-029 requires extending with color assertions or new K-029 spec. → Engineer task; Architect must explicitly state in design doc which spec file the new assertions go into. Not AC-blocking.
 5. **Cross-component consistency (K-022 A-12 scope completion)** — Grep confirms no other `/about` components carry dark-theme residuals. Architect Pre-check item 3 resolved.
@@ -1832,7 +1832,7 @@ text-muted on paper at 12px (text-xs) = 4.84:1 contrast — passes WCAG AA 4.5:1
 
 **What went well:** Architect's design doc §6.3 + §6.4 delivered concrete contracts for all three states (DiaryLoading wrapping LoadingSpinner label="Loading diary…", DiaryError with canonical fallback literal "Couldn't load the diary right now. Please try again." + "Retry" button + onRetry prop, DiaryEmptyState literal "No entries yet. Check back soon.") — every selector / literal / retry semantic needed for a Playwright spec is unambiguous in a single authoritative table. Confirmed visual-spec.json does NOT need loading/error roles (thin wrappers around existing LoadingSpinner/ErrorMessage — no new visual primitive), preventing a false Challenge about missing role entries. Cross-checked useDiary hook error classification (§4.1 L307-310) against DiaryError error-classification-scope (§6.3 L572-578) — matched: 4xx/5xx, network TypeError, JSON parse, timeout, no-auto-retry all consistent across both sections.
 
-**What went wrong:** Discovered PM skipped Unblock Protocol step 2 — the AC-024-LOADING-ERROR-PRESERVED text in the ticket at line 337 remains verbatim DEFERRED ("Blocked on Architect design"); PM jumped from step 1 (Architect design delivered) directly to step 3 (QA Round 2 invoked) without executing step 2 (supplement Given/When/Then into AC body). QA cannot testability-review an AC that still reads "Blocked…Architect must deliver…"; the concrete contracts live only in the design doc, not in the AC. Separate issue: Architect's §6.3 introduces DiaryError retry button (line 559 props `onRetry`, line 563 `<button>Retry</button>`) — this is net-new behavior not in the pre-DEFERRED AC scope (original AC only said "沿用既有 UX"); no AC currently asserts retry click → re-fetch → loading-reappears-then-resolves flow, so this behavior ships untested unless PM supplements AC. Third issue: `<DevDiarySection>` on Homepage is stated to "preserve loading/error gates" (§6.2 L473) but no AC specifies Homepage loading/error selectors — only /diary page is contract-covered; Homepage error could silently render nothing and pass all tests.
+**What went wrong:** Discovered PM skipped Unblock Protocol step 2 — the AC-024-LOADING-ERROR-PRESERVED text in the ticket at line 337 remains verbatim DEFERRED ("Blocked on Architect design"); PM jumped from step 1 (Architect design delivered) directly to step 3 (QA Round 2 invoked) without executing step 2 (supplement Given/When/Then into AC body). QA cannot testability-review an AC that still reads "Blocked…Architect must deliver…"; the concrete contracts live only in the design doc, not in the AC. Separate issue: Architect's §6.3 introduces DiaryError retry button (line 559 props `onRetry`, line 563 `<button>Retry</button>`) — this is net-new behavior not in the pre-DEFERRED AC scope (original AC only said "preserve existing UX"); no AC currently asserts retry click → re-fetch → loading-reappears-then-resolves flow, so this behavior ships untested unless PM supplements AC. Third issue: `<DevDiarySection>` on Homepage is stated to "preserve loading/error gates" (§6.2 L473) but no AC specifies Homepage loading/error selectors — only /diary page is contract-covered; Homepage error could silently render nothing and pass all tests.
 
 **Next time improvement:**
 1. **Round 2 pre-flight MUST read the AC text itself** — don't assume "PM invoked Round 2" means PM completed all protocol steps. Before boundary sweep, grep the AC section and verify Given/When/Then has been written; if still DEFERRED text, halt Round 2 and return single Challenge ("AC body not supplemented") rather than attempting full review. Codify in `qa.md` Early Consultation: pre-flight check 1 = read target AC body, pre-flight check 2 = verify design doc exists, both must pass before boundary sweep runs.
@@ -1847,33 +1847,33 @@ text-muted on paper at 12px (text-xs) = 4.84:1 contrast — passes WCAG AA 4.5:1
 
 **Next time improvement:**
 1. PM Phase Gate pre-flight checklist (codify in `pm.md`): before invoking QA Early Consultation, PM must self-run the 7-type boundary sweep table (empty / min-max / special-chars / API-fail / network / concurrency / list-size) and produce a coverage map. Any AC released with obvious empty/concurrency gaps → bounce back without QA cycles.
-2. Any AC that references "既有 UX" / "既有機制" / "existing component" without a stable selector must carry a `blocked-on: architect-design` marker and be excluded from Early Consultation Round 1 (review only Architect-dependent AC in a subsequent Round 2). Codify in `pm.md` AC authoring template.
+2. Any AC that references "existing UX" / "existing mechanism" / "existing component" without a stable selector must carry a `blocked-on: architect-design` marker and be excluded from Early Consultation Round 1 (review only Architect-dependent AC in a subsequent Round 2). Codify in `pm.md` AC authoring template.
 3. Cross-document drift check: when AC text is edited in ticket, PM runs `diff <(grep AC-024-ENTRY-LAYOUT docs/tickets/K-024.md) <(grep AC-024-ENTRY-LAYOUT PRD.md)` — the middle-dot vs em-dash drift would have been caught automatically. Codify as `pm.md` DoD before marking AC revision complete.
 4. Visual-spec SSOT cross-check (role-by-role table) must be a standard artifact in every QA Early Consultation report for any UI ticket with a visual-spec.json — codify in `qa.md` Early Consultation section.
 
 ## 2026-04-21 — K-013 Round 2 Regression Pass
 
-**做得好：** Round 2 gate 全綠一次過（tsc 0 / vitest 45 / pytest 68 / playwright full 173+1 skipped / K-013 spec 4/4），未停在第一個 fail 就中止；K-013 spec 4 cases（full-set / subset / empty matches / <2 bars fallback）直接對應 AC-013-APPPAGE-E2E 的四態斷言，regression 範圍完整。Visual report 5 route 全部截圖成功，輸出至 `docs/reports/K-013-visual-report.html`。Ticket §Pencil 設計稿檢查明確將本票標為 zero-visual-change exemption，sign-off 未錯誤要求 Pencil frame cross-check。
+**What went well:** Round 2 gate fully green in one pass (tsc 0 / vitest 45 / pytest 68 / playwright full 173+1 skipped / K-013 spec 4/4), did not abort on first fail; K-013 spec 4 cases (full-set / subset / empty matches / <2 bars fallback) map directly to the four-state assertions in AC-013-APPPAGE-E2E, regression scope complete. Visual report screenshotted all 5 routes successfully, output to `docs/reports/K-013-visual-report.html`. The ticket §Pencil design-doc check explicitly marks this ticket as zero-visual-change exemption; sign-off correctly did not require Pencil frame cross-check.
 
-**沒做好：** 嘗試跑「browser smoke beyond Playwright」以人手操作 /app live stack（實上傳 CSV + Start Prediction）時，發現 file input 並非本 app 的 OHLC 資料入口（按鈕維持 disabled，需透過 official CSV source / 手動 rows 才能觸發），smoke spec 跑 30 秒 timeout。無預先閱讀 AppPage 上傳流程，直接照任務單的步驟 pseudo 化 E2E 操作；雖最後移除了 ad-hoc spec 沒汙染 repo，但浪費了一次時間。
+**What went wrong:** When attempting "browser smoke beyond Playwright" with manual /app live-stack operation (real CSV upload + Start Prediction), found that the file input is not this app's OHLC data entry point (button stayed disabled, needs official CSV source / manual rows to trigger); smoke spec ran for 30 s and timed out. Did not Read the AppPage upload flow beforehand, instead pseudo-coded the E2E ops directly from the task-list steps; even though the ad-hoc spec was eventually removed without polluting the repo, time was wasted.
 
-**下次改善：** 未來任何 QA 要寫 "live smoke beyond mocks" 的 one-off spec 前，先 `grep -r "setInputFiles\|file input" frontend/e2e/` 找到現有 happy-path spec 的上傳實作照抄，不自己推理 DOM 入口。若 E2E spec 已完整覆蓋（K-013 spec 就是此例），不應再疊加人手 smoke — 以 spec + visual-report 兩線交付就足夠，並在 QA report 註記「live smoke = K-013 spec + visual-report 替代，pure refactor 不另行人手走查」。
+**Next time improvement:** Future, before any QA writes a "live smoke beyond mocks" one-off spec, first `grep -r "setInputFiles\|file input" frontend/e2e/` to find the existing happy-path spec's upload implementation and copy it; do not infer DOM entry on your own. If the E2E spec already covers fully (K-013 spec is exactly this case), do not stack manual smoke on top — spec + visual-report two-track delivery suffices, and QA report should note "live smoke = K-013 spec + visual-report substitute, pure refactor needs no extra human walkthrough".
 
 ## 2026-04-21 — K-030 /app page isolation (final regression)
 
-**做得好：** Pencil v1 `ap001` frame 於本 session 透過直接讀 `frontend/design/homepage-v1.pen` JSON 確認 `fill: #030712`，對照 dev screenshot `/app` wrapper bg 視覺判讀吻合（同時 Playwright T4 已 assert `rgb(3, 7, 18)`）；mcp__pencil 工具不可用時以 .pen JSON 直讀替代，完成 AC-030-PENCIL-ALIGN 視覺比對。主動為 mobile (375px) + tablet (768px) viewport 補 `/app` isolation 驗證（寫入臨時 spec，執行後刪除），補 persona Boundary Sweep viewport 維度；mobile NavBar App link `target=_blank` 亦確認。
+**What went well:** Pencil v1 `ap001` frame was confirmed in this session by directly reading `frontend/design/homepage-v1.pen` JSON to verify `fill: #030712`, cross-checked against dev-screenshot `/app` wrapper bg eyeball reading (Playwright T4 already asserts `rgb(3, 7, 18)`); when mcp__pencil tool was unavailable, falling back to .pen JSON direct-read completed the AC-030-PENCIL-ALIGN visual comparison. Proactively added `/app` isolation verification at mobile (375px) + tablet (768px) viewports (wrote temp spec, deleted after run), backfilling the persona Boundary Sweep viewport dimension; also confirmed mobile NavBar App link `target=_blank`.
 
-**沒做好：** Full Playwright suite `npx playwright test` 跑時 webServer 不帶 `TICKET_ID` 環境變數，`visual-report.ts` fallback 產出 `K-UNKNOWN-visual-report.html` 汙染 `docs/reports/`。QA 驗到尾端才發現並手動 rm + 補跑 `TICKET_ID=K-030 npx playwright test visual-report.ts`。
+**What went wrong:** When full Playwright suite ran via `npx playwright test`, the webServer did not carry `TICKET_ID` env var, and `visual-report.ts` fell back to `K-UNKNOWN-visual-report.html`, polluting `docs/reports/`. QA discovered this only at the tail of verification, then manually rm + re-ran `TICKET_ID=K-030 npx playwright test visual-report.ts`.
 
-**下次改善：** 建議於 `frontend/e2e/visual-report.ts` 加 hard gate — `TICKET_ID` 未設時 `throw new Error('TICKET_ID not set')`，不 fallback K-UNKNOWN；或於 QA persona Step 1 改為「必先 export TICKET_ID=K-XXX 再跑 full suite」硬規則。屬 shared tooling，回報 PM 評估另開 TD 票處理。另發現 `frontend/public/diary.json` 存在繁中 milestone 名稱（違反 feedback_diary_json_english），屬 K-021/K-022/K-023 遺留，與本票 scope 無關，僅備註給 PM 參考。
+**Next time improvement:** Suggest adding a hard gate in `frontend/e2e/visual-report.ts` — when `TICKET_ID` is not set, `throw new Error('TICKET_ID not set')`, no K-UNKNOWN fallback; or change QA persona Step 1 to a hard rule "must export TICKET_ID=K-XXX before running full suite". Shared tooling — report to PM for a separate TD ticket. Also noticed `frontend/public/diary.json` carries Traditional Chinese milestone names (violates feedback_diary_json_english), a K-021/K-022/K-023 residue, out of this ticket's scope, noted for PM reference only.
 
-## 2026-04-21 — K-031 /about 移除 Built by AI showcase section
+## 2026-04-21 — K-031 /about Built-by-AI showcase section removed
 
-**做得好：** PM 已預先核定 targeted scope（about-v2 + about + pages 三 spec + 2 route 視覺驗證），QA 不盲目跑 full suite；tsc 0 errors + 95 passed / 1 skipped / 0 failed；獨立 visual spec 直接 evaluate document 的 8 個候選 section id，讀到的順序與 Architect 設計文件 §3 File Change List 的 7 SectionContainer 列完全一致（header → metrics → roles → pillars → tickets → architecture → footer-cta）；homepage banner 點擊 → `/about` SPA 導航一起驗；Pencil `.pen` JSON grep 對 `banner-showcase` / `Built by AI` 零命中，與 codebase parity 對齊。
+**What went well:** PM had pre-approved a targeted scope (about-v2 + about + pages three specs + 2-route visual verification); QA did not blindly run the full suite; tsc 0 errors + 95 passed / 1 skipped / 0 failed; standalone visual spec directly `evaluate`'d the document's 8 candidate section IDs, the order read matched exactly the 7 SectionContainer order in Architect design doc §3 File Change List (header → metrics → roles → pillars → tickets → architecture → footer-cta); homepage banner click → `/about` SPA navigation also verified; Pencil `.pen` JSON grep for `banner-showcase` / `Built by AI` returned zero hits, parity with codebase achieved.
 
-**沒做好：** 依賴 JSON grep 做 Pencil parity（MCP 目前不可用），無法驗視覺層 — 例如若 .pen 裡殘留空白 frame 或 placeholder rect 但移除了文字 label，單純 text grep 會 false-green。本次是純刪除 ticket，風險可接受，但已登 Known Gap。
+**What went wrong:** Relied on JSON grep for Pencil parity (MCP currently unavailable), unable to verify the visual layer — e.g. if `.pen` retains an empty frame or placeholder rect after removing the text label, plain text grep gives a false green. This was a pure-deletion ticket, risk acceptable, but logged as Known Gap.
 
-**下次改善：** 當 Pencil MCP `get_screenshot` 不可用時，QA Pencil parity 檢查應改為：(1) JSON grep 移除項零命中，(2) JSON top-level frame children count 對照設計文件預期 section 數，(3) 明確在 retrospective 宣告「視覺層未驗（MCP offline）」。已將第三點 codify 到 `~/.claude/agents/qa.md` 的 Mandatory Task Completion Steps 0 之下（若 MCP offline 則明文宣告 + grep fallback 最低門檻）— 下次做此類 ticket 時必照此步驟。
+**Next time improvement:** When Pencil MCP `get_screenshot` is unavailable, QA Pencil-parity check should become: (1) JSON grep for removed items returns zero hits, (2) JSON top-level frame children count matches the section count expected by the design doc, (3) explicitly declare in the retrospective "visual layer not verified (MCP offline)". Item (3) has been codified into `~/.claude/agents/qa.md` Mandatory Task Completion Steps 0 (if MCP offline, declare explicitly + grep fallback as minimum bar) — must follow this on next ticket of this kind.
 
 
 ## 2026-04-21 — K-028 Regression Sign-off
@@ -1896,111 +1896,111 @@ text-muted on paper at 12px (text-xs) = 4.84:1 contrast — passes WCAG AA 4.5:1
 
 ## 2026-04-21 — K-018 GA4 runtime fix regression run
 
-**做得好：** 完整跑滿 175 test (166 passed / 1 skipped / 8 failed)，未在 ga-tracking.spec.ts 第一支 fail 就中止；failure log 直接對應到 spec mock 與 production helper 實作不一致的根因，交付訊息可供 PM 直接裁決。
+**What went well:** Ran the full 175 tests (166 passed / 1 skipped / 8 failed), did not abort on the first ga-tracking.spec.ts fail; failure log mapped directly to the root cause "spec mock and production helper implementation are out of sync", giving PM a clean signal for ruling.
 
-**沒做好：** K-018 原 sign-off 時接受 `ga-tracking.spec.ts` 的 mock 用 `(...args) => dataLayer.push(args)` 形式，沒注意到此 mock shape 與 production helper 的實作細節耦合；當 production 改回 `arguments` 物件後，spec 的 `Array.isArray(entry)` filter 全部失效，8 個 case 同時 fail。Mock 與被測程式對同一個 global (window.gtag) 的 override 順序、以及 Arguments object vs Array 的差異，K-018 QA 當時未辨識為 boundary。
+**What went wrong:** At K-018 original sign-off, accepted `ga-tracking.spec.ts` mock in the form `(...args) => dataLayer.push(args)` without noticing that this mock shape is coupled to the production helper's implementation detail; once production switched back to `arguments` object, the spec's `Array.isArray(entry)` filter failed across all 8 cases. The override order between mock and production code on the same global (window.gtag), and the Arguments-object vs Array difference, were not recognised as a boundary by K-018 QA at the time.
 
-**下次改善：** 任何 spec 以 `addInitScript` mock 全域 function 時，QA sign-off checklist 需新增一條：「此 mock shape 是否與 production 實作的推送 payload 形狀一致？若 production 改寫同一 global 會覆蓋 mock 嗎？」若兩者對同一變數 override，必須列為 Known Gap 或要求 Engineer 改用 spy 而非 replace。
+**Next time improvement:** For any spec that uses `addInitScript` to mock a global function, QA sign-off checklist must add: "Is the mock shape consistent with the production implementation's push payload shape? Will production reassigning the same global override the mock?" If the two override the same variable, list it as Known Gap or require Engineer to switch from replace to spy.
 
-## 2026-04-21 — K-023（Homepage 結構細節對齊 v2）
+## 2026-04-21 — K-023 (Homepage structural detail alignment v2)
 
-**做得好：** 175 tests 全套跑完 174 pass / 1 skip / 0 fail；skip（AC-017-BUILD）為已知設計排除（需 production build），非回歸失漏；TICKET_ID=K-023 帶入正確執行，產出 `K-023-visual-report.html`；AC-023-DIARY-BULLET（width/height/backgroundColor/borderRadius，3 markers）、AC-023-STEP-HEADER-BAR（STEP 01/02/03 各自獨立 3 test，含 fontFamily Geist Mono 斷言）、AC-023-BODY-PADDING（desktop 72px/96px + mobile 375px 32px/24px）、AC-023-REGRESSION（Banner DOM-order compareDocumentPosition + diary markers 存在 + diary link）全部 PASS；K-017 / K-021 / K-022 / AC-HOME-1 / NavBar / DiaryPage 完整回歸無任何破壞。
+**What went well:** Ran the full 175 tests, 174 pass / 1 skip / 0 fail; skip (AC-017-BUILD) is the known design-excluded case (requires production build), not a regression hole; TICKET_ID=K-023 was correctly carried at execution, producing `K-023-visual-report.html`; AC-023-DIARY-BULLET (width/height/backgroundColor/borderRadius, 3 markers), AC-023-STEP-HEADER-BAR (STEP 01/02/03 each independent, 3 tests, including fontFamily Geist Mono assertion), AC-023-BODY-PADDING (desktop 72px/96px + mobile 375px 32px/24px), AC-023-REGRESSION (Banner DOM-order compareDocumentPosition + diary markers exist + diary link) all PASS; K-017 / K-021 / K-022 / AC-HOME-1 / NavBar / DiaryPage all regressed cleanly with no breakage.
 
-**沒做好：** KG-023-04（640px breakpoint boundary test，639px vs 640px）Ticket 明定「QA adds at sign-off」，但 QA 角色定義僅能回報，不能寫 spec；此邊界場景實際上未被任何 test case 覆蓋，sign-off 時未主動將此 Known Gap 升級為 PM interception，而只留在 ticket 記錄中。
+**What went wrong:** KG-023-04 (640px breakpoint boundary test, 639px vs 640px) — ticket explicitly says "QA adds at sign-off", but the QA role definition only allows reporting, not spec authoring; this boundary scenario is in fact not covered by any test case, and at sign-off the Known Gap was not actively escalated as PM interception, only left as a ticket note.
 
-**下次改善：** Ticket 記載「QA adds at sign-off」的 Known Gap，QA sign-off 時必須明確向 PM 聲明「此邊界未覆蓋，需 Engineer 補 spec 或 PM 正式裁決降為 Known Gap」，不得以「已在 ticket 記載」為由跳過正式 Interception 流程。
+**Next time improvement:** When a ticket records a Known Gap as "QA adds at sign-off", QA must explicitly tell PM at sign-off "this boundary is not covered, needs Engineer to add a spec or PM to formally rule it down to Known Gap"; not allowed to skip the formal Interception flow on the basis "it's already in the ticket".
 
-## 2026-04-21 — K-022（/about 結構細節對齊 v2）
+## 2026-04-21 — K-022 (/about structural detail alignment v2)
 
-**做得好：** 165 tests 全套跑完 164 pass / 1 skip / 0 fail，skip（AC-017-BUILD）為已知設計排除（需 production build），非回歸失漏；visual report 正確帶 `TICKET_ID=K-022` 執行，產出 `K-022-visual-report.html`，K-027 反省改善已落地；AC-017-HEADER / METRICS / ROLES / PILLARS / TICKETS / ARCH / FOOTER 全部仍 PASS，I-1 fix（PillarCard overflow-hidden 移除）無破壞。
+**What went well:** Ran the full 165 tests, 164 pass / 1 skip / 0 fail; skip (AC-017-BUILD) is known design-excluded (requires production build), not a regression hole; visual report correctly ran with `TICKET_ID=K-022`, producing `K-022-visual-report.html`; K-027 retro improvement has landed; AC-017-HEADER / METRICS / ROLES / PILLARS / TICKETS / ARCH / FOOTER all still PASS; I-1 fix (PillarCard overflow-hidden removed) caused no breakage.
 
-**沒做好：** I-1 fix 移除 overflow-hidden 屬性後，未補「長文字溢出」邊界場景的 Playwright spec；現有斷言只能確認結構存在，無法保護未來 PillarCard 文字過長時的 layout 完整性。
+**What went wrong:** After I-1 fix removed the overflow-hidden attribute, did not add a "long-text overflow" boundary Playwright spec; existing assertions only confirm structure existence, cannot protect layout integrity when PillarCard text becomes too long in the future.
 
-**下次改善：** Engineer fix 涉及移除 overflow / layout guard 屬性時，QA 須主動補一條 boundary spec（e.g., 注入長文字 prop 確認容器不崩），不能只靠結構斷言通過就放行。
+**Next time improvement:** When Engineer fix involves removing overflow / layout-guard attributes, QA must proactively add a boundary spec (e.g. inject a long-text prop to confirm container does not collapse); cannot release based solely on structural assertions passing.
 
-## 2026-04-21 — K-027（DiaryPage 手機版 milestone timeline 視覺重疊修復）
+## 2026-04-21 — K-027 (DiaryPage mobile milestone-timeline visual-overlap fix)
 
-**沒做好：**
-- TC-001~003（NO-OVERLAP）僅覆蓋「全折疊」與「全展開」兩個端點，未測試 accordion 中間態（奇偶交叉展開），而中間態正是原始 bug 的高發場景。
-- Mobile viewport 測試覆蓋 375 / 390 / 414px，但 AC 明定「≤ 480px 全部 breakpoint」；430px（iPhone 14 Pro Max）與 480px 邊界值未被任何獨立 TC 覆蓋。
-- visual report 執行未帶 `TICKET_ID=K-027` 環境變數，產出檔名為 `K-UNKNOWN-visual-report.html`；K-017 retro 已記錄此改善點，本次仍未落地，屬重複失誤。
-- `assertLastCardVisible` 的 scroll-to-bottom 可見性未作目視或 `toBeInViewport()` 輔助驗證，僅依賴 bounding box 斷言通過，實測路徑存在盲點。
+**What went wrong:**
+- TC-001~003 (NO-OVERLAP) only cover the two endpoints "all collapsed" and "all expanded"; did not test accordion mid-state (odd/even alternate expansion), which is exactly the high-incidence scenario for the original bug.
+- Mobile viewport tests cover 375 / 390 / 414px, but AC explicitly says "≤ 480px all breakpoints"; 430px (iPhone 14 Pro Max) and the 480px boundary value are not covered by any independent TC.
+- Visual report execution did not carry `TICKET_ID=K-027` env var, producing `K-UNKNOWN-visual-report.html`; K-017 retro already recorded this improvement point, but it did not land this time — repeat miss.
+- `assertLastCardVisible` scroll-to-bottom visibility was not verified by eyeball or `toBeInViewport()` auxiliary; relied solely on bounding-box assertion passing — a blind spot on the actual measurement path.
 
-**下次改善：**
-1. **截圖 script TICKET_ID 強制格式**：執行步驟改為 `TICKET_ID=<ticket-id> npx playwright test visual-report.ts`，不允許省略 — 已同步更新 qa.md persona 步驟為硬 gate。
-2. **Accordion 中間態測試**：凡有 accordion/collapse 的頁面，NO-OVERLAP 類斷言必須額外加一輪「奇偶交叉展開」場景（展開奇數索引、折疊偶數索引）。
-3. **Viewport 邊界補點**：AC 定義「≤ X px」時，QA 必須在標準三種 viewport 之外加測 X px 邊界值本身（本票應補 480px TC）。
-4. **Scroll 可見性獨立實測**：scroll-to-bottom 類斷言修正後，QA 須另開 browser session 以目視或 `toBeInViewport()` 補充驗證。
+**Next time improvement:**
+1. **Screenshot script TICKET_ID enforced format**: execution step becomes `TICKET_ID=<ticket-id> npx playwright test visual-report.ts`, no omission allowed — already updated qa.md persona step to a hard gate.
+2. **Accordion mid-state testing**: any page with accordion/collapse, NO-OVERLAP-class assertions must additionally include a "odd/even alternate expansion" scenario (expand odd indices, collapse even indices).
+3. **Viewport boundary supplement**: when AC defines "≤ X px", QA must, beyond the three standard viewports, also test the X-px boundary itself (this ticket should add a 480px TC).
+4. **Independent scroll-visibility check**: after scroll-to-bottom assertion fixes, QA must open a fresh browser session to verify visually or via `toBeInViewport()`.
 
-## 2026-04-20 — K-021 Round 4（`/about` readability re-verify）
+## 2026-04-20 — K-021 Round 4 (`/about` readability re-verify)
 
-**做得好：** Round 3 挑出的 10 處 white-on-paper 疑慮在 Round 4 寫了直接針對 CSS token 的 computed-color 探針（11 處 selector 對 `rgb(26, 24, 20)` 斷言 + 9 處 pillar/arch/ticket-anatomy 延伸），11 主 + 9 延伸 = 20/20 全 pass，證據與 K-017 baseline 無關、直接綁 `ink` token 語意；另外加一道 paper-bg 感知的 white-leaf 全頁掃描（對 `/about` 回 0 筆、對 `/`, `/diary`, `/app`, `/business-logic` 各回 0 筆），回歸證據不止針對 Round 3 舉證的 10 處，而是「整頁再無白字殘留」；regression 三件套自跑（tsc exit 0 / build 所有 chunk < 500kB，最大 vendor-react 179kB gzip 58kB / Playwright 115 passed + 1 skipped），不以 Engineer 自述為憑；visual-report 以 `TICKET_ID=K-021 npx playwright test --project=visual-report` 覆寫 Round 3 報告，檔案 timestamp 與 size 驗證確認寫入成功。
+**What went well:** For the 10 white-on-paper concerns flagged in Round 3, Round 4 wrote a probe targeting CSS-token computed colors (11 selectors asserting `rgb(26, 24, 20)` + 9 pillar/arch/ticket-anatomy extensions); 11 main + 9 extension = 20/20 all pass; evidence is independent of K-017 baseline, directly tied to the `ink` token semantics. Additionally added a paper-bg-aware white-leaf full-page scan (returns 0 hits on `/about` and 0 hits each on `/`, `/diary`, `/app`, `/business-logic`); regression evidence is not only for the 10 Round-3 specifics but for "no white text residue anywhere on the page". Self-ran the regression triplet (tsc exit 0 / build all chunks <500kB, largest vendor-react 179kB gzip 58kB / Playwright 115 passed + 1 skipped); did not rely on Engineer self-report. visual-report ran with `TICKET_ID=K-021 npx playwright test --project=visual-report` overwriting the Round 3 report; verified write success via file timestamp and size.
 
-**沒做好：** Round 4 是 narrow re-verify，但 probe script 起手時 import 寫成 `from 'playwright'`（套件只有 `@playwright/test`），第一次執行 ERR_MODULE_NOT_FOUND，多跑一次；為了不污染 E2E suite，把探針放在 `e2e/_k021-round4-*.mjs` 並依賴 playwright config 的 `testMatch: /.*\.spec\.ts$/` 篩掉，但「命名以 `_` 開頭 + `.mjs` 副檔名 + 非 spec」三重保險這層規則沒先寫在探針檔頭註解，之後同事看到可能誤會是遺漏的 spec。
+**What went wrong:** Round 4 is a narrow re-verify, but the probe script at start wrote `from 'playwright'` import (the package is only `@playwright/test`); first run hit ERR_MODULE_NOT_FOUND, requiring an extra retry. To avoid polluting the E2E suite, the probe was placed at `e2e/_k021-round4-*.mjs` relying on playwright config's `testMatch: /.*\.spec\.ts$/` to filter out, but the triple-safety rule "underscore-prefix + `.mjs` extension + non-spec" was not first written in the probe file's header comment; future teammates seeing it might mistake it for a missing spec.
 
-**下次改善：** (1) `/frontend` 下 ad-hoc Playwright 探針統一 `import { chromium } from '@playwright/test'`，新增 `_k*.mjs` template 註解首行標註「非 spec，不被 testMatch 收斂，執行完 rm」；(2) Round N re-verify 類任務，QA retro 標題明確加 `Round N (<focus>)`，與原始 ticket retro 區隔閱讀路徑，避免後續翻閱者混淆範圍。
+**Next time improvement:** (1) Standardise ad-hoc Playwright probes under `/frontend` to `import { chromium } from '@playwright/test'`; add `_k*.mjs` template with first-line comment "not a spec, not picked up by testMatch, rm after run". (2) For Round N re-verify tasks, the QA retro heading must include `Round N (<focus>)` to separate the reading path from the original ticket retro, preventing scope confusion for later readers.
 
 ## 2026-04-20 — K-021
 
-**做得好：** 自動化三件套（tsc exit 0 / build 無 chunk warning / Playwright 115 passed + 1 skipped）一次通過並逐項記錄具體數字（最大 chunk vendor-react 179kB，gzip 58kB），非只標 PASS；5 路由視覺檢查不依賴肉眼，以臨時 Playwright spec 逐頁 evaluate 出 body bg / color / heading fontFamily / footer fontFamily 等數值，再與 AC 原始 rgb 斷言並對；`/about` readability 疑慮不以肉眼判斷，撰寫 readability 探針（讀 hero h1 / metric cards / h2/h3 headings 的 computed color）取得 `rgb(255, 255, 255)` 白字出現於 paper bg 的客觀證據，再對照 K-017 baseline（extract K-017-visual-report.html 的 base64 還原 /tmp/k017-about.png）逐幅肉眼比對；NavBar 疑似 hex leak 先以 `outerHTML` regex 偵測，再寫第二版探針區分「inline style vs className literal」，避免錯判 TD-K021-02 允許的 `text-[#9C4A3B]` 為 regression；結束前以 `rm e2e/_tmp-*.spec.ts` 清除所有臨時 spec，避免污染 repo。
+**What went well:** Automation triplet (tsc exit 0 / build no chunk warning / Playwright 115 passed + 1 skipped) passed in one pass with specific numbers recorded item by item (largest chunk vendor-react 179kB, gzip 58kB), not just stamped PASS; 5-route visual check did not rely on eyeballing — used a temporary Playwright spec to per-page `evaluate` body bg / color / heading fontFamily / footer fontFamily and compared against AC's original rgb assertions; `/about` readability concerns were not judged by eye but via a readability probe (reading computed color of hero h1 / metric cards / h2/h3 headings) producing objective evidence of `rgb(255, 255, 255)` white text on paper bg, then cross-checked against K-017 baseline (extracting base64 from K-017-visual-report.html into /tmp/k017-about.png) frame by frame; the NavBar suspected hex leak was first detected via `outerHTML` regex, then a second-version probe distinguished "inline style vs className literal" to avoid mis-flagging the TD-K021-02-allowed `text-[#9C4A3B]` as regression. Cleaned all temporary specs at end via `rm e2e/_tmp-*.spec.ts` to avoid repo pollution.
 
-**沒做好：** readability 探針一開始沒把 `/about` 排為優先核心——先跑「6 routes 通用截圖 + 色值抽樣」才發現異常，多跑一輪探針；臨時 spec 建立時沒先看 `playwright.config.ts` 的 `testDir: './e2e'`，第一次放 `/tmp/` 啟動失敗才改放 `e2e/_tmp-*.spec.ts`，浪費一次 run；Reviewer 2 條件之一「`/about` 與 K-017 baseline 對比 → 判斷是 K-022 regression 還是立即修」QA 視為「回報事實給 PM 裁決」而非自己下判斷，但沒在 retrospective 明確標示「技術證據已收集完整，裁決在 PM」的邊界角色。
+**What went wrong:** The readability probe initially did not prioritise `/about` as core — first ran "6 routes generic screenshot + colour sampling" and only then noticed the anomaly, requiring an extra probe round; when creating the temp spec, did not first look at `playwright.config.ts` `testDir: './e2e'` — first attempt put it under `/tmp/` and startup failed, then moved to `e2e/_tmp-*.spec.ts`, wasting one run; one of the Reviewer 2 conditions "compare `/about` against K-017 baseline → decide whether it's K-022 regression or immediate fix" — QA treated this as "report facts for PM ruling" rather than deciding itself, but did not explicitly mark in the retrospective the boundary role "technical evidence fully collected, ruling rests with PM".
 
-**下次改善：** (1) 視覺全面改版類 ticket（K-021 此類 design system rebuild）QA 視覺 audit step 先讀 ticket §Scope 與 §Tech Debt 列出「本票遷移 vs 未遷移」範圍，**優先針對「未遷移但受波及」路由做 readability 探針**，不倚賴均勻抽樣；(2) 臨時 Playwright spec 一律直接建在 `e2e/_tmp-<task>.spec.ts`，並在結束前 `rm` + `ls` 驗證清除，不走 `/tmp/` 導致 testDir 不覆蓋；(3) QA retro 明確分段「客觀數據」vs「PM 裁決題」，前者 QA 負責，後者只陳述證據不下結論，避免角色越權。
+**Next time improvement:** (1) For visual-overhaul tickets (K-021-class design-system rebuilds), QA visual audit step must first Read ticket §Scope and §Tech Debt to enumerate "this-ticket migrated vs not-migrated" scope, **prioritise readability probes on "not-migrated but affected" routes**, not relying on uniform sampling. (2) Temporary Playwright specs always go directly under `e2e/_tmp-<task>.spec.ts`; verify cleanup with `rm` + `ls` at the end; do not use `/tmp/` since testDir does not cover it. (3) QA retro must clearly separate "objective data" from "PM-ruling questions"; QA owns the former, only states evidence without conclusions for the latter, to avoid role overreach.
 
 ## 2026-04-19 — K-018
 
-**做得好：** ga-tracking.spec.ts 12/12 全綠逐一目視確認（AC-018-INSTALL × 1、AC-018-PAGEVIEW × 4、AC-018-CLICK × 4、AC-018-PRIVACY × 1、AC-018-PRIVACY-POLICY × 2），與 ticket AC 清單逐條對齊；`TICKET_ID=K-018` 環境變數本次記得帶，產出正確命名的 `K-018-visual-report.html`（K-017 反省的改善行動已落地）；全套 99 passed / 1 skipped，skipped 條目屬已知問題，正確標注不 block。
+**What went well:** ga-tracking.spec.ts 12/12 all green, eyeballed item by item (AC-018-INSTALL × 1, AC-018-PAGEVIEW × 4, AC-018-CLICK × 4, AC-018-PRIVACY × 1, AC-018-PRIVACY-POLICY × 2), aligned line-by-line with ticket AC list; `TICKET_ID=K-018` env var was carried this time, producing correctly named `K-018-visual-report.html` (K-017 retro improvement landed); full suite 99 passed / 1 skipped; the skipped entry is a known issue, correctly tagged as non-blocker.
 
-**沒做好：** `waitForFunction` 取代 `waitForTimeout` 的修復屬 E2E 穩定性改善，QA 未獨立驗證「舊版確實存在 flaky 風險」——只依賴 Engineer retro 自述，未執行 `--repeat-each` 確認新版不 flaky；「`/business-logic` 不在追蹤範圍」的設計理由沒有在 QA retro 中明記，後續若有 coverage 疑問需翻 ticket 才能找到依據。
+**What went wrong:** The `waitForFunction` replacing `waitForTimeout` fix is an E2E stability improvement; QA did not independently verify "the old version did have flaky risk" — relied only on Engineer retro self-report, did not run `--repeat-each` to confirm the new version is not flaky. The design rationale "`/business-logic` is out of tracking scope" was not explicitly recorded in QA retro; future coverage doubts will require flipping back to the ticket to find the basis.
 
-**下次改善：** (1) E2E timeout 改善類修復，QA 須執行 `npx playwright test <spec> --repeat-each=5` 驗證穩定性，不全然依賴 Engineer 自述；(2) 「刻意不追蹤/跳過」的路由或功能，QA retro 明記排除理由，作為後續 coverage 問題的第一線文件依據。
+**Next time improvement:** (1) For E2E timeout-fix-class tickets, QA must run `npx playwright test <spec> --repeat-each=5` to verify stability; not fully relying on Engineer self-report. (2) For "intentionally not tracked / skipped" routes or features, QA retro must explicitly record the exclusion rationale, as the first-line documentation basis for future coverage questions.
 
 ---
 
 ## 2026-04-19 — K-017
 
-**沒做好：** 執行 visual report script 時未帶 `TICKET_ID=K-017` 環境變數，導致產出為 `K-UNKNOWN-visual-report.html`；AC-017-BUILD（prebuild hook）因 dev mode skip 而未補 build-mode 手動驗證；AC-017-AUDIT（audit-ticket.sh）屬 shell script 不被 Playwright 覆蓋，但 QA 未主動手動執行 K-002/K-008/K-999 三個情境逐條確認 AC。
-**下次改善：** (1) 截圖 script 執行前固定確認 `TICKET_ID` 已設；(2) 含 build artifact 依賴的 AC，QA 額外執行 `npm run build` 確認 artifact 存在；(3) Shell script / CLI tool 類 AC，QA 主動手動執行所有情境，不以 Playwright skip 代替驗證。
+**What went wrong:** When running the visual report script, the `TICKET_ID=K-017` env var was not set, producing `K-UNKNOWN-visual-report.html`; AC-017-BUILD (prebuild hook) was skipped in dev mode and not supplemented with build-mode manual verification; AC-017-AUDIT (audit-ticket.sh) is a shell script not covered by Playwright, but QA did not proactively run the three scenarios K-002/K-008/K-999 manually to confirm AC line by line.
+**Next time improvement:** (1) Confirm `TICKET_ID` is set before every screenshot-script run. (2) For ACs that depend on build artifacts, QA additionally runs `npm run build` to confirm the artifact exists. (3) For shell-script / CLI-tool ACs, QA proactively runs all scenarios manually; cannot substitute Playwright skips for verification.
 
 ---
 
-## 2026-04-18 — K-008 QA 驗收反省
+## 2026-04-18 — K-008 QA Sign-off Retrospective
 
-**做得好：** 6 步回歸不只機械執行，在 Step 3 HTML 產出後主動補跑「結構抽樣」驗證（`grep -c 'class="page-section'` = 5、`grep -o 'data:image/png;base64' \| wc -l` = 4、`grep -A1 'class="route"'` 列 5 條 `<code>` 路由標記），把 AC-008-CONTENT 條文「每張截圖有對應的 route path 標記」從「Engineer 自述」升級為「QA 獨立驗證」。Step 6 也額外執行 `git check-ignore -v` 確認 `.gitignore:32` rule 精確命中、無 overreach，不只看 `status` 輸出有無目標檔。
+**What went well:** The 6-step regression was not only mechanically executed; after Step 3 HTML output, proactively added a "structural sampling" verification (`grep -c 'class="page-section'` = 5, `grep -o 'data:image/png;base64' | wc -l` = 4, `grep -A1 'class="route"'` listing 5 `<code>` route markers), upgrading AC-008-CONTENT clause "every screenshot has a corresponding route-path marker" from "Engineer self-report" to "QA independent verification". Step 6 additionally ran `git check-ignore -v` to confirm `.gitignore:32` rule lands precisely with no overreach, not just looking at whether `status` output contains the target file.
 
-**沒做好：** W4 whitelist 的 negative path 只驗 PM prompt 指定的 `../../etc/passwd` 一個 payload；QA 應自備邊界清單（空字串、純空白、尾空白、`K-` 大小寫、Unicode、overflow 長度）主動擴展驗證面，但這次沒做。另外 `.gitignore` rule overreach 只做 `docs/reports/*.html` 單 rule 抽樣，未對 `dist/`、`coverage/`、`node_modules/` 內常見產物目錄各抽 1 sample 跑 `check-ignore` 確認未誤傷。HTML size 驗證僅比 `>500KB` / `<10MB` 門檻，若未來產物結構大幅異常（例：24 張截圖擠成 1 MB，或某條 route 變空），size 仍會落在範圍內，size 不足以當 structural invariant。
+**What went wrong:** W4 whitelist's negative path only verified the one payload `../../etc/passwd` specified by PM prompt; QA should bring its own boundary list (empty string, pure whitespace, trailing whitespace, `K-` case sensitivity, Unicode, overflow length) and proactively expand verification surface, but did not this time. Also `.gitignore` rule overreach was only sampled on the single `docs/reports/*.html` rule; did not sample 1 file each from common product dirs `dist/`, `coverage/`, `node_modules/` to run `check-ignore` and confirm no collateral damage. HTML size verification only compared `>500KB` / `<10MB` thresholds; if future product structure is severely abnormal (e.g. 24 screenshots squeezed into 1 MB, or a route ends up empty), size would still fall in range — size is insufficient as a structural invariant.
 
-**下次改善：**
-1. **邊界 payload 清單固定化** — QA 自備 fixed checklist（空字串、純空白、尾空白、大小寫、Unicode、overflow 長度）隨任何 env var / CLI 輸入 ticket 一起跑，不等 Reviewer / PM 在 prompt 列 payload。
-2. **gitignore 跨產物 sample 檢查** — 凡修改 `.gitignore`，QA 對 repo 內常見產物目錄（`dist/`、`coverage/`、`node_modules/`、`docs/`）各抽 1 個 sample 檔案跑 `git check-ignore -v`，確認 rule 精確，不靠「只看目標檔是否被 ignore」單點判斷。
-3. **Artifact 內容抽樣作為 invariant** — HTML / JSON artifact 不只看 size；每種 artifact 定義 1~3 個結構 grep 作為 AC 的 operational invariant（本票 `<section>` 數、base64 圖數、route 標記清單），寫進 QA 驗收章節當證據，不靠 Engineer 自述。
+**Next time improvement:**
+1. **Boundary-payload checklist standardised** — QA brings a fixed checklist (empty string, pure whitespace, trailing whitespace, case sensitivity, Unicode, overflow length) on every env-var / CLI-input ticket, not waiting for Reviewer / PM to list payloads in the prompt.
+2. **gitignore cross-product sampling** — whenever `.gitignore` is modified, QA samples 1 file each from the repo's common product dirs (`dist/`, `coverage/`, `node_modules/`, `docs/`) and runs `git check-ignore -v` to confirm rule precision; cannot rely on "only check whether the target file is ignored" as the sole judgement.
+3. **Artifact content sampling as invariant** — for HTML / JSON artifacts, do not look only at size; for each artifact type define 1–3 structural greps as the AC's operational invariant (this ticket: `<section>` count, base64 image count, route-marker list); write them into the QA sign-off section as evidence, not relying on Engineer self-report.
 
 ---
 
-## 2026-04-18 — K-011（LoadingSpinner label prop 回歸測試）
+## 2026-04-18 — K-011 (LoadingSpinner label prop regression test)
 
-**做得好：** 三層驗證（tsc exit 0 / Vitest 36 pass / Playwright 45/45）全程實跑並 tail 輸出驗證精確數字，未沿用 Reviewer 段落 relay；主動 Read `agent-context/architecture.md:139` 確認 Drift A 已由 Engineer 補完，不假設「PM 裁決 = 已執行」。補執行「獨立 grep `Running prediction` 於 `frontend/` 全樹」作為雙重驗證，確認 `frontend/e2e/` 無任何斷言依賴、`PredictButton.test.tsx:24` 為唯一依賴點、`homepage.pen:4825` 為 TD-011 已登記項，無漏網。
+**What went well:** Three-layer verification (tsc exit 0 / Vitest 36 pass / Playwright 45/45) was actually run and tailed for exact numbers throughout, not relayed from Reviewer paragraphs; proactively Read `agent-context/architecture.md:139` to confirm Drift A was completed by Engineer, did not assume "PM ruling = executed". Additionally ran "independent grep `Running prediction` over the entire `frontend/` tree" as a double verification, confirming `frontend/e2e/` has no assertion dependency, `PredictButton.test.tsx:24` is the sole dependency, `homepage.pen:4825` is the registered TD-011 item — no leaks.
 
-**沒做好：** `LoadingSpinner` 本身沒有 unit test（現存 test 都走上層 PredictButton / AppPage 間接覆蓋），對 `label` 的 falsy 邊界（空字串 `""`、`undefined`、極長字串）與 `aria-label` fallback（`label ?? 'Loading'`）未有直接斷言；若未來新 callsite 誤傳空字串，行為是「不渲染 `<p>` 且 `aria-label` 走 fallback」，本票無測試攔截此情境。此外，未主動在 retrospective 中將這些邊界列成「K-011 未覆蓋」的 follow-up 清單交 PM 評估是否需要補 unit test。
+**What went wrong:** `LoadingSpinner` itself has no unit test (existing tests all go through upper PredictButton / AppPage indirectly), with no direct assertions on `label` falsy boundaries (empty string `""`, `undefined`, extremely long string) or `aria-label` fallback (`label ?? 'Loading'`); if a future new callsite mistakenly passes an empty string, the behavior is "no `<p>` rendered and `aria-label` falls back", and this ticket has no test to intercept that scenario. Also did not proactively list these boundaries in the retrospective as a "K-011 not covered" follow-up list for PM to evaluate whether to add unit tests.
 
-**下次改善：** (1) 共用 UI 組件「新增 prop」類 ticket，QA 必主動列「新 callsite 的邊界條件」（falsy 值、極長字串、RTL / emoji）給 PM 評估是否補 unit test；即使 PM 判定非 scope，也要在 retrospective 明記「這些邊界未覆蓋」供未來 bug 溯源。(2) 沿用 Reviewer grep 結論前，自己跑一次獨立 grep（`frontend/e2e/ frontend/src/__tests__/ frontend/src/`），把 Reviewer 的結論當 hypothesis 而非 fact，發出 PASS 前必有 QA 自行 grep 紀錄。
+**Next time improvement:** (1) For shared UI components in "add prop" tickets, QA must proactively list "new callsite boundary conditions" (falsy values, extremely long strings, RTL / emoji) for PM to decide whether to add unit tests; even if PM rules out of scope, must record "these boundaries not covered" in the retrospective for future bug-tracing. (2) Before relying on Reviewer grep conclusions, QA must run an independent grep itself (`frontend/e2e/ frontend/src/__tests__/ frontend/src/`), treating Reviewer's conclusion as hypothesis not fact; before issuing PASS, there must be a QA-self-grep record.
 
-## 2026-04-18 — K-009（1H MA history fix 回歸測試）
+## 2026-04-18 — K-009 (1H MA history fix regression test)
 
-**做得好：** 實跑 `python3 -m pytest` 取得完整 63 passed 數字，並與 ticket AC-009-REGRESSION 基準（18 + 44 = 62 + 新增 1 = 63）逐項 cross-check 對齊；同步跑 `py_compile` 雙檔確認無語法/縮排漏網。跳過 Playwright 的決策明確寫進報告並附理由（無前端 diff、無 UI surface），不用「沒時間」含糊帶過。
+**What went well:** Actually ran `python3 -m pytest` to obtain the full 63 passed number, and cross-checked item by item against ticket AC-009-REGRESSION baseline (18 + 44 = 62 + 1 new = 63); also ran `py_compile` on both files to confirm no syntax/indentation leaks. The decision to skip Playwright was explicitly written into the report with rationale (no frontend diff, no UI surface), not glossed over with "no time".
 
-**沒做好：** 未執行單點驗證「移除 fix 後 test 會失敗」—— 雖然 Reviewer 已實跑 `git stash` 驗過（ticket Reviewer 段有記錄），但 QA 層面未再獨立覆核，純粹 relay Reviewer 結論；若 Reviewer 記錄本身有誤（此次無，但流程上不應假設），QA 等於失守。此外，S1 技術債（predictor 層靜默 fallback）已開 K-015，但 QA 未主動列出「未來新增 `find_top_matches()` caller 時，測試需攔截此類 regression」的邊界條件清單給 PM。
+**What went wrong:** Did not execute the spot-verification "remove fix → test fails" — even though Reviewer already ran `git stash` to verify (recorded in the ticket Reviewer section), QA did not independently re-verify and merely relayed Reviewer's conclusion; if Reviewer's record itself were wrong (it was not this time, but procedurally should not be assumed), QA effectively lost the line. Also, although S1 tech debt (predictor-layer silent fallback) was already filed as K-015, QA did not proactively list "future new `find_top_matches()` callers must have tests to intercept this regression" as a boundary checklist for PM.
 
-**下次改善：** (1) 後端 bug fix 類 ticket，QA 必須獨立執行「reverse-fix → test fail → restore fix → test pass」一輪小驗證，不全然依賴 Reviewer 段落；(2) 看到「技術債已開票」的裁決時，QA 主動在 retrospective 註記該 follow-up 需要的 regression 測試覆蓋點（例如：K-015 解掉時必須附「新 caller 忘記傳 ma_history」的 predictor 層 assert test），避免技術債修復時又踩相同坑。
+**Next time improvement:** (1) For backend bug-fix tickets, QA must independently run a small "reverse-fix → test fail → restore fix → test pass" round; not fully relying on Reviewer paragraphs. (2) When seeing a "tech debt already filed" ruling, QA proactively notes in the retrospective the follow-up regression test coverage points (e.g. when K-015 is resolved, must include a predictor-layer assert test for "new caller forgot to pass ma_history") to avoid tripping over the same hole when the tech debt is fixed.
 
-## 2026-04-18 — K-010（Vitest AppPage 修復）
+## 2026-04-18 — K-010 (Vitest AppPage fix)
 
-**做得好：** 三重回歸（Vitest 36/36、tsc exit 0、Playwright 45/45）全程實跑並 tail 輸出確認數字，不信 Implementation log；額外 grep `chart-timeframe-` 比對 testid 在 E2E 是否被依賴，釐清本次 DOM 改動的 blast radius 只在 Vitest，E2E 無回歸風險。
+**What went well:** Triple regression (Vitest 36/36, tsc exit 0, Playwright 45/45) was actually run and tailed for confirmed numbers throughout, not trusting Implementation log; additionally grep'd `chart-timeframe-` to compare whether testid is depended on in E2E, clarifying that this DOM change's blast radius is only in Vitest with no E2E regression risk.
 
-**沒做好：** 未跑 Vitest coverage 確認 Engineer 是否意外讓既有 test skip 或改判（只看 pass 數無法偵測「斷言被削弱」），本次靠 review 手動檢查 test diff 間接證明，程序上有漏洞；截圖 script 仍缺（K-008 未實作 cycle #6），本次跳過但流程定義上 QA 尾段是缺的。
+**What went wrong:** Did not run Vitest coverage to confirm whether Engineer accidentally made existing tests skip or change verdict (looking at pass count alone cannot detect "weakened assertions"); this time relied on manual review of test diff for indirect proof — procedurally a gap. Screenshot script is still missing (K-008 cycle #6 not implemented); skipped this time, but the QA tail step is missing per process definition.
 
-**下次改善：** (1) 日後 Vitest 涉及改寫斷言的 ticket，QA 必加跑 `npm test -- --run --coverage` 比對 coverage diff（或至少 read 改動的 test 原/新 diff）再聲明 PASS；(2) 在 K-008 實作前，QA 的「截圖報告」欄位採固定「跳過（K-008 未完成）」而不逕自聲稱流程完整，避免 PM 誤解。
+**Next time improvement:** (1) Future Vitest tickets that involve rewriting assertions: QA must additionally run `npm test -- --run --coverage` to compare coverage diff (or at least Read original/new diff of modified tests) before declaring PASS. (2) Before K-008 is implemented, QA's "screenshot report" field uses fixed "Skipped (K-008 incomplete)" rather than self-claiming full process, to avoid PM misunderstanding.
 
 ## 2026-04-27 — K-052 Phase 5 Sign-off
 

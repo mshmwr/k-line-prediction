@@ -323,8 +323,8 @@ For each affected route, every entry point rendering the Footer:
 12. `frontend/e2e/sitewide-fonts.spec.ts` L9 + L38 + L43 + L55–57 — rename `HomePage HomeFooterBar font-mono element` test description to `HomePage Footer (variant="home") font-mono element`; update comment L55–57 K-030 context. Assertion logic unchanged.
 13. `frontend/e2e/ga-tracking.spec.ts` L212 — comment `// Given: user visits any page with FooterCtaSection` → `// Given: user visits any page with Footer variant="about"`. Test logic unchanged.
 14. `agent-context/architecture.md` — two tables + one prose update:
-    - `### Footer 放置策略` table (L505–515): rename `/` row's Footer cell `<HomeFooterBar />` → `<Footer variant="home" />`; rename `/about` row's Footer cell `<FooterCtaSection />` → `<Footer variant="about" />`; rename `/business-logic` row's Footer cell `<HomeFooterBar />` → `<Footer variant="home" />`. `/diary` and `/app` rows unchanged.
-    - `### Shared Components 邊界` table (L517–524): replace `HomeFooterBar` and `FooterCtaSection` rows with a single new row `Footer` = `components/shared/Footer.tsx` = used by `/` `/about` `/business-logic` (variant declared). 3 rows → 2 rows (UnifiedNavBar + Footer).
+    - `### Footer placement strategy` table (L505–515): rename `/` row's Footer cell `<HomeFooterBar />` → `<Footer variant="home" />`; rename `/about` row's Footer cell `<FooterCtaSection />` → `<Footer variant="about" />`; rename `/business-logic` row's Footer cell `<HomeFooterBar />` → `<Footer variant="home" />`. `/diary` and `/app` rows unchanged.
+    - `### Shared Components boundary` table (L517–524): replace `HomeFooterBar` and `FooterCtaSection` rows with a single new row `Footer` = `components/shared/Footer.tsx` = used by `/` `/about` `/business-logic` (variant declared). 3 rows → 2 rows (UnifiedNavBar + Footer).
     - Summary prose (L13 + L20): append to `updated:` frontmatter the K-035 date; append one Changelog entry at bottom summarizing Footer unification + `components/shared/` directory creation.
 
 ### No-op EDITS (docstrings on surviving components — Warning 2 from Phase 2 audit)
@@ -629,22 +629,22 @@ No spec duplication; no spec redundancy.
 
 ### 11.1 Expected post-edit Footer table (source of truth: this design doc §5)
 
-| 頁面 | Footer (post-K-035) |
+| Page | Footer (post-K-035) |
 |------|---------------------|
 | `/` | `<Footer variant="home" />` |
 | `/about` | `<Footer variant="about" />` |
-| `/diary` | 無 footer（K-024 Architect 裁決；不變） |
-| `/app` | 無 footer（K-030 isolation；不變） |
+| `/diary` | no footer (K-024 Architect ruling; unchanged) |
+| `/app` | no footer (K-030 isolation; unchanged) |
 | `/business-logic` | `<Footer variant="home" />` |
 
-**Row count: 5.** **Columns: 2 (頁面, Footer).** **Cells: 10.**
+**Row count: 5.** **Columns: 2 (Page, Footer).** **Cells: 10.**
 
-### 11.2 Expected post-edit Shared Components 邊界 table
+### 11.2 Expected post-edit Shared Components boundary table
 
-| 組件 | 位置 | 用於 |
-|------|------|------|
-| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | `/` `/about` `/diary` `/business-logic`（K-030 起 `/app` 不渲染；TEXT_LINKS 的 `App` entry 標 `external: true`，於 4 marketing 頁點擊時開 new tab 載入 `/app`） |
-| `Footer` | `components/shared/Footer.tsx` | `/` `/business-logic` via `variant="home"`; `/about` via `variant="about"`（K-035 統一 2026-04-22；K-021 `/about 維持 FooterCtaSection` Sacred 已 retire） |
+| Component | Location | Used by |
+|-----------|----------|---------|
+| `UnifiedNavBar` | `components/UnifiedNavBar.tsx` | `/` `/about` `/diary` `/business-logic` (from K-030 `/app` does not render; TEXT_LINKS `App` entry marked `external: true`, opens new tab to `/app` from the 4 marketing pages) |
+| `Footer` | `components/shared/Footer.tsx` | `/` `/business-logic` via `variant="home"`; `/about` via `variant="about"` (K-035 unified 2026-04-22; K-021 `/about 維持 FooterCtaSection` Sacred retired) |
 
 **Row count: 2** (was 3 pre-K-035: UnifiedNavBar + HomeFooterBar + FooterCtaSection; now 2: UnifiedNavBar + Footer). **Columns: 3.** **Cells: 6.**
 
@@ -659,7 +659,7 @@ Under the existing `│   │           ├── primitives/` block, a new peer
 
 And under `components/home/` block: remove `HomeFooterBar.tsx` line (currently implied by "home/" subdir but not explicitly listed in existing tree — Engineer grep-verifies before removing).
 
-Under `components/about/` block: remove `FooterCtaSection.tsx` line — currently at L160 of architecture.md (per grep earlier). Changes from `FooterCtaSection.tsx              ← S7 email + GitHub + LinkedIn 容器（K-031 後從 S8 重編為 S7）` → line removed; `FooterCtaLink.tsx` line kept (still used by other about components).
+Under `components/about/` block: remove `FooterCtaSection.tsx` line — currently at L160 of architecture.md (per grep earlier). Changes from `FooterCtaSection.tsx              ← S7 email + GitHub + LinkedIn container (renumbered from S8 → S7 after K-031)` → line removed; `FooterCtaLink.tsx` line kept (still used by other about components).
 
 ### 11.4 Expected Changelog entry at bottom (Engineer appends)
 
@@ -743,7 +743,7 @@ K-035 Phase 3 downstream roles and their mandated work:
 
 All cited at `:L<line>` precision.
 
-### 13.3 §API 不變性證明 dual-axis
+### 13.3 §API invariance proof dual-axis
 
 **(a) Wire-level schema diff:**
 

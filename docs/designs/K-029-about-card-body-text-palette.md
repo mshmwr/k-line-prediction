@@ -4,19 +4,19 @@
 **Type:** fix (visual-token migration, no logic change)
 **Author:** Architect
 **Date:** 2026-04-22
-**Upstream:** PM Architect放行 2026-04-22 (ticket §放行狀態)
-**Downstream:** Engineer (pending PM覆核 of this doc)
+**Upstream:** PM Architect release 2026-04-22 (ticket §release-status)
+**Downstream:** Engineer (pending PM review of this doc)
 
 ---
 
 ## 0 Scope Questions (SQ)
 
-None. Ticket §Architect Pre-check PM裁決 (2026-04-22) 已固定：
+None. Ticket §Architect Pre-check PM ruling (2026-04-22) is locked:
 - C-body=`text-muted` (rgb(107,95,78))
 - C-pyramid layer span=`text-ink` (rgb(26,24,20))
 - C-pyramid `<li>` detail=`text-muted` (rgb(107,95,78), qa subagent verify tightening)
 - C-badge=`text-charcoal` (rgb(42,37,32))
-- C-scope=2 檔完整 (PM grep 已驗證，Architect §1 Pre-Design Audit 覆驗亦命中僅 7 sites)
+- C-scope=2 files complete (PM grep verified, Architect §1 Pre-Design Audit re-verification also hits exactly 7 sites)
 
 ---
 
@@ -24,15 +24,15 @@ None. Ticket §Architect Pre-check PM裁決 (2026-04-22) 已固定：
 
 ### 1.1 Baseline vs worktree diff
 
-`git -C <worktree> show main:frontend/src/components/about/ArchPillarBlock.tsx` ↔ worktree HEAD：
-- **Identical.** Main baseline 與 worktree 狀態一致；K-029 修復以 main 為出發點即正確。
+`git -C <worktree> show main:frontend/src/components/about/ArchPillarBlock.tsx` ↔ worktree HEAD:
+- **Identical.** Main baseline matches worktree state; K-029 fix is correct starting from main.
 
-`git -C <worktree> show main:frontend/src/components/about/TicketAnatomyCard.tsx` ↔ worktree HEAD：
-- **Identical.** 同上。
+`git -C <worktree> show main:frontend/src/components/about/TicketAnatomyCard.tsx` ↔ worktree HEAD:
+- **Identical.** Same as above.
 
 ### 1.2 Site count verification
 
-`grep -rn 'text-gray-\|text-purple-\|text-blue-\|text-slate-\|text-zinc-' frontend/src/components/about/` → 7 hits，分布：
+`grep -rn 'text-gray-\|text-purple-\|text-blue-\|text-slate-\|text-zinc-' frontend/src/components/about/` → 7 hits, distribution:
 
 | # | File | Line | Class hit | Semantic role |
 |---|------|------|-----------|---------------|
@@ -48,7 +48,7 @@ Count matches PM/QA claim (3 + 4 = 7). **No other files in `components/about/` c
 
 ### 1.3 Other `components/about/` files scanned clean
 
-`MetricCard.tsx`, `MetricsStripSection.tsx`, `PageHeaderSection.tsx`, `PillarCard.tsx`, `ProjectArchitectureSection.tsx`, `RedactionBar.tsx`, `ReliabilityPillarsSection.tsx`, `RoleCard.tsx`, `RoleCardsSection.tsx`, `TicketAnatomySection.tsx`, `DossierHeader.tsx`, `FooterCtaSection.tsx` — 無命中。Scope confirmed as exhaustive.
+`MetricCard.tsx`, `MetricsStripSection.tsx`, `PageHeaderSection.tsx`, `PillarCard.tsx`, `ProjectArchitectureSection.tsx`, `RedactionBar.tsx`, `ReliabilityPillarsSection.tsx`, `RoleCard.tsx`, `RoleCardsSection.tsx`, `TicketAnatomySection.tsx`, `DossierHeader.tsx`, `FooterCtaSection.tsx` — no hits. Scope confirmed as exhaustive.
 
 ---
 

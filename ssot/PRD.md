@@ -7,10 +7,10 @@ updated: 2026-04-27
 
 # Product Requirements Document — K-Line Prediction
 
-ETH/USDT K-line pattern similarity prediction system。本文件為 PM 的產品規格 + AC 主目錄。
-完整 ticket 詳文請點各 `[K-XXX]` 連結至 `docs/tickets/K-XXX-*.md`。
+ETH/USDT K-line pattern similarity prediction system. This document is the PM's product spec + AC master index.
+For full ticket details, click each `[K-XXX]` link to `docs/tickets/K-XXX-*.md`.
 
-## 目錄
+## Table of Contents
 
 - [§1 Product Spec](#1-product-spec)
 - [§2 Sitewide AC](#2-sitewide-ac)
@@ -24,7 +24,7 @@ ETH/USDT K-line pattern similarity prediction system。本文件為 PM 的產品
 
 ### Product
 
-K-Line historical pattern matching and scenario forecasting。
+K-Line historical pattern matching and scenario forecasting.
 
 ### Goal
 
@@ -64,13 +64,13 @@ Find historical segments that are similar to the user's current K-line structure
 #### Final ranking
 
 - If query MA99 is available as a numeric series: `final_score = 0.6 * candle_score + 0.4 * ma_score`
-- If query MA99 comes from screenshot override only: `final_score = candle_score`；MA99 direction is still used as a hard gate。
+- If query MA99 comes from screenshot override only: `final_score = candle_score`; MA99 direction is still used as a hard gate.
 
 ### Statistics Logic
 
 - Stats are computed from the selected match set.
-- Match List — each match includes the matched historical segment plus the actual next 72 x 1H bars from history；the expanded match chart must show these raw future bars, not a projected or aggregated chart.
-- Statistics — build a projected 72 x 1H candle path from the selected match set；for each future hour bucket, rebase every selected match's future OHLC by its historical base close and project it onto the current input close；aggregate each hour bucket with median open, median close, median high, and median low to form one projected candle；the Statistics chart must visualize this aggregated projected 72-hour path.
+- Match List — each match includes the matched historical segment plus the actual next 72 x 1H bars from history; the expanded match chart must show these raw future bars, not a projected or aggregated chart.
+- Statistics — build a projected 72 x 1H candle path from the selected match set; for each future hour bucket, rebase every selected match's future OHLC by its historical base close and project it onto the current input close; aggregate each hour bucket with median open, median close, median high, and median low to form one projected candle; the Statistics chart must visualize this aggregated projected 72-hour path.
 - Overall stats (across all 72 projected bars):
   - highest = highest `high` found on the projected 72-hour chart
   - second highest = second-highest `high` found on the projected 72-hour chart
@@ -105,9 +105,9 @@ Find historical segments that are similar to the user's current K-line structure
 - `query_ma99`: MA99 series for the uploaded query segment (`(number | null)[]`)
 - `query_ma99_gap`: `null` if fully populated; otherwise `{ from_date, to_date }` indicating the date range where data was missing
 
-**Purpose:** called immediately after the official CSV files are uploaded (before prediction) so that the MA99 line and header value can be rendered on the main chart without waiting for the user to click the predict button。
+**Purpose:** called immediately after the official CSV files are uploaded (before prediction) so that the MA99 line and header value can be rendered on the main chart without waiting for the user to click the predict button.
 
-**Note:** this endpoint does NOT persist uploaded OHLC data to the history database. The merge is performed in memory only to provide the historical prefix needed for MA99 computation. History database updates must go through `/api/upload-history`。
+**Note:** this endpoint does NOT persist uploaded OHLC data to the history database. The merge is performed in memory only to provide the historical prefix needed for MA99 computation. History database updates must go through `/api/upload-history`.
 
 #### POST `/api/predict`
 
@@ -123,11 +123,11 @@ Find historical segments that are similar to the user's current K-line structure
 - `query_ma99`: MA99 series for the current query segment (`(number | null)[]`)
 - `query_ma99_gap`: `null` if fully populated; otherwise `{ from_date, to_date }`
 
-**Note:** this endpoint does NOT persist uploaded OHLC data to the history database. The merge is in-memory only。
+**Note:** this endpoint does NOT persist uploaded OHLC data to the history database. The merge is in-memory only.
 
 #### POST `/api/upload-history`
 
-**Payload:** multipart/form-data with a single `file` field (CSV)。
+**Payload:** multipart/form-data with a single `file` field (CSV).
 
 **Response**
 - `filename`: the canonical filename saved to disk (e.g. `Binance_ETHUSDT_1h.csv`)
@@ -136,14 +136,14 @@ Find historical segments that are similar to the user's current K-line structure
 - `added_count`: number of net-new bars added in this upload (0 means all bars already existed)
 - `timeframe`: `"1H"` or `"1D"` as detected from the uploaded file
 
-**Purpose:** appends new bars to the persistent history database on disk. The endpoint deduplicates by normalized UTC timestamp so re-uploading overlapping data is safe。
+**Purpose:** appends new bars to the persistent history database on disk. The endpoint deduplicates by normalized UTC timestamp so re-uploading overlapping data is safe.
 
 **Supported CSV formats:**
 - **CryptoDataDownload**: first line is a URL comment; header on second line; rows ordered newest-first (auto-reversed)
 - **Standard CSV**: header on first line with `date`/`unix`/`open`/`high`/`low`/`close` columns; chronological order
 - **Binance raw API**: no header; positional columns `open_time, open, high, low, close, …`; `open_time` is a Unix timestamp in milliseconds
 
-**Note:** all timestamp formats are normalized to UTC `YYYY-MM-DD HH:MM` by `time_utils.normalize_bar_time` before storage. The file is only written to disk when `added_count > 0`。
+**Note:** all timestamp formats are normalized to UTC `YYYY-MM-DD HH:MM` by `time_utils.normalize_bar_time` before storage. The file is only written to disk when `added_count > 0`.
 
 #### GET `/api/history-info`
 
@@ -160,7 +160,7 @@ Find historical segments that are similar to the user's current K-line structure
 
 ### Timezone Convention
 
-All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` format (16 characters). The display layer is responsible for converting to **UTC+8** for user-facing text。
+All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` format (16 characters). The display layer is responsible for converting to **UTC+8** for user-facing text.
 
 - Backend (`time_utils.normalize_bar_time`): accepts any input format and outputs UTC+0 `YYYY-MM-DD HH:MM`
 - Frontend storage / API payloads: UTC+0
@@ -169,44 +169,44 @@ All timestamps are stored and transmitted as **UTC+0** in `YYYY-MM-DD HH:MM` for
 
 ### UX Notes
 
-- Keep OHLC input and MA99 assistance as separate UI concepts。
-- Screenshot upload is optional and should be described as an MA99 assist path, not as the main data input。
-- When screenshot-assisted override is active, users should understand that MA99 is being used as a directional filter rather than a fully reconstructed MA99 series。
-- Match List and Statistics must be labeled clearly so users can distinguish between actual future historical bars in each matched case and the aggregated projected chart used for statistics and order suggestions。
-- After prediction, the main chart header must display the latest non-null value from `query_ma99` formatted as `MA(99) x,xxx.xx`。
-- If `query_ma99_gap` is non-null, a warning banner must appear below the main chart indicating the affected date range (e.g., `MA99 資料缺失：2024-01-01 ~ 2024-01-10`)。
-- Each expanded match card must display a mini chart that overlays the `historical_ma99` and `future_ma99` as a purple MA99 line alongside the candlestick data; a vertical orange line separates the historical from the future segment。
-- In 1D mode, the match card mini chart must display `historical_ohlc_1d` / `future_ohlc_1d` bars and `historical_ma99_1d` / `future_ma99_1d`。Right badge must show the count of 1D future bars (e.g., "Actual future 3D bars") rather than "No future bars"。
-- Early MA99 loading state: immediately after the official CSV files are uploaded, the system calls `/api/merge-and-compute-ma99` to pre-compute MA99. During this call, the main chart header shows `MA(99) 計算中…` and the predict button is disabled with tooltip `MA99 計算中，請稍候…`。
-- Each match card header must display a MA99 trend label derived from `future_ma99` using linear regression slope。
-- History upload feedback: status badge below upload button shows either new-bar count + latest timestamp or "資料已是最新，無需更新"；upload errors in red badge；"上傳中…" while uploading。
-- All match interval timestamps and occurrence windows must display UTC+8 datetimes。A "All times UTC+8" label must appear in the match list header。
+- Keep OHLC input and MA99 assistance as separate UI concepts.
+- Screenshot upload is optional and should be described as an MA99 assist path, not as the main data input.
+- When screenshot-assisted override is active, users should understand that MA99 is being used as a directional filter rather than a fully reconstructed MA99 series.
+- Match List and Statistics must be labeled clearly so users can distinguish between actual future historical bars in each matched case and the aggregated projected chart used for statistics and order suggestions.
+- After prediction, the main chart header must display the latest non-null value from `query_ma99` formatted as `MA(99) x,xxx.xx`.
+- If `query_ma99_gap` is non-null, a warning banner must appear below the main chart indicating the affected date range (e.g., `MA99 data missing: 2024-01-01 ~ 2024-01-10`).
+- Each expanded match card must display a mini chart that overlays the `historical_ma99` and `future_ma99` as a purple MA99 line alongside the candlestick data; a vertical orange line separates the historical from the future segment.
+- In 1D mode, the match card mini chart must display `historical_ohlc_1d` / `future_ohlc_1d` bars and `historical_ma99_1d` / `future_ma99_1d`. Right badge must show the count of 1D future bars (e.g., "Actual future 3D bars") rather than "No future bars".
+- Early MA99 loading state: immediately after the official CSV files are uploaded, the system calls `/api/merge-and-compute-ma99` to pre-compute MA99. During this call, the main chart header shows `MA(99) computing…` and the predict button is disabled with tooltip `MA99 computing, please wait…`.
+- Each match card header must display a MA99 trend label derived from `future_ma99` using linear regression slope.
+- History upload feedback: status badge below upload button shows either new-bar count + latest timestamp or "Data already up to date, no update needed"; upload errors in red badge; "Uploading…" while uploading.
+- All match interval timestamps and occurrence windows must display UTC+8 datetimes. A "All times UTC+8" label must appear in the match list header.
 
 ### Non-functional Requirements
 
-- Prediction refresh after clicking the button should remain responsive。
-- The matching logic should not return opposite-MA99-trend cases。
-- The interface should remain usable on desktop widths without collapsing the editor and chart into an unreadable layout。
+- Prediction refresh after clicking the button should remain responsive.
+- The matching logic should not return opposite-MA99-trend cases.
+- The interface should remain usable on desktop widths without collapsing the editor and chart into an unreadable layout.
 
-### Product-level ACs (1D bar aggregation 規則)
+### Product-level ACs (1D bar aggregation rules)
 
-以下三條為 backend predictor 對 1H → 1D aggregation 行為的契約，與任一 ticket 解耦、屬 Product Spec 層。
+The following three items are the contract for backend predictor 1H → 1D aggregation behavior, decoupled from any individual ticket and belonging to the Product Spec layer.
 
-#### AC-1D-1：1D mode match card badge shows daily bar count
+#### AC-1D-1: 1D mode match card badge shows daily bar count
 
 - **Given** the user has uploaded 1H OHLC data and run prediction
 - **When** the user switches to 1D timeframe mode and expands a match card
 - **Then** the right badge displays "Actual future Nd bars" (N = number of aggregated daily future bars)
 - **And** the badge "No future bars" is NOT visible
 
-#### AC-1D-2：`_aggregate_bars_to_1d` correctly aggregates 1H bars into daily OHLC
+#### AC-1D-2: `_aggregate_bars_to_1d` correctly aggregates 1H bars into daily OHLC
 
 - **Given** a list of 1H bars spanning one or more calendar days
 - **When** `_aggregate_bars_to_1d` is called
-- **Then** each output daily bar's `open` = first 1H bar's open of that day；`high` = max of all 1H highs for that day；`low` = min of all 1H lows for that day；`close` = last 1H bar's close of that day
+- **Then** each output daily bar's `open` = first 1H bar's open of that day; `high` = max of all 1H highs for that day; `low` = min of all 1H lows for that day; `close` = last 1H bar's close of that day
 - **And** bars with missing/empty date are skipped
 
-#### AC-1D-3：predict endpoint populates `_1d` fields when `history_1d` is provided
+#### AC-1D-3: predict endpoint populates `_1d` fields when `history_1d` is provided
 
 - **Given** the backend has a non-empty `_history_1d`
 - **When** `/api/predict` is called with 1H OHLC data
@@ -233,73 +233,73 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 
 ## §2 Sitewide AC
 
-站級 AC 跨多個 ticket / 頁面，列出視 source of truth ticket。完整 Given/When/Then/And 請至對應 ticket md。
+Sitewide AC spans multiple tickets / pages, listed with the source-of-truth ticket. For full Given/When/Then/And, see the corresponding ticket md.
 
-- **AC-ROUTE-1 — SPA 路由直接訪問不 404**（`/app`、`/about`、`/diary`、`/business-logic`）— 由初期 Homepage & Routing phase 建立，詳見 [K-005](docs/tickets/K-005-unified-navbar.md) 與既有 `frontend/e2e/pages.spec.ts`。
-- **AC-ROUTE-2 — 現有 /app 功能不 regression**（路由重構後 CSV 上傳 / pattern match / chart 渲染不破）— Homepage & Routing phase 核心 regression，見 `pages.spec.ts`、`app.spec.ts`。
-- **AC-HOME-1 — Homepage 各 Section 正確渲染**（Hero / ProjectLogic / TechStack / DevDiary 四個 section + "Open App" 導向 `/app`）— 持續由 [K-017](docs/tickets/K-017-about-portfolio-enhancement.md)（AC-017-HOME-V2）、[K-023](docs/tickets/K-023-homepage-structure-v2.md)、[K-028](docs/tickets/K-028-homepage-visual-fix.md)、[K-024](docs/tickets/K-024-diary-structure-and-schema.md)（AC-024-HOMEPAGE-CURATION）串接。
-- **AC-ABOUT-1 — /about Section 正確渲染** — 持續由 [K-017](docs/tickets/K-017-about-portfolio-enhancement.md) / [K-022](docs/tickets/K-022-about-structure-v2.md) / [K-029](docs/tickets/K-029-about-card-body-text-palette.md) / [K-031](docs/tickets/K-031-remove-built-by-ai-showcase-section.md) 定義。
-- **AC-DIARY-1 — Diary 頁從 diary.json 正確渲染** — schema 由 [K-024](docs/tickets/K-024-diary-structure-and-schema.md) 扁平化；手機版無重疊由 [K-027](docs/tickets/K-027-mobile-diary-layout-fix.md) 確保。
-- **AC-AUTH-1~4 — /business-logic 密碼閘** — 正確密碼取得 JWT 並顯示 markdown；錯誤密碼顯示錯誤訊息；無 token 顯示輸入框；過期 token 自動清除。詳見 Homepage & Routing phase 初始化，無獨立 ticket。
-- **AC-NAV-1~5 — 統一 NavBar**（所有頁面顯示 / ⌂ 導首頁 / 各連結導向正確頁 / active 高亮 / Logic 鎖頭 auth 狀態）— 由 [K-005](docs/tickets/K-005-unified-navbar.md) 建立，由 [K-025](docs/tickets/K-025-navbar-hex-to-token.md) 遷移 hex→token。
-- **AC-021-TOKEN — Tailwind theme 6 個 paper palette token 註冊**（paper / ink / brick / brick-dark / charcoal / muted）— 由 [K-021](docs/tickets/K-021-sitewide-design-system.md) 建立。
-- **AC-021-FONTS — 三字型系統（Bodoni Moda / Newsreader / Geist Mono）載入 + Tailwind `display` / `italic` / `mono` family 註冊**（詳見 [K-021](docs/tickets/K-021-sitewide-design-system.md)）。
-- **AC-021-BODY-PAPER — 全站 body 統一米色 `#F4EFE5` / `text-ink`**（`/`、`/about`、`/diary`、`/app`、`/business-logic` 全覆蓋，`/business-logic` 額外涵蓋 PasswordForm 未登入 + 登入後兩狀態）— 由 [K-021](docs/tickets/K-021-sitewide-design-system.md) 建立；後續 [K-030](docs/tickets/K-030-app-page-isolation.md) 決議 `/app` 排除。
-- **AC-021-NAVBAR — NavBar 米白化 + 項目順序對齊 Pencil v2 設計稿**（⌂ / App / Diary / Prediction[hidden] / About）— [K-021](docs/tickets/K-021-sitewide-design-system.md)；NavBar 項 hex→token 後續由 [K-025](docs/tickets/K-025-navbar-hex-to-token.md) 處理。
-- **AC-021-FOOTER — 全站 `<HomeFooterBar />` 單行資訊列**（`/` / `/app` / `/business-logic`；`/about` 維持 FooterCtaSection；`/diary` 由 K-024 決定）— 由 [K-021](docs/tickets/K-021-sitewide-design-system.md)、後續 [K-030](docs/tickets/K-030-app-page-isolation.md) `/app` 排除。**[Retired 2026-04-22 by [K-035](docs/tickets/K-035-about-footer-shared-component-regression.md)]** — canonical shared Footer (`frontend/src/components/shared/Footer.tsx` with `variant="home"` / `variant="about"`) unified across `/` + `/about` + `/diary`; `HomeFooterBar.tsx` + `FooterCtaSection.tsx` deleted; `/app` preserves no-Footer per K-030; `/business-logic` import-only cleanup (not AC-verified, per K-017 defer).
-- **AC-018-INSTALL / PAGEVIEW / CLICK / PRIVACY / PRIVACY-POLICY — GA4 Measurement 全站植入 + SPA pageview + CTA click + PII guard + Footer 揭露** — 由 [K-018](docs/tickets/K-018-ga-tracking.md) 建立、[K-020](docs/tickets/K-020-ga-spa-pageview-e2e.md) 補 SPA pageview E2E。
+- **AC-ROUTE-1 — SPA route direct access does not 404** (`/app`, `/about`, `/diary`, `/business-logic`) — established by the early Homepage & Routing phase, see [K-005](docs/tickets/K-005-unified-navbar.md) and the existing `frontend/e2e/pages.spec.ts`.
+- **AC-ROUTE-2 — Existing /app functionality does not regress** (after route refactor, CSV upload / pattern match / chart rendering remain intact) — core regression of Homepage & Routing phase, see `pages.spec.ts`, `app.spec.ts`.
+- **AC-HOME-1 — Each Homepage section renders correctly** (Hero / ProjectLogic / TechStack / DevDiary four sections + "Open App" navigates to `/app`) — continuously chained by [K-017](docs/tickets/K-017-about-portfolio-enhancement.md) (AC-017-HOME-V2), [K-023](docs/tickets/K-023-homepage-structure-v2.md), [K-028](docs/tickets/K-028-homepage-visual-fix.md), [K-024](docs/tickets/K-024-diary-structure-and-schema.md) (AC-024-HOMEPAGE-CURATION).
+- **AC-ABOUT-1 — /about sections render correctly** — continuously defined by [K-017](docs/tickets/K-017-about-portfolio-enhancement.md) / [K-022](docs/tickets/K-022-about-structure-v2.md) / [K-029](docs/tickets/K-029-about-card-body-text-palette.md) / [K-031](docs/tickets/K-031-remove-built-by-ai-showcase-section.md).
+- **AC-DIARY-1 — Diary page renders correctly from diary.json** — schema flattened by [K-024](docs/tickets/K-024-diary-structure-and-schema.md); mobile no-overlap ensured by [K-027](docs/tickets/K-027-mobile-diary-layout-fix.md).
+- **AC-AUTH-1~4 — /business-logic password gate** — correct password obtains JWT and displays markdown; wrong password shows error message; no token shows input form; expired token auto-cleared. See Homepage & Routing phase initialization, no standalone ticket.
+- **AC-NAV-1~5 — Unified NavBar** (display on all pages / ⌂ navigates home / each link routes correctly / active highlight / Logic lock auth state) — established by [K-005](docs/tickets/K-005-unified-navbar.md), hex→token migration by [K-025](docs/tickets/K-025-navbar-hex-to-token.md).
+- **AC-021-TOKEN — Tailwind theme registers 6 paper palette tokens** (paper / ink / brick / brick-dark / charcoal / muted) — established by [K-021](docs/tickets/K-021-sitewide-design-system.md).
+- **AC-021-FONTS — Three-font system (Bodoni Moda / Newsreader / Geist Mono) loaded + Tailwind `display` / `italic` / `mono` family registered** (see [K-021](docs/tickets/K-021-sitewide-design-system.md)).
+- **AC-021-BODY-PAPER — Sitewide body unified beige `#F4EFE5` / `text-ink`** (`/`, `/about`, `/diary`, `/app`, `/business-logic` full coverage; `/business-logic` additionally covers both PasswordForm pre-login and post-login states) — established by [K-021](docs/tickets/K-021-sitewide-design-system.md); subsequently [K-030](docs/tickets/K-030-app-page-isolation.md) excludes `/app`.
+- **AC-021-NAVBAR — NavBar beige conversion + item order aligned to Pencil v2 design** (⌂ / App / Diary / Prediction[hidden] / About) — [K-021](docs/tickets/K-021-sitewide-design-system.md); NavBar item hex→token subsequently handled by [K-025](docs/tickets/K-025-navbar-hex-to-token.md).
+- **AC-021-FOOTER — Sitewide `<HomeFooterBar />` single-line info bar** (`/` / `/app` / `/business-logic`; `/about` retains FooterCtaSection; `/diary` decided by K-024) — by [K-021](docs/tickets/K-021-sitewide-design-system.md), with subsequent [K-030](docs/tickets/K-030-app-page-isolation.md) excluding `/app`. **[Retired 2026-04-22 by [K-035](docs/tickets/K-035-about-footer-shared-component-regression.md)]** — canonical shared Footer (`frontend/src/components/shared/Footer.tsx` with `variant="home"` / `variant="about"`) unified across `/` + `/about` + `/diary`; `HomeFooterBar.tsx` + `FooterCtaSection.tsx` deleted; `/app` preserves no-Footer per K-030; `/business-logic` import-only cleanup (not AC-verified, per K-017 defer).
+- **AC-018-INSTALL / PAGEVIEW / CLICK / PRIVACY / PRIVACY-POLICY — GA4 Measurement sitewide installation + SPA pageview + CTA click + PII guard + Footer disclosure** — established by [K-018](docs/tickets/K-018-ga-tracking.md), SPA pageview E2E added by [K-020](docs/tickets/K-020-ga-spa-pageview-e2e.md).
 
-> 站級 AC 規則：任何 PR 改動共用組件（NavBar / Footer / body token / 字型 / GA）均需檢查此清單下所有條目是否仍 PASS，並對應更新「全站 Playwright 量化斷言」（見各 ticket「N 路由需 N 個獨立 test case」規則）。
+> Sitewide AC rule: any PR that changes shared components (NavBar / Footer / body token / fonts / GA) must check whether all entries below still PASS, and correspondingly update the "sitewide Playwright quantitative assertions" (see each ticket's "N routes require N independent test cases" rule).
 
 ---
 
 ## §3 Active Tickets
 
-以下 14 張 ticket 處於 `open` 或 `backlog` 狀態（依 `docs/tickets/*.md` frontmatter `status` 欄位）。狀態含義：
-- **open** — 已有 PM 放行前置工作（AC / QA early consultation），等待或正在 Architect / Engineer 處理
-- **backlog** — 已 triaged 有 AC 草案，排序後等待啟動
+The following 14 tickets are in `open` or `backlog` status (per `docs/tickets/*.md` frontmatter `status` field). Status meanings:
+- **open** — PM has released prerequisite work (AC / QA early consultation), waiting on or being processed by Architect / Engineer
+- **backlog** — triaged with draft AC, awaiting startup after prioritization
 
-### K-012 — business-logic.spec.ts 測試名與斷言對齊
+### K-012 — business-logic.spec.ts test name and assertion alignment
 
 - **Status:** open / type: test
 - **Ticket:** [docs/tickets/K-012-business-logic-spec-rename.md](docs/tickets/K-012-business-logic-spec-rename.md)
-- **摘要：** Logic 鎖頭相關 E2E test 的 name 宣稱 A 但實際測 B，需修正 name 或斷言以對齊。
+- **Summary:** Logic-lock-related E2E test names claim A but actually test B; fix name or assertions to align.
 
-**AC：**
+**AC:**
 
-#### AC-012-ALIGN：測試名與斷言語意一致
+#### AC-012-ALIGN: test name and assertion semantics consistent
 
-- **Given** `frontend/e2e/business-logic.spec.ts` 的 Logic 鎖頭相關 test
-- **When** 讀 test name 與 body
-- **Then** name 描述的行為與實際斷言完全對應
-- **And** 無「name 宣稱 A，實際只測 B」的 mismatch
+- **Given** the Logic-lock-related tests in `frontend/e2e/business-logic.spec.ts`
+- **When** reading the test name and body
+- **Then** the behavior described by the name fully corresponds to the actual assertion
+- **And** no "name claims A, actually only tests B" mismatch
 
-#### AC-012-PASS：Playwright E2E 全綠
+#### AC-012-PASS: Playwright E2E all green
 
-- **Given** 前端
-- **When** 執行 `/playwright`
-- **Then** 全部 tests 通過（含本 ticket 新增或更新的斷言）
+- **Given** the frontend
+- **When** running `/playwright`
+- **Then** all tests pass (including new or updated assertions in this ticket)
 
 ---
 
-### K-014 — Vitest index-based selector 殘留清理（AppPage + OHLCEditor）
+### K-014 — Vitest index-based selector residue cleanup (AppPage + OHLCEditor)
 
 - **Status:** backlog / type: test
 - **Ticket:** [docs/tickets/K-014-vitest-index-selector-cleanup.md](docs/tickets/K-014-vitest-index-selector-cleanup.md)
-- **摘要：** AppPage.test.tsx + OHLCEditor.test.tsx 仍用 `getAllBy...()[N]` index 定位；改 `getByLabelText` / `getByRole({ name, exact })` / `data-testid`。
+- **Summary:** AppPage.test.tsx + OHLCEditor.test.tsx still use `getAllBy...()[N]` index locators; switch to `getByLabelText` / `getByRole({ name, exact })` / `data-testid`.
 
-**AC：**
+**AC:**
 
-#### AC-014-SELECTOR：無 index-based selector
+#### AC-014-SELECTOR: no index-based selectors
 
 - **Given** `frontend/src/__tests__/`
-- **When** 執行 `grep -rn "getAllBy.*\[\d\]" frontend/src/__tests__/`
-- **Then** 無結果
-- **And** 若必須用 `getAllBy`，使用 filter/find 搭配語意斷言，不用 `[N]`
+- **When** running `grep -rn "getAllBy.*\[\d\]" frontend/src/__tests__/`
+- **Then** no results
+- **And** if `getAllBy` must be used, pair it with filter/find + semantic assertion, not `[N]`
 
 #### AC-014-GREEN / AC-014-REGRESSION
 
-見 [K-014](docs/tickets/K-014-vitest-index-selector-cleanup.md)：Vitest suite 全綠 + tsc / E2E 不回歸。
+See [K-014](docs/tickets/K-014-vitest-index-selector-cleanup.md): Vitest suite all green + tsc / E2E no regression.
 
 ---
 
@@ -307,69 +307,69 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 
 - **Status:** backlog / type: refactor
 - **Ticket:** [docs/tickets/K-015-find-top-matches-ma-history-required.md](docs/tickets/K-015-find-top-matches-ma-history-required.md)
-- **摘要：** 移除 `backend/predictor.py` `find_top_matches()` silent fallback；改 required kw 或加 assert/warning。K-009 bug 根因。
+- **Summary:** Remove silent fallback in `backend/predictor.py` `find_top_matches()`; switch to required kwarg or add assert/warning. K-009 bug root cause.
 
-**AC：**
+**AC:**
 
-#### AC-015-NO-FALLBACK：無 silent fallback
+#### AC-015-NO-FALLBACK: no silent fallback
 
-- **Given** `backend/predictor.py` `find_top_matches()` 實作
-- **When** caller 未傳 `ma_history`
-- **Then** 行為為以下之一：Option A = `TypeError` raised（required keyword）；Option B = 測試 raise / 生產 log warning
-- **And** 任一情況下皆無 `if ma_history is None: ma_history = history` 靜默回退
+- **Given** `backend/predictor.py` `find_top_matches()` implementation
+- **When** caller does not pass `ma_history`
+- **Then** behavior is one of: Option A = `TypeError` raised (required keyword); Option B = raise in tests / log warning in production
+- **And** in either case there is no `if ma_history is None: ma_history = history` silent fallback
 
-#### AC-015-CALLERS：所有現有 caller 顯式傳遞
+#### AC-015-CALLERS: all existing callers pass explicitly
 
-- **Given** `backend/main.py` 全部 `find_top_matches()` 呼叫
-- **When** grep `find_top_matches(` 該檔
-- **Then** 每次呼叫都顯式傳 `ma_history=<value>`
+- **Given** all `find_top_matches()` calls in `backend/main.py`
+- **When** grepping `find_top_matches(` in that file
+- **Then** every call explicitly passes `ma_history=<value>`
 
-#### AC-015-TEST-GUARD：caller 漏傳在 test 階段被攔截
+#### AC-015-TEST-GUARD: missing caller param is caught at test stage
 
 - **Given** backend test suite
-- **When** 故意拿掉某 caller 的 `ma_history` 參數
-- **Then** 至少一個 test 必須失敗
-- **And** 失敗原因可直接指出「`ma_history` 遺漏」
+- **When** intentionally removing the `ma_history` argument from some caller
+- **Then** at least one test must fail
+- **And** the failure reason can directly indicate "`ma_history` missing"
 
 #### AC-015-REGRESSION
 
-見 [K-015](docs/tickets/K-015-find-top-matches-ma-history-required.md)：63 個現有 test + K-009 regression test 全通過。
+See [K-015](docs/tickets/K-015-find-top-matches-ma-history-required.md): all 63 existing tests + K-009 regression test pass.
 
 ---
 
-### K-016 — K-002 spec 加 superseded 頭註
+### K-016 — Add superseded header note to K-002 spec
 
 - **Status:** backlog / type: docs
 - **Ticket:** [docs/tickets/K-016-k002-spec-superseded-header.md](docs/tickets/K-016-k002-spec-superseded-header.md)
-- **摘要：** `docs/designs/k002-component-spec.md` frontmatter 後加 superseded 頭註，指向 K-011（LoadingSpinner 文案變更）。
+- **Summary:** Add a superseded header note after the `docs/designs/k002-component-spec.md` frontmatter pointing to K-011 (LoadingSpinner copy change).
 
-**AC：**
+**AC:**
 
-#### AC-016-HEADER：superseded 頭註存在且連結正確
+#### AC-016-HEADER: superseded header note exists and link is correct
 
 - **Given** `docs/designs/k002-component-spec.md`
-- **When** 讀取檔案
-- **Then** frontmatter 之後出現 superseded 頭註
-- **And** 頭註內 K-011 相對路徑可被 Markdown viewer 解析（`../../tickets/K-011-loading-spinner-label.md`）
-- **And** lines 99, 111 的原始內容保留未改
+- **When** the file is read
+- **Then** a superseded header note appears after the frontmatter
+- **And** the K-011 relative path in the note can be parsed by Markdown viewers (`../../tickets/K-011-loading-spinner-label.md`)
+- **And** the original content of lines 99, 111 is preserved unchanged
 
 ---
 
-### K-018 — GA4 Tracking（訪客追蹤 + 點擊事件）
+### K-018 — GA4 Tracking (visitor tracking + click events)
 
 - **Status:** open / type: feat
 - **Ticket:** [docs/tickets/K-018-ga-tracking.md](docs/tickets/K-018-ga-tracking.md)
-- **摘要：** GA4 snippet 植入；env var 注入測量 ID；SPA 全頁 pageview；Footer CTA 三鏈結 cta_click；PII guard；Footer 揭露聲明。
+- **Summary:** Install GA4 snippet; inject measurement ID via env var; SPA full-page pageview; Footer CTA three-link cta_click; PII guard; Footer disclosure statement.
 
-**AC 一覽：**
+**AC overview:**
 
-- **AC-018-INSTALL** — `<head>` 含 gtag.js；measurement ID 從 `VITE_GA_MEASUREMENT_ID` 讀；未設則靜默跳過 build。
-- **AC-018-PAGEVIEW** — `/` / `/about` / `/app` / `/diary` SPA 進入時各觸發一次 `page_view` event，含 `page_location`。
-- **AC-018-CLICK** — Footer email / GitHub / LinkedIn + Homepage BuiltByAIBanner click 各觸發 `cta_click` 含 `label`。
-- **AC-018-PRIVACY** — event 不含 PII；`gtag('config')` 不設 `user_id`/`client_id`。
-- **AC-018-PRIVACY-POLICY** — Footer 含 "Google Analytics" 匿名流量聲明文字。
+- **AC-018-INSTALL** — `<head>` includes gtag.js; measurement ID is read from `VITE_GA_MEASUREMENT_ID`; if unset, the build silently skips.
+- **AC-018-PAGEVIEW** — `/` / `/about` / `/app` / `/diary` each fire a `page_view` event on SPA entry, with `page_location`.
+- **AC-018-CLICK** — Footer email / GitHub / LinkedIn + Homepage BuiltByAIBanner click each fire `cta_click` with `label`.
+- **AC-018-PRIVACY** — events contain no PII; `gtag('config')` does not set `user_id`/`client_id`.
+- **AC-018-PRIVACY-POLICY** — Footer contains "Google Analytics" anonymous traffic disclosure text.
 
-完整 Given/When/Then/And 見 [K-018](docs/tickets/K-018-ga-tracking.md)。
+For full Given/When/Then/And, see [K-018](docs/tickets/K-018-ga-tracking.md).
 
 ---
 
@@ -379,21 +379,21 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 - **Ticket:** [docs/tickets/K-019-release-versioning-ci.md](docs/tickets/K-019-release-versioning-ci.md)
 - **Spec:** `docs/designs/2026-04-19-release-versioning-design.md`
 - **Plan:** `docs/designs/2026-04-19-release-versioning-ci.md`
-- **摘要：** Release version 與 CI/CD 流程設計，AC 於 spec AC-K019-1 ~ AC-K019-5。
+- **Summary:** Release version and CI/CD process design; AC in spec AC-K019-1 ~ AC-K019-5.
 
-**AC：** 見 ticket 引用 spec。
+**AC:** see ticket reference spec.
 
-**Future Enhancement：** `/business-logic` 頁面完成後，需更新 `frontend/e2e/screenshot.spec.ts`，加入 post-auth `/business-logic` 截圖。
+**Future Enhancement:** After the `/business-logic` page is completed, update `frontend/e2e/screenshot.spec.ts` to add post-auth `/business-logic` screenshots.
 
 ---
 
-### K-033 — GA4 SPA route-change beacon emission fix（useGAPageview gtag pattern）
+### K-033 — GA4 SPA route-change beacon emission fix (useGAPageview gtag pattern)
 
 - **Status:** backlog / type: bug / priority: medium
 - **Ticket:** [docs/tickets/K-033-ga-spa-beacon-emission-fix.md](docs/tickets/K-033-ga-spa-beacon-emission-fix.md)
-- **摘要：** 修 `useGAPageview` SPA route 切換時 `/g/collect` beacon 未送出的 pre-existing bug；採 canonical GA4 gtag SPA pattern（Architect dry-run 決定 Pattern A `gtag('config', ...)` vs Pattern B `gtag('set',...) + gtag('event',...)`）；landed 後 K-020 T4 AC-020-BEACON-SPA 由 red 翻 green，不得 loosen assertion。Soft depends on K-032（page_location 值先改 full URL）。
+- **Summary:** Fix the pre-existing bug where `useGAPageview` did not emit a `/g/collect` beacon on SPA route switch; adopt canonical GA4 gtag SPA pattern (Architect dry-run decides Pattern A `gtag('config', ...)` vs Pattern B `gtag('set',...) + gtag('event',...)`); after landing, K-020 T4 AC-020-BEACON-SPA flips from red to green; assertion must not be loosened. Soft depends on K-032 (page_location value first changed to full URL).
 
-**AC 一覽：**
+**AC overview:**
 
 - **AC-033-BEACON-SPA-GREEN** — K-020 T4 turns green with original assertion preserved
 - **AC-033-BEACON-COUNT-GREEN** — T6 initial-load exactly 1 beacon unchanged
@@ -401,27 +401,27 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 - **AC-033-PAYLOAD-PINNED** — T5 beacon carries `v=2` + `tid` + `en=page_view` + path-key
 - **AC-033-NO-REGRESSION** — K-018 ga-tracking.spec.ts 12 tests unaffected
 
-完整 Given/When/Then/And 見 [K-033](docs/tickets/K-033-ga-spa-beacon-emission-fix.md)。
+For full Given/When/Then/And, see [K-033](docs/tickets/K-033-ga-spa-beacon-emission-fix.md).
 
 ---
 
-### K-037 — Favicon wiring（link tags + web app manifest + E2E 200-status regression）
+### K-037 — Favicon wiring (link tags + web app manifest + E2E 200-status regression)
 
 - **Status:** ready / type: feat / priority: medium / size: XS
 - **Ticket:** [docs/tickets/K-037-favicon-wiring.md](docs/tickets/K-037-favicon-wiring.md)
-- **Branch:** `K-036-favicon`（squashed with K-036 per user ruling 2026-04-23）
+- **Branch:** `K-036-favicon` (squashed with K-036 per user ruling 2026-04-23)
 - ~~**Blocked-by-policy:** K-034 Q3 ordering rule — K-036 and later tickets blocked until K-034 closed; K-037 inherits via K-036 dependency.~~ **Block lifted by user 2026-04-23** — K-036 already shipped (commits `891fcfb` + `ea973c9`) so Q3 policy objective already failed; K-037 is grandfathered as the K-036 wiring sibling; K-034 Q1/Q5/Q6 new workflow applies only to K-034 Phase 1+ truly-new UI tickets. See K-037 ticket §Override Rationale.
-- **摘要：** K-036 產出 7 個 favicon 檔案但沒接到網頁上。K-037 補 6 個 `<link>` tag 進 `frontend/index.html`、新建 `frontend/public/manifest.json`、加 Playwright E2E 斷 8 個路徑（7 favicons + manifest）於 `vite preview` 回 200，並人工目視 Chrome/Firefox/Safari tab icon 對齊 K-036 Pencil 設計稿。不含 asset 重新產圖、light/dark variant、PWA install。
+- **Summary:** K-036 produced 7 favicon files but did not wire them into the page. K-037 adds 6 `<link>` tags to `frontend/index.html`, creates `frontend/public/manifest.json`, adds Playwright E2E asserting that 8 paths (7 favicons + manifest) return 200 under `vite preview`, and manually verifies Chrome/Firefox/Safari tab icons align with the K-036 Pencil design. Excludes asset regeneration, light/dark variants, PWA install.
 
-**AC 一覽：**
+**AC overview:**
 
-- **AC-037-LINK-TAGS-PRESENT** — `<head>` 於 built production bundle 下含 6 個 `<link>` tag（favicon.ico / 16/32/48 PNG / apple-touch-icon / manifest），exact href match。
-- **AC-037-ASSETS-200-OK** — `vite preview` 下 8 個資源路徑（7 favicons + manifest.json）Playwright `page.request.get` 皆回 200，body 非空，每個資源獨立 test case 不合併。
-- **AC-037-MANIFEST-VALID** — `manifest.json` 解析為合法 JSON；`icons[]` 至少含 192×192 + 512×512 兩項，`src` 對齊 K-036 檔名。
-- **AC-037-MANIFEST-MIME-ACCEPTABLE** — `Content-Type` ∈ { `application/manifest+json`, `application/json`, `application/json; charset=utf-8` }；若 Architect 要鎖 W3C canonical 則加 Firebase `headers` rule（實作註記，非 AC 緊縮）。
-- **AC-037-TAB-ICON-VISIBLE** — 人工目視 Chrome / Firefox / Safari on macOS tab icon 顯示 K-036 Pencil 圖案；PM 關票前 side-by-side 比對 Pencil `get_screenshot`。Known Gap：mobile Safari iOS / Android Chrome 真機不在票內驗證。
+- **AC-037-LINK-TAGS-PRESENT** — `<head>` in the built production bundle contains 6 `<link>` tags (favicon.ico / 16/32/48 PNG / apple-touch-icon / manifest), exact href match.
+- **AC-037-ASSETS-200-OK** — under `vite preview`, all 8 resource paths (7 favicons + manifest.json) return 200 via Playwright `page.request.get`, with non-empty body; each resource is an independent test case, not merged.
+- **AC-037-MANIFEST-VALID** — `manifest.json` parses as valid JSON; `icons[]` contains at least 192×192 + 512×512 entries, `src` aligned to K-036 filenames.
+- **AC-037-MANIFEST-MIME-ACCEPTABLE** — `Content-Type` ∈ { `application/manifest+json`, `application/json`, `application/json; charset=utf-8` }; if the Architect locks W3C canonical, add a Firebase `headers` rule (implementation note, not AC tightening).
+- **AC-037-TAB-ICON-VISIBLE** — manually verify Chrome / Firefox / Safari on macOS tab icons show the K-036 Pencil design; PM does a side-by-side comparison with Pencil `get_screenshot` before closing. Known Gap: mobile Safari iOS / Android Chrome real devices are not verified in this ticket.
 
-完整 Given/When/Then/And 見 [K-037](docs/tickets/K-037-favicon-wiring.md)。
+For full Given/When/Then/And, see [K-037](docs/tickets/K-037-favicon-wiring.md).
 
 ---
 
@@ -429,32 +429,32 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 
 ---
 
-### K-025 — NavBar hex → token 遷移 + navbar.spec.ts 更新
+### K-025 — NavBar hex → token migration + navbar.spec.ts update
 
 - **Status:** backlog / type: refactor
 - **Ticket:** [docs/tickets/K-025-navbar-hex-to-token.md](docs/tickets/K-025-navbar-hex-to-token.md)
-- **摘要：** UnifiedNavBar 6 處 `text-[#9C4A3B]` hex → `text-brick-dark` token；navbar.spec.ts 8 處 regex 改 `[aria-current="page"]`；補 `/` inactive color 4 斷言（TD-K021-09）。
+- **Summary:** UnifiedNavBar 6 occurrences of `text-[#9C4A3B]` hex → `text-brick-dark` token; navbar.spec.ts 8 regex occurrences changed to `[aria-current="page"]`; add 4 `/` inactive color assertions (TD-K021-09).
 
-**AC：**
+**AC:**
 
-#### AC-025-NAVBAR-TOKEN：NavBar 零 hex
+#### AC-025-NAVBAR-TOKEN: zero hex in NavBar
 
-- **Given** 開發者 grep `UnifiedNavBar.tsx`
-- **When** 搜尋 `#[0-9A-Fa-f]{6}` pattern
-- **Then** 返回結果數 = 0
-- **And** 所有顏色 / 邊框 / 背景 class 均為 K-021 token
+- **Given** developer greps `UnifiedNavBar.tsx`
+- **When** searching for `#[0-9A-Fa-f]{6}` pattern
+- **Then** result count = 0
+- **And** all color / border / background classes are K-021 tokens
 
-#### AC-025-NAVBAR-SPEC：既有斷言語意不降級
+#### AC-025-NAVBAR-SPEC: existing assertion semantics not downgraded
 
-- **Given** `navbar.spec.ts` 8 處既有 regex 改為 token / aria-current selector
-- **When** 執行 `npx playwright test navbar.spec.ts`
-- **Then** 所有既有 test case 通過（K-005 AC-NAV-1~5 + K-021 AC-021-NAVBAR）
-- **And** active state 斷言改用 `[aria-current="page"]` selector
-- **And** 新增 `/` route inactive color 4 斷言（App / Diary / About / Prediction-hidden），補 TD-K021-09
+- **Given** the 8 existing regexes in `navbar.spec.ts` are changed to token / aria-current selector
+- **When** running `npx playwright test navbar.spec.ts`
+- **Then** all existing test cases pass (K-005 AC-NAV-1~5 + K-021 AC-021-NAVBAR)
+- **And** active-state assertions use the `[aria-current="page"]` selector
+- **And** add 4 `/` route inactive color assertions (App / Diary / About / Prediction-hidden), addressing TD-K021-09
 
 #### AC-025-REGRESSION
 
-見 [K-025](docs/tickets/K-025-navbar-hex-to-token.md)：K-021 + K-005 + 其他頁面 E2E 不回歸。
+See [K-025](docs/tickets/K-025-navbar-hex-to-token.md): K-021 + K-005 + other page E2E no regression.
 
 ---
 
@@ -468,253 +468,253 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 
 - **Status:** open / phase: 0 / type: fix + process / priority: high / **visual-delta: yes**
 - **Ticket:** [docs/tickets/K-034-about-spec-audit-and-workflow-codification.md](docs/tickets/K-034-about-spec-audit-and-workflow-codification.md)
-- **摘要：** K-035 變體 Footer 的 Option α「Pencil fidelity 10/10」前提為假 — Pencil MCP `batch_get` on frames `86psQ` + `1BGtd` 顯示兩 frame 內容完全相同的 inline 一行字（`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px），Pencil SSOT 只有一份 footer 設計。K-034 Phase 0 跑 BFP Round 2（6 roles + meta retrospective），codify 新的 `.pen` SSOT via JSON snapshot 工作流（17 decisions 覆蓋 Designer/Engineer/Reviewer/Architect/PM/QA personas + 9 memory files + `frontend/design/specs/` + `frontend/design/screenshots/` + `design-exemptions.md`）；Phase 1 hotfix /about footer 為 Pencil 相符的 inline 版本，刪除 `variant: 'about'` CTA 分支；Phase 2+ /about 全頁 Pencil JSON 對照 drift audit。K-036 由 K-034 blocked。
+- **Summary:** K-035 variant Footer's Option α "Pencil fidelity 10/10" premise is false — Pencil MCP `batch_get` on frames `86psQ` + `1BGtd` shows both frames contain identical inline one-liners (`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` Geist Mono 11px); Pencil SSOT has only one footer design. K-034 Phase 0 runs BFP Round 2 (6 roles + meta retrospective), codifies the new `.pen` SSOT via JSON snapshot workflow (17 decisions covering Designer/Engineer/Reviewer/Architect/PM/QA personas + 9 memory files + `frontend/design/specs/` + `frontend/design/screenshots/` + `design-exemptions.md`); Phase 1 hotfixes /about footer to the Pencil-compliant inline version, removing the `variant: 'about'` CTA branch; Phase 2+ runs full-page /about Pencil JSON drift audit. K-036 is blocked by K-034.
 
-**AC 一覽：**
+**AC overview:**
 
-- **Phase 0 (BFP Round 2 + 工作流 codify)：** AC-034-P0-PRD, AC-034-P0-QA, AC-034-P0-RETROS, AC-034-P0-PERSONAS, AC-034-P0-MEMORY, AC-034-P0-INFRA, AC-034-P0-COMMITS
-- **Phase 1 (/about footer hotfix)：** AC-034-P1-FOOTER-UNIFIED, AC-034-P1-ROUTE-DOM-PARITY, AC-034-P1-NO-ABOUT-CTA, AC-034-P1-NO-FOOTER-ROUTES, AC-034-P1-FAIL-IF-GATE-REMOVED, AC-034-P1-DEPLOY
-- **Phase 2+ (/about 全頁 audit)：** AC-034-P2-AUDIT-DUMP, AC-034-P2-DRIFT-LIST (Phase 1 close 後展開)
+- **Phase 0 (BFP Round 2 + workflow codify):** AC-034-P0-PRD, AC-034-P0-QA, AC-034-P0-RETROS, AC-034-P0-PERSONAS, AC-034-P0-MEMORY, AC-034-P0-INFRA, AC-034-P0-COMMITS
+- **Phase 1 (/about footer hotfix):** AC-034-P1-FOOTER-UNIFIED, AC-034-P1-ROUTE-DOM-PARITY, AC-034-P1-NO-ABOUT-CTA, AC-034-P1-NO-FOOTER-ROUTES, AC-034-P1-FAIL-IF-GATE-REMOVED, AC-034-P1-DEPLOY
+- **Phase 2+ (/about full-page audit):** AC-034-P2-AUDIT-DUMP, AC-034-P2-DRIFT-LIST (expanded after Phase 1 closes)
 
-完整 Given/When/Then/And + 17-decision table + BFP Round-2 Why 見 [K-034](docs/tickets/K-034-about-spec-audit-and-workflow-codification.md)。
+For full Given/When/Then/And + 17-decision table + BFP Round-2 Why, see [K-034](docs/tickets/K-034-about-spec-audit-and-workflow-codification.md).
 
 ---
 
 ## §4 Closed Tickets
 
-以下 16 張 closed + 2 張 superseded ticket，AC 詳文從對應 `docs/tickets/*.md` 引用。`closed` 日期以 ticket frontmatter 為準；前期未登記 date 者以 `[Closed 2026-04, date TBD]` 占位。
+The following 16 closed + 2 superseded tickets reference AC details from corresponding `docs/tickets/*.md`. `closed` dates follow ticket frontmatter; entries without registered dates use `[Closed 2026-04, date TBD]` as placeholder.
 
-### K-001 — 後端測試補強（main.py route handler coverage 提升）
+### K-001 — Backend test reinforcement (main.py route handler coverage uplift)
 
 - **Status:** closed / type: test / **Closed: [Closed 2026-04, date TBD]**
 - **Ticket:** [docs/tickets/K-001-backend-test-coverage.md](docs/tickets/K-001-backend-test-coverage.md)
-- **摘要：** main.py coverage 45% → ≥ 80%；補齊 auth / history-info / upload-history / example / parse / merge 等路由 happy path + 錯誤路徑 test。
+- **Summary:** main.py coverage 45% → ≥ 80%; complete happy-path + error-path tests for auth / history-info / upload-history / example / parse / merge routes.
 
-**AC：**
+**AC:**
 
-- **AC-TEST-AUTH-3** — 有效 token `GET /api/business-logic` 回傳 200 + markdown content（以 `tmp_path` 建立臨時 md）
-- **AC-TEST-AUTH-5** — `business_logic.md` 不存在 → 404
-- **AC-TEST-HISTORY-INFO-1** — `GET /api/history-info` 回 `1H`/`1D` 各含 `bar_count`/`latest`/`filename`
-- **AC-TEST-UPLOAD-1** — `POST /api/upload-history` 1H CSV happy path → `timeframe=1H`、`added_count>0`
-- **AC-TEST-UPLOAD-2** — 檔名含 `_d.csv` → `timeframe=1D`
-- **AC-TEST-UPLOAD-3** — 空檔 → 422
-- **AC-TEST-UPLOAD-4** — 重複上傳 → `added_count=0`
-- **AC-TEST-EXAMPLE-1** — history CSV 不存在 → 404
-- **AC-TEST-PARSE-1~3** — CryptoDataDownload / Binance raw API / 空字串 parse 行為正確
-- **AC-TEST-MERGE-1** — `_merge_bars` 去重並排序
+- **AC-TEST-AUTH-3** — valid token `GET /api/business-logic` returns 200 + markdown content (use `tmp_path` to create temporary md)
+- **AC-TEST-AUTH-5** — `business_logic.md` does not exist → 404
+- **AC-TEST-HISTORY-INFO-1** — `GET /api/history-info` returns `1H`/`1D` each containing `bar_count`/`latest`/`filename`
+- **AC-TEST-UPLOAD-1** — `POST /api/upload-history` 1H CSV happy path → `timeframe=1H`, `added_count>0`
+- **AC-TEST-UPLOAD-2** — filename containing `_d.csv` → `timeframe=1D`
+- **AC-TEST-UPLOAD-3** — empty file → 422
+- **AC-TEST-UPLOAD-4** — duplicate upload → `added_count=0`
+- **AC-TEST-EXAMPLE-1** — history CSV does not exist → 404
+- **AC-TEST-PARSE-1~3** — CryptoDataDownload / Binance raw API / empty string parse behavior is correct
+- **AC-TEST-MERGE-1** — `_merge_bars` deduplicates and sorts
 
 ---
 
-### K-002 — UI 優化（icon、排版、loading 動畫）
+### K-002 — UI optimization (icons, layout, loading animation)
 
 - **Status:** closed / type: feat / **Closed: 2026-04-18**
 - **Ticket:** [docs/tickets/K-002-ui-optimization.md](docs/tickets/K-002-ui-optimization.md)
-- **摘要：** UI 大重構 — NavBar 連結完整性、Icon Library 導入、排版、LoadingSpinner 改版。
+- **Summary:** UI refactor — NavBar link completeness, Icon Library introduction, layout, LoadingSpinner revamp.
 
-**AC：**
+**AC:**
 
-- **AC-002-NAV** — NavBar 連結完整性
-- **AC-002-ICON** — Icon Library 導入：NavBar ⌂ / PredictButton ▶ / SectionHeader 改 icon library 版本；無鋸齒
-- **AC-002-LAYOUT** — section padding/gap 一致、typography 四級可辨；mobile viewport 不溢出
-- **AC-002-LOADING** — LoadingSpinner 改 pulse/skeleton/multi-ring 等質感動畫；loading 結束立即消失
+- **AC-002-NAV** — NavBar link completeness
+- **AC-002-ICON** — Icon Library introduction: NavBar ⌂ / PredictButton ▶ / SectionHeader switched to icon library version; no aliasing
+- **AC-002-LAYOUT** — section padding/gap consistent, four-level typography distinguishable; no overflow on mobile viewport
+- **AC-002-LOADING** — LoadingSpinner upgraded to pulse/skeleton/multi-ring quality animations; disappears immediately on loading completion
 
-> 由 K-011 superseded LoadingSpinner 文案部分（見 K-002 spec 頭註待 K-016 補）。
+> The LoadingSpinner copy portion is superseded by K-011 (see K-002 spec header note pending K-016).
 
 ---
 
-### K-003 — 前端 bundle 分割（chunk > 500kB 警告修復）
+### K-003 — Frontend bundle splitting (fix chunk > 500kB warning)
 
 - **Status:** closed / type: chore / **Closed: 2026-04-17**
 - **Ticket:** [docs/tickets/K-003-bundle-split.md](docs/tickets/K-003-bundle-split.md)
-- **摘要：** Vite build chunk > 500 kB，dynamic import / manualChunks 拆分。
+- **Summary:** Vite build chunk > 500 kB; split via dynamic import / manualChunks.
 
-**AC：**
+**AC:**
 
-- **AC-BUNDLE-1** — build 無 chunk > 500kB 警告
-- **AC-BUNDLE-2** — 現有 E2E 測試全數通過
+- **AC-BUNDLE-1** — build has no chunk > 500kB warning
+- **AC-BUNDLE-2** — all existing E2E tests pass
 
 ---
 
-### K-004 — /app TopBar Logo 點擊回 Home（superseded by K-030）
+### K-004 — /app TopBar Logo click returns Home (superseded by K-030)
 
 - **Status:** superseded / type: feat
 - **Ticket:** [docs/tickets/K-004-app-topbar-logo-home-link.md](docs/tickets/K-004-app-topbar-logo-home-link.md)
-- **Superseded by:** [K-030](docs/tickets/K-030-app-page-isolation.md)（`/app` 獨立為 tool 頁後不再需要頁面內 Home link）
+- **Superseded by:** [K-030](docs/tickets/K-030-app-page-isolation.md) (`/app` becomes a standalone tool page, in-page Home link no longer needed)
 
 ---
 
-### K-005 — 統一 NavBar — 所有頁面
+### K-005 — Unified NavBar — all pages
 
 - **Status:** closed / type: feat / **Closed: [Closed 2026-04, date TBD]**
 - **Ticket:** [docs/tickets/K-005-unified-navbar.md](docs/tickets/K-005-unified-navbar.md)
-- **摘要：** 所有頁面顯示 `<UnifiedNavBar />`：左側 ⌂、右側 App / About / Diary / Logic 🔒；SPA 路由；active 高亮；Business Logic auth 狀態。
+- **Summary:** All pages display `<UnifiedNavBar />`: left ⌂, right App / About / Diary / Logic 🔒; SPA routing; active highlight; Business Logic auth state.
 
-**AC（AC-NAV-1~5）：**
+**AC (AC-NAV-1~5):**
 
-- **AC-NAV-1** — 所有頁面顯示統一 NavBar，無 layout shift / 缺失
-- **AC-NAV-2** — ⌂ 導首頁（SPA，不全頁 reload）
-- **AC-NAV-3** — App / About / Diary / Logic 導向各自路由
-- **AC-NAV-4** — 當前頁 active 磚紅色 `#9C4A3B`；其他深棕黑 60%
-- **AC-NAV-5** — 未登入時 Logic 🔒 顯示鎖頭；點擊導 `/business-logic` auth gate
+- **AC-NAV-1** — all pages display unified NavBar, no layout shift / missing items
+- **AC-NAV-2** — ⌂ navigates home (SPA, no full-page reload)
+- **AC-NAV-3** — App / About / Diary / Logic navigate to respective routes
+- **AC-NAV-4** — current-page active brick-red `#9C4A3B`; others dark-brown 60% black
+- **AC-NAV-5** — when not logged in, Logic 🔒 shows lock; clicking navigates to `/business-logic` auth gate
 
-設計稿參考：`homepage.pen` NavBar — Revised 系列 frame (x=7600)。
+Design reference: `homepage.pen` NavBar — Revised series frame (x=7600).
 
 ---
 
-### K-006 — Homepage diary.json 補填 4/1–4/16 缺漏里程碑
+### K-006 — Homepage diary.json backfill 4/1–4/16 missing milestones
 
 - **Status:** closed / type: content / **Closed: [Closed 2026-04, date TBD]**
 - **Ticket:** [docs/tickets/K-006-homepage-diary-backfill.md](docs/tickets/K-006-homepage-diary-backfill.md)
-- **摘要：** 補填 4/1–4/16 缺漏里程碑至 diary.json；Homepage Dev Diary 顯示完整。
+- **Summary:** Backfill missing 4/1–4/16 milestones into diary.json; Homepage Dev Diary fully displayed.
 
-**AC：**
+**AC:**
 
-- **AC-K006-1** — 補填缺漏里程碑至 diary.json（4/1~4/16 每日或每新 feature 條目）
-- **AC-K006-2** — E2E 不回歸（Homepage / Diary 相關 spec 皆 PASS）
+- **AC-K006-1** — backfill missing milestones into diary.json (4/1~4/16 daily or per-new-feature entries)
+- **AC-K006-2** — E2E no regression (Homepage / Diary related specs all PASS)
 
 ---
 
-### K-007 — About 頁面描述更新
+### K-007 — About page description update
 
 - **Status:** closed / type: content / **Closed: [Closed 2026-04, date TBD]**
 - **Ticket:** [docs/tickets/K-007-about-page-description-update.md](docs/tickets/K-007-about-page-description-update.md)
-- **摘要：** About 頁面文字描述草稿更新；後續由 K-017 portfolio 改版整合。
+- **Summary:** About page text description draft update; subsequently integrated by K-017 portfolio revamp.
 
-**AC：**
+**AC:**
 
-- **AC-K007-1** — About 頁面描述對齊當時專案現況（草稿狀態）
+- **AC-K007-1** — About page description aligned with current project status (draft state)
 
-> 此票 AC 為當期草稿版本，完整 portfolio v2 重寫由 [K-017](docs/tickets/K-017-about-portfolio-enhancement.md) 覆蓋。
+> This ticket's AC is a period draft version; the complete portfolio v2 rewrite is covered by [K-017](docs/tickets/K-017-about-portfolio-enhancement.md).
 
 ---
 
-### K-008 — 自動化視覺報告 script（Playwright 截圖 → HTML）
+### K-008 — Automated visual report script (Playwright screenshots → HTML)
 
 - **Status:** closed / type: feat / **Closed: 2026-04-18**
 - **Ticket:** [docs/tickets/K-008-visual-report.md](docs/tickets/K-008-visual-report.md)
-- **摘要：** `frontend/e2e/visual-report.ts` 跑 Playwright 把 4 條公開路由（`/` / `/app` / `/about` / `/diary`）截圖後輸出 `docs/reports/K-XXX-visual-report.html`；ticket ID 從 `TICKET_ID` env var 讀。MVP 範圍縮減為全頁截圖 + 已知路由；不做 ticket→頁面 mapping。
+- **Summary:** `frontend/e2e/visual-report.ts` runs Playwright to screenshot 4 public routes (`/` / `/app` / `/about` / `/diary`) and emit `docs/reports/K-XXX-visual-report.html`; ticket ID is read from the `TICKET_ID` env var. MVP scope reduced to full-page screenshots + known routes; no ticket→page mapping.
 
-**AC：**
+**AC:**
 
-#### AC-008-SCRIPT：Script 可執行
+#### AC-008-SCRIPT: script is executable
 
-- **Given** QA 完成，所有 Playwright E2E 已通過
-- **When** 在 `frontend/` 目錄執行 `npx playwright test visual-report.ts`（含傳入 ticket ID 的方式，由 Architect 決定 CLI arg / env var）
-- **Then** script 成功執行，退出碼 0
-- **And** 在 `docs/reports/` 下產出 `K-XXX-visual-report.html`
+- **Given** QA complete, all Playwright E2E passed
+- **When** running `npx playwright test visual-report.ts` in the `frontend/` directory (with ticket ID passed in; Architect decides CLI arg / env var)
+- **Then** script executes successfully, exit code 0
+- **And** emits `K-XXX-visual-report.html` under `docs/reports/`
 
-#### AC-008-CONTENT：報告包含所有已知頁面全頁截圖
+#### AC-008-CONTENT: report contains full-page screenshots of all known pages
 
-- **Given** `K-XXX-visual-report.html` 已產出
-- **When** 在瀏覽器開啟
-- **Then** 報告包含「已知頁面路由全集」每條路由一張 full page 截圖
-- **And** 每張截圖有對應的 route path 標記（例如 `/`、`/app`、`/about`、`/diary`）
-- **And** 若某條路由需登入，報告標記「需登入」或使用 auth fixture 後截圖（由 Architect 定案）
+- **Given** `K-XXX-visual-report.html` has been emitted
+- **When** opened in a browser
+- **Then** the report contains the "complete set of known page routes" with one full-page screenshot per route
+- **And** each screenshot has a corresponding route path label (e.g., `/`, `/app`, `/about`, `/diary`)
+- **And** if a route requires login, the report marks "requires login" or screenshots after using the auth fixture (Architect decides)
 
-**Blocking Question 裁決（2026-04-18）：**
-- 執行環境 — 本地 dev server `http://localhost:5173`（Vite 預設），沿用既有 Playwright E2E 設定
-- 頁面範圍 — 4 條公開頁：`/` / `/app` / `/about` / `/diary`；`/business-logic`（JWT）標「需登入，下期補」不做 auth fixture
-- Ticket ID 傳入 — env var `TICKET_ID=K-008 npx playwright test visual-report.ts`；未設則預設 `UNKNOWN` 或退出碼 1
+**Blocking Question ruling (2026-04-18):**
+- Execution environment — local dev server `http://localhost:5173` (Vite default), reusing existing Playwright E2E setup
+- Page scope — 4 public pages: `/` / `/app` / `/about` / `/diary`; `/business-logic` (JWT) marked "requires login, deferred to next round", no auth fixture
+- Ticket ID passing — env var `TICKET_ID=K-008 npx playwright test visual-report.ts`; if unset, default to `UNKNOWN` or exit code 1
 
 ---
 
-### K-009 — 1H 預測路徑使用錯誤的 MA history 來源
+### K-009 — 1H prediction path used wrong MA history source
 
 - **Status:** closed / type: bug / **Closed: 2026-04-18**
 - **Ticket:** [docs/tickets/K-009-1h-ma-history-fix.md](docs/tickets/K-009-1h-ma-history-fix.md)
-- **摘要：** `backend/main.py` 1H 預測路徑呼叫 `find_top_matches()` 未傳 `ma_history`，靜默 fallback 為 1H history 當 30-day MA 資料；修為顯式傳 `ma_history=_history_1d`。
+- **Summary:** `backend/main.py` 1H prediction path called `find_top_matches()` without passing `ma_history`, silently falling back to 1H history as 30-day MA data; fixed by explicitly passing `ma_history=_history_1d`.
 
-**AC：**
+**AC:**
 
-- **AC-009-FIX** — `/api/predict` timeframe=1H 時，`find_top_matches()` 收到 `ma_history=_history_1d`；1H 預測 MA99 filter / correlation 基於 daily history
-- **AC-009-TEST** — 存在 test case 明確驗證 1H 路徑下 `ma_history` 為 `_history_1d`；若回退舊行為 test 失敗
-- **AC-009-REGRESSION** — 既有 18 + 44 backend tests 全過、無新 failure
+- **AC-009-FIX** — when `/api/predict` timeframe=1H, `find_top_matches()` receives `ma_history=_history_1d`; 1H prediction MA99 filter / correlation is based on daily history
+- **AC-009-TEST** — a test case exists explicitly verifying that the 1H path's `ma_history` is `_history_1d`; if regressed to old behavior, the test fails
+- **AC-009-REGRESSION** — existing 18 + 44 backend tests all pass, no new failures
 
 ---
 
-### K-010 — 前端 Vitest 修復（AppPage.test.tsx）
+### K-010 — Frontend Vitest fix (AppPage.test.tsx)
 
 - **Status:** closed / type: bug / **Closed: 2026-04-18**
 - **Ticket:** [docs/tickets/K-010-vitest-apppage-fix.md](docs/tickets/K-010-vitest-apppage-fix.md)
-- **摘要：** `AppPage.test.tsx` 假設兩個 1D button 與 payload 永遠送 1H 的舊 dual-toggle 架構殘骸；改為與 fb20f21 後 native timeframe contract 一致。
+- **Summary:** `AppPage.test.tsx` carried legacy dual-toggle architecture residue assuming two 1D buttons and that payload always sends 1H; aligned with the post-fb20f21 native timeframe contract.
 
-**AC：**
+**AC:**
 
-- **AC-010-GREEN** — Vitest suite 全綠、exit 0
-- **AC-010-ROBUST** — timeframe 斷言不依賴 index；未來新增/刪除 button 仍可定位
-- **AC-010-REGRESSION** — tsc + Playwright 不回歸
-- **AC-010-R1** — `/api/predict` 送出 current view timeframe（=`viewTimeframe`，無「永遠送 1H」硬編碼）
-- **AC-010-R2** — timeframe toggle 觸發 `POST /api/merge-and-compute-ma99`（不觸發 predict）；MA99 header + MainChart 依新 timeframe 重渲染
+- **AC-010-GREEN** — Vitest suite all green, exit 0
+- **AC-010-ROBUST** — timeframe assertions do not depend on index; locators remain valid even if buttons are added/removed in the future
+- **AC-010-REGRESSION** — tsc + Playwright no regression
+- **AC-010-R1** — `/api/predict` sends current view timeframe (= `viewTimeframe`, no "always send 1H" hardcoding)
+- **AC-010-R2** — timeframe toggle triggers `POST /api/merge-and-compute-ma99` (does not trigger predict); MA99 header + MainChart re-render per new timeframe
 
 ---
 
-### K-011 — LoadingSpinner 文案中性化（加 label prop）
+### K-011 — LoadingSpinner copy neutralization (add label prop)
 
 - **Status:** closed / type: enhancement / **Closed: 2026-04-18**
 - **Ticket:** [docs/tickets/K-011-loading-spinner-label.md](docs/tickets/K-011-loading-spinner-label.md)
-- **摘要：** `LoadingSpinner` 加 `label?: string` prop；4 個 callsite（BusinessLogicPage / DiaryPage / DevDiarySection / PredictButton）情境化文案；移除 hard-coded `Running prediction…`。
+- **Summary:** Add `label?: string` prop to `LoadingSpinner`; 4 callsites (BusinessLogicPage / DiaryPage / DevDiarySection / PredictButton) get contextualized copy; remove hard-coded `Running prediction…`.
 
-**AC：**
+**AC:**
 
-- **AC-011-PROP** — `LoadingSpinner` 支援 `label` prop，未傳時不顯示 `Running prediction...` 這組 prediction-specific 文字
-- **AC-011-CALLSITES** — 4 個 callsite 各自 label 與頁面情境一致
-- **AC-011-REGRESSION** — tsc / Vitest / Playwright 全綠
+- **AC-011-PROP** — `LoadingSpinner` supports the `label` prop; when not passed, the prediction-specific text `Running prediction...` is not shown
+- **AC-011-CALLSITES** — 4 callsites each have a label consistent with their page context
+- **AC-011-REGRESSION** — tsc / Vitest / Playwright all green
 
 ---
 
-### K-013 — Consensus / Stats Single Source of Truth（TD-008 Option C 實作）
+### K-013 — Consensus / Stats Single Source of Truth (TD-008 Option C implementation)
 
 - **Status:** closed / type: refactor / **Closed: 2026-04-21**
 - **Ticket:** [docs/tickets/K-013-consensus-stats-contract.md](docs/tickets/K-013-consensus-stats-contract.md)
-- **摘要：** 前端抽出 `statsComputation.ts` 純函式 + 後端 contract fixture 鎖 compute_stats 行為；TD-008 Option C 實作。R2 remediation 新增 AC-013-APPPAGE-E2E 4 chart-visibility state spec 作為 bug-found protocol 的回歸保護。
+- **Summary:** Frontend extracts `statsComputation.ts` pure function + backend contract fixture locks compute_stats behavior; TD-008 Option C implementation. R2 remediation adds AC-013-APPPAGE-E2E 4 chart-visibility state spec as regression protection for the bug-found protocol.
 
-**AC（原文保留）：**
+**AC (original text preserved):**
 
-#### AC-013-UTIL：前端抽出共用純函式
+#### AC-013-UTIL: frontend extracts shared pure function
 
-- **Given** `frontend/src/utils/statsComputation.ts` 已建立
-- **When** 外部呼叫 `computeStatsFromMatches(matches, currentClose, timeframe)`
-- **Then** 回傳型別等同後端 `PredictStats` 的 camelCase 映射
-- **And** 函式為純函式，無 React 依賴、無 side effect、無隱式 `Date.now()`
+- **Given** `frontend/src/utils/statsComputation.ts` is created
+- **When** external code calls `computeStatsFromMatches(matches, currentClose, timeframe)`
+- **Then** return type equals camelCase mapping of backend `PredictStats`
+- **And** the function is pure, no React dependency, no side effects, no implicit `Date.now()`
 
-#### AC-013-APPPAGE：AppPage.tsx displayStats 邏輯簡化
+#### AC-013-APPPAGE: AppPage.tsx displayStats logic simplification
 
 - **Given** `frontend/src/AppPage.tsx`
-- **When** 讀取 `displayStats` useMemo
-- **Then** `appliedSelection == all matches` → 直接使用 `appliedData.stats`；subset → 呼叫 `computeStatsFromMatches(...)`
-- **And** 原 inline `computeDisplayStats` 與獨立 `projectedFutureBars` useMemo 已刪除或合併
+- **When** reading `displayStats` useMemo
+- **Then** `appliedSelection == all matches` → use `appliedData.stats` directly; subset → call `computeStatsFromMatches(...)`
+- **And** the original inline `computeDisplayStats` and standalone `projectedFutureBars` useMemo are deleted or merged
 
-#### AC-013-FIXTURE：Contract fixture 建立
+#### AC-013-FIXTURE: contract fixture created
 
-- **Given** `backend/tests/fixtures/stats_contract_cases.json` 已建立
-- **When** 檔案被讀取
-- **Then** 內容為 array，每筆含 `name` / `input` / `expected`
-- **And** 至少涵蓋 3 種 case：全集、subset、single match 邊界（`future_ohlc` == 2 筆）
+- **Given** `backend/tests/fixtures/stats_contract_cases.json` is created
+- **When** the file is read
+- **Then** content is an array, each entry containing `name` / `input` / `expected`
+- **And** at least covers 3 cases: full set, subset, single match boundary (`future_ohlc` == 2 entries)
 
-#### AC-013-BACKEND-CONTRACT：後端 contract test 通過
+#### AC-013-BACKEND-CONTRACT: backend contract test passes
 
-- **Given** `backend/tests/test_predictor.py` 新增 parametrize test
-- **When** 執行 `python3 -m pytest backend/tests/`
-- **Then** 每筆 fixture case 的 `compute_stats(**input)` 輸出與 `expected` bit-exact 或誤差 ≤ 1e-6
+- **Given** `backend/tests/test_predictor.py` adds a parametrize test
+- **When** running `python3 -m pytest backend/tests/`
+- **Then** for each fixture case, `compute_stats(**input)` output is bit-exact or within 1e-6 tolerance vs `expected`
 
-#### AC-013-FRONTEND-CONTRACT：前端 contract test 通過
+#### AC-013-FRONTEND-CONTRACT: frontend contract test passes
 
-- **Given** `frontend/src/__tests__/statsComputation.test.ts` 新增
-- **When** 執行 `npm test`
-- **Then** 對每筆 fixture case 的 `computeStatsFromMatches(...)` 輸出經 camelCase 對映後與 `expected` bit-exact 或誤差 ≤ 1e-6
+- **Given** `frontend/src/__tests__/statsComputation.test.ts` is added
+- **When** running `npm test`
+- **Then** for each fixture case, `computeStatsFromMatches(...)` output after camelCase mapping is bit-exact or within 1e-6 tolerance vs `expected`
 
-#### AC-013-APPPAGE-E2E：AppPage chart 4 state 可見性 Playwright 覆蓋（R2 remediation）
+#### AC-013-APPPAGE-E2E: AppPage chart 4-state visibility Playwright coverage (R2 remediation)
 
-- **Given** AppPage 三路徑分支（full-set / subset / empty）
-- **When** 執行 `playwright test k-013-consensus.spec.ts`
-- **Then** 4 cases 全綠：(1) full-set chart 顯示；(2) subset chart 顯示；(3) empty matches chart fallback；(4) `<2 bars` fallback 不壞
-- **And** consensusForecast 在 full-set 路徑維持 unconditional injection（R2 fix `853a8aa` 鎖定）
+- **Given** AppPage three-path branches (full-set / subset / empty)
+- **When** running `playwright test k-013-consensus.spec.ts`
+- **Then** 4 cases all green: (1) full-set chart displays; (2) subset chart displays; (3) empty matches chart fallback; (4) `<2 bars` fallback does not break
+- **And** consensusForecast in the full-set path maintains unconditional injection (R2 fix `853a8aa` locked)
 
 #### AC-013-REGRESSION / AC-013-API-COMPAT / AC-013-COMMENT
 
-見 [K-013](docs/tickets/K-013-consensus-stats-contract.md) 完整 ticket。
+See full ticket [K-013](docs/tickets/K-013-consensus-stats-contract.md).
 
-**Deploy:** 2026-04-21 — details in ticket Deploy Record block（`frontend/public/docs/` 無異動；本票為純 refactor + contract test 新增）
+**Deploy:** 2026-04-21 — details in ticket Deploy Record block (`frontend/public/docs/` unchanged; this ticket is a pure refactor + contract test addition)
 
 ---
 
@@ -722,219 +722,219 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 
 - **Status:** closed / type: feat / **Closed: 2026-04-20**
 - **Ticket:** [docs/tickets/K-017-about-portfolio-enhancement.md](docs/tickets/K-017-about-portfolio-enhancement.md)
-- **摘要：** `/about` 改 portfolio 8 sections（Header / Metrics / Roles / Pillars / Tickets / Architecture / Banner / Footer）+ 2 artifacts（`scripts/audit-ticket.sh` + `docs/ai-collab-protocols.md`）；Homepage `<BuiltByAIBanner />` 導入；Homepage v2 Dossier 版面（frame `4CsvQ`）完整版面。
+- **Summary:** `/about` redesigned to portfolio 8 sections (Header / Metrics / Roles / Pillars / Tickets / Architecture / Banner / Footer) + 2 artifacts (`scripts/audit-ticket.sh` + `docs/ai-collab-protocols.md`); Homepage `<BuiltByAIBanner />` introduced; Homepage v2 Dossier layout (frame `4CsvQ`) complete layout.
 
-**AC 一覽（完整 Given/When/Then/And 見 ticket）：**
+**AC overview (full Given/When/Then/And in ticket):**
 
-- **AC-017-NAVBAR** — `/about` 頂部顯示 NavBar
-- **AC-017-HEADER** — PageHeaderSection 的 "One operator, orchestrating AI agents end-to-end — PM, architect, engineer, reviewer, QA, designer. Every feature ships with a doc trail."
-- **AC-017-METRICS** — 4 個 narrative metric：Features Shipped / First-pass Review Rate / Post-mortems Written / Guardrails in Place，各含對應 subtext；禁絕對 `N%` 數字
-- **AC-017-ROLES** — 6 role cards（PM / Architect / Engineer / Reviewer / QA / Designer）各含 `Owns` + `Artefact`（18 條斷言）
-- **AC-017-PILLARS** — How AI Stays Reliable 三支柱 Persistent Memory / Structured Reflection / Role Agents + 三段 italic anchor 引用 + 三 inline link 至 `/docs/ai-collab-protocols.md`
-- **AC-017-TICKETS** — Anatomy of a Ticket 三張卡 K-002 / K-008 / K-009（ID / 標題 / outcome / learning / 外部 GitHub link）
-- **AC-017-ARCH** — Project Architecture snapshot 三子區塊：`Monorepo, contract-first` / `Docs-driven tickets` / `Three-layer testing pyramid`
-- **AC-017-BANNER** — Homepage `<BuiltByAIBanner />` "One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*"（thin banner，NavBar 下 / Hero 上；clickable 導 `/about`）
-- **AC-017-FOOTER** — `/about` `<FooterCtaSection />`（Let's talk + email / GitHub / LinkedIn 三 target=_blank）；`/` `<HomeFooterBar />` 純文字；`/diary` 無 Footer
-- **AC-017-AUDIT** — `scripts/audit-ticket.sh` 可執行並輸出 A–G checklist（K-002 skip F/G；K-008 含 F/G；K-999 → exit 2）
-- **AC-017-PROTOCOLS** — `docs/ai-collab-protocols.md` 三 section：Role Flow / Bug Found Protocol / Per-role Retrospective Log，英文撰寫，含 2–3 條 curated retrospective 節選
-- **AC-017-HOME-V2** — Homepage `4CsvQ` v2 版面：hpHero / hpLogic / hpDiary 三 section + BuiltByAIBanner + FooterCtaSection；不破 AC-HOME-1
-- **AC-017-BUILD** — `docs/ai-collab-protocols.md` build-time 同步至 `frontend/public/docs/`
+- **AC-017-NAVBAR** — `/about` top displays NavBar
+- **AC-017-HEADER** — PageHeaderSection's "One operator, orchestrating AI agents end-to-end — PM, architect, engineer, reviewer, QA, designer. Every feature ships with a doc trail."
+- **AC-017-METRICS** — 4 narrative metrics: Features Shipped / First-pass Review Rate / Post-mortems Written / Guardrails in Place, each with corresponding subtext; absolute `N%` numbers prohibited
+- **AC-017-ROLES** — 6 role cards (PM / Architect / Engineer / Reviewer / QA / Designer) each with `Owns` + `Artefact` (18 assertions)
+- **AC-017-PILLARS** — How AI Stays Reliable three pillars Persistent Memory / Structured Reflection / Role Agents + three italic anchor quotes + three inline links to `/docs/ai-collab-protocols.md`
+- **AC-017-TICKETS** — Anatomy of a Ticket three cards K-002 / K-008 / K-009 (ID / title / outcome / learning / external GitHub link)
+- **AC-017-ARCH** — Project Architecture snapshot three sub-sections: `Monorepo, contract-first` / `Docs-driven tickets` / `Three-layer testing pyramid`
+- **AC-017-BANNER** — Homepage `<BuiltByAIBanner />` "One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*" (thin banner, below NavBar / above Hero; clickable, navigates to `/about`)
+- **AC-017-FOOTER** — `/about` `<FooterCtaSection />` (Let's talk + email / GitHub / LinkedIn three target=_blank); `/` `<HomeFooterBar />` plain text; `/diary` no Footer
+- **AC-017-AUDIT** — `scripts/audit-ticket.sh` is executable and outputs A–G checklist (K-002 skips F/G; K-008 includes F/G; K-999 → exit 2)
+- **AC-017-PROTOCOLS** — `docs/ai-collab-protocols.md` three sections: Role Flow / Bug Found Protocol / Per-role Retrospective Log, English-written, with 2–3 curated retrospective excerpts
+- **AC-017-HOME-V2** — Homepage `4CsvQ` v2 layout: hpHero / hpLogic / hpDiary three sections + BuiltByAIBanner + FooterCtaSection; does not break AC-HOME-1
+- **AC-017-BUILD** — `docs/ai-collab-protocols.md` build-time sync to `frontend/public/docs/`
 
 ---
 
-### K-021 — 全站設計系統基建（配色 + 字型 + NavBar + Footer）
+### K-021 — Sitewide design system foundation (palette + fonts + NavBar + Footer)
 
 - **Status:** closed / type: feat / **Closed: 2026-04-20**
 - **Ticket:** [docs/tickets/K-021-sitewide-design-system.md](docs/tickets/K-021-sitewide-design-system.md)
-- **摘要：** K-017 後比對設計稿 v2 發現全站 3 頁面配色顛倒（米白 vs dark-mode）+ 字型系統缺失；交付 Tailwind token（paper palette 6 色）+ 三字型系統 + NavBar + Footer 共用組件，作為 K-022 / K-023 / K-024 前置依賴。
+- **Summary:** After K-017, comparing with design v2 found that 3 sitewide pages had inverted color scheme (beige vs dark-mode) + missing font system; delivered Tailwind tokens (paper palette 6 colors) + three-font system + NavBar + Footer shared components as prerequisites for K-022 / K-023 / K-024.
 
-**AC：**
+**AC:**
 
-- **AC-021-TOKEN** — Tailwind theme.extend.colors 註冊 paper `#F4EFE5` / ink `#1A1814` / brick `#B43A2C` / brick-dark `#9C4A3B` / charcoal `#2A2520` / muted `#6B5F4E`；tsc exit 0、build 成功
-- **AC-021-FONTS** — 載入 Bodoni Moda / Newsreader / Geist Mono；theme.extend.fontFamily 註冊 `display` / `italic` / `mono`；載入失敗 fallback 系統字
-- **AC-021-BODY-PAPER** — 全站 5 頁（`/` / `/about` / `/diary` / `/app` / `/business-logic`）body computed `backgroundColor` `rgb(244, 239, 229)` + `color` `rgb(26, 24, 20)`；`/business-logic` 額外涵蓋 PasswordForm 未登入 + 登入後兩 UI 狀態（共 6 tests，5 路由獨立斷言不得合併）
-- **AC-021-NAVBAR** — NavBar `bg-paper` + `text-ink`；項目順序 ⌂ / App / Diary / Prediction(hidden) / About；active = `text-brick-dark`（brick 保留給 K-023 Hero magenta）；4 路由獨立 test case；Prediction `toHaveCount(0)`
-- **AC-021-FOOTER** — `/` / `/app` / `/business-logic` 顯示 `<HomeFooterBar />` 單行 `email · github · LinkedIn`；Geist Mono 11px、`#6B5F4E`、頂部 border；3 路由獨立 test case；`/about` 維持 `<FooterCtaSection />`；`/diary` 由 K-024 決定
-- **AC-021-REGRESSION** — K-017 + K-005 所有 Playwright 斷言仍 PASS；tsc exit 0
+- **AC-021-TOKEN** — Tailwind theme.extend.colors registers paper `#F4EFE5` / ink `#1A1814` / brick `#B43A2C` / brick-dark `#9C4A3B` / charcoal `#2A2520` / muted `#6B5F4E`; tsc exit 0, build succeeds
+- **AC-021-FONTS** — load Bodoni Moda / Newsreader / Geist Mono; theme.extend.fontFamily registers `display` / `italic` / `mono`; load failure falls back to system fonts
+- **AC-021-BODY-PAPER** — sitewide 5 pages (`/` / `/about` / `/diary` / `/app` / `/business-logic`) body computed `backgroundColor` `rgb(244, 239, 229)` + `color` `rgb(26, 24, 20)`; `/business-logic` additionally covers PasswordForm pre-login + post-login UI states (6 tests total, 5 route independent assertions cannot be merged)
+- **AC-021-NAVBAR** — NavBar `bg-paper` + `text-ink`; item order ⌂ / App / Diary / Prediction(hidden) / About; active = `text-brick-dark` (brick reserved for K-023 Hero magenta); 4 routes independent test cases; Prediction `toHaveCount(0)`
+- **AC-021-FOOTER** — `/` / `/app` / `/business-logic` show `<HomeFooterBar />` single-line `email · github · LinkedIn`; Geist Mono 11px, `#6B5F4E`, top border; 3 routes independent test cases; `/about` retains `<FooterCtaSection />`; `/diary` decided by K-024
+- **AC-021-REGRESSION** — K-017 + K-005 all Playwright assertions still PASS; tsc exit 0
 
-> K-030 後續排除 `/app` 不再遵循 AC-021-BODY-PAPER + AC-021-FOOTER；sitewide-body-paper.spec.ts 對應 `/app` case 需於 K-030 更新或刪除。
+> K-030 subsequently excludes `/app` from following AC-021-BODY-PAPER + AC-021-FOOTER; the corresponding `/app` case in sitewide-body-paper.spec.ts must be updated or deleted by K-030.
 
 ---
 
-### K-022 — /about 結構細節對齊設計稿 v2（12 項）
+### K-022 — /about structure detail alignment to design v2 (12 items)
 
 - **Status:** closed / type: feat / **Closed: [Closed 2026-04, date TBD]**
 - **Ticket:** [docs/tickets/K-022-about-structure-v2.md](docs/tickets/K-022-about-structure-v2.md)
-- **摘要：** K-017 文案定稿後 `/about` 結構細節（section label / dossier header / redaction bar / annotation / LAYER label 等）12 項對齊 Pencil frame `35VCj`；文案不動。依賴 K-021 token + 三字型。
+- **Summary:** After K-017 copy is finalized, align `/about` structure details (section label / dossier header / redaction bar / annotation / LAYER label, etc.) 12 items to Pencil frame `35VCj`; copy unchanged. Depends on K-021 tokens + three fonts.
 
-**AC：**
+**AC:**
 
-- **AC-022-SECTION-LABEL** — 每 section 上方 Geist Mono small-caps label + 1px hairline（6 section）
-- **AC-022-DOSSIER-HEADER** — 頁面頂部 dossier header bar `bg-charcoal` + 白字 + `FILE Nº` 編號
-- **AC-022-HERO-TWO-LINE** — 主句 Bodoni Moda display；結尾 `Every feature ships with a doc trail.` Newsreader italic 獨立行
-- **AC-022-SUBTITLE** — Metrics / Roles / Pillars / Tickets / Architecture 5 section 各含 Newsreader italic 副標
-- **AC-022-REDACTION-BAR** — Metrics 或 Roles 至少一黑色矩形 redaction bar 視覺遮蔽欄位
-- **AC-022-OWNS-ARTEFACT-LABEL** — Role Cards `OWNS` / `ARTEFACT` label Geist Mono small-caps 10-11px `text-muted`（6×2=12 條斷言）
-- **AC-022-LINK-STYLE** — 頁內 link Newsreader italic + underline
-- **AC-022-CASE-FILE-HEADER** — Anatomy of a Ticket section label 為 `CASE FILE`（Geist Mono small-caps）
-- **AC-022-LAYER-LABEL** — How AI Stays Reliable 三 pillar 各含 `LAYER 1` / `LAYER 2` / `LAYER 3` 前綴
-- **AC-022-FOOTER-REGRESSION** — `/about` `<FooterCtaSection />` 在米白 body 下視覺不破、AC-017-FOOTER 斷言仍 PASS
-- **AC-022-ANNOTATION** — Role Cards 至少一卡含 `BEHAVIOUR` / `POSITION` Geist Mono annotation（9-10px `text-muted`）
-- **AC-022-ROLE-GRID-HEIGHT** — Role Cards 3×2 grid 高度誤差 ≤ 2px
-- **AC-022-REGRESSION** — K-017 所有 Playwright 斷言仍 PASS；tsc exit 0
+- **AC-022-SECTION-LABEL** — each section has a Geist Mono small-caps label + 1px hairline above (6 sections)
+- **AC-022-DOSSIER-HEADER** — top of page has dossier header bar `bg-charcoal` + white text + `FILE Nº` number
+- **AC-022-HERO-TWO-LINE** — main sentence Bodoni Moda display; trailing `Every feature ships with a doc trail.` Newsreader italic on its own line
+- **AC-022-SUBTITLE** — Metrics / Roles / Pillars / Tickets / Architecture 5 sections each contain Newsreader italic subtitle
+- **AC-022-REDACTION-BAR** — Metrics or Roles has at least one black rectangle redaction bar visually masking a field
+- **AC-022-OWNS-ARTEFACT-LABEL** — Role Cards `OWNS` / `ARTEFACT` label Geist Mono small-caps 10-11px `text-muted` (6×2=12 assertions)
+- **AC-022-LINK-STYLE** — in-page link Newsreader italic + underline
+- **AC-022-CASE-FILE-HEADER** — Anatomy of a Ticket section label is `CASE FILE` (Geist Mono small-caps)
+- **AC-022-LAYER-LABEL** — How AI Stays Reliable three pillars each contain `LAYER 1` / `LAYER 2` / `LAYER 3` prefix
+- **AC-022-FOOTER-REGRESSION** — `/about` `<FooterCtaSection />` is not visually broken under beige body; AC-017-FOOTER assertions still PASS
+- **AC-022-ANNOTATION** — at least one Role Card contains `BEHAVIOUR` / `POSITION` Geist Mono annotation (9-10px `text-muted`)
+- **AC-022-ROLE-GRID-HEIGHT** — Role Cards 3×2 grid height error ≤ 2px
+- **AC-022-REGRESSION** — K-017 all Playwright assertions still PASS; tsc exit 0
 
 ---
 
-### K-023 — Homepage 結構細節對齊設計稿 v2（5 項）
+### K-023 — Homepage structure detail alignment to design v2 (5 items)
 
 - **Status:** closed / type: feat / **Closed: 2026-04-21**
 - **Ticket:** [docs/tickets/K-023-homepage-structure-v2.md](docs/tickets/K-023-homepage-structure-v2.md)
-- **摘要：** Homepage v2（frame `4CsvQ`）5 項結構差異：Diary bullet marker / hpLogic Step header bar / Hero 分隔線 / Body padding。B-2 左箭頭撤回（實作已正確）；A-4 Hero 副標兩行於 SQ-023-02 移除 scope。依賴 K-021 token + 三字型。
+- **Summary:** Homepage v2 (frame `4CsvQ`) 5 structural differences: Diary bullet marker / hpLogic Step header bar / Hero divider / Body padding. B-2 left arrow withdrawn (implementation already correct); A-4 Hero subtitle two-line removed from scope in SQ-023-02. Depends on K-021 tokens + three fonts.
 
-**AC：**
+**AC:**
 
-- **AC-023-DIARY-BULLET** — Homepage Diary 每條 `<DiaryTimelineEntry>` 左側矩形 marker 20×14px `#9C4A3B`
-- **AC-023-STEP-HEADER-BAR** — hpLogic 每張 Step 卡片頂部 `#2A2520` bar + 白字 `STEP 0X · <LABEL>` Geist Mono 10px
-- **AC-023-HERO-HAIRLINE** — Hero 副標下方全寬 1px `#2A2520` 水平分隔線
-- **AC-023-BODY-PADDING** — main content container desktop padding `72px 96px`；mobile responsive（由 Architect 定義）
-- **AC-023-REGRESSION** — K-017 所有 AC（特別 AC-017-HOME-V2 / AC-017-BANNER / AC-HOME-1）仍 PASS；`<DiaryTimelineEntry>` 絕對定位機制不破；tsc exit 0
+- **AC-023-DIARY-BULLET** — each Homepage Diary `<DiaryTimelineEntry>` has a left rectangular marker 20×14px `#9C4A3B`
+- **AC-023-STEP-HEADER-BAR** — each hpLogic Step card has a top `#2A2520` bar + white text `STEP 0X · <LABEL>` Geist Mono 10px
+- **AC-023-HERO-HAIRLINE** — full-width 1px `#2A2520` horizontal divider below Hero subtitle
+- **AC-023-BODY-PADDING** — main content container desktop padding `72px 96px`; mobile responsive (defined by Architect)
+- **AC-023-REGRESSION** — all K-017 ACs (especially AC-017-HOME-V2 / AC-017-BANNER / AC-HOME-1) still PASS; `<DiaryTimelineEntry>` absolute positioning mechanism not broken; tsc exit 0
 
-> AC-023-HERO-SUBTITLE-TWO-LINE 原為 A-4 項，經 PM 裁決 SQ-023-02 從 scope 移除（KG-023-01 正式 closed）。
+> AC-023-HERO-SUBTITLE-TWO-LINE was originally item A-4; per PM ruling SQ-023-02 removed from scope (KG-023-01 formally closed).
 
 ---
 
-### K-024 — /diary 結構重做 + diary.json schema 扁平化
+### K-024 — /diary structure rebuild + diary.json schema flattening
 
 - **Status:** closed / type: feat / **Closed: 2026-04-22**
 - **Ticket:** [docs/tickets/K-024-diary-structure-and-schema.md](docs/tickets/K-024-diary-structure-and-schema.md)
-- **摘要：** `/diary` 改設計稿 v2（`wiDSi`）扁平 timeline；diary.json 扁平 schema；英文化；Homepage 3 條 / Diary 頁 5 條 + Load more；PM persona 日更流程文字同步；visual-spec.json SSOT 機制成形。
+- **Summary:** `/diary` redesigned to v2 (`wiDSi`) flat timeline; diary.json flat schema; English-only; Homepage 3 entries / Diary page 5 + Load more; PM persona daily update process text synced; visual-spec.json SSOT mechanism established.
 
-**AC：**
+**AC:**
 
-- **AC-024-SCHEMA** — flat array `{ ticketId?, title, date, text }`。
-- **AC-024-ENGLISH** — 全條目無 CJK。
-- **AC-024-LEGACY-MERGE** — 無 ticketId 舊條目最多 1 筆（Option B amend — 以 `chore` 登記保底彙總，date 落於該批最新條目）。
-- **AC-024-HOMEPAGE-CURATION** — Homepage 顯示最新 3 條（0 entries 情境：保留 `DEV DIARY` heading per K-028 Sacred，不渲染 rail / marker）。
-- **AC-024-DIARY-PAGE-CURATION** — `/diary` 初始 5 條 + `useDiaryPagination` 按鈕/滾動載入更多；concurrency gate 以 `useRef` 並行保護。
-- **AC-024-TIMELINE-STRUCTURE** — 無 accordion；左側 rail + 磚紅矩形 marker，尺寸/顏色依 `docs/designs/K-024-visual-spec.json` wiDSi 對應 role。
-- **AC-024-ENTRY-LAYOUT** — entry-title / entry-date / entry-body 字型/字級/letterSpacing/行高/顏色依 visual-spec role（Playwright 斷言 import JSON）；`ticketId` 存在時 title 為 `K-XXX — <title>` em-dash（U+2014）格式，不得使用 middle-dot 或 hyphen。
-- **AC-024-PAGE-HERO** — 大標 `Dev Diary`（hero-title role）+ 1px 分隔線 + italic 副標 `Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.`（hero-subtitle role）。
-- **AC-024-CONTENT-WIDTH** — desktop maxWidth 1248px；mobile rail/marker 可見（K-041 override K-024 §6.8 design-removed 意圖，回注使用者決議）；DiaryRail + DiaryMarker 組件須支援 `mobileVisible` prop 讓 `/diary` 與 Homepage 共用同一組件（消除 K-024 Phase 3 當時雙 render-path 分裂）；entry 三層文字 mobile 保持 `pl-[92px]` 縮排讓 marker 與 rail 視覺對齊。
-- **AC-024-LOADING-ERROR-PRESERVED** — Loading / Error UX 沿用既有機制；refetch 期間 button disabled + 錯誤訊息保留。
-- **AC-024-PM-PERSONA-SYNC** — PM persona 「K-023 上線後生效」字串於本票關閉時改為「K-024 上線後生效」（audit-personas 早期已 sync，DoD 檢核 grep 已 `[x]`）。
-- **AC-024-REGRESSION** — K-017 + K-021 + K-023 + K-028 所有 Sacred 斷言（NavBar / body paper palette / 三字型 / Homepage marker `borderRadius:0`+`top:8` / DevDiary heading + 3-marker + 0-entry `diary-entry-wrapper`）全綠；QA Phase 3 sign-off PASS。
+- **AC-024-SCHEMA** — flat array `{ ticketId?, title, date, text }`.
+- **AC-024-ENGLISH** — no CJK in any entry.
+- **AC-024-LEGACY-MERGE** — at most 1 legacy entry without ticketId (Option B amend — registered as `chore` fallback aggregate, date falls on the latest entry of that batch).
+- **AC-024-HOMEPAGE-CURATION** — Homepage shows latest 3 entries (0-entries scenario: retain `DEV DIARY` heading per K-028 Sacred, do not render rail / marker).
+- **AC-024-DIARY-PAGE-CURATION** — `/diary` initial 5 entries + `useDiaryPagination` button/scroll load more; concurrency gate protected via `useRef`.
+- **AC-024-TIMELINE-STRUCTURE** — no accordion; left-side rail + brick-red rectangular marker, sizes/colors per `docs/designs/K-024-visual-spec.json` wiDSi role.
+- **AC-024-ENTRY-LAYOUT** — entry-title / entry-date / entry-body font/size/letterSpacing/line-height/color per visual-spec role (Playwright assertions import JSON); when `ticketId` exists, title is in `K-XXX — <title>` em-dash (U+2014) format; middle-dot or hyphen not allowed.
+- **AC-024-PAGE-HERO** — large heading `Dev Diary` (hero-title role) + 1px divider + italic subtitle `Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.` (hero-subtitle role).
+- **AC-024-CONTENT-WIDTH** — desktop maxWidth 1248px; mobile rail/marker visible (K-041 overrides K-024 §6.8 design-removed intent, reverted by user decision); DiaryRail + DiaryMarker components must support `mobileVisible` prop so `/diary` and Homepage share the same component (eliminating K-024 Phase 3 dual render-path split); entry three-layer text mobile retains `pl-[92px]` indent so marker aligns visually with rail.
+- **AC-024-LOADING-ERROR-PRESERVED** — Loading / Error UX retained; button disabled during refetch + error message preserved.
+- **AC-024-PM-PERSONA-SYNC** — PM persona's "effective after K-023 launch" string updated to "effective after K-024 launch" when this ticket is closed (audit-personas synced earlier, DoD check grep already `[x]`).
+- **AC-024-REGRESSION** — K-017 + K-021 + K-023 + K-028 all Sacred assertions (NavBar / body paper palette / three fonts / Homepage marker `borderRadius:0`+`top:8` / DevDiary heading + 3-marker + 0-entry `diary-entry-wrapper`) all green; QA Phase 3 sign-off PASS.
 
 ---
 
-### K-026 — AppPage 子元件 paper palette 遷移（superseded by K-030）
+### K-026 — AppPage subcomponent paper palette migration (superseded by K-030)
 
 - **Status:** superseded / type: refactor
 - **Ticket:** [docs/tickets/K-026-apppage-subcomponents-paper-palette.md](docs/tickets/K-026-apppage-subcomponents-paper-palette.md)
-- **Superseded by:** [K-030](docs/tickets/K-030-app-page-isolation.md)（K-030 重新定位 `/app` 為獨立 tool 頁，會重做 AppPage 配色與結構；K-026「對齊 paper palette」前提不再成立）
+- **Superseded by:** [K-030](docs/tickets/K-030-app-page-isolation.md) (K-030 repositions `/app` as a standalone tool page, will redo AppPage palette and structure; K-026's "align to paper palette" premise no longer holds)
 
-**Context：** K-026 2026-04-20 開立時前提為「`/app` 屬 marketing site」，2026-04-21 使用者回饋打破該前提。原 AC-026-APPPAGE-PAPER / AC-026-APPPAGE-VISUAL / AC-026-REGRESSION 不再適用。
+**Context:** When K-026 was opened on 2026-04-20, the premise was "`/app` belongs to the marketing site"; user feedback on 2026-04-21 broke that premise. The original AC-026-APPPAGE-PAPER / AC-026-APPPAGE-VISUAL / AC-026-REGRESSION no longer apply.
 
 ---
 
-### K-027 — DiaryPage 手機版 milestone timeline 視覺重疊修復
+### K-027 — DiaryPage mobile milestone timeline visual overlap fix
 
 - **Status:** closed / type: bug / **Closed: 2026-04-21**
 - **Ticket:** [docs/tickets/K-027-mobile-diary-layout-fix.md](docs/tickets/K-027-mobile-diary-layout-fix.md)
-- **摘要：** `/diary` 手機版（375 / 390 / 414）相鄰 milestone card 視覺重疊修復；容器 `overflow-hidden` 防長字串橫溢 + 文字藉 `break-words` / `flex-col` 完整折行。
+- **Summary:** `/diary` mobile (375 / 390 / 414) adjacent milestone card visual overlap fix; container `overflow-hidden` prevents long-string horizontal overflow + text uses `break-words` / `flex-col` for full wrapping.
 
-**AC：**
+**AC:**
 
-- **AC-027-NO-OVERLAP** — 手機 3 viewport 下，折疊與全部展開狀態各一輪，相鄰 milestone bounding box y 區間完全不重疊；最後一個 card 完整可見；3 個獨立 test case
-- **AC-027-TEXT-READABLE** — title / date / text 完整顯示，無 `text-overflow: ellipsis` 截斷、文字可讀對比 + 375px 下 font-size ≥ 12px；3 個獨立 test case
-- **AC-027-DESKTOP-NO-REGRESSION** — 桌面 1024 / 1280 / 1440 viewport 與 K-021 closed 時 visual-report 視覺一致；既有 diary spec 全量 regression 通過（桌面 baseline 1 case + 既有 diary-related 全量 regression）
+- **AC-027-NO-OVERLAP** — under 3 mobile viewports, one round each in collapsed and fully-expanded states, adjacent milestone bounding-box y-ranges fully non-overlapping; the last card is fully visible; 3 independent test cases
+- **AC-027-TEXT-READABLE** — title / date / text fully displayed, no `text-overflow: ellipsis` truncation, readable text contrast + font-size ≥ 12px at 375px; 3 independent test cases
+- **AC-027-DESKTOP-NO-REGRESSION** — desktop 1024 / 1280 / 1440 viewports visually consistent with K-021-closed visual-report; existing diary spec full regression passes (desktop baseline 1 case + existing diary-related full regression)
 
-**Test case 總計下限：7 個新增 + 既有 regression。**
+**Test case total minimum: 7 new + existing regression.**
 
 ---
 
-### K-029 — /about Architecture + Ticket Anatomy cards 文字配色遷移
+### K-029 — /about Architecture + Ticket Anatomy cards body-text palette migration
 
 - **Status:** closed / type: fix / **Closed: 2026-04-22**
 - **Ticket:** [docs/tickets/K-029-about-card-body-text-palette.md](docs/tickets/K-029-about-card-body-text-palette.md)
-- **摘要：** `/about` Architecture + Ticket Anatomy 兩 section 的 `ArchPillarBlock` / `TicketAnatomyCard` 內 K-022 A-12 遷移遺漏的 dark-theme `text-gray-300/400/500` + `text-purple-400` → 遷 K-021 paper palette（body = `text-muted`；testing pyramid layer span = `text-ink`；ticket ID badge = `text-charcoal`；pyramid `<li>` detail pin `text-muted` 防 hierarchy inversion）。PM 於 Architect Pre-check BQ 依 architecture.md Design System tokens + WCAG AA 對比計算直接裁決三項 token 選擇。
+- **Summary:** `/about` Architecture + Ticket Anatomy two sections' `ArchPillarBlock` / `TicketAnatomyCard` had dark-theme `text-gray-300/400/500` + `text-purple-400` missed during K-022 A-12 migration → migrate to K-021 paper palette (body = `text-muted`; testing pyramid layer span = `text-ink`; ticket ID badge = `text-charcoal`; pyramid `<li>` detail pinned to `text-muted` to prevent hierarchy inversion). At Architect Pre-check BQ, PM ruled directly on the three token choices based on architecture.md Design System tokens + WCAG AA contrast calculation.
 
-**AC（原文保留）：**
+**AC (original text preserved):**
 
-#### AC-029-ARCH-BODY-TEXT：Architecture section card body 文字採用 paper palette token
+#### AC-029-ARCH-BODY-TEXT: Architecture section card body text uses paper palette tokens
 
-- **Given** 使用者訪問 `/about`
-- **When** 頁面滾動至 Project Architecture section（Nº 05）
-- **Then** 三個 ArchPillarBlock body text computed `color` ∈ {`rgb(26, 24, 20)`, `rgb(42, 37, 32)`, `rgb(107, 95, 78)`}（三個皆須命中）
-- **And** body text 不得為 `rgb(209, 213, 219)` / `rgb(156, 163, 175)` / `rgb(107, 114, 128)`
-- **And** testing pyramid `<li>` detail 固定 = `rgb(107, 95, 78)`（text-muted；不採 allow-list，防階層崩塌）
-- **And** testing pyramid layer label span（Unit / Integration / E2E）= `rgb(26, 24, 20)`（text-ink）
-- **And** Playwright 斷言：3 pillar + 3 pyramid li + 3 layer span = **9 個獨立斷言**
+- **Given** user visits `/about`
+- **When** scrolling to the Project Architecture section (Nº 05)
+- **Then** the three ArchPillarBlock body text computed `color` ∈ {`rgb(26, 24, 20)`, `rgb(42, 37, 32)`, `rgb(107, 95, 78)`} (all three must hit)
+- **And** body text must not be `rgb(209, 213, 219)` / `rgb(156, 163, 175)` / `rgb(107, 114, 128)`
+- **And** testing pyramid `<li>` detail pinned = `rgb(107, 95, 78)` (text-muted; no allow-list to prevent hierarchy collapse)
+- **And** testing pyramid layer label span (Unit / Integration / E2E) = `rgb(26, 24, 20)` (text-ink)
+- **And** Playwright assertions: 3 pillar + 3 pyramid li + 3 layer span = **9 independent assertions**
 
-#### AC-029-TICKET-BODY-TEXT：Ticket Anatomy section card body 文字採用 paper palette token
+#### AC-029-TICKET-BODY-TEXT: Ticket Anatomy section card body text uses paper palette tokens
 
-- **Given** 使用者訪問 `/about`
-- **When** 頁面滾動至 Anatomy of a Ticket section（Nº 04）
-- **Then** 三個 TicketAnatomyCard Outcome / Learning 內容 computed `color` ∈ allow-list（三個皆須命中）+ 不得為 gray-400/500
-- **And** Outcome / Learning label（mono span）computed `color` ∈ allow-list，三個 card 皆逐一命中，不得為 gray-500
-- **And** ticket ID badge（`K-002` / `K-008` / `K-009`）= `rgb(42, 37, 32)`（text-charcoal），不得為 `rgb(196, 181, 253)`（purple-400）
-- **And** Playwright 斷言：3 body + 3 badge + 6 label = **12 個獨立斷言**
+- **Given** user visits `/about`
+- **When** scrolling to the Anatomy of a Ticket section (Nº 04)
+- **Then** the three TicketAnatomyCard Outcome / Learning content computed `color` ∈ allow-list (all three must hit) + must not be gray-400/500
+- **And** Outcome / Learning label (mono span) computed `color` ∈ allow-list, hitting individually for all three cards, must not be gray-500
+- **And** ticket ID badge (`K-002` / `K-008` / `K-009`) = `rgb(42, 37, 32)` (text-charcoal), must not be `rgb(196, 181, 253)` (purple-400)
+- **And** Playwright assertions: 3 body + 3 badge + 6 label = **12 independent assertions**
 
-#### AC-029-REGRESSION：K-022 既有斷言不回歸
+#### AC-029-REGRESSION: K-022 existing assertions no regression
 
-見 [K-029](docs/tickets/K-029-about-card-body-text-palette.md)：K-022 + K-017 全斷言仍 PASS + tsc exit 0。
+See [K-029](docs/tickets/K-029-about-card-body-text-palette.md): K-022 + K-017 all assertions still PASS + tsc exit 0.
 
-**Known Gap：** KG-029-01（Playwright selector path 由 Architect design doc prescribe 4 data-testid，Engineer 照辦；QA 驗 compliance）。
+**Known Gap:** KG-029-01 (Playwright selector path prescribed by Architect design doc as 4 data-testid; Engineer follows; QA verifies compliance).
 
-**Tech Debt：** TD-K029-01（`about-v2.spec.ts` L474 / L487 Outcome / Learning label selector 用 `hasText`，label copy 當下鎖定安全，未來 data 彈性可能誤命中 sibling `<p>`；低優先，下一張觸及 TicketAnatomyCard 或 label 改 data-driven schema 的 ticket 一併遷移為 testid）。
+**Tech Debt:** TD-K029-01 (`about-v2.spec.ts` L474 / L487 Outcome / Learning label selector uses `hasText`; label copy currently safely locked, but future data flexibility may mismatch onto sibling `<p>`; low priority, the next ticket that touches TicketAnatomyCard or migrates label to data-driven schema migrates to testid).
 
-**Test case 總計：21 個新 Playwright 斷言（9 + 12）+ 既有 about-v2.spec.ts / about.spec.ts regression；full suite 197 pass / 1 skip / 0 fail。**
+**Test case total: 21 new Playwright assertions (9 + 12) + existing about-v2.spec.ts / about.spec.ts regression; full suite 197 pass / 1 skip / 0 fail.**
 
 ---
 
-### K-028 — Homepage 視覺修復（section spacing + DevDiarySection entry 高度自適應）
+### K-028 — Homepage visual fix (section spacing + DevDiarySection entry height adaptive)
 
 - **Status:** closed / type: fix / **Closed: 2026-04-21**
 - **Ticket:** [docs/tickets/K-028-homepage-visual-fix.md](docs/tickets/K-028-homepage-visual-fix.md)
-- **摘要：** Homepage section 間距補足（desktop gap 72 / mobile gap 24）；DevDiarySection 從 absolute `ENTRY_HEIGHT=140` 改 flex-col flow layout，entry 高度自適應。
+- **Summary:** Homepage section spacing reinforced (desktop gap 72 / mobile gap 24); DevDiarySection switched from absolute `ENTRY_HEIGHT=140` to flex-col flow layout; entry height adapts.
 
-**AC（原文保留）：**
+**AC (original text preserved):**
 
-#### AC-028-SECTION-SPACING：Homepage section 之間有適當 vertical spacing
+#### AC-028-SECTION-SPACING: Homepage sections have appropriate vertical spacing
 
-- **Given** 使用者訪問 `/`
-- **When** 頁面載入完成（desktop 1280 / mobile 375 / tablet 640 / tablet 639）
-- **Then** HeroSection / ProjectLogicSection / DevDiarySection 三者相鄰 gap ≥ 設計值（desktop 72px、mobile 24px）
-- **And** Playwright bounding box gap 斷言對齊 frame `4CsvQ` 提取值
+- **Given** user visits `/`
+- **When** page load completes (desktop 1280 / mobile 375 / tablet 640 / tablet 639)
+- **Then** HeroSection / ProjectLogicSection / DevDiarySection three adjacent gaps ≥ design values (desktop 72px, mobile 24px)
+- **And** Playwright bounding-box gap assertions align with frame `4CsvQ` extracted values
 
-#### AC-028-DIARY-ENTRY-NO-OVERLAP：DevDiarySection 各 entry 渲染不重疊
+#### AC-028-DIARY-ENTRY-NO-OVERLAP: DevDiarySection entries render without overlap
 
-- **Given** diary.json ≥ 3 milestone 且含長文字 entry
-- **When** 頁面滾動至 Diary section
-- **Then** 相鄰 entry bounding box 不重疊（`bottom[N] <= top[N+1]` ±2px）
-- **And** vertical rail 視覺貫穿（rail 位於 diary-entries 容器內 + width=1 + height>0）
-- **And** 375px mobile viewport 同樣不重疊
+- **Given** diary.json has ≥ 3 milestones and includes long-text entries
+- **When** page scrolls to Diary section
+- **Then** adjacent entry bounding boxes do not overlap (`bottom[N] <= top[N+1]` ±2px)
+- **And** vertical rail visually spans through (rail is inside diary-entries container + width=1 + height>0)
+- **And** 375px mobile viewport similarly has no overlap
 
-#### AC-028-DIARY-EMPTY-BOUNDARY：0-entry / 1-entry 邊界不破
+#### AC-028-DIARY-EMPTY-BOUNDARY: 0-entry / 1-entry boundary does not break
 
-- **Given** diary.json milestone 為 0 或 1 條 entry
-- **When** 頁面載入
-- **Then** 0-entry：rail 不存在或 height=0；1-entry：entry 渲染且 marker 存在
+- **Given** diary.json has 0 or 1 milestone entries
+- **When** page loads
+- **Then** 0-entry: rail does not exist or height=0; 1-entry: entry renders and marker exists
 
-#### AC-028-DIARY-RAIL-VISIBLE：rail 可見且對齊容器
+#### AC-028-DIARY-RAIL-VISIBLE: rail visible and aligned with container
 
 - **Given** ≥ 2 entries
-- **When** 頁面載入
-- **Then** `data-testid="diary-rail"` 位於 `data-testid="diary-entries"` bbox 內 + width=1 + height>0
+- **When** page loads
+- **Then** `data-testid="diary-rail"` is inside `data-testid="diary-entries"` bbox + width=1 + height>0
 
-#### AC-028-REGRESSION：K-023 斷言不回歸 + marker coord / count integrity
+#### AC-028-REGRESSION: K-023 assertions no regression + marker coord / count integrity
 
-- marker / STEP header / body padding / tsc 全通過
-- MARKER-COORD-INTEGRITY：marker width=20 height=14 bg=#9C4A3B
-- MARKER-COUNT-INTEGRITY：marker 數量 = diary.json 攤平後 milestone 數
+- marker / STEP header / body padding / tsc all pass
+- MARKER-COORD-INTEGRITY: marker width=20 height=14 bg=#9C4A3B
+- MARKER-COUNT-INTEGRITY: marker count = flattened milestone count of diary.json
 
-**Known Gap：** KG-028-01（40+ 字 long-word 溢出，已 `break-words` 緩解）/ KG-028-02（HomeFooterBar scrollHeight 未獨立斷言，工程判斷 + QA 手測覆蓋）。
+**Known Gap:** KG-028-01 (40+ char long-word overflow, mitigated with `break-words`) / KG-028-02 (HomeFooterBar scrollHeight not independently asserted, engineering judgment + QA manual test cover).
 
-**Tech Debt：** TD-028-A（marker x-center 對齊斷言，P3）/ TD-028-B（1-entry rail collapse height 斷言，P3）/ TD-028-C（KG-028-02 措辭精確化，P2 — 本票 close 前已修正）。
+**Tech Debt:** TD-028-A (marker x-center alignment assertion, P3) / TD-028-B (1-entry rail collapse height assertion, P3) / TD-028-C (KG-028-02 wording precision, P2 — fixed before this ticket close).
 
 **Deploy:** 2026-04-21 20:28 UTC+8 — commits `2d30672` (src) + `e162bb5` (docs) → `https://k-line-prediction-app.web.app`
 
@@ -944,87 +944,87 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 
 - **Status:** closed / type: fix / **Closed: 2026-04-21**
 - **Ticket:** [docs/tickets/K-030-app-page-isolation.md](docs/tickets/K-030-app-page-isolation.md)
-- **摘要：** `/app` 視為獨立 tool 頁；NavBar 的 App link + Homepage Hero CTA 雙入口均改 new tab；`/app` 頁面移除 NavBar + Footer；背景改 `bg-gray-950`（`rgb(3, 7, 18) = #030712`，對齊 Pencil v1 `ap001.fill`）。superseded K-026 + K-004（scope 已併入本票）。
+- **Summary:** `/app` is treated as a standalone tool page; NavBar's App link + Homepage Hero CTA dual entries both switch to new tab; `/app` page removes NavBar + Footer; background switched to `bg-gray-950` (`rgb(3, 7, 18) = #030712`, aligned with Pencil v1 `ap001.fill`). Supersedes K-026 + K-004 (scope already merged into this ticket).
 
-**AC：**
+**AC:**
 
 #### AC-030-NEW-TAB: "App" link opens /app in a new tab
 
-- **Given** 使用者在任一含 UnifiedNavBar 的頁面（`/`、`/about`、`/diary`、`/business-logic`）
-- **When** 點擊 NavBar 的 App link
-- **Then** 瀏覽器在新分頁開啟 `/app`（原分頁保持不變）
-- **And** 新分頁成功載入 `/app`（無 404 / redirect）
-- **And** `<a>` 元素含 `target="_blank"` 與 `rel="noopener noreferrer"`
+- **Given** user is on any page containing UnifiedNavBar (`/`, `/about`, `/diary`, `/business-logic`)
+- **When** clicking the NavBar App link
+- **Then** browser opens `/app` in a new tab (original tab unchanged)
+- **And** new tab successfully loads `/app` (no 404 / redirect)
+- **And** the `<a>` element contains `target="_blank"` and `rel="noopener noreferrer"`
 
 #### AC-030-NO-NAVBAR: /app page has no UnifiedNavBar
 
-- **Given** 使用者訪問 `/app`
-- **When** 頁面載入完成
-- **Then** `[data-testid="navbar-desktop"]` + `[data-testid="navbar-mobile"]` 皆 `toHaveCount(0)`
-- **And** Home / Diary / About / App 四個 link role 皆不存在
-- **And** `/app` tool 內容（OHLC input / Predict button）可見
+- **Given** user visits `/app`
+- **When** page load completes
+- **Then** `[data-testid="navbar-desktop"]` + `[data-testid="navbar-mobile"]` both `toHaveCount(0)`
+- **And** Home / Diary / About / App four link roles do not exist
+- **And** `/app` tool content (OHLC input / Predict button) is visible
 
 #### AC-030-NO-FOOTER: /app page has no HomeFooterBar
 
-- **Given** 使用者訪問 `/app`
-- **When** 頁面載入完成
+- **Given** user visits `/app`
+- **When** page load completes
 - **Then** `getByRole('contentinfo')` `toHaveCount(0)`
-- **And** 既有 HomeFooterBar 簽名文字（`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` 與 GA 揭露文）皆不出現
-- **And** viewport 底部為 tool UI，不是 marketing footer
+- **And** existing HomeFooterBar signature text (`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` and GA disclosure) does not appear
+- **And** viewport bottom is tool UI, not marketing footer
 
-#### AC-030-BG-COLOR: /app wrapper bg = gray-950 + body 仍為 paper
+#### AC-030-BG-COLOR: /app wrapper bg = gray-950 + body remains paper
 
-- **Given** 使用者訪問 `/app`
-- **When** 頁面載入完成
-- **Then** `<div id="root">` 下層 wrapper `<div>` computed `background-color === 'rgb(3, 7, 18)'`
-- **And** `<body>` computed `background-color === 'rgb(244, 239, 229)'`（證明 wrapper override 策略未動 body 規則）
-- **And** viewport 上下無 paper bleed-through
+- **Given** user visits `/app`
+- **When** page load completes
+- **Then** the wrapper `<div>` directly under `<div id="root">` has computed `background-color === 'rgb(3, 7, 18)'`
+- **And** `<body>` computed `background-color === 'rgb(244, 239, 229)'` (proves wrapper override strategy did not modify body rules)
+- **And** no paper bleed-through at top/bottom of viewport
 
-#### AC-030-FUNC-REGRESSION: 現有 /app 功能不破
+#### AC-030-FUNC-REGRESSION: existing /app functionality not broken
 
-- **Given** K-030 layout 改動完成
-- **When** 使用者操作 OHLC input + Predict button
-- **Then** Vitest 既有 36/36 pass（AppPage / OHLCEditor / PredictButton / StatsPanel / MatchList）
-- **And** Playwright 既有 172 passed / 1 skipped / 0 failed
-- **And** chart / match list / stats panel 無視覺遮擋
+- **Given** K-030 layout changes complete
+- **When** user operates OHLC input + Predict button
+- **Then** Vitest existing 36/36 pass (AppPage / OHLCEditor / PredictButton / StatsPanel / MatchList)
+- **And** Playwright existing 172 passed / 1 skipped / 0 failed
+- **And** chart / match list / stats panel have no visual obstruction
 
-#### AC-030-PENCIL-ALIGN: /app 實作對齊 Pencil v1 `ap001` frame
+#### AC-030-PENCIL-ALIGN: /app implementation aligned with Pencil v1 `ap001` frame
 
-- **Given** Pencil v1 `frontend/design/homepage-v1.pen` 含 `/app` 正式 frame `ap001`（fill `#030712`，child `ap002` TopBar fill `#111827`，無 NavBar / Footer 子節點）
-- **When** K-030 implementation 完成
-- **Then** wrapper bg = `#030712`（`bg-gray-950`）+ TopBar bg = `#111827`（`bg-gray-900`）+ NavBar / Footer 結構性不存在
-- **And** QA `mcp__pencil__get_screenshot(ap001)` 視覺比對 PASS
+- **Given** Pencil v1 `frontend/design/homepage-v1.pen` contains official `/app` frame `ap001` (fill `#030712`, child `ap002` TopBar fill `#111827`, no NavBar / Footer child nodes)
+- **When** K-030 implementation complete
+- **Then** wrapper bg = `#030712` (`bg-gray-950`) + TopBar bg = `#111827` (`bg-gray-900`) + NavBar / Footer structurally absent
+- **And** QA `mcp__pencil__get_screenshot(ap001)` visual comparison PASS
 
-**Test case 總計下限：6 個新 AC + 既有 Vitest / Playwright regression。6 個新 Playwright cases 位於 `frontend/e2e/app-bg-isolation.spec.ts`。**
+**Test case total minimum: 6 new ACs + existing Vitest / Playwright regression. 6 new Playwright cases reside in `frontend/e2e/app-bg-isolation.spec.ts`.**
 
 ---
 
-### K-031 — /about 移除 "Built by AI" showcase section (S7)
+### K-031 — Remove /about "Built by AI" showcase section (S7)
 
 - **Status:** closed / type: fix / **Closed: 2026-04-21**
 - **Ticket:** [docs/tickets/K-031-remove-built-by-ai-showcase-section.md](docs/tickets/K-031-remove-built-by-ai-showcase-section.md)
-- **摘要：** `/about` S7 `BuiltByAIShowcaseSection` 整段移除；homepage `BuiltByAIBanner` 不動。Architecture.md 3 項 pre-existing drift（L13/L140/L410）同 commit 修復。
+- **Summary:** `/about` S7 `BuiltByAIShowcaseSection` entire section removed; homepage `BuiltByAIBanner` unchanged. Architecture.md 3 pre-existing drifts (L13/L140/L410) fixed in same commit.
 
-**AC：**
+**AC:**
 
 #### AC-031-SECTION-ABSENT: "Built by AI" section is not present on /about
 
-- **Given** 使用者訪問 `/about`
-- **When** 頁面載入完成
-- **Then** DOM 無 `id="banner-showcase"` 元素；無 "Built by AI" heading；無 "The real banner is clickable and navigates to /about" 文字
-- **And** `BuiltByAIShowcaseSection.tsx` 檔案已從 codebase 刪除
+- **Given** user visits `/about`
+- **When** page load completes
+- **Then** DOM has no `id="banner-showcase"` element; no "Built by AI" heading; no "The real banner is clickable and navigates to /about" text
+- **And** `BuiltByAIShowcaseSection.tsx` file has been deleted from the codebase
 
 #### AC-031-LAYOUT-CONTINUITY: No layout gap between S6 and footer
 
-- **Given** 使用者在 `/about` 移除 S7 後
-- **When** 滾動過 Project Architecture section (Nº 05)
-- **Then** `FooterCtaSection` 緊接 architecture section，無可見空白 gap
-- **And** `SectionContainer id="banner-showcase"` 不存在於 DOM
-- **And** 整頁 scroll height 縮短（section 是被刪除，不是隱藏）
+- **Given** user is on `/about` after S7 removal
+- **When** scrolling past the Project Architecture section (Nº 05)
+- **Then** `FooterCtaSection` directly follows the architecture section, no visible blank gap
+- **And** `SectionContainer id="banner-showcase"` does not exist in DOM
+- **And** total page scroll height is shortened (section is deleted, not hidden)
 
 #### AC-031-K022-REGRESSION
 
-見 [K-031](docs/tickets/K-031-remove-built-by-ai-showcase-section.md)：about-v2.spec.ts AC-022-* + about.spec.ts AC-017-BANNER 全綠；tsc exit 0。
+See [K-031](docs/tickets/K-031-remove-built-by-ai-showcase-section.md): about-v2.spec.ts AC-022-* + about.spec.ts AC-017-BANNER all green; tsc exit 0.
 
 ---
 
@@ -1033,98 +1033,98 @@ Read-only dashboard at `/backtest` showing 30-day rolling prediction accuracy fr
 - **Status:** closed / type: test / **Closed: 2026-04-22**
 - **Ticket:** [docs/tickets/K-020-ga-spa-pageview-e2e.md](docs/tickets/K-020-ga-spa-pageview-e2e.md)
 - **Follow-ups:** [K-032](docs/tickets/K-032-ga-page-location-full-url.md) (page_location value), [K-033](docs/tickets/K-033-ga-spa-beacon-emission-fix.md) (useGAPageview call pattern — T4 tracker)
-- **摘要：** Delivered 9 Playwright tests (SPA-NAV × 2, BEACON × 4, NEG × 3); 8 green merged as regression guard, 1 intentionally red (T4 AC-020-BEACON-SPA) kept as K-033 tracker per PM Option A ruling. T4 correctly caught a K-018-class production bug: `useGAPageview` `gtag('event','page_view',…)` under `send_page_view:false` is silently dropped by gtag.js on SPA navigate. Three anti-decay guards landed (spec doc-block, architecture.md Known Gap blockquote, dashboard Active row for K-033). No production runtime code modified. Deploy: N/A (test-only).
+- **Summary:** Delivered 9 Playwright tests (SPA-NAV × 2, BEACON × 4, NEG × 3); 8 green merged as regression guard, 1 intentionally red (T4 AC-020-BEACON-SPA) kept as K-033 tracker per PM Option A ruling. T4 correctly caught a K-018-class production bug: `useGAPageview` `gtag('event','page_view',…)` under `send_page_view:false` is silently dropped by gtag.js on SPA navigate. Three anti-decay guards landed (spec doc-block, architecture.md Known Gap blockquote, dashboard Active row for K-033). No production runtime code modified. Deploy: N/A (test-only).
 
-**AC（原文保留）：**
+**AC (original text preserved):**
 
-#### AC-020-SPA-NAV：SPA Link click 觸發 dataLayer pageview entry（Phase 1 — PASS）
+#### AC-020-SPA-NAV: SPA Link click triggers dataLayer pageview entry (Phase 1 — PASS)
 
-- **Given** 用戶在 `/` 頁面，`VITE_GA_MEASUREMENT_ID='G-TESTID0000'`（playwright.config.ts 已設定），`window.dataLayer` 已由 production `initGA()` 初始化
-- **When** 用戶點擊 NavBar 的 `About` Link（不是 `page.goto('/about')`），觸發 React Router SPA navigate
-- **Then** Playwright 透過 `page.waitForURL(/\/about$/)` 確認 URL 切換完成，並透過 `waitForFunction` 確認 `window.dataLayer` 中存在 Arguments-object entry 滿足：entry[0] === 'event' AND entry[1] === 'page_view' AND entry[2].page_location === '/about'
-- **And** 該 entry 必須在點擊動作之後產生，不得混淆初始 `/` load 時的 pageview（測試必須記錄 click 前 `dataLayer.length`，斷言 click 後 length 嚴格增加且新 entry 指向 `/about`）
-- **And** 測試無 `waitForTimeout`，改以 `waitForURL` + `waitForFunction` 同步
-- **And** 至少 2 個獨立 Playwright test case — 一個覆蓋 NavBar Link（`/` → `/about`），另一個覆蓋 BuiltByAIBanner CTA（`/` → `/about`，不同 DOM 進入點）；每個 case 獨立 spec（不可合併）
+- **Given** user is on `/` page, `VITE_GA_MEASUREMENT_ID='G-TESTID0000'` (already set in playwright.config.ts), `window.dataLayer` already initialized by production `initGA()`
+- **When** user clicks NavBar's `About` Link (not `page.goto('/about')`), triggering React Router SPA navigate
+- **Then** Playwright confirms URL switch is complete via `page.waitForURL(/\/about$/)`, and via `waitForFunction` confirms an Arguments-object entry exists in `window.dataLayer` satisfying: entry[0] === 'event' AND entry[1] === 'page_view' AND entry[2].page_location === '/about'
+- **And** that entry must be produced after the click action, not confused with the pageview from initial `/` load (the test must record `dataLayer.length` before click, asserting that length strictly increases after click and the new entry points to `/about`)
+- **And** no `waitForTimeout` in tests; use `waitForURL` + `waitForFunction` for synchronization
+- **And** at least 2 independent Playwright test cases — one covering NavBar Link (`/` → `/about`), the other covering BuiltByAIBanner CTA (`/` → `/about`, different DOM entry); each case independent spec (cannot be merged)
 
-#### AC-020-BEACON-INITIAL：初始 page load 發出 pageview beacon（Phase 2 — PASS）
+#### AC-020-BEACON-INITIAL: initial page load emits pageview beacon (Phase 2 — PASS)
 
-- **Given** `VITE_GA_MEASUREMENT_ID='G-TESTID0000'`，`page.route('**/g/collect*', ...)` 已在 test 開始前註冊攔截器，攔截器 `route.fulfill({status: 204})` 終止 request 且將 `route.request()` 收集至 per-test array
-- **When** 用戶 `page.goto('/about')` 觸發初始 pageview
-- **Then** 攔截器在 5 秒 timeout 內收到至少 1 個 `/g/collect` request
-- **And** 該 request host 必須是 `www.google-analytics.com`（或 `google-analytics.com`）
-- **And** 測試失敗時必須 throw（不得 `test.skip()` 或 try-catch 吞掉），使 beacon 未送出問題立即可見
+- **Given** `VITE_GA_MEASUREMENT_ID='G-TESTID0000'`, `page.route('**/g/collect*', ...)` interceptor registered before test starts; the interceptor `route.fulfill({status: 204})` terminates the request and collects `route.request()` into a per-test array
+- **When** user `page.goto('/about')` triggers initial pageview
+- **Then** the interceptor receives at least 1 `/g/collect` request within 5 second timeout
+- **And** the request host must be `www.google-analytics.com` (or `google-analytics.com`)
+- **And** test failure must throw (no `test.skip()` or try-catch swallow), making beacon-missing issues immediately visible
 
-#### AC-020-BEACON-SPA：SPA navigate 發出新的 pageview beacon（Phase 2 — INTENTIONALLY RED, K-033 TRACKER）
+#### AC-020-BEACON-SPA: SPA navigate emits a new pageview beacon (Phase 2 — INTENTIONALLY RED, K-033 TRACKER)
 
-- **Given** 攔截器已註冊並記錄初始 `/` load 收到的 beacon 清單為 `initialBeacons`
-- **When** 用戶點擊 NavBar `About` Link 觸發 SPA navigate 到 `/about`
-- **Then** `page.waitForURL(/\/about$/)` 後，攔截器在 5 秒 timeout 內收到至少 1 個**新**的 `/g/collect` request（`beacons.length > initialBeacons.length`）
-- **And** 新 request 的 path key（`dl` 或 `dp`）必須 urlDecode 後包含 `/about`
-- **And** 至少 1 個獨立 Playwright test case
+- **Given** interceptor is registered and records the beacon list received during initial `/` load as `initialBeacons`
+- **When** user clicks NavBar `About` Link, triggering SPA navigate to `/about`
+- **Then** after `page.waitForURL(/\/about$/)`, the interceptor receives at least 1 **new** `/g/collect` request within 5 second timeout (`beacons.length > initialBeacons.length`)
+- **And** the new request's path key (`dl` or `dp`) after urlDecode must contain `/about`
+- **And** at least 1 independent Playwright test case
 
 **Red status rationale:** T4 currently fails because `useGAPageview` dispatches `gtag('event', 'page_view', {…})` while `initGA()` has set `send_page_view: false`; modern GA4 gtag.js silently drops this combo — no `/g/collect` emitted on SPA route change. K-020 Engineer Dry-Run (DR 2026-04-22) confirmed full-URL `page_location` does NOT fix beacon emission; the call pattern itself must change. **Do NOT loosen this assertion to turn it green** — loosening reintroduces the exact K-018-class gap K-020 was designed to close. K-033 will fix by migrating to canonical GA4 SPA pattern; AC-033-BEACON-SPA-GREEN defines green state preserving this assertion verbatim.
 
-#### AC-020-BEACON-PAYLOAD：beacon query string pin 必備欄位（Phase 2 — PASS）
+#### AC-020-BEACON-PAYLOAD: beacon query string pinned required fields (Phase 2 — PASS)
 
-- **Given** 攔截器已捕捉到一個 pageview beacon request
-- **When** 測試讀取 `request.url()` 並 parse query string
-- **Then** query string 必須包含：`v=2` AND `tid=G-TESTID0000` AND `en=page_view`
-- **And** path key (`dl` per Engineer dry-run DR-2) urlDecode 後對應當前路由
+- **Given** the interceptor has captured one pageview beacon request
+- **When** the test reads `request.url()` and parses the query string
+- **Then** the query string must contain: `v=2` AND `tid=G-TESTID0000` AND `en=page_view`
+- **And** the path key (`dl` per Engineer dry-run DR-2) after urlDecode corresponds to the current route
 
-#### AC-020-BEACON-COUNT：每次 pageview 恰好 1 個 beacon（Phase 2 — PASS）
+#### AC-020-BEACON-COUNT: each pageview emits exactly 1 beacon (Phase 2 — PASS)
 
-- **Given** 攔截器已註冊並清空 beacon array
-- **When** 用戶完成 1 次 pageview 動作（初始 load 或 SPA navigate）
-- **Then** 該次動作完成後 1 秒內，攔截器收到的 `/g/collect` request count 恰為 1
-- **And** 防 StrictMode 雙重 invoke 或未來 duplicate call site 造成的 beacon 重複送出（DR-4 確認 gtag.js 內部 dedupe StrictMode 雙 push）
+- **Given** the interceptor is registered and beacon array is cleared
+- **When** user completes 1 pageview action (initial load or SPA navigate)
+- **Then** within 1 second after the action completes, the interceptor receives exactly 1 `/g/collect` request
+- **And** prevents duplicate beacon emission from StrictMode double-invoke or future duplicate call sites (DR-4 confirms gtag.js internally dedupes StrictMode double push)
 
-#### AC-020-NEG-QUERY / NEG-HASH / NEG-SAMEROUTE：行為鎖死（Phase 3 — PASS）
+#### AC-020-NEG-QUERY / NEG-HASH / NEG-SAMEROUTE: behavior locked (Phase 3 — PASS)
 
-- **AC-020-NEG-QUERY:** query-only 變化（`/?x=1` → `/?x=2`）500ms 後攔截器 beacon count 不變
-- **AC-020-NEG-HASH:** hash-only 變化（`/about` → `/about#team`）500ms 後 beacon count 不變
-- **AC-020-NEG-SAMEROUTE:** 用戶在 `/about` 再次點擊 NavBar `About` Link，500ms 後 beacon count 不變
-- 鎖死目前 `[location.pathname]` deps 行為；未來改成 query/hash 敏感需另開 ticket + 改 AC
+- **AC-020-NEG-QUERY:** query-only change (`/?x=1` → `/?x=2`) — interceptor beacon count unchanged after 500ms
+- **AC-020-NEG-HASH:** hash-only change (`/about` → `/about#team`) — beacon count unchanged after 500ms
+- **AC-020-NEG-SAMEROUTE:** user re-clicks NavBar `About` Link on `/about` — beacon count unchanged after 500ms
+- Locks current `[location.pathname]` deps behavior; future change to query/hash sensitivity requires separate ticket + AC change
 
-**PM ruling 2026-04-22（Option A — split）：** Engineer delivered 8/9 pass. T4 root cause is pre-existing `useGAPageview` gtag call pattern (K-018 Engineer responsibility per Bug Found Protocol step 1). T4 retained as red, tracked to K-033. K-020 8 green 併入作 K-018-class regression guard. Pre-Verdict matrix: A=11/12, B=6/12, C=6/12 (red team 3 challenges all counterable; biggest unresolved risk = K-033 slippage, mitigated by medium priority + dashboard + in-file tracker). Bug Found Protocol 4 steps executed. Reviewer C-1/W-1/W-2/W-3 all fix-now. See ticket for full chain of custody.
+**PM ruling 2026-04-22 (Option A — split):** Engineer delivered 8/9 pass. T4 root cause is pre-existing `useGAPageview` gtag call pattern (K-018 Engineer responsibility per Bug Found Protocol step 1). T4 retained as red, tracked to K-033. K-020 8 green merged as K-018-class regression guard. Pre-Verdict matrix: A=11/12, B=6/12, C=6/12 (red team 3 challenges all counterable; biggest unresolved risk = K-033 slippage, mitigated by medium priority + dashboard + in-file tracker). Bug Found Protocol 4 steps executed. Reviewer C-1/W-1/W-2/W-3 all fix-now. See ticket for full chain of custody.
 
 ---
 
 ## §5 Tech Debt
 
-完整登記簿：[docs/tech-debt.md](docs/tech-debt.md)。以下為索引摘要（依來源 + 狀態排序）。
+Full registry: [docs/tech-debt.md](docs/tech-debt.md). The following is an index summary (sorted by source + status).
 
-| ID | 項目 | 來源 | 優先級 | 狀態 / 對應 ticket |
-|----|------|------|--------|----|
-| TD-001 | 前端 bundle 過大（K-003 已完成主體，餘量監控）| K-003 retrospective | 低 | 持續監控 |
-| TD-002 | 後端測試覆蓋率不足（K-001 餘項）| K-001 retrospective | 中 | 持續補強 |
-| TD-003 | Upload history 併發 race | 2026-04-18 Codex review P2-A | 中 | open — 多 worker 時升 P1 |
-| TD-004 | MatchList PredictorChart effect deps 不含實際 candle values | 2026-04-18 Codex review P2-B | 中 | open — 併 TD-005 |
-| TD-005 | `frontend/src/AppPage.tsx` 責任過多（拆 hook + sub-sections）| 2026-04-18 Codex review Modularity | 中 | open — 等 TD-008 落地後排 RFC |
-| TD-006 | `backend/main.py` 混雜 wiring / CSV / 狀態 / 持久化 / 預測 | 2026-04-18 Codex review Modularity | 中 | open — 併 TD-003 同 RFC |
-| TD-007 | `backend/predictor.py` 模組過廣（拆 ma / similarity / stats） | 2026-04-18 Codex review Modularity | 中 | open — 排 TD-008 之後 |
-| TD-008 | Cross-layer 重複計算（consensus/stats 前後端漂移）| 2026-04-18 Codex review | 高 | **→ [K-013](docs/tickets/K-013-consensus-stats-contract.md)** 實作中 |
-| TD-009 | Vitest index-based selector 殘留 | 2026-04-18 K-010 review W1/W2 | 低 | **→ [K-014](docs/tickets/K-014-vitest-index-selector-cleanup.md)** |
-| TD-010 | `predictor.find_top_matches()` `ma_history` silent fallback | 2026-04-18 K-009 review S1 | 中 | **→ [K-015](docs/tickets/K-015-find-top-matches-ma-history-required.md)** |
-| TD-011 | `homepage.pen` 含舊 `Running prediction...` 文字節點 | 2026-04-18 K-011 review Drift C | 低 | open — 下次 Designer 進場順帶同步 |
-| TD-012 | visual-report `/app` 空狀態截圖價值低 | 2026-04-18 K-008 review S1 | 低 | open — 下次 visual-report 改版併處理 |
-| TD-013 | GA4 initGA() 無冪等保護 + dataLayer 型別 + 未知路由無 warn | 2026-04-19 K-018 review S2–S4 | 低 | open — 下次 GA ticket 清理 |
-| TD-K021-01 | 部分頁面 `font-mono` 仍用 Tailwind 預設未遷 Geist Mono token | K-021 Engineer retro | 低 | open — K-022/023/024 漸進遷 |
-| TD-K021-02 | UnifiedNavBar 6 處 hardcode hex | K-021 Reviewer W-3 | 中 | **→ [K-025](docs/tickets/K-025-navbar-hex-to-token.md)** |
-| TD-K021-07 | AppPage `h-screen overflow-hidden` + HomeFooterBar <900px viewport 擠壓 | K-021 Reviewer W-1 | 低 | open — AppPage redesign 時併 |
-| TD-K021-08 | HomeFooterBar email/github/LinkedIn 無 `<a>` 錨點 | K-021 Reviewer S-1 | 低 | open — 下次 UI polish |
-| TD-K021-09 | `/` route NavBar inactive color 未於 navbar.spec.ts 斷言 | K-021 Reviewer S-2 | 低 | **→ K-025 AC-025-NAVBAR-SPEC** |
-| TD-K021-10 | DiaryPage `font-mono` 未遷 Geist Mono token | K-021 Reviewer S-5 | 低 | open — K-024 時評估 |
-| TD-K021-11 | PasswordForm button 保留 `bg-purple-600`，未遷 `bg-brick` | K-021 Reviewer Round 3 S-R3-02 | 低 | open — PasswordForm 重構時一併 |
-| TD-K021-13 | PasswordForm `expiredMessage` `text-yellow-400` 對比 ~2.4:1，WCAG AA 不達 | K-021 Reviewer Round 3 S-NEW-1 | 中 | open — K-022 /about 改版順手掃 |
-| TD-K027-01 | diary-mobile.spec.ts TC-007 僅 1280px；AC-027-DESKTOP-NO-REGRESSION 要求 1024/1280/1440px 三 viewport | K-027 Reviewer I-002 | 低 | open — K-024 啟動時補齊 |
-| TD-K027-02 | diary-mobile.spec.ts `.px-4.pb-4` 定位器脆弱（K-024 重寫後失效）| K-027 Reviewer N-001 | 低 | open — K-024 Reviewer checklist 稽核 |
-| TD-K027-03 | milestone title overflow 屬性未驗（AC-027-TEXT-READABLE 有但 spec 缺斷言）| K-027 Reviewer N-003 | 低 | open — K-024 結構改動時補驗 |
-| TD-K027-04 | `assertLastCardVisible` 的 `waitForTimeout(200)` hardcoded sleep | K-027 Reviewer R2 I-R2-01b | 低 | open — K-024 diary spec 重寫時清理 |
-| TD-K022-01 | `fontFamily.italic` 命名與 `italic` font-style class 混淆 | K-022 Breadth Review I-2 | 低 | open — 下次 tailwind.config.ts 結構修改時 rename |
-| TD-K022-02 | `SectionLabel` 殭屍 colorMap（purple/cyan/pink/white）保留向後相容 | K-022 Breadth Review I-3 | 低 | open — K-030 closed 後 grep 確認清除（K-030 已 closed 2026-04-21，待 follow-up） |
-| TD-K030-01 | AppPage interaction regression E2E coverage 缺（PredictButton sticky / OHLC edit 互動無 Playwright 斷言）| K-030 Code Review I-1 | 低 | open — TD-005 AppPage 拆分 ticket 啟動時補齊 |
-| TD-K030-02 | UnifiedNavBar `renderLink` 本地 type alias 未改 `typeof TEXT_LINKS[number]` 派生 | K-030 Code Review M-3 | 低 | open — 下次 NavBar 結構改動 ticket 順手處理 |
-| TD-K030-03 | `visual-report.ts` 未帶 TICKET_ID 時 fallback `K-UNKNOWN` 汙染 `docs/reports/` | K-030 QA retro | 中 | open — 下次 visual-report tooling 改動時 throw + 移除 fallback |
-| TD-K030-04 | `frontend/public/diary.json` K-021/K-022/K-023 遺留繁中條目違反英文硬規則 | K-030 QA retro | 中 | open — 下次 diary 類 ticket（K-024 等）英譯 |
+| ID | Item | Source | Priority | Status / linked ticket |
+|----|------|--------|----------|------------------------|
+| TD-001 | Frontend bundle too large (K-003 main work done, residual monitoring) | K-003 retrospective | low | continuous monitoring |
+| TD-002 | Backend test coverage insufficient (K-001 remainder) | K-001 retrospective | medium | continuous reinforcement |
+| TD-003 | Upload history concurrency race | 2026-04-18 Codex review P2-A | medium | open — escalate to P1 with multi-worker |
+| TD-004 | MatchList PredictorChart effect deps do not include actual candle values | 2026-04-18 Codex review P2-B | medium | open — combine with TD-005 |
+| TD-005 | `frontend/src/AppPage.tsx` has too many responsibilities (split hook + sub-sections) | 2026-04-18 Codex review Modularity | medium | open — schedule RFC after TD-008 lands |
+| TD-006 | `backend/main.py` mixes wiring / CSV / state / persistence / prediction | 2026-04-18 Codex review Modularity | medium | open — combine with TD-003 in same RFC |
+| TD-007 | `backend/predictor.py` module too broad (split ma / similarity / stats) | 2026-04-18 Codex review Modularity | medium | open — schedule after TD-008 |
+| TD-008 | Cross-layer duplicate computation (consensus/stats frontend/backend drift) | 2026-04-18 Codex review | high | **→ [K-013](docs/tickets/K-013-consensus-stats-contract.md)** in progress |
+| TD-009 | Vitest index-based selector residue | 2026-04-18 K-010 review W1/W2 | low | **→ [K-014](docs/tickets/K-014-vitest-index-selector-cleanup.md)** |
+| TD-010 | `predictor.find_top_matches()` `ma_history` silent fallback | 2026-04-18 K-009 review S1 | medium | **→ [K-015](docs/tickets/K-015-find-top-matches-ma-history-required.md)** |
+| TD-011 | `homepage.pen` contains stale `Running prediction...` text node | 2026-04-18 K-011 review Drift C | low | open — sync at next Designer touchpoint |
+| TD-012 | visual-report `/app` empty-state screenshot has low value | 2026-04-18 K-008 review S1 | low | open — handle at next visual-report revamp |
+| TD-013 | GA4 initGA() lacks idempotency guard + dataLayer type + no warn for unknown routes | 2026-04-19 K-018 review S2–S4 | low | open — clean up at next GA ticket |
+| TD-K021-01 | Some pages `font-mono` still use Tailwind defaults; not migrated to Geist Mono token | K-021 Engineer retro | low | open — progressive migration in K-022/023/024 |
+| TD-K021-02 | UnifiedNavBar 6 hardcoded hex occurrences | K-021 Reviewer W-3 | medium | **→ [K-025](docs/tickets/K-025-navbar-hex-to-token.md)** |
+| TD-K021-07 | AppPage `h-screen overflow-hidden` + HomeFooterBar squeeze under <900px viewport | K-021 Reviewer W-1 | low | open — combine at AppPage redesign |
+| TD-K021-08 | HomeFooterBar email/github/LinkedIn lack `<a>` anchors | K-021 Reviewer S-1 | low | open — next UI polish |
+| TD-K021-09 | `/` route NavBar inactive color not asserted in navbar.spec.ts | K-021 Reviewer S-2 | low | **→ K-025 AC-025-NAVBAR-SPEC** |
+| TD-K021-10 | DiaryPage `font-mono` not migrated to Geist Mono token | K-021 Reviewer S-5 | low | open — evaluate at K-024 |
+| TD-K021-11 | PasswordForm button retains `bg-purple-600`, not migrated to `bg-brick` | K-021 Reviewer Round 3 S-R3-02 | low | open — combine when PasswordForm is refactored |
+| TD-K021-13 | PasswordForm `expiredMessage` `text-yellow-400` contrast ~2.4:1, fails WCAG AA | K-021 Reviewer Round 3 S-NEW-1 | medium | open — sweep during K-022 /about revamp |
+| TD-K027-01 | diary-mobile.spec.ts TC-007 only at 1280px; AC-027-DESKTOP-NO-REGRESSION requires 1024/1280/1440px three viewports | K-027 Reviewer I-002 | low | open — backfill at K-024 startup |
+| TD-K027-02 | diary-mobile.spec.ts `.px-4.pb-4` locator fragile (breaks after K-024 rewrite) | K-027 Reviewer N-001 | low | open — audit during K-024 Reviewer checklist |
+| TD-K027-03 | milestone title overflow attribute not verified (AC-027-TEXT-READABLE has it but spec lacks assertion) | K-027 Reviewer N-003 | low | open — backfill verification when K-024 structure changes |
+| TD-K027-04 | `assertLastCardVisible`'s `waitForTimeout(200)` hardcoded sleep | K-027 Reviewer R2 I-R2-01b | low | open — clean up during K-024 diary spec rewrite |
+| TD-K022-01 | `fontFamily.italic` naming clashes with `italic` font-style class | K-022 Breadth Review I-2 | low | open — rename at next tailwind.config.ts structural change |
+| TD-K022-02 | `SectionLabel` zombie colorMap (purple/cyan/pink/white) retained for backward compatibility | K-022 Breadth Review I-3 | low | open — grep-confirm cleanup after K-030 closed (K-030 closed 2026-04-21, follow-up pending) |
+| TD-K030-01 | AppPage interaction regression E2E coverage missing (PredictButton sticky / OHLC edit interactions lack Playwright assertions) | K-030 Code Review I-1 | low | open — backfill at TD-005 AppPage split ticket startup |
+| TD-K030-02 | UnifiedNavBar `renderLink` local type alias not changed to `typeof TEXT_LINKS[number]` derivation | K-030 Code Review M-3 | low | open — handle at next NavBar structural change ticket |
+| TD-K030-03 | `visual-report.ts` fallback `K-UNKNOWN` when TICKET_ID is missing pollutes `docs/reports/` | K-030 QA retro | medium | open — throw + remove fallback at next visual-report tooling change |
+| TD-K030-04 | `frontend/public/diary.json` K-021/K-022/K-023 legacy traditional-Chinese entries violate English-only hard rule | K-030 QA retro | medium | open — translate at next diary-related ticket (K-024 etc.) |
 
-**更新規則：** 新增技術債由 Code Reviewer 列單 → PM 逐條裁決 → 寫入 tech-debt.md；升級為 ticket 時在本表標 `→ K-XXX`；ticket closed 後保留紀錄。
+**Update rules:** new tech debt is listed by Code Reviewer → PM rules per item → write to tech-debt.md; when escalated to a ticket, mark `→ K-XXX` in this table; retain record after ticket is closed.

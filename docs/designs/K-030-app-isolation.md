@@ -1,6 +1,6 @@
 ---
 id: K-030-design
-title: /app page isolation — new tab + no site chrome + bg override — 設計文件
+title: /app page isolation — new tab + no site chrome + bg override — design doc
 ticket: K-030
 author: senior-architect
 created: 2026-04-21
@@ -11,36 +11,36 @@ status: ready-for-qa-early-consultation
 
 ### 0.1 Ticket path / component name audit
 
-全部 ticket 引用的檔名／組件名於本 worktree 磁碟確認存在（`ls` / `grep` 實測）：
+All file/component names referenced by the ticket are confirmed to exist on this worktree's disk (`ls` / `grep` verified):
 
-| Ticket 引用 | 磁碟狀態 |
+| Ticket reference | Disk state |
 |------------|---------|
-| `frontend/src/AppPage.tsx` | ✓ 存在 |
-| `frontend/src/components/UnifiedNavBar.tsx` | ✓ 存在 |
-| `frontend/src/components/home/HomeFooterBar.tsx` | ✓ 存在 |
-| `frontend/src/index.css` | ✓ 存在（含 K-021 `@layer base body` 規則，L5–9） |
-| `frontend/e2e/sitewide-body-paper.spec.ts` | ✓ 存在（含 `/app` 測試，L46–51） |
-| `frontend/e2e/sitewide-footer.spec.ts` | ✓ 存在（含 `/app` 測試，L47–51） |
-| `frontend/e2e/sitewide-fonts.spec.ts` | ✓ 存在（含 `/app` footer font 測試，L55–73） |
-| commit `338e4b8` | ✓ 確認為 K-021 Stage 2 design-system commit |
+| `frontend/src/AppPage.tsx` | ✓ exists |
+| `frontend/src/components/UnifiedNavBar.tsx` | ✓ exists |
+| `frontend/src/components/home/HomeFooterBar.tsx` | ✓ exists |
+| `frontend/src/index.css` | ✓ exists (contains K-021 `@layer base body` rule, L5–9) |
+| `frontend/e2e/sitewide-body-paper.spec.ts` | ✓ exists (contains `/app` test, L46–51) |
+| `frontend/e2e/sitewide-footer.spec.ts` | ✓ exists (contains `/app` test, L47–51) |
+| `frontend/e2e/sitewide-fonts.spec.ts` | ✓ exists (contains `/app` footer font test, L55–73) |
+| commit `338e4b8` | ✓ confirmed as K-021 Stage 2 design-system commit |
 
-無路徑勘誤需登記。
+No path errata to register.
 
 ### 0.2 Pencil design file coverage
 
-**`/app` 不在 Pencil 設計稿範圍。** `frontend/design/homepage-v2.pen` 4 個 top-level frames 為 `Homepage 4CsvQ` / `About 35VCj` / `Diary wiDSi` / `Business Logic VSwW9`（marketing 頁面）。`/app` 刻意排除於 marketing design system 之外——這票正是要把誤把 marketing palette 套上去的部分撤回。因此本 ticket 不適用 Pencil frame completeness check。
+**`/app` is out of scope for the Pencil design file.** The 4 top-level frames in `frontend/design/homepage-v2.pen` are `Homepage 4CsvQ` / `About 35VCj` / `Diary wiDSi` / `Business Logic VSwW9` (marketing pages). `/app` is intentionally excluded from the marketing design system — this ticket reverts the marketing palette that was wrongly applied. Hence Pencil frame completeness check does not apply to this ticket.
 
-### 0.3 Scope Questions — 無 unresolved contradictions
+### 0.3 Scope Questions — no unresolved contradictions
 
-Ticket AC 與 codebase / design doc 之間無矛盾。Ticket §"Design Decisions Pending" 列出 5 項 Architect 裁決事項已於本文件 §2 逐項裁決。無需 PM 上報。
+No contradictions between ticket AC and codebase / design doc. The 5 Architect arbitration items in ticket §"Design Decisions Pending" are resolved in §2 of this doc. No PM escalation needed.
 
 ---
 
 ## 1 Root Cause Recap
 
-根因在 ticket §Root Cause 已明列。Architect 補一項 codebase 驗證：
+The root cause is already laid out in ticket §Root Cause. Architect adds one codebase verification:
 
-**K-021 commit `338e4b8` 對 `AppPage.tsx` 的 diff：**
+**K-021 commit `338e4b8` diff against `AppPage.tsx`:**
 
 ```
  return (
@@ -48,76 +48,76 @@ Ticket AC 與 codebase / design doc 之間無矛盾。Ticket §"Design Decisions
 +    <div className="h-screen flex flex-col overflow-hidden">
 ```
 
-原始 `/app` 設計意圖是 **neutral dark tool palette（`bg-gray-950` = `#0B0F19`，`text-gray-100` = `#F3F4F6`）**，與 TopBar 的 `bg-gray-900` / panel 的 `bg-gray-900/70` 等 tool-style dark panel 色系一致。K-021 只撤除 `bg-gray-950 text-gray-100` wrapper，沒有對應新增 `/app` 專屬的 non-paper bg 規則，導致 body 層的 paper bg 直接穿透。
+The original design intent of `/app` was a **neutral dark tool palette (`bg-gray-950` = `#0B0F19`, `text-gray-100` = `#F3F4F6`)**, consistent with TopBar's `bg-gray-900` / panel `bg-gray-900/70` and other tool-style dark panels. K-021 only removed the `bg-gray-950 text-gray-100` wrapper without adding a corresponding `/app`-specific non-paper bg rule, so the body-level paper bg bleeds through.
 
-→ 這也決定了 §2.1 背景色的推薦方向：回到原始 dark tool UI 意圖，而不是改成 white / off-white。
+→ This also dictates the §2.1 background-color recommendation direction: return to original dark tool UI intent rather than switching to white / off-white.
 
 ---
 
-## 2 Design Decisions — Architect 裁決
+## 2 Design Decisions — Architect arbitration
 
-### 2.1 `/app` 背景色
+### 2.1 `/app` background color
 
-**Options：**
+**Options:**
 
-| Option | 描述 | 色值 |
+| Option | Description | Color values |
 |--------|------|------|
-| A | Pre-K-021 原設計色（`bg-gray-950` + `text-gray-100`） | bg `rgb(3, 7, 18)` / text `rgb(243, 244, 246)` |
-| B | White (`#FFFFFF`) | 純白 tool UI |
-| C | Off-white（例：`#F8F8F6`） | 中性淺底 |
-| D | Paper-adjacent neutral（`#EDEAE3` 等） | paper 同色系但更淺 |
+| A | Pre-K-021 original (`bg-gray-950` + `text-gray-100`) | bg `rgb(3, 7, 18)` / text `rgb(243, 244, 246)` |
+| B | White (`#FFFFFF`) | pure-white tool UI |
+| C | Off-white (e.g. `#F8F8F6`) | neutral light base |
+| D | Paper-adjacent neutral (`#EDEAE3` etc.) | same family as paper but lighter |
 
-**Pre-verdict 打分（1–10；維度 locked 於裁決前）：**
+**Pre-verdict scoring (1–10; dimensions locked before arbitration):**
 
-| 維度 | Weight | A (dark) | B (white) | C (off-white) | D (paper-adj) |
+| Dimension | Weight | A (dark) | B (white) | C (off-white) | D (paper-adj) |
 |------|-------|---------|----------|--------------|---------------|
-| 對齊原設計意圖（commit `338e4b8` 前的 `/app` palette） | 3 | 10 | 3 | 3 | 2 |
-| 與 marketing site（paper）視覺區隔清晰度 | 3 | 10 | 7 | 5 | 2 |
-| 與 `/app` 現有 panel（`bg-gray-900/70` / `bg-gray-950`）一致性 | 2 | 10 | 2 | 2 | 1 |
-| chart / OHLC 表格可讀性（dark theme vs light theme 既有 UI） | 2 | 9 | 5 | 5 | 4 |
-| 未來維護成本（需撤銷/調整時） | 1 | 8 | 9 | 9 | 9 |
-| **加權總分** | | **9.7** | **4.5** | **4.3** | **2.7** |
+| Aligns with original design intent (`/app` palette pre-`338e4b8`) | 3 | 10 | 3 | 3 | 2 |
+| Visual separation clarity from marketing site (paper) | 3 | 10 | 7 | 5 | 2 |
+| Consistency with existing `/app` panels (`bg-gray-900/70` / `bg-gray-950`) | 2 | 10 | 2 | 2 | 1 |
+| chart / OHLC table readability (dark theme vs light theme existing UI) | 2 | 9 | 5 | 5 | 4 |
+| Future maintenance cost (revert/adjust) | 1 | 8 | 9 | 9 | 9 |
+| **Weighted total** | | **9.7** | **4.5** | **4.3** | **2.7** |
 
-**Score 差距 ≥ 1，直接採 A。**
+**Score gap ≥ 1, choose A directly.**
 
-**Recommendation：A — `bg-gray-950` + `text-gray-100`**（對應 Tailwind default gray scale，無需新增 token）
+**Recommendation: A — `bg-gray-950` + `text-gray-100`** (Tailwind default gray scale, no new tokens needed)
 
-**Justification（一句）：** 與 `/app` 內部所有 panel（TopBar `bg-gray-900`、side panel `bg-gray-900/70`、sticky predict bar `bg-gray-950`）palette 已是 dark tool UI，恢復 `bg-gray-950` wrapper 即還原 commit `338e4b8` 移除的原設計意圖。
+**Justification (one sentence):** All `/app` internal panels (TopBar `bg-gray-900`, side panel `bg-gray-900/70`, sticky predict bar `bg-gray-950`) already form a dark tool UI palette; restoring the `bg-gray-950` wrapper reinstates the original design intent removed by commit `338e4b8`.
 
 ---
 
-### 2.2 bg 覆蓋實作方式
+### 2.2 bg override implementation
 
-**Options：**
+**Options:**
 
-| Option | 描述 | Pros | Cons |
+| Option | Description | Pros | Cons |
 |--------|------|------|------|
-| α | AppPage 根 `<div>` 加 `bg-gray-950 text-gray-100` 類別 | 最小改動（單行 className）；scope 限於 `/app`；body 規則維持不變 | tooling 測試須 assert wrapper `<div>` 而非 `<body>` |
-| β | 新增 CSS module（`AppPage.module.css`） | 封裝強 | 現有檔案都未用 CSS module；破壞一致性；過度設計 |
-| γ | 於 body 掛 `route-app` class，在 `index.css` 加 `body.route-app { @apply bg-gray-950 text-gray-100 }` | body-level override；與 body-paper 規則同層 | 需 effect hook 動態切換 class；進入/離開 `/app` 時機易漏；StrictMode 下 effect 二次執行風險 |
-| δ | `index.css` 加 `body:has(> #root [data-page="app"]) { ... }` | 純 CSS 無 JS | `:has()` 瀏覽器支援雖普及但仍有舊 Safari 邊界；DOM 結構耦合 |
+| α | Add `bg-gray-950 text-gray-100` class on AppPage root `<div>` | minimal change (single-line className); scope limited to `/app`; body rule unchanged | tooling tests must assert wrapper `<div>` instead of `<body>` |
+| β | New CSS module (`AppPage.module.css`) | strong encapsulation | no existing files use CSS module; breaks consistency; over-engineered |
+| γ | Mount `route-app` class on body, add `body.route-app { @apply bg-gray-950 text-gray-100 }` in `index.css` | body-level override; same layer as body-paper rule | needs effect hook for dynamic class toggle; entry/exit `/app` timing easy to miss; StrictMode double-effect risk |
+| δ | `index.css` adds `body:has(> #root [data-page="app"]) { ... }` | pure CSS, no JS | `:has()` browser support is widespread but old Safari edges remain; couples to DOM structure |
 
-**Recommendation：α — AppPage 根 div className**
+**Recommendation: α — AppPage root div className**
 
-**Justification：**
-1. 恢復 pre-K-021 的實作方式（commit `338e4b8` 移除的正是這個 wrapper className）— 這是最小逆向變更。
-2. 作用域限 `/app`，其他 4 條路由不受影響，符合 K-021 body paper 規則的原意（marketing site paper 承載不變，只排除 tool 頁）。
-3. 不引入新 CSS 架構（module / `:has()` / JS class toggle），維護成本最低。
+**Justification:**
+1. Restores the pre-K-021 implementation (commit `338e4b8` removed exactly this wrapper className) — the smallest reverse change.
+2. Scope limited to `/app`; the other 4 routes unaffected, consistent with K-021 body paper rule's intent (marketing site paper preserved, only excluding the tool page).
+3. No new CSS architecture introduced (module / `:has()` / JS class toggle), lowest maintenance cost.
 
-**與 body-level K-021 rule 的 tradeoff：** body 仍是 `bg-paper`，但 `/app` 根 div `h-screen` 佔滿 viewport + 套 `bg-gray-950` 完全覆蓋 body 底色，無 beige bleed-through 可能。DOM 結構：`<body bg-paper>` → `<div id="root">` → `<div class="h-screen bg-gray-950">`（覆蓋）→ NavBar/Footer 移除後子節點不再有 `bg-paper` 依賴。
+**Tradeoff vs body-level K-021 rule:** body remains `bg-paper`, but `/app` root div `h-screen` fills viewport + applies `bg-gray-950` to fully cover body bg, no beige bleed-through possible. DOM structure: `<body bg-paper>` → `<div id="root">` → `<div class="h-screen bg-gray-950">` (overrides) → after NavBar/Footer removal child nodes no longer depend on `bg-paper`.
 
 ---
 
-### 2.3 New-tab 實作（UnifiedNavBar App link）
+### 2.3 New-tab implementation (UnifiedNavBar App link)
 
-**現況（codebase 確認）：** `UnifiedNavBar.tsx` L55–63（desktop）與 L71–80（mobile）使用 `<Link to={link.path}>` from `react-router-dom`。`<Link>` 無 `target` prop 支援（React Router SPA 導向不適用 `target="_blank"` 語意）。
+**Current state (codebase verified):** `UnifiedNavBar.tsx` L55–63 (desktop) and L71–80 (mobile) use `<Link to={link.path}>` from `react-router-dom`. `<Link>` does not support `target` prop (React Router SPA navigation does not match `target="_blank"` semantics).
 
-**Recommendation：** `App` link **專屬** 改為原生 `<a>`，其他 link 保持 `<Link>`。
+**Recommendation:** `App` link **only** changes to native `<a>`; other links keep `<Link>`.
 
-**實作 pseudo-code：**
+**Implementation pseudo-code:**
 
 ```
-// 在 TEXT_LINKS 陣列為 App 加 external: true 標記
+// Mark App with external: true in TEXT_LINKS array
 TEXT_LINKS = [
   { label: 'App', path: '/app', external: true },
   { label: 'Diary', path: '/diary' },
@@ -125,124 +125,124 @@ TEXT_LINKS = [
   { label: 'About', path: '/about' },
 ]
 
-// map 時 branch：external 用 <a>，其他用 <Link>
+// At map time branch: external uses <a>, else <Link>
 visibleLinks.map(link =>
   link.external
     ? <a
         href={link.path}
         target="_blank"
         rel="noopener noreferrer"
-        aria-current={undefined}  // 不套 active（跨 tab，無 pathname match 語意）
-        className={navLinkClass(link.path)}  // 但仍套 inactive class 保持視覺一致
+        aria-current={undefined}  // no active state (cross-tab, no pathname-match semantics)
+        className={navLinkClass(link.path)}  // still apply inactive class for visual consistency
       >{link.label}</a>
     : <Link to={link.path} ...>
 )
 ```
 
-**必須屬性：** `target="_blank"` + `rel="noopener noreferrer"`（後者防止 reverse tabnabbing + 避免 Referrer 泄漏；符合 `components/primitives/ExternalLink.tsx` 既有全站規範）。
+**Required attributes:** `target="_blank"` + `rel="noopener noreferrer"` (the latter prevents reverse tabnabbing + Referrer leakage; matches the global `components/primitives/ExternalLink.tsx` convention).
 
-**`aria-current` 處理：** App link 在 new tab 開啟後，當前 tab 仍在原頁面，本 tab 的 App link 永遠不該是 `aria-current="page"`（因為使用者不在 `/app`，是新 tab 在 `/app`）。新 tab 載入 `/app` 時，該 tab 的 NavBar 已被移除，無 App link 可標。因此 App link 的 `aria-current` 不設值。
+**`aria-current` handling:** When App link opens in a new tab, the current tab is still on the original page; the App link in this tab should never be `aria-current="page"` (the user is not on `/app`, the new tab is). When the new tab loads `/app`, that tab's NavBar is removed, so there's no App link to flag. Thus the App link's `aria-current` is left unset.
 
-**active class 視覺處理：** 保留原 `navLinkClass(path)`，但 `pathname` 永遠 ≠ `/app`（因為 `/app` 已不再渲染 NavBar），App link 將始終套 inactive class `text-[#1A1814]/60`，視覺與 `Diary` / `About` 同等。
+**Active class visual handling:** Keep `navLinkClass(path)`, but `pathname` is never `/app` (since `/app` no longer renders NavBar), so the App link always has the inactive class `text-[#1A1814]/60`, visually equal to `Diary` / `About`.
 
 ---
 
-### 2.4 NavBar 移除範圍
+### 2.4 NavBar removal scope
 
-**唯一 consumer：** `AppPage.tsx` L9 `import UnifiedNavBar from './components/UnifiedNavBar'` + L369 `<UnifiedNavBar />`。
+**Sole consumer:** `AppPage.tsx` L9 `import UnifiedNavBar from './components/UnifiedNavBar'` + L369 `<UnifiedNavBar />`.
 
-**Grep 驗證：**
+**Grep verification:**
 ```
 grep -n "UnifiedNavBar" frontend/src/
 → AppPage.tsx:9, AppPage.tsx:369
-→ HomePage.tsx / AboutPage.tsx / DiaryPage.tsx / BusinessLogicPage.tsx (4 個 marketing 頁面，不動)
+→ HomePage.tsx / AboutPage.tsx / DiaryPage.tsx / BusinessLogicPage.tsx (4 marketing pages, untouched)
 ```
 
-**Layout 依賴分析：** NavBar `h-[56px] md:h-[72px]` 是 flex 子項，在 `<div class="h-screen flex flex-col">` 裡 NavBar 占頂部、TopBar 占次頂、`flex-1` main region 吃剩餘高度。移除 NavBar **增加** main region 的可用高度 56–72px，layout 非破壞性。AppPage **無** 任何基於 NavBar 高度的 `margin-top` / `padding-top` / `calc(100vh - 72px)` 硬編數值——確認 grep `"72px\|56px\|h-\[56px\|h-\[72px"` 於 `AppPage.tsx` 零匹配。
+**Layout dependency analysis:** NavBar `h-[56px] md:h-[72px]` is a flex child; inside `<div class="h-screen flex flex-col">` NavBar takes the top, TopBar takes the next, `flex-1` main region fills the rest. Removing NavBar **increases** main region's available height by 56–72px — non-destructive layout change. AppPage has **no** hardcoded `margin-top` / `padding-top` / `calc(100vh - 72px)` based on NavBar height — confirmed grep for `"72px\|56px\|h-\[56px\|h-\[72px"` in `AppPage.tsx` returns zero matches.
 
 ---
 
-### 2.5 Footer 移除範圍
+### 2.5 Footer removal scope
 
-**唯一 consumer 之一：** `AppPage.tsx` L10 import + L496 `<HomeFooterBar />`。
+**One sole consumer:** `AppPage.tsx` L10 import + L496 `<HomeFooterBar />`.
 
-**其他 HomeFooterBar consumers（保留）：** `HomePage.tsx` / `BusinessLogicPage.tsx`（grep 確認）。
+**Other HomeFooterBar consumers (preserved):** `HomePage.tsx` / `BusinessLogicPage.tsx` (grep verified).
 
-**Layout 依賴分析：** HomeFooterBar 是 `<div class="h-screen flex flex-col overflow-hidden">` 的最後子節點，位在 main region（`flex-1`）之後。由於 `flex-1` 吃掉所有剩餘空間，Footer 是被 flex 擠到底部。移除 Footer 後：
+**Layout dependency analysis:** HomeFooterBar is the last child of `<div class="h-screen flex flex-col overflow-hidden">`, after the main region (`flex-1`). Since `flex-1` consumes all remaining space, Footer is squeezed to the bottom by flex. After removal:
 
-- `main region` (`flex-1`) 高度 += Footer 原佔用高度（`py-5` + 內文 + border = 約 60–80px）
-- `h-screen overflow-hidden` 根 div 仍完全填滿 viewport
-- sticky predict button（L469 `sticky bottom-0`）仍正確貼 main region 底部（sticky 相對於 overflow 容器，即 side panel，不受 Footer 移除影響）
+- `main region` (`flex-1`) height += original footer height (`py-5` + content + border ≈ 60–80px)
+- `h-screen overflow-hidden` root div still fully fills viewport
+- sticky predict button (L469 `sticky bottom-0`) still correctly sticks to main region's bottom (sticky is relative to the overflow container, i.e. the side panel, unaffected by Footer removal)
 
-移除安全，無 layout 依賴。
+Safe to remove, no layout dependency.
 
 ---
 
-### 2.6 Spec conflict resolution（`sitewide-body-paper.spec.ts` / `sitewide-footer.spec.ts` / `sitewide-fonts.spec.ts`）
+### 2.6 Spec conflict resolution (`sitewide-body-paper.spec.ts` / `sitewide-footer.spec.ts` / `sitewide-fonts.spec.ts`)
 
-**PM flagged：** `sitewide-body-paper.spec.ts` 與 ticket AC-030-BG-COLOR 衝突。
+**PM flagged:** `sitewide-body-paper.spec.ts` conflicts with ticket AC-030-BG-COLOR.
 
-**Architect 額外發現兩處額外衝突：**
-- `sitewide-footer.spec.ts` L47–51：`/app — HomeFooterBar shows` → 移除 footer 後必 fail
-- `sitewide-fonts.spec.ts` L55–73：`/app HomeFooterBar fontFamily Geist Mono` → 移除 footer 後必 fail（找不到 footer text）
+**Architect found two extra conflicts:**
+- `sitewide-footer.spec.ts` L47–51: `/app — HomeFooterBar shows` → must fail after footer removal
+- `sitewide-fonts.spec.ts` L55–73: `/app HomeFooterBar fontFamily Geist Mono` → must fail (no footer text to find)
 
-**Options：**
+**Options:**
 
-| Option | 描述 |
+| Option | Description |
 |--------|------|
-| A | `/app` 由 wrapper 層 override body bg，spec 改 `/app` 斷言為「wrapper `<div>` bg = `rgb(3, 7, 18)`（gray-950）」 |
-| B | `/app` 從 sitewide-body-paper.spec.ts 完全移除，spec 保持 body 層斷言（4 routes）；`/app` 不再屬於 sitewide paper 規則範圍 |
+| A | `/app` overrides body bg at wrapper level; spec changes `/app` assertion to "wrapper `<div>` bg = `rgb(3, 7, 18)` (gray-950)" |
+| B | Remove `/app` from sitewide-body-paper.spec.ts entirely; spec keeps body-level assertion (4 routes); `/app` is no longer in the sitewide paper rule's scope |
 
-**Pre-verdict（維度 locked 於裁決前）：**
+**Pre-verdict (dimensions locked before arbitration):**
 
-| 維度 | Weight | A (assert wrapper) | B (remove /app) |
+| Dimension | Weight | A (assert wrapper) | B (remove /app) |
 |------|-------|--------------------|------------------|
-| 語意清晰（spec 名稱 `sitewide-body-paper` 反映斷言範圍） | 3 | 5（`/app` 斷的不是 body 而是 wrapper，與 spec 名稱矛盾） | 10 |
-| 漏洞防護（未來有人誤加 `bg-paper` 回 AppPage 是否會被抓到） | 3 | 9（仍會 assert `/app` wrapper bg ≠ paper） | 9（可用獨立 AC-030-BG-COLOR spec 斷 `/app` wrapper bg ≠ paper） |
-| 架構一致性（`/app` 是否屬於 sitewide paper system） | 2 | 3（名為 sitewide 實際例外） | 10（明確排除，與 ticket 立場一致：`/app` 不是 marketing site） |
-| spec 命名成本 | 1 | 10（不改檔名） | 10（不改檔名） |
-| 測試覆蓋完整性 | 2 | 9 | 10（新 spec AC-030-BG-COLOR 獨立斷 `/app` non-paper + wrapper bg 一致性） |
-| **加權總分** | | **6.8** | **9.7** |
+| Semantic clarity (spec name `sitewide-body-paper` reflecting assertion scope) | 3 | 5 (`/app` asserts wrapper not body, contradicts spec name) | 10 |
+| Defense (would future re-adding `bg-paper` to AppPage be caught) | 3 | 9 (still asserts `/app` wrapper bg ≠ paper) | 9 (separate AC-030-BG-COLOR spec asserts `/app` wrapper bg ≠ paper) |
+| Architectural consistency (does `/app` belong to sitewide paper system) | 2 | 3 (named sitewide but actually exception) | 10 (explicit exclusion, consistent with ticket stance: `/app` is not marketing site) |
+| Spec naming cost | 1 | 10 (no rename) | 10 (no rename) |
+| Test-coverage completeness | 2 | 9 | 10 (new spec AC-030-BG-COLOR independently asserts `/app` non-paper + wrapper bg consistency) |
+| **Weighted total** | | **6.8** | **9.7** |
 
-**Score 差距 ≥ 1，採 B。**
+**Score gap ≥ 1, choose B.**
 
-**Recommendation：B — `/app` 從 `sitewide-body-paper.spec.ts` 移除**
+**Recommendation: B — Remove `/app` from `sitewide-body-paper.spec.ts`**
 
-**Justification：** `/app` 設計意圖是 **排除於 sitewide design system 之外**（這是 K-030 的核心立場）。讓 `sitewide-body-paper.spec.ts` 保持「4 個 marketing routes + business-logic 2 狀態」斷 body bg = paper，`/app` 的背景由新 spec `app-bg-isolation.spec.ts` 獨立守護。命名與語意一致，未來新增 route 時一目瞭然。
+**Justification:** `/app` design intent is to **be excluded from the sitewide design system** (this is the core stance of K-030). Let `sitewide-body-paper.spec.ts` keep "4 marketing routes + business-logic 2 states" asserting body bg = paper; `/app`'s background is independently guarded by a new spec `app-bg-isolation.spec.ts`. Naming and semantics stay consistent; future route additions are obvious at a glance.
 
-**對應三個 spec 的處理：**
+**Handling for the three specs:**
 
-| Spec | 處理 |
+| Spec | Action |
 |------|------|
-| `sitewide-body-paper.spec.ts` | 移除 L46–51 `AppPage (/app) — body bg=#F4EFE5` 測試；header 註解的 5 routes 縮成 4 routes；test case 總數 `6 cases` 變 `5 cases` |
-| `sitewide-footer.spec.ts` | 移除 L47–51 `/app — HomeFooterBar shows` 測試；header 註解的 `3 個獨立 test case` 描述更新為「2 個 + /business-logic 登入後 1 = 3」+ /about FooterCtaSection boundary |
-| `sitewide-fonts.spec.ts` | 移除 L55–73 `AC-021-FONTS — HomeFooterBar fontFamily cross-route` 整個 describe block（只測 `/app` 一條），無需替代；HomePage HomeFooterBar Geist Mono 已在 L35–53 測試 |
+| `sitewide-body-paper.spec.ts` | Remove L46–51 `AppPage (/app) — body bg=#F4EFE5` test; header comment "5 routes" → "4 routes"; total cases `6 cases` → `5 cases` |
+| `sitewide-footer.spec.ts` | Remove L47–51 `/app — HomeFooterBar shows` test; header comment "3 independent test cases" → "2 + /business-logic post-login 1 = 3" + /about FooterCtaSection boundary |
+| `sitewide-fonts.spec.ts` | Remove L55–73 `AC-021-FONTS — HomeFooterBar fontFamily cross-route` whole describe block (only tested `/app`); no replacement needed; HomePage HomeFooterBar Geist Mono is already covered in L35–53 |
 
-**新增 spec：** `frontend/e2e/app-bg-isolation.spec.ts`（AC-030-BG-COLOR 測試，見 §6）
+**New spec:** `frontend/e2e/app-bg-isolation.spec.ts` (AC-030-BG-COLOR test, see §6).
 
 ---
 
 ## 3 Refactorability Checklist
 
-- [x] **單一責任：** AppPage 根 div 仍只負責 layout 結構（`h-screen flex flex-col`）；新增的 `bg-gray-950 text-gray-100` 為 presentational class，與 layout 結構 concern 在同一層，可接受。
-- [x] **Interface 最小化：** `UnifiedNavBar.tsx` TEXT_LINKS 新增 `external?: boolean` optional field，默認 false 兼容既有 link；非必要地方不需改。
-- [x] **單向依賴：** 無 NavBar ↔ AppPage 循環；AppPage import NavBar（單向），NavBar 無 AppPage 依賴。
-- [x] **替換成本：** `/app` 背景 tailwind class 若未來撤換，僅 1 檔 1 行 diff。NavBar `external` branch 若未來撤換，1 檔 1 個 conditional block。
-- [x] **測試入口清晰：** AC-030-* 5 條分別對應 5 條獨立測試（new-tab / no-navbar / no-footer / bg-color / regression），每條測試斷言明確。
-- [x] **變更隔離：** `/app` bg 變更不影響 marketing 4 頁 body paper bg；NavBar App link external 變更不影響其他 link 行為（`<Link>` 保持 SPA）。
+- [x] **Single responsibility:** AppPage root div still only handles layout structure (`h-screen flex flex-col`); the new `bg-gray-950 text-gray-100` is a presentational class on the same layer as layout, acceptable.
+- [x] **Minimal interface:** `UnifiedNavBar.tsx` TEXT_LINKS adds optional `external?: boolean`, default false, backward-compatible; non-essential sites need no change.
+- [x] **Unidirectional dependency:** No NavBar ↔ AppPage cycle; AppPage imports NavBar (one-way), NavBar has no AppPage dependency.
+- [x] **Substitution cost:** `/app` background tailwind class can be reverted in 1 file 1 line. NavBar `external` branch can be reverted in 1 file 1 conditional block.
+- [x] **Test entry clarity:** AC-030-* 5 ACs map to 5 independent tests (new-tab / no-navbar / no-footer / bg-color / regression), each assertion clear.
+- [x] **Change isolation:** `/app` bg change does not affect marketing 4-page body paper bg; NavBar App link external change does not affect other links' behavior (`<Link>` keeps SPA).
 
 ---
 
 ## 4 All-Phase Coverage Gate
 
-**本票為 single-phase ticket（K-030 無多 Phase 拆分）。** 單 Phase 內四維覆蓋：
+**This ticket is single-phase (K-030 has no multi-phase split).** Four-dimension coverage within single phase:
 
-| 維度 | 狀態 | 備註 |
+| Dimension | Status | Notes |
 |------|------|------|
-| Backend API | ✅ N/A | 本票零後端異動（ticket §Scope 明列 "Not included: Any change to the prediction feature logic or API"） |
-| Frontend Routes | ✅ | 路由表無新增（已存在 `/app`）；§5.1 Route Impact Table 逐條標示 |
-| Component Tree | ✅ | §5.2 列 `UnifiedNavBar` / `AppPage` / `HomeFooterBar` 三個受影響組件 + 影響半徑 |
-| Props Interface | ✅ | §5.3 列 `TEXT_LINKS` entry shape 變更（加 `external?: boolean`）；AppPage 無 props |
+| Backend API | ✅ N/A | Zero backend changes (ticket §Scope explicitly states "Not included: Any change to the prediction feature logic or API") |
+| Frontend Routes | ✅ | No new routes (`/app` already exists); §5.1 Route Impact Table marks each one |
+| Component Tree | ✅ | §5.2 lists `UnifiedNavBar` / `AppPage` / `HomeFooterBar` three impacted components + blast radius |
+| Props Interface | ✅ | §5.3 lists `TEXT_LINKS` entry shape change (add `external?: boolean`); AppPage has no props |
 
 ---
 
@@ -250,29 +250,29 @@ grep -n "UnifiedNavBar" frontend/src/
 
 ### 5.1 Route Impact Table
 
-根據 persona 硬 gate（global-style / shared-component 變更必列 Route Impact Table）。
+Per persona hard gate (global-style / shared-component changes must list a Route Impact Table).
 
-| Route | 狀態 | Notes |
+| Route | State | Notes |
 |-------|------|-------|
-| `/` | unaffected | body `bg-paper` 規則不變；NavBar App link external 變更：使用者點擊後不再 SPA 轉頁，改開 new tab；視覺上 Home 頁本身無變化 |
-| `/about` | unaffected | body `bg-paper` 規則不變；NavBar App link 同上 |
-| `/diary` | unaffected | body `bg-paper` 規則不變；NavBar App link 同上 |
-| `/business-logic` | unaffected | body `bg-paper` 規則不變；NavBar App link 同上 |
-| `/app` | **must-be-isolated** | wrapper bg 覆蓋 body paper 為 gray-950；NavBar 完全不渲染；Footer 完全不渲染；§2.2 α 方案已定義 override 實作 |
+| `/` | unaffected | body `bg-paper` rule unchanged; NavBar App link external change: clicks no longer SPA-navigate, open new tab; Home page itself visually unchanged |
+| `/about` | unaffected | body `bg-paper` rule unchanged; NavBar App link as above |
+| `/diary` | unaffected | body `bg-paper` rule unchanged; NavBar App link as above |
+| `/business-logic` | unaffected | body `bg-paper` rule unchanged; NavBar App link as above |
+| `/app` | **must-be-isolated** | wrapper bg overrides body paper to gray-950; NavBar fully unrendered; Footer fully unrendered; §2.2 α defines override implementation |
 
-**零 route 被移除或新增，僅 `/app` 行為改變。**
+**Zero routes added or removed; only `/app` behavior changes.**
 
 ### 5.2 Shared Component Changes + Blast Radius
 
-| 組件 | 位置 | 變更 | Blast Radius |
+| Component | Path | Change | Blast Radius |
 |------|------|------|--------------|
-| `UnifiedNavBar` | `frontend/src/components/UnifiedNavBar.tsx` | TEXT_LINKS 新增 `external?: boolean`；App link 渲染分支 `<a target=_blank>` vs `<Link>` | 全 4 marketing pages（HomePage / AboutPage / DiaryPage / BusinessLogicPage）— NavBar 在這 4 頁仍渲染，App link 行為對「所有訪客」生效：從任一頁點 App 都開 new tab。需 navbar.spec.ts 微調 AC-NAV-4 App link test（見 §6.2）|
-| `HomeFooterBar` | `frontend/src/components/home/HomeFooterBar.tsx` | **組件本身無 diff**；只從 AppPage.tsx 撤 import + 撤 `<HomeFooterBar />`（consumer 減少） | HomePage / BusinessLogicPage 繼續用，不影響。architecture.md Footer placement 表 `/app` 欄需從 `<HomeFooterBar />` 改為 `無 footer（K-030 isolation）` |
-| `AppPage` | `frontend/src/AppPage.tsx` | 根 div className 加 `bg-gray-950 text-gray-100`；刪 `<UnifiedNavBar />` + `<HomeFooterBar />` + 對應 import | 頁面專屬（page-specific），不影響其他頁 |
+| `UnifiedNavBar` | `frontend/src/components/UnifiedNavBar.tsx` | TEXT_LINKS adds `external?: boolean`; App link rendering branches `<a target=_blank>` vs `<Link>` | All 4 marketing pages (HomePage / AboutPage / DiaryPage / BusinessLogicPage) — NavBar still renders, App link behavior takes effect for "all visitors": clicking App from any page opens new tab. navbar.spec.ts AC-NAV-4 App link test needs minor adjustment (see §6.2) |
+| `HomeFooterBar` | `frontend/src/components/home/HomeFooterBar.tsx` | **Component itself unchanged**; only AppPage.tsx removes the import + `<HomeFooterBar />` (consumer-1) | HomePage / BusinessLogicPage continue to use, unaffected. architecture.md Footer placement table `/app` column changes from `<HomeFooterBar />` to `no footer (K-030 isolation)` |
+| `AppPage` | `frontend/src/AppPage.tsx` | Root div className adds `bg-gray-950 text-gray-100`; remove `<UnifiedNavBar />` + `<HomeFooterBar />` + their imports | Page-specific, no cross-page impact |
 
-### 5.3 Props Interface 變更
+### 5.3 Props interface change
 
-**`UnifiedNavBar.tsx` TEXT_LINKS shape（只記 diff，shared components 邊界宣告）：**
+**`UnifiedNavBar.tsx` TEXT_LINKS shape (diff only, shared-component boundary declaration):**
 
 ```
 Before:
@@ -282,53 +282,53 @@ After:
 { label: string; path: string; hidden?: boolean; external?: boolean }
 ```
 
-- `external?: boolean` — Optional。default undefined = SPA `<Link>`；true = 原生 `<a target="_blank" rel="noopener noreferrer">`
-- 僅 `App` entry 設 `external: true`；Diary / About / Prediction 保持 SPA
+- `external?: boolean` — Optional. default undefined = SPA `<Link>`; true = native `<a target="_blank" rel="noopener noreferrer">`
+- Only `App` entry has `external: true`; Diary / About / Prediction stay SPA
 
-**AppPage.tsx：** 無 props（default export 為 parameterless component），無 interface 變更。
+**AppPage.tsx:** No props (default export is parameterless component); no interface change.
 
 ---
 
 ## 6 File Change List
 
-| File | 動作 | 一句描述 |
+| File | Action | One-line description |
 |------|------|---------|
-| `frontend/src/AppPage.tsx` | Modify | 根 `<div>` className 加 `bg-gray-950 text-gray-100`；刪除 L9 UnifiedNavBar import、L10 HomeFooterBar import、L369 `<UnifiedNavBar />`、L496 `<HomeFooterBar />` |
-| `frontend/src/components/UnifiedNavBar.tsx` | Modify | TEXT_LINKS App entry 加 `external: true`；map 時按 `external` 分支渲染 `<a target=_blank rel=noopener noreferrer>` vs `<Link>`；desktop + mobile 兩 map 同步處理 |
-| `frontend/e2e/sitewide-body-paper.spec.ts` | Modify | 移除 L46–51 `/app` 測試；header JSDoc 註解 L5 `5 routes` → `4 routes`；L12 `5 個獨立 case 不合併；/business-logic 另加登入後狀態 = 6 cases 總計` → `4 個獨立 case 不合併；/business-logic 另加登入後狀態 = 5 cases 總計` |
-| `frontend/e2e/sitewide-footer.spec.ts` | Modify | 移除 L47–51 `/app — HomeFooterBar shows` 測試；header JSDoc L7 `Given: user visits /, /app, /business-logic` → `Given: user visits /, /business-logic`；L12 `3 個獨立 test case` → `2 個獨立 test case`；L13 `= 4` → `= 3` |
-| `frontend/e2e/sitewide-fonts.spec.ts` | Modify | 刪除整個 describe block `AC-021-FONTS — HomeFooterBar fontFamily cross-route`（L55–73） — 該 block 唯一的測試 case 是 `/app`，移除後整 block 無內容可留 |
-| `frontend/e2e/navbar.spec.ts` | Modify | AC-NAV-4 `App link navigates to /app` 測試（L141–147）改為 new-tab 斷言（使用 `context.waitForEvent('page')`）；AC-NAV-1 / AC-NAV-2 `/app` 的 `{ path: '/app', name: 'AppPage' }` entries（L33 / L71） → 移除這 2 列 iteration（因 `/app` 不再渲染 NavBar，測 NavBar-present-on-/app 恆 fail）；AC-NAV-4 mobile active link `on /app page (mobile)` 測試（L201–208）移除（同理）；AC-021-NAVBAR `on /app — App link has aria-current=page` 測試（L235–242）移除 |
-| `frontend/e2e/app-bg-isolation.spec.ts` | **Add** | 新建 spec，4 個 test cases 對應 AC-030-NEW-TAB / NO-NAVBAR / NO-FOOTER / BG-COLOR（§6.2 細部） |
-| `frontend/e2e/ga-tracking.spec.ts` | No change | `/app fires page_view` 測試（L71–84）直接 `page.goto('/app')` 不經 NavBar 點擊，仍通過。但 Engineer 須實際 run 確認，Architect 判斷為無需修改 |
-| `frontend/e2e/ma99-chart.spec.ts` | No change | 所有 `page.goto('/app')` 直接 URL 載入，不經 NavBar 點擊，不受影響 |
-| `frontend/e2e/visual-report.ts` | No change | 繼續截 `/app` 整頁（不再有 NavBar + Footer，截圖視覺會 reflect ticket 結果），無需改腳本 |
+| `frontend/src/AppPage.tsx` | Modify | Root `<div>` className adds `bg-gray-950 text-gray-100`; remove L9 UnifiedNavBar import, L10 HomeFooterBar import, L369 `<UnifiedNavBar />`, L496 `<HomeFooterBar />` |
+| `frontend/src/components/UnifiedNavBar.tsx` | Modify | TEXT_LINKS App entry adds `external: true`; map renders `<a target=_blank rel=noopener noreferrer>` vs `<Link>` based on `external`; do this for both desktop + mobile maps |
+| `frontend/e2e/sitewide-body-paper.spec.ts` | Modify | Remove L46–51 `/app` test; header JSDoc L5 `5 routes` → `4 routes`; L12 `5 independent cases not merged; /business-logic adds post-login state = 6 cases total` → `4 independent cases not merged; /business-logic adds post-login state = 5 cases total` |
+| `frontend/e2e/sitewide-footer.spec.ts` | Modify | Remove L47–51 `/app — HomeFooterBar shows` test; header JSDoc L7 `Given: user visits /, /app, /business-logic` → `Given: user visits /, /business-logic`; L12 `3 independent test cases` → `2 independent test cases`; L13 `= 4` → `= 3` |
+| `frontend/e2e/sitewide-fonts.spec.ts` | Modify | Remove the entire describe block `AC-021-FONTS — HomeFooterBar fontFamily cross-route` (L55–73) — its sole test case was `/app`, leaving the block empty |
+| `frontend/e2e/navbar.spec.ts` | Modify | AC-NAV-4 `App link navigates to /app` test (L141–147) changes to new-tab assertion (using `context.waitForEvent('page')`); AC-NAV-1 / AC-NAV-2 `/app` `{ path: '/app', name: 'AppPage' }` entries (L33 / L71) → remove these 2 iterations (since `/app` no longer renders NavBar, asserting NavBar-present-on-/app would always fail); AC-NAV-4 mobile active link `on /app page (mobile)` test (L201–208) removed (same reason); AC-021-NAVBAR `on /app — App link has aria-current=page` test (L235–242) removed |
+| `frontend/e2e/app-bg-isolation.spec.ts` | **Add** | New spec, 4 test cases mapping AC-030-NEW-TAB / NO-NAVBAR / NO-FOOTER / BG-COLOR (§6.2 details) |
+| `frontend/e2e/ga-tracking.spec.ts` | No change | `/app fires page_view` test (L71–84) directly `page.goto('/app')` without NavBar click, still passes. Engineer must run to confirm; Architect deems no change needed |
+| `frontend/e2e/ma99-chart.spec.ts` | No change | All `page.goto('/app')` are direct URL loads, not NavBar clicks, unaffected |
+| `frontend/e2e/visual-report.ts` | No change | Continues to screenshot `/app` full page (no more NavBar + Footer, screenshot reflects ticket result), no script change needed |
 
-**AppPage unit test 影響確認：** `frontend/src/__tests__/AppPage.test.tsx` / `OHLCEditor.test.tsx` / `PredictButton.test.tsx` / `StatsPanel.test.tsx` / `MatchList.test.tsx` 均測試組件行為／工具邏輯，不依賴 NavBar / Footer DOM，**不需改動**（AC-030-FUNC-REGRESSION 要求 unit tests 無需修改即通過）。
+**AppPage unit test impact confirmation:** `frontend/src/__tests__/AppPage.test.tsx` / `OHLCEditor.test.tsx` / `PredictButton.test.tsx` / `StatsPanel.test.tsx` / `MatchList.test.tsx` all test component behavior / utility logic, not relying on NavBar / Footer DOM, **no changes needed** (AC-030-FUNC-REGRESSION requires unit tests to pass without modification).
 
 ---
 
-## 6.2 New Playwright Test Cases（app-bg-isolation.spec.ts）
+## 6.2 New Playwright Test Cases (app-bg-isolation.spec.ts)
 
-**檔案：** `frontend/e2e/app-bg-isolation.spec.ts`
-**測試總數：** 5 個獨立 test case（對應 AC-030-NEW-TAB / NO-NAVBAR / NO-FOOTER / BG-COLOR ×2 / PENCIL-ALIGN 由 T4 同時綁定）
-**Viewport：** 1280×800（desktop），AC-030 未限定 mobile 獨立驗，AC-030-NO-NAVBAR / NO-FOOTER 的 DOM 斷言在 desktop 即充分覆蓋
+**File:** `frontend/e2e/app-bg-isolation.spec.ts`
+**Total tests:** 5 independent test cases (mapping AC-030-NEW-TAB / NO-NAVBAR / NO-FOOTER / BG-COLOR ×2 / PENCIL-ALIGN bound by T4)
+**Viewport:** 1280×800 (desktop); AC-030 does not require independent mobile validation, AC-030-NO-NAVBAR / NO-FOOTER DOM assertions on desktop fully cover
 
-| Test ID | describe / test title | 斷言骨架 |
+| Test ID | describe / test title | Assertion skeleton |
 |---------|----------------------|---------|
-| T1 | `AC-030-NEW-TAB — App link opens /app in new tab` / `clicking App link on / opens new tab with /app URL` | `page.goto('/')`；`await context.waitForEvent('page', { predicate: p => p.url().includes('/app') })` 包裹 click；斷言 App link 元素 `attr target=_blank` + `attr rel=noopener noreferrer`；斷言原 tab URL 仍為 `/`；斷言 new page URL match `/app` |
-| T2 | `AC-030-NO-NAVBAR — /app page has no UnifiedNavBar` / `navbar testids absent on /app` | `page.goto('/app')`；`expect(page.locator('[data-testid="navbar-desktop"]')).toHaveCount(0)`；`expect(page.locator('[data-testid="navbar-mobile"]')).toHaveCount(0)`；`expect(page.getByRole('link', { name: 'Home', exact: true })).toHaveCount(0)`；`expect(page.getByText('Loaded rows:')).toBeVisible()`（TopBar 工具內容仍在）|
-| T3 | `AC-030-NO-FOOTER — /app page has no HomeFooterBar` / `HomeFooterBar text absent on /app` | `page.goto('/app')`；`expect(page.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true })).toHaveCount(0)`；`expect(page.getByText('This site uses Google Analytics to collect anonymous usage data.', { exact: true })).toHaveCount(0)`|
-| T4 | `AC-030-BG-COLOR / AC-030-PENCIL-ALIGN — /app wrapper bg is gray-950, not paper` / `app root wrapper computed bg matches gray-950 (rgb(3,7,18)) — binds Pencil ap001 frame` | `page.goto('/app')`；wait networkidle；讀根 `<div class="h-screen ...">` 的 computed `background-color`，assert `!== 'rgb(244, 239, 229)'` AND `=== 'rgb(3, 7, 18)'`（Tailwind gray-950，同時鎖 Pencil v1 `ap001` frame 色值）|
-| T5 | `AC-030-BG-COLOR — body bg paper rule preserved on /app` / `body computed bg remains rgb(244,239,229) on /app` | `page.goto('/app')`；wait networkidle；讀 body 的 computed bg，assert `=== 'rgb(244, 239, 229)'`（證明 K-021 sitewide body 規則未被刪除，僅 wrapper 層覆蓋；防未來 refactor 將 body 改為 route-scoped 時 T4 仍 pass 但 K-021 靜默 regress）|
+| T1 | `AC-030-NEW-TAB — App link opens /app in new tab` / `clicking App link on / opens new tab with /app URL` | `page.goto('/')`; `await context.waitForEvent('page', { predicate: p => p.url().includes('/app') })` wraps click; assert App link element `attr target=_blank` + `attr rel=noopener noreferrer`; assert original tab URL still `/`; assert new page URL match `/app` |
+| T2 | `AC-030-NO-NAVBAR — /app page has no UnifiedNavBar` / `navbar testids absent on /app` | `page.goto('/app')`; `expect(page.locator('[data-testid="navbar-desktop"]')).toHaveCount(0)`; `expect(page.locator('[data-testid="navbar-mobile"]')).toHaveCount(0)`; `expect(page.getByRole('link', { name: 'Home', exact: true })).toHaveCount(0)`; `expect(page.getByText('Loaded rows:')).toBeVisible()` (TopBar tool content still present) |
+| T3 | `AC-030-NO-FOOTER — /app page has no HomeFooterBar` / `HomeFooterBar text absent on /app` | `page.goto('/app')`; `expect(page.getByText('yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn', { exact: true })).toHaveCount(0)`; `expect(page.getByText('This site uses Google Analytics to collect anonymous usage data.', { exact: true })).toHaveCount(0)` |
+| T4 | `AC-030-BG-COLOR / AC-030-PENCIL-ALIGN — /app wrapper bg is gray-950, not paper` / `app root wrapper computed bg matches gray-950 (rgb(3,7,18)) — binds Pencil ap001 frame` | `page.goto('/app')`; wait networkidle; read root `<div class="h-screen ...">` computed `background-color`, assert `!== 'rgb(244, 239, 229)'` AND `=== 'rgb(3, 7, 18)'` (Tailwind gray-950, also locks Pencil v1 `ap001` frame color) |
+| T5 | `AC-030-BG-COLOR — body bg paper rule preserved on /app` / `body computed bg remains rgb(244,239,229) on /app` | `page.goto('/app')`; wait networkidle; read body computed bg, assert `=== 'rgb(244, 239, 229)'` (proves K-021 sitewide body rule not deleted, only wrapper-level override; defends against future refactor that scopes body to route making T4 still pass while K-021 silently regresses) |
 
-**為什麼拆 5 個獨立 case 而非合併：** PM 量化規則（K-021 / K-022 既有）— 每 AC 至少 1 個獨立 test case，合併會使失敗時斷點定位困難。AC-030-BG-COLOR 於 ticket QA Early Consultation 被 PM 裁決拆為 wrapper 與 body 兩斷言（ticket L191 Option A），故 T4/T5 分列；T4 同時綁 AC-030-PENCIL-ALIGN（無獨立 spec，以 T4 色值斷言鎖 Pencil frame）。
+**Why split into 5 independent cases not merged:** PM quantitative rule (existing K-021 / K-022) — at least 1 independent test case per AC; merging makes failure debugging harder. AC-030-BG-COLOR was split during ticket QA Early Consultation by PM into wrapper and body assertions (ticket L191 Option A), so T4/T5 are listed separately; T4 also binds AC-030-PENCIL-ALIGN (no independent spec; T4's color assertion locks the Pencil frame).
 
-### 6.3 Post-review addendum（pending Engineer landing）
+### 6.3 Post-review addendum (pending Engineer landing)
 
-Code Review I-2 round 後 Engineer 正進行 fix pass 2 追加 Hero CTA new-tab test case（`AppPage` 外部另一處 `/app` 開啟入口，若存在則需與 T1 等同斷言 new tab 行為）。該 test 由 Engineer 實作並 land 後，PM 將於 ticket close 時更新本段 §6.2 總數 5→6 並補列 T6。目前占位不前瞻改總數，避免設計文件與 main branch spec 不一致。
+After Code Review I-2 round, Engineer is in fix pass 2 to add a Hero CTA new-tab test case (another `/app` open entry outside `AppPage`; if it exists it needs the same new-tab assertion as T1). Once Engineer implements and lands the test, PM will update §6.2 total 5→6 and add T6 at ticket close. We don't pre-bump the total to avoid mismatch between design doc and main branch spec.
 
-### 6.2.1 Playwright new-tab pattern（T1 詳述給 Engineer）
+### 6.2.1 Playwright new-tab pattern (T1 detail for Engineer)
 
 ```
 const { page, context } = ...
@@ -339,138 +339,138 @@ const [newPage] = await Promise.all([
 ])
 await newPage.waitForLoadState()
 expect(newPage.url()).toContain('/app')
-expect(page.url()).toMatch(/\/$/)  // 原 tab 仍在 /
+expect(page.url()).toMatch(/\/$/)  // original tab still on /
 ```
 
-**注意點：** `Promise.all` 把 `waitForEvent('page')` 與 `click()` 並行註冊，避免 click 觸發 new page 事件時已錯過 listener。
+**Note:** `Promise.all` registers `waitForEvent('page')` and `click()` in parallel, avoiding the listener missing the new-page event triggered by click.
 
 ---
 
 ## 7 Boundary Preemption
 
-對每個受影響 AC，明列邊界行為：
+For each impacted AC, list boundary behaviors:
 
-| 邊界場景 | 是否在 design 定義 | 行為 |
+| Boundary scenario | Defined in design | Behavior |
 |---------|-------------------|------|
-| 使用者禁用 JS（SPA 無法運作）| ✅ | AC-030 整體要求 SPA 場景；JS 禁用時 `/app` 本身無法載入（React 未 mount），與本票無關 |
-| popup blocker 阻擋 new tab | ✅ | `<a target="_blank">` 透過使用者點擊觸發，屬 user-initiated navigation，主流瀏覽器不阻擋（有別於 `window.open()` script 觸發）。無需處理 fallback |
-| middle-click / ctrl-click | ✅ | 原生 `<a href>` 支援所有瀏覽器導航快捷鍵（中鍵開新 tab / ctrl+click / cmd+click）；`<Link>` react-router 攔截會破壞此行為——換 `<a>` 反而修復（好處）|
-| keyboard accessibility | ✅ | `<a>` 本身 focusable；無需額外 `tabIndex`；NavBar 維持 keyboard nav（Tab 循環） |
-| App link 點擊時 context 已被關閉（tab 已有 unload） | ✅ | N/A 使用者觸發點擊時 tab 必 active |
-| `/app` 直接 URL 載入（非從 NavBar 點擊） | ✅ | T2 / T3 / T4 測試正是 direct goto；行為一致 |
-| Empty viewport（極窄螢幕）| ✅ | AppPage 原本已有 `h-screen`（非 min-h），即使無 NavBar + Footer，main region 填滿 viewport，無 empty space |
-| NavBar `external` 未設（undefined）時 | ✅ | default 分支走 `<Link>`，向後兼容 |
-| 瀏覽器禁 `noopener`（極舊） | ✅ | `rel="noopener noreferrer"` 為 declarative string，舊瀏覽器忽略時仍正確渲染 link（只是失去防護）；不屬 ticket scope |
+| User disables JS (SPA cannot run) | ✅ | AC-030 generally requires SPA scenarios; if JS disabled, `/app` itself cannot load (React not mounted), unrelated to this ticket |
+| Popup blocker blocks new tab | ✅ | `<a target="_blank">` triggered by user click is user-initiated navigation; mainstream browsers don't block it (unlike `window.open()` script-triggered). No fallback needed |
+| middle-click / ctrl-click | ✅ | Native `<a href>` supports all browser nav shortcuts (middle-click new tab / ctrl+click / cmd+click); `<Link>` react-router interception breaks this — switching to `<a>` actually fixes it (bonus) |
+| keyboard accessibility | ✅ | `<a>` itself focusable; no extra `tabIndex` needed; NavBar keeps keyboard nav (Tab cycle) |
+| App link clicked when context already closed (tab already in unload) | ✅ | N/A — when user clicks, tab must be active |
+| `/app` direct URL load (not from NavBar click) | ✅ | T2 / T3 / T4 tests are direct goto; behavior consistent |
+| Empty viewport (extra-narrow) | ✅ | AppPage already uses `h-screen` (not min-h); even without NavBar + Footer, main region fills viewport, no empty space |
+| NavBar `external` not set (undefined) | ✅ | default branch goes to `<Link>`, backward-compatible |
+| Browsers blocking `noopener` (very old) | ✅ | `rel="noopener noreferrer"` is a declarative string; old browsers ignoring it still render the link correctly (just without protection); not in ticket scope |
 
-無 unresolved boundary。
+No unresolved boundary.
 
 ---
 
-## 8 Implementation Order（建議 Engineer 順序）
+## 8 Implementation order (suggested for Engineer)
 
-1. **先改 AppPage.tsx**（最小 surface，無他檔依賴）：
-   - 加 `bg-gray-950 text-gray-100` 到根 div
-   - 刪 UnifiedNavBar import + 使用
-   - 刪 HomeFooterBar import + 使用
-   - `/playwright` 跑 ma99-chart + pages.spec.ts 確認 `/app` tool 功能不壞
-   - `npx tsc --noEmit` 確認 type 乾淨
+1. **Edit AppPage.tsx first** (smallest surface, no other-file dependency):
+   - Add `bg-gray-950 text-gray-100` to root div
+   - Remove UnifiedNavBar import + usage
+   - Remove HomeFooterBar import + usage
+   - `/playwright` runs ma99-chart + pages.spec.ts to confirm `/app` tool functions intact
+   - `npx tsc --noEmit` to confirm types are clean
 
-2. **改 UnifiedNavBar.tsx**（NavBar 全頁共用，影響範圍大）：
-   - TEXT_LINKS App entry 加 `external: true`
-   - desktop map + mobile map 都加 branch
-   - `/playwright` 跑 navbar.spec.ts 對應測試 — 預期 AC-NAV-4 App link 測試（現版）會失敗（`.click()` 觸發 new tab 而非 same-tab navigate），進行下一步
+2. **Edit UnifiedNavBar.tsx** (NavBar shared site-wide, large impact radius):
+   - TEXT_LINKS App entry adds `external: true`
+   - desktop map + mobile map both add branch
+   - `/playwright` runs the navbar.spec.ts tests — expect AC-NAV-4 App link test (current version) to fail (`.click()` triggers new tab not same-tab navigate); proceed to next step
 
-3. **修既有 3 個 spec**（sitewide-body-paper / sitewide-footer / sitewide-fonts / navbar）：
-   - 刪除 `/app` 相關 test case / block（見 §6）
-   - `/playwright` 全跑 — 應全綠
+3. **Fix the existing 3 specs** (sitewide-body-paper / sitewide-footer / sitewide-fonts / navbar):
+   - Remove `/app` test cases / blocks (per §6)
+   - `/playwright` full run — expect all green
 
-4. **新增 app-bg-isolation.spec.ts**：
-   - 依 §6.2 寫 4 個 test case
-   - `/playwright` 跑全部 E2E — 全綠
+4. **Add app-bg-isolation.spec.ts:**
+   - Per §6.2 write 4 test cases
+   - `/playwright` runs all E2E — all green
 
-5. **Vitest unit 跑一次**：
-   - `npm test` 確認 AppPage / OHLCEditor / PredictButton / StatsPanel / MatchList 全綠（AC-030-FUNC-REGRESSION）
+5. **Run Vitest unit once:**
+   - `npm test` to confirm AppPage / OHLCEditor / PredictButton / StatsPanel / MatchList all green (AC-030-FUNC-REGRESSION)
 
-6. **deploy check**（per CLAUDE.md Deploy Checklist）：
-   - `grep "/api/" src/` 確認 API path 無漏
-   - `npm run build` 成功
+6. **deploy check** (per CLAUDE.md Deploy Checklist):
+   - `grep "/api/" src/` to confirm no missing API path
+   - `npm run build` succeeds
 
-**可平行：** 無；Step 2 依賴 Step 1 的 AppPage 已移除 NavBar（否則 `/app` 同時渲染 NavBar + App link 點擊 → 從 `/app` 跳回 `/app`，語意怪）。Step 3 / 4 可在 Step 2 完成後平行。
+**Parallelizable:** None; Step 2 depends on Step 1 having removed NavBar from AppPage (otherwise `/app` simultaneously renders NavBar + clicking App link → jumps from `/app` back to `/app`, weird semantics). Steps 3 / 4 can run in parallel after Step 2.
 
 ---
 
 ## 9 Risks & Notes
 
-| 類別 | 項目 | 說明 |
+| Category | Item | Description |
 |------|------|------|
-| Security | `rel="noopener noreferrer"` 必須同時存在 | `noopener` 防 reverse tabnabbing，`noreferrer` 防 Referrer 洩漏。已於 §2.3 定義；Code Review 時 grep `target="_blank"` 確認每處皆配對 |
-| 視覺 | 深色 `/app` vs 淺色 marketing site 落差 | 屬 ticket 設計意圖（tool UI vs marketing palette 刻意分離），非 bug |
-| 視覺 | TopBar L7 `bg-gray-900 border-b border-gray-700` 與新根 `bg-gray-950` 對比 | 沒差；pre-K-021 即如此（`bg-gray-950` 根 + `bg-gray-900` TopBar 同一設計），恢復原狀 |
-| Layout | `h-screen overflow-hidden` + 移除兩個 flex 子項 | main region flex-1 自動 grow 吃掉剩餘高度；sticky predict button `sticky bottom-0` 仍錨定 side panel 底部（relative to scroll container）；無 layout break |
-| Accessibility | 移除 NavBar 等於 `/app` 無站內導航 | 使用者若要回其他頁只能關 tab 或手動改 URL；符合「tool application 獨立 viewport」意圖（類比：Figma / Notion 全螢幕模式）|
-| 測試 | ga-tracking.spec.ts 測 `/app` pageview | 保留（direct goto 仍觸發 pageview）；但 Engineer 實跑確認 |
-| 測試 | `navbar.spec.ts` 有 `/app` iteration 3 處需刪 | 已於 §6 文件化；Engineer 照表刪 |
-| Deploy | Firebase Hosting + Cloud Run | 無後端變更，無 API path 變更；`/app` 路由 SPA fallback 不變 |
+| Security | `rel="noopener noreferrer"` must coexist | `noopener` blocks reverse tabnabbing, `noreferrer` blocks Referrer leakage. Defined in §2.3; Code Review greps `target="_blank"` to confirm pairing |
+| Visual | Dark `/app` vs light marketing site contrast | Per ticket design intent (tool UI vs marketing palette deliberately separated), not a bug |
+| Visual | TopBar L7 `bg-gray-900 border-b border-gray-700` vs new root `bg-gray-950` contrast | No issue; pre-K-021 was the same way (`bg-gray-950` root + `bg-gray-900` TopBar same design); restoring original |
+| Layout | `h-screen overflow-hidden` + remove 2 flex children | main region flex-1 auto-grows to consume remaining height; sticky predict button `sticky bottom-0` still anchored to side panel bottom (relative to scroll container); no layout break |
+| Accessibility | NavBar removal means `/app` has no in-site nav | User can only close tab or manually change URL to leave; consistent with "tool application has independent viewport" intent (analogy: Figma / Notion full-screen) |
+| Test | ga-tracking.spec.ts tests `/app` pageview | Preserved (direct goto still triggers pageview); but Engineer must run to confirm |
+| Test | `navbar.spec.ts` has 3 `/app` iterations to delete | Documented in §6; Engineer follows the table to delete |
+| Deploy | Firebase Hosting + Cloud Run | No backend change, no API path change; `/app` route SPA fallback unchanged |
 
 ---
 
 ## 10 Architecture Doc Sync
 
-需更新 `agent-context/architecture.md` 以下段落：
+Need to update the following sections of `agent-context/architecture.md`:
 
-### 10.1 Frontend Routing 表
+### 10.1 Frontend Routing table
 
-`/app` 列 NavBar 描述：現行「NavBar 掛所有頁面」不變（敘述在 Design System 段），但需於「UnifiedNavBar」段補一行「`/app` 不渲染 NavBar（K-030 isolation）」。
+`/app` row NavBar description: existing "NavBar mounted on all pages" remains (description is in Design System section), but in "UnifiedNavBar" section add a line "`/app` does not render NavBar (K-030 isolation)".
 
-### 10.2 Design System §"Footer 放置策略" 表
+### 10.2 Design System §"Footer placement strategy" table
 
-`/app` 欄：`<HomeFooterBar />` → `無 footer（K-030 isolation，`/app` 為獨立 tool viewport）`
+`/app` column: `<HomeFooterBar />` → `no footer (K-030 isolation, /app is independent tool viewport)`
 
-### 10.3 Design System §"Shared Components 邊界" 表
+### 10.3 Design System §"Shared Components boundary" table
 
-`HomeFooterBar` used-by 欄：`/ /app /business-logic` → `/ /business-logic`
+`HomeFooterBar` used-by column: `/ /app /business-logic` → `/ /business-logic`
 
-### 10.4 Design System §"全站 Body CSS 入口" 段
+### 10.4 Design System §"Sitewide Body CSS entry point" section
 
-補一句註記：「`/app` 於 wrapper 層 override（`bg-gray-950 text-gray-100`），body 規則對 `/app` 的效果被覆蓋。K-030 引入此例外，標示 `/app` 不屬 sitewide paper system（tool page，非 marketing page）。」
+Add a note: "`/app` overrides at wrapper level (`bg-gray-950 text-gray-100`); body rule's effect on `/app` is overridden. K-030 introduces this exception, marking `/app` as not part of the sitewide paper system (tool page, not marketing page)."
 
-### 10.5 Changelog 新增一條
+### 10.5 Add changelog entry
 
 ```
-- **2026-04-21**（Architect, K-030 post-code-review doc alignment）— §6.2 test count 4→5 + T4/T5 split（原 T4 合併 wrapper bg + body bg 斷言，改為 T4 = wrapper `rgb(3,7,18)` + AC-030-PENCIL-ALIGN 綁定；T5 = body `rgb(244,239,229)` 保留）；AC 映射補 AC-030-PENCIL-ALIGN；新增 §6.3 post-review addendum 占位 Hero CTA new-tab test case pending Engineer fix pass 2 landing。I-2 Code Review drift fix，無 source code 異動。
-- **2026-04-21**（Architect, K-030 設計）— `/app` isolation：UnifiedNavBar 不再渲染於 /app；HomeFooterBar 從 /app 撤出（Footer 放置表 /app 改為「無 footer」，Shared Components 邊界表 HomeFooterBar 用於欄縮為 `/ /business-logic`）；AppPage 根 div 回到 pre-K-021 `bg-gray-950 text-gray-100` palette（wrapper 層 override body paper）；UnifiedNavBar TEXT_LINKS 加 `external?: boolean`，App link 設 external=true 開 new tab（`<a target=_blank rel=noopener noreferrer>`）。Engineer 交付後補 e2e spec 異動清單：sitewide-body-paper/footer/fonts 刪 /app case；navbar.spec.ts AC-NAV-*/AC-021-NAVBAR 刪 /app iteration；新增 app-bg-isolation.spec.ts（4 test cases 對應 AC-030-NEW-TAB/NO-NAVBAR/NO-FOOTER/BG-COLOR）。
+- **2026-04-21** (Architect, K-030 post-code-review doc alignment) — §6.2 test count 4→5 + T4/T5 split (originally T4 merged wrapper bg + body bg assertions; changed to T4 = wrapper `rgb(3,7,18)` + AC-030-PENCIL-ALIGN binding; T5 = body `rgb(244,239,229)` preserved); AC mapping adds AC-030-PENCIL-ALIGN; added §6.3 post-review addendum placeholder for Hero CTA new-tab test case pending Engineer fix pass 2 landing. I-2 Code Review drift fix, no source code change.
+- **2026-04-21** (Architect, K-030 design) — `/app` isolation: UnifiedNavBar no longer renders on /app; HomeFooterBar removed from /app (Footer placement table /app changes to "no footer", Shared Components boundary table HomeFooterBar used-by shrinks to `/ /business-logic`); AppPage root div returns to pre-K-021 `bg-gray-950 text-gray-100` palette (wrapper-level override of body paper); UnifiedNavBar TEXT_LINKS adds `external?: boolean`, App link sets external=true to open new tab (`<a target=_blank rel=noopener noreferrer>`). Engineer post-delivery e2e spec change list: sitewide-body-paper/footer/fonts remove /app cases; navbar.spec.ts AC-NAV-*/AC-021-NAVBAR remove /app iterations; new app-bg-isolation.spec.ts (4 test cases for AC-030-NEW-TAB/NO-NAVBAR/NO-FOOTER/BG-COLOR).
 ```
 
 ### 10.6 Self-Diff Verification
 
-Architect 本票同步 architecture.md 後，將於該 Edit 後 append：
+After Architect syncs architecture.md, append the following to that Edit:
 
 ```
 ### Self-Diff Verification
-- Section edited: Footer 放置策略表 + Shared Components 邊界表 + 全站 Body CSS 入口段 + Changelog
-- Source of truth: K-030 ticket §Scope (ticket L35–41)、本設計文件 §2.5 / §5.2 / §10
-- 列數比對：Footer 放置策略 5 列 vs 5 列 ✓；Shared Components 3 列 vs 3 列 ✓；used-by 欄位 `/ /business-logic` 對應 Footer 表 /app=無 footer ✓
-- 同檔跨表 sweep：`grep -n 'HomeFooterBar' agent-context/architecture.md` 全部命中處逐格驗證 ✓（Footer 放置表 L468 + Shared Components 表 L476，同步修正）
-- 差異：無
+- Section edited: Footer placement strategy table + Shared Components boundary table + Sitewide Body CSS entry section + Changelog
+- Source of truth: K-030 ticket §Scope (ticket L35–41), this design doc §2.5 / §5.2 / §10
+- Row count compare: Footer placement 5 rows vs 5 rows ✓; Shared Components 3 rows vs 3 rows ✓; used-by column `/ /business-logic` matches Footer table /app=no footer ✓
+- Cross-table sweep within file: `grep -n 'HomeFooterBar' agent-context/architecture.md` all hits validated cell-by-cell ✓ (Footer placement table L468 + Shared Components table L476, synced)
+- Diff: none
 ```
 
-**此 Self-Diff block 將由 Architect 在實際 Edit architecture.md 時 append 到 Changelog；目前設計文件階段宣告預期結果，實際 Edit 於交付後立即執行（見下方 handoff 步驟）。**
+**This Self-Diff block will be appended to Changelog by Architect when actually editing architecture.md; design-doc stage declares expected results; actual edit happens immediately after handoff (see handoff steps below).**
 
 ---
 
 ## 11 Handoff
 
-- 本設計文件 status = `ready-for-qa-early-consultation`
-- 下一步：PM 發動 QA Early Consultation（依 ticket §QA Early Consultation 四項 boundary 確認）
-- QA 確認後 PM 放行 Engineer
-- Architect 已完成：本文件 + §10 架構文件同步 + retrospective append（見下方）
+- This design doc status = `ready-for-qa-early-consultation`
+- Next: PM initiates QA Early Consultation (per ticket §QA Early Consultation 4 boundary confirmations)
+- After QA confirms, PM releases Engineer
+- Architect finished: this doc + §10 architecture-doc sync + retrospective append (below)
 
 ---
 
 ## Retrospective
 
-**Where most time was spent：** §2.1 背景色 Pre-verdict 打分（5 維 × 4 選項 = 20 cell），以及 §2.6 spec conflict 的兩額外衝突（`sitewide-footer.spec.ts` / `sitewide-fonts.spec.ts`）— PM 只 flag `sitewide-body-paper.spec.ts`，Architect grep `/app` 全 e2e 目錄才發現 2 個額外必連動 spec。
+**Where most time was spent:** §2.1 background-color Pre-verdict scoring (5 dimensions × 4 options = 20 cells) and §2.6 spec conflict's two extra conflicts (`sitewide-footer.spec.ts` / `sitewide-fonts.spec.ts`) — PM only flagged `sitewide-body-paper.spec.ts`; Architect grepped `/app` across the whole e2e directory to find 2 more must-link specs.
 
-**Which decisions needed revision：** 無。
+**Which decisions needed revision:** None.
 
-**Next time improvement：** Persona 層已有「global style / shared component 變更必列 Route Impact Table」，但對「撤除 shared component（反向變更）」時同類掃描未 codify。下次 ticket 若涉及「從某頁撤除 shared component」，第一步 grep 該組件於全 e2e 目錄，而非只讀 PM flagged 的 spec，避免遺漏連動。此改善補入 `senior-architect.md`「Cross-Page Duplicate Audit」段下另立一條 **Shared Component Removal Scan**。
+**Next-time improvement:** Persona already has "global style / shared component changes must list a Route Impact Table", but for "removing a shared component (reverse change)" the same scan is not codified. Next ticket involving "remove shared component from a page" should grep that component across the whole e2e directory in step 1, not just read the PM-flagged spec, to avoid missing linked specs. This improvement is added to `senior-architect.md` "Cross-Page Duplicate Audit" section as a separate **Shared Component Removal Scan** rule.

@@ -1,6 +1,6 @@
 ---
 ticket: K-050
-title: Footer 社群連結 — 可點擊 icon + Email 明文 — Architect design doc
+title: Footer social links — clickable icons + plaintext email — Architect design doc
 updated: 2026-04-25
 pencil-frames-cited:
   - homepage-v2.pen#1BGtd (hpFooterBar, home consumer)

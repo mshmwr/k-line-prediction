@@ -1,18 +1,18 @@
 # Designer Retrospective Log — K-Line Prediction
 
-跨 ticket 累積式反省記錄。每次任務結束前由 designer agent append 一筆，最新在上。
+Cross-ticket cumulative retrospective log. Each task ends with the designer agent appending a new entry; latest on top.
 
-## 寫入格式
+## Write format
 
 ```
-## YYYY-MM-DD — <Frame / Page 或 Ticket ID>
+## YYYY-MM-DD — <Frame / Page or Ticket ID>
 
-**做得好：**（具體事件；無則省略本行，勿捏造）
-**沒做好：**（工具限制 / 規範遺漏 / 視覺判斷失誤的根因）
-**下次改善：**（具體可執行的行動）
+**What went well:** (specific events; omit this line if none, do not fabricate)
+**What went wrong:** (tool limitations / spec gaps / root cause of visual judgment errors)
+**Next time improvement:** (specific actionable steps)
 ```
 
-- 倒序（最新在上）
+- Reverse chronological (latest on top)
 
 ## 2026-05-01 — K-072 JSON spec export: GMEdT + 4CsvQ sync
 
@@ -122,11 +122,11 @@
 **What went wrong:** `get_screenshot` and `export_nodes` both require VS Code Pencil app transport, which is unavailable from Claude Code CLI context — screenshots could not be exported this session; spec JSON had to be written manually from `batch_get` data rather than via `export_nodes`.
 **Next time improvement:** When running Designer from Claude Code CLI (not VS Code), screenshots are structurally blocked; note this upfront in the first health-check response so PM/user can open VS Code before session begins or plan a separate screenshot pass.
 
-## 2026-04-24 — K-039 Phase 3（split-SSOT 規則落地 designer.md）
+## 2026-04-24 — K-039 Phase 3 (split-SSOT rule landing in designer.md)
 
-**做得好：** 本 ticket 最終 content-delta: yes / visual-delta: none 全程 **未召喚 Designer**，符合 split-SSOT pattern 預期 — Phase 3 codification 把這個規則同時寫進 pm.md / engineer.md / designer.md 三支 persona，Designer 本人這端在 `~/.claude/agents/designer.md §Frame Artifact Export` 新增 "Text fields are frozen-at-session snapshots (K-039 2026-04-24 split-SSOT)" 子節，明確宣告 Pencil 的 content 節點（如 RoleCard 的 `r*Role` / `r*Owns` / `r*Art`）只是「上一次 Designer session 當下凍結的文字」，**runtime SSOT 是 `content/roles.json`**，非 Pencil — 下次 Designer 被召喚時 Step 0 有 `grep content/*.json <field-name>` re-sync gate 先看文字真相再動 Pencil，不會再把過期 `.pen` 當文字權威。
-**沒做好：** K-039 整張票 Designer 沒被召喚（by design），所以本次沒有實地執行新 gate 的機會 — 規則等於「用例未跑過」就 landed，下個觸發 `visual-delta: yes` **且** 有 text node 的 Designer ticket（Hero slogan / PillarCard / TicketAnatomyCard / metric 標籤等）才會第一次實測 grep `content/*.json` 與 batch_design 前後節點 re-sync 順序是否真的卡住 creative extension。規則本身未被壓力測試是本輪盲點。
-**下次改善：** 下次 Designer dispatch 若 ticket 涉及任何帶文字的 frame（含 slogan / tagline / card label / section title），**Step 0 強制**先 `ls content/` + `grep -l <text>` 找出對應 JSON，Read 完 JSON 再 batch_design — 若 Pencil 節點 content 與 JSON 不一致，**停下回報 PM 走 BQ**，不 silently 以 Pencil 覆蓋 JSON、也不 silently 以 JSON 覆蓋 Pencil；同時 self-prompt 一句「若這支 ticket frontmatter 是 content-delta: yes / visual-delta: none，我根本不該被召喚 — 是 PM 分派錯誤，先回報、再確認是否真要開 Designer session」。對應 memory：`feedback_content_ssot_split.md`；persona 落地點：`~/.claude/agents/designer.md §Frame Artifact Export §Text fields are frozen-at-session snapshots`。
+**What went well:** This ticket ended as content-delta: yes / visual-delta: none with **no Designer summon** throughout, matching split-SSOT pattern expectation — Phase 3 codification wrote this rule simultaneously into pm.md / engineer.md / designer.md three personas. On the Designer side, `~/.claude/agents/designer.md §Frame Artifact Export` added a "Text fields are frozen-at-session snapshots (K-039 2026-04-24 split-SSOT)" subsection, explicitly declaring that Pencil content nodes (such as RoleCard's `r*Role` / `r*Owns` / `r*Art`) are merely "the text frozen at the moment of the last Designer session," and that **runtime SSOT is `content/roles.json`**, not Pencil. Next Designer dispatch Step 0 includes a `grep content/*.json <field-name>` re-sync gate to check text truth before touching Pencil, eliminating future use of stale `.pen` as text authority.
+**What went wrong:** K-039 Designer was not summoned at all (by design) for this ticket, so this session had no real opportunity to execute the new gate — the rule "landed" without a use-case run. The next Designer ticket triggered with `visual-delta: yes` **and** containing text nodes (Hero slogan / PillarCard / TicketAnatomyCard / metric label, etc.) will be the first real test of the grep `content/*.json` and batch_design pre/post node re-sync ordering — i.e. whether it actually blocks creative extension. The rule itself remains untested under pressure; that is this round's blind spot.
+**Next time improvement:** Next Designer dispatch, if the ticket touches any text-bearing frame (incl. slogan / tagline / card label / section title), **Step 0 mandatory** runs `ls content/` + `grep -l <text>` to find the corresponding JSON, Read the JSON, and only then call batch_design — if Pencil node content disagrees with JSON, **halt and report to PM as BQ**, do not silently overwrite JSON with Pencil or vice versa. Also self-prompt: "If this ticket frontmatter says content-delta: yes / visual-delta: none, I should not have been summoned — that's a PM dispatch error; report and confirm before opening a Designer session." Memory: `feedback_content_ssot_split.md`; persona landing site: `~/.claude/agents/designer.md §Frame Artifact Export §Text fields are frozen-at-session snapshots`.
 
 ## 2026-04-23 — BQ-040-03 /diary Mobile Rail Decision (post-close)
 
@@ -165,12 +165,12 @@ Codified as new memory: `feedback_designer_font_token_audit.md`.
 
 ---
 
-## 2026-04-23 — K-034 Phase 3 BQ-034-P3-02（/diary Footer SSOT 裁決）
+## 2026-04-23 — K-034 Phase 3 BQ-034-P3-02 (/diary Footer SSOT ruling)
 
-**做得好：** 先跑 Pencil MCP `batch_get` 對 `86psQ` + `1BGtd` 的完整節點樹，確認兩 frame 內容 byte-identical（同 content / fontFamily / fontSize / fontWeight / fill / letterSpacing / padding / stroke），再交叉核對 on-disk JSON spec 的 mtime（2026-04-21 match live `.pen`），有 evidence 才裁決 Option B，不憑印象跳結論。
-**沒做好：** Designer retro 過去沒有登記「本 footer 是全站 SSOT」的明確宣告；K-035 α-premise 糾正後這個事實只散落在 PM/QA retro 與 ticket §4.3，Designer 自己的 log 缺一條錨定條目，後續 Architect/Engineer 每次都要自己重推 SSOT 身分。
-**下次改善：** 本次同步產出 `frontend/design/specs/diary-footer-ssot-decision.md` 作為 `/diary` 消費登記 + Footer sitewide SSOT 單一參考點，下次任何 ticket 觸及共用 Footer/NavBar 時，優先連結這個文件而不是重建 provenance 表；若有 sitewide 共用屬性變更（font/padding/stroke/text），Designer 有責任同一 session 更新這份文件的 spec table 讓下游不必再翻 `.pen`。決策 artifact：`frontend/design/specs/diary-footer-ssot-decision.md`（read-only 決策紀錄，無 batch_design，無新 JSON/PNG export）。
-- 啟用日：2026-04-18（K-008 起）
+**What went well:** First ran Pencil MCP `batch_get` on the full node trees of `86psQ` + `1BGtd`, confirmed the two frames byte-identical (same content / fontFamily / fontSize / fontWeight / fill / letterSpacing / padding / stroke), then cross-checked the on-disk JSON spec mtime (2026-04-21 matched live `.pen`); ruled Option B only after evidence agreed — no leap of judgment.
+**What went wrong:** Designer retros previously had no explicit declaration that "this footer is the sitewide SSOT"; after K-035 α-premise correction, that fact lived only across PM/QA retros and ticket §4.3 — Designer's own log lacked an anchor entry, forcing every later Architect/Engineer to re-derive SSOT identity.
+**Next time improvement:** This session co-produced `frontend/design/specs/diary-footer-ssot-decision.md` as both the `/diary` consumption record and the Footer sitewide SSOT single reference point. Future tickets touching shared Footer/NavBar should link this doc instead of rebuilding provenance tables. For sitewide shared property changes (font/padding/stroke/text), Designer is responsible for updating this doc's spec table in the same session so downstream agents need not re-read `.pen`. Decision artifact: `frontend/design/specs/diary-footer-ssot-decision.md` (read-only decision record, no batch_design, no new JSON/PNG export).
+- Activation date: 2026-04-18 (since K-008)
 
 ---
 
@@ -204,373 +204,373 @@ Codified as new memory: `feedback_designer_font_token_audit.md`.
 
 ## 2026-04-22 — K-035 Phase 3 Footer unification Pencil frame verification (BLOCKED — MCP transport down + design-doc assumption drift)
 
-**沒做好：**
-1. **Pencil MCP 連線半死狀態**：`claude mcp list` 顯示 `pencil: ✓ Connected`，但每個實際 operation（`get_editor_state` / `open_document` / `batch_get` / `snapshot_layout`）都在 `failed to connect to running Pencil app: visual_studio_code after 3 retries: transport not connected to app: visual_studio_code` 回錯。MCP bridge daemon 活著但 VS Code Pencil extension 沒啟動，bridge ↔ app transport 斷。Designer persona health-check 步驟僅用 `claude mcp list | grep connected` 判定，沒有額外對 `get_editor_state` 做 round-trip smoke test，結果初判「連線 OK」後才在實際 operation 翻車。
-2. **JSON 後路被 Pencil MCP server instructions 封死**：persona §Pencil MCP Health Check 第 3 步說「Failed to connect → JSON-direct-edit path」，但 MCP server instructions 明文「.pen files are encrypted and can be only access via pencil MCP tools. DO NOT use Read or Grep tools」。兩條規則直接衝突，等於 MCP 斷線時 Designer 沒有任何合法閱讀手段。
-3. **Invocation prompt 對 Pencil frame inventory 做了不存在的假設**：prompt 列 `homepage-v2.pen` 4CsvQ + `about-v2.pen` 35VCj + `business-logic*.pen` / `diary*.pen` / `app*.pen`。實際 `find frontend/design -name "*.pen"` 只有 `homepage-v1.pen` + `homepage-v2.pen`，`about-v2.pen` 根本不存在。且設計文件 §4.1 docstring 寫 `variant="about" → frame 35VCj footer subtree (homepage-v2.pen)` — 意即 4CsvQ 與 35VCj 兩個 frame 都住在 `homepage-v2.pen`，`about-v2.pen` 是 prompt 的幻覺。
-4. **Audit 路徑錯誤**：prompt 指 `docs/audits/K-035-shared-component-drift.md` 在 worktree，但實際檔案只存在於 main checkout `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/docs/audits/`，worktree 沒 checkout 此檔（git log 應該可追，Phase 2 產物未同步到 K-035 worktree）。
+**What went wrong:**
+1. **Pencil MCP half-dead connection state**: `claude mcp list` showed `pencil: ✓ Connected`, but every actual operation (`get_editor_state` / `open_document` / `batch_get` / `snapshot_layout`) returned `failed to connect to running Pencil app: visual_studio_code after 3 retries: transport not connected to app: visual_studio_code`. MCP bridge daemon alive but VS Code Pencil extension not started; bridge ↔ app transport broken. Designer persona health-check step relied solely on `claude mcp list | grep connected`, never running an additional `get_editor_state` round-trip smoke test, so an initial "connected" readout flipped into an in-flight failure once real ops fired.
+2. **JSON fallback path closed off by Pencil MCP server instructions**: persona §Pencil MCP Health Check Step 3 said "Failed to connect → JSON-direct-edit path", but MCP server instructions explicitly state ".pen files are encrypted and can be only access via pencil MCP tools. DO NOT use Read or Grep tools". The two rules directly conflict — when MCP is down, Designer has no legal read pathway.
+3. **Invocation prompt asserted nonexistent Pencil frame inventory**: prompt listed `homepage-v2.pen` 4CsvQ + `about-v2.pen` 35VCj + `business-logic*.pen` / `diary*.pen` / `app*.pen`. Actual `find frontend/design -name "*.pen"` showed only `homepage-v1.pen` + `homepage-v2.pen`; `about-v2.pen` does not exist. The design doc §4.1 docstring states `variant="about" → frame 35VCj footer subtree (homepage-v2.pen)` — meaning frames 4CsvQ and 35VCj both live inside `homepage-v2.pen`, and `about-v2.pen` was a prompt hallucination.
+4. **Wrong audit path**: prompt pointed to `docs/audits/K-035-shared-component-drift.md` in the worktree, but the file only exists in the main checkout `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/docs/audits/`; the worktree never checked out this file (git log should trace it; Phase 2 artifact never synced to K-035 worktree).
 
-**下次改善：**
-1. **Health-check 升級為 round-trip smoke test**：不只跑 `claude mcp list | grep connected`，必須加 `get_editor_state({ include_schema: false })` round-trip；回 transport 錯誤 → 視為 MCP 斷線立即 BLOCK，不進 §3 JSON fallback（因 .pen 加密）。
-2. **Persona §Pencil MCP Health Check 第 3 步需修正**：把 "JSON-direct-edit path" 改成 "BLOCK 並回報 PM 需用戶手動啟動 VS Code Pencil extension 或 Pencil desktop app"；加一段說明 .pen 加密使 JSON 後路不可用。這條要同步 Edit `~/.claude/agents/designer.md`。
-3. **Invocation prompt 收到含 frame inventory 假設時，第一步用 `find` + `ls frontend/design/` 實測，發現不符立刻 BLOCK 回 PM**，不默默假設 prompt 正確。Cross-frame scan 規則升級：scan 前先枚舉 `.pen` 實體檔案，再對照 prompt 宣稱。
-4. **Retrospective log 必 prepend，即使任務 BLOCK 也要寫**（本筆即是）— 讓下次 Designer 接棒看得到 MCP 連線坑與 frame inventory 幻覺。
-
----
-
-## 2026-04-22 — K-036 Phase 2e favicon 可愛化（candle cornerRadius + MA 加粗）
-
-**做得好：** User feedback「可愛的感覺」直接對應到兩個可量化屬性（cornerRadius + strokeWidth），一輪 batch_design 6 ops 全部成功；batch_get 回驗確認 cornerRadius 8/6/6/6 與 stroke.thickness 7 均已寫入 buffer；get_screenshot 一次就看到正確 render（不像 Phase 2d path geometry 快取問題）。
-
-**沒做好：** 第一版打算用 `U("nHXSO/2kmNo", {strokeWidth: 7})` 這種淺層 key 改 stroke 厚度，但 path 的 stroke 是 nested object（`stroke.thickness`），Pencil schema 需要整個 stroke object 一起傳才不會 overwrite 掉 cap/join/fill 設定。幸好改寫時補了完整 `{align,cap,fill,join,thickness}`，否則 stroke 的 round cap/join 會被重置成 default 影響可愛感。
-
-**下次改善：** 更新 designer.md persona — `U()` 更新 nested object 屬性（stroke / fill 物件型、typography 等）時一律傳完整物件副本，不用 top-level 淺 key（如 `strokeWidth`），避免 schema 把 nested 欄位 reset 到 default。rectangle 的 `cornerRadius` 是 top-level number，安全；但 path/line 的 stroke 是 object，必須整包。
-
-## 2026-04-22 — K-036 Phase 2d favicon 圓潤化 + spine top wick 接合
-
-**做得好：** 第一時間用 batch_get 找到 DJUow（top wick）真 id 再 U()；沒有重蹈 Phase 2b 把 binding name 當 persistent id 的覆轍。
-
-**沒做好：** 連續三次 U() 改 path geometry 後，frame-level get_screenshot 一直回傳同一張舊圖（byte-identical），讓我誤判「geometry 沒更新」；其實 batch_get 確認 buffer 已更新，只是 screenshot endpoint 對 path geometry 的 U() 沒有 invalidate cache。最後 D()+I() 全刪全新建才看到真實 render。另外第一次 Insert 用 `fill:"none"` 被 schema 拒，persona 裡寫「fill:'none' 只在 Insert 時有效」那條描述不完整——path 型別 Insert 也不收 "none"，必須 `#00000000`。
-
-**下次改善：** (1) 對 path geometry 做 U() 後，若 frame screenshot 看起來沒變，先 batch_get includePathGeometry 確認 buffer 是否真的更新；buffer 已更新但 screenshot 不變 = 快取問題，改用 D()+I() 重建節點強制 invalidate，別反覆 U() 猜測失敗原因。(2) Edit designer.md persona：更新 `fill:"none"` 規則——path 型別節點不論 Insert 或 Update，透明 fill 一律用 `#00000000` 或 `{type:"color",enabled:false,color:"#000000"}`，`"none"` 只適用 frame/rectangle 的 Insert。
-
-## 2026-04-22 — K-036 Phase 2b 強化 K-letter silhouette（kLowerLeg 斜線加入）
-
-**做得好：** 嚴守 minimal delta — 只 3 ops（shorten kBody、shift kBottomWick、insert kLowerLeg），Candles/Forecast arc/Frame 完全未動，符合 PM prompt「Do NOT touch」清單。
-
-**沒做好：** 第一次 batch_design 把上一 session 的 binding names（kBody、kBottomWick）當成 persistent node path 使用，噴 "Node not found" error。Pencil 的 binding 只在單次 batch_design call 內有效，不會寫回 node 的 id；持久 id 是 auto-assigned 的短碼（yau4L、N8ta9 等）。得先 batch_get 對照出真 id 才能 update。
-
-**下次改善：** 當 prompt 引用前次 session 的 binding name（如「update node `kLowerLeg`」）時，強制第一步用 batch_get 把 parent frame 撈出來、對照 name 欄位換算成真 node id，再 call batch_design。Binding names are call-local only。同步 Edit designer.md persona 加註這條規則。
-
-## 2026-04-22 — K-036 Phase 2 favicon.pen 重設計（Direction D：K monogram + 3-candle staircase + forecast arc）
-
-**做得好：**
-- Active-editor verification 首步跑通：`get_editor_state` 回傳的路徑正是 worktree 版 `.worktrees/K-036-favicon/frontend/design/favicon.pen`，確認沒誤編 main-checkout
-- 第一次 `U()` 改 frame fill 用 `"none"` 失敗（schema 只接受 hex / variable / gradient object / image / mesh_gradient，不接受 "none" literal），立即改用 8-digit alpha hex `#00000000` 達成透明背景，沒卡住
-- Direction D 12 個元素一次 batch 成功（3 rects + 7 lines + 1 path + 1 frame update），未超 25 ops 上限
-- 交付前查 `ls -la` 確認 disk 仍是舊 1324-byte 檔 → 主動告知「需 cmd+s 才落盤」，沒盲稱完成
-- 視覺驗證 screenshot 符合 spec：K 綠脊 + 綠-紅-綠階梯蠟燭 + 灰色虛線弧 + 箭頭，透明底（checkerboard 可見）
-
-**沒做好：**
-- 忘了 Pencil schema 有兩種「透明」表達：`fill: "none"` 只在建立節點時有效（當 shape 初始屬性），用 `U()` update 現有 frame 時必須用 alpha hex `#00000000` 或 fill object `{type:"color",enabled:false,color:"#000000"}`。persona 的 tool-constraints 段只寫 `fill: "transparent" 無效` 但沒明說 update 路徑限制
-
-**下次改善：**
-- persona tool-constraints 段補一條：`U()` 改 fill 為透明 → 用 `#00000000` (8-digit alpha hex) 或 `{type:"color",enabled:false,...}`，不要用 `"none"` 字串（只在 Insert 時合法）
+**Next time improvement:**
+1. **Upgrade health-check to round-trip smoke test**: not just `claude mcp list | grep connected` — must add `get_editor_state({ include_schema: false })` round-trip; transport error → treat MCP as down and BLOCK immediately, do not enter §3 JSON fallback (since `.pen` is encrypted).
+2. **Persona §Pencil MCP Health Check Step 3 needs correction**: replace "JSON-direct-edit path" with "BLOCK and report to PM that user must manually start VS Code Pencil extension or Pencil desktop app"; add a note that `.pen` encryption makes the JSON fallback unusable. Sync-edit `~/.claude/agents/designer.md`.
+3. **When invocation prompt contains frame-inventory assumptions, first step runs `find` + `ls frontend/design/` to verify; on mismatch BLOCK and report to PM**, do not silently assume the prompt is correct. Cross-frame scan rule upgrade: enumerate actual `.pen` files first, then compare against prompt claims.
+4. **Retrospective log must be prepended even when task is BLOCKED** (this entry is itself such a case) — so the next Designer picking up the baton can see both the MCP connection trap and the frame-inventory hallucination.
 
 ---
 
-## 2026-04-22 — K-036 favicon.pen 新檔設計（bearish/bullish candle pair）
+## 2026-04-22 — K-036 Phase 2e favicon "cuteification" (candle cornerRadius + MA thickening)
 
-**做得好：**
-- MCP Health Check round-trip 過關（`get_editor_state` 回傳 schema + state，非 transport down）；沒有盲信 `claude mcp list` 的 connected 標
-- Invocation-Prompt Inventory Sanity Check 實際跑 `find` + `ls`，發現活躍 editor 指向 main checkout（`/frontend/design/favicon.pen`）而非 prompt 指定的 worktree 路徑（`.worktrees/K-036-favicon/frontend/design/favicon.pen`），立即回報給上游決策 scope，不擅自二擇
-- Favicon 設計選 2-candle 對（bearish-left red + bullish-right green）+ 圓角暗底板，符合金融慣例視覺語言；wick 12px + body 88px 在 512→16 downsample 仍可讀；沒塞 gridline（避免 16x16 糊掉）
-- 用 K-Line 品牌色（`#0B1020` bg / `#22C55E` bull / `#EF4444` bear），沒自創色
-- 設計完 `get_screenshot` 驗了視覺，交付前主動 `git status` 查 disk 狀態
+**What went well:** User feedback "make it feel cute" mapped directly to two quantifiable properties (cornerRadius + strokeWidth); a single batch_design with 6 ops succeeded; batch_get verified cornerRadius 8/6/6/6 and stroke.thickness 7 all written to buffer; get_screenshot rendered correctly on first try (unlike Phase 2d's path-geometry cache problem).
 
-**沒做好：**
-- 沒在設計前 BQ 回 PM 確認「活躍 editor 路徑 vs prompt 指定路徑」不一致；直接在活躍路徑設計，事後才回報。若 PM 要的是 worktree 路徑，現在 in-memory 變更落在 wrong file，需使用者重新 open_document worktree 路徑再貼設計或手動複製
-- `git status` 顯示 `.pen` 仍 41 bytes（未 flush），符合 persona 要求暫停等使用者 cmd+s；不算我的失誤但提醒未來自己交付單一定要顯式講這點給 PM
+**What went wrong:** First plan was to use shallow key `U("nHXSO/2kmNo", {strokeWidth: 7})` to change stroke thickness, but the path's stroke is a nested object (`stroke.thickness`); Pencil schema requires the entire stroke object together to avoid overwriting cap/join/fill defaults. Luckily, the rewrite supplied the full `{align,cap,fill,join,thickness}` payload, otherwise the round cap/join would have been reset to default and the cute feel ruined.
 
-**下次改善：**
-- 開工前若發現 `get_editor_state` 回傳的活躍路徑 ≠ prompt 指定路徑，**暫停並回報 PM 作 BQ**，不要自行選路徑；這屬於 scope 裁決，Designer 無權
-- 已把「活躍 editor 路徑 vs prompt 指定路徑 mismatch 必 BQ」行為加進 persona inventory check 段落（下一次 ticket 會遵循）
+**Next time improvement:** Update designer.md persona — when `U()` updates nested-object properties (stroke / fill object types, typography, etc.), always pass the full object copy, do not use top-level shallow keys (such as `strokeWidth`), to prevent the schema from resetting nested fields to default. Rectangle's `cornerRadius` is a top-level number — safe; but path/line stroke is an object and must be sent as a full bundle.
 
----
+## 2026-04-22 — K-036 Phase 2d favicon roundness + spine top wick alignment
 
-## 2026-04-21 — K-031 /about S7 BuiltByAI showcase frame 移除
+**What went well:** First step used batch_get to find DJUow's (top wick) real id before U(); did not repeat Phase 2b's mistake of treating binding name as persistent id.
 
-**做得好：**
-- 開工前先 `grep` 所有 S7 關鍵字（`Built by AI` / `banner-showcase` / `BuiltByAIBanner` / `One operator` / `Every ticket leaves`）一次釘死 `/about` S7 frame 位置（lines 3037–3230，id `1UWzs` name `S7_BuiltByAIBannerSection`）與 homepage `BuiltByAIBanner`（line 3370，另一 frame 內，不動）；沒有把兩個同名資產搞混
-- 刪除後主動執行 `python3 -c "json.load(...)"` 驗 JSON 完整性，+ `git diff --stat` 確認 194 行刪除符合 S7 block 範圍，+ `Grep` 重掃確認 S7 殘骸為零、homepage BuiltByAIBanner 仍在；三路交叉驗
-- NavBar 強制檢查過關：刪除前後 `abNav` (line 18) 都在，符合 `feedback_designer_navbar_mandatory`
-- 刪除後 `/about` abBody 6 sections（S1→S6）順序連續、abFooterBar 仍為 root frame 尾端，與設計文件 §1 Summary 宣告的後狀態一致
+**What went wrong:** After three consecutive U() calls modifying path geometry, frame-level get_screenshot kept returning the same old image (byte-identical), making me misjudge "geometry didn't update"; in fact batch_get confirmed the buffer had updated, but the screenshot endpoint did not invalidate cache for path-geometry U() changes. Final fix was to D()+I() rebuild the node entirely to force render. Also, the first Insert call used `fill:"none"` and was rejected by schema; the persona note "fill:'none' only valid on Insert" is incomplete — path Insert does not accept "none" either; must use `#00000000`.
 
-**沒做好：**
-- Pencil MCP 本次連線 `Failed to connect`，無法呼叫 `get_screenshot`；改用 JSON schema + structural grep 驗證，缺視覺回報
-- 沒在開工前先測 MCP 連線（`claude mcp list`）才決定走 MCP path 或 JSON 直編 path；是驗完 git status 準備截圖才發現，導致交付報告需要解釋 fallback
+**Next time improvement:** (1) After U() on path geometry, if frame screenshot looks unchanged, first batch_get includePathGeometry to verify the buffer actually updated; buffer updated but screenshot unchanged = cache issue, switch to D()+I() rebuild to force invalidation, do not keep retrying U() while guessing the failure cause. (2) Edit designer.md persona: update `fill:"none"` rule — for path-type nodes, on both Insert and Update, transparent fill must be `#00000000` or `{type:"color",enabled:false,color:"#000000"}`; the `"none"` literal is only valid on frame/rectangle Insert.
 
-**下次改善：**
-- Designer persona 開工第一步加 MCP 健康檢查：`claude mcp list | grep pencil`，回報 connected / failed，failed 時主動走 JSON 直編 path 並在最終報告明示「無視覺截圖，請 PM/使用者開啟 Pencil 應用目視確認」— 視覺驗證責任 handoff 明示
-- 純刪除類設計任務（non-visual-composition tickets）走 JSON 直編 path 反而更快、更精確，可作為未來 simple-removal ticket 的 preferred path
+## 2026-04-22 — K-036 Phase 2b strengthen K-letter silhouette (kLowerLeg diagonal added)
 
----
+**What went well:** Strict minimal delta — only 3 ops (shorten kBody, shift kBottomWick, insert kLowerLeg); Candles/Forecast arc/Frame untouched, matching PM prompt's "Do NOT touch" list.
 
-## 2026-04-19 — K-017 Diary timeline 跨頁同步漏做
+**What went wrong:** First batch_design treated the previous session's binding names (kBody, kBottomWick) as persistent node paths, throwing "Node not found" errors. Pencil bindings are valid only within the current batch_design call and never persist back into the node id; the persistent id is the auto-assigned short code (yau4L, N8ta9, etc.). Must batch_get to look up the real id first.
 
-**沒做好：**
-- Diary timeline（entry title + 日期樣式）改完 wiDSi 後，沒有 cross-frame 確認 Homepage (4CsvQ) hpDiary section 也用相同元件，造成使用者第二次指出漏同步
-- 根因：cross-frame 掃描規則目前只明確要求 navbar；diary timeline 這類「跨頁重複元件」沒被列進強制掃描清單
+**Next time improvement:** When the prompt references binding names from a prior session (e.g. "update node `kLowerLeg`"), force first step to batch_get the parent frame, match the name field to the real node id, and only then call batch_design. Binding names are call-local only. Sync-edit designer.md persona to add this rule.
 
-**下次改善：**
-- 改動任何 UI 元件時，先用 `batch_get({ patterns:[{name:"<關鍵字>"}] })` 搜尋文件全域，找出所有出現此元件的 frame，列對照表再動手
-- Homepage 的 `hpDiary` section 與 `/diary` 的 `dpList` 是同源元件，任一修改必須同步另一處
+## 2026-04-22 — K-036 Phase 2 favicon.pen redesign (Direction D: K monogram + 3-candle staircase + forecast arc)
+
+**What went well:**
+- Active-editor verification passed on first step: `get_editor_state` returned the worktree path `.worktrees/K-036-favicon/frontend/design/favicon.pen` exactly; confirmed I was not editing the main checkout
+- First `U()` call to change frame fill to `"none"` failed (schema only accepts hex / variable / gradient object / image / mesh_gradient; rejects literal `"none"`); immediately switched to 8-digit alpha hex `#00000000` to achieve transparent background, no blocker
+- Direction D's 12 elements built in one batch (3 rects + 7 lines + 1 path + 1 frame update), staying within the 25-ops cap
+- Pre-delivery `ls -la` confirmed disk still showed the old 1324-byte file → proactively reported "needs cmd+s to flush"; never falsely claimed completion
+- Visual screenshot verification matched the spec: K green spine + green-red-green staircase candles + gray dashed arc + arrow, transparent background (checkerboard visible)
+
+**What went wrong:**
+- Forgot Pencil schema has two "transparent" expressions: `fill: "none"` is only valid on node creation (initial shape attribute); when using `U()` to update an existing frame, you must use alpha hex `#00000000` or the fill object `{type:"color",enabled:false,color:"#000000"}`. The persona's tool-constraints section only states "fill: 'transparent' is invalid" but never explicitly notes the update-path restriction
+
+**Next time improvement:**
+- Persona tool-constraints section adds: `U()` to set fill transparent → use `#00000000` (8-digit alpha hex) or `{type:"color",enabled:false,...}`; do not use the `"none"` literal (only legal on Insert)
 
 ---
 
-## 2026-04-19 — K-017 v2 四頁 Dossier 裝飾雜訊大規模清理
+## 2026-04-22 — K-036 favicon.pen new file design (bearish/bullish candle pair)
 
-**做得好：**
-- 開工前一次 `batch_get` 四個目標 frame（`35VCj`/`4CsvQ`/`wiDSi`/`VSwW9`）的直接子節點 + 深讀六個 section container（readDepth:3），一輪拿齊所有 parent 關係，確認印章群組 parent ID 再分批下手，無盲目刪節點
-- 正確判斷「刪 parent 還是刪個別子節點」：印章群組（`JFzgG`/`kHjU8`/`mjams`）整 parent 刪，stampBox 容器（`jFNIg`/`1svz6` 等）在文字被刪後空殼也一併清除；`mXlco`（bpCard header bar）在第一輪截圖後補查發現並刪除，完整 coverage
-- `PyUKW` content 更新（移除 " — three pillars, annotated." 後綴）在同一批次完成，不需額外 round-trip
-- 三批 `batch_design`（24 + 20 + 15 ops）全部在 25 ops 上限內，無回滾
-- 截圖四頁全部驗收：cream 背景、Bodoni/Geist Mono/Newsreader 三字型、`—` 前綴保留；印章/副標/計數文字全部清除；navbar 四頁一致存在
+**What went well:**
+- MCP Health Check round-trip passed (`get_editor_state` returned schema + state, not transport-down); did not blindly trust `claude mcp list`'s connected label
+- Invocation-Prompt Inventory Sanity Check actually ran `find` + `ls`, discovered the active editor pointed to main checkout (`/frontend/design/favicon.pen`) instead of the prompt-specified worktree path (`.worktrees/K-036-favicon/frontend/design/favicon.pen`); reported upstream for scope decision instead of choosing arbitrarily
+- Favicon design chose 2-candle pair (bearish-left red + bullish-right green) + rounded dark backplate, matching financial-iconography conventions; wick 12px + body 88px stayed legible after 512→16 downsample; no gridline (avoiding 16x16 mush)
+- Used K-Line brand colors (`#0B1020` bg / `#22C55E` bull / `#EF4444` bear), no improvised colors
+- After design, ran `get_screenshot` for visual verification, and pre-delivery ran `git status` to check disk state
 
-**沒做好：**
-- 第一批執行後有空殼容器（`jFNIg`, `1svz6`, `Vx2Bg`, `CHy86`, `xBLOR`, `TpJLf`）出現 fit_content/zero-size 警告，需要第二批再清；若第一批就先刪文字子節點再刪 parent，可一次性無殘留
-- `/business-logic` card 的 `mXlco`（FILE Nº 01 · CREDENTIAL）是第一輪截圖後才補查發現，而非 pre-execution `batch_get` 時就識別；原因是清單的 `C50cQ` 節點 ID 已知，但未先追 parent 確認應刪 `mXlco`（整 card header），而是先刪 `C50cQ` 再看截圖
+**What went wrong:**
+- Did not BQ back to PM before designing to confirm the "active editor path vs prompt-specified path" mismatch; designed directly on the active path and reported only afterward. If PM wanted the worktree path, the in-memory changes are now in the wrong file, requiring user to re-open_document on the worktree path and re-paste the design or manually copy
+- `git status` showed `.pen` still 41 bytes (un-flushed), matching persona's wait-for-user-cmd+s rule; not my mistake, but a reminder for future delivery to explicitly mention this to PM
 
-**下次改善：**
-- 刪除含子節點的 container 前，執行順序改為：先刪整個 parent container（如果整個 parent 都是雜訊），而非先刪子節點再清空殼；這樣可避免 zero-size 警告的第二輪清理
-- `batch_get` 確認刪除清單節點時，同時追查每個節點的 parent（readDepth:2），若 parent 只剩該節點或整個 parent 都是雜訊，直接標記 parent 為刪除目標，不只看節點本身
-
----
-
-## 2026-04-19 — K-017 全站 footer 聯絡資訊 + /about S8_FooterCTASection 移除
-
-**做得好：**
-- 四個 footer 一次 `batch_get` 讀清子節點結構，精確判斷哪些有右欄需 Update、哪些無右欄需 Insert，不盲目批量覆寫
-- hpFooterBar / abFooterBar 右欄 `W3zUd` / `hpwtD` 直接 U() 更新；dpFooterBar / bpFooterBar 無右欄則 I() 插入新 text 節點，策略因節點現況而異，精準不多餘
-- S8_FooterCTASection（`tiG5X`）與四個 footer 更新同一次 `batch_design` 完成（4 U/I + 1 D），單 round-trip 無分批
-- 截圖四個 footer 全部驗收，並截圖 `Y80Iv` 確認 About 底部無殘留 FooterCTA，主動覆蓋全部四頁而非只看改動頁
-
-**沒做好：**
-- 無（節點 ID 已知、任務範圍明確、執行乾淨無回滾；磁碟 flush 已透過 `git status` 確認 homepage.pen M 狀態）
-
-**下次改善：**
-- 跨頁同類節點批量修改時，先判斷每頁目標節點的「現況類型」（有/無右欄、幾個子節點），再依現況選 U() 或 I()，不預設所有頁面結構一致
+**Next time improvement:**
+- At session start, if `get_editor_state` returns an active path ≠ prompt-specified path, **halt and report to PM as BQ**, do not pick a path on my own; this is a scope ruling, Designer has no authority
+- Already added "Active editor path vs prompt-specified path mismatch must BQ" behavior to persona inventory check section (next ticket will follow)
 
 ---
 
-## 2026-04-19 — K-017 Diary + BizLogic navbar 統一（單一回首連結 → 完整 navLinks）
+## 2026-04-21 — K-031 /about S7 BuiltByAI showcase frame removal
 
-**做得好：**
-- 先 `batch_get` 四個目標節點（`vdJVv`、`B5PEH`、`OSgI0`、`voSTK`）同一 round-trip 拿齊所有屬性，確認 hpNav 五個連結的精確規格（Geist Mono 12px、letterSpacing 1、gap 28、active: #9C4A3B bold）再動手
-- 兩頁各用單次 batch_design（D() + I() × 6 ops）完成，不分批試探
-- 截圖雙驗：Diary active = "Diary"（#9C4A3B bold）、BizLogic active = "Prediction"（#9C4A3B bold），視覺與 Homepage / About 一致
+**What went well:**
+- Pre-work: ran `grep` for all S7 keywords (`Built by AI` / `banner-showcase` / `BuiltByAIBanner` / `One operator` / `Every ticket leaves`) once to nail down the `/about` S7 frame location (lines 3037–3230, id `1UWzs` name `S7_BuiltByAIBannerSection`) vs homepage `BuiltByAIBanner` (line 3370, in a different frame, do not touch); did not confuse the two same-named assets
+- After deletion proactively ran `python3 -c "json.load(...)"` to verify JSON integrity, + `git diff --stat` to confirm 194-line deletion matched the S7 block range, + `Grep` re-scan to confirm zero S7 residue and homepage BuiltByAIBanner intact; three-way cross-verification
+- NavBar mandatory check passed: `abNav` (line 18) present both before and after deletion, conforming to `feedback_designer_navbar_mandatory`
+- Post-deletion `/about` abBody had 6 sections (S1→S6) in continuous order, abFooterBar still last root frame, matching design doc §1 Summary's declared post-state
 
-**沒做好：**
-- 未在 cross-frame navbar 通過時主動掃描所有頁面：上一輪 About navbar 通過驗收後，應立即 `batch_get` 搜尋所有 v2 frame 的 navbar 子節點，主動比對哪些頁面 navbar 不一致，而非等 PM 發 bug report 才發現 Diary 與 BizLogic 仍是單一回首連結
+**What went wrong:**
+- Pencil MCP failed to connect this session, could not call `get_screenshot`; switched to JSON schema + structural grep verification, lacking visual report
+- Did not pre-test MCP connection (`claude mcp list`) before deciding between MCP path or JSON-direct-edit path; only discovered after running git status and preparing to screenshot, forcing the delivery report to explain the fallback
 
-**下次改善：**
-- navbar 修改任務完成後，加一道強制步驟：`batch_get` 所有頂層 frame 的第一個子節點，確認所有頁面 navbar 子樹結構（links 數量 + font spec）一致；若不一致立即修正，不等 PM 提報
-
----
-
-## 2026-04-19 — K-017 BuiltByAIBanner cream 改色（Option A）
-
-**做得好：**
-- 先 `batch_get` 一次讀取 `96Spc`、`zJHys`、`RmIfG` 三個節點，拿到當前所有屬性（fill、stroke、font spec）後才下 batch_design，不盲目寫入
-- 三個 U() 合成單一 batch_design 呼叫，fill + stroke + 子節點文字色一次到位，無分批試探
-- 截圖確認 cream 底 `#F4EFE5` / 深棕主文字 `#1A1814` / 紅棕 CTA `#9C4A3B` 全部正確，banner 不再突兀於整體 Dossier 頁面
-
-**沒做好：**
-- 無（任務規格完整、節點 ID 已知、執行乾淨無回滾）
-
-**下次改善：**
-- 維持本次「先 batch_get 再 batch_design 再截圖」的單純三步流程；對於「已知 ID + 已知目標屬性」的點狀修改任務，這是最省 round-trip 的標準流程，後續同類任務直接套用
+**Next time improvement:**
+- Designer persona Step 1 adds MCP health check: `claude mcp list | grep pencil`, report connected / failed; on failed, proactively switch to JSON-direct-edit path and explicitly state in final report "no visual screenshot, please ask PM/user to open Pencil app for visual confirmation" — visual verification responsibility handed off explicitly
+- Pure-deletion design tasks (non-visual-composition tickets) are actually faster and more precise via JSON-direct-edit path; can serve as preferred path for future simple-removal tickets
 
 ---
 
-## 2026-04-19 — K-017 v2 navbar「Business Logic」→「Prediction」全域替換
+## 2026-04-19 — K-017 Diary timeline cross-page sync missed
 
-**做得好：**
-- 先 `batch_get` 搜尋含 `Business Logic` / `business-logic` name pattern 的 frame，一輪拿到所有候選節點
-- 接著搜尋所有 v2 frame（name 含 v2），確認共 4 個 v2 frame 及其 navbar id
-- 讀取 4 個 navbar 子樹，精確找到只有 Homepage v2（`OSgI0` → `SdCSj`）和 About v2（`voSTK` → `qhtkl`）有導覽連結 text，Diary v2 和 Business Logic v2 的 navbar 無導覽連結列
-- 兩個節點用單一 `batch_design` 完成（2 個 U()），截圖雙驗確認正確
+**What went wrong:**
+- After modifying Diary timeline (entry title + date style) on wiDSi, did not cross-frame confirm Homepage (4CsvQ) hpDiary section uses the same component, causing user to flag the missed sync a second time
+- Root cause: cross-frame scan rule currently only mandates navbar; "cross-page repeated component" like the diary timeline was not on the mandatory scan list
 
-**沒做好：**
-- 無（任務範圍明確、搜尋策略三層遞進、無多餘操作）
-
-**下次改善：**
-- 全站批量 text content 修改的標準流程確立：(1) 搜含關鍵字的 frame pattern → (2) 確認 v2/版本 frame 清單 → (3) 讀各 navbar 子樹 → (4) 單一 batch 寫入 → (5) 截圖雙驗；後續同類任務直接套用
+**Next time improvement:**
+- When modifying any UI component, first use `batch_get({ patterns:[{name:"<keyword>"}] })` to search the whole document, list every frame containing the component, build a comparison table before acting
+- Homepage's `hpDiary` section and `/diary`'s `dpList` are same-source components; modifying one must sync the other
 
 ---
 
-## 2026-04-19 — K-017 MetaBar 全站刪除（四頁清除）
+## 2026-04-19 — K-017 v2 four-page Dossier decoration noise mass cleanup
 
-**做得好：**
-- 四個節點（hpMetaBar / dpMetaBar / bpMetaBar / abMetaBar）一次 `batch_design` 四個 `D()` 完成，不分批試探
-- 截圖四頁確認 Nav 均為最上層元素，無殘留 MetaBar 高度或空白間距
+**What went well:**
+- Pre-work: one round of `batch_get` on the four target frames (`35VCj`/`4CsvQ`/`wiDSi`/`VSwW9`) direct children + deep-read of six section containers (readDepth:3), grabbed all parent relationships in one round, confirmed stamp-group parent ID before partitioning the work — no blind node deletion
+- Correctly judged "delete parent vs delete individual children": stamp groups (`JFzgG`/`kHjU8`/`mjams`) deleted as full parents; stampBox containers (`jFNIg`/`1svz6` etc.) cleared after their text was deleted; `mXlco` (bpCard header bar) discovered and deleted only after first-round screenshot, completing coverage
+- `PyUKW` content update (removed " — three pillars, annotated." suffix) finished in same batch, no extra round-trip needed
+- Three `batch_design` batches (24 + 20 + 15 ops) all stayed within 25-ops cap, no rollback
+- Screenshot verification across four pages: cream background, Bodoni/Geist Mono/Newsreader three fonts, `—` prefix preserved; stamp/sublabel/counter text all cleared; navbar consistent on all four pages
 
-**沒做好：**
-- 無（任務範圍單純、執行乾淨）
+**What went wrong:**
+- After first batch executed, empty containers (`jFNIg`, `1svz6`, `Vx2Bg`, `CHy86`, `xBLOR`, `TpJLf`) emitted fit_content/zero-size warnings, requiring a second batch to clean up; if first batch had deleted text children + parent in one shot, would have been residue-free in one pass
+- `/business-logic` card's `mXlco` (FILE Nº 01 · CREDENTIAL) was discovered only after first-round screenshot, not at pre-execution `batch_get` time; root cause was that `C50cQ` node ID was known but its parent was not pre-traced — should delete `mXlco` (full card header) rather than first deleting `C50cQ` then re-screenshotting
 
-**下次改善：**
-- 全站批量刪除同類型節點前，先確認節點 ID 清單與 frame 對應關係（本次由 PM 提供清單，直接使用）
-
----
-
-## 2026-04-19 — K-017 /about v2 Nav 統一（黑底 → cream dossier-style）
-
-**做得好：**
-- 先讀 hpNav（`OSgI0`）完整子樹後才動手，確認所有屬性（padding、stroke、font spec、link color）無遺漏再複製
-- 截圖雙邊對比（`voSTK` vs `OSgI0`）確認視覺一致，"About" active link（#9C4A3B）正確標示
-
-**沒做好：**
-- `I()` 第三個參數 index 的語法踩了兩次坑：先傳物件 `{"index":0}` 失敗，再誤用 `M()` 第三參數傳物件也失敗，才確認正確語法是 `M(node, parent, 0)`（純數字）；兩次失敗都 rollback 才收尾，可事先查 tool schema 確認
-
-**下次改善：**
-- 需要在特定 index 插入節點時，優先用「先 `I()` 到尾，再 `M(binding, parent, index)` 移位」流程，且 `M()` 第三參數直接傳整數，不包裝成物件
-- 複製另一頁面的 nav 前，確認 active state 邏輯（哪個 link 用紅色）對應目標頁面，不沿用來源頁的 active
+**Next time improvement:**
+- Before deleting containers with children, change order: delete the full parent container first (when the entire parent is noise), rather than children first then empty shell — this avoids the second-round zero-size cleanup
+- When `batch_get` confirms deletion-list nodes, simultaneously trace each node's parent (readDepth:2); if the parent has only that node remaining or the entire parent is noise, mark parent as deletion target directly rather than just looking at the node itself
 
 ---
 
-## 2026-04-19 — Homepage dev-diary 與 /diary timeline 視覺不一致修復
+## 2026-04-19 — K-017 sitewide footer contact info + /about S8_FooterCTASection removal
 
-**沒做好：**
-- 新建 v2 頁面時未 cross-check 同主題（Dev Diary）在不同頁面的呈現語言：`wiDSi`（/diary）改為 timeline（rail + § stamp marker + Bodoni italic 32px 日期 + Newsreader italic body），但 `4CsvQ`（Homepage）的 Dev Diary section 仍停留在舊 card/bordered entry（16px 字 + cornerRadius:6 + 1px stroke），造成同專案同主題兩種視覺語言
-- `wiDSi` 改版後沒主動回查哪些其他 frame 也展示相同內容（Homepage 的 `N0WWY` diaryEntries），要等 PM 發 Bug Found 才發現
-- 設計思維仍以「一頁一設計」為單位，沒把「同主題跨頁面組件」當成一個需同步維護的實體
+**What went well:**
+- Read all four footer subtrees in one `batch_get` to precisely judge which had right-column needing Update vs which had no right-column needing Insert, no blind batch overwrite
+- hpFooterBar / abFooterBar right-column `W3zUd` / `hpwtD` directly U() updated; dpFooterBar / bpFooterBar without right-column → I() inserted new text node; strategy adapted per-node state, precise without redundancy
+- S8_FooterCTASection (`tiG5X`) and four-footer updates completed in same `batch_design` (4 U/I + 1 D), single round-trip without splitting
+- Screenshot verified all four footers, plus `Y80Iv` screenshot to confirm no FooterCTA residue at About bottom, proactively covering all four pages rather than only modified pages
 
-**下次改善：**
-- 新建或改版任何 frame 前，先列出「此主題在本 .pen 檔哪幾個 frame 出現」的對照表（例如本次：Dev Diary 出現在 `4CsvQ/N0WWY` + `wiDSi/CGijt`），改其中一處立即同步其他
-- 每批 frame 收尾前加一道「cross-frame consistency」檢查步驟：用 `batch_get` 搜 `name` 含同主題關鍵字的 frame（如 `diary`、`logic`、`hero`），確認 primitive（rail 粗細 / marker 尺寸 / 日期字級 / gap）一致
-- 把「同主題跨頁面同 primitive」寫入 designer persona 的 review checklist，下次 review 模式時主動掃描
+**What went wrong:**
+- None (node IDs known, scope clear, execution clean without rollback; disk flush already confirmed via `git status` showing M on homepage.pen)
 
----
-
-## 2026-04-19 — K-017 Diary timeline redesign + App v2 取消
-
-**做得好：**
-- PM 上一輪明確稱讚「其他部分的很完美」（Homepage v2 / Biz Logic v2 / 35VCj 3 FAIL 全通過），v2 Dossier 擴張 4 頁 anchor 一致性（FILE Nº / § stamp / redact row / terracotta 焦點）獲肯定，本輪延用同套 anchor 到 Diary timeline（§ stamp marker 用同 `#9C4A3B` + Geist Mono）
-- 前一輪 smoke test 先跑 120px Bodoni Moda 避免字型 fallback 的紀律本輪延續：本輪直接沿用已驗證 palette + 字型 stack，不再重跑 smoke，因為 font pipeline 已在同一 .pen 驗過
-- 重建 timeline 前先 `batch_get` 讀清 `wiDSi` 的 `CGijt` dpList 下 3 張舊 card（`2urtc` / `B7crD` / `pWbsD`），同 round-trip 拿到 hero stamp col 結構，一輪就掌握「要刪哪些 id + 要重建什麼」
-- 刪 `mCknS` + 清空 3 張 card + 建 rail + 建 Entry 1 合併成單一 batch_design，Entry 2/3 + dpList 尺寸校正合併第二 batch，兩輪寫入收尾；不逐條試探
-- 改用 absolute layout 把 rail 與 markers 精確對齊（rail x=29, marker x=20 寬 20 → 視覺置中於 rail），避開 flex gap 無法精準置中垂直線的陷阱
-
-**沒做好：**
-- 第一輪 batch_design 在 absolute layout 下對 entry frame 傳 `width:"fill_container"`，觸發 Pencil 警告「not inside a flexbox layout」；應該一開始就用固定寬度 1248（= 1440 frame width - 96*2 padding）
-- marker 寬度 20 但 `§` 字元 fontSize 11 實際寬度約 8px，在 20px box 內靠 `x:6` 手動偏移置中；若用 flex center 會更穩，但 absolute layout 下 alignItems/justifyContent 無效——應該 marker box 改用 flex layout 只在外層用 absolute 定位
-
-**下次改善：**
-- absolute layout 下 frame 寬度一律寫死，不用 `fill_container`；若要撐滿，寫 parent.width - padding*2 的實際數值
-- marker / icon 這類需要「內部置中、外部絕對定位」的元件，預設做法：外層 absolute + 內層 flex；不要在同一層混用
+**Next time improvement:**
+- For cross-page same-class node bulk modification, first determine each page's target node "current state" (with/without right-column, child count), then choose U() or I() accordingly — do not assume all pages share the same structure
 
 ---
 
-## 2026-04-19 — K-017 3 FAIL 修復 + 4 頁 v2 Dossier 重設計（Homepage / App / Diary / Business Logic）
+## 2026-04-19 — K-017 Diary + BizLogic navbar unification (single home link → full navLinks)
 
-**做得好：**
-- 開工先 `batch_get` S1 `ocUD7` + S4 `S5ulN` + S8 `QPTYt` 拿到 node id 地圖，同時平行讀 4 個舊 frame（dgTTO / ap001 / 92SuZ / aSX8H）結構，單一 round-trip 就掌握「要改哪些 id + 要重造哪些 section」，不分批試探
-- 3 個 FAIL 用單一 batch_design 同時處理：`U(gNx84)` 改 roleLine 為逗號 + 小大寫版、`U(HlDKp)` 改 pillar 3 link 為「→ Role Flow」、`D(Fc7Sr)` + 5 個 `I(BUVTc,...)` 重建 S8 三行 footer，一輪收尾
-- 4 個新 v2 frame 開工前先 `find_empty_space_on_canvas(direction:right)` 拿 x=12600，避開 35VCj (x=10760~12200)；placeholder 階段每 frame 放一個 `Bodoni Moda 120px` 大字 smoke test，`get_screenshot` 確認 render 管線通後再填細節（記取 2026-04-19 Font A/B Preview 失敗教訓）
-- I() 全程不在 operation 傳 `id:`，只用 `name:` 做語意識別（記取 K-017 /about 3 風格 mini-preview 的 id schema hint 失誤）
-- 每個 v2 frame 完成後獨立 `get_screenshot` 驗 4 個風格 anchor（warm dark bg `#F4EFE5` 頁面 + `#2A2520` dark stamps + `#9C4A3B` terracotta accent + Bodoni Moda / Geist Mono / Newsreader italic 三字型分工），不只看整體遠景
-- S8 footer 與 96Spc BuiltByAIBanner 各拉 close-up 驗細節（三行結構是否對齊、See how → 是否視覺強調）
+**What went well:**
+- `batch_get` four target nodes (`vdJVv`, `B5PEH`, `OSgI0`, `voSTK`) in one round-trip, picked up all properties; confirmed hpNav 5 links' exact spec (Geist Mono 12px, letterSpacing 1, gap 28, active: #9C4A3B bold) before acting
+- Each page used a single batch_design (D() + I() × 6 ops) to complete, no exploratory partitioning
+- Screenshot dual-verified: Diary active = "Diary" (#9C4A3B bold), BizLogic active = "Prediction" (#9C4A3B bold); visually consistent with Homepage / About
 
-**沒做好：**
-- 首次計算 v2 frame 橫向排列空間時漏算 padding：`find_empty_space_on_canvas` 回傳 x=12600 距 35VCj 右緣 (12200) 只有 400，可能視覺上過於擁擠；應把 padding 參數設更大（≥500）或直接放第二行（y 下方）避免視覺壓擠
-- Homepage v2 第一輪 I() 建 NavBar + Banner 時，NavBar 沒加 meta bar 之上的視覺層級差（meta bar 跟 NavBar 都是 12–13px Geist Mono），遠景看幾乎併排；應該給 NavBar 用 15–16px Geist Mono + 間距放大，讓品牌 logo 比 meta 明顯
-- S8 footer 改造後 `BUVTc` body padding 仍保留 32px、gap 18px，但內容從 1 行變 3 行（每行含 frame 子元素）後，視覺上仍顯擁擠；應該把 gap 放到 20–24 或把 padding 改成 [28, 36] 讓 3 行更呼吸；直接 commit 交付時沒調整就讓 PM 承擔後續視覺驗收的緊迫感
-- 磁碟 flush 驗證只跑 `git status` + `stat mtime`，mtime 推進到 13:04:08（比 session 開頭新）代表 Pencil 已 flush，但沒比對 `git diff --stat` 看檔案真實 diff 量；應該每完成一個大 batch 就跑一次，確認本輪寫入的內容真進檔案而非 buffer 積在記憶體
+**What went wrong:**
+- Did not proactively scan all pages when previous-round About navbar passed: after About navbar verification, should have immediately `batch_get`-searched all v2 frames' navbar children to compare which pages' navbar were inconsistent, rather than waiting for PM bug report to discover Diary and BizLogic still had single home link
 
-**下次改善：**
-- `find_empty_space_on_canvas` 回傳座標後主動加 500px buffer，避免相鄰 frame 視覺貼太近；或改用 `direction:"bottom"` 做 2×2 grid，不強求橫向排列
-- NavBar / meta bar / body 的字級階層設計：meta 10–11px、nav 13–14px、section stamp 16px、body 14–18px、hero 22–30px、display 56–64px，按 6-step 遞增建立清晰視覺層級
-- S8 / card body 的 padding 與 gap 計算方式從「固定值」改「內容驅動」：3 行以上的 stack 預設 gap ≥ 22px、padding ≥ [28, 36]，避免壓擠
-- 磁碟驗證三件套升級為四件套：`git status` + `stat mtime` + `stat size` + `git diff --stat` 看檔案 diff 行數，四者齊全才宣告 flush 成功
+**Next time improvement:**
+- After completing navbar modification, add a mandatory step: `batch_get` first child of every top-level frame, confirm all pages' navbar subtree (link count + font spec) is consistent; if inconsistent, fix immediately without waiting for PM report
 
 ---
 
-## 2026-04-19 — K-017 全 go 批量（v2 Dossier 風格軟化 + Contact mini footer + 舊 frame 清理）
+## 2026-04-19 — K-017 BuiltByAIBanner cream recolor (Option A)
 
-**做得好：**
-- 先 `batch_get` 深讀 35VCj 全結構 + 所有 text 節點（readDepth:10），一次把 52 個 Playfair / 14 個 stamp / 21 個 card / 8 條 rule 線的 ID 全部列齊再下手，避免分批漏改
-- 字型 + 主色改用 `replace_all_matching_properties` 一發掃 35VCj 子樹（Playfair → Bodoni Moda、#1A1814 → #2A2520、#B43A2C → #9C4A3B），再用 14 筆 U() 把 stamp 類改回 Geist Mono；大局 sweep + 例外覆寫，比逐點 Update 省 50+ ops
-- S8 Contact 改 mini footer：先 D() 6 個 body 子元素再 I() 插 1 行 Geist Mono text，結構乾淨沒有殘留
-- 刪 9 frame + `k002_section_headers`（EXCLUDED）一次 batch 清完，留 K-002 5 spec frame 待後續
+**What went well:**
+- First `batch_get` read three nodes `96Spc`, `zJHys`, `RmIfG` to capture all current properties (fill, stroke, font spec) before issuing batch_design, no blind write
+- Three U() merged into single batch_design call: fill + stroke + child text color all hit in one go, no exploratory partitioning
+- Screenshot confirmed cream bg `#F4EFE5` / dark-brown body `#1A1814` / red-brown CTA `#9C4A3B` all correct, banner no longer jarring against the overall Dossier page
 
-**沒做好：**
-- 誤以為 `open_document(新路徑)` 會在該路徑「建立新空白檔」—— 實際行為是開一個 `pencil-new.pen` 暫存檔，完全無視我傳的 `design-system.pen` 路徑；K-002 遷移因此失敗，5 個 spec frame 還留在 homepage.pen
-- 視覺驗證只看了遠景縮圖就放行，cornerRadius 6 / 酒紅 terracotta / rule 線淡褐灰這些細微變化在縮圖上難斷言是否真落地；應該再拉近拍一個 S2 card 或 S8 mini footer 特寫做二次確認，僅憑全景 screenshot 不足以驗微觀軟化效果
-- 磁碟驗證只跑 `git status` 看 M 狀態就停手，沒比對檔案 mtime / size；session 開頭 homepage.pen 就已經是 M 狀態（既有未 commit 變更），本輪的 Pencil buffer 變更是否真 flush 到磁碟無法從 `git status` 區分；mtime 仍停在 12:48 代表 buffer 未落地
+**What went wrong:**
+- None (task spec complete, node IDs known, execution clean without rollback)
 
-**下次改善：**
-- 要新建 .pen 檔：先用 `Bash: touch <path>` 或 `Write` 空檔案建空殼，再 `open_document` 該路徑；不要假設 `open_document` 會幫你建檔
-- 風格批量改動驗證分兩層：(1) 全景截圖看整體節奏 (2) 挑一個代表 card / 一個 mini footer 特寫截圖比對「軟化」細節真實落地
-- 磁碟驗證三件套：`git status` + `stat -f "%Sm %z" <file>` 看 mtime/size + 必要時 `git diff --stat`；只憑 M 狀態不能聲稱 flush 完成
+**Next time improvement:**
+- Maintain this session's "batch_get → batch_design → screenshot" three-step flow; for "known ID + known target property" point modifications, this is the most round-trip-efficient standard flow — apply directly to similar tasks
+
+---
+
+## 2026-04-19 — K-017 v2 navbar "Business Logic" → "Prediction" sitewide replacement
+
+**What went well:**
+- First `batch_get` searched frames with `Business Logic` / `business-logic` name pattern, picking up all candidate nodes in one round
+- Then searched all v2 frames (name contains v2), confirmed 4 v2 frames + their navbar ids
+- Read 4 navbar subtrees, precisely found that only Homepage v2 (`OSgI0` → `SdCSj`) and About v2 (`voSTK` → `qhtkl`) have navigation link text; Diary v2 and Business Logic v2's navbars have no nav-link row
+- Two nodes finished in single `batch_design` (2 U()), screenshot dual-verified correct
+
+**What went wrong:**
+- None (scope clear, search strategy three-tier progressive, no redundant operations)
+
+**Next time improvement:**
+- Standard flow established for sitewide bulk text-content modification: (1) search frames for keyword pattern → (2) confirm v2/version frame list → (3) read each navbar subtree → (4) single batch write → (5) screenshot dual-verify; apply directly to similar tasks
+
+---
+
+## 2026-04-19 — K-017 MetaBar sitewide deletion (four-page clear)
+
+**What went well:**
+- Four nodes (hpMetaBar / dpMetaBar / bpMetaBar / abMetaBar) finished in single `batch_design` with four `D()` ops, no exploratory partitioning
+- Screenshot four pages confirmed Nav was top-most element, no MetaBar height or whitespace residue
+
+**What went wrong:**
+- None (scope simple, execution clean)
+
+**Next time improvement:**
+- Before sitewide bulk-deletion of same-type nodes, first confirm node-ID list and frame correspondence (this round's list provided by PM, used directly)
+
+---
+
+## 2026-04-19 — K-017 /about v2 Nav unification (black bg → cream dossier-style)
+
+**What went well:**
+- Read hpNav (`OSgI0`) full subtree before acting, confirmed every property (padding, stroke, font spec, link color) accounted for, then copied
+- Screenshot side-by-side comparison (`voSTK` vs `OSgI0`) confirmed visual consistency, "About" active link (#9C4A3B) correctly marked
+
+**What went wrong:**
+- `I()`'s third-parameter index syntax tripped me twice: first passed object `{"index":0}` failed; then mis-tried `M()`'s third arg as object also failed; only then confirmed correct syntax is `M(node, parent, 0)` (plain integer); both failures rolled back before recovery — could have been preempted by checking tool schema
+
+**Next time improvement:**
+- When inserting a node at a specific index, prefer "first I() to tail, then M(binding, parent, index) to relocate"; pass M()'s third parameter as plain integer, not wrapped in object
+- Before copying another page's nav, confirm active state logic (which link gets red color) corresponds to the target page; do not carry over source page's active
+
+---
+
+## 2026-04-19 — Homepage dev-diary vs /diary timeline visual inconsistency fix
+
+**What went wrong:**
+- When building v2 pages, did not cross-check the same theme (Dev Diary)'s presentation language across pages: `wiDSi` (/diary) became timeline (rail + § stamp marker + Bodoni italic 32px date + Newsreader italic body), but `4CsvQ` (Homepage)'s Dev Diary section remained on the old card/bordered entry (16px text + cornerRadius:6 + 1px stroke), producing two visual languages for the same theme in the same project
+- After redesigning `wiDSi`, did not proactively re-check which other frames also displayed the same content (Homepage's `N0WWY` diaryEntries); waited for PM to file a Bug Found before noticing
+- Design mindset still "one page one design", did not treat "same theme cross-page component" as an entity requiring synchronized maintenance
+
+**Next time improvement:**
+- Before building or redesigning any frame, first list "this theme's appearances in this .pen file" comparison table (e.g. this round: Dev Diary appears in `4CsvQ/N0WWY` + `wiDSi/CGijt`); changing one immediately syncs others
+- Add a "cross-frame consistency" check step at every frame batch closeout: `batch_get` search frames whose `name` contains the theme keyword (e.g. `diary`, `logic`, `hero`); confirm primitives (rail thickness / marker size / date font size / gap) consistent
+- Codify "same theme cross-page same primitive" into designer persona's review checklist; next review mode actively scans
+
+---
+
+## 2026-04-19 — K-017 Diary timeline redesign + App v2 cancellation
+
+**What went well:**
+- PM in last round explicitly praised "everything else is perfect" (Homepage v2 / Biz Logic v2 / 35VCj 3 FAILs all passed); v2 Dossier expansion across 4 pages anchored consistency (FILE Nº / § stamp / redact row / terracotta focus) was endorsed; this round extended the same anchor set to Diary timeline (§ stamp marker uses same `#9C4A3B` + Geist Mono)
+- Last round's 120px Bodoni Moda smoke test discipline (avoiding font fallback) carried over: this round directly reused the verified palette + font stack, no re-smoke since the font pipeline was already validated in this same .pen
+- Before rebuilding the timeline, `batch_get` read out `wiDSi`'s `CGijt` dpList's 3 old cards (`2urtc` / `B7crD` / `pWbsD`) in one round-trip, captured hero stamp col structure, grasped "what to delete + what to rebuild" in one shot
+- Deleting `mCknS` + clearing 3 cards + building rail + building Entry 1 merged into single batch_design; Entry 2/3 + dpList sizing correction merged into second batch; two-round write closeout, no piecewise probing
+- Switched to absolute layout to precisely align rail with markers (rail x=29, marker x=20 width 20 → visually centered on rail), avoiding the trap that flex gap cannot precisely center vertical lines
+
+**What went wrong:**
+- First-round batch_design under absolute layout passed `width:"fill_container"` to the entry frame, triggering Pencil warning "not inside a flexbox layout"; should have used fixed width 1248 from the start (= 1440 frame width - 96*2 padding)
+- Marker box width 20 but `§` glyph fontSize 11 actual width ≈ 8px, manually offset to center using `x:6` inside the 20px box; flex center would have been more stable, but absolute layout invalidates alignItems/justifyContent — should have made the marker box use flex layout internally and absolute positioning only on the outer wrapper
+
+**Next time improvement:**
+- Under absolute layout, always hardcode frame width, do not use `fill_container`; if filling is desired, write parent.width - padding*2 actual value
+- Marker / icon kind elements that need "internally centered, externally absolute-positioned": default approach is outer absolute + inner flex; do not mix at the same level
+
+---
+
+## 2026-04-19 — K-017 3 FAIL fixes + 4-page v2 Dossier redesign (Homepage / App / Diary / Business Logic)
+
+**What went well:**
+- Pre-work `batch_get` on S1 `ocUD7` + S4 `S5ulN` + S8 `QPTYt` to capture node-id map, parallel-read 4 old frames (dgTTO / ap001 / 92SuZ / aSX8H) structures, single round-trip captured "which IDs to modify + what sections to rebuild" — no piecewise probing
+- 3 FAILs handled in single batch_design simultaneously: `U(gNx84)` rewrote roleLine to comma-style small-caps, `U(HlDKp)` rewrote pillar-3 link to "→ Role Flow", `D(Fc7Sr)` + 5 `I(BUVTc,...)` rebuilt S8 three-line footer; one round closeout
+- Before opening 4 new v2 frames, ran `find_empty_space_on_canvas(direction:right)` to grab x=12600, avoiding 35VCj (x=10760~12200); placeholder phase placed one `Bodoni Moda 120px` smoke-test glyph in each frame, `get_screenshot` confirmed render pipeline OK before filling details (lessons from 2026-04-19 Font A/B Preview failure)
+- I() never passed `id:` field in operations, used `name:` for semantic identification only (lessons from K-017 /about 3-style mini-preview's id-schema-hint mistake)
+- After each v2 frame completion, independent `get_screenshot` verified 4 style anchors (warm dark bg `#F4EFE5` page + `#2A2520` dark stamps + `#9C4A3B` terracotta accent + Bodoni Moda / Geist Mono / Newsreader italic three-font division), not just an overall long-shot
+- S8 footer and 96Spc BuiltByAIBanner each pulled close-up screenshots to verify details (whether three-line structure aligned, whether See how → had visual emphasis)
+
+**What went wrong:**
+- First v2 frame horizontal-arrangement spacing calculation missed padding: `find_empty_space_on_canvas` returned x=12600, only 400 from 35VCj's right edge (12200), possibly visually crowded; should have set padding param larger (≥500) or placed in second row (lower y) to avoid visual squeeze
+- Homepage v2 first round I() built NavBar + Banner, NavBar had no visual hierarchy lift above meta bar (meta bar and NavBar both 12–13px Geist Mono); from a long-shot they nearly merged; should have given NavBar 15–16px Geist Mono + larger spacing so the brand logo dominates over meta
+- After S8 footer rebuild, `BUVTc` body kept padding 32px / gap 18px, but content went from 1 line to 3 lines (each line nesting frame children); visually still felt cramped; should have raised gap to 20–24 or changed padding to [28, 36] for breathing room; pushed PM to bear visual-acceptance pressure with no adjustment before commit
+- Disk flush verification ran only `git status` + `stat mtime`, mtime advanced to 13:04:08 (newer than session start) indicating Pencil flushed, but did not compare `git diff --stat` for actual diff line count; should run after each large batch to confirm this round's writes actually hit disk vs stayed in buffer
+
+**Next time improvement:**
+- After `find_empty_space_on_canvas` returns coordinates, proactively add 500px buffer to avoid neighboring frames touching; or use `direction:"bottom"` to do a 2×2 grid, no horizontal-only insistence
+- Font-hierarchy design for NavBar / meta bar / body: meta 10–11px, nav 13–14px, section stamp 16px, body 14–18px, hero 22–30px, display 56–64px — 6-step gradient establishes clear visual hierarchy
+- S8 / card body padding and gap calculation goes from "fixed value" to "content-driven": stacks of 3+ lines default gap ≥ 22px, padding ≥ [28, 36], avoid squeeze
+- Disk verification triplet upgraded to quadruplet: `git status` + `stat mtime` + `stat size` + `git diff --stat` for file diff line count; only when all four confirm can flush be declared
+
+---
+
+## 2026-04-19 — K-017 full-go batch (v2 Dossier style softening + Contact mini footer + old frame cleanup)
+
+**What went well:**
+- First `batch_get` deep-read 35VCj's full structure + all text nodes (readDepth:10), in one round listed all 52 Playfair / 14 stamp / 21 card / 8 rule line IDs, no piecewise misses
+- Font + main color used `replace_all_matching_properties` to sweep 35VCj subtree (Playfair → Bodoni Moda, #1A1814 → #2A2520, #B43A2C → #9C4A3B), then 14 U() to revert stamp class to Geist Mono; macro sweep + exception override saved 50+ ops vs point-by-point Update
+- S8 Contact rewrite to mini footer: D() 6 body children then I() inserted 1 line of Geist Mono text; clean structure with no residue
+- Deleted 9 frames + `k002_section_headers` (EXCLUDED) all in one batch, retained 5 K-002 spec frames for later
+
+**What went wrong:**
+- Mistakenly assumed `open_document(<new path>)` would create a blank file at that path — actual behavior is opening a `pencil-new.pen` temp file, completely ignoring the supplied `design-system.pen` path; K-002 migration therefore failed, 5 spec frames still in homepage.pen
+- Visual verification only checked the long-shot thumbnail then released; cornerRadius 6 / wine-red terracotta / pale-brown rule line subtle changes are hard to assert in thumbnail; should have pulled close-ups of one S2 card or one S8 mini footer for second confirmation; long-shot screenshots alone insufficient for verifying micro-softening
+- Disk verification ran `git status` checking M state then stopped, did not compare file mtime / size; session start showed homepage.pen already in M state (existing uncommitted changes); whether this round's Pencil buffer changes flushed could not be distinguished from `git status` alone; mtime stuck at 12:48 means buffer not yet on disk
+
+**Next time improvement:**
+- Creating a new .pen file: first `Bash: touch <path>` or `Write` empty shell, then `open_document` that path; do not assume `open_document` creates the file
+- Style bulk-modification verification two-tier: (1) long-shot screenshot for overall rhythm (2) pick one representative card / one mini footer close-up for "softening" detail confirmation
+- Disk verification triplet: `git status` + `stat -f "%Sm %z" <file>` for mtime/size + optional `git diff --stat`; M state alone is not enough to claim flush
 
 ---
 
 ## 2026-04-19 — K-017 Font A/B Preview (Playfair vs Bodoni Moda)
 
-**做得好：**
-- 用 `find_empty_space_on_canvas(direction:"right", width:3200)` 定位 x=16800 空白區，不靠猜
-- header + 兩 frame 用 placeholder 先建好骨架，再分批填充（Font A / Font B 各一輪），單輪控制在 25 ops 內
-- 1:1 鏡像雙 frame 結構（aTitle/aHeroBlock/aRoleBlock…/bTitle/bHeroBlock…），字型 `Playfair Display` vs `Bodoni Moda` 外其他屬性全一致，刪除比較變因
-- `git status frontend/design/homepage.pen` 確認 M 狀態，buffer 已 flush 到磁碟，不靠 buffer 聲稱完成
+**What went well:**
+- Used `find_empty_space_on_canvas(direction:"right", width:3200)` to locate x=16800 blank zone, no guessing
+- Header + two frames built skeleton with placeholder, then filled in batches (Font A / Font B each one round), single round under 25 ops
+- 1:1 mirrored dual-frame structure (aTitle/aHeroBlock/aRoleBlock…/bTitle/bHeroBlock…); aside from font `Playfair Display` vs `Bodoni Moda`, every other property identical, eliminating extra variables
+- `git status frontend/design/homepage.pen` confirmed M state; buffer flushed to disk, no buffer-only completion claim
 
-**沒做好：**
-- 子 frame 大量使用 `textGrowth:"fixed-width"` + `width:"fill_container"`，get_screenshot 回傳空白奶油底 —— 嵌套深度 + padding + fill_container 在這個座標（x=16800）rendering 失敗；重試改 auto / 固定 width 720 / 明示 height fit_content(1800) 都無法讓 screenshot 出圖，耗了 5 輪 batch_design + 多次截圖診斷仍無效
-- 先寫結構才發現 screenshot 拍不出，應該在最早 placeholder 階段先加一個簡單 text + get_screenshot 確認 rendering 管線 OK，再大規模填充內容
-- 未在 prompt 被告知 / 也未自行試誤的工具限制：Pencil 的 frame 無 `fill:"none"` 選項，需用 `fill:"#F4EFE5"` 明示背景色，不能期待「透明」
+**What went wrong:**
+- Sub-frames heavily used `textGrowth:"fixed-width"` + `width:"fill_container"`; get_screenshot returned blank cream background — at this coordinate (x=16800), nesting depth + padding + fill_container caused rendering failure; retries with auto / fixed width 720 / explicit height fit_content(1800) all failed to produce a screenshot; spent 5 batch_design rounds + multiple screenshot diagnostics with no avail
+- Wrote structure first then discovered screenshot couldn't render; should have at the earliest placeholder phase added a simple text + get_screenshot to confirm rendering pipeline OK before filling content at scale
+- A tool limitation not flagged in the prompt and not self-tested: Pencil's frame has no `fill:"none"` option, must use `fill:"#F4EFE5"` to set explicit bg; cannot expect transparency
 
-**下次改善：**
-- 新建 frame 在遠離 viewport 的座標（x > 15000）時，placeholder 階段加一個大字紅字 smoke test，`get_screenshot` 確認能 render 出來再填內容；拍不到先移到靠近現有內容的座標（x ≤ 14000）
-- 複雜結構（多層嵌套 frame）第一個 batch_design 只建 1 層 + 1 個文字 sample，截圖過了再擴張
-- 視覺驗證失敗但 `batch_get` 結構正確 + `git status` 有 M → 明確向使用者說明「buffer 與磁碟內容正確，Pencil MCP screenshot 無法 render，請在 Pencil app 內視覺確認」，不假裝視覺已通過
-
----
-
-## 2026-04-19 — K-017 /about v2 Dossier 實裝
-
-**做得好：**
-- 開工先 `batch_get` 35VCj 拿到 S1–S6 現有節點地圖，再對照 a0n1a 的 anchor（FILE Nº / § stamp / redact row）直接延用結構語彙，沒有重刻一套風格
-- 使用者「只改數字為正體」的單點指令執行乾淨：只對 3 個節點（1jwQq / pArmD / 6spHE）下 `U({fontStyle:"normal"})`，不擴散到其他 italic 元素
-- 補 S6/S7/S8 時沿用 FILE Nº + 黑頭條 + § stamp box 的 Dossier 骨架（LAYER Nº / APPENDIX A / § CONTACT），不發明新的裝飾語彙
-- 每輪 batch_design 控制在 25 ops 內，S6/S7/S8 各拆一輪，避免單輪超量
-- 流程尾端主動跑 `git status` 確認磁碟 flush（M 狀態），不靠 buffer 聲稱完成
-
-**沒做好：**
-- S7 banner preview 的 mock bar 做成單行 horizontal layout，文字長度接近 frame 邊界時會被擠壓到視覺緊湊（截圖看得出）；沒先估算「One operator. Six AI agents. Every ticket leaves a doc trail. See how →」需要多少寬度就下手
-- 截圖驗證只做整 frame 遠景，沒分區 zoom-in 驗 S7/S8 細節排版（例如 s8 redact row 裡的「LET'S / TALK / [redact]」實際間距、s7 bmL 三句之間是否會 wrap）
-- S6 三個 arch card 的 intro 改成 Newsreader italic 一行後才意識到：S5 原本的 iUkFk 也是 Newsreader italic intro（S5/S6 intro 格式一致化是事後湊巧對齊，不是刻意規劃）
-
-**下次改善：**
-- 建長條 banner / preview 這類「單行塞多句」元素前，先估算字數 × fontSize 近似寬度，必要時改 `textGrowth: fixed-width` 讓它 wrap，不要賭水平空間
-- 截圖驗證分兩層：整 frame 看結構 + 每個新 section（S6/S7/S8）單獨 get_screenshot 驗細節，不只看遠景
-- section intro 格式（Newsreader italic 一行 vs Playfair italic 大字）應在一開始定義清楚並統一套用，避免邊做邊決定
+**Next time improvement:**
+- For new frames at far-from-viewport coordinates (x > 15000), at placeholder phase add a large red glyph smoke test, `get_screenshot` confirm renderable before filling content; if can't capture, move to nearby existing-content coordinates (x ≤ 14000)
+- For complex structures (multi-level nested frames), first batch_design only builds 1 level + 1 text sample, screenshot pass before expanding
+- When visual verification fails but `batch_get` structure is correct + `git status` shows M → explicitly tell user "buffer and disk content correct, Pencil MCP screenshot can't render, please visually confirm in Pencil app", do not pretend visual passed
 
 ---
 
-## 2026-04-19 — K-017 /about 3 風格 mini-preview（Blueprint / Dossier / Editorial）
+## 2026-04-19 — K-017 /about v2 Dossier implementation
 
-**做得好：**
-- PM 的 3 風格規格逐行拆解：每個方向先列 palette / fonts / HEADER 構圖 / METRICS 構圖 4 個軸再下 batch_design，避免混風格
-- 3 個 preview 並排 x=12400/13800/15200（同 y=0）放在 canvas 右側空白區，單一檔內對比，符合硬規則「不新建 .pen 檔」
-- 每個 preview 做完立刻 get_screenshot 驗收（不批次收尾驗證），Blueprint 的工程格線、Dossier 的紅色章印旋轉、Editorial 的 Fig. 標註分段都一次到位
-- 工具限制前置處理：章印用 2 層 ellipse stroke + 旋轉 text 模擬（Pencil 無 polygon 限制預防）；dimension line 用 rectangle 組 tick 模擬；frame 顯式設 fill 避免預設黑底
-- 插 3 個 preview frame 時各自加 `placeholder:true`，完工時逐一 U() 清除，符合 placeholder flow
+**What went well:**
+- Pre-work `batch_get` 35VCj captured S1–S6 existing node map, then cross-referenced a0n1a's anchors (FILE Nº / § stamp / redact row) to reuse the structural vocabulary directly, no fresh restyle
+- User's "only change numbers to roman" point instruction executed cleanly: only 3 nodes (1jwQq / pArmD / 6spHE) got `U({fontStyle:"normal"})`, no spillover to other italic elements
+- Filling S6/S7/S8 used same FILE Nº + black header bar + § stamp box Dossier skeleton (LAYER Nº / APPENDIX A / § CONTACT), no new decorative vocabulary invented
+- Each batch_design under 25 ops, S6/S7/S8 split into separate rounds, avoiding single-round overflow
+- End of flow proactively `git status` confirmed disk flush (M state), no buffer-only completion claim
 
-**沒做好：**
-- 第一次 I() 時誤把 `id:"k017_preview1"` 塞進 properties，忽略 schema 提示「id 由系統自動產生」。雖未報錯但造成 binding 名與實際 node id 不一致，後續 batch 只能用系統回傳的 FDq97 / a0n1a / 8OvXi，讓 frame 命名失去語意
-- 磁碟 save 驗證仍未解決：batch_design 寫 buffer 後 git diff 顯示檔案有變（+2177 行），但 .pen 是加密格式，grep 無法確認「這 diff 含本次 3 個 preview」或只是舊 buffer 殘餘。依 persona Step 5-6 規則仍須請使用者手動 cmd+s 後我複驗
-- 每個 preview 的 METRICS 固定高度 240-280px，沒先用 snapshot_layout 量文字實際佔位 → 若未來數字改長（如 MA99 從 99.7 → 100.00）可能溢出
+**What went wrong:**
+- S7 banner preview's mock bar built as single-line horizontal layout; text length nearing frame edge would visually compress (visible in screenshot); did not pre-estimate "One operator. Six AI agents. Every ticket leaves a doc trail. See how →"'s required width before acting
+- Screenshot verification only did full-frame long-shot, no zoned zoom-in verification of S7/S8 detail layout (e.g. s8 redact row's actual "LET'S / TALK / [redact]" spacing, s7 bmL three-sentence wrap behavior)
+- S6's three arch cards' intros switched to Newsreader italic single-line — only afterwards realized S5's iUkFk was also Newsreader italic intro (S5/S6 intro format consistency was incidental, not deliberately planned)
 
-**下次改善：**
-- I() 絕不在 operation 內帶 `id:` 屬性（系統只認自己生的 id），改用 `name:` 做語意識別 + binding 名對應
-- 複雜章印 / 工程標註類裝飾用 `reusable: true` 元件做一份放在 canvas 側邊，其他 preview 用 ref 引用，降低 3 preview 之間的裝飾抄寫成本
-- 數字大小容器用 `fit_content` + parent `min-height` 規範，不硬編 240/280
+**Next time improvement:**
+- Before building long-banner / preview "single-line packing many sentences" elements, pre-estimate char-count × fontSize approximate width; if needed, switch to `textGrowth: fixed-width` to wrap, do not gamble on horizontal space
+- Screenshot verification two-tier: full-frame structure + per-new-section (S6/S7/S8) standalone get_screenshot for detail; not only long-shot
+- Section intro format (Newsreader italic single-line vs Playfair italic large) should be defined upfront and applied uniformly, not decided ad hoc
+
+---
+
+## 2026-04-19 — K-017 /about 3-style mini-preview (Blueprint / Dossier / Editorial)
+
+**What went well:**
+- Decomposed PM's 3-style spec line by line: each direction first listed palette / fonts / HEADER composition / METRICS composition (4 axes) before issuing batch_design, avoiding style mix-ups
+- 3 previews placed side by side at x=12400/13800/15200 (same y=0) in canvas right-side blank zone; single-file comparison conforms to the hard rule "no new .pen files"
+- After each preview, immediately get_screenshot for inspection (no batch closeout verification); Blueprint's engineering grid, Dossier's red rotated stamp, Editorial's Fig. annotation segmentation all hit on first try
+- Tool-limitation pre-handling: stamp simulated with 2-layer ellipse stroke + rotated text (Pencil has no polygon, prevention); dimension line simulated with rectangle ticks; frame explicit fill to avoid default black background
+- Inserted 3 preview frames each with `placeholder:true`, cleaned with U() at completion, conforming to placeholder flow
+
+**What went wrong:**
+- First I() mistakenly stuffed `id:"k017_preview1"` into properties, ignoring schema hint "id is auto-generated"; no error but binding name drifted from actual node id, so later batches could only use system-returned FDq97 / a0n1a / 8OvXi, robbing frame names of semantic meaning
+- Disk save verification still unresolved: after batch_design wrote buffer, git diff showed file changed (+2177 lines), but `.pen` is encrypted format — grep cannot confirm "this diff contains this round's 3 previews" vs "old buffer residue". Per persona Step 5-6 rules, must still ask user to manually cmd+s then I re-verify
+- Each preview's METRICS fixed height 240-280px; did not first snapshot_layout actual text occupancy → if numbers grow longer in future (e.g. MA99 from 99.7 → 100.00), may overflow
+
+**Next time improvement:**
+- I() must never carry `id:` attribute in operation (system only honors its own ids); use `name:` for semantic identification + binding-name correspondence
+- Complex stamp / engineering annotation decorations: use `reusable: true` to make a side component and have other previews ref-reference it, lowering decoration-copy cost across 3 previews
+- Big-number containers use `fit_content` + parent `min-height` rule, do not hardcode 240/280
 
 ---
 
 ## 2026-04-19 — K-017 /about portfolio v2 + Homepage BuiltByAIBanner
 
-**做得好：**
-- 開工前讀完 PRD 8 條 AC + Architect 設計的組件樹 §2.1 + props interface §2.4 + Homepage banner 放置 §2.3，確認每個 section 的文案逐字、順序與視覺層級後才下 batch_design
-- Homepage banner 精準插在 divider (`HS9vm`) 與 Hero (`W14Hp`) 之間（用 `M(banner,"dgTTO",2)` 定位到 index 2），首次截圖就到位、不搶 Hero 視覺
-- 在同一 .pen 檔內新增 `/about (K-017 v2)` 新 frame（x=10760），舊 `pItGL` 保留供對比，符合使用者「不新建 .pen 檔」硬規則；每 section 獨立 screenshot 驗證文案拼寫與視覺層級
+**What went well:**
+- Pre-work read PRD 8 ACs + Architect-designed component tree §2.1 + props interface §2.4 + Homepage banner placement §2.3, confirmed each section's verbatim copy, ordering, and visual hierarchy before issuing batch_design
+- Homepage banner precisely inserted between divider (`HS9vm`) and Hero (`W14Hp`) (used `M(banner,"dgTTO",2)` to position at index 2); first screenshot was on-target, didn't overshadow Hero
+- Within the same .pen file, added `/about (K-017 v2)` new frame (x=10760), kept old `pItGL` for comparison, conforming to user's "no new .pen file" hard rule; per-section get_screenshot verified copy spelling and visual hierarchy
 
-**沒做好：**
-- **`batch_design` 完成後磁碟檔案未寫入**（mtime 仍為 Apr 18，size 仍 183439）— Pencil MCP 的 save 行為似乎需要 Pencil 應用程式 UI 觸發 cmd+s，純 MCP batch_design/open_document 無法 flush buffer。此為工具限制而非我行為問題，但我在下第一個 batch_design 之前未先驗證 save 機制就進入大量寫入，導致交付時被迫把 blocker 回報給 PM
-- S4 pillar blockquote 我選了左邊 3px 邊框 + italic text 組合來模擬 markdown `> *...*`；Pencil 的 frame 預設無「左 border only」的乾淨原語，我用 stroke thickness `{left:3}` + padding 模擬，但實際 render 的 stroke 可能因 Pencil 版本不同有視覺差異——這應在設計規範前先確認
+**What went wrong:**
+- **`batch_design` completed but disk file not written** (mtime still Apr 18, size still 183439) — Pencil MCP's save behavior seems to require Pencil app UI cmd+s; pure MCP batch_design/open_document cannot flush buffer. This is a tool limitation rather than my behavior, but I did not verify the save mechanism before issuing the first batch_design, so on delivery I had to escalate the blocker to PM
+- S4 pillar blockquote: I chose left 3px border + italic text combo to simulate markdown `> *...*`; Pencil's frame has no clean "left-border-only" primitive; I used stroke thickness `{left:3}` + padding to simulate, but actual rendering may visually differ across Pencil versions — this should have been confirmed before fixing it as design spec
 
-**下次改善：**
-- 第一次對新 .pen 檔案動手前，先做一次小 insert（如 1 個 rectangle）然後立即 `git status` 驗證 save 機制是否生效；若確認 Pencil MCP 無 auto-save，下一步 batch_design 前主動告訴 PM「此工具需要你開 Pencil 應用程式 cmd+s 才會寫盤」，避免工作完成後才發現無法交付
-- 使用 Pencil 原語模擬 markdown 語意（blockquote / code / link）時，先用 `get_guidelines("guide", ...)` 查是否有既有 pattern；沒有就在回報時明示「視覺以 stroke+italic 模擬 blockquote，實作時由 Engineer 用真 `<blockquote>` + CSS border-left」
-- 大幅新增 frame（本次新增 60+ 節點）前先用 `find_empty_space_on_canvas` 計算需求空間（本次已做，維持此習慣）
+**Next time improvement:**
+- Before the first action on a new .pen file, first do a small insert (like 1 rectangle) and immediately `git status` to verify save mechanism; if confirmed Pencil MCP has no auto-save, before next batch_design proactively tell PM "this tool requires you to open the Pencil app and cmd+s before disk write", to avoid discovering the un-deliverability only after work is done
+- When using Pencil primitives to simulate markdown semantics (blockquote / code / link), first check `get_guidelines("guide", ...)` for an existing pattern; if none, on report explicitly state "visually simulated blockquote with stroke+italic; Engineer should implement with real `<blockquote>` + CSS border-left"
+- Before large-scale frame additions (this round added 60+ nodes), use `find_empty_space_on_canvas` to estimate required space (done this round; keep the habit)
 
 

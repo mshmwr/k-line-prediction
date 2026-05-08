@@ -97,7 +97,7 @@ Unix,Date,Symbol,Open,High,Low,Close,Volume ETH,Volume USDT,tradecount
 
 Format: CryptoDataDownload (provenance row + header row + 5 OHLCV rows = 7 lines, 646 bytes). `_parse_csv_history_from_text` branch at `main.py:91 (is_cryptodatadownload = startswith('http'))` handles this exactly. `lines.reverse()` on 102 puts bars chronological.
 
-### §API 不變性 dual-axis
+### §API invariance dual-axis
 
 **(a) Wire-level schema diff:** response dict keys unchanged — `{filename, latest, bar_count, added_count, timeframe}`. Same 5 keys pre and post K-046. **Zero schema-level drift.**
 

@@ -1,41 +1,41 @@
-# MA99 圖表顯示設計文件
+# MA99 Chart Display Design Doc
 
-**日期：** 2026-04-07  
-**功能：** 在 MainChart 與 MatchList 圖表上顯示 MA99 線，並在歷史資料不足時顯示警告
-
----
-
-## 背景與目的
-
-使用者在網頁上輸入最新 48h OHLC 資料，系統透過歷史資料計算 MA99 作為匹配條件（目前已佔預測權重 40%），但 MA99 線尚未顯示在任何圖表上。
-
-本功能目標：讓使用者能在以下圖表看到 MA99 線（紫色），以更直觀理解目前走勢與歷史匹配段的 MA 趨勢：
-1. **MainChart** — 使用者輸入的 48h 資料圖表
-2. **MatchList 的 PredictorChart** — 每個歷史匹配段（48h 歷史 + 72h 未來）的小圖
-
-當歷史資料不足以計算某些 K 線的 MA99 時，後端回報缺口日期範圍，前端在 MainChart 上顯示警告訊息。
+**Date:** 2026-04-07
+**Feature:** Display MA99 line on MainChart and MatchList charts; show warning when historical data is insufficient
 
 ---
 
-## 設計決策
+## Background and Goal
 
-**後端統一計算 MA99，前端只負責渲染**
+Users input the latest 48h OHLC data on the web; the system computes MA99 from historical data as a matching condition (currently weighted 40% in prediction). However, the MA99 line is not yet shown on any chart.
 
-- 後端有完整歷史資料庫，可正確回填前置資料來計算 MA99
-- 前端透過 API response 拿到 MA99 數值陣列（含 `null`）和缺口資訊，直接畫線
-- 確保 MainChart 和 MatchList 圖表的 MA99 計算邏輯一致
+This feature's goal: let users see the MA99 line (purple) on the following charts to more intuitively understand the current trend versus historical match segments' MA trend:
+1. **MainChart** — chart of the user's 48h input data
+2. **PredictorChart inside MatchList** — small chart for each historical match segment (48h history + 72h future)
+
+When historical data is insufficient to compute MA99 for some K-line bars, the backend reports the gap date range and the frontend shows a warning on MainChart.
 
 ---
 
-## 資料模型變更
+## Design Decision
 
-### 後端（`backend/models.py`）
+**Backend computes MA99 in one place; frontend only renders**
+
+- Backend has full historical database, can correctly backfill prefix data to compute MA99
+- Frontend receives MA99 numeric arrays (with `null`) and gap info via API response, draws line directly
+- Ensures MainChart and MatchList chart MA99 logic is consistent
+
+---
+
+## Data Model Changes
+
+### Backend (`backend/models.py`)
 
 ```python
 class Ma99Gap(BaseModel):
-    """表示某段日期範圍內 MA99 無法計算（歷史前綴不足 99 根）"""
-    from_date: str   # 第一根無 MA99 的 bar 時間（ISO 字串）
-    to_date: str     # 最後一根無 MA99 的 bar 時間（ISO 字串）
+    """Represents a date range where MA99 cannot be computed (historical prefix < 99 bars)"""
+    from_date: str   # First bar without MA99 (ISO string)
+    to_date: str     # Last bar without MA99 (ISO string)
 
 class MatchCase(BaseModel):
     id: str
@@ -44,17 +44,17 @@ class MatchCase(BaseModel):
     future_ohlc: List[OHLCBar]
     start_date: str
     end_date: str
-    historical_ma99: List[Optional[float]]  # 新增：len = len(historical_ohlc)，不足時為 None
-    future_ma99: List[Optional[float]]      # 新增：len = len(future_ohlc)，不足時為 None
+    historical_ma99: List[Optional[float]]  # New: len = len(historical_ohlc); None when insufficient
+    future_ma99: List[Optional[float]]      # New: len = len(future_ohlc); None when insufficient
 
 class PredictResponse(BaseModel):
     matches: List[MatchCase]
     stats: PredictStats
-    query_ma99: List[Optional[float]]       # 新增：len = len(ohlc_data)，不足時為 None
-    query_ma99_gap: Optional[Ma99Gap]       # 新增：有缺口時帶日期範圍，否則 null
+    query_ma99: List[Optional[float]]       # New: len = len(ohlc_data); None when insufficient
+    query_ma99_gap: Optional[Ma99Gap]       # New: gap range when present, otherwise null
 ```
 
-### 前端（`frontend/src/types.ts`）
+### Frontend (`frontend/src/types.ts`)
 
 ```typescript
 interface Ma99Gap {
@@ -63,23 +63,23 @@ interface Ma99Gap {
 }
 
 interface MatchCase {
-  // ...現有欄位
-  historicalMa99: (number | null)[]   // 新增
-  futureMa99: (number | null)[]       // 新增
+  // ...existing fields
+  historicalMa99: (number | null)[]   // New
+  futureMa99: (number | null)[]       // New
 }
 
 interface PredictResponse {
-  // ...現有欄位
-  queryMa99: (number | null)[]        // 新增
-  queryMa99Gap: Ma99Gap | null        // 新增
+  // ...existing fields
+  queryMa99: (number | null)[]        // New
+  queryMa99Gap: Ma99Gap | null        // New
 }
 ```
 
 ---
 
-## 後端計算邏輯（`backend/predictor.py`）
+## Backend Computation (`backend/predictor.py`)
 
-### 新增輔助函式
+### New Helper Function
 
 ```python
 def _compute_ma99_for_window(
@@ -87,14 +87,14 @@ def _compute_ma99_for_window(
     prefix_bars: List[OHLCBar],
 ) -> List[Optional[float]]:
     """
-    利用 prefix_bars + window_bars 計算 MA99。
-    回傳 len(window_bars) 個值，不足以計算的位置填 None。
-    
-    計算方式：
-      combined = prefix + window（全部不截斷）
+    Compute MA99 using prefix_bars + window_bars.
+    Returns len(window_bars) values; positions where computation is impossible are None.
+
+    Method:
+      combined = prefix + window (no truncation)
       ma_full = rolling_mean(combined_closes, 99)
-      ma_full[i] 對應 combined[i + 98]
-      對於 window_bars[j]：ma_idx = len(prefix) + j - 98
+      ma_full[i] corresponds to combined[i + 98]
+      For window_bars[j]: ma_idx = len(prefix) + j - 98
         if ma_idx >= 0 → ma_full[ma_idx]
         else          → None
     """
@@ -114,7 +114,7 @@ def _compute_ma99_for_window(
     return result
 ```
 
-### 缺口資訊計算
+### Gap Extraction
 
 ```python
 def _extract_ma99_gap(
@@ -122,8 +122,8 @@ def _extract_ma99_gap(
     ma99_values: List[Optional[float]],
 ) -> Optional[Ma99Gap]:
     """
-    找出 ma99_values 開頭連續為 None 的日期範圍。
-    缺口只會出現在開頭（prefix 不夠），不會在中間出現。
+    Find the leading consecutive None range in ma99_values.
+    Gap only appears at the start (insufficient prefix); never in the middle.
     """
     gap_start = None
     gap_end = None
@@ -133,138 +133,138 @@ def _extract_ma99_gap(
                 gap_start = bar.time
             gap_end = bar.time
         else:
-            break  # 遇到第一個有效值即停止
+            break  # Stop at first valid value
     if gap_start:
         return Ma99Gap(from_date=gap_start, to_date=gap_end)
     return None
 ```
 
-### 在 `main.py` `/api/predict` 端點組裝 response
+### Assembly in `main.py` `/api/predict` Endpoint
 
 ```python
-# 1. query_ma99：從歷史找 query 最早時間戳前的所有前置 bars
-query_prefix = _get_prefix_bars(history, query_bars[0].time, n=None)  # 取全部前置
+# 1. query_ma99: take all prefix bars before query's earliest timestamp
+query_prefix = _get_prefix_bars(history, query_bars[0].time, n=None)  # take all prefix
 query_ma99 = _compute_ma99_for_window(query_bars, query_prefix)
 query_ma99_gap = _extract_ma99_gap(query_bars, query_ma99)
 
-# 2. 每個 match 的 historical_ma99 + future_ma99
+# 2. Per-match historical_ma99 + future_ma99
 for match in matches:
-    match_prefix = history[:match.start_idx]  # 取該 match 前所有歷史
+    match_prefix = history[:match.start_idx]  # all history before this match
     combined_window = match.historical_ohlc + match.future_ohlc
     combined_ma99 = _compute_ma99_for_window(combined_window, match_prefix)
     split = len(match.historical_ohlc)
     match.historical_ma99 = combined_ma99[:split]
     match.future_ma99 = combined_ma99[split:]
-    # match 的缺口通常不存在（歷史資料充足），不另外回傳
+    # Match gaps usually do not exist (history sufficient); not separately returned
 ```
 
 ---
 
-## 前端顯示邏輯
+## Frontend Render Logic
 
-### MA99 線樣式
+### MA99 Line Style
 
-| 屬性 | 值 |
+| Property | Value |
 |------|----|
-| 顏色 | `rgba(160, 32, 240, 0.85)`（紫色） |
-| 線寬 | `1` |
-| 標題 | `'MA99'` |
+| Color | `rgba(160, 32, 240, 0.85)` (purple) |
+| Line width | `1` |
+| Title | `'MA99'` |
 | priceLineVisible | `false` |
 | lastValueVisible | `false` |
 
-繪製時過濾掉 `null` 值，只傳有效資料點給 `lineSeries.setData()`。
+When drawing, filter out `null`; only pass valid points to `lineSeries.setData()`.
 
 ### `MainChart.tsx`
 
-- 新增 props：`ma99Values?: (number | null)[]`
-- 在 K 線 series 後加入紫色 `addLineSeries()`
-- 過濾 `null`，繪製連續有效線段
-- MA99 來源：`App.tsx` 從 `PredictResponse.queryMa99` 儲存並傳入
+- New prop: `ma99Values?: (number | null)[]`
+- After K-line series, add purple `addLineSeries()`
+- Filter `null`; render continuous valid segments
+- MA99 source: `App.tsx` stores from `PredictResponse.queryMa99` and passes in
 
-### MA99 缺口警告（`MainChart.tsx` 或獨立 `Ma99Warning` 元件）
+### MA99 Gap Warning (`MainChart.tsx` or standalone `Ma99Warning` component)
 
-當 `queryMa99Gap` 不為 `null` 時，在 MainChart 上方顯示黃色警告列：
+When `queryMa99Gap` is not `null`, show yellow warning bar above MainChart:
 
 ```
-⚠ MA99 資料缺失：{fromDate} ~ {toDate}（歷史前置資料不足 99 根）
+⚠ MA99 data missing: {fromDate} ~ {toDate} (historical prefix < 99 bars)
 ```
 
-- 樣式：黃色底、深色文字、細長條（`bg-yellow-100 text-yellow-800 text-xs px-3 py-1`）
-- 不阻擋使用者操作，純資訊提示
+- Style: yellow background, dark text, slim bar (`bg-yellow-100 text-yellow-800 text-xs px-3 py-1`)
+- Does not block user actions; informational only
 
-### `MatchList.tsx` 的 `PredictorChart`（內嵌元件）
+### `PredictorChart` inside `MatchList.tsx` (embedded component)
 
-- 新增 props：`historicalMa99: (number | null)[]`, `futureMa99: (number | null)[]`
-- 合併兩段 MA 值，對齊時間軸繪製同一條 MA99 線（紫色）
-- 橙色分隔線（現有邏輯）保持不變
-- match 的 MA99 缺口（罕見，僅限 2017 年初資料）不另外警告，靜默跳過
+- New props: `historicalMa99: (number | null)[]`, `futureMa99: (number | null)[]`
+- Concatenate the two MA series, align timeline, draw a single MA99 line (purple)
+- Orange divider (existing logic) unchanged
+- Match-level MA99 gap (rare; only early-2017 data) is not warned; silently skipped
 
-### `App.tsx` 狀態管理
+### `App.tsx` State
 
 ```typescript
 const [queryMa99, setQueryMa99] = useState<(number | null)[]>([])
 const [queryMa99Gap, setQueryMa99Gap] = useState<Ma99Gap | null>(null)
 
-// 在 handlePredict 成功後
+// On handlePredict success
 setQueryMa99(response.queryMa99 ?? [])
 setQueryMa99Gap(response.queryMa99Gap ?? null)
 ```
 
 ---
 
-## 資料流程圖
+## Data Flow Diagram
 
 ```
-使用者輸入 48h → POST /api/predict
+User input 48h → POST /api/predict
   ↓
-find_top_matches()   ← 現有邏輯不變（MA99 仍佔 40% 匹配權重）
+find_top_matches()   ← Existing logic unchanged (MA99 still 40% match weight)
   ↓
-新增：計算 MA99 陣列
-  query_prefix = 歷史中 query 最早時間戳之前的所有 bars
+New: compute MA99 arrays
+  query_prefix = all bars before query's earliest timestamp
   query_ma99 = _compute_ma99_for_window(query, query_prefix)
-               → List[Optional[float]]，開頭不足 99 根的位置為 None
+               → List[Optional[float]]; leading positions where prefix < 99 are None
   query_ma99_gap = _extract_ma99_gap(query_bars, query_ma99)
-                 → None 或 {from_date, to_date}
+                 → None or {from_date, to_date}
   for each match:
     match_ma99 = _compute_ma99_for_window(hist+fut, history[:start_idx])
     split → historical_ma99, future_ma99
   ↓
-PredictResponse（含 query_ma99、query_ma99_gap、每個 match 的 ma99 陣列）
+PredictResponse (with query_ma99, query_ma99_gap, per-match ma99 arrays)
   ↓
-MainChart 畫 query_ma99 線（紫色，null 值跳過）
-  + 若 query_ma99_gap != null，顯示黃色缺口警告列
-MatchList PredictorChart 畫 historical_ma99 + future_ma99 線（紫色）
+MainChart draws query_ma99 line (purple, null skipped)
+  + if query_ma99_gap != null, show yellow gap warning bar
+MatchList PredictorChart draws historical_ma99 + future_ma99 line (purple)
 ```
 
 ---
 
-## 驗證方式
+## Verification
 
-1. 啟動後端 `uvicorn main:app --reload --port 8000`
-2. 啟動前端 `npm run dev`
-3. **正常情況（歷史充足）：**
-   - 輸入 48 行含時間戳的 OHLC → 點擊預測
-   - 確認 MainChart 上出現完整紫色 MA99 線，無警告
-   - 展開 MatchList 任一 match → 歷史段 + 未來段有紫色 MA99 線延伸
-4. **歷史不足情況（邊界測試）：**
-   - 輸入時間戳設為 2017 年 8 月（歷史資料起點附近）
-   - 確認 MainChart 出現黃色警告列，顯示正確缺口日期
-   - 確認 MA99 線從缺口結束日期後才開始繪製
-5. **無時間戳情況：**
-   - 輸入無時間戳的資料 → 確認 query_ma99 為全 null，顯示警告
-6. 執行後端測試 `pytest` 全部通過
+1. Start backend `uvicorn main:app --reload --port 8000`
+2. Start frontend `npm run dev`
+3. **Normal case (sufficient history):**
+   - Input 48 lines of OHLC with timestamps → click predict
+   - Confirm MainChart shows full purple MA99 line; no warning
+   - Expand any match in MatchList → historical + future segments show purple MA99 line continuation
+4. **Insufficient history case (boundary test):**
+   - Input timestamps near August 2017 (near history start)
+   - Confirm MainChart shows yellow warning bar with correct gap dates
+   - Confirm MA99 line starts only after gap end date
+5. **No-timestamp case:**
+   - Input data without timestamps → confirm query_ma99 is all null; warning shown
+6. Run backend tests `pytest`; all pass
 
 ---
 
-## 影響範圍
+## Impact Scope
 
-| 檔案 | 變更類型 |
+| File | Change type |
 |------|----------|
-| `backend/models.py` | 新增 `Ma99Gap`、更新 `MatchCase` 和 `PredictResponse` 欄位 |
-| `backend/predictor.py` | 新增 `_compute_ma99_for_window`、`_extract_ma99_gap` |
-| `backend/main.py` | 組裝 response 時呼叫新函式 |
-| `frontend/src/types.ts` | 新增 `Ma99Gap`、更新 `MatchCase` 和 `PredictResponse` |
-| `frontend/src/App.tsx` | 新增 `queryMa99`、`queryMa99Gap` state |
-| `frontend/src/components/MainChart.tsx` | 新增 MA99 line series + 缺口警告列 |
-| `frontend/src/components/MatchList.tsx` | 新增 MA99 line series（PredictorChart） |
-| `backend/tests/test_predictor.py` | 新增 `_compute_ma99_for_window` 和 `_extract_ma99_gap` 測試 |
+| `backend/models.py` | Add `Ma99Gap`; update `MatchCase` and `PredictResponse` fields |
+| `backend/predictor.py` | Add `_compute_ma99_for_window`, `_extract_ma99_gap` |
+| `backend/main.py` | Call new functions when assembling response |
+| `frontend/src/types.ts` | Add `Ma99Gap`; update `MatchCase` and `PredictResponse` |
+| `frontend/src/App.tsx` | Add `queryMa99`, `queryMa99Gap` state |
+| `frontend/src/components/MainChart.tsx` | Add MA99 line series + gap warning bar |
+| `frontend/src/components/MatchList.tsx` | Add MA99 line series (PredictorChart) |
+| `backend/tests/test_predictor.py` | Add tests for `_compute_ma99_for_window` and `_extract_ma99_gap` |

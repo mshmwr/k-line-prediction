@@ -329,7 +329,7 @@ Steps 3–8 can run in any order after Steps 1–2 complete. Step 9 is Sacred-ca
 | `frontend/e2e/about.spec.ts` | HEAD | 326 lines; AC-017-PILLARS (L150-…), AC-017-TICKETS (L202-…), AC-017-ARCH (L244-…) text assertions | Steps 5/6/7 E2E targets |
 | `frontend/e2e/pages.spec.ts` | HEAD | L62-65 DiaryPage + AboutPage references to "How AI Stays Reliable" | No change needed (h2 preserved in Step 5) |
 
-### 8.2 §API 不變性證明 (dual-axis)
+### 8.2 §API invariance proof (dual-axis)
 
 - **Wire-level schema diff:** `git diff HEAD -- backend/` = 0 lines (no backend changes planned). ✓
 - **Frontend observable behavior diff table:**
