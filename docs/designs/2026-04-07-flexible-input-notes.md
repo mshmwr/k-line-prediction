@@ -1,51 +1,51 @@
-# 彈性輸入功能需求筆記
+# Flexible Input Feature Requirement Notes
 
-**日期：** 2026-04-07  
-**狀態：** 需求討論中，尚未進入設計階段
+**Date:** 2026-04-07
+**Status:** In requirement discussion; not yet entered design stage
 
 ---
 
-## 背景
+## Background
 
-目前使用者需要輸入剛好 48 根（1H 時間框架）的 K 線資料才能執行預測。歷史 DB 每次用戶上傳含時間戳的資料後都會自動合併更新，代表 DB 可能已有部分最近的 bars。
+Currently, users must input exactly 48 K-line bars (1H timeframe) to run prediction. The historical DB auto-merges and updates after each user upload of timestamped data, meaning the DB may already contain some recent bars.
 
-## 核心目標
+## Core Goal
 
-允許使用者輸入**少於 48 根**的 K 線，系統自動從歷史 DB 回填不足的部分，補齊到標準窗口大小後再進行匹配。
+Allow users to input **fewer than 48** K-line bars; the system auto-backfills the missing portion from the historical DB to reach the standard window size, then runs matching.
 
-## 行為設計（初稿）
+## Behavior Design (draft)
 
-**情況 A：DB 有足夠的回填資料**
-- 使用者輸入 N 根（N < 48），系統從 DB 找到前置 (48 - N) 根
-- 合併後送入 `find_top_matches()`，使用者無感知，預測正常執行
+**Case A: DB has sufficient backfill data**
+- User inputs N bars (N < 48); system finds prefix (48 - N) bars from DB
+- After merge, feed `find_top_matches()`; user is unaware; prediction runs normally
 
-**情況 B：DB 回填資料不足**
-- 合併後仍不足 48 根
-- 後端回傳錯誤，告知缺少的日期範圍（從哪天到哪天）
-- 前端顯示：「資料不足，請提供 {fromDate} ~ {toDate} 的 K 線」
+**Case B: DB backfill insufficient**
+- After merge, still less than 48 bars
+- Backend returns error indicating the missing date range (from-to)
+- Frontend shows: "Insufficient data; please provide K-lines from {fromDate} to {toDate}"
 
-**情況 C：使用者輸入 >= 48 根**
-- 維持現有行為不變
+**Case C: User inputs >= 48 bars**
+- Existing behavior unchanged
 
-## 前端行為變更（初稿）
+## Frontend Behavior Changes (draft)
 
-- 輸入表格從「固定 48 行」改為「可變行數」
-- 點擊預測時，若後端回報日期缺口，顯示清楚的提示（而非通用錯誤）
+- Input table changes from "fixed 48 rows" to "variable row count"
+- On predict click, if backend reports a date gap, show a clear message (not a generic error)
 
-## 尚待確認的問題（留給設計討論）
+## Open Questions (for design discussion)
 
-1. **標準窗口大小是否固定 48？**  
-   使用者輸入 30 根，DB 有 50 根回填，是否允許以 80 根作為窗口去匹配？還是必須補滿 48 根？
+1. **Is the standard window size fixed at 48?**
+   If user inputs 30 bars and DB has 50 backfill bars, is matching with an 80-bar window allowed? Or must we fill exactly to 48?
 
-2. **前端輸入 UI 的最少行數限制？**  
-   目前後端最少 2 根才能執行，UI 要不要有下限提示？
+2. **Minimum row count limit in frontend input UI?**
+   Backend minimum is 2 bars to run; should UI surface a lower-bound hint?
 
-3. **回填資料是否顯示在圖表上？**  
-   使用者只提供 24 根，但圖表顯示 48 根（包含 DB 回填的部分），UX 如何處理？
+3. **Should backfill data be shown on the chart?**
+   User provides 24 bars but chart shows 48 (including DB backfill); how do we handle UX?
 
-## 相關程式碼現況
+## Relevant Code Status
 
-- 後端沒有硬性的 48 根要求，`find_top_matches()` 最少接受 2 根
-- MA99 計算已支援 "aligned" 模式（有時間戳時從歷史 DB 補足前置 bars）
-- 歷史 DB 路徑：`backend/data/Binance_ETHUSDT_1h.csv`（1H）、`Binance_ETHUSDT_d.csv`（1D）
-- 相關函式：`get_prefix_bars()`（MA99 計畫中新增）、`_history_time_index()`、`_normalize_time()`
+- Backend has no hard 48-bar requirement; `find_top_matches()` accepts a minimum of 2 bars
+- MA99 calc already supports "aligned" mode (when timestamps present, prefix bars are pulled from historical DB)
+- Historical DB path: `backend/data/Binance_ETHUSDT_1h.csv` (1H), `Binance_ETHUSDT_d.csv` (1D)
+- Related functions: `get_prefix_bars()` (added in MA99 plan), `_history_time_index()`, `_normalize_time()`

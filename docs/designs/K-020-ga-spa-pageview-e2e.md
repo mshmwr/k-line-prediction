@@ -9,13 +9,13 @@ updated: 2026-04-22
 base-commit: 316cc04 (branch tip; worktree ahead of main by 1 re-plan commit)
 ---
 
-## 0 Scope Questions (K-020 起 — 裁決結果)
+## 0 Scope Questions (from K-020 — ruling outcomes)
 
 All Scope Questions answered by PM 2026-04-22 (see ticket §BQ Resolution). No open SQ from Architect this round.
 
 ---
 
-## 1 Files Inspected (Pre-Design Audit — Truth Table 形式)
+## 1 Files Inspected (Pre-Design Audit — Truth Table format)
 
 **Base commit for pre-existing claims: `316cc04` (current HEAD; ahead of main by 1 docs-only re-plan commit; no source code diff vs main).**
 

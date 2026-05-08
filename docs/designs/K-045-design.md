@@ -68,7 +68,7 @@ Enumerate (viewport) × (route) grid; fields = `paddingLeft (px)`, `contentMaxWi
 
 Desktop mapping: `max-w-[1248px] mx-auto px-6 sm:px-24 pt-8 pb-8 sm:pt-[72px] sm:pb-[96px]` outer + `flex flex-col gap-6 sm:gap-[72px]` inner → produces identical T=72, R=96, B=96, L=96, gap=72 at ≥640 viewport. Byte-identical mapping to Home's `HomePage.tsx:22-25`.
 
-### §0.4 API invariance (§API 不變性 — Gate 3)
+### §0.4 API invariance (§API invariance — Gate 3)
 
 | Axis | Verdict |
 |---|---|

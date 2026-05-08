@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 上傳 CSV 後立即計算並顯示 MA99（不需等待預測），同時在 MatchList 每個 card 上顯示 MA99 走勢標籤。
+**Goal:** Compute and display MA99 immediately after CSV upload (no need to wait for prediction); also show MA99 trend label on each MatchList card.
 
-**Architecture:** 後端新增 `/api/merge-and-compute-ma99` endpoint，複用現有函式合併資料並回傳 MA99；前端在上傳後立即觸發此 endpoint，用 `maLoading` 狀態控制按鈕 disabled 與 MainChart loading 顯示；MatchList 純前端計算線性迴歸走勢標籤。
+**Architecture:** Backend adds `/api/merge-and-compute-ma99` endpoint, reusing existing functions to merge data and return MA99; frontend triggers this endpoint immediately after upload, uses `maLoading` state to control button disabled and MainChart loading display; MatchList computes linear-regression trend label purely on the frontend.
 
 **Tech Stack:** Python FastAPI (Pydantic), React + TypeScript, lightweight-charts, axios, pytest + TestClient
 
@@ -12,25 +12,25 @@
 
 ## File Map
 
-| 動作 | 檔案 |
+| Action | File |
 |------|------|
-| 修改 | `backend/models.py` — 新增 `Ma99Request`, `Ma99Response` |
-| 修改 | `backend/main.py` — 新增 endpoint `/api/merge-and-compute-ma99` |
-| 修改 | `backend/tests/test_predictor.py` — 新增 endpoint 測試 |
-| 修改 | `frontend/src/hooks/usePrediction.ts` — 新增 `computeMa99` function |
-| 修改 | `frontend/src/App.tsx` — 新增 `maLoading` state、upload 觸發邏輯、擴充 `disabledReason` |
-| 修改 | `frontend/src/components/PredictButton.tsx` — 新增 `'maLoading'` disabled case |
-| 修改 | `frontend/src/components/MainChart.tsx` — 新增 `maLoading` prop 與 loading 文字 |
-| 修改 | `frontend/src/components/MatchList.tsx` — 新增 `computeMaTrend` 與趨勢標籤 |
+| Modify | `backend/models.py` — add `Ma99Request`, `Ma99Response` |
+| Modify | `backend/main.py` — add endpoint `/api/merge-and-compute-ma99` |
+| Modify | `backend/tests/test_predictor.py` — add endpoint tests |
+| Modify | `frontend/src/hooks/usePrediction.ts` — add `computeMa99` function |
+| Modify | `frontend/src/App.tsx` — add `maLoading` state, upload trigger logic, extend `disabledReason` |
+| Modify | `frontend/src/components/PredictButton.tsx` — add `'maLoading'` disabled case |
+| Modify | `frontend/src/components/MainChart.tsx` — add `maLoading` prop and loading text |
+| Modify | `frontend/src/components/MatchList.tsx` — add `computeMaTrend` and trend label |
 
 ---
 
-### Task 1: 後端 Models（Ma99Request + Ma99Response）
+### Task 1: Backend Models (Ma99Request + Ma99Response)
 
 **Files:**
 - Modify: `backend/models.py`
 
-- [ ] **Step 1: 在 `backend/models.py` 末尾新增兩個 model**
+- [ ] **Step 1: Append two models at end of `backend/models.py`**
 
 ```python
 class Ma99Request(BaseModel):
@@ -42,7 +42,7 @@ class Ma99Response(BaseModel):
     query_ma99_gap: Optional[Ma99Gap] = None
 ```
 
-- [ ] **Step 2: 驗證語法**
+- [ ] **Step 2: Verify syntax**
 
 ```bash
 cd backend && python -m py_compile models.py && echo "OK"
@@ -59,15 +59,15 @@ git commit -m "feat: add Ma99Request and Ma99Response models"
 
 ---
 
-### Task 2: 後端 Endpoint + 測試
+### Task 2: Backend Endpoint + Tests
 
 **Files:**
 - Modify: `backend/main.py`
 - Test: `backend/tests/test_predictor.py`
 
-- [ ] **Step 1: 先寫兩個 failing tests**
+- [ ] **Step 1: Write two failing tests first**
 
-在 `backend/tests/test_predictor.py` 末尾新增：
+Append to `backend/tests/test_predictor.py`:
 
 ```python
 def _make_bars(count: int, start_date: str = "2022-01-01") -> list[dict]:
@@ -126,22 +126,22 @@ def test_merge_and_compute_ma99_gap_when_no_prefix():
     assert data["query_ma99_gap"] is not None
 ```
 
-- [ ] **Step 2: 執行測試確認 fail（endpoint 不存在）**
+- [ ] **Step 2: Run tests to confirm fail (endpoint does not exist)**
 
 ```bash
 cd backend && python -m pytest tests/test_predictor.py::test_merge_and_compute_ma99_returns_query_ma99 tests/test_predictor.py::test_merge_and_compute_ma99_gap_when_no_prefix -v
 ```
 
-Expected: 兩個測試都 FAIL（404 或類似錯誤）
+Expected: both tests FAIL (404 or similar error)
 
-- [ ] **Step 3: 在 `backend/main.py` 新增 endpoint**
+- [ ] **Step 3: Add endpoint to `backend/main.py`**
 
-在 `main.py` 的 import 行加入 `Ma99Request, Ma99Response`：
+Add `Ma99Request, Ma99Response` to `main.py` imports:
 ```python
 from models import PredictRequest, PredictResponse, Ma99Request, Ma99Response
 ```
 
-在 `main.py` 末端（`/api/predict` endpoint 之後）新增：
+Append at end of `main.py` (after the `/api/predict` endpoint):
 
 ```python
 @app.post("/api/merge-and-compute-ma99", response_model=Ma99Response)
@@ -179,7 +179,7 @@ def merge_and_compute_ma99(req: Ma99Request) -> Ma99Response:
     return Ma99Response(query_ma99=query_ma99, query_ma99_gap=query_ma99_gap)
 ```
 
-- [ ] **Step 4: 語法驗證**
+- [ ] **Step 4: Syntax verify**
 
 ```bash
 cd backend && python -m py_compile main.py && echo "OK"
@@ -187,21 +187,21 @@ cd backend && python -m py_compile main.py && echo "OK"
 
 Expected: `OK`
 
-- [ ] **Step 5: 執行測試確認 pass**
+- [ ] **Step 5: Run tests to confirm pass**
 
 ```bash
 cd backend && python -m pytest tests/test_predictor.py::test_merge_and_compute_ma99_returns_query_ma99 tests/test_predictor.py::test_merge_and_compute_ma99_gap_when_no_prefix -v
 ```
 
-Expected: 兩個測試都 PASS
+Expected: both tests PASS
 
-- [ ] **Step 6: 跑完整測試套件確認沒有迴歸**
+- [ ] **Step 6: Run full test suite to confirm no regression**
 
 ```bash
 cd backend && python -m pytest tests/test_predictor.py -v
 ```
 
-Expected: 全部 PASS
+Expected: all PASS
 
 - [ ] **Step 7: Commit**
 
@@ -212,12 +212,12 @@ git commit -m "feat: add /api/merge-and-compute-ma99 endpoint with tests"
 
 ---
 
-### Task 3: 前端 Hook — computeMa99 function
+### Task 3: Frontend Hook — computeMa99 function
 
 **Files:**
 - Modify: `frontend/src/hooks/usePrediction.ts`
 
-- [ ] **Step 1: 在 `usePrediction.ts` 的 `usePrediction` function 內、`predict` function 之後，新增 `computeMa99`**
+- [ ] **Step 1: Inside `usePrediction.ts`'s `usePrediction` function, after `predict`, add `computeMa99`**
 
 ```typescript
 async function computeMa99(
@@ -244,19 +244,19 @@ async function computeMa99(
 }
 ```
 
-- [ ] **Step 2: 更新 return 值，加入 `computeMa99`**
+- [ ] **Step 2: Update return value to include `computeMa99`**
 
 ```typescript
 return { predict, computeMa99, loading, error }
 ```
 
-- [ ] **Step 3: 驗證型別**
+- [ ] **Step 3: Verify types**
 
 ```bash
 cd frontend && npx tsc --noEmit
 ```
 
-Expected: 無錯誤
+Expected: no errors
 
 - [ ] **Step 4: Commit**
 
@@ -267,28 +267,28 @@ git commit -m "feat: add computeMa99 function to usePrediction hook"
 
 ---
 
-### Task 4: App.tsx — maLoading state + upload 觸發邏輯
+### Task 4: App.tsx — maLoading state + upload trigger logic
 
 **Files:**
 - Modify: `frontend/src/App.tsx`
 
-- [ ] **Step 1: 新增 `maLoading` state（在現有 state 宣告區塊）**
+- [ ] **Step 1: Add `maLoading` state (in existing state declaration block)**
 
-在 `const { predict, loading, error: predictionError } = usePrediction()` 這行，改為：
+Change `const { predict, loading, error: predictionError } = usePrediction()` to:
 
 ```typescript
 const { predict, computeMa99, loading, error: predictionError } = usePrediction()
 ```
 
-在 `const [loadError, setLoadError] = useState<string | null>(null)` 之後新增：
+After `const [loadError, setLoadError] = useState<string | null>(null)` add:
 
 ```typescript
 const [maLoading, setMaLoading] = useState(false)
 ```
 
-- [ ] **Step 2: 更新 `disabledReason` useMemo，maLoading 優先**
+- [ ] **Step 2: Update `disabledReason` useMemo so maLoading takes priority**
 
-將現有的：
+Change existing:
 ```typescript
 const disabledReason = useMemo(() => {
   if (!ohlcComplete) return 'ohlcIncomplete' as const
@@ -297,7 +297,7 @@ const disabledReason = useMemo(() => {
 }, [ohlcComplete, hasSelection, matches.length])
 ```
 
-改為：
+To:
 ```typescript
 const disabledReason = useMemo(() => {
   if (maLoading) return 'maLoading' as const
@@ -307,9 +307,9 @@ const disabledReason = useMemo(() => {
 }, [maLoading, ohlcComplete, hasSelection, matches.length])
 ```
 
-- [ ] **Step 3: 在 `handleOfficialFilesUpload` 的 `.then(results => {` block 末尾，`resetPredictionState()` 之後新增 early MA99 觸發邏輯**
+- [ ] **Step 3: At the end of `handleOfficialFilesUpload`'s `.then(results => {` block, after `resetPredictionState()`, add the early MA99 trigger**
 
-將現有的：
+Change existing:
 ```typescript
     }).then(results => {
       const combined = results.flat().sort((a, b) => a.time.localeCompare(b.time))
@@ -319,7 +319,7 @@ const disabledReason = useMemo(() => {
     }).catch(err => setLoadError((err as Error).message))
 ```
 
-改為：
+To:
 ```typescript
     }).then(results => {
       const combined = results.flat().sort((a, b) => a.time.localeCompare(b.time))
@@ -337,9 +337,9 @@ const disabledReason = useMemo(() => {
     }).catch(err => setLoadError((err as Error).message))
 ```
 
-- [ ] **Step 4: 將 `maLoading` 傳入 MainChart prop**
+- [ ] **Step 4: Pass `maLoading` to MainChart**
 
-找到現有的 `<MainChart` 使用處（App.tsx 第 429 行附近），新增 `maLoading` prop：
+Find existing `<MainChart` usage (around App.tsx line 429) and add `maLoading` prop:
 
 ```tsx
 <MainChart
@@ -352,13 +352,13 @@ const disabledReason = useMemo(() => {
 />
 ```
 
-- [ ] **Step 5: 驗證型別（會 fail，因為 PredictButton 和 MainChart 還沒更新，但可先確認 App.tsx 自身沒其他問題）**
+- [ ] **Step 5: Verify types (will fail because PredictButton and MainChart not updated yet, but confirm App.tsx itself has no other issues)**
 
 ```bash
 cd frontend && npx tsc --noEmit 2>&1 | head -30
 ```
 
-Expected: 只有 `'maLoading'` 型別不符的錯誤（後面 Task 5/6 會修掉）
+Expected: only `'maLoading'` type-mismatch errors (Tasks 5/6 will fix)
 
 - [ ] **Step 6: Commit**
 
@@ -369,26 +369,26 @@ git commit -m "feat: add maLoading state and early MA99 trigger on file upload"
 
 ---
 
-### Task 5: PredictButton — 新增 maLoading disabled case
+### Task 5: PredictButton — add maLoading disabled case
 
 **Files:**
 - Modify: `frontend/src/components/PredictButton.tsx`
 
-- [ ] **Step 1: 更新 `DisabledReason` type，加入 `'maLoading'`**
+- [ ] **Step 1: Update `DisabledReason` type to include `'maLoading'`**
 
-將：
+Change:
 ```typescript
 type DisabledReason = 'ohlcIncomplete' | 'noSelection' | null
 ```
 
-改為：
+To:
 ```typescript
 type DisabledReason = 'maLoading' | 'ohlcIncomplete' | 'noSelection' | null
 ```
 
-- [ ] **Step 2: 更新 `TOOLTIP`，加入 `maLoading` 項目**
+- [ ] **Step 2: Update `TOOLTIP` to include `maLoading` entry**
 
-將：
+Change:
 ```typescript
 const TOOLTIP: Record<NonNullable<DisabledReason>, string> = {
   ohlcIncomplete: 'Complete all rows',
@@ -396,22 +396,22 @@ const TOOLTIP: Record<NonNullable<DisabledReason>, string> = {
 }
 ```
 
-改為：
+To:
 ```typescript
 const TOOLTIP: Record<NonNullable<DisabledReason>, string> = {
-  maLoading: 'MA99 計算中，請稍候…',
+  maLoading: 'MA99 computing, please wait…',
   ohlcIncomplete: 'Complete all rows',
   noSelection: 'Select at least 1 case',
 }
 ```
 
-- [ ] **Step 3: 驗證型別**
+- [ ] **Step 3: Verify types**
 
 ```bash
 cd frontend && npx tsc --noEmit
 ```
 
-Expected: PredictButton 相關錯誤消失（只剩 MainChart 的 maLoading prop 錯誤，若有的話）
+Expected: PredictButton-related errors gone (only MainChart maLoading prop error remains, if any)
 
 - [ ] **Step 4: Commit**
 
@@ -422,14 +422,14 @@ git commit -m "feat: add maLoading disabled case to PredictButton"
 
 ---
 
-### Task 6: MainChart — maLoading prop 與 loading 顯示
+### Task 6: MainChart — maLoading prop and loading display
 
 **Files:**
 - Modify: `frontend/src/components/MainChart.tsx`
 
-- [ ] **Step 1: 在 `Props` interface 新增 `maLoading` 欄位**
+- [ ] **Step 1: Add `maLoading` field to `Props` interface**
 
-找到現有的 `interface Props {`，新增 `maLoading` 欄位：
+Find existing `interface Props {` and add `maLoading`:
 
 ```typescript
 interface Props {
@@ -441,21 +441,21 @@ interface Props {
 }
 ```
 
-- [ ] **Step 2: 在 function 簽名解構 `maLoading`**
+- [ ] **Step 2: Destructure `maLoading` in function signature**
 
-找到 `export function MainChart({` 這行，新增 `maLoading = false`：
+Find `export function MainChart({` and add `maLoading = false`:
 
 ```typescript
 export function MainChart({ userOhlc, timeframe, ma99Values = [], ma99Gap, maLoading = false }: Props) {
 ```
 
-- [ ] **Step 3: 在 MA99 legend/label 顯示處加入 loading 狀態文字**
+- [ ] **Step 3: Add loading state text where MA99 legend/label is shown**
 
-在 MainChart 的 JSX 中，找到顯示 MA99 標籤的地方（搜尋 `MA(99)` 或 `ma99` 文字），在顯示 MA99 值的 span 裡，根據 `maLoading` 切換顯示：
+In MainChart's JSX, find the place that shows the MA99 label (search `MA(99)` or `ma99` text); inside the span showing MA99 value, switch display based on `maLoading`:
 
 ```tsx
 {maLoading ? (
-  <span className="text-purple-400 text-xs">MA(99) 計算中…</span>
+  <span className="text-purple-400 text-xs">MA(99) computing…</span>
 ) : (
   <span className="text-purple-400 text-xs">
     MA(99) {latestMa99 != null ? latestMa99.toFixed(2) : '—'}
@@ -463,15 +463,15 @@ export function MainChart({ userOhlc, timeframe, ma99Values = [], ma99Gap, maLoa
 )}
 ```
 
-> **注意：** 請先閱讀 MainChart.tsx 中 MA99 標籤的實際渲染方式，再依照原有的 JSX 結構插入這段邏輯，不要破壞現有的佈局。實際變數名稱（如 `latestMa99`）以檔案內實際使用的為準。
+> **Note:** Read MainChart.tsx's actual MA99 label rendering first, then insert this logic following the existing JSX structure without breaking the layout. Use the actual variable names (e.g. `latestMa99`) as in the file.
 
-- [ ] **Step 4: 驗證型別**
+- [ ] **Step 4: Verify types**
 
 ```bash
 cd frontend && npx tsc --noEmit
 ```
 
-Expected: 無錯誤
+Expected: no errors
 
 - [ ] **Step 5: Commit**
 
@@ -482,12 +482,12 @@ git commit -m "feat: add maLoading prop to MainChart with loading indicator"
 
 ---
 
-### Task 7: MatchList — computeMaTrend + 趨勢標籤
+### Task 7: MatchList — computeMaTrend + trend label
 
 **Files:**
 - Modify: `frontend/src/components/MatchList.tsx`
 
-- [ ] **Step 1: 在 `MatchList.tsx` 的 import 區塊後、`PredictorChart` component 前，新增 `computeMaTrend` function**
+- [ ] **Step 1: After import block, before `PredictorChart` component, add `computeMaTrend` function**
 
 ```typescript
 function computeMaTrend(futureMa99: (number | null)[]): { direction: 'up' | 'down'; pct: number } | null {
@@ -509,12 +509,12 @@ function computeMaTrend(futureMa99: (number | null)[]): { direction: 'up' | 'dow
 }
 ```
 
-- [ ] **Step 2: 在 MatchList card header 的日期後方插入趨勢標籤**
+- [ ] **Step 2: Insert trend label in MatchList card header after the date range**
 
-找到 card header 中顯示日期區間的 span（目前是 `formatInterval(m.startDate, m.endDate, timeframe)`），在那個 span 的後方、`▼` 箭頭前方，新增趨勢標籤：
+Find the card header span showing date range (currently `formatInterval(m.startDate, m.endDate, timeframe)`); after that span and before the `▼` arrow, add the trend label:
 
 ```tsx
-{/* 在 formatInterval span 之後新增 */}
+{/* New, after formatInterval span */}
 {(() => {
   const trend = computeMaTrend(m.futureMa99 ?? [])
   if (!trend) return null
@@ -526,7 +526,7 @@ function computeMaTrend(futureMa99: (number | null)[]): { direction: 'up' | 'dow
 })()}
 ```
 
-具體插入位置：在現有的這段 JSX 中：
+Concrete insertion location, in this existing JSX:
 ```tsx
 <span className="text-xs text-gray-400 flex-1 truncate">
   {formatInterval(m.startDate, m.endDate, timeframe)}
@@ -534,23 +534,23 @@ function computeMaTrend(futureMa99: (number | null)[]): { direction: 'up' | 'dow
 <span className="text-gray-500 text-xs flex-shrink-0">{isOpen ? '▲' : '▼'}</span>
 ```
 
-在這兩個 span 之間插入趨勢標籤。
+Insert the trend label between these two spans.
 
-- [ ] **Step 3: 驗證型別**
+- [ ] **Step 3: Verify types**
 
 ```bash
 cd frontend && npx tsc --noEmit
 ```
 
-Expected: 無錯誤
+Expected: no errors
 
-- [ ] **Step 4: 跑完整 Playwright E2E 測試（若存在）**
+- [ ] **Step 4: Run full Playwright E2E (if exists)**
 
 ```bash
 cd frontend && npx playwright test 2>&1 | tail -20
 ```
 
-Expected: 現有測試全部 PASS
+Expected: all existing tests PASS
 
 - [ ] **Step 5: Commit**
 
@@ -561,9 +561,9 @@ git commit -m "feat: add computeMaTrend and trend label to MatchList cards"
 
 ---
 
-## 完成後的快速驗收清單
+## Quick Acceptance Checklist after Completion
 
-1. 上傳 2 個 CSV → MainChart 顯示「MA(99) 計算中…」、按鈕 disabled + tooltip「MA99 計算中，請稍候…」
-2. MA99 計算完成 → MainChart 顯示實際 MA99 值、按鈕恢復可點擊
-3. 按「開始預測」後 → MatchList 每個 card 顯示 `↑ +X.XX%`（綠）或 `↓ -X.XX%`（紅）
-4. 歷史資料不足時 → MA99 gap warning 仍顯示（現有邏輯），預測仍可進行
+1. Upload 2 CSVs → MainChart shows "MA(99) computing…", button disabled + tooltip "MA99 computing, please wait…"
+2. MA99 done → MainChart shows actual MA99 value; button re-enabled
+3. After clicking "Start Prediction" → each MatchList card shows `↑ +X.XX%` (green) or `↓ -X.XX%` (red)
+4. When historical data is insufficient → MA99 gap warning still shown (existing logic); prediction still proceeds

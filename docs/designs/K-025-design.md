@@ -1,56 +1,56 @@
 ---
-title: K-025 — UnifiedNavBar hex → token 遷移 + navbar.spec.ts 雙軌斷言升級
+title: K-025 — UnifiedNavBar hex → token migration + navbar.spec.ts dual-rail assertion upgrade
 type: design
 ticket: K-025
 created: 2026-04-22
 owner: Architect
-visual-spec: N/A — zero-visual-change pure refactor；computed color 等價由 dist CSS declaration grep 守護。ticket frontmatter 已於 L9 明示 `visual-spec: N/A — reason: zero-visual-change refactor` + QA Q1 修正註記。
-depends-on: K-021（tokens `paper` / `ink` / `brick-dark` 註冊於 `frontend/tailwind.config.js` L6–L9，已驗；NavBar active-color 決策採 `brick-dark` 沿用）
+visual-spec: N/A — zero-visual-change pure refactor; computed-color equivalence guarded by dist CSS declaration grep. Ticket frontmatter L9 already states `visual-spec: N/A — reason: zero-visual-change refactor` + QA Q1 correction note.
+depends-on: K-021 (tokens `paper` / `ink` / `brick-dark` registered in `frontend/tailwind.config.js` L6–L9, verified; NavBar active-color decision adopts `brick-dark`)
 ---
 
 ## 0. Scope Questions / Blockers
 
-**無 SQ / BQ 需 PM 裁決。** 下列常見歧義點均已由 ticket AC 或既有 code / design doc 閉合，Architect 不代 PM 決策：
+**No SQ / BQ requires PM arbitration.** Common ambiguity points below are all closed by ticket AC or existing code / design doc; Architect does not decide on PM's behalf:
 
-| 可能疑點 | 來源確認 | 結論 |
+| Possible doubt | Source confirmation | Conclusion |
 |---------|---------|------|
-| NavBar active 色為 `brick` 還是 `brick-dark`？ | K-021 設計文件 §Q2 PM 裁決為 B（brick-dark 維持）、ticket K-025 §範圍 L26 明列 `text-[#9C4A3B]` → `text-brick-dark` | `text-brick-dark` |
-| `text-[#1A1814]/60` 對應何 token？ | `tailwind.config.js` 有 `ink: '#1A1814'`，Tailwind `/60` opacity modifier 直接作用於 named color | `text-ink/60`（computed `rgba(26, 24, 20, 0.6)`）|
-| 需不需要新增 props？ | K-021 §5.3 Before/After 明列 NavBar 維持零 props | 維持零 props（pure internal className refactor）|
-| QA Q1「compiled CSS 相同」如何驗證？ | ticket frontmatter L9 + AC-025-REGRESSION L78 指定「`dist/assets/*.css` 4 條 declaration 宣告數 pre == post」 | pre-build + post-build 各跑 `npm run build`，grep 4 hex declaration count 比對 |
-| `[aria-current="page"]` 對現有 spec 是否已存在？ | AC-021-NAVBAR 既有 3 條 aria-current 斷言（spec L217 / L227 / L235），本票新增 `toHaveCSS` 作第二軌、drop 5 條 class-name regex | 既有 aria-current 斷言保留，不重寫 |
+| NavBar active color is `brick` or `brick-dark`? | K-021 design doc §Q2 PM ruled B (brick-dark retained); ticket K-025 §Scope L26 lists `text-[#9C4A3B]` → `text-brick-dark` | `text-brick-dark` |
+| Which token does `text-[#1A1814]/60` map to? | `tailwind.config.js` has `ink: '#1A1814'`; Tailwind `/60` opacity modifier applies directly to named color | `text-ink/60` (computed `rgba(26, 24, 20, 0.6)`) |
+| Need new props? | K-021 §5.3 Before/After lists NavBar maintains zero props | Maintain zero props (pure internal className refactor) |
+| How to verify QA Q1 "compiled CSS identical"? | Ticket frontmatter L9 + AC-025-REGRESSION L78 specify "`dist/assets/*.css` 4 declaration counts pre == post" | Run `npm run build` pre and post, grep 4 hex declaration counts to compare |
+| Does `[aria-current="page"]` already exist in current spec? | AC-021-NAVBAR has 3 existing aria-current assertions (spec L217 / L227 / L235); this ticket adds `toHaveCSS` as second rail, drops 5 class-name regex | Existing aria-current assertions retained, no rewrite |
 
 ---
 
 ## 1. Scope Summary
 
-K-025 為 pure-refactor（type=refactor，frontmatter L6），目標是在 `frontend/src/components/UnifiedNavBar.tsx` 把最後 7 處 hex literal 改寫為 K-021 已註冊的 Tailwind tokens（`paper` / `ink` / `brick-dark`），並把 `frontend/e2e/navbar.spec.ts` 中 5 處 class-name regex 斷言（K-021 Reviewer W-3 標示為中間層最弱寫法）汰換為「attribute + computed color 雙軌斷言」，一次補齊 TD-K021-09 的 `/` route inactive color 3 斷言與 QA Q3 要求的 `/business-logic` hidden-route active-link no-op 斷言。
+K-025 is a pure-refactor (type=refactor, frontmatter L6). Goal: in `frontend/src/components/UnifiedNavBar.tsx` rewrite the last 7 hex literals to K-021 registered Tailwind tokens (`paper` / `ink` / `brick-dark`); in `frontend/e2e/navbar.spec.ts` replace 5 class-name regex assertions (K-021 Reviewer W-3 flagged as weakest middle-layer pattern) with "attribute + computed color dual-rail assertions"; in one shot fill in TD-K021-09's `/` route inactive color 3 assertions and QA Q3's `/business-logic` hidden-route active-link no-op assertion.
 
-rendered-color 層等價由 `dist/assets/*.css` 中 4 條 hex declaration（`color:#9c4a3b` / `color:#1a1814` / `background-color:#f4efe5` / `border-color:#1a1814`）在 refactor 前後出現次數 pre == post 守護；selector 名稱（`text-[#9C4A3B]` → `text-brick-dark`）會變，computed value 不變。此為「behavior equivalent at rendered-color level，NOT at CSS-selector level」（對齊 QA Early Consultation Q1 修正）。
+Rendered-color equivalence is guarded by 4 hex declarations in `dist/assets/*.css` (`color:#9c4a3b` / `color:#1a1814` / `background-color:#f4efe5` / `border-color:#1a1814`) where occurrence counts must be pre == post before/after refactor. Selector names (`text-[#9C4A3B]` → `text-brick-dark`) change, computed value does not. This is "behavior equivalent at rendered-color level, NOT at CSS-selector level" (aligned with QA Early Consultation Q1 correction).
 
 ---
 
-## 2. OLD → NEW className Mapping（7 處，分色分組）
+## 2. OLD → NEW className Mapping (7 locations, grouped by color)
 
-### 2.1 grep 結果（source of truth）
+### 2.1 grep result (source of truth)
 
-`grep -nE '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx` 回 5 行，展開後含 7 處 className hex literal（L18 / L19 註釋內 hex 不需改；為 K-017 決策敘述文字）：
+`grep -nE '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx` returns 5 lines, expanded contains 7 className hex literals (L18 / L19 hex in comments need not change; they are K-017 decision narrative text):
 
-| 行號 | OLD className 含 hex | hex value | distinct color |
+| Line | OLD className with hex | hex value | distinct color |
 |------|----------------------|-----------|----------------|
-| L36 | `text-[#9C4A3B]` | `#9C4A3B` | brick-dark（active） |
-| L38 | `text-[#1A1814]/60` | `#1A1814` | ink（inactive 主色 @ 60% opacity） |
-| L38 | `hover:text-[#1A1814]` | `#1A1814` | ink（hover target @ 100%） |
-| L75 | `bg-[#F4EFE5]` | `#F4EFE5` | paper（nav background） |
-| L75 | `border-[#1A1814]` | `#1A1814` | ink（bottom border） |
-| L82 | `text-[#1A1814]` | `#1A1814` | ink（HomeIcon idle） |
-| L82 | `hover:text-[#9C4A3B]` | `#9C4A3B` | brick-dark（HomeIcon hover） |
+| L36 | `text-[#9C4A3B]` | `#9C4A3B` | brick-dark (active) |
+| L38 | `text-[#1A1814]/60` | `#1A1814` | ink (inactive primary @ 60% opacity) |
+| L38 | `hover:text-[#1A1814]` | `#1A1814` | ink (hover target @ 100%) |
+| L75 | `bg-[#F4EFE5]` | `#F4EFE5` | paper (nav background) |
+| L75 | `border-[#1A1814]` | `#1A1814` | ink (bottom border) |
+| L82 | `text-[#1A1814]` | `#1A1814` | ink (HomeIcon idle) |
+| L82 | `hover:text-[#9C4A3B]` | `#9C4A3B` | brick-dark (HomeIcon hover) |
 
-**Distinct colors = 3**（`#9C4A3B` / `#1A1814` / `#F4EFE5`），total hex occurrences = 7，與 ticket §背景 L15 敘述一致。
+**Distinct colors = 3** (`#9C4A3B` / `#1A1814` / `#F4EFE5`), total hex occurrences = 7, consistent with ticket §Background L15 description.
 
-### 2.2 OLD → NEW className 對照（1:1 token 替換）
+### 2.2 OLD → NEW className correspondence (1:1 token replacement)
 
-| # | Line | OLD | NEW | Tailwind 編譯產物（對照 tailwind.config.js）|
+| # | Line | OLD | NEW | Tailwind compiled output (per tailwind.config.js) |
 |---|------|-----|-----|-------------------------------------------|
 | 1 | L36 | `text-[#9C4A3B]` | `text-brick-dark` | `.text-brick-dark { color: rgb(156 74 59); }` |
 | 2 | L38 | `text-[#1A1814]/60` | `text-ink/60` | `.text-ink\/60 { color: rgb(26 24 20 / 0.6); }` |
@@ -60,222 +60,222 @@ rendered-color 層等價由 `dist/assets/*.css` 中 4 條 hex declaration（`col
 | 6 | L82 | `text-[#1A1814]` | `text-ink` | `.text-ink { color: rgb(26 24 20); }` |
 | 7 | L82 | `hover:text-[#9C4A3B]` | `hover:text-brick-dark` | `.hover\:text-brick-dark:hover { color: rgb(156 74 59); }` |
 
-**驗證方式：** Engineer 改完後跑 `grep -nE '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx`，結果行數 = 2（僅剩 L18 / L19 的 K-017 決策敘述註釋），className 範圍內 0 hex。
+**Verification:** After Engineer's edit, run `grep -nE '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx`; result line count = 2 (only L18 / L19 K-017 decision narrative comments remain), 0 hex within className scope.
 
-**註釋處理：** L18–L20 JSDoc 提到 `#9C4A3B` / `#B43A2C` 為「歷史色決策敘述」（保留 K-017 視覺驗收、brick 與 brick-dark 語意區分）。此為文件性 hex，非 className。保留不動；AC-025-NAVBAR-TOKEN 的 grep 目標為 className 範圍 0 hex（Then clause「所有顏色/邊框/背景 class 均為 K-021 token」）而非整檔 0 hex。Engineer 如要一併把註釋 hex 改名（例如 `brick-dark (#9C4A3B)` → `brick-dark`）為 stylistic choice，非本票硬要求，建議保留以維持 K-017 決策溯源。
+**Comment handling:** L18–L20 JSDoc mentions `#9C4A3B` / `#B43A2C` as "historical color decision narrative" (preserves K-017 visual acceptance, brick vs brick-dark semantic distinction). These are documentary hex, not className. Leave unchanged; AC-025-NAVBAR-TOKEN's grep target is "className scope 0 hex" (Then clause: "all color/border/background classes are K-021 tokens"), not whole-file 0 hex. Engineer renaming comment hex (e.g. `brick-dark (#9C4A3B)` → `brick-dark`) is a stylistic choice, not a hard requirement; recommended to retain for K-017 decision traceability.
 
 ---
 
-## 3. OLD → NEW E2E 斷言 Mapping（5 drop + 4 new-add = 9 rows）
+## 3. OLD → NEW E2E Assertion Mapping (5 drop + 4 new-add = 9 rows)
 
-### 3.1 Drop 既有 class-name regex（5 rows）
+### 3.1 Drop existing class-name regex (5 rows)
 
-| # | spec 行號 | OLD 斷言 | 為何 drop | 替代斷言位置 |
+| # | Spec line | OLD assertion | Why drop | Replacement assertion location |
 |---|-----------|----------|-----------|-------------|
-| 1 | L177 | `nav.getByRole('link', { name: 'About' }).toHaveClass(/text-\[#9C4A3B\]/)` | class-name regex 寫死 pre-refactor selector；refactor 後 class 變 `text-brick-dark`，regex 會失敗且無法驗 rendered color | §3.2 row #1 + row #2（/about About aria-current + toHaveCSS）|
-| 2 | L178 | `nav.getByRole('link', { name: 'App' }).toHaveClass(/text-\[#1A1814\]/)` | post-refactor 仍會匹配 `text-ink/60`（寬鬆 substring），無法偵測 state-swap bug（active/inactive 被互換時仍通過）| §3.2 row #3（/about App toHaveCSS inactive）|
-| 3 | L186 | `nav.getByRole('link', { name: 'Diary' }).toHaveClass(/text-\[#9C4A3B\]/)` | 同 #1 | §3.2 row #4 + row #5（/diary Diary aria-current + toHaveCSS）|
-| 4 | L187 | `nav.getByRole('link', { name: 'About' }).toHaveClass(/text-\[#1A1814\]/)` | 同 #2 | §3.2 row #6（/diary About toHaveCSS inactive）|
-| 5 | L204 | `nav.getByRole('link', { name: 'About' }).toHaveClass(/text-\[#1A1814\]/)`（mobile / page）| 同 #2；mobile viewport | §3.2 row #7（/ mobile About toHaveCSS inactive）|
+| 1 | L177 | `nav.getByRole('link', { name: 'About' }).toHaveClass(/text-\[#9C4A3B\]/)` | class-name regex hardcodes pre-refactor selector; post-refactor class becomes `text-brick-dark`, regex fails and cannot verify rendered color | §3.2 row #1 + row #2 (/about About aria-current + toHaveCSS) |
+| 2 | L178 | `nav.getByRole('link', { name: 'App' }).toHaveClass(/text-\[#1A1814\]/)` | post-refactor still matches `text-ink/60` (loose substring); cannot detect state-swap bug (passes even when active/inactive swapped) | §3.2 row #3 (/about App toHaveCSS inactive) |
+| 3 | L186 | `nav.getByRole('link', { name: 'Diary' }).toHaveClass(/text-\[#9C4A3B\]/)` | Same as #1 | §3.2 row #4 + row #5 (/diary Diary aria-current + toHaveCSS) |
+| 4 | L187 | `nav.getByRole('link', { name: 'About' }).toHaveClass(/text-\[#1A1814\]/)` | Same as #2 | §3.2 row #6 (/diary About toHaveCSS inactive) |
+| 5 | L204 | `nav.getByRole('link', { name: 'About' }).toHaveClass(/text-\[#1A1814\]/)` (mobile / page) | Same as #2; mobile viewport | §3.2 row #7 (/ mobile About toHaveCSS inactive) |
 
-**Drop 後相關 describe 結構調整：**
-- L169 `test.describe('AC-NAV-4 — Active link highlighted #9C4A3B, others #1A1814/60', ...)` → rename 為 `'AC-NAV-4 — Active link highlighted (brick-dark), inactive ink/60 — dual-rail'`（敘述不再暗示 hex regex）
-- L169–L189 兩個 test 主體重寫（見 §3.2）
-- L193 `test.describe('AC-NAV-4 — Active link highlighted (mobile)', ...)` 保留標題；test 主體（L199–L205）改用雙軌（見 §3.2 row #7）
+**Related describe structure adjustments after drop:**
+- L169 `test.describe('AC-NAV-4 — Active link highlighted #9C4A3B, others #1A1814/60', ...)` → rename to `'AC-NAV-4 — Active link highlighted (brick-dark), inactive ink/60 — dual-rail'` (description no longer implies hex regex)
+- L169–L189 two test bodies rewritten (see §3.2)
+- L193 `test.describe('AC-NAV-4 — Active link highlighted (mobile)', ...)` title retained; test body (L199–L205) switched to dual-rail (see §3.2 row #7)
 
-### 3.2 New-add（整合舊 test + 補 coverage）
+### 3.2 New-add (integrate old test + supplement coverage)
 
-以下 4 列為 **新斷言**；其中 row #7 / #8 為 TD-K021-09 `/` route 3 斷言 + QA Q3 `/business-logic` 斷言一次補齊。
+The 4 rows below are **new assertions**; rows #7 / #8 fill in TD-K021-09 `/` route 3 assertions + QA Q3 `/business-logic` assertion in one go.
 
-| # | 路由 / 視窗 | Link | 斷言 1（attribute）| 斷言 2（computed color）| 涵蓋 AC |
+| # | Route / Viewport | Link | Assertion 1 (attribute) | Assertion 2 (computed color) | Covers AC |
 |---|-----------|------|-------------------|------------------------|---------|
-| 1 | `/about` desktop | About (active) | `toHaveAttribute('aria-current', 'page')` | `toHaveCSS('color', 'rgb(156, 74, 59)')` | AC-025-NAVBAR-SPEC（active 雙軌）|
-| 2 | `/about` desktop | App (inactive) | — | `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` | AC-025-NAVBAR-SPEC（inactive 替換寬鬆 regex）|
+| 1 | `/about` desktop | About (active) | `toHaveAttribute('aria-current', 'page')` | `toHaveCSS('color', 'rgb(156, 74, 59)')` | AC-025-NAVBAR-SPEC (active dual-rail) |
+| 2 | `/about` desktop | App (inactive) | — | `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` | AC-025-NAVBAR-SPEC (inactive replaces loose regex) |
 | 3 | `/diary` desktop | Diary (active) | `toHaveAttribute('aria-current', 'page')` | `toHaveCSS('color', 'rgb(156, 74, 59)')` | AC-025-NAVBAR-SPEC |
 | 4 | `/diary` desktop | About (inactive) | — | `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` | AC-025-NAVBAR-SPEC |
 | 5 | `/` desktop | App / Diary / About (3 inactive) | — | `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` × 3 | AC-025-NAVBAR-SPEC + TD-K021-09 |
-| 6 | `/` mobile | About (inactive) | — | `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` | AC-025-NAVBAR-SPEC（替換 L204 寬鬆 regex）|
+| 6 | `/` mobile | About (inactive) | — | `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` | AC-025-NAVBAR-SPEC (replaces L204 loose regex) |
 | 7 | `/business-logic` desktop | — | `page.locator('[aria-current="page"]').toHaveCount(0)` | — | AC-025-NAVBAR-SPEC + QA Q3 |
-| 8 | `/about` desktop | Home (inactive) | — | *optional*，non-blocking | —（可選補；見下方 note）|
+| 8 | `/about` desktop | Home (inactive) | — | *optional*, non-blocking | — (optional supplement; see note below) |
 
-**Test case 總數變化（以 Playwright test() 單位計）：**
-- `AC-NAV-4 — Active link highlighted #9C4A3B, others #1A1814/60` describe 下 2 tests → 重寫為 dual-rail 2 tests（/about 1 + /diary 1，每 test 含 2 links × 雙軌；row #1–#4 併入這 2 tests）
-- `AC-NAV-4 — Active link highlighted (mobile)` describe 下 1 test → 改寫 1 test（row #6）
-- 新增 describe `AC-025 — Inactive color on / route (desktop)` 下 1 test（row #5，3 links 併入同 test）
-- 新增 describe `AC-025 — /business-logic has no active link` 下 1 test（row #7）
-- Prediction hidden 既有 2 tests（L252 / L258）保留不動（AC-025-NAVBAR-SPEC `And` 第 5 條明示不重複新增）
+**Test case total change (in Playwright test() units):**
+- Under `AC-NAV-4 — Active link highlighted #9C4A3B, others #1A1814/60` describe, 2 tests → rewritten as dual-rail 2 tests (/about 1 + /diary 1, each test contains 2 links × dual-rail; rows #1–#4 merged into these 2 tests)
+- Under `AC-NAV-4 — Active link highlighted (mobile)` describe, 1 test → rewritten as 1 test (row #6)
+- New describe `AC-025 — Inactive color on / route (desktop)` adds 1 test (row #5, 3 links merged into same test)
+- New describe `AC-025 — /business-logic has no active link` adds 1 test (row #7)
+- Prediction hidden existing 2 tests (L252 / L258) retained unchanged (AC-025-NAVBAR-SPEC `And` 5th clause explicitly states no duplicate add)
 
-**Net delta on spec file：** drop 5 regex 斷言、改寫 3 tests（/about 1 / /diary 1 / mobile 1）、新增 2 tests（`/` inactive × 1 + `/business-logic` no-active × 1）。
+**Net delta on spec file:** drop 5 regex assertions, rewrite 3 tests (/about 1 / /diary 1 / mobile 1), add 2 tests (`/` inactive × 1 + `/business-logic` no-active × 1).
 
-**AC cross-check（對齊 persona "AC ↔ Test Case Count Cross-Check" 硬 gate）：**
-- ticket §驗收條件 AC-025-NAVBAR-SPEC 的 `And` 條款（L65 / L66 / L67 / L68 / L69）總計 5 條可測 assertion family：
-  - And #1（L65 active 雙條件）→ 對應 §3.2 row #1 + row #3（2 tests）
-  - And #2（L66 inactive computed color）→ 對應 §3.2 row #2 + row #4 + row #5 + row #6（併入前述 2 dual-rail tests + 新增 2 tests 共 4 tests 的 assertion）
-  - And #3（L67 `/` desktop inactive 3 斷言）→ 對應 §3.2 row #5（1 test，3 assertion 併入同 test）
-  - And #4（L68 `/business-logic` aria-current count 0）→ 對應 §3.2 row #7（1 test）
-  - And #5（L69 Prediction hidden 不重複新增）→ N/A（non-add）
-- 設計文件新增 / 改寫 test 總數 = 5（/about dual-rail 1 + /diary dual-rail 1 + mobile 1 改寫 + `/` inactive 1 新增 + `/business-logic` 1 新增）
-- 5 tests ≥ 5 AC `And` 條款覆蓋 ✓
+**AC cross-check (aligned with persona "AC ↔ Test Case Count Cross-Check" hard gate):**
+- Ticket §Acceptance Criteria AC-025-NAVBAR-SPEC `And` clauses (L65 / L66 / L67 / L68 / L69) total 5 testable assertion families:
+  - And #1 (L65 active dual condition) → maps to §3.2 row #1 + row #3 (2 tests)
+  - And #2 (L66 inactive computed color) → maps to §3.2 row #2 + row #4 + row #5 + row #6 (assertions merged into the prior 2 dual-rail tests + 2 new tests, 4 tests total)
+  - And #3 (L67 `/` desktop inactive 3 assertions) → maps to §3.2 row #5 (1 test, 3 assertions in same test)
+  - And #4 (L68 `/business-logic` aria-current count 0) → maps to §3.2 row #7 (1 test)
+  - And #5 (L69 Prediction hidden no duplicate add) → N/A (non-add)
+- Design doc total new / rewritten tests = 5 (/about dual-rail 1 + /diary dual-rail 1 + mobile 1 rewrite + `/` inactive 1 new + `/business-logic` 1 new)
+- 5 tests >= 5 AC `And` clause coverage ✓
 
 ---
 
-## 4. Route Impact Table（4 routes × {visual, behavior, test-coverage-delta}）
+## 4. Route Impact Table (4 routes × {visual, behavior, test-coverage-delta})
 
-`UnifiedNavBar` 掛 4 marketing 路由（K-030 起 `/app` 不再掛 NavBar，故不列入）：
+`UnifiedNavBar` mounts on 4 marketing routes (since K-030 `/app` no longer mounts NavBar, so excluded):
 
-| Route | Visual | Behavior | Test coverage delta | 備註 |
+| Route | Visual | Behavior | Test coverage delta | Note |
 |-------|--------|----------|---------------------|------|
-| `/` | `unchanged` — 背景 paper / inactive ink/60 / hover ink / active brick-dark 四色 computed 值不變（由 dist CSS declaration grep 守護）| `unchanged` — aria-current 邏輯、external new-tab、filter hidden 均無改動 | +1 test（row #5 desktop 3 links inactive）；+0 test（mobile 既有已覆蓋 Home）| Engineer 無需額外視覺驗證，tsc + Playwright + dist CSS grep pre==post 三門即可 |
-| `/about` | `unchanged` | `unchanged` | 改寫 1 test（dual-rail：About active + App inactive）| About active → `brick-dark`；App inactive → `ink/60` |
-| `/diary` | `unchanged` | `unchanged` | 改寫 1 test（dual-rail：Diary active + About inactive）| Diary active → `brick-dark`；About inactive → `ink/60` |
-| `/business-logic` | `unchanged` | `unchanged` — 既有行為：`pathname !== '/'` 且不匹配任何 visible link.path，故無 `[aria-current="page"]` | +1 test（row #7 aria-current count 0）| 補 QA Q3 hidden-route coverage gap（pre-K-025 無此斷言）|
+| `/` | `unchanged` — background paper / inactive ink/60 / hover ink / active brick-dark four colors computed values unchanged (guarded by dist CSS declaration grep) | `unchanged` — aria-current logic, external new-tab, filter hidden all unchanged | +1 test (row #5 desktop 3 links inactive); +0 test (mobile already covers Home) | Engineer needs no extra visual verification; tsc + Playwright + dist CSS grep pre==post triple gate suffices |
+| `/about` | `unchanged` | `unchanged` | Rewrite 1 test (dual-rail: About active + App inactive) | About active → `brick-dark`; App inactive → `ink/60` |
+| `/diary` | `unchanged` | `unchanged` | Rewrite 1 test (dual-rail: Diary active + About inactive) | Diary active → `brick-dark`; About inactive → `ink/60` |
+| `/business-logic` | `unchanged` | `unchanged` — existing behavior: `pathname !== '/'` and matches no visible link.path, so no `[aria-current="page"]` | +1 test (row #7 aria-current count 0) | Fills QA Q3 hidden-route coverage gap (no such assertion pre-K-025) |
 
-**視覺驗證結論：** 四路由皆 `unchanged`；Engineer 不需開 dev server 逐路由目視（per feedback_shared_component_all_routes_visual_check，視覺不變 → 視覺驗證可免；但 dist CSS declaration count pre == post 是 hard gate）。
+**Visual verification conclusion:** All four routes are `unchanged`; Engineer does not need to start dev server and visually inspect each route (per feedback_shared_component_all_routes_visual_check, visual unchanged → visual verification can be waived; but dist CSS declaration count pre == post is a hard gate).
 
 ---
 
-## 5. Behavior-diff Statement（3 bullets per protocol）
+## 5. Behavior-diff Statement (3 bullets per protocol)
 
-- **Rendered-color level：equivalent.** `npm run build` 前後各跑一次，grep `dist/assets/*.css` 中 `color:#9c4a3b` / `color:#1a1814` / `background-color:#f4efe5` / `border-color:#1a1814` 四條 declaration 出現次數必 pre == post（AC-025-REGRESSION L78 強制）。Tailwind JIT 會把 `text-[#9C4A3B]` 與 `text-brick-dark` 編為相同的 color value 宣告（前者為 arbitrary-value utility，後者為 named-color utility，selector class name 不同但 declared color 值相同）。QA Q1 修正說明本條。
-- **CSS-selector level：NOT equivalent.** `.text-\[\#9C4A3B\]` 類 selector 在編譯產物中**將消失**（若 codebase 其他處無此 arbitrary-value 消費者）；`.text-brick-dark` 類 named selector 將出現。原 `navbar.spec.ts` 5 條 class-name regex 斷言如果不汰換，refactor 後會失敗（OLD regex 匹配失敗）或誤通過（`/text-\[#1A1814\]/` 仍寬鬆匹配 `text-[#1A1814]/60` 子串）。雙軌斷言（aria-current + toHaveCSS）脫離 selector 名稱依賴，直接驗 React state + rendered computed color，refactor-proof。
-- **Component props / internal logic：equivalent.** `UnifiedNavBar` 維持零 props（K-021 §5.3 敘述）、`TEXT_LINKS` 常數 shape 不動、`navLinkClass()` 邏輯分支（isActive → active / else → inactive）不動、`renderLink()` external / SPA 分支不動、`useLocation` + `pathname === path` 判斷不動。`git show main:frontend/src/components/UnifiedNavBar.tsx` truth table（下節）逐行確認。
+- **Rendered-color level: equivalent.** Run `npm run build` pre and post, grep `dist/assets/*.css` for the four declarations `color:#9c4a3b` / `color:#1a1814` / `background-color:#f4efe5` / `border-color:#1a1814`; occurrence counts must be pre == post (AC-025-REGRESSION L78 enforced). Tailwind JIT compiles `text-[#9C4A3B]` and `text-brick-dark` to the same color value declaration (former is arbitrary-value utility, latter is named-color utility; selector class name differs but declared color value is identical). QA Q1 correction explains this.
+- **CSS-selector level: NOT equivalent.** Selectors like `.text-\[\#9C4A3B\]` **will disappear** from the compiled output (if no other arbitrary-value consumers in codebase); named selectors like `.text-brick-dark` will appear. The original 5 class-name regex assertions in `navbar.spec.ts`, if not replaced, will fail post-refactor (OLD regex match fails) or false-pass (`/text-\[#1A1814\]/` still loosely matches `text-[#1A1814]/60` substring). Dual-rail assertions (aria-current + toHaveCSS) detach from selector name dependency, directly verifying React state + rendered computed color, refactor-proof.
+- **Component props / internal logic: equivalent.** `UnifiedNavBar` maintains zero props (K-021 §5.3 narrative), `TEXT_LINKS` constant shape unchanged, `navLinkClass()` logic branches (isActive → active / else → inactive) unchanged, `renderLink()` external / SPA branch unchanged, `useLocation` + `pathname === path` check unchanged. `git show main:frontend/src/components/UnifiedNavBar.tsx` truth table (next section) confirms line by line.
 
-### 5.1 git-show baseline truth table（per persona Pre-Design Dry-Run Proof）
+### 5.1 git-show baseline truth table (per persona Pre-Design Dry-Run Proof)
 
-`git show main:frontend/src/components/UnifiedNavBar.tsx`（已執行，見 Architect session Bash log）— 行為分支逐格 enumerate：
+`git show main:frontend/src/components/UnifiedNavBar.tsx` (already executed, see Architect session Bash log) — behavior branches enumerated cell by cell:
 
-| 路徑 | `pathname === path`？| `link.external`？| render | className 輸出 |
+| Path | `pathname === path`? | `link.external`? | render | className output |
 |------|---------------------|-------------------|--------|----------------|
-| `/app` on `/` | false | true | `<a target=_blank rel=noopener>` | `text-[13px] font-mono text-[#1A1814]/60 hover:text-[#1A1814] transition-colors`（desktop）/ `text-[11px]`（mobile）|
-| `/app` on `/app` | N/A — `/app` 不掛 NavBar（K-030）| — | — | — |
-| `/diary` on `/diary` | true | undefined | `<Link aria-current="page">` | `text-[13px] font-mono text-[#9C4A3B] transition-colors`（active）|
+| `/app` on `/` | false | true | `<a target=_blank rel=noopener>` | `text-[13px] font-mono text-[#1A1814]/60 hover:text-[#1A1814] transition-colors` (desktop) / `text-[11px]` (mobile) |
+| `/app` on `/app` | N/A — `/app` does not mount NavBar (K-030) | — | — | — |
+| `/diary` on `/diary` | true | undefined | `<Link aria-current="page">` | `text-[13px] font-mono text-[#9C4A3B] transition-colors` (active) |
 | `/diary` on `/about` | false | undefined | `<Link aria-current={undefined}>` | inactive className |
-| `/about` on `/about` | true | undefined | active className（`text-[#9C4A3B]`）| |
+| `/about` on `/about` | true | undefined | active className (`text-[#9C4A3B]`) | |
 | `/about` on `/diary` | false | undefined | inactive className | |
-| `/business-logic` on 任何 | hidden: true → filter 過濾 → 不 render | — | — | — |
+| `/business-logic` on any | hidden: true → filter excludes → not rendered | — | — | — |
 | Home icon on `/` | `pathname === '/'` → active | — | `<Link aria-current="page">` | `text-[#1A1814] hover:text-[#9C4A3B]` |
 | Home icon on `/about` | `pathname === '/about'` → false → aria-current={undefined} | — | `<Link aria-current={undefined}>` | `text-[#1A1814] hover:text-[#9C4A3B]` |
 
-**Refactor 後 truth table 每格 className 的 hex-literal 部分替換為 token 名稱，其餘不動。** 無邏輯分支改動，Engineer 不得引入任何 filter / 排序 / 排版變化（若有 → scope creep，回報 PM）。
+**Post-refactor truth table: each cell's className hex-literal portion is replaced with token name, everything else unchanged.** No logic branch changes. Engineer must not introduce any filter / sort / layout changes (if so → scope creep, report to PM).
 
-### 5.2 §API 不變性雙軸（per Gate 3）
+### 5.2 §API invariance dual-axis (per Gate 3)
 
-- **(a) wire-level schema diff：** 本票不涉及任何 API schema（純 frontend className / test assertion 改動），`git diff main -- backend/` 預期空 diff。AC-025-REGRESSION L76–L77 K-005 AC-NAV-1~5 + K-021 AC-021-NAVBAR + 其他頁面 E2E 不回歸守護。
-- **(b) frontend observable behavior diff table：**
+- **(a) wire-level schema diff:** This ticket involves no API schema (pure frontend className / test assertion changes); `git diff main -- backend/` expected empty. AC-025-REGRESSION L76–L77 K-005 AC-NAV-1~5 + K-021 AC-021-NAVBAR + other page E2E no-regression guard.
+- **(b) frontend observable behavior diff table:**
 
-| 觀察點 | OLD render (base `main`) | NEW render (post-K-025) | 是否等價 |
+| Observation point | OLD render (base `main`) | NEW render (post-K-025) | Equivalent |
 |--------|--------------------------|-------------------------|---------|
-| `/about` About active link 的 computed `color` | `rgb(156, 74, 59)`（`#9C4A3B` arbitrary-value class）| `rgb(156, 74, 59)`（`brick-dark` named class）| ✓ |
-| `/` App inactive link 的 computed `color` | `rgba(26, 24, 20, 0.6)` | `rgba(26, 24, 20, 0.6)` | ✓ |
-| `/diary` nav `<nav>` 的 computed `background-color` | `rgb(244, 239, 229)` | `rgb(244, 239, 229)` | ✓ |
-| `/business-logic` 任何 link 的 `aria-current` count | 0（pre-existing 行為，既有 spec 未斷言）| 0（unchanged；新增斷言守護）| ✓ |
-| Empty / hidden Prediction link DOM 出現次數 | 0（filter）| 0（filter，未動）| ✓ |
-| Boundary：`pathname === '/'` 時 Home icon `aria-current` | `"page"` | `"page"` | ✓ |
-| Boundary：external App link 按下 → new tab | `target=_blank` 行為 | `target=_blank` 行為 | ✓ |
+| `/about` About active link computed `color` | `rgb(156, 74, 59)` (`#9C4A3B` arbitrary-value class) | `rgb(156, 74, 59)` (`brick-dark` named class) | ✓ |
+| `/` App inactive link computed `color` | `rgba(26, 24, 20, 0.6)` | `rgba(26, 24, 20, 0.6)` | ✓ |
+| `/diary` nav `<nav>` computed `background-color` | `rgb(244, 239, 229)` | `rgb(244, 239, 229)` | ✓ |
+| `/business-logic` any link `aria-current` count | 0 (pre-existing behavior, existing spec did not assert) | 0 (unchanged; new assertion guards) | ✓ |
+| Empty / hidden Prediction link DOM occurrence count | 0 (filter) | 0 (filter, unchanged) | ✓ |
+| Boundary: `pathname === '/'` Home icon `aria-current` | `"page"` | `"page"` | ✓ |
+| Boundary: external App link clicked → new tab | `target=_blank` behavior | `target=_blank` behavior | ✓ |
 
-四路由 × {active / inactive / background / border / hover} 組合於 rendered-color 層全部 `unchanged`。
+All four routes × {active / inactive / background / border / hover} combinations are `unchanged` at rendered-color level.
 
 ---
 
-## 6. File Change List（3 files 上限）
+## 6. File Change List (3 files cap)
 
-| # | 檔案 | 動作 | 責任描述 |
+| # | File | Action | Responsibility |
 |---|------|------|----------|
-| 1 | `frontend/src/components/UnifiedNavBar.tsx` | modify | 7 處 hex className 按 §2.2 表 1:1 替換為 token；邏輯 / props / JSX 結構不動；L18–L20 註釋 hex 保留（文件性溯源，非 className）|
-| 2 | `frontend/e2e/navbar.spec.ts` | modify | 依 §3.1 drop 5 class-name regex；依 §3.2 改寫 3 tests（/about / /diary desktop dual-rail + mobile inactive）+ 新增 2 tests（`/` desktop 3-inactive + `/business-logic` no-active）|
-| 3 | `agent-context/architecture.md` | append-only | Changelog 前置一列：`**2026-04-22**（Engineer, K-025 實作）— UnifiedNavBar 7 處 hex→token（paper/ink/brick-dark）+ navbar.spec.ts 5 regex drop / 雙軌 toHaveCSS 斷言 + TD-K021-09 收齊；no structural change`；§Frontend Routing / §Design System / §Shared Components 邊界表不動（零結構改動）|
+| 1 | `frontend/src/components/UnifiedNavBar.tsx` | modify | Replace 7 hex classNames per §2.2 table 1:1 with tokens; logic / props / JSX structure unchanged; L18–L20 comment hex retained (documentary traceability, not className) |
+| 2 | `frontend/e2e/navbar.spec.ts` | modify | Per §3.1 drop 5 class-name regex; per §3.2 rewrite 3 tests (/about / /diary desktop dual-rail + mobile inactive) + add 2 tests (`/` desktop 3-inactive + `/business-logic` no-active) |
+| 3 | `agent-context/architecture.md` | append-only | Prepend to Changelog: `**2026-04-22** (Engineer, K-025 implementation) — UnifiedNavBar 7 hex→token (paper/ink/brick-dark) + navbar.spec.ts 5 regex drop / dual-rail toHaveCSS assertions + TD-K021-09 closed; no structural change`; §Frontend Routing / §Design System / §Shared Components boundary tables unchanged (zero structural change) |
 
-**明確不改動：**
-- `frontend/tailwind.config.js` — tokens 已於 K-021 註冊，不動
-- `frontend/src/index.css` — body paper CSS 為 K-021 入口，不動
-- `frontend/src/components/NavBar.tsx`（legacy）— K-021 設計曾建議刪除，但本票 ticket §範圍 L46 明示「NavBar 結構改動 — 非 scope」，不刪除（若要清 dead file 開獨立 TD ticket）
-- 其他頁面 hex — ticket L47 明示「K-022/K-023/K-024 自管」
+**Explicitly not modified:**
+- `frontend/tailwind.config.js` — tokens registered in K-021, unchanged
+- `frontend/src/index.css` — body paper CSS is K-021 entry, unchanged
+- `frontend/src/components/NavBar.tsx` (legacy) — K-021 design previously suggested deletion, but this ticket §Scope L46 explicitly states "NavBar structural change — out of scope", do not delete (open separate TD ticket for dead-file cleanup)
+- Other pages' hex — ticket L47 states "K-022/K-023/K-024 self-managed"
 
 ---
 
-## 7. Implementation Order（序列）
+## 7. Implementation Order (sequential)
 
-| Step | 動作 | 驗證手段 | 預計結果 |
+| Step | Action | Verification | Expected result |
 |------|------|---------|---------|
-| 0 | `cd` 進 worktree；確認 base 為 main HEAD；`git show main:frontend/src/components/UnifiedNavBar.tsx` 與工作樹 diff 應為空 | `git diff main -- frontend/src/components/UnifiedNavBar.tsx` | empty |
-| 1 | `npm ls tailwindcss` + `grep -nE "'paper'\|'ink'\|'brick-dark'" frontend/tailwind.config.js` | 確認 3 token 已註冊（已於 §0 驗證）| 3 row match |
-| 2 | **Pre-refactor CSS baseline 取樣**：`cd frontend && npm run build && grep -oEc "(color:#9c4a3b\|color:#1a1814\|background-color:#f4efe5\|border-color:#1a1814)" dist/assets/*.css > /tmp/k025-pre.txt` | stash count 為 post 比對 baseline | 記錄 4 declaration 出現次數 |
-| 3 | Edit `UnifiedNavBar.tsx`：依 §2.2 7 rows 一口氣改 | `grep -nE '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx` | 僅剩 L18–L20 註釋 hex，className 範圍 0 hex |
+| 0 | `cd` into worktree; confirm base is main HEAD; `git show main:frontend/src/components/UnifiedNavBar.tsx` vs working tree diff should be empty | `git diff main -- frontend/src/components/UnifiedNavBar.tsx` | empty |
+| 1 | `npm ls tailwindcss` + `grep -nE "'paper'\|'ink'\|'brick-dark'" frontend/tailwind.config.js` | Confirm 3 tokens registered (already verified in §0) | 3 row match |
+| 2 | **Pre-refactor CSS baseline sample:** `cd frontend && npm run build && grep -oEc "(color:#9c4a3b\|color:#1a1814\|background-color:#f4efe5\|border-color:#1a1814)" dist/assets/*.css > /tmp/k025-pre.txt` | Stash count as post-comparison baseline | Record 4 declaration occurrence counts |
+| 3 | Edit `UnifiedNavBar.tsx`: per §2.2 7 rows in one shot | `grep -nE '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx` | Only L18–L20 comment hex remains, className scope 0 hex |
 | 4 | `npx tsc --noEmit` | exit code | 0 |
-| 5 | **Post-refactor CSS count 比對**：`cd frontend && npm run build && grep -oEc "(color:#9c4a3b\|color:#1a1814\|background-color:#f4efe5\|border-color:#1a1814)" dist/assets/*.css > /tmp/k025-post.txt && diff /tmp/k025-pre.txt /tmp/k025-post.txt` | diff exit code | 0（pre == post 4 declaration 同數）|
-| 6 | Edit `navbar.spec.ts`：依 §3.1 drop 5 regex；依 §3.2 改寫 3 tests + 新增 2 tests | 讀檔確認 | spec 純文字語法對 |
-| 7 | `npx playwright test navbar.spec.ts` | exit code + 新 test 通過 | 0，且改寫 / 新增 test 綠燈 |
-| 8 | `npx playwright test` 全 suite regression | exit code | 0（不得新增 failure） |
-| 9 | `grep -rnE '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx` 最終確認 | grep 結果 | 僅註釋，無 className |
-| 10 | Append architecture.md Changelog（§6 row #3）| 讀檔 | 新條目在最上方 |
-| 11 | commit with message `refactor(K-025): migrate UnifiedNavBar hex literals to K-021 tokens + dual-rail navbar assertions` | `git log -1` | commit 建立 |
+| 5 | **Post-refactor CSS count comparison:** `cd frontend && npm run build && grep -oEc "(color:#9c4a3b\|color:#1a1814\|background-color:#f4efe5\|border-color:#1a1814)" dist/assets/*.css > /tmp/k025-post.txt && diff /tmp/k025-pre.txt /tmp/k025-post.txt` | diff exit code | 0 (pre == post 4 declarations same count) |
+| 6 | Edit `navbar.spec.ts`: per §3.1 drop 5 regex; per §3.2 rewrite 3 tests + add 2 tests | Read file confirm | spec text syntax correct |
+| 7 | `npx playwright test navbar.spec.ts` | exit code + new tests pass | 0, and rewritten / new tests green |
+| 8 | `npx playwright test` full suite regression | exit code | 0 (no new failures) |
+| 9 | `grep -rnE '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx` final confirm | grep result | Comments only, no className |
+| 10 | Append architecture.md Changelog (§6 row #3) | Read file | New entry at top |
+| 11 | Commit with message `refactor(K-025): migrate UnifiedNavBar hex literals to K-021 tokens + dual-rail navbar assertions` | `git log -1` | Commit created |
 
-**阻斷條件（任一即回退 blocker）：**
-- Step 5 diff 不為 0（pre != post declaration count）→ refactor 不是 rendered-color-equivalent，blocker 回 Architect（可能 Engineer 漏改或多改 className）
-- Step 7 新 spec fail → 雙軌斷言實作錯誤（computed color 寫錯 rgb() 格式、aria-current 寫錯屬性）
-- Step 8 舊 spec fail → 回歸，blocker 調查是否 scope creep
+**Blocker conditions (any of these → block):**
+- Step 5 diff != 0 (pre != post declaration count) → refactor not rendered-color-equivalent, blocker back to Architect (Engineer may have missed or over-changed className)
+- Step 7 new spec fails → dual-rail assertion implementation error (computed color rgb() format wrong, or aria-current attribute wrong)
+- Step 8 old spec fails → regression, blocker investigates whether scope creep
 
 ---
 
-## 8. Shared Component Boundary（per persona）
+## 8. Shared Component Boundary (per persona)
 
-- `UnifiedNavBar` 確認為 **shared component**（consumer：`/` / `/about` / `/diary` / `/business-logic` 4 marketing routes，K-030 起 `/app` 撤除）
-- **無新 props interface；零 props 維持**（K-021 §5.3 + 本票 L46 不改結構）
-- Blast radius：4 routes × {rendered-color, aria-current behavior} = 8 cell，§4 Route Impact Table 全 `unchanged`
-- Target-route consumer scan（per persona §Target-Route Consumer Scan）：本票不改 route 導航行為（new-tab / SPA / redirect），不觸發 scan 規則
+- `UnifiedNavBar` confirmed as **shared component** (consumers: `/` / `/about` / `/diary` / `/business-logic` 4 marketing routes; since K-030 `/app` removed)
+- **No new props interface; zero props maintained** (K-021 §5.3 + this ticket L46 no structural change)
+- Blast radius: 4 routes × {rendered-color, aria-current behavior} = 8 cells; §4 Route Impact Table all `unchanged`
+- Target-route consumer scan (per persona §Target-Route Consumer Scan): this ticket does not change route navigation behavior (new-tab / SPA / redirect), does not trigger scan rule
 
 ---
 
 ## 9. Boundary Pre-emption
 
-| Boundary scenario | Is behavior defined? | 補救 |
+| Boundary scenario | Is behavior defined? | Mitigation |
 |------------------|----------------------|------|
-| Empty / null input | N/A — 組件無輸入（零 props） | — |
-| Max / min value boundary | N/A — 無數值邏輯 | — |
-| API error response | N/A — 不涉 API | — |
-| Concurrency / race condition | N/A — 無副作用 | — |
-| 空列 / 單項 / 大量資料 | N/A — `TEXT_LINKS` 靜態常數 | — |
-| Hidden route active-link（K-025 新補）| ✅ 新增 AC-025-NAVBAR-SPEC `And #4` + §3.2 row #7 | — |
-| 註釋內 hex 被 grep 誤殺 | ✅ §2.2 已說明 className 範圍 0 hex vs 整檔，AC-025-NAVBAR-TOKEN Given/When/Then 聚焦 className | — |
-| mobile viewport inactive 色斷言 | ✅ §3.2 row #6 保留 | — |
-| dist/assets CSS 檔名可能含 hash | ✅ glob `dist/assets/*.css`；且該檔案目錄由 Vite 產出唯一 css bundle，無需處理多檔 | — |
+| Empty / null input | N/A — component has no input (zero props) | — |
+| Max / min value boundary | N/A — no numeric logic | — |
+| API error response | N/A — no API involved | — |
+| Concurrency / race condition | N/A — no side effects | — |
+| Empty list / single item / large dataset | N/A — `TEXT_LINKS` static constant | — |
+| Hidden route active-link (K-025 new) | ✅ Added AC-025-NAVBAR-SPEC `And #4` + §3.2 row #7 | — |
+| Comment hex incorrectly grep-killed | ✅ §2.2 explained className scope 0 hex vs whole-file; AC-025-NAVBAR-TOKEN Given/When/Then focuses on className | — |
+| Mobile viewport inactive color assertion | ✅ §3.2 row #6 retained | — |
+| dist/assets CSS filename may contain hash | ✅ glob `dist/assets/*.css`; this directory produced by Vite as unique CSS bundle, no need to handle multiple files | — |
 
 ---
 
 ## 10. Refactorability Checklist
 
-- [x] Single responsibility — UnifiedNavBar 單責任（渲染 nav 列），refactor 不引入新責任
-- [x] Interface minimization — 零 props 維持
-- [x] Unidirectional dependency — `useLocation` → `pathname` → className，無 side effect 或 upward 呼叫
-- [x] Replacement cost — Tailwind token 集中 `tailwind.config.js`，未來替換成本聚焦單點
-- [x] Clear test entry point — dual-rail 斷言顯式分離「React state（aria-current）」與「render output（computed color）」兩個測試視角
-- [x] Change isolation — API contract 不動（§5.2a）；UI className 改動不波及 backend / hooks
+- [x] Single responsibility — UnifiedNavBar single responsibility (render nav bar), refactor introduces no new responsibility
+- [x] Interface minimization — zero props maintained
+- [x] Unidirectional dependency — `useLocation` → `pathname` → className, no side effect or upward call
+- [x] Replacement cost — Tailwind tokens centralized in `tailwind.config.js`, future replacement focused on single point
+- [x] Clear test entry point — dual-rail assertions explicitly separate "React state (aria-current)" and "render output (computed color)" two test perspectives
+- [x] Change isolation — API contract unchanged (§5.2a); UI className change does not propagate to backend / hooks
 
 ---
 
 ## 11. All-Phase Coverage Gate
 
-本票為 single-phase（refactor），無跨 Phase scope。確認四格 ✅：
+This ticket is single-phase (refactor), no cross-Phase scope. Confirm four cells ✅:
 
 | Phase | Backend API | Frontend Routes | Component Tree | Props Interface |
 |-------|------------|-----------------|----------------|----------------|
-| 單票 | N/A（不涉 API）| §4 Route Impact Table 4 routes | §2–§5 UnifiedNavBar 單組件，無新增 / 搬移 / 刪除 | §8 零 props 維持 |
+| Single ticket | N/A (no API involved) | §4 Route Impact Table 4 routes | §2–§5 UnifiedNavBar single component, no add / move / delete | §8 zero props maintained |
 
 ---
 
 ## 12. Known Risks
 
-- **風險 R-1：** Engineer 漏改某一處 hex literal（例如 L82 Home icon 兩處 className 漏其一）→ Step 5 dist CSS declaration count 仍會 pre == post（因兩種 Tailwind 寫法編譯結果同 declaration value），grep 結果會失敗暴露。Step 9 grep 為兜底。
-- **風險 R-2：** Tailwind config 某處被誤改（例如 `brick-dark` 被改色）→ Step 5 diff 會 fail。鎖定在 pipeline 中暴露。
-- **風險 R-3：** `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` 在不同 Chromium 版本下 stringify 格式可能差（例如 `rgb(26 24 20 / 0.6)` vs `rgba(26, 24, 20, 0.6)`）→ Engineer 若在 Step 7 碰到 format 差異，先確認 Playwright runtime 實際 stringify 樣式再 pin；本 spec 已沿用 ticket AC L35 / L66 的寫法（Playwright 既有 codebase 慣用 rgba 寫法可驗）
-- **風險 R-4：** `/business-logic` 於 hidden-route 行為依賴 `Prediction` 在 `TEXT_LINKS` 中為 `hidden: true` 而被 filter。若未來刪除 hidden key 改回 render，row #7 斷言將 fail（因 `pathname === '/business-logic'` 匹配到 Prediction.path）；但 K-025 不動 TEXT_LINKS，此為跨票風險，非本票 scope。已於 §4 備註「pre-K-025 無此斷言」揭示。
+- **Risk R-1:** Engineer misses one hex literal (e.g. one of the two L82 Home icon classNames) → Step 5 dist CSS declaration count still pre == post (because both Tailwind notations compile to same declaration value), grep result will fail and expose. Step 9 grep is the safety net.
+- **Risk R-2:** Tailwind config accidentally modified (e.g. `brick-dark` color changed) → Step 5 diff fails. Pinned in pipeline exposure.
+- **Risk R-3:** `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` may stringify differently across Chromium versions (e.g. `rgb(26 24 20 / 0.6)` vs `rgba(26, 24, 20, 0.6)`) → if Engineer hits format difference at Step 7, first confirm Playwright runtime actual stringify form and pin; this spec follows ticket AC L35 / L66 wording (Playwright codebase convention uses rgba, verifiable)
+- **Risk R-4:** `/business-logic` hidden-route behavior depends on `Prediction` having `hidden: true` in `TEXT_LINKS` and being filtered out. If hidden key removed in future and re-rendered, row #7 assertion will fail (because `pathname === '/business-logic'` matches Prediction.path); but K-025 does not modify TEXT_LINKS, this is cross-ticket risk, not in scope. Disclosed in §4 note "no such assertion pre-K-025".
 
 ---
 
 ## Retrospective
 
-**Where most time was spent:** §3 spec diff table 推敲「5 drop」對應 spec 實際行數（L177 / L178 / L186 / L187 / L204，共 5 regex 都在舊 describe `AC-NAV-4` 下的 3 個 tests 裡），需要同時展開 §3.2 新斷言要用幾個 test 包裝（AC cross-check 卡 5 AC `And` ≤ 5 tests）。先拉了一次 spec 的完整 line 掃描再建表，避免 test 數量與 AC 數量漂移。
+**Where most time was spent:** §3 spec diff table — mapping "5 drop" to actual spec line numbers (L177 / L178 / L186 / L187 / L204, all 5 regex in old describe `AC-NAV-4`'s 3 tests). Required simultaneously expanding §3.2 new assertions into how many tests to wrap (AC cross-check capped at 5 AC `And` ≤ 5 tests). Did one full spec line scan first then built table to avoid test count vs AC count drift.
 
-**Which decisions needed revision:** 初稿考慮把 §3.2 row #5（`/` desktop 3 inactive）拆 3 個獨立 test（一 link 一 test），但 ticket AC-025-NAVBAR-SPEC `And #3` 僅要求「新增 `/` route desktop inactive 3 斷言」未要求 3 tests。拆 3 test 會造成「AC 3 條 = test 3 條」過度膨脹（violates persona 「test 數量 = AC 家族數」的對齊原則）。改為 1 test 內 3 `expect`，與 §3.2 row #5 描述一致。
+**Which decisions needed revision:** Initial draft considered splitting §3.2 row #5 (`/` desktop 3 inactive) into 3 independent tests (one link per test), but ticket AC-025-NAVBAR-SPEC `And #3` only requires "add 3 inactive assertions for `/` route desktop", not 3 tests. Splitting into 3 tests would inflate "AC 3 clauses = 3 tests" (violating persona "test count = AC family count" alignment principle). Changed to 1 test with 3 `expect`, consistent with §3.2 row #5 description.
 
-**Next time improvement:** 未來 pure-refactor type ticket 在寫 §3 E2E diff 表前，先固定「spec file line 掃描」為設計文件 §2/§3 的共用 source of truth block（把 `grep -n` 結果當 appendix 引用），省去後續人肉 cross-check spec 行號位置的重工。本次 §2.1 grep 結果已作為 appendix，延伸到 §3.1 spec 舊行號時再次出現了一批新數字（L177/L178/...），未來考慮在設計文件開頭統一列「source of truth scan」一節。
+**Next time improvement:** For pure-refactor type tickets, before writing §3 E2E diff table, fix "spec file line scan" as a shared source-of-truth block for design doc §2/§3 (cite `grep -n` result as appendix), saving subsequent manual cross-check rework on spec line numbers. This time §2.1 grep result already served as appendix; when extending to §3.1 spec old line numbers, another batch of new numbers (L177/L178/...) appeared; consider unifying a "source of truth scan" section at the start of design doc going forward.

@@ -36,7 +36,7 @@ None. All ambiguities pre-ruled by PM in ticket §4.3 (BQ-034-P3-01/02/03) + §4
 | `docs/tech-debt.md` | Read HEAD L1-55 | TD-K034-P3-02 not yet in table; needs append. TD-K034-P3-01 currently absent (no Phase 3 TD yet); `-02` is the first `-P3-*` TD — numbering gap intentional per ticket §AC-034-P3-VIEWPORT-SEAM-KNOWN-GAP wording. | ✓ confirmed; one new row append required |
 | `agent-context/architecture.md` | Read L440-523 (Routing + Design System + Shared Components) | `/diary` row L456 still describes pre-Phase-3 state (no Footer mention — correct for pre-Phase-3 state); Footer placement table L514 reads `無 footer (K-024)` — must change to `<Footer />` with Phase 3 reference; Shared Components table L523 Footer row lists 3 consumer routes — must expand to 4 | ✓ confirmed; 3 structural Edit sites + 1 Changelog prepend + frontmatter `updated:` |
 
-### 1.2 §API 不變性 dual-axis
+### 1.2 §API invariance dual-axis
 
 (a) **Wire-level schema diff.** This Phase changes **zero** backend artifacts (no schema, no endpoint, no API response shape). `git diff main -- backend/` is expected to show 0 lines.
 
@@ -345,7 +345,7 @@ Parallelizable: doc-only files (#6, #7, #8, #10, #11) can be edited in parallel;
 
 ---
 
-## 13 §API 不變性證明 (dual-axis, final)
+## 13 §API invariance proof (dual-axis, final)
 
 **Axis (a) — wire-level schema diff:**
 

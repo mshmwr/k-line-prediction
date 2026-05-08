@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 每次 git tag push 自動觸發 CI，完成 Firebase + Cloud Run 部署、Playwright 截圖，並建立含版本文件和截圖的 GitHub Release。
+**Goal:** Each git tag push automatically triggers CI to perform Firebase + Cloud Run deploy, Playwright screenshots, and create a GitHub Release with the version doc and screenshots.
 
-**Architecture:** 本機 `create-release.js` script 負責產版本文件、tag、push；GitHub Actions 接手 build/deploy/截圖/release 建立，無 commit-back loop 風險。截圖對 production URL 拍攝（deploy 後才跑），確保「時光機」記錄的是真實上線畫面。
+**Architecture:** Local `create-release.js` script handles version doc generation, tag, push; GitHub Actions then handles build/deploy/screenshot/release creation, with no commit-back loop risk. Screenshots are taken against the production URL (after deploy), ensuring the "time machine" records the real live screen.
 
 **Tech Stack:** Node.js (release script), GitHub Actions, Firebase Hosting, Google Cloud Run + Artifact Registry, Playwright (screenshot), GitHub CLI (`gh`)
 
@@ -12,25 +12,25 @@
 
 ## File Map
 
-| 檔案 | 動作 | 說明 |
+| File | Action | Description |
 |------|------|------|
-| `scripts/create-release.js` | 新建 | 本機 release script |
-| `frontend/e2e/screenshot.spec.ts` | 新建 | CI-only 截圖 spec |
-| `frontend/playwright.screenshot.config.ts` | 新建 | 截圖 spec 專用 config（無 webServer） |
-| `.github/workflows/release.yml` | 新建 | CI/CD workflow |
-| `.gitignore` | 修改 | 加 `release-screenshots/` |
-| `docs/releases/` | 新建目錄 | release 文件存放（script 自動建立） |
+| `scripts/create-release.js` | New | Local release script |
+| `frontend/e2e/screenshot.spec.ts` | New | CI-only screenshot spec |
+| `frontend/playwright.screenshot.config.ts` | New | Dedicated config for screenshot spec (no webServer) |
+| `.github/workflows/release.yml` | New | CI/CD workflow |
+| `.gitignore` | Modify | Add `release-screenshots/` |
+| `docs/releases/` | New directory | Stores release docs (auto-created by script) |
 
 ---
 
-## Task 1: 本機 Release Script
+## Task 1: Local Release Script
 
 **Files:**
 - Create: `scripts/create-release.js`
 
-### Subtask 1-A: dry-run 模式驗證邏輯
+### Subtask 1-A: dry-run mode logic verification
 
-- [ ] **Step 1: 建立 `scripts/create-release.js` 骨架（dry-run only）**
+- [ ] **Step 1: Create skeleton of `scripts/create-release.js` (dry-run only)**
 
 ```javascript
 #!/usr/bin/env node
@@ -105,10 +105,10 @@ tickets: [${ticketIds.join(', ')}]
 
 ## ${version} — ${date}
 
-### 變更內容
+### Changes
 ${lines.join('\n')}
 
-### 部署
+### Deployment
 - Commit: ${sha}
 - Firebase: https://${firebaseSite}.web.app
 - Cloud Run: https://k-line-prediction-<hash>-uc.a.run.app
@@ -148,7 +148,7 @@ run('git push origin main --follow-tags');
 console.log(`✓ Tagged ${version} and pushed.`);
 ```
 
-- [ ] **Step 2: dry-run テスト — 在 K-Line 專案根目錄執行**
+- [ ] **Step 2: dry-run test — run from K-Line project root**
 
 ```bash
 cd ClaudeCodeProject/K-Line-Prediction
@@ -158,8 +158,8 @@ node scripts/create-release.js --dry-run
 Expected output:
 ```
 === Release Preview ===
-Version : v1.0.0       ← 無 last tag 時從 v0.0.0 MINOR increment
-Tickets : K-017, K-018  ← 從 git log 抓出（依實際 commits 而定）
+Version : v1.0.0       ← MINOR increment from v0.0.0 when no last tag
+Tickets : K-017, K-018  ← extracted from git log (varies by actual commits)
 DocPath : docs/releases/v1.0.0.md
 DryRun  : true
 
@@ -169,15 +169,15 @@ version: v1.0.0
 ...
 ```
 
-Verify: 無檔案被建立，`git status` 無 dirty changes。
+Verify: no files created; `git status` shows no dirty changes.
 
-- [ ] **Step 3: 測試帶版本號參數**
+- [ ] **Step 3: Test version-arg path**
 
 ```bash
 node scripts/create-release.js v1.2.3 --dry-run
 ```
 
-Expected: `Version : v1.2.3`（無視推論邏輯）
+Expected: `Version : v1.2.3` (ignores inference logic)
 
 - [ ] **Step 4: Commit script**
 
@@ -195,16 +195,16 @@ git commit -m "feat(K-019): local release script with dry-run support"
 - Create: `frontend/playwright.screenshot.config.ts`
 - Modify: `.gitignore`
 
-- [ ] **Step 1: 加 `release-screenshots/` 到 `.gitignore`**
+- [ ] **Step 1: Add `release-screenshots/` to `.gitignore`**
 
-在 `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/.gitignore` 末尾加：
+Append to `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/.gitignore`:
 
 ```
 # Release screenshots (CI artifact only, not committed)
 release-screenshots/
 ```
 
-- [ ] **Step 2: 建立 `frontend/playwright.screenshot.config.ts`**
+- [ ] **Step 2: Create `frontend/playwright.screenshot.config.ts`**
 
 ```typescript
 import { defineConfig, devices } from '@playwright/test'
@@ -229,7 +229,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 3: 建立 `frontend/e2e/screenshot.spec.ts`**
+- [ ] **Step 3: Create `frontend/e2e/screenshot.spec.ts`**
 
 ```typescript
 import { test } from '@playwright/test'
@@ -271,18 +271,18 @@ test('screenshot: app-login', async ({ page }) => {
 })
 ```
 
-- [ ] **Step 4: 驗證 screenshot spec 不影響一般測試 suite**
+- [ ] **Step 4: Verify screenshot spec does not affect general test suite**
 
 ```bash
 cd frontend
 npx playwright test --config playwright.config.ts --list
 ```
 
-Expected: `screenshot.spec.ts` 不出現在清單（`playwright.config.ts` 的 `testMatch: /.*\.spec\.ts$/` 會匹配到它，需確認）
+Expected: `screenshot.spec.ts` is not listed (`playwright.config.ts`'s `testMatch: /.*\.spec\.ts$/` would match it; need to confirm)
 
-> **注意：** `screenshot.spec.ts` 的 `testMatch` 為 `.*\.spec\.ts`，一般 config 也會匹配到它。因此在一般 config 中排除它：
+> **Note:** `screenshot.spec.ts`'s `testMatch` is `.*\.spec\.ts`; the general config also matches. Exclude it in general config:
 
-修改 `frontend/playwright.config.ts`，在 `chromium` project 加：
+Modify `frontend/playwright.config.ts`, in the `chromium` project add:
 
 ```typescript
 {
@@ -292,21 +292,21 @@ Expected: `screenshot.spec.ts` 不出現在清單（`playwright.config.ts` 的 `
 },
 ```
 
-- [ ] **Step 5: 再次驗證一般 suite 不含 screenshot spec**
+- [ ] **Step 5: Re-verify general suite excludes screenshot spec**
 
 ```bash
 npx playwright test --config playwright.config.ts --list 2>&1 | grep screenshot
 ```
 
-Expected: 無輸出（screenshot spec 不在清單）
+Expected: no output (screenshot spec not in list)
 
-- [ ] **Step 6: 驗證現有 E2E tests 仍全部通過**
+- [ ] **Step 6: Verify existing E2E tests all still pass**
 
 ```bash
 npx playwright test --config playwright.config.ts
 ```
 
-Expected: all existing specs pass, screenshot.spec.ts not included.
+Expected: all existing specs pass; screenshot.spec.ts not included.
 
 - [ ] **Step 7: Commit**
 
@@ -323,13 +323,13 @@ git commit -m "feat(K-019): Playwright screenshot spec + CI-only config"
 **Files:**
 - Create: `.github/workflows/release.yml`
 
-- [ ] **Step 1: 建立 `.github/workflows/` 目錄並建 workflow 檔**
+- [ ] **Step 1: Create `.github/workflows/` directory and workflow file**
 
 ```bash
 mkdir -p .github/workflows
 ```
 
-- [ ] **Step 2: 寫 `.github/workflows/release.yml`**
+- [ ] **Step 2: Write `.github/workflows/release.yml`**
 
 ```yaml
 name: Release
@@ -451,11 +451,11 @@ jobs:
 
       - name: Record screenshot failure reason
         if: steps.screenshots.outcome == 'failure'
-        run: echo "SCREENSHOT_NOTE=⚠️ 截圖不可用：Playwright 執行失敗（詳見 CI logs）" >> $GITHUB_ENV
+        run: echo "SCREENSHOT_NOTE=⚠️ Screenshots unavailable: Playwright execution failed (see CI logs)" >> $GITHUB_ENV
 
       - name: Set screenshot note (success)
         if: steps.screenshots.outcome == 'success'
-        run: echo "SCREENSHOT_NOTE=截圖見下方 Assets" >> $GITHUB_ENV
+        run: echo "SCREENSHOT_NOTE=Screenshots are attached as Assets below" >> $GITHUB_ENV
 
       # ── Generate Release Body ────────────────────────────────────────
       - name: Build release body from docs/releases
@@ -465,7 +465,7 @@ jobs:
             # Strip frontmatter (lines between --- markers) and use body
             BODY=$(awk '/^---/{if(++n==2){found=1;next}} found{print}' "$DOC")
           else
-            BODY="## ${{ github.ref_name }}\n\n（release doc not found）"
+            BODY="## ${{ github.ref_name }}\n\n(release doc not found)"
           fi
           echo "$BODY" > /tmp/release-body.md
           echo "$SCREENSHOT_NOTE" >> /tmp/release-body.md
@@ -485,13 +485,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-- [ ] **Step 3: 驗證 YAML 語法**
+- [ ] **Step 3: Validate YAML syntax**
 
 ```bash
 python3 -c "import yaml; yaml.safe_load(open('.github/workflows/release.yml'))"
 ```
 
-Expected: 無輸出（syntax OK）
+Expected: no output (syntax OK)
 
 - [ ] **Step 4: Commit workflow**
 
@@ -502,44 +502,44 @@ git commit -m "feat(K-019): GitHub Actions release workflow"
 
 ---
 
-## Task 4: GitHub Secrets 設定說明
+## Task 4: GitHub Secrets Setup Notes
 
-> 這個 task 是設定說明，不是 code。在 GitHub repo Settings → Secrets and variables → Actions 設定以下 secrets。
+> This task is configuration notes, not code. In GitHub repo Settings → Secrets and variables → Actions, configure the following secrets.
 
-| Secret Name | 如何取得 |
+| Secret Name | How to obtain |
 |-------------|---------|
-| `GCP_PROJECT_ID` | Google Cloud Console → 專案 ID（格式：`my-project-123`） |
-| `CLOUD_RUN_SERVICE` | Cloud Run 服務名稱（目前的服務名稱，`gcloud run services list` 查詢） |
-| `CLOUD_RUN_REGION` | Cloud Run 部署 region（例：`us-central1`、`asia-east1`） |
-| `GCP_SA_KEY` | 建立 Service Account JSON，需有 Cloud Run Admin + Artifact Registry Writer + Storage Admin 權限，base64 或直接貼 JSON |
-| `FIREBASE_SERVICE_ACCOUNT` | Firebase Hosting → GitHub Actions 部署時，Firebase console 自動產生 service account JSON（在 Project Settings → Service accounts → Generate new private key） |
-| `VITE_GA_MEASUREMENT_ID` | GA4 Measurement ID（`G-XXXXXXXXXX`），已在 K-018 設定 |
+| `GCP_PROJECT_ID` | Google Cloud Console → project ID (format: `my-project-123`) |
+| `CLOUD_RUN_SERVICE` | Cloud Run service name (current name; query via `gcloud run services list`) |
+| `CLOUD_RUN_REGION` | Cloud Run deploy region (e.g. `us-central1`, `asia-east1`) |
+| `GCP_SA_KEY` | Create Service Account JSON; needs Cloud Run Admin + Artifact Registry Writer + Storage Admin; base64 or paste JSON |
+| `FIREBASE_SERVICE_ACCOUNT` | For Firebase Hosting → GitHub Actions deploy, Firebase console auto-generates a service account JSON (Project Settings → Service accounts → Generate new private key) |
+| `VITE_GA_MEASUREMENT_ID` | GA4 Measurement ID (`G-XXXXXXXXXX`); already configured in K-018 |
 
-- [ ] **Step 1: 查詢目前 Cloud Run 服務名稱**
+- [ ] **Step 1: Query current Cloud Run service name**
 
 ```bash
 gcloud run services list --format="table(metadata.name,status.url,metadata.namespace)"
 ```
 
-記下 `SERVICE_NAME` 和 `REGION`。
+Note `SERVICE_NAME` and `REGION`.
 
-- [ ] **Step 2: 在 GitHub 設定上述 secrets**
+- [ ] **Step 2: Configure the secrets in GitHub**
 
-前往 `https://github.com/<your-username>/k-line-prediction/settings/secrets/actions` 逐一新增。
+Go to `https://github.com/<your-username>/k-line-prediction/settings/secrets/actions` and add each.
 
-- [ ] **Step 3: 確認 `firebase.json` 的 `site` 欄位與 `FIREBASE_SITE` env 一致**
+- [ ] **Step 3: Confirm `firebase.json`'s `site` field matches `FIREBASE_SITE` env**
 
 ```bash
 cat firebase.json | python3 -c "import json,sys; print(json.load(sys.stdin)['hosting']['site'])"
 ```
 
-Expected: `k-line-prediction-app`（與 workflow 中 `FIREBASE_SITE: k-line-prediction-app` 一致）
+Expected: `k-line-prediction-app` (matches `FIREBASE_SITE: k-line-prediction-app` in workflow)
 
 ---
 
-## Task 5: 第一次 Release v1.0.0
+## Task 5: First Release v1.0.0
 
-- [ ] **Step 1: 確認 main 是乾淨的**
+- [ ] **Step 1: Confirm main is clean**
 
 ```bash
 git status
@@ -548,15 +548,15 @@ git log --oneline -5
 
 Expected: working tree clean
 
-- [ ] **Step 2: dry-run 預覽**
+- [ ] **Step 2: dry-run preview**
 
 ```bash
 node scripts/create-release.js v1.0.0 --dry-run
 ```
 
-驗證：版本號 v1.0.0，tickets 清單正確，release doc 格式符合 spec。
+Verify: version v1.0.0; ticket list correct; release doc format matches spec.
 
-- [ ] **Step 3: 執行 release（真實）**
+- [ ] **Step 3: Run release (real)**
 
 ```bash
 node scripts/create-release.js v1.0.0
@@ -568,16 +568,16 @@ Expected:
 ✓ Tagged v1.0.0 and pushed.
 ```
 
-- [ ] **Step 4: 確認 GitHub Actions 已觸發**
+- [ ] **Step 4: Confirm GitHub Actions has triggered**
 
-前往 `https://github.com/<your-username>/k-line-prediction/actions`，確認 `Release` workflow 出現且 running。
+Go to `https://github.com/<your-username>/k-line-prediction/actions`, confirm `Release` workflow appears and is running.
 
-- [ ] **Step 5: 確認 GitHub Release 建立**
+- [ ] **Step 5: Confirm GitHub Release created**
 
-CI 完成後，前往 `https://github.com/<your-username>/k-line-prediction/releases`，確認：
-- Release `v1.0.0` 存在
-- Release body 含 tickets 清單
-- Assets 含 `home.png`, `about.png`, `app-login.png`
+After CI completes, go to `https://github.com/<your-username>/k-line-prediction/releases`, confirm:
+- Release `v1.0.0` exists
+- Release body contains ticket list
+- Assets include `home.png`, `about.png`, `app-login.png`
 
 ---
 
@@ -585,23 +585,23 @@ CI 完成後，前往 `https://github.com/<your-username>/k-line-prediction/rele
 
 ### Spec Coverage
 
-| AC | Task 覆蓋 |
+| AC | Task coverage |
 |----|----------|
-| AC-K019-1: 本機 script 建 doc + tag + push | Task 1 ✓ |
-| AC-K019-2: CI pipeline 完整執行 | Task 3 ✓ |
-| AC-K019-3: Release 文件格式 | Task 1 (buildReleaseDoc) ✓ |
-| AC-K019-4: Deploy 失敗保護（fail-fast） | Task 3（workflow 無 `continue-on-error` on deploy steps）✓ |
-| AC-K019-5: 截圖失敗標注原因 | Task 3（`continue-on-error: true` + SCREENSHOT_NOTE）✓ |
+| AC-K019-1: local script creates doc + tag + push | Task 1 ✓ |
+| AC-K019-2: CI pipeline full execution | Task 3 ✓ |
+| AC-K019-3: release document format | Task 1 (buildReleaseDoc) ✓ |
+| AC-K019-4: deploy failure protection (fail-fast) | Task 3 (workflow has no `continue-on-error` on deploy steps) ✓ |
+| AC-K019-5: screenshot failure annotated | Task 3 (`continue-on-error: true` + SCREENSHOT_NOTE) ✓ |
 
 ### Placeholder Scan
 
-- 無 TBD / TODO
-- `CLOUD_RUN_URL` 一行用 `gcloud run services describe` 動態取得 ✓
-- release body awk script 明確（跳過 frontmatter）✓
+- No TBD / TODO
+- `CLOUD_RUN_URL` line dynamically obtained via `gcloud run services describe` ✓
+- release body awk script clear (skips frontmatter) ✓
 
 ### Type Consistency
 
-- `readTicketInfo()` returns `{ title, type }` — Task 1 全程使用 ✓
-- `screenshot.spec.ts` uses `PROD_URL!` — workflow 注入 `PROD_URL: ${{ env.PROD_URL }}` ✓
-- `playwright.screenshot.config.ts` testMatch `/screenshot\.spec\.ts$/` — 與檔名一致 ✓
-- playwright.config.ts 排除 screenshot.spec: `(?<!screenshot)\.spec\.ts$` ✓
+- `readTicketInfo()` returns `{ title, type }` — used consistently in Task 1 ✓
+- `screenshot.spec.ts` uses `PROD_URL!` — workflow injects `PROD_URL: ${{ env.PROD_URL }}` ✓
+- `playwright.screenshot.config.ts` testMatch `/screenshot\.spec\.ts$/` — matches filename ✓
+- playwright.config.ts excludes screenshot.spec: `(?<!screenshot)\.spec\.ts$` ✓

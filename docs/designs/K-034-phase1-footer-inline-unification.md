@@ -109,7 +109,7 @@ This table is the **authoritative contract** for Phase 1. Engineer must render a
 | `<a href="mailto:...">`, `<a href="https://github.com/...">`, `<a href="https://linkedin.com/...">` | 3 anchors | **Option A:** 0 anchors, no hrefs. **Option B:** 3 anchors styled-as-text, hrefs preserved. **Option C:** 3 anchors in separate CTA block. |
 | `.toBeVisible()` text `Let's talk →` | present | **Option A/B:** absent (deleted). **Option C:** present in separate block. |
 
-### 2.2 / (HomePage) — API不變性 (control)
+### 2.2 / (HomePage) — API invariance (control)
 
 | Input | OLD behavior (variant='home') | NEW behavior (no variant) | Diff? |
 |---|---|---|---|
@@ -117,7 +117,7 @@ This table is the **authoritative contract** for Phase 1. Engineer must render a
 | Footer `.outerHTML` | snapshot X | snapshot X | **0 diff** |
 | Computed fontSize / color / border-top-width | 11px / rgb(107,95,78) / >0 | 11px / rgb(107,95,78) / >0 | 0 diff |
 
-### 2.3 /business-logic (BusinessLogicPage) — API不變性 (control)
+### 2.3 /business-logic (BusinessLogicPage) — API invariance (control)
 
 | Input | OLD behavior (variant='home') | NEW behavior (no variant) | Diff? |
 |---|---|---|---|
@@ -130,7 +130,7 @@ This table is the **authoritative contract** for Phase 1. Engineer must render a
 | `/diary` | No Footer | No Footer | K-024 `pages.spec.ts` L158 `diary page has no Footer rendered` |
 | `/app` | No Footer | No Footer | K-030 `app-bg-isolation.spec.ts` AC-030-NO-FOOTER |
 
-**API不變性證明 — wire-level schema diff:** N/A (this is a frontend-only refactor; no backend schema changes). Frontend observable behavior diff: see §2.2 + §2.3 above — 4 observable axes (outerHTML / fontSize / color / border-top-width) × 2 control routes (/ + /business-logic) = 8 cells, all 0-diff.
+**API invariance proof — wire-level schema diff:** N/A (this is a frontend-only refactor; no backend schema changes). Frontend observable behavior diff: see §2.2 + §2.3 above — 4 observable axes (outerHTML / fontSize / color / border-top-width) × 2 control routes (/ + /business-logic) = 8 cells, all 0-diff.
 
 ---
 
