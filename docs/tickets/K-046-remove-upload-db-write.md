@@ -32,7 +32,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 1. **Backend write-path comment-out** — the write-side-effect inside `upload_history_file()` (`_save_history_csv()` + `_history_1h` / `_history_1d` module-level assignments) is wrapped in a commented block. Endpoint still returns 200, CSV is still parsed, response still carries bar counts for the frontend toast — but the on-disk authoritative DB (`history_database/Binance_ETHUSDT_1h.csv` / `_d.csv`) and the in-memory module state stay untouched. Future auto-scraper (K-048) will replace the re-enabled write path.
 2. **Frontend example CSV download** — `/app` renders a `Download example CSV` link in the upload region so visitors without their own CSV can experience the full upload → predict flow. File is served as a static asset from `frontend/public/examples/ETHUSDT_1h_test.csv` (Firebase Hosting), filename drops the `Binance_` prefix.
 
-**Why (scope pivot from original K-046 plan):** user ruling 2026-04-24 — "不用拿掉 `/api/upload-history` api，只需要暫時先註解這個功能就好了" + "附上一個 example csv 的 link text，可以用你之前使用的測試檔案" + "檔名把 `Binance_` 拿掉". Original K-046 (remove DB write path, rename response schema, rewrite 4+2 backend tests, reshape frontend state) = large-scope refactor. Revised K-046 = surgical defensive comment + small demo affordance. Reversibility matters — K-048 auto-scraper will decide whether to re-enable or permanently excise.
+**Why (scope pivot from original K-046 plan):** user ruling 2026-04-24 — paraphrased: keep the `/api/upload-history` API, only comment out the feature temporarily; include an example CSV link using the previously used test file; strip the `Binance_` prefix from the filename. Original K-046 (remove DB write path, rename response schema, rewrite 4+2 backend tests, reshape frontend state) = large-scope refactor. Revised K-046 = surgical defensive comment + small demo affordance. Reversibility matters — K-048 auto-scraper will decide whether to re-enable or permanently excise.
 
 **Paired with:** K-048 (Auto scraper for authoritative K-line history DB) — replaces upload-as-DB-maintenance with scheduled scraper-pull. K-048 stub reserved in repo (`docs/tickets/K-048-*.md`), no implementation yet. K-046 lands first and is independently valuable (stops DB-poisoning risk immediately).
 
@@ -97,7 +97,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 
 - **Given:** the user uploads any valid CSV via the `/app` Upload History CSV UI
 - **When:** the upload succeeds
-- **Then:** the existing conditional branch at `AppPage.tsx:438-440` renders the already-there "資料已是最新，無需更新（共 N bars）" copy (because `addedCount === 0` is always true post-K-046)
+- **Then:** the existing conditional branch at `AppPage.tsx:438-440` renders the already-there "Data already up-to-date, no update needed (total N bars)" copy (because `addedCount === 0` is always true post-K-046)
 - **And:** the toast border/background uses the already-there informational gray-border variant (`border-gray-700 bg-gray-800/40 text-gray-400`), not the green success variant — existing conditional is correct for K-046 semantics without edit
 - **And:** no Chinese copy change is required in this ticket (frontend stays as-is; only the comment-out + example-link changes land)
 
@@ -105,7 +105,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 
 - **Given:** the user navigates to `/app` for the first time (no prior upload state)
 - **When:** the page renders the sidebar History Reference section (`AppPage.tsx:408-431` region)
-- **Then:** immediately below the Upload History CSV `<label>` (lines 415-430) or adjacent to the existing "時間欄位須為 UTC+0" hint, there is a visible anchor element with text `Don't have a CSV? Download example →`
+- **Then:** immediately below the Upload History CSV `<label>` (lines 415-430) or adjacent to the existing "Time field must be UTC+0" hint, there is a visible anchor element with text `Don't have a CSV? Download example →`
 - **And:** the anchor's `href` is `/examples/ETHUSDT_1h_test.csv` (repo-root relative, served via Firebase Hosting static assets)
 - **And:** the anchor carries a `download="ETHUSDT_1h_test.csv"` attribute (HTML5 force-download hint)
 - **And:** the anchor uses the existing small-text inline style (`text-[10px]` or `text-[11px]` + `text-gray-500` for label, with `text-blue-400 hover:text-blue-300` or equivalent link color for the clickable word `Download example`) — must be visually subordinate to the Upload label, not dominate
@@ -124,7 +124,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 - **Given:** the user has downloaded `ETHUSDT_1h_test.csv` via the example link
 - **When:** the user immediately re-uploads that same file via the Upload History CSV button (unchanged bytes)
 - **Then:** the upload returns `200 OK`
-- **And:** the frontend toast renders the existing "資料已是最新，無需更新" informational copy (per AC-046-COMMENT-4)
+- **And:** the frontend toast renders the existing "Data already up-to-date, no update needed" informational copy (per AC-046-COMMENT-4)
 - **And:** the on-disk authoritative DB and in-memory state remain unchanged (per AC-046-COMMENT-1, -2)
 - **And:** subsequent `/api/predict` calls in the same session succeed (the example's 5 bars are insufficient for full 24-bar query, but the ticket's AC is "parseable round-trip without error", not "produces a match"; the user's separate CSV is expected for real prediction)
 
@@ -155,7 +155,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 - **Then:** a visible anchor element with text matching `/Download example/i` is rendered
 - **And:** that anchor's `href` attribute equals `/examples/ETHUSDT_1h_test.csv` AND `download` attribute equals `ETHUSDT_1h_test.csv`
 - **And:** a `request.get('/examples/ETHUSDT_1h_test.csv')` issued from the Playwright page context returns HTTP 200 with `Content-Length` 646 (byte count parity with `frontend/public/examples/ETHUSDT_1h_test.csv`)
-- **And:** using `setInputFiles()` to upload that same CSV back via the Upload History CSV input triggers the mocked `POST /api/upload-history` call, and the response handler renders the toast copy matching `/資料已是最新/`
+- **And:** using `setInputFiles()` to upload that same CSV back via the Upload History CSV input triggers the mocked `POST /api/upload-history` call, and the response handler renders the toast copy matching `/Data already up-to-date/`
 - **New spec file:** `frontend/e2e/K-046-example-upload.spec.ts`
 - **Notes on assertion shape (see Known Gap GAP-3):** `getAttribute('download')` asserts the HTML attribute value, not the filesystem filename — sufficient for Playwright Chromium; Safari/Firefox filesystem-filename parity is NOT in scope
 
@@ -174,7 +174,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 - **Given:** K-046 lands
 - **When:** reader opens `agent-context/architecture.md` current-state block
 - **Then:** a 1-line English note describes `/api/upload-history` as "write-disabled (commented-out pending K-048 auto-scraper)" with a K-046 pointer
-- **And:** the line is added via Architect's Step "每次任務結束前必同步 architecture.md" path, not by Engineer
+- **And:** the line is added via Architect's "always sync architecture.md before ending each task" step, not by Engineer
 
 ## Phase Plan
 
@@ -200,7 +200,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 ### Phase 2 — Frontend example CSV asset + download link
 
 - Engineer confirms `frontend/public/examples/ETHUSDT_1h_test.csv` exists (already landed by PM in this ticket commit — verify byte-identical to `history_database/Binance_ETHUSDT_1h_test.csv`)
-- Engineer inserts the Download example CSV link into `AppPage.tsx` near line 418 (adjacent to the existing "時間欄位須為 UTC+0" hint) — render pattern:
+- Engineer inserts the Download example CSV link into `AppPage.tsx` near line 418 (adjacent to the existing "Time field must be UTC+0" hint) — render pattern:
   ```tsx
   <a
     href="/examples/ETHUSDT_1h_test.csv"
@@ -231,7 +231,7 @@ Two coordinated changes to `/api/upload-history` flow so the public deployment c
 
 **Rationale per 4-source priority (per `feedback_pm_self_decide_bq.md`):**
 1. Pencil `.pen` design — no frame covers backend API behavior. No signal.
-2. Ticket text — user's verbatim 2026-04-24 scope: "不用拿掉 /api/upload-history api, 只需要暫時先註解這個功能就好了" — "暫時" (temporarily) + "先" (for now) → reversible surgical comment, not endpoint disabling. Plus the Download example CSV AC requires user round-trip through upload → this is impossible if upload endpoint returns 501. Both together point unambiguously to (Y).
+2. Ticket text — user's 2026-04-24 scope (paraphrased): keep the `/api/upload-history` API, only comment out this feature temporarily — the words "temporarily" and "for now" → reversible surgical comment, not endpoint disabling. Plus the Download example CSV AC requires user round-trip through upload → this is impossible if upload endpoint returns 501. Both together point unambiguously to (Y).
 3. Memory — `feedback_engineer_no_scope_downgrade.md` (minimize unintended diff), `feedback_playwright_mock_realism.md` (preserve frontend observable contract to avoid silent downstream breaks). Both lean (Y).
 4. Codebase — `/api/predict` and `/api/merge-and-compute-ma99` still use `_merge_bars()` in-memory (lines 252, 278). Upload's parse path stays useful + aligns with the in-memory merge pattern. (Y) keeps the conceptual surface consistent.
 
@@ -247,7 +247,7 @@ Verdict: (Y). Comment out lines 162-167 write block only; parse + response paylo
 
 **Rationale per 4-source priority:**
 1. Pencil — no signal.
-2. Ticket text — user: "可以用你之前使用的測試檔案, 給使用者參考" + "檔名把 Binance_ 拿掉". A simple copy + rename satisfies both exactly, no backend dependency.
+2. Ticket text — user (paraphrased): use the previously used test file as reference for users; strip the `Binance_` prefix from the filename. A simple copy + rename satisfies both exactly, no backend dependency.
 3. Memory — `feedback_api_path_scan_all_clients.md` implies we already audit `/api/` paths carefully; adding a new endpoint multiplies deploy dependencies with no gain. `feedback_firebase_hosting_public_dir.md` already establishes `frontend/public/` as the correct serve location.
 4. Codebase — `frontend/public/` already serves `diary.json` (runtime fetch) + `manifest.json` + favicons. `examples/` is a conventional subdirectory. Firebase Hosting `public` dir already points at `frontend/dist` (which Vite populates from `public/`), so the artifact ships with every deploy.
 
@@ -263,9 +263,9 @@ Verdict: (A). File landed at `frontend/public/examples/ETHUSDT_1h_test.csv`, ser
 
 **Rationale per 4-source priority:**
 1. Pencil — no `/app` frame per K-021 §2 (route is dev-tool, not design-reviewed). No signal.
-2. Ticket text — user: "empty-state 時最顯眼、upload 後仍保留連結" → always visible, not hidden by upload state. Direct match with (α). Plus user's phrasing "link text" signals compact inline text, not banner/block, eliminating (γ).
+2. Ticket text — user (paraphrased): most prominent in the empty state, link still preserved after upload → always visible, not hidden by upload state. Direct match with (α). Plus user's phrasing "link text" signals compact inline text, not banner/block, eliminating (γ).
 3. Memory — `feedback_readme_plain_language.md` (plain language, no jargon). `Don't have a CSV? Download example →` is plain + invitational; `Download example CSV` is terse but less contextual for first-time visitors.
-4. Codebase — `AppPage.tsx:418` already has pattern `<span class="text-[10px] text-gray-500">時間欄位須為 UTC+0</span>` — identical style for the new link, one line of text, no iconography.
+4. Codebase — `AppPage.tsx:418` already has pattern `<span class="text-[10px] text-gray-500">Time field must be UTC+0</span>` — identical style for the new link, one line of text, no iconography.
 
 Verdict: (α) always-visible inline link, copy `Don't have a CSV? Download example →`, style `text-[10px] text-gray-500 hover:text-blue-400`, rendered immediately after the UTC+0 hint. No empty-state gating.
 
@@ -366,7 +366,7 @@ Ruled 2026-04-24 after ingesting Reviewer Step 1 breadth + Step 2 depth + QA reg
 
 ### 3. TD-003 moot window — keep TD-003 listed with "moot until K-048" annotation; do NOT close
 
-- **Context:** `agent-context/architecture.md` L252 currently reads "用 module globals（`_history_1h` / `_history_1d`）做 read-merge-write-swap，無同步機制，併發上傳可能遺失 bars。**Post-K-046 write path 註解後 race surface 移除**，直到 K-048 重啟 write path 再回到此風險面；revisit 於 K-048 Architect design phase." L393 tech-debt row still lists TD-003 as open.
+- **Context:** `agent-context/architecture.md` L252 currently reads (paraphrased): "Uses module globals (`_history_1h` / `_history_1d`) for read-merge-write-swap with no synchronization mechanism; concurrent uploads may lose bars. **Post-K-046, with the write path commented out, the race surface is removed**, until K-048 restarts the write path and the risk surface returns; revisit during K-048 Architect design phase." L393 tech-debt row still lists TD-003 as open.
 
 - **Ruling:** **Keep TD-003 listed (not closed) with the existing moot-until-K-048 annotation.**
 
@@ -376,33 +376,33 @@ Ruled 2026-04-24 after ingesting Reviewer Step 1 breadth + Step 2 depth + QA reg
   3. Memory — `feedback_retrospective_honesty.md` (no premature celebration); `feedback_pm_close_bq_iteration.md` (a TD with a still-valid underlying design problem stays open even when the acute trigger path is temporarily disabled). Closing TD-003 now would claim "resolved" on a problem that is only dormant; worse, if K-048 Architect doesn't re-read TD-003 (because it's closed), the race re-surfaces silently in production.
   4. Codebase — `backend/main.py` still carries module-level `_history_1h: list[dict] = []` + `_history_1d: list[dict] = []` + the commented-out `_history_*_= merged` assignment lines. The race primitive is unchanged; only the specific mutation call site is disabled. `/api/predict` + `/api/merge-and-compute-ma99` still *read* these globals concurrently with other handlers.
 
-- **Verdict rationale:** TD-003 remains a valid open tech-debt entry describing the module-global-mutation race pattern. The L252 moot annotation + the "revisit於 K-048" pointer accurately capture the current state (race trigger path commented, race primitive still present). Closing TD-003 would mis-represent K-046's scope — K-046 is a *defensive comment-out*, not a *concurrency fix*. K-048 Architect design MUST re-read TD-003 before re-enabling any write path; keeping TD-003 open is what forces that read.
+- **Verdict rationale:** TD-003 remains a valid open tech-debt entry describing the module-global-mutation race pattern. The L252 moot annotation + the "revisit at K-048" pointer accurately capture the current state (race trigger path commented, race primitive still present). Closing TD-003 would mis-represent K-046's scope — K-046 is a *defensive comment-out*, not a *concurrency fix*. K-048 Architect design MUST re-read TD-003 before re-enabling any write path; keeping TD-003 open is what forces that read.
 
 ## Retrospective
 
 ### Engineer (2026-04-24) — Phase 2b
 
-**AC judgments that were wrong:** 無 — 6 Phase 2 AC 解讀 + 3 Architect ruling（REMOVE / export-add / 3 testid）全按 design §2–§5 落地，Vitest + Playwright + pytest 全綠後未發現 AC 誤判。
+**AC judgments that were wrong:** none — 6 Phase 2 AC interpretations + 3 Architect rulings (REMOVE / export-add / 3 testids) all landed per design §2–§5; after Vitest + Playwright + pytest all green, no AC misjudgment was found.
 
-**Edge cases not anticipated:** `backend/tests/test_main.py::test_upload_example_csv_fixture_round_trip` 硬編 `assert len(example_bytes) == 646`。Fixture 從 646B refresh 到 3926B 後（Action 2）必然紅 — 這是 Phase 1 AC-046-QA-4 的 pytest 鏡像，ticket §Phase 2 Scope 沒列、design doc §10.5 只列了 Playwright T3 但沒列其 pytest 對映。Pre-impl 階段未 grep `646` across backend/，Action 2 (cp fixture) 完成後才在 pytest gate 被捕。更新 `646 → 3926` + K-046 Phase 2 註解後綠；assertion 意義不變（"fixture exists at expected size"），屬 pure constant-upgrade，Edit directly 不回 PM 升級。
+**Edge cases not anticipated:** `backend/tests/test_main.py::test_upload_example_csv_fixture_round_trip` hard-codes `assert len(example_bytes) == 646`. After the fixture is refreshed from 646B to 3926B (Action 2), it inevitably goes red — this is the pytest mirror of Phase 1 AC-046-QA-4. Ticket §Phase 2 Scope did not list it; design doc §10.5 listed only Playwright T3 but not its pytest counterpart. The pre-impl phase did not grep `646` across `backend/`; only after Action 2 (cp fixture) completed was it caught at the pytest gate. After updating `646 → 3926` + adding the K-046 Phase 2 comment, it goes green; assertion semantics are unchanged ("fixture exists at expected size"), this is a pure constant upgrade — Edit directly without escalating to PM.
 
-**Next time improvement:** Fixture / 共用常數變更前，pre-impl 盤點步加一條 grep：`grep -rn "<OLD_BYTES>" backend/ frontend/src/ frontend/e2e/`，把所有硬編該 byte-count 的 test 一起盤入 affected-file 清單。已寫入 `docs/retrospectives/engineer.md 2026-04-24 K-046 Phase 2b` cumulative log。
+**Next time improvement:** Before changing a fixture / shared constant, add a grep step to the pre-impl inventory: `grep -rn "<OLD_BYTES>" backend/ frontend/src/ frontend/e2e/`, and pull every test hard-coding that byte-count into the affected-file list. Written into the `docs/retrospectives/engineer.md 2026-04-24 K-046 Phase 2b` cumulative log.
 
-**Pre-existing non-K-046 failure flagged for PM:** Vitest `frontend/src/__tests__/diary.legacy-merge.test.ts > legacy entry text word count is within 50–100` expects ≥50 words, 實際 33。Root cause commit `f24b9d7` "data(diary): rewrite all entries as short summaries" (非 K-046 Phase 2)。不在本票 scope，不修。
+**Pre-existing non-K-046 failure flagged for PM:** Vitest `frontend/src/__tests__/diary.legacy-merge.test.ts > legacy entry text word count is within 50–100` expects ≥50 words, actual is 33. Root cause is commit `f24b9d7` "data(diary): rewrite all entries as short summaries" (not K-046 Phase 2). Out of this ticket's scope; not fixed.
 
 **B4 fail-if-gate-removed dry-run recorded:** Vitest `parseOfficialCsvFile.test.ts` PASS → fixture truncate to 10 rows → test FAIL on `expected 24 rows, got 10.` (parser `OFFICIAL_ROW_COUNT` throw) → fixture restored to 24-row 3926B → PASS. Monitor signal confirmed.
 
-**Pure-Refactor Behavior Diff (`parseOfficialCsvFile` export-add):** L48 `function → export function`，signature / body / call-site L268 `handleOfficialFilesUpload` 完全不變。Vitest 呼叫 exported symbol 對 24-row fixture 回 `rows.length === 24` + 每 row `time/open/high/low/close` schema 正確 — 與 internal call 觀察值一致。OLD vs NEW 行為差 = ∅。
+**Pure-Refactor Behavior Diff (`parseOfficialCsvFile` export-add):** L48 `function → export function`; signature / body / call-site L268 `handleOfficialFilesUpload` are completely unchanged. Vitest calls the exported symbol against the 24-row fixture and gets back `rows.length === 24` + each row's `time/open/high/low/close` schema correct — matches the observed value of the internal call. OLD vs NEW behavior diff = ∅.
 
 ---
 
 ### Engineer (2026-04-24) — Phase 1
 
-**AC judgments that were wrong:** T3 E2E 首次用 `page.locator('input[type="file"]')` 撞 strict-mode（`/app` 有 2 個 file input：multi-select OHLC + History CSV）。重新讀 JSX 後改用 label 容器限定才通過 — AC-046-QA-3 的 setInputFiles 動作需要精確 selector，第一版沒考量頁面整體有多個同類 input。
+**AC judgments that were wrong:** the T3 E2E initially used `page.locator('input[type="file"]')` and hit strict-mode (`/app` has 2 file inputs: multi-select OHLC + History CSV). After re-reading the JSX, it passed only after switching to a label-container scoped selector — AC-046-QA-3's setInputFiles action requires a precise selector; the first version did not consider that the whole page has multiple inputs of the same kind.
 
-**Edge cases not anticipated:** Vitest `diary.legacy-merge.test.ts` 在 HEAD 就已失敗（legacy text word count < 50），與 K-046 scope 無關，但 full-gate 跑 Vitest 時會觸發；已 stash 後確認同失敗，非本票責任。
+**Edge cases not anticipated:** Vitest `diary.legacy-merge.test.ts` was already failing at HEAD (legacy text word count < 50), unrelated to K-046 scope, but it triggers when running Vitest at the full gate; after stashing, the same failure was confirmed — not this ticket's responsibility.
 
-**Next time improvement:** Edit page 級檔前先 `grep 'input\[type="file"\]' <target-file>` 盤點同類 DOM，避免 E2E 階段才被 Playwright strict-mode 提醒。
+**Next time improvement:** Before editing a page-level file, first run `grep 'input\[type="file"\]' <target-file>` to inventory same-kind DOM, to avoid being surprised by Playwright strict-mode only at the E2E phase.
 
 ## Ready-to-Deploy Block
 
@@ -473,9 +473,9 @@ Phase 1 shipped to prod 2026-04-24 (commit `34570a3`). Post-deploy user inspecti
 
 #### Action 3 — UI restructure in `frontend/src/AppPage.tsx` (addresses B3)
 
-**Move** the `Download example` link from the current HISTORY REFERENCE position (lines 432-438, currently `text-[10px] text-gray-500 hover:text-blue-400`, copy `Don't have a CSV? Download example →`) INTO the OFFICIAL INPUT section's "Expected format" card (current structure around lines 396-405, wrapping the "多檔合併 · 每檔 24 × 1H bars · UTC+0" text).
+**Move** the `Download example` link from the current HISTORY REFERENCE position (lines 432-438, currently `text-[10px] text-gray-500 hover:text-blue-400`, copy `Don't have a CSV? Download example →`) INTO the OFFICIAL INPUT section's "Expected format" card (current structure around lines 396-405, wrapping the "Multi-file merge · 24 × 1H bars per file · UTC+0" text).
 
-**Placement detail:** inline below (or after) the "多檔合併 · 每檔 24 × 1H bars · UTC+0" text, minimum font-size `text-xs` (12px), contrast at least `text-gray-400`. Engineer picks the exact flex/block placement that preserves visual balance of the 2-col grid — BUT the link MUST live inside the Expected format card's DOM scope (i.e. Playwright `locator('[data-testid="official-input-expected-format"]').getByText(/Download example/i)` must match; `.historyReference` scope match must be empty).
+**Placement detail:** inline below (or after) the "Multi-file merge · 24 × 1H bars per file · UTC+0" text, minimum font-size `text-xs` (12px), contrast at least `text-gray-400`. Engineer picks the exact flex/block placement that preserves visual balance of the 2-col grid — BUT the link MUST live inside the Expected format card's DOM scope (i.e. Playwright `locator('[data-testid="official-input-expected-format"]').getByText(/Download example/i)` must match; `.historyReference` scope match must be empty).
 
 **Remove** the Upload History CSV button (the `<label>` wrapping `<input type="file">` at lines 415-431). Per user Q1 ruling (option b): preserve HISTORY REFERENCE wrapper div + section label ("History Reference") + the `historyInfo` filename display block (lines 408-414). Only the `<label>` + its `<input>` go away.
 
@@ -491,7 +491,7 @@ All six ACs below REPLACE Phase 1's AC-046-EXAMPLE-3 + AC-046-QA-4 for all test 
 - **When:** a browser request from origin `https://k-line-prediction-app.web.app` issues `GET https://k-line-backend-841575332599.asia-east1.run.app/api/history-info` with `Origin` header set
 - **Then:** HTTP response is `200 OK`
 - **And:** response header `access-control-allow-origin` equals `https://k-line-prediction-app.web.app` (exact match, not wildcard `*`)
-- **And:** the deployed frontend at `https://k-line-prediction-app.web.app/app` renders the HISTORY REFERENCE panel's `historyInfo` block with an actual filename (e.g. `Binance_ETHUSDT_1h.csv（最新：…）`), NOT the initial `Loading…` placeholder
+- **And:** the deployed frontend at `https://k-line-prediction-app.web.app/app` renders the HISTORY REFERENCE panel's `historyInfo` block with an actual filename (e.g. `Binance_ETHUSDT_1h.csv (latest: …)`), NOT the initial `Loading…` placeholder
 - **Verification method:** `curl -H "Origin: https://k-line-prediction-app.web.app" -I <cloud-run-url>/api/history-info` manually after Action 1 + browser DevTools Network tab smoke on deployed `/app`
 
 ##### AC-046-PHASE2-EXAMPLE-PARSE — Example CSV parses cleanly to 24 OHLCRow entries
@@ -521,7 +521,7 @@ All six ACs below REPLACE Phase 1's AC-046-EXAMPLE-3 + AC-046-QA-4 for all test 
 - **When:** Playwright queries `[data-testid="history-reference-section"] input[type="file"][accept*=".csv"]`
 - **Then:** the query resolves to 0 matches
 - **And:** no rendered text matching `/Upload History CSV/i` exists anywhere on `/app` (the removed `<label>` caption)
-- **And:** no rendered text matching `/上傳中/` or `/uploadLoading/` state UI is reachable (uploadLoading branch is either dead-code-removed per Architect ruling or commented)
+- **And:** no rendered text matching `/Uploading/` or `/uploadLoading/` state UI is reachable (uploadLoading branch is either dead-code-removed per Architect ruling or commented)
 
 ##### AC-046-PHASE2-HISTORY-LABEL-KEPT — "History Reference" section label preserved
 
@@ -548,7 +548,7 @@ This is a META edit to `~/.claude/` — per `~/.claude/CLAUDE.md §Worktree Isol
 
 #### Action 6 — Codify "plan-before-act" user feedback (META — deferred to session wrap-up)
 
-User verbatim 2026-04-24: "動手前沒有跟我講清楚，你打算怎麼改". Main session ran Phase 2 deploy/fix actions before laying out the plan. Even in auto mode, for incident fixes (prod state visible to user, user-visible changes to deployed surface), a plan-review checkpoint is mandatory.
+User feedback 2026-04-24 (paraphrased): the assistant did not clearly explain its planned changes before acting. Main session ran Phase 2 deploy/fix actions before laying out the plan. Even in auto mode, for incident fixes (prod state visible to user, user-visible changes to deployed surface), a plan-review checkpoint is mandatory.
 
 Evaluate during retrospect: does existing `feedback_discuss_before_edit_ambiguous.md` cover this (it covers "multiple implementation directions" ambiguity), or is this a new shape (incident fix = prod state already broken, user wants review even when fix direction is clear)? Lean toward new file `feedback_plan_before_act_on_incident.md` if no existing file covers the "incident fix plan-review" shape. Retrospect will decide.
 

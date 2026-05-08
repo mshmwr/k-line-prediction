@@ -1,6 +1,6 @@
 ---
 id: K-005
-title: 統一 NavBar — 所有頁面
+title: Unified NavBar — all pages
 status: closed
 type: feat
 priority: high
@@ -8,88 +8,88 @@ created: 2026-04-16
 supersedes: K-004
 ---
 
-## 背景
+## Background
 
-各頁面 NavBar 設計不一致，導致使用者難以在頁面間導航：
-- Homepage `/`：3 連結（Home / App / Business Logic），缺 About、Diary
-- About `/about`：logo + `← Home`
-- Diary `/diary`：logo + `← Home`
-- Business Logic `/business-logic`：logo + `← Back to App`
-- App `/app`：TopBar（完全不同設計語言）
+Each page's NavBar design is inconsistent, making cross-page navigation hard for users:
+- Homepage `/`: 3 links (Home / App / Business Logic), missing About and Diary
+- About `/about`: logo + `← Home`
+- Diary `/diary`: logo + `← Home`
+- Business Logic `/business-logic`: logo + `← Back to App`
+- App `/app`: TopBar (entirely different design language)
 
-K-004（/app logo 點擊回 Home）被本票涵蓋，K-004 隨本票實作完成後關閉。
+K-004 (`/app` logo click goes back to Home) is subsumed by this ticket; K-004 will close once this ticket lands.
 
-## 決策
+## Decision
 
-所有 5 頁使用完全相同的 NavBar，桌機與手機版各一套。
-設計稿參考：[homepage.pen](../../frontend/design/homepage.pen) — `NavBar — Revised` 系列 frame（x=7600）
+All 5 pages use the exact same NavBar — one set for desktop, one for mobile.
+Design source: [homepage.pen](../../frontend/design/homepage.pen) — `NavBar — Revised` series of frames (x=7600)
 
-**桌機（≥ 768px）：**
-- 左：K-LINE PREDICTION logo（IBM Plex Mono, 16px, 700）
-- 右：⌂（14px）| App | About | Diary | Logic 🔒（紫色）
-- 高度 72px，背景 #111827，左右 padding 120px
+**Desktop (≥ 768px):**
+- Left: K-LINE PREDICTION logo (IBM Plex Mono, 16px, 700)
+- Right: ⌂ (14px) | App | About | Diary | Logic 🔒 (purple)
+- Height 72px, background #111827, horizontal padding 120px
 
-**手機（< 768px）：**
-- 左：⌂ icon（18px, 白色, 可點擊 → `/`）
-- 右：App | About | Diary | Logic 🔒（11px）
-- 高度 56px，背景 #111827，左右 padding 16px
+**Mobile (< 768px):**
+- Left: ⌂ icon (18px, white, clickable → `/`)
+- Right: App | About | Diary | Logic 🔒 (11px)
+- Height 56px, background #111827, horizontal padding 16px
 
-## 範圍
+## Scope
 
-**含：**
-- 所有 5 頁（`/`、`/app`、`/about`、`/diary`、`/business-logic`）換成統一 NavBar 組件
-- 抽出 `<UnifiedNavBar>` 共用組件，各頁引用
-- 桌機 hover 樣式：cursor-pointer，active 頁面連結高亮（白色，其他灰色）
-- Business Logic 連結保留 auth gate（未登入 → 紫色鎖頭，登入後正常連結）
+**In:**
+- All 5 pages (`/`, `/app`, `/about`, `/diary`, `/business-logic`) switched to a unified NavBar component
+- Extract a shared `<UnifiedNavBar>` component referenced by each page
+- Desktop hover styling: cursor-pointer; the active page link is highlighted (white; others gray)
+- Business Logic link keeps the auth gate (logged-out → purple lock icon; logged-in → normal link)
 
-**不含：**
-- NavBar 以外的頁面 layout 修改
-- App `/app` 內部 TopBar utility bar 的其他欄位
+**Out:**
+- Page layout changes outside the NavBar
+- Other fields in the App `/app` internal TopBar utility bar
 
 ## Acceptance Criteria
 
-**AC-NAV-1：桌機 NavBar 統一**
+**AC-NAV-1: desktop NavBar unified**
 
-**Given** 使用者訪問任一頁面（`/`、`/app`、`/about`、`/diary`、`/business-logic`）
-**When** 頁面載入，viewport ≥ 768px
-**Then** NavBar 顯示：左側 logo "K-LINE PREDICTION"，右側連結 ⌂ / App / About / Diary / Logic 🔒
-**And** 不發生 layout shift 或 NavBar 缺失
+**Given** the user visits any page (`/`, `/app`, `/about`, `/diary`, `/business-logic`)
+**When** the page loads with viewport ≥ 768px
+**Then** the NavBar shows: logo "K-LINE PREDICTION" on the left and links ⌂ / App / About / Diary / Logic 🔒 on the right
+**And** no layout shift or NavBar absence occurs
 
-**AC-NAV-2：手機 NavBar 統一**
+**AC-NAV-2: mobile NavBar unified**
 
-**Given** 使用者訪問任一頁面，viewport < 768px
-**When** 頁面載入
-**Then** NavBar 顯示：左側 ⌂ icon，右側連結 App / About / Diary / Logic 🔒
-**And** 無漢堡選單，無水平捲動
+**Given** the user visits any page with viewport < 768px
+**When** the page loads
+**Then** the NavBar shows: ⌂ icon on the left and links App / About / Diary / Logic 🔒 on the right
+**And** there is no hamburger menu and no horizontal scroll
 
-**AC-NAV-3：⌂ 導向首頁**
+**AC-NAV-3: ⌂ goes to home**
 
-**Given** 使用者在任何頁面
-**When** 點擊 ⌂ icon（桌機右側連結 或 手機左側 icon）
-**Then** 頁面導向 `/`，不發生全頁 reload（SPA 路由）
+**Given** the user is on any page
+**When** the ⌂ icon is clicked (right-side link on desktop, or left-side icon on mobile)
+**Then** the page navigates to `/` without a full reload (SPA routing)
 
-**AC-NAV-4：各連結導向正確頁面**
+**AC-NAV-4: each link routes correctly**
 
-**Given** 使用者在任何頁面
-**When** 點擊 NavBar 連結
-**Then** App → `/app`、About → `/about`、Diary → `/diary`、Logic 🔒 → `/business-logic`
-**And** 不發生全頁 reload
+**Given** the user is on any page
+**When** a NavBar link is clicked
+**Then** App → `/app`, About → `/about`, Diary → `/diary`, Logic 🔒 → `/business-logic`
+**And** no full reload occurs
 
-**AC-NAV-5：當前頁面連結高亮**
+**AC-NAV-5: current page link highlighted**
 
-**Given** 使用者在某頁面
-**When** 頁面載入
-**Then** 對應該頁的 NavBar 連結顯示為白色（active），其他連結為灰色
+**Given** the user is on a given page
+**When** the page loads
+**Then** the corresponding NavBar link is shown in white (active) and the others in gray
 
-**AC-NAV-6：Business Logic 連結 auth 狀態**
+**AC-NAV-6: Business Logic link auth state**
 
-**Given** 使用者未登入
-**When** 查看 NavBar
-**Then** Logic 🔒 連結顯示鎖頭，點擊導向 `/business-logic`（auth gate 頁）
-**And** 已登入時，Logic 連結正常，點擊直接顯示內容
+**Given** the user is not logged in
+**When** they look at the NavBar
+**Then** the Logic 🔒 link shows the lock icon and clicking it routes to `/business-logic` (the auth gate page)
+**And** when logged in, the Logic link is normal and clicking it directly shows the content
 
-## 相關連結
+## Related links
 
 - [PM-dashboard.md](../../../PM-dashboard.md)
-- [設計稿 homepage.pen](../../frontend/design/homepage.pen)
-- [K-004](./K-004-app-topbar-logo-home-link.md)（本票實作後關閉）
+- [Design source homepage.pen](../../frontend/design/homepage.pen)
+- [K-004](./K-004-app-topbar-logo-home-link.md) (closes after this ticket lands)

@@ -11,7 +11,7 @@ blocks: K-020 AC-020-BEACON-SPA (currently red)
 depends-on-soft: K-032 (page_location full URL — lands first so K-033 call-pattern change uses correct value)
 ---
 
-## 背景
+## Background
 
 K-020 (landed 2026-04-22, Option A split per PM ruling) delivered 9 new Playwright tests; 8 pass, 1 red:
 
@@ -24,18 +24,18 @@ K-020 Engineer Dry-Run (2026-04-22) proved:
 4. Replacing `page_location` value with full URL (K-032 preview) makes zero difference — K-032 alone does not fix this.
 5. Calling `gtag('config', id, {page_path, page_title})` DOES emit a follow-up beacon, but without `en=page_view` (it's a session context update, not a pageview event).
 
-**This is a K-018-class production bug** — K-018 Engineer shipped `useGAPageview` that produced the correct dataLayer shape but never reached the GA4 server for SPA navigations. K-018 E2E `addInitScript` mock hid it because the mock replaced `window.gtag` and never exercised the real gtag.js path. K-020's BEACON-SPA test caught it exactly as the ticket §背景 / §目標 specified.
+**This is a K-018-class production bug** — K-018 Engineer shipped `useGAPageview` that produced the correct dataLayer shape but never reached the GA4 server for SPA navigations. K-018 E2E `addInitScript` mock hid it because the mock replaced `window.gtag` and never exercised the real gtag.js path. K-020's BEACON-SPA test caught it exactly as the ticket §Background / §Goals specified.
 
-## 目標
+## Goals
 
 - Rewrite `useGAPageview` to use the canonical GA4 gtag.js SPA route-change pattern so SPA navigates emit `/g/collect` beacons with `en=page_view` and path-key (`dl`) referencing the new route.
 - Turn K-020 T4 (AC-020-BEACON-SPA) from red to green without loosening the assertion.
 - Keep K-020 T7/T8/T9 (NEG-*) still green — query-only / hash-only / same-route navigation must remain non-triggering.
 - Keep K-020 T3 (BEACON-INITIAL) + T6 (BEACON-COUNT) still green — initial load still emits exactly 1 beacon.
 
-## 範圍
+## Scope
 
-**含：**
+**In scope:**
 - `frontend/src/hooks/useGAPageview.ts` — change call pattern from `gtag('event','page_view',{page_location,page_title})` to either:
   - **Pattern A:** `gtag('config', MEASUREMENT_ID, { page_path, page_title, send_page_view: true })` on each route change (requires making measurement ID available in the hook — currently only `utils/analytics.ts` reads `import.meta.env`).
   - **Pattern B:** `gtag('set', 'page_location', fullUrl); gtag('set', 'page_title', title); gtag('event', 'page_view')` — updates session context then fires pageview event.
@@ -43,7 +43,7 @@ K-020 Engineer Dry-Run (2026-04-22) proved:
 - `frontend/src/utils/analytics.ts` — likely change `trackPageview` signature to accept full URL (or expose measurement ID if Pattern A chosen). Keep `send_page_view: false` on the `initGA` config call (initial pageview still fired manually by the hook to avoid double-fire on mount).
 - `frontend/public/diary.json` — append one item documenting the fix.
 
-**不含：**
+**Out of scope:**
 - `frontend/e2e/ga-spa-pageview.spec.ts` — no test change required; K-020's T4 will turn green when the production fix lands. T7/T8/T9 must remain green.
 - Redesigning the pageview tracking architecture (e.g., moving to GTM, switching to `@vercel/analytics`).
 - Documentation rewrite of GA4 conventions in `agent-context/architecture.md` (a small §GA4 E2E Test Matrix changelog update is in scope).
@@ -89,13 +89,13 @@ Architect MUST run a local canary test in dev env exercising Pattern A and Patte
 
 Without this table, design doc is incomplete. Architect's K-020 retrospective already flagged "Dry-Run Deferral" as a known gap — K-033 design doc **cannot defer** because the entire purpose of K-033 is to fix the very behavior K-020 could only specify tolerant assertions for.
 
-## 相依
+## Dependencies
 
 - **K-020**: T4/T5/T6/T7/T8/T9 regression tests already in place; K-033 design is validated end-to-end by turning T4 green
 - **K-032** (soft): lands first so `page_location` value is already full URL when K-033 rewrites call pattern; K-033 can land independently if K-032 slips, but then K-033 will need to coordinate the same value-fix inside Pattern A or B
 - **K-018**: the pre-existing bug K-033 fixes was introduced by K-018 Engineer's choice of call pattern; K-018 already closed
 
-## Known Gap 轉入本 ticket
+## Known Gaps carried into this ticket
 
 - K-020 §Retrospective: Engineer reports "`gtag('event','page_view',{page_location,page_title})` while `send_page_view: false` does NOT emit `/g/collect` beacon in GA4 gtag.js modern API" → fixed here
 - K-020 AC-020-BEACON-SPA red status → turns green here

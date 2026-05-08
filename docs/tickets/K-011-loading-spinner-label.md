@@ -1,6 +1,6 @@
 ---
 id: K-011
-title: LoadingSpinner 文案中性化 — 加 label prop
+title: LoadingSpinner copy neutralization — add label prop
 status: closed
 type: enhancement
 priority: medium
@@ -9,91 +9,91 @@ closed: 2026-04-18
 source: docs/reviews/2026-04-18-code-review.md#p3-shared-loading-spinner-copy-is-now-misleading
 ---
 
-## 背景
+## Background
 
-Codex code review 2026-04-18 發現 `frontend/src/components/common/LoadingSpinner.tsx` 寫死文案 `Running prediction...`。
+Codex code review 2026-04-18 found that `frontend/src/components/common/LoadingSpinner.tsx` hard-codes the copy `Running prediction...`.
 
-此組件目前被多處共用：
+This component is currently shared across multiple sites:
 
 - `BusinessLogicPage`
 - `DiaryPage`
 - `DevDiarySection`
 - `PredictButton`
 
-非預測情境（diary、business-logic）顯示 prediction 相關文字造成誤導。
+In non-prediction contexts (diary, business-logic), showing prediction-related text is misleading.
 
-## 範圍
+## Scope
 
-**含：**
-- `LoadingSpinner` 新增 `label?: string` prop，預設值由呼叫方決定
-- 更新所有 4 個呼叫處，傳入情境正確的 label（e.g. `"載入日記…"`、`"Running prediction…"`）
-- 無 label 時 fallback 策略由 Engineer 選擇（推薦：無 label 就只顯示 spinner 不顯示文字）
+**In:**
+- `LoadingSpinner` adds a `label?: string` prop, default value chosen by the caller
+- Update all 4 call sites to pass a context-correct label (e.g. `"Loading diary…"`, `"Running prediction…"`)
+- Fallback strategy when no label is given is up to Engineer (recommended: when no label, only render the spinner without text)
 
-**不含：**
-- 動畫視覺升級（K-002 AC-002-LOADING 已涵蓋）
-- 新增 skeleton / pulse variants
+**Out:**
+- Animation visual upgrade (already covered by K-002 AC-002-LOADING)
+- Adding skeleton / pulse variants
 
-## 預期異動檔案
+## Expected file changes
 
 - `frontend/src/components/common/LoadingSpinner.tsx`
 - `frontend/src/pages/BusinessLogicPage.tsx`
 - `frontend/src/pages/DiaryPage.tsx`
 - `frontend/src/components/DevDiarySection.tsx`
 - `frontend/src/components/PredictButton.tsx`
-- 可能更動：`frontend/src/__tests__/*`、`frontend/e2e/*`（若有斷言 spinner 文字）
+- Possibly: `frontend/src/__tests__/*`, `frontend/e2e/*` (if any test asserts spinner copy)
 
 ## Acceptance Criteria
 
-### AC-011-PROP：LoadingSpinner 支援 label prop
+### AC-011-PROP: LoadingSpinner supports the label prop
 
-**Given** `LoadingSpinner` 組件
-**When** 呼叫方傳入 `<LoadingSpinner label="載入中…" />`
-**Then** 畫面顯示該 label 文字
-**And** 未傳 label 時，不顯示 `Running prediction...` 這組 prediction-specific 文字
+**Given** the `LoadingSpinner` component
+**When** the caller renders `<LoadingSpinner label="Loading…" />`
+**Then** the screen shows that label text
+**And** when no label is passed, the prediction-specific `Running prediction...` text does not appear
 
-### AC-011-CALLSITES：各呼叫處情境正確
+### AC-011-CALLSITES: each call site is context-correct
 
-**Given** 4 個使用 LoadingSpinner 的位置
-**When** 各自觸發 loading 狀態
-**Then** 顯示的 label 與該頁面任務情境一致（diary 類顯示日記相關文案；predict 類顯示預測相關文案）
+**Given** the 4 LoadingSpinner usage sites
+**When** each triggers its loading state
+**Then** the displayed label matches the page's task context (diary-related copy on diary pages; prediction-related copy on predict pages)
 
-### AC-011-REGRESSION：無既有功能回歸
+### AC-011-REGRESSION: no existing functionality regression
 
-**Given** 前端完整檢查
-**When** 依序執行 `npx tsc --noEmit` / `npm test` / `/playwright`
-**Then** 全部通過
-**And** 原本測試若斷言 `Running prediction...` 文字，應對應更新為新 label
+**Given** full frontend checks
+**When** running `npx tsc --noEmit` / `npm test` / `/playwright` in order
+**Then** all pass
+**And** any existing tests that assert `Running prediction...` text are updated to the new label
 
-## 優先級理由
+## Priority rationale
 
-**medium** — 非 correctness 問題，但已在 review 中明確列為誤導性 UX；和 K-002 UI 優化同屬語意整理類工作，改動小。排在 K-009/K-010 之後處理即可。
+**medium** — not a correctness issue, but the review explicitly flagged it as misleading UX; same category as K-002 UI cleanup work, small change. Fine to schedule after K-009/K-010.
 
-## 下一棒
+## Next handoff
 
-直接交 Engineer（props 新增 + 5 處呼叫點更新，無架構決策）。
+Hand directly to Engineer (props addition + 5 call site updates, no architectural decisions).
 
-## 相關連結
+## Related links
 
 - [Code Review](../reviews/2026-04-18-code-review.md#p3-shared-loading-spinner-copy-is-now-misleading)
-- [K-002 UI 優化 AC-002-LOADING](../../PRD.md#ac-002-loadingloading-動畫改版-k-002)
+- [K-002 UI optimization AC-002-LOADING](../../PRD.md)
 
 ---
 
 ## Architecture Review
 
-**裁決：無需 Architecture** — 由 senior-architect 於 2026-04-18 審視。
+**Ruling: Architecture not required** — reviewed by senior-architect on 2026-04-18.
 
-**理由：**
-- 改動範圍：`LoadingSpinner` 加 `label?: string` prop + 4 個 callsite 各自傳入文案
-- 無跨層：純 UI 組件 prop 擴充，無 API、無 routing 影響
-- Props interface 變更極小（向後相容，`label` optional + fallback「無文字只顯示 spinner」）
-- AC-011-PROP / AC-011-CALLSITES / AC-011-REGRESSION 已足以鎖定行為
+**Rationale:**
+- Change scope: `LoadingSpinner` adds `label?: string` prop + 4 call sites pass their own copy
+- No cross-layer impact: pure UI component prop extension, no API or routing impact
+- Props interface change is minimal (backward-compatible, `label` optional + fallback "no text, only spinner")
+- AC-011-PROP / AC-011-CALLSITES / AC-011-REGRESSION are sufficient to lock the behavior
 
-**實作提醒（非 blocking，給 Engineer 參考）：**
-- 若既有 unit test 或 E2E 斷言 `Running prediction...` 文字，請一併更新（AC-011-REGRESSION 已涵蓋此點）
-- 4 個 callsite 文案建議與頁面 i18n 風格一致（目前專案為中文 UI，spinner 文案建議中文）
+**Implementation reminders (non-blocking, for Engineer reference):**
+- If existing unit tests or E2E assert `Running prediction...` text, update them too (AC-011-REGRESSION already covers this)
+- The 4 call sites' copy should be consistent with each page's i18n style (project currently uses Chinese UI, so spinner copy is recommended in Chinese)
 
-**放行 Engineer。**
+**Releasing to Engineer.**
 
 — senior-architect, 2026-04-18
 
@@ -103,106 +103,106 @@ Codex code review 2026-04-18 發現 `frontend/src/components/common/LoadingSpinn
 
 ### Engineer — 2026-04-18
 
-**沒做好：**
-- Ticket 原寫 callsite 在 `frontend/src/components/DevDiarySection.tsx`，實際位於 `frontend/src/components/home/DevDiarySection.tsx`。首次 Read 404 才 grep 出正確路徑。根因：沒先用 Grep 驗證 ticket 提供的路徑，直接信任。
-- 預期有 E2E 或 unit test 斷言 `Running prediction...`，實際 grep 後只有 `PredictButton.test.tsx` 一處；該處 PredictButton 仍傳 `"Running prediction..."` 所以 test 無需改動。若 PM 要求統一改中文「預測中…」會觸發 Test Escalation Rule（斷言內容變更），幸好本票文案未變更該 callsite。
+**What went wrong:**
+- The ticket originally listed the call site as `frontend/src/components/DevDiarySection.tsx`, but it is actually located at `frontend/src/components/home/DevDiarySection.tsx`. The first Read got a 404, and only after grep was the correct path found. Root cause: did not verify the path listed in the ticket with Grep first; instead trusted it directly.
+- Expected E2E or unit tests to assert `Running prediction...`; after grep, only `PredictButton.test.tsx` had one occurrence, and that PredictButton still passes `"Running prediction..."`, so no test change was needed. If PM had requested unifying to a Chinese label (predicting…), it would have triggered the Test Escalation Rule (assertion content change); fortunately this ticket did not change the copy at that call site.
 
-**下次改善：**
-- 動手前先 `Grep "<組件名>"` 驗證 ticket 列出的路徑是否正確，若不符立即回報 PM 修正 ticket，不自行默修。
-- 對 4 個 callsite 的中文文案選擇（BusinessLogic 用「載入內容中…」/ Diary 兩處用「載入日記中…」/ Predict 保留英文「Running prediction...」）應在實作前列清單給 PM confirm 一次，避免之後因文案風格被退回。
+**Next time improvement:**
+- Before starting, run `Grep "<component-name>"` to verify ticket-listed paths; on mismatch, immediately report to PM and request a ticket fix, do not silently fix.
+- For the 4 call sites' Chinese copy choice (BusinessLogic uses a Chinese "loading content" label / Diary's two sites use a Chinese "loading diary" label / Predict keeps English "Running prediction..."), produce the list for PM confirmation once before implementing, to avoid being kicked back later for copy-style reasons.
 
 ### Reviewer — 2026-04-18
 
-**做得好：**
-- 除紙上比對還實跑 `npx tsc --noEmit`（exit 0）與 `npm test`（36 pass / 6 files），獨立驗證 Engineer 回報屬實。
-- Grep `LoadingSpinner` + `Running prediction` 兩個關鍵字全工作目錄，cross-check callsite 無遺漏、無 test 斷言漏網（`PredictButton.test.tsx:24` 英文斷言仍命中 PredictButton 保留的英文 label → AC-011-REGRESSION 自動保）。
-- 對 3 條 drift 分別給出明確裁決（A 本票內修 / B 不動建議加 superseded 註 / C 拆 ticket），不讓 Engineer 回頭收拾無限 scope。
+**What went well:**
+- Beyond paper review, also actually ran `npx tsc --noEmit` (exit 0) and `npm test` (36 pass / 6 files), independently verifying Engineer's report.
+- Grep'd for `LoadingSpinner` + `Running prediction` across the entire working directory; cross-checked call sites with no omissions and no missed test assertions (`PredictButton.test.tsx:24` English assertion still hits the English label retained in PredictButton → AC-011-REGRESSION auto-protected).
+- Issued explicit rulings on each of 3 drifts (A in-scope fix / B no-change with superseded note / C split ticket), preventing Engineer from inheriting unbounded scope.
 
-**沒做好：**
-- `agent-context/architecture.md:139` 的「目前固定 Running prediction...」一行是 K-010 起 Architect 守則「結構/介面變更必同步 architecture.md」涵蓋範圍，但本票 Architect 裁決「無需 Architecture」時未指示 Engineer 順手修；Reviewer 階段才發現並建議 in-scope，延後了一棒。應在 Architect 放行時就攔截到。
-- 3 條 drift 是 Engineer 主動提出的，但 ticket AC 階段從未把「文件同步」列入 scope；Reviewer 階段才做 in-scope / tech-debt 裁決，本該是 PM 在 ticket 初稿時就明確「含文件 / 不含文件」。
+**What went wrong:**
+- The single line at `agent-context/architecture.md:139` ("currently fixed Running prediction...") falls under K-010-introduced Architect rule "structural / interface changes must sync architecture.md", but when Architect ruled "Architecture not required" on this ticket, Engineer was not directed to also fix it; the issue was caught only at Reviewer stage and proposed in-scope, delaying by one handoff. Should have been intercepted at Architect release.
+- The 3 drifts were proactively raised by Engineer, but the ticket's AC stage never put "doc sync" in scope; Reviewer stage ended up making in-scope / tech-debt rulings that should have come from PM at ticket draft as "doc included / not included".
 
-**下次改善：**
-- Review 發現「架構文件 drift 根因是本次改動」且改動極小（單行）時，直接建議本票內修；同時回饋 Architect 裁決「無需 Architecture」流程補一句 checklist：「grep 組件名於 architecture.md，有過期描述列入 Engineer scope」。
-- 面對已歸檔的設計 spec（`docs/designs/*-design.md`），不強求同步內容，建議加「superseded by K-XXX」頭註，避免扭曲歷史快照。
+**Next time improvement:**
+- When Review finds "architecture-doc drift caused by this change" and the change is tiny (single line), recommend in-scope fix; also feed back to Architect's "Architecture not required" ruling flow with a checklist line: "grep component name in architecture.md; any stale description goes into Engineer scope".
+- For archived design specs (`docs/designs/*-design.md`), do not force content sync; recommend adding a "superseded by K-XXX" header note instead, to avoid distorting historical snapshots.
 
-**Drift 裁決：**
-| Drift | 檔案 | 裁決 | 理由 |
+**Drift rulings:**
+| Drift | File | Ruling | Rationale |
 |------|------|------|------|
-| A | `agent-context/architecture.md:139` | **本票內修（建議 PM 放行 Engineer 補一行）** | 一行註解、不改設計、K-010 Architect 守則要求同步；留著會誤導下個 agent |
-| B | `docs/designs/k002-component-spec.md:99,111` | **不改內容，建議加 superseded 頭註（可拆小 ticket）** | spec 是 K-002 設計快照，改會扭曲歷史；加「superseded by K-011」即可 |
-| C | `frontend/design/homepage.pen` | **拆 ticket → 技術債** | Designer agent 範圍，需 Pencil MCP 操作，不在 Engineer scope |
+| A | `agent-context/architecture.md:139` | **In-scope fix (recommend PM release Engineer to add a line)** | Single-line comment, no design change, K-010 Architect rule mandates sync; leaving it would mislead the next agent |
+| B | `docs/designs/k002-component-spec.md:99,111` | **Do not change content; recommend adding superseded header note (split into small ticket)** | Spec is K-002's design snapshot; changing distorts history; "superseded by K-011" suffices |
+| C | `frontend/design/homepage.pen` | **Split ticket → tech debt** | Designer agent scope, requires Pencil MCP, not in Engineer scope |
 
-**Review 結論：pass with suggestions（無 Critical / 無 Warning / 1 本票內修建議 + 2 drift 拆單建議）。**
+**Review verdict: pass with suggestions (no Critical / no Warning / 1 in-scope fix recommendation + 2 drift split-ticket recommendations).**
 
-### PM 裁決（Review Suggestions）— 2026-04-18
+### PM ruling (Review Suggestions) — 2026-04-18
 
-| Drift | 檔案 | 裁決 | 理由 / 行動 |
+| Drift | File | Ruling | Rationale / action |
 |------|------|------|------------|
-| A | `agent-context/architecture.md:139` | **本票內修（in-scope）** | 單行註解改動、K-010 起 Architect 守則要求結構/介面變更必同步 architecture.md；留著會誤導下個 agent。指示 Engineer 補完 — 將該行「← K-011 將加 label prop（目前固定『Running prediction...』）」改為反映新事實「← 接受 `label?: string` prop，各呼叫處傳入情境文案（K-011 完成 2026-04-18）」。不改本票 status=in-progress，Engineer 補完後才交 QA。 |
-| B | `docs/designs/k002-component-spec.md:99,111` | **拆新 ticket K-016（low priority）** | 已歸檔的設計 spec 是 K-002 時間點快照，改內容會扭曲歷史；正確作法是加「Superseded by K-011 (2026-04-18)」頭註，本票 scope 不含 spec 歸檔規範，拆小票單獨處理。 |
-| C | `frontend/design/homepage.pen` | **登記技術債 TD-011** | Designer agent 範圍、需 Pencil MCP 操作 + 截圖驗證，工具鏈與 Engineer scope 不同；排在下次 Designer 進場時一併同步。 |
+| A | `agent-context/architecture.md:139` | **In-scope fix** | Single-line comment change, K-010 Architect rule mandates sync of structural/interface changes to architecture.md; leaving it would mislead the next agent. Direct Engineer to update it — change the line "← K-011 will add label prop (currently fixed 'Running prediction...')" to reflect the new fact "← accepts `label?: string` prop, each call site passes context copy (K-011 completed 2026-04-18)". Keep this ticket status=in-progress; only hand to QA once Engineer has updated. |
+| B | `docs/designs/k002-component-spec.md:99,111` | **Split into new ticket K-016 (low priority)** | Archived design spec is a K-002 snapshot at that point in time; changing the content would distort history. The correct approach is to add a "Superseded by K-011 (2026-04-18)" header note. The spec-archival convention is out of scope for this ticket, so split into a small dedicated ticket. |
+| C | `frontend/design/homepage.pen` | **Register tech debt TD-011** | Designer agent scope, requires Pencil MCP + screenshot verification; tooling and scope differ from Engineer's. Schedule alongside the next Designer engagement. |
 
-**Scope 增補（Drift A）：** 本票 AC 追加一條隱性驗收「architecture.md:139 行內 LoadingSpinner 描述反映 label prop 新行為」。Engineer 執行步驟：
-1. Read `agent-context/architecture.md` lines 138–140 確認當前文字
-2. Edit 第 139 行，將「目前固定『Running prediction...』」改為反映 label prop 已上線的敘述
-3. 回報 PM 並交 QA（無需再跑 tsc/npm test，僅文件改動）
+**Scope addition (Drift A):** This ticket's AC is augmented with an implicit acceptance: "the LoadingSpinner description on architecture.md:139 reflects the new label prop behavior." Engineer's steps:
+1. Read `agent-context/architecture.md` lines 138–140 to confirm current text
+2. Edit line 139, changing "currently fixed 'Running prediction...'" to a description that reflects the live label prop
+3. Report to PM and hand off to QA (no need to re-run tsc/npm test, doc-only change)
 
-**下一棒：** Engineer（補 architecture.md 單行），補完後直接放行 QA。
+**Next handoff:** Engineer (single-line architecture.md update), then directly to QA after completion.
 
-**新增 ticket / 技術債摘要：**
-- K-016（新）— K-002 component spec 加 superseded 頭註（low priority，backlog）
-- TD-011（新）— Designer 範圍 homepage.pen spinner 文字節點同步
+**New ticket / tech-debt summary:**
+- K-016 (new) — add superseded header note to K-002 component spec (low priority, backlog)
+- TD-011 (new) — Designer-scope sync of homepage.pen spinner text node
 
 ### QA — 2026-04-18
 
-**驗收結果：PASS（go）**
+**Acceptance result: PASS (go)**
 
-| 項目 | 結果 |
+| Item | Result |
 |------|------|
-| `npx tsc --noEmit`（frontend/） | exit 0 |
+| `npx tsc --noEmit` (frontend/) | exit 0 |
 | `npm test` | 36 passed / 6 files |
-| Playwright E2E | 45 passed / 45 total（12.6s） |
-| AC-011-PROP | PASS — `LoadingSpinner` 已接受 `label?: string`，無 label 時 `p` 不渲染、`aria-label` fallback 到 `'Loading'`，prediction 字樣不會再出現在無 label 呼叫處 |
-| AC-011-CALLSITES | PASS — 4 callsite：`BusinessLogicPage`「載入內容中…」、`DiaryPage`「載入日記中…」、`DevDiarySection`「載入日記中…」、`PredictButton`「Running prediction...」；每個 callsite label 與頁面任務情境吻合 |
-| AC-011-REGRESSION | PASS — tsc / Vitest / Playwright 三層全綠；`PredictButton.test.tsx:24` 英文斷言持續命中 PredictButton 保留的英文 label，無需改動 |
-| Drift A — `agent-context/architecture.md:139` | 已由 Engineer 補完，反映 label prop 新事實 |
-| 視覺報告 | 跳過 — `frontend/e2e/visual-report.ts` 不存在（K-008 未完成）；視覺驗證請由 PM / 使用者在 Pencil / 瀏覽器手動確認 |
+| Playwright E2E | 45 passed / 45 total (12.6s) |
+| AC-011-PROP | PASS — `LoadingSpinner` accepts `label?: string`; when no label, `p` is not rendered, `aria-label` falls back to `'Loading'`, prediction wording no longer appears at no-label call sites |
+| AC-011-CALLSITES | PASS — 4 call sites: `BusinessLogicPage` shows Chinese "loading content" label, `DiaryPage` shows Chinese "loading diary" label, `DevDiarySection` shows Chinese "loading diary" label, `PredictButton` shows English "Running prediction..."; each call site's label matches the page's task context |
+| AC-011-REGRESSION | PASS — tsc / Vitest / Playwright all green; `PredictButton.test.tsx:24` English assertion continues to hit the English label retained in PredictButton, no change needed |
+| Drift A — `agent-context/architecture.md:139` | Updated by Engineer to reflect the new label prop fact |
+| Visual report | Skipped — `frontend/e2e/visual-report.ts` does not exist (K-008 incomplete); visual verification deferred to PM / user manual confirmation in Pencil / browser |
 
-**做得好：**
-- 三層驗證（tsc / Vitest / Playwright）全程實跑並以 tail 取得精確數字（36/36、45/45），而非依賴 Reviewer 段落數字 relay；Grep 4 個 callsite 的實際 label 字串，直接核對 AC-011-CALLSITES 的「情境一致」Then 子句。
-- 主動核對 Drift A（`agent-context/architecture.md:139`）已由 Engineer 補完，未假設「PM 裁決後 = Engineer 必做完」，Read 檔案第 139 行原字重新驗證。
+**What went well:**
+- Three-layer verification (tsc / Vitest / Playwright) was actually run end-to-end with `tail` to capture exact numbers (36/36, 45/45) rather than relaying Reviewer's narrative numbers; Grep'd the actual label strings at the 4 call sites and directly cross-checked AC-011-CALLSITES's "context match" Then-clause.
+- Proactively cross-verified that Drift A (`agent-context/architecture.md:139`) was actually updated by Engineer; did not assume "PM ruled = Engineer must have done"; Read line 139 of the file to verify the original wording.
 
-**沒做好：**
-- 未獨立針對 `aria-label` fallback 邏輯（`label ?? 'Loading'`）寫 reproduce 驗證。雖 Vitest/E2E 皆通過，但 `LoadingSpinner` 本身**沒有**對應 unit test（現存 test 都是上層 PredictButton / AppPage），真正 fallback 行為靠 render 時走不同 branch 間接覆蓋；若未來有 callsite 傳空字串 `""`（falsy，會觸發「不渲染 p + aria-label 走 fallback」），本票無測試攔截。
-- 無獨立驗證「既有 E2E 是否曾斷言 `Running prediction...` 文字」。Reviewer 段落已列 grep 結論（`PredictButton.test.tsx:24` 為唯一依賴點、仍保留英文），但 QA 層此次直接沿用結論，未獨立 grep `Running prediction` 於 `frontend/e2e/` 目錄 cross-check。
+**What went wrong:**
+- Did not write an independent reproduce verification for the `aria-label` fallback logic (`label ?? 'Loading'`). Although Vitest/E2E both pass, `LoadingSpinner` itself has **no** corresponding unit test (existing tests are all upstream PredictButton / AppPage); the actual fallback behavior is covered indirectly via different render-time branches. If a future call site passes an empty string `""` (falsy, would trigger "no `p` render + `aria-label` fallback"), this ticket has no test to intercept.
+- Did not independently verify "did existing E2E ever assert `Running prediction...` text". Reviewer's section listed grep conclusions (`PredictButton.test.tsx:24` is the only dependency, still uses English), but at QA layer this round the conclusion was relayed without independently grepping `Running prediction` against `frontend/e2e/` for cross-check.
 
-**下次改善：**
-- (1) 共用 UI 組件新增 prop 的 ticket，QA 必須主動列「新增 callsite 的邊界條件」（空字串、undefined、極長字串、RTL / emoji）給 PM 評估是否補 unit test；若 PM 判定非 scope，也要在 retrospective 明記「這些邊界未覆蓋」作為未來 bug 線索。
-- (2) 不沿用 Reviewer 的 grep 結論。QA 自己跑一次 `grep -r "Running prediction" frontend/e2e/ frontend/src/__tests__/` 再下 PASS，雙重確認無漏網。
+**Next time improvement:**
+- (1) For tickets that add a prop to a shared UI component, QA must proactively list "edge cases for the new callsite" (empty string, undefined, very long string, RTL / emoji) for PM to evaluate whether to add unit tests; if PM rules them out of scope, also explicitly note in retrospective "these edges remain uncovered" as future bug breadcrumbs.
+- (2) Do not relay Reviewer's grep conclusions. QA runs `grep -r "Running prediction" frontend/e2e/ frontend/src/__tests__/` independently before issuing PASS, double-confirming nothing slips through.
 
-### PM 彙整 — 2026-04-18
+### PM Summary — 2026-04-18
 
-**跨角色重複問題：**
+**Cross-role recurring issues:**
 
-1. **「信任上游文字，未實地驗證」三起同源事件**
-   - Engineer：信任 ticket 「預期異動檔案」清單的 `components/DevDiarySection.tsx` → 實際在 `components/home/`，Read 直接 404
-   - Engineer：補 Drift A 時信任 Reviewer 段落引用的 `architecture.md:139` 原字，Read 回傳字元與預期 `old_string` 縮排不符，首次 Edit 失敗重試
-   - QA：信任 Reviewer grep 結論，未自行 `grep -r "Running prediction" frontend/e2e/` 獨立 cross-check（QA 反省自認已是缺口）
-   - 根因：**上游文字（ticket / reviewer 段 / reviewer grep 結論）被當「事實」直接引用到下游動作，而非「提示」觸發實地驗證**。
-2. **「文件 drift scope 界定」在 Architect 放行時漏抓**
-   - Reviewer 反省段已指出「Drift A 本該在 Architect 階段就 grep architecture.md 對描述」
-   - 連續第二次：上一次 K-009 收尾（per-role log 有紀錄但 agent spec 未落地），本次 K-011 又在 Architect「無需 Architecture」裁決時漏做文件掃描
-   - 根因：Architect 「無需 Architecture」時的 sanity check 清單從未形式化，Architect agent spec 也未補這條 grep 守則。
+1. **Three same-root incidents of "trusting upstream text without verifying on the spot"**
+   - Engineer: trusted the ticket's "expected file changes" listing `components/DevDiarySection.tsx` → actually under `components/home/`, Read 404'd directly
+   - Engineer: when fixing Drift A, trusted Reviewer-cited `architecture.md:139` original text; Read returned characters with different indentation than the expected `old_string`, first Edit failed and was retried
+   - QA: trusted Reviewer's grep conclusion; did not run `grep -r "Running prediction" frontend/e2e/` independently to cross-check (QA's own retrospective acknowledged this gap)
+   - Root cause: **upstream text (ticket / reviewer paragraph / reviewer grep conclusion) was treated as "fact" and quoted directly into downstream actions, instead of as a "hint" that triggers on-site verification**.
+2. **"Doc-drift scope definition" missed at Architect release**
+   - Reviewer's retrospective noted "Drift A should have been caught at Architect stage by grep'ing architecture.md for the description"
+   - Second consecutive occurrence: last K-009 close-out (per-role log captured but agent spec didn't land), this time K-011 again missed the doc scan during Architect's "Architecture not required" ruling
+   - Root cause: Architect's "no Architecture needed" sanity-check list was never formalized, and Architect agent spec hasn't been updated to include this grep rule.
 
-**流程改善決議：**
+**Process improvement decisions:**
 
-| 問題 | 負責角色 | 行動 | 更新位置 |
+| Issue | Owner | Action | Update location |
 |------|---------|------|---------|
-| ticket 預期異動檔案路徑錯誤讓 Engineer Read 404 | PM（ticket 起稿） + Engineer（動手前） | PM 起 ticket 時，對每個「預期異動檔案」路徑需 Glob 或 Read 先驗；Engineer 收到 ticket 後動手前一次 `ls` 或 `Glob` 掃 ticket 列出的所有 path，不符即回報 PM 修 ticket，不自行默修 | K-017 起 ticket template 增補；Engineer agent spec 補「預執行 path verification」checklist |
-| QA 沿用 Reviewer grep 結論 | QA | 本票類「新增 prop 影響 N 處 callsite」型，QA 須自行跑一次關鍵字 grep 於 `e2e/` + `__tests__/` + `src/`，不得沿用 Reviewer 結論；在 QA 驗收表格新增「獨立 grep 驗證」欄位 | `~/.claude/agents/qa.md`（下次有權限編輯時補）+ K-Line `CLAUDE.md` QA section |
-| Architect「無需 Architecture」時未掃 `architecture.md` drift | Architect | Architect 放行時，無論裁決「需設計」還是「無需設計」，一律先 `grep <組件名>` 於 `agent-context/architecture.md`，若有提及該組件的過期描述，列入 Engineer scope；此條已在上次 retrospective 識別但未落地，本次正式決議 | `~/.claude/agents/senior-architect.md` 補 checklist；`docs/retrospectives/architect.md` 本次由 Architect append 一筆「checklist 落地」反省 |
-| 「Read 回傳縮排與實際字元不符」重試 Edit | Engineer | Edit 前固定先以 Read 小範圍（`old_string` 附近 5 行）取得真實字元，不憑記憶或 Reviewer 段落引用組 `old_string`；Edit 失敗一次即立即 Read 驗證，不盲目重試 | Engineer agent spec / K-Line `CLAUDE.md` Engineer section 的 Before-Edit Protocol |
-| 視覺驗證缺口（K-011 QA 無法跑截圖報告，因 K-008 未實作） | PM | K-008（自動化視覺報告 script）優先級從 medium 上調 cycle #4 先做，取代 K-012 目前的 cycle #4 定位；理由：**連續 3 張票（K-009 / K-010 / K-011）都因 K-008 缺席而使 QA 視覺驗收層留空**，已成系統性缺口 | PM-dashboard.md 調整 cycle 順序（K-008 提前到 cycle #4、K-012 順延到 cycle #5、K-013 順延到 cycle #6） |
+| Ticket's expected-changes paths are wrong, leading to Engineer Read 404 | PM (ticket draft) + Engineer (before action) | When PM drafts a ticket, every "expected file change" path must be Glob-or-Read-verified first; once Engineer receives the ticket, before any action run `ls` or `Glob` once on all listed paths; on mismatch, report back to PM to fix the ticket, not silently fix | K-017-onward ticket template; Engineer agent spec adds "pre-execution path verification" checklist |
+| QA relays Reviewer's grep conclusion | QA | For "new prop affecting N call sites" tickets, QA must independently run keyword grep over `e2e/` + `__tests__/` + `src/`; cannot relay Reviewer conclusion; add an "independent grep verification" column to QA's acceptance table | `~/.claude/agents/qa.md` (next time edit permission is available) + K-Line `CLAUDE.md` QA section |
+| Architect "Architecture not required" did not scan `architecture.md` for drift | Architect | Whenever Architect releases — whether ruling "design needed" or "no design needed" — first `grep <component-name>` against `agent-context/architecture.md`; any stale description of that component goes into Engineer scope; this rule was identified at the last retrospective but not landed; this round formally decides | `~/.claude/agents/senior-architect.md` add checklist; `docs/retrospectives/architect.md` Architect to append a "checklist landed" entry this round |
+| "Read returns indentation that doesn't match actual characters" leading to Edit retries | Engineer | Before every Edit, always Read a small range (5 lines around `old_string`) to capture real characters, never compose `old_string` from memory or Reviewer-paragraph quotes; on first Edit failure, immediately Read to verify, no blind retry | Engineer agent spec / Before-Edit Protocol in K-Line `CLAUDE.md` Engineer section |
+| Visual verification gap (K-011 QA cannot run screenshot report because K-008 not implemented) | PM | Bump K-008 (automated visual report script) priority from medium up to cycle #4, replacing K-012's current cycle #4 slot; rationale: **three consecutive tickets (K-009 / K-010 / K-011) have all left the QA visual layer empty due to K-008 absence**, now a systemic gap | PM-dashboard.md cycle re-order (K-008 advanced to cycle #4, K-012 to cycle #5, K-013 to cycle #6) |
 
-**裁決摘要：** 以上 5 條改善中，(1)(2)(4) 由 PM 於本次 retrospective 彙整即落地（本文件內記錄 + PM 下一次 ticket 起稿時套用）；(3) Architect checklist 落地需於下一次 Architect 進場或使用者授權編輯 agent spec 時處理；(5) K-008 優先級上調**需使用者最終核可**，本彙整建議「cycle #4 改為 K-008」並在 PM-dashboard 標註為 PM 建議，待使用者確認。
+**Ruling summary:** Of the 5 improvements above, (1)(2)(4) land at this retrospective by PM (recorded in this doc + applied at next ticket draft); (3) Architect checklist landing requires the next Architect engagement or user authorization to edit agent spec; (5) K-008 priority bump **requires final user approval**; this summary recommends "cycle #4 → K-008" and notes it as PM proposal in PM-dashboard pending user confirmation.

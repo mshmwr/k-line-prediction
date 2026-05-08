@@ -1,51 +1,51 @@
 ---
 id: K-007
-title: About 頁面描述更新
+title: About page description update
 type: content
 priority: medium
 status: closed
 created: 2026-04-16
 ---
 
-## 背景
+## Background
 
-About 頁面（`/about`）描述內容需要更新。具體修改範圍待 PM 確認。
+The About page (`/about`) description content needs to be updated. The exact scope of changes pending PM confirmation.
 
-根據 PRD AC-ABOUT-1，About 頁面目前包含以下 Section：
+Per PRD AC-ABOUT-1, the About page currently contains the following sections:
 - Overview
-- AI 協作開發流程
-- 人的貢獻 vs AI 的貢獻
-- 技術選型決策
-- Screenshots（佔位圖）
+- AI collaboration development flow
+- Human contribution vs AI contribution
+- Technology selection decisions
+- Screenshots (placeholders)
 - Features
 
-## PM 指定調查流程（Engineer / Architect 執行前必讀）
+## PM-Specified Investigation Flow (must read before Engineer / Architect execution)
 
-執行前依序完成以下調查，再決定修改範圍：
+Complete the following investigation steps in order before deciding the scope of changes:
 
-1. **掃 About 頁面現有內容** — 讀取 `AboutPage.tsx`（及相關組件），逐 section 列出目前文案
-2. **查 diary.json + git log** — 確認實際完成的里程碑、部署架構、技術決策
-3. **詢問 Engineer 現用架構** — 確認目前 production 使用的技術棧（frontend framework、hosting、backend、API 設計模式）
-4. 根據以上三點，提出 About 頁面的具體修改 diff，送 PM 審核後才實作
+1. **Scan existing About page content** — read `AboutPage.tsx` (and related components), enumerate the current copy section by section
+2. **Check diary.json + git log** — confirm the actually completed milestones, deployment architecture, and technology decisions
+3. **Ask Engineer about the current architecture** — confirm the tech stack currently in production (frontend framework, hosting, backend, API design pattern)
+4. Based on the three points above, propose a concrete diff for the About page changes; submit to PM for review before implementing
 
-**目標：** 確保 About 頁面正確陳述專案內容與 AI 協作開發模式。
+**Goal:** ensure the About page accurately states the project content and AI collaboration development model.
 
 ## Blocking Questions
 
-無（調查流程已由 PM 定義，Architect 審查後直接放行 Engineer 執行調查步驟）
+None (the investigation flow is defined by PM; after Architect review, Engineer is released directly to execute the investigation steps)
 
 ## Acceptance Criteria
 
-（待調查完成、PM 審核修改 diff 後由 PM 補充具體 AC）
+(To be supplemented by PM with concrete ACs after the investigation completes and the change diff is reviewed)
 
-### AC-K007-1（草稿）
+### AC-K007-1 (draft)
 
-**Given** 使用者訪問 `/about`
-**When** 頁面載入
-**Then** About 頁面所有 section 的文案正確反映專案現況（技術棧、部署架構、AI 協作開發模式）
-**And** 無過時或不正確的描述
+**Given** the user visits `/about`
+**When** the page loads
+**Then** the copy in every About page section accurately reflects the current state of the project (tech stack, deployment architecture, AI collaboration development model)
+**And** there is no outdated or incorrect description
 
-## 相關檔案
+## Related Files
 
-- `frontend/src/pages/AboutPage.tsx`（或對應組件）
+- `frontend/src/pages/AboutPage.tsx` (or equivalent component)
 - PRD AC-ABOUT-1

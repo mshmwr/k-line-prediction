@@ -1,6 +1,6 @@
 ---
 id: K-024
-title: /diary 結構重做 + diary.json schema 扁平化
+title: /diary structure rebuild + diary.json schema flattening
 status: closed
 type: feat
 priority: medium
@@ -10,45 +10,45 @@ visual-spec: docs/designs/K-024-visual-spec.json
 qa-early-consultation: docs/retrospectives/qa.md#2026-04-22-k-024-early-consultation-round-1
 ---
 
-## 背景
+## Background
 
-K-017 完成 `/diary` 基本渲染後，PM 於 2026-04-20 逐條比對 Pencil 設計稿 v2（frame `wiDSi`）與 Playwright 視覺報告，發現 `/diary` 頁面存在 **24 項差異**（其中 22 項實質待修），核心衝突包括：
-1. **配色系統顛倒**（dark mode vs 米白紙本風）→ 交由 K-021 處理
-2. **資訊結構完全不同**：設計稿採「扁平 timeline」（垂直線條 + 矩形 marker + 三層排版）vs 實作採「milestone accordion」（可摺疊區塊）→ 本票處理
-3. **diary.json schema 過於複雜**（milestone + items 雙層結構）且含中文內容 → 本票扁平化並統一英文
+After K-017 delivered the basic `/diary` rendering, on 2026-04-20 PM walked through Pencil design v2 (frame `wiDSi`) line-by-line against the Playwright visual report and found **24 differences** on the `/diary` page (22 of them substantive). The core conflicts were:
+1. **Color system inverted** (dark mode vs cream-paper look) → handled by K-021
+2. **Information structure entirely different**: design used a "flat timeline" (vertical line + rectangular markers + 3-layer typography) vs implementation used a "milestone accordion" (collapsible sections) → handled by this ticket
+3. **diary.json schema overcomplicated** (milestone + items two-layer structure) and contained Chinese content → flattened and standardized to English by this ticket
 
-本票同時定義 **PM 每日 diary.json 維護流程**，上線後由 PM persona（`~/.claude/agents/pm.md`，已於 2026-04-20 寫入）自動執行。
+This ticket also defines the **PM daily diary.json maintenance flow**, which after launch is executed automatically by the PM persona (`~/.claude/agents/pm.md`, written 2026-04-20).
 
-**完整裁決紀錄：** memory `project_k017_design_vs_visual_comparison.md`（2026-04-20）
+**Full ruling record:** memory `project_k017_design_vs_visual_comparison.md` (2026-04-20)
 
-## 依賴關係
+## Dependencies
 
-- **依賴 K-021**（全站設計系統基建）：本票所有 UI 斷言引用 K-021 交付的 Tailwind token / 三字型系統 / NavBar / Footer
-- 本票不可在 K-021 放行前開始 Engineer 實作
+- **Depends on K-021** (sitewide design system foundation): every UI assertion in this ticket references the Tailwind tokens / three-font system / NavBar / Footer delivered by K-021
+- This ticket cannot start Engineer implementation until K-021 is released
 
-## K-027 設計繼承（2026-04-21 新增）
+## K-027 design inheritance (added 2026-04-21)
 
-K-027（手機版 mobile diary hotfix）產出了五項暫行決策，K-024 Architect 設計時**必須逐項評估是否沿用或重新設計**，不得沉默繼承。K-027 設計文件 §6 為正式來源：
+K-027 (mobile diary hotfix) produced five interim decisions; K-024's Architect **must explicitly evaluate each one for inherit-or-redesign**, not silently inherit. K-027 design doc §6 is the canonical source:
 
-| 項目 | K-027 暫行決策 | K-024 需決定 |
-|------|-------------|------------|
-| Mobile breakpoint | `sm:` = 640px（Tailwind 預設） | 新結構是否沿用 sm: 或改為 480px custom breakpoint |
-| DiaryEntry 手機 layout | `flex-col`，date 在上，text 在下 | 扁平 timeline 的 date + title + text 三層排版在手機寬度下的順序與字級 |
-| Milestone 間距 | `mb-4 sm:mb-3` | 新 timeline rail + marker 結構的 entry 間距規格 |
-| `overflow-hidden` 策略 | 展開區加 `overflow-hidden`（防橫向溢出） | 新結構移除 accordion，overflow 策略從頭設計 |
-| `break-words` | `DiaryEntry` text 欄加 `break-words` | 扁平 text element 是否繼承 |
+| Item | K-027 interim decision | K-024 decision required |
+|------|-----------------------|-------------------------|
+| Mobile breakpoint | `sm:` = 640px (Tailwind default) | Whether the new structure inherits sm: or switches to a 480px custom breakpoint |
+| DiaryEntry mobile layout | `flex-col`, date on top, text below | Order and font sizes of the flat timeline's three-layer (date + title + text) typography at mobile widths |
+| Milestone spacing | `mb-4 sm:mb-3` | Entry spacing spec for the new timeline rail + marker structure |
+| `overflow-hidden` strategy | Add `overflow-hidden` on the expanded region (prevent horizontal overflow) | Accordion removed in the new structure; design overflow strategy from scratch |
+| `break-words` | `DiaryEntry` text column carries `break-words` | Whether the flat text element inherits this |
 
-**K-027 設計文件 §2.1 的 Before/After 對照為 K-024 的「Before」基準。**
+**K-027 design doc §2.1 Before/After comparison is K-024's "Before" baseline.**
 
-K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout.md §6`，確認繼承決策已明確寫入 K-024 設計文件。
+Before K-024 Architect picks up, must read `docs/designs/K-027-mobile-diary-layout.md §6` and confirm inheritance decisions are explicitly recorded in the K-024 design doc.
 
-## 範圍
+## Scope
 
-含：
+In scope:
 
-### Phase 1 — diary.json schema 扁平化（資料層）
+### Phase 1 — diary.json schema flattening (data layer)
 
-**新 schema：**
+**New schema:**
 ```json
 [
   {
@@ -66,448 +66,448 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 ]
 ```
 
-- **型別：** `Array<{ ticketId?: string, title: string, date: string (YYYY-MM-DD), text: string }>`
-- `ticketId` 可省（對應舊無 K-XXX 條目，如 Phase 1/2/3、Deployment、Codex Review Follow-up）
-- 舊無 K-XXX 條目統整為 **一筆**（`ticketId` 空，title 例如 `"Phase 1-3 + Deployment + Early Setup"`，text 為該段時期摘要）
-- 舊 schema `{ milestone, items[] }` 全部轉換為 flat array
-- **統一英文**（Yahoo US Commerce 等國際求職情境）：既有中文條目逐條英譯
+- **Type:** `Array<{ ticketId?: string, title: string, date: string (YYYY-MM-DD), text: string }>`
+- `ticketId` may be omitted (matches legacy entries with no K-XXX, e.g. Phase 1/2/3, Deployment, Codex Review Follow-up)
+- Legacy entries without K-XXX are merged into **a single entry** (`ticketId` absent, title for example `"Phase 1-3 + Deployment + Early Setup"`, text is the summary of that period)
+- Old schema `{ milestone, items[] }` fully converted to flat array
+- **Standardize on English** (Yahoo US Commerce and similar international job-search context): translate existing Chinese entries one by one
 
-### Phase 2 — Curation 策略（前端渲染）
+### Phase 2 — Curation strategy (frontend rendering)
 
-- **Homepage `<DevDiarySection>`**：顯示最新 **3 條**（by `date` desc）
-- **Diary 頁面 `<DiaryPage>`**：
-  - 載入全部條目
-  - 預設渲染最新 **5 條**
-  - 滾動或點擊「Load more」載入更多（每次再載 5 條；由 Architect 決定 infinite scroll 或 button click pattern）
+- **Homepage `<DevDiarySection>`**: show the latest **3 entries** (by `date` desc)
+- **Diary page `<DiaryPage>`**:
+  - Load all entries
+  - Render the latest **5 entries** by default
+  - Scroll or click "Load more" to load more (5 more per click; Architect picks infinite-scroll vs button-click pattern)
 
-### Phase 3 — Diary 頁面結構重做（13 項）
+### Phase 3 — Diary page structural rebuild (13 items)
 
-含：
+In scope:
 
-1. **Dev Diary 大標**：Bodoni italic 64px + 上方分隔線 + italic 副標
-2. **左側垂直 rail**：1px 深線（`charcoal` `#2A2520`）貫穿所有 entry
-3. **磚紅矩形 marker**：每條 entry 左側與 rail 交接處的 marker，矩形 `#9C4A3B`（`brick-dark`），尺寸對齊設計稿
-4. **三層條目排版**：
-   - Ticket title：Bodoni Moda italic 18px bold
-   - Date：Geist Mono 12px
-   - Text：Newsreader italic 18px
-5. **Ticket ID 前綴**：每條 entry 的 ticket title 為 `K-XXX — <title>` 格式（em-dash U+2014，兩側各一個半形空格；若 `ticketId` 存在）
-6. **移除 milestone accordion**：不再有可摺疊區塊
-7. **移除 defaultOpen**：隨 accordion 移除
-8. **移除 `divide-y`**：視覺分隔改由 rail + marker 表達
-9. **font-mono h1 改 Bodoni**：頁面大標字型從 mono 改為 Bodoni Moda
-10. **內容寬 1248px**：content 容器最大寬度
-11. **letterSpacing**：大標與副標採設計稿指定 letterSpacing（Architect 補精確數值）
-12. **頁面標題與副標文案**：對齊設計稿（Architect 從 frame `wiDSi` 提取）
-13. **Hero 區分隔線 + 副標**：頁面頂部 Hero 區下方加分隔線 + italic 副標
+1. **Dev Diary page heading**: Bodoni italic 64px + horizontal divider above + italic subtitle
+2. **Left vertical rail**: 1px dark line (`charcoal` `#2A2520`) running through every entry
+3. **Brick-red rectangular marker**: a marker placed where each entry's left edge meets the rail; rectangle `#9C4A3B` (`brick-dark`), dimensions per design
+4. **Three-layer entry typography**:
+   - Ticket title: Bodoni Moda italic 18px bold
+   - Date: Geist Mono 12px
+   - Text: Newsreader italic 18px
+5. **Ticket ID prefix**: each entry's ticket title is in `K-XXX — <title>` format (em-dash U+2014, single half-width space on each side; only when `ticketId` exists)
+6. **Remove milestone accordion**: no more collapsible sections
+7. **Remove defaultOpen**: removed alongside the accordion
+8. **Remove `divide-y`**: visual separation handled by rail + markers
+9. **font-mono h1 changed to Bodoni**: page heading font switched from mono to Bodoni Moda
+10. **Content width 1248px**: content container max-width
+11. **letterSpacing**: page heading and subtitle use letterSpacing per design (Architect to fill in exact values)
+12. **Page title and subtitle copy**: align with design (Architect to extract from frame `wiDSi`)
+13. **Hero divider + subtitle**: horizontal divider + italic subtitle below the page-top Hero region
 
-**保留（不動）：**
-- B2 Loading / Error 狀態顯示機制（保留既有 UX）
+**Preserved (untouched):**
+- B2 Loading / Error state display mechanism (existing UX kept)
 
-### Phase 4 — PM 每日 diary.json 維護流程（persona 層，已寫入）
+### Phase 4 — PM daily diary.json maintenance flow (persona layer, already written)
 
-- 已於 2026-04-20 寫入 `~/.claude/agents/pm.md` 的 `## K-Line diary.json 每日維護（K-023 上線後生效）` 段落
-  - 註：persona 文檔中用的是「K-023 上線後生效」文字，實際 ticket 編號為 **K-024**（因 K-020 已佔用為 GA4 SPA Pageview E2E 票），本票關閉時 PM 同步修正 persona 文字為「K-024 上線後生效」
-- 每日流程：讀 `~/Diary/daily-diary.md` 前一天 K-Line 段 → 篩 K-Line 相關子項 → append diary.json（扁平 schema）
-- **Append-only + 有限例外**：禁 rewrite 既有條目；允許 typo / 事實錯誤（ticket 編號、日期寫錯）修正
-- 統一英文
+- Written into the `## K-Line diary.json daily maintenance (effective after K-023 ships)` section of `~/.claude/agents/pm.md` on 2026-04-20
+  - Note: the persona doc currently uses the wording "effective after K-023 ships", but the actual ticket number is **K-024** (because K-020 was already taken for GA4 SPA Pageview E2E). When this ticket closes, PM will sync the persona text to "effective after K-024 ships"
+- Daily flow: read the previous day's K-Line section in `~/Diary/daily-diary.md` → filter K-Line-relevant sub-items → append to diary.json (flat schema)
+- **Append-only with limited exceptions**: rewriting existing entries forbidden; typo / factual-error fixes (wrong ticket number, wrong date) allowed
+- Standardize on English
 
-**不含：**
-- 新功能邏輯（本票僅 UI 結構 + 資料 schema，不改後端預測邏輯）
-- Diary 內容大規模改寫（僅中譯英 + 舊條目統整，不 rewrite 個人陳述）
-- 其他頁面改動（Homepage Diary bullet marker 由 K-023 A-2 處理，不在本票）
+**Out of scope:**
+- New feature logic (this ticket is UI structure + data schema only; no change to backend prediction logic)
+- Large-scale rewriting of diary content (only Chinese-to-English translation + legacy-entry merge; no rewrite of personal narrative)
+- Other page changes (Homepage Diary bullet markers handled by K-023 A-2, not in this ticket)
 
-## 設計決策紀錄
+## Design decision record
 
-| 決策項目 | 內容 | 來源 |
-|----------|------|------|
-| Schema 扁平化 | `{ ticketId?, title, date, text }` flat array，非 `{ milestone, items[] }` 雙層 | PM 裁決 2026-04-20 |
-| Curation 策略 | 首頁 3 條 / Diary 頁預設 5 條 + 滾動載入更多 | PM 裁決 2026-04-20 |
-| 統一英文 | Yahoo US Commerce 等國際求職情境；既有中文條目英譯 | PM 裁決 2026-04-20 |
-| Append-only + 有限例外 | 禁 rewrite 陳述；允許 typo / 事實錯誤修正 | PM 裁決 2026-04-20 |
-| 舊無 K-XXX 條目統整 | 合併為一筆（Phase 1/2/3 + Deployment + Codex Review Follow-up 等），`ticketId` 空 | PM 裁決 2026-04-20 |
-| PM persona 維護流程啟用 | 本票關閉後生效；persona 文字已寫入，ticket 編號待關閉時校正為 K-024 | PM 裁決 2026-04-20 |
-| Milestone accordion 移除 | 扁平 timeline 取代；Loading / Error 機制保留 | PM 裁決 2026-04-20 |
+| Decision | Content | Source |
+|----------|---------|--------|
+| Schema flattening | `{ ticketId?, title, date, text }` flat array, not `{ milestone, items[] }` two-layer | PM ruling 2026-04-20 |
+| Curation strategy | Homepage 3 entries / Diary page default 5 + scroll load more | PM ruling 2026-04-20 |
+| Standardize English | Yahoo US Commerce and similar international job-search context; translate existing Chinese entries | PM ruling 2026-04-20 |
+| Append-only with limited exceptions | Rewriting narrative forbidden; typo / factual-error fixes allowed | PM ruling 2026-04-20 |
+| Merge legacy non-K-XXX entries | Combined into one (Phase 1/2/3 + Deployment + Codex Review Follow-up etc.), `ticketId` absent | PM ruling 2026-04-20 |
+| PM persona maintenance flow enabled | Effective after this ticket closes; persona text already written, ticket number to be corrected to K-024 at close | PM ruling 2026-04-20 |
+| Milestone accordion removed | Replaced by flat timeline; Loading / Error mechanism preserved | PM ruling 2026-04-20 |
 
 ## Acceptance Criteria
 
-### AC-024-SCHEMA：diary.json 採扁平 flat array schema `[K-024]`
+### AC-024-SCHEMA: diary.json adopts flat array schema `[K-024]`
 
-**Given** 開發者讀取 `frontend/public/diary.json`
-**When** 解析內容
-**Then** 內容為 JSON array（top-level 非 object）
-**And** 每個 element 為 object，schema 為 `{ ticketId?: string, title: string, date: string, text: string }`
-**And** `title` 與 `text` 為 required non-empty string（`.length > 0`，純空白字串視為空）
-**And** `date` 欄位為 `YYYY-MM-DD` 格式（regex `^\d{4}-\d{2}-\d{2}$` 匹配）
-**And** `date` 必須為有效日曆日期（`new Date(date).toISOString().slice(0, 10) === date`；排除 `9999-13-45` 等語法符合但語意無效日期）
-**And** `ticketId` 若存在則為 `K-XXX` 格式（regex `^K-\d{3}$`）；不接受空字串（empty string `""` 視為 invalid，缺席 key 才合法）
-**And** entry 不得含宣告外的 extra keys（任何 `ticketId` / `title` / `date` / `text` 以外的 key 使 schema guard FAIL；舊 `milestone` / `items` 殘留等同違反）
-**And** 舊 schema（`{ milestone, items[] }`）已全部轉換，檔案中不再含 `milestone` key
-**And** Vitest 單元測試：採 **zod**（非手寫 type guard；zod 聲明式較易驗證且 error message 可讀）+ `.strict()` 禁 extra keys；載入 diary.json 後驗證 schema，全部 entry pass
-
----
-
-### AC-024-ENGLISH：diary.json 所有條目統一英文 `[K-024]`
-
-**Given** 開發者讀取 `frontend/public/diary.json`
-**When** 掃描所有 entry 的**所有 string 欄位**（`ticketId` + `title` + `date` + `text`，不限 title + text）
-**Then** 所有欄位內容為英文（擴展 regex `[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uff00-\uffef]` 零匹配；涵蓋 CJK 符號 + 平假名 + 片假名 + CJK 擴展 A + BMP CJK + 全形符號與拉丁）
-**And** 既有中文條目已逐條英譯，保留原意
-**And** Vitest 單元測試：對每筆 entry 執行 `Object.values(entry).filter(v => typeof v === 'string')` 後套用上述擴展 regex，無任何命中
+**Given** a developer reads `frontend/public/diary.json`
+**When** the contents are parsed
+**Then** the content is a JSON array (top-level is not an object)
+**And** each element is an object with schema `{ ticketId?: string, title: string, date: string, text: string }`
+**And** `title` and `text` are required non-empty strings (`.length > 0`; pure-whitespace strings count as empty)
+**And** the `date` field is in `YYYY-MM-DD` format (regex `^\d{4}-\d{2}-\d{2}$` matches)
+**And** `date` must be a valid calendar date (`new Date(date).toISOString().slice(0, 10) === date`; rejects syntactically valid but semantically invalid values like `9999-13-45`)
+**And** if `ticketId` is present it is in `K-XXX` format (regex `^K-\d{3}$`); empty string is not accepted (an empty string `""` is invalid; only an absent key is valid)
+**And** entries must not contain extra keys beyond those declared (any key other than `ticketId` / `title` / `date` / `text` causes the schema guard to FAIL; leftover `milestone` / `items` counts as a violation)
+**And** the old schema (`{ milestone, items[] }`) is fully converted; the file no longer contains a `milestone` key
+**And** Vitest unit test: use **zod** (not a hand-written type guard; zod is declarative, easier to verify, and produces readable error messages) + `.strict()` to forbid extra keys; load diary.json and validate the schema, all entries pass
 
 ---
 
-### AC-024-LEGACY-MERGE：Phase-0 legacy-merge 條目 pinned by title literal `[K-024]`
+### AC-024-ENGLISH: diary.json entries unified to English `[K-024]`
 
-**Given** 開發者讀取 `frontend/public/diary.json`
-**When** 掃描所有 entry
-**Then** 存在「PM-locked 的 Phase-0 legacy-merge 條目」**正好一筆**（由 title literal 唯一識別）
-**And** 該 legacy-merge 條目的 `ticketId` key 缺席（key 不存在；不以空字串表達）
-**And** 該筆的 `title` literal 文字為 `"Early project phases and deployment setup"`（涵蓋 Phase 1/2/3 + Deployment + Codex Review Follow-up + UnifiedNavBar）
-**And** 該筆的 `text` 為該段時期摘要：**50-100 英文字 word count**（以空白切分後計數，`text.trim().split(/\s+/).length` 介於 50~100 含邊界）
-**And** 該筆的 `date` 為 `"2026-04-16"`（PM 裁決 2026-04-22：該段時期最後活動日；Phase 1-3 + Deployment + Codex Review Follow-up 活動至 2026-04-16 告一段落，K-017 始於 2026-04-19）
-**And** 其他 `ticketId` key 缺席的 entry（非 legacy-merge）**允許存在**，用於表達 PM-level 非票務里程碑（如 README 路線圖更新、跨票決策宣告）；此類 entry 不受 legacy-merge 的 title/date/text 約束
-**And** 空字串 `ticketId: ""` **不合法**（由 AC-024-SCHEMA `^K-\d{3}$` regex 強制；`ticketId` 缺席只能以「key 不存在」表達，不以空字串表達）
-**And** Vitest 斷言（legacy 唯一性）：`entries.filter(e => e.title === 'Early project phases and deployment setup').length === 1`
-**And** Vitest 斷言（legacy 條目 `ticketId` key 缺席）：該 legacy 條目在 raw JSON 層 `!('ticketId' in e)` 為 true
-**And** Vitest 斷言（word count）：該 legacy 條目 `text.trim().split(/\s+/).length` 介於 50~100 含邊界
-**And** Vitest 斷言（空字串禁止）：`entries.filter(e => e.ticketId === '').length === 0`
+**Given** a developer reads `frontend/public/diary.json`
+**When** scanning **every string field** of every entry (`ticketId` + `title` + `date` + `text`, not just title + text)
+**Then** all field contents are English (extended regex `[　-〿぀-ゟ゠-ヿ㐀-䶿一-鿿＀-￯]` matches zero times; covers CJK punctuation + hiragana + katakana + CJK Extension A + BMP CJK + fullwidth symbols and Latin)
+**And** every existing Chinese entry has been translated, preserving original meaning
+**And** Vitest unit test: for each entry run `Object.values(entry).filter(v => typeof v === 'string')` and apply the regex above; no matches anywhere
 
 ---
 
-### AC-024-HOMEPAGE-CURATION：Homepage 顯示最新 3 條 `[K-024]`
+### AC-024-LEGACY-MERGE: Phase-0 legacy-merge entry pinned by title literal `[K-024]`
 
-**範圍**：本 AC 僅適用於 desktop viewport ≥ 1248px；mobile 行為由 AC-024-CONTENT-WIDTH 的 Architect hand-off 統一涵蓋。
-
-**Given** 使用者訪問 `/` 且 viewport 寬度 ≥ 1248px 且 `diary.json` entry 數 ≥ 3
-**When** 頁面滾動至 Diary section（`hpDiary`）
-**Then** 顯示 **3 條** diary entry（非更多、非更少），對應 visual-spec `N0WWY` 的 `entryCount=3`
-**And** 3 條按 `date` 降序排列（最新在最上方）
-**And** 3 條均為 diary.json 中 `date` 最新的 3 筆
-**And** **Tie-break 規則**：兩筆 `date` 相同時，以 `diary.json` **陣列後出現者為新**（array index 越大越新；與 K-Line 每日 append 流程一致）
-**And** Homepage diary section 含 3 個 marker 元素（一一對應 3 條 entry），依 visual-spec `N0WWY` 的 marker role
-**And** Playwright 斷言：以 `data-testid="diary-entry-wrapper"` 選擇器取得 3 個元素（復用 K-028 Sacred testid，避免同一 DOM 兩個 `data-testid` 衝突），`expect(page.locator('[data-testid="diary-entry-wrapper"]')).toHaveCount(3)`；且 `expect(homepageMarkers).toHaveCount(3)`
-
-**Given** `diary.json` entry 數為 0（空陣列）
-**When** 使用者訪問 `/`
-**Then** Homepage Diary section heading（`DEV DIARY` label）**保留渲染**（依 K-028 Sacred `AC-028-DIARY-EMPTY-BOUNDARY`）；rail 與 marker 不渲染；無 empty-state 訊息
-**And** Playwright 斷言：`expect(page.getByText('DEV DIARY', { exact: true })).toBeVisible()` + `expect(page.locator('[data-testid="diary-entry-wrapper"]')).toHaveCount(0)` + `expect(page.locator('[data-testid="diary-rail"]')).toHaveCount(0)` + `expect(page.locator('[data-testid="diary-marker"]')).toHaveCount(0)`
-**註**：此 clause 依 K-028 Sacred 於 2026-04-22 修訂（Code Review R1 depth pass D-1 發現）。原文「section 整個隱藏」與 AC-028-DIARY-EMPTY-BOUNDARY 直接衝突；K-028 Sacred 不可動 → 改寫 AC 對齊。
-
-**Given** `diary.json` entry 數為 1 或 2（`< 3`）
-**When** 使用者訪問 `/`
-**Then** 顯示 **所有可用 entry**（不 padding、不補空位、不隱藏 section；Homepage 顯示 N 條，N = entry 總數）
-**And** marker 數 = 顯示的 entry 數（非固定 3）
-**And** Playwright 斷言（fixture 1 entry 與 2 entries 各一組）：`diary-entry-wrapper` count 等於 fixture 大小
+**Given** a developer reads `frontend/public/diary.json`
+**When** scanning all entries
+**Then** there is **exactly one** "PM-locked Phase-0 legacy-merge entry" (uniquely identified by its title literal)
+**And** the legacy-merge entry's `ticketId` key is absent (key does not exist; not represented as an empty string)
+**And** the entry's `title` literal is exactly `"Early project phases and deployment setup"` (covers Phase 1/2/3 + Deployment + Codex Review Follow-up + UnifiedNavBar)
+**And** the entry's `text` is a summary of that period: **50–100 English word count** (split on whitespace, `text.trim().split(/\s+/).length` between 50 and 100 inclusive)
+**And** the entry's `date` is `"2026-04-16"` (PM ruling 2026-04-22: last activity day of that period; Phase 1-3 + Deployment + Codex Review Follow-up activity wrapped up on 2026-04-16, K-017 starts on 2026-04-19)
+**And** other entries with absent `ticketId` (non-legacy-merge) **are permitted**, used to express PM-level non-ticket milestones (such as README roadmap updates, cross-ticket decision announcements); such entries are not bound by the legacy-merge title/date/text constraints
+**And** `ticketId: ""` (empty string) is **not valid** (enforced by AC-024-SCHEMA's `^K-\d{3}$` regex; absent `ticketId` may only be expressed as "key not present", not as an empty string)
+**And** Vitest assertion (legacy uniqueness): `entries.filter(e => e.title === 'Early project phases and deployment setup').length === 1`
+**And** Vitest assertion (legacy entry `ticketId` key absent): for that legacy entry at the raw JSON layer `!('ticketId' in e)` is true
+**And** Vitest assertion (word count): for that legacy entry, `text.trim().split(/\s+/).length` is between 50 and 100 inclusive
+**And** Vitest assertion (empty string forbidden): `entries.filter(e => e.ticketId === '').length === 0`
 
 ---
 
-### AC-024-DIARY-PAGE-CURATION：Diary 頁預設渲染 5 條 + Load more button 載入更多 `[K-024]`
+### AC-024-HOMEPAGE-CURATION: Homepage shows the latest 3 entries `[K-024]`
 
-**範圍**：本 AC 僅適用於 desktop viewport ≥ 1248px；mobile 行為由 AC-024-CONTENT-WIDTH 的 Architect hand-off 統一涵蓋。
+**Scope**: this AC applies only to desktop viewport ≥ 1248px; mobile behavior is covered uniformly by AC-024-CONTENT-WIDTH's Architect hand-off.
 
-**Pagination pattern**：PM 裁決 2026-04-22 採 **Load more button**（非 infinite scroll）——按鈕可測、無 scroll timing flakiness；Architect 決定按鈕 literal 文字、位置、disabled 樣式。
+**Given** a user visits `/` with viewport width ≥ 1248px and `diary.json` entry count ≥ 3
+**When** the page scrolls to the Diary section (`hpDiary`)
+**Then** **3 entries** are shown (no more, no fewer), corresponding to visual-spec `N0WWY`'s `entryCount=3`
+**And** the 3 entries are sorted by `date` descending (newest at top)
+**And** the 3 entries are the 3 with the latest `date` in diary.json
+**And** **Tie-break rule**: when two entries share the same `date`, the one appearing **later in the `diary.json` array is newer** (larger array index wins; consistent with the K-Line daily-append flow)
+**And** the Homepage diary section contains 3 marker elements (one per entry), per visual-spec `N0WWY`'s marker role
+**And** Playwright assertion: select 3 elements via `data-testid="diary-entry-wrapper"` (reusing K-028 Sacred testid to avoid two `data-testid` attributes colliding on the same DOM node); `expect(page.locator('[data-testid="diary-entry-wrapper"]')).toHaveCount(3)`; and `expect(homepageMarkers).toHaveCount(3)`
 
-**Data fetch**：一次性載入整份 `diary.json`，所有 pagination 為**純 client-side slicing**（無 mid-load 的 API failure 場景；AC-024-LOADING-ERROR-PRESERVED 僅涵蓋初始 fetch）。
+**Given** `diary.json` entry count is 0 (empty array)
+**When** the user visits `/`
+**Then** the Homepage Diary section heading (`DEV DIARY` label) **remains rendered** (per K-028 Sacred `AC-028-DIARY-EMPTY-BOUNDARY`); rail and markers are not rendered; no empty-state message
+**And** Playwright assertion: `expect(page.getByText('DEV DIARY', { exact: true })).toBeVisible()` + `expect(page.locator('[data-testid="diary-entry-wrapper"]')).toHaveCount(0)` + `expect(page.locator('[data-testid="diary-rail"]')).toHaveCount(0)` + `expect(page.locator('[data-testid="diary-marker"]')).toHaveCount(0)`
+**Note**: this clause was revised on 2026-04-22 per K-028 Sacred (discovered in Code Review R1 depth pass D-1). The original "section entirely hidden" wording directly conflicted with AC-028-DIARY-EMPTY-BOUNDARY; K-028 Sacred is immutable, so the AC was rewritten to align.
 
-**Tie-break**：`date` 相同時 array index 越大越新（與 AC-024-HOMEPAGE-CURATION 一致）。
-
-**Given** 使用者訪問 `/diary` 且 viewport ≥ 1248px 且 `diary.json` entry 數 ≥ 5
-**When** 頁面載入完成（尚未點 Load more）
-**Then** 顯示 **5 條** diary entry
-**And** 5 條按 `date` 降序排列（含 tie-break array-index 降序）
-**And** 5 條為 diary.json 中 `date` 最新的 5 筆
-
-**Given** 使用者在 `/diary` 且 diary.json entry 數 > 5
-**When** 點擊 Load more button
-**Then** 再渲染 5 條（總共 10 條顯示）
-**And** 若 diary.json 剩餘條數 ≤ 0 則 Load more button **從 DOM 移除或 disabled**
-**And** Playwright 斷言：初始 5 條；點擊後 10 條；剩餘 0 時按鈕 `expect(button).toBeHidden()` 或 `toBeDisabled()`
-
-**Boundary**（PM 強制覆蓋；每條 fixture 獨立 spec）：
-- **entry = 0**：Diary 頁顯示「no entries yet」空狀態訊息（literal 由 Architect 定）；Load more 按鈕不存在；rail/marker 不渲染
-- **entry = 1**：顯示 1 條；Load more 不存在；rail 高度貼合單 entry container 高度
-- **entry = 3**（< 初始 5）：顯示 3 條；Load more 不存在
-- **entry = 5**（=初始）：顯示 5 條；Load more **不存在**（無可載）
-- **entry = 10**（=一輪 Load more 後剛好滿）：初始 5 → 點擊 → 10；點擊後 Load more 不存在
-- **entry = 11**（> 2 輪）：初始 5 → 第一次點擊 10 → 第二次點擊 11；第二次點擊後 Load more 不存在
-
-**Concurrency / idempotency**：
-**Given** 使用者快速連點 Load more button 兩次（< 100ms 間隔）
-**When** 第二次點擊發生於第一次載入 render cycle 內
-**Then** 只再載入 **5 條**（非 10 條）；Load more 於載入過程中 disabled 或以 React state flag 確保 idempotent
-**And** Playwright 斷言（rapid double-click）：`await Promise.all([button.click(), button.click()])` 後顯示 10 條不是 15 條
-
-**Fixture strategy**：
-- Boundary specs 用 `page.route('**/diary.json', ...)` fulfill 測試 fixture（fixture 陣列大小 0/1/3/5/10/11 各一份）
-- 不改動 production `frontend/public/diary.json` 做測試
-- 既有 DiaryPage.spec.ts 主 flow 仍用 production diary.json
+**Given** `diary.json` entry count is 1 or 2 (`< 3`)
+**When** the user visits `/`
+**Then** **all available entries are shown** (no padding, no placeholder, no section hiding; Homepage shows N entries, where N = total entry count)
+**And** marker count = displayed entry count (not fixed at 3)
+**And** Playwright assertion (one fixture each for 1 entry and 2 entries): `diary-entry-wrapper` count equals fixture size
 
 ---
 
-### AC-024-TIMELINE-STRUCTURE：Diary 頁採扁平 timeline 結構 `[K-024]`
+### AC-024-DIARY-PAGE-CURATION: Diary page renders 5 entries by default + Load more button to fetch more `[K-024]`
 
-**範圍**：本 AC 僅適用於 desktop viewport ≥ 1248px；mobile rail/marker 行為由 AC-024-CONTENT-WIDTH 的 Architect hand-off 統一涵蓋。
+**Scope**: this AC applies only to desktop viewport ≥ 1248px; mobile behavior is covered uniformly by AC-024-CONTENT-WIDTH's Architect hand-off.
 
-**Given** 使用者訪問 `/diary` 且 viewport ≥ 1248px
-**When** 頁面載入完成
-**Then** 頁面結構為扁平垂直 timeline，**無 milestone accordion**（無可摺疊區塊）
-**And** 所有 entry 同層級垂直排列（非分組嵌套）
-**And** 左側有垂直 rail 貫穿所有 entry
-  - 顏色、寬度、x 座標依 visual-spec `wiDSi` 的 rail role
-  - rail height **不直接斷言 visual-spec 的 624px literal**（design 的 624px 耦合固定 entry 高度，真實 DOM entry 高度隨 text 長度變動）
-  - 改斷言「rail height ≥ 已渲染 entries container 高度 − 容忍量」（robust 至 text wrap）
-**And** 每條 entry 左側與 rail 交接處有矩形 marker；尺寸、cornerRadius、位置、顏色依 visual-spec `wiDSi` 的 marker role
-**And** **marker 數量 = 當前已渲染的 entry 數**（動態語義；非固定 visual-spec entryCount literal）
-  - `/diary` 初始載入：marker 數 = 初始 entry 數（5 或 entry 總數小於 5 時等於總數）
-  - Load more 點擊後：marker 數 = 新的總顯示 entry 數
-  - Homepage：marker 數 = AC-024-HOMEPAGE-CURATION 的顯示 entry 數（0 時 marker 數=0，section heading 依 K-028 Sacred 保留；1/2 時等於 entry 總數；≥3 時等於 3）
-**And** Playwright **負斷言**（防 regression）：
-  - `expect(page.locator('details, summary')).toHaveCount(0)` — 無 accordion
-  - `expect(page.locator('[class*="divide-y"]')).toHaveCount(0)` — 舊 divider 已移除
-  - `expect(page.locator('[class*="milestone"]')).toHaveCount(0)` — 舊 milestone wrapper 已移除
-**And** Playwright **正斷言**（rail）：`import spec from '../docs/designs/K-024-visual-spec.json';` → rail `toHaveCSS('backgroundColor', hexToRgb(railRole.color))`；rail `width` 以 JSON 值斷言；rail `height` 以動態計算（entries bounding box bottom − top）與 rail bounding box `toBeGreaterThanOrEqual` 比對
-**And** Playwright **正斷言**（marker）：marker 數量動態 = `page.locator('[data-testid="diary-entry"]').count()`；每個 marker computed style `backgroundColor` / `width` / `height` / `borderRadius` 以 JSON import + `hexToRgb` 做 `toHaveCSS`
+**Pagination pattern**: PM ruling 2026-04-22 chose **Load more button** (not infinite scroll) — buttons are testable and avoid scroll-timing flakiness; Architect picks the button literal text, position, and disabled style.
 
----
+**Data fetch**: load the entire `diary.json` once; all pagination is **pure client-side slicing** (no mid-load API failure scenario; AC-024-LOADING-ERROR-PRESERVED only covers the initial fetch).
 
-### AC-024-ENTRY-LAYOUT：每條 entry 三層排版 `[K-024]`
+**Tie-break**: when `date` is equal, larger array index wins (consistent with AC-024-HOMEPAGE-CURATION).
 
-**範圍**：本 AC 僅適用於 desktop viewport ≥ 1248px；mobile 三層文字順序與字級由 AC-024-CONTENT-WIDTH 的 Architect hand-off 統一涵蓋。
+**Given** a user visits `/diary` with viewport ≥ 1248px and `diary.json` entry count ≥ 5
+**When** page load completes (Load more not yet clicked)
+**Then** **5 entries** of diary are shown
+**And** the 5 entries are sorted by `date` descending (with array-index-descending tie-break)
+**And** the 5 entries are the 5 with the latest `date` in diary.json
 
-**Given** 使用者訪問 `/diary` 且 viewport ≥ 1248px
-**When** 頁面滾動至任一 entry
-**Then** entry 含三層文字：entry-title / entry-date / entry-body
-**And** **DOM 順序**：title 先於 date 先於 body（`titleEl.compareDocumentPosition(dateEl) & Node.DOCUMENT_POSITION_FOLLOWING` truthy，`dateEl.compareDocumentPosition(bodyEl) & Node.DOCUMENT_POSITION_FOLLOWING` truthy）
-**And** 三層文字的字型、字級、字重、行高、letterSpacing、顏色依 `docs/designs/K-024-visual-spec.json` `wiDSi` frame 的對應 role（entry-title / entry-date / entry-body）定義
-**And** 若 `ticketId` 存在，entry-title 文字為 `K-XXX — <title>` 格式
-  - 分隔符為 em-dash（U+2014）**explicit codepoint**，兩側各一個**單一**半形空格（不得雙空格）
-  - 例：`K-017 — Portfolio /about Rewrite`
-  - **不得使用 middle-dot（·, U+00B7）或 hyphen-minus（-, U+002D）作為 ticketId/title 分隔符**
-  - 負斷言 scope：僅檢查 ticketId 與 title 之間的分隔位置，title 本體含 hyphen（例 `AI-powered prediction`）合法
-**And** 若 `ticketId` 不存在，entry-title 直接為 title 文字，textContent **不**以 `K-\d{3}` 開頭，且**不**含 ` — ` 作為開頭分隔符
-**And** Playwright **正斷言**（ticketId 存在 case）：entry-title textContent 匹配 regex `/^K-\d{3} \u2014 .+$/`（codepoint `\u2014` explicit；單空格強制；防雙空格）
-**And** Playwright **負斷言**（ticketId 存在 case，prefix-scoped）：
-  - `expect(text).not.toMatch(/^K-\d{3} \u00b7 /)` — 開頭不得為 middle-dot 分隔
-  - `expect(text).not.toMatch(/^K-\d{3} - /)` — 開頭不得為 hyphen-minus 分隔（title 本體 hyphen 不受影響）
-**And** Playwright 斷言（無 ticketId case）：`expect(text).not.toMatch(/^K-\d{3}/)`
-**And** Playwright 斷言（字型 catchall）：entry-title / entry-date / entry-body 的 computed `fontFamily` / `fontSize` / `fontStyle` / `fontWeight` / `lineHeight` / `letterSpacing` / `color` 均 import visual-spec role 值 + `hexToRgb(role.color)` 做 `toHaveCSS`，不得手打 literal 數值
+**Given** the user is on `/diary` and diary.json entry count > 5
+**When** the user clicks the Load more button
+**Then** 5 more entries are rendered (10 total displayed)
+**And** if the remaining diary.json entries ≤ 0, the Load more button is **removed from the DOM or disabled**
+**And** Playwright assertion: 5 initial; 10 after click; remaining 0 → button `expect(button).toBeHidden()` or `toBeDisabled()`
+
+**Boundary** (PM mandate; one spec per fixture):
+- **entry = 0**: Diary page shows a "no entries yet" empty-state message (literal defined by Architect); Load more button does not exist; rail/marker not rendered
+- **entry = 1**: 1 shown; Load more does not exist; rail height fits the single entry container
+- **entry = 3** (< initial 5): 3 shown; Load more does not exist
+- **entry = 5** (= initial): 5 shown; Load more **does not exist** (nothing to load)
+- **entry = 10** (= exactly full after one Load more): initial 5 → click → 10; Load more does not exist after click
+- **entry = 11** (> 2 rounds): initial 5 → first click 10 → second click 11; Load more does not exist after second click
+
+**Concurrency / idempotency**:
+**Given** the user rapidly clicks the Load more button twice (< 100ms apart)
+**When** the second click occurs within the first click's render cycle
+**Then** only **5 more entries** are loaded (not 10); Load more is disabled during loading or guarded by a React state flag to ensure idempotency
+**And** Playwright assertion (rapid double-click): after `await Promise.all([button.click(), button.click()])`, 10 entries are shown (not 15)
+
+**Fixture strategy**:
+- Boundary specs use `page.route('**/diary.json', ...)` to fulfill test fixtures (one fixture each for array size 0/1/3/5/10/11)
+- Do not modify production `frontend/public/diary.json` for tests
+- Existing DiaryPage.spec.ts main flow continues to use production diary.json
 
 ---
 
-### AC-024-PAGE-HERO：/diary 頁面 Hero 區大標 + 分隔線 + italic 副標 `[K-024]`
+### AC-024-TIMELINE-STRUCTURE: Diary page uses flat timeline structure `[K-024]`
 
-**範圍**：本 AC 僅適用於 desktop viewport ≥ 1248px；mobile Hero 字級與分隔線尺寸由 AC-024-CONTENT-WIDTH 的 Architect hand-off 統一涵蓋。
+**Scope**: this AC applies only to desktop viewport ≥ 1248px; mobile rail/marker behavior is covered uniformly by AC-024-CONTENT-WIDTH's Architect hand-off.
 
-**Given** 使用者訪問 `/diary` 且 viewport ≥ 1248px
-**When** 頁面載入完成
-**Then** 頁面頂部（NavBar 下方）顯示 Hero 區
-**And** 大標文字為 `Dev Diary`（依 visual-spec `wiDSi` 的 hero-title role）
-**And** 大標字型規格依 visual-spec `wiDSi` 的 hero-title role（Bodoni Moda italic 64px）
-**And** 大標下方有水平分隔線，尺寸與顏色依 visual-spec `wiDSi` 的 hero-divider role
-**And** 分隔線下方有 italic 副標，literal 文字為：`Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.`
-**And** 副標字型規格依 visual-spec `wiDSi` 的 hero-subtitle role（Newsreader italic 17px）
-**And** Playwright 斷言：`import spec from '../docs/designs/K-024-visual-spec.json';` → hero-title `toHaveText(heroTitle.text)`；computed `fontFamily` / `fontSize` / `fontStyle` / `color` 用 JSON import 做 `toHaveCSS`
-**And** Playwright 斷言：hero-subtitle `toHaveText(heroSubtitle.text)`；computed style 用 JSON import 做 `toHaveCSS`
-**And** Playwright 斷言：hero-divider computed `backgroundColor` = `hexToRgb(spec.frames[0].components.find(c => c.role === 'hero-divider').color)`
-
----
-
-### AC-024-CONTENT-WIDTH：Diary 頁內容寬度 1248px + 邊界點 + 無溢出 `[K-024]`
-
-**Given** 使用者訪問 `/diary` 且 viewport 寬度 ≥ 1248px
-**When** 頁面載入完成
-**Then** content 容器的 computed `maxWidth` 為 `1248px`（依 visual-spec `wiDSi.contentWidth`）
-**And** content 容器水平置中（`margin: 0 auto` 或等效）
-**And** Playwright 斷言（desktop viewport 1920/1440）：`/diary` content container computed `maxWidth` = `1248px`
-
-**Given** 使用者訪問 `/diary` 且 viewport 寬度 **正好 1248px**（邊界點）
-**When** 頁面載入完成
-**Then** content 容器的 computed `maxWidth` 為 `1248px`（閉區間 threshold inclusive）
-**And** Playwright 斷言：viewport `setViewportSize({ width: 1248, height: 800 })` 後 maxWidth assertion 通過
-
-**Given** 使用者訪問 `/diary` 且 viewport 寬度介於 **481px ~ 1247px**（tablet / laptop portrait 中間寬）
-**When** 頁面載入完成
-**Then** 頁面無水平捲軸溢出（`document.documentElement.scrollWidth <= window.innerWidth`）
-**And** content 容器寬度 ≤ viewport 寬度（不跨出視窗）
-**And** Playwright 斷言（800 / 1024 / 1200 三個 viewport）：`scrollWidth <= innerWidth`（no-overflow），content container bounding box width ≤ viewport width
-
-**Given** 使用者訪問 `/diary` 且 viewport 寬度 **≤ 480px**（mobile only）
-**When** 頁面載入完成
-**Then** mobile layout 規格由 Architect 設計文件於 `docs/designs/K-024-diary-structure.md` 定義（Breakpoint 決策、entry 三層文字在窄寬下的順序與字級、rail / marker 是否隱藏或縮放）
-**And** 本 AC 不測 mobile（≤ 480px）的 layout 細節；mobile 斷言由 Architect 設計文件定版後另起 AC 或加入設計文件的 Playwright 清單
-**And** 但 **no-overflow 保護** 仍適用（mobile viewport 亦需 `scrollWidth <= innerWidth`）
+**Given** a user visits `/diary` with viewport ≥ 1248px
+**When** page load completes
+**Then** the page is structured as a flat vertical timeline, **with no milestone accordion** (no collapsible sections)
+**And** all entries are arranged vertically at the same level (not grouped/nested)
+**And** there is a vertical rail on the left running through all entries
+  - Color, width, and x coordinate per visual-spec `wiDSi`'s rail role
+  - rail height is **not asserted directly against the visual-spec 624px literal** (the design's 624px is coupled to a fixed entry height, but real DOM entry height varies with text length)
+  - assert instead "rail height ≥ rendered entries container height − tolerance" (robust to text wrapping)
+**And** each entry has a rectangular marker where its left edge meets the rail; size, cornerRadius, position, and color per visual-spec `wiDSi`'s marker role
+**And** **marker count = current rendered entry count** (dynamic semantic; not the fixed visual-spec entryCount literal)
+  - `/diary` initial load: marker count = initial entry count (5, or total count if total < 5)
+  - After Load more click: marker count = new total displayed entry count
+  - Homepage: marker count = displayed entry count from AC-024-HOMEPAGE-CURATION (0 → marker count = 0, section heading retained per K-028 Sacred; 1/2 → equals total entry count; ≥3 → equals 3)
+**And** Playwright **negative assertions** (regression prevention):
+  - `expect(page.locator('details, summary')).toHaveCount(0)` — no accordion
+  - `expect(page.locator('[class*="divide-y"]')).toHaveCount(0)` — old divider removed
+  - `expect(page.locator('[class*="milestone"]')).toHaveCount(0)` — old milestone wrapper removed
+**And** Playwright **positive assertions** (rail): `import spec from '../docs/designs/K-024-visual-spec.json';` → rail `toHaveCSS('backgroundColor', hexToRgb(railRole.color))`; rail `width` asserted against the JSON value; rail `height` computed dynamically (entries bounding box bottom − top) and compared against rail bounding box via `toBeGreaterThanOrEqual`
+**And** Playwright **positive assertions** (marker): marker count dynamic = `page.locator('[data-testid="diary-entry"]').count()`; each marker's computed `backgroundColor` / `width` / `height` / `borderRadius` asserted via `toHaveCSS` using JSON import + `hexToRgb`
 
 ---
 
-### AC-024-LOADING-ERROR-PRESERVED：Loading / Error / Empty 狀態機制保留 `[K-024]`
+### AC-024-ENTRY-LAYOUT: each entry uses three-layer typography `[K-024]`
 
-**範圍**：僅 `/diary` 頁面；Homepage DevDiarySection loading/error 路徑列為 Known Gap（見 KG-024-HOMEPAGE-ERROR）。
+**Scope**: this AC applies only to desktop viewport ≥ 1248px; mobile three-layer text order and font sizes are covered uniformly by AC-024-CONTENT-WIDTH's Architect hand-off.
 
-**Source of Truth**：本 AC Given/When/Then 為合約；selector / literal / 行為細則交叉引用 `docs/designs/K-024-diary-structure.md` §6.3 DiaryLoading / DiaryError / DiaryEmptyState 組件規格（Architect 2026-04-22 交付）。
-
----
-
-**Given** 使用者訪問 `/diary` 且 `useDiary()` 回傳 `loading === true`
-**When** 頁面渲染
-**Then** `[data-testid="diary-loading"]` 可見，具 `role="status"` 與 `aria-label="Loading diary entries"`（依 design doc §6.3 DiaryLoading spec）
-**And** 內含文字 `"Loading diary…"`
-**And** Playwright slow-network 模擬：`page.route('**/diary.json', r => setTimeout(() => r.continue(), 500))` → `diary-loading` 可見至少 100ms，fetch resolve 後才顯示 `diary-entry`
-**And** `diary-error` / `diary-empty` / `diary-entry` 於 loading 期間均不可見
-
-**Given** `/diary` fetch 回傳非 2xx（例：`page.route('**/diary.json', r => r.fulfill({ status: 404 }))`，或 5xx `{ status: 500 }`）
-**When** 頁面渲染
-**Then** `[data-testid="diary-error"]` 可見，具 `role="alert"`
-**And** 訊息文字為 `"Failed to load diary: <status>"`（`<status>` 為實際 HTTP 狀態碼；例 `"Failed to load diary: 404"`、`"Failed to load diary: 500"`）
-**And** 同一容器內含 `<button>Retry</button>` 可點擊
-**And** `diary-loading` / `diary-entry` / `diary-empty` 均不可見
-
-**Given** 使用者於 error 狀態下點擊 Retry button 一次
-**When** 點擊觸發
-**Then** `diary-loading` 立即重新出現（觸發 refetch）
-**And** Retry button 於 `loading === true` 期間為 `disabled`（防連點併發）
-**And** refetch resolve 後依結果顯示：2xx → `diary-entry`（`diary-error` 消失）；非 2xx → 持續 `diary-error`（再次可點擊 Retry）
-
-**Given** 使用者於 loading 期間連點 Retry（50ms 內兩次）
-**When** 雙擊
-**Then** 第二次 click 因 button `disabled` 不觸發；僅第一次 click 的 fetch 進行中
-**And** Playwright 斷言：`expect(retryButton).toBeDisabled()`（loading true 期間）；`expect(retryButton).toBeEnabled()`（error 且 !loading 時）
-
-**Given** `/diary` fetch 回傳空陣列 `[]`（fixture `_fixtures/diary/diary-empty.json`）
-**When** loading 結束
-**Then** `[data-testid="diary-empty"]` 可見，顯示文字 `"No entries yet. Check back soon."`（依 design doc §6.3 DiaryEmptyState spec）
-**And** `diary-loading` / `diary-error` / `diary-entry` 均不可見（count=0）
-
-**Given** 錯誤訊息長度 > 200 字元（例：zod schema validation error 多行輸出，或 fetch 傳入長 `err.message`）
-**When** `diary-error` 渲染於 mobile viewport（375px 寬）
-**Then** 訊息容器套 `word-break: break-word`，長訊息換行不水平溢出
-**And** Playwright 斷言：`expect(body.scrollWidth).toBeLessThanOrEqual(viewport.width)`（無橫向 scrollbar）
-**And** Retry button 不因訊息長度被擠出可見區域（`retryButton.isVisible()` true）
+**Given** a user visits `/diary` with viewport ≥ 1248px
+**When** the page scrolls to any entry
+**Then** the entry contains three text layers: entry-title / entry-date / entry-body
+**And** **DOM order**: title precedes date precedes body (`titleEl.compareDocumentPosition(dateEl) & Node.DOCUMENT_POSITION_FOLLOWING` truthy; `dateEl.compareDocumentPosition(bodyEl) & Node.DOCUMENT_POSITION_FOLLOWING` truthy)
+**And** font-family, size, weight, line-height, letterSpacing, and color of each layer are defined by the matching role (entry-title / entry-date / entry-body) on `wiDSi` frame in `docs/designs/K-024-visual-spec.json`
+**And** if `ticketId` is present, the entry-title text is in `K-XXX — <title>` format
+  - Separator is em-dash (U+2014) **explicit codepoint**, with a **single** half-width space on each side (no double space)
+  - Example: `K-017 — Portfolio /about Rewrite`
+  - **Must not** use middle-dot (·, U+00B7) or hyphen-minus (-, U+002D) as the ticketId/title separator
+  - Negative-assertion scope: only checks the separator position between ticketId and title; hyphens within the title body (e.g. `AI-powered prediction`) are legal
+**And** if `ticketId` is absent, entry-title is the title text directly; textContent **does not** start with `K-\d{3}`, and **does not** contain ` — ` as a leading separator
+**And** Playwright **positive assertion** (ticketId present case): entry-title textContent matches regex `/^K-\d{3} — .+$/` (codepoint `—` explicit; single space enforced; prevents double space)
+**And** Playwright **negative assertions** (ticketId present case, prefix-scoped):
+  - `expect(text).not.toMatch(/^K-\d{3} · /)` — prefix must not use middle-dot separator
+  - `expect(text).not.toMatch(/^K-\d{3} - /)` — prefix must not use hyphen-minus separator (hyphens in the title body unaffected)
+**And** Playwright assertion (no-ticketId case): `expect(text).not.toMatch(/^K-\d{3}/)`
+**And** Playwright assertion (font catchall): entry-title / entry-date / entry-body computed `fontFamily` / `fontSize` / `fontStyle` / `fontWeight` / `lineHeight` / `letterSpacing` / `color` all asserted via `toHaveCSS` using imported visual-spec role values + `hexToRgb(role.color)`; literal numbers must not be hand-written
 
 ---
 
-**錯誤分類涵蓋範圍：**
-- **必測（Playwright spec 覆蓋）**：404 (4xx 代表)、500 (5xx 代表)、empty `[]`、long error message (>200 字)
-- **Known Gap KG-024-LOADING-TIMEOUT**：timeout、offline、CORS 等不另行斷言。依 design doc §6.3 L574-576，三者皆由 browser 拋 TypeError，UI 呈現 `"Failed to load diary: <err.message>"` 與 4xx/5xx 等價；單獨測試 ROI 低，依賴 useDiary 統一錯誤處理。
-- **Known Gap KG-024-HOMEPAGE-ERROR**：Homepage `DevDiarySection` loading/error 路徑沿用 main 既有 `<ErrorMessage>` pattern（`frontend/src/components/home/DevDiarySection.tsx` 既有 conditional render），不列於本 AC 測試範圍。Engineer 實作 Phase 2 reshape 時須保留既有 conditional rendering；regression 測試（pages.spec.ts）覆蓋 happy path，error path 接受無 E2E 斷言。
+### AC-024-PAGE-HERO: /diary page Hero region heading + divider + italic subtitle `[K-024]`
 
-**Known Gap KG-024-LOADING-RETRY-SPAM**：本 AC 已以 `disabled={loading}` 保證 button-level 併發 gate，不再測試「同時觸發兩個 fetch」race condition。如 useDiary 未來加 AbortController，該斷言另開 AC。
+**Scope**: this AC applies only to desktop viewport ≥ 1248px; mobile Hero font sizes and divider dimensions are covered uniformly by AC-024-CONTENT-WIDTH's Architect hand-off.
+
+**Given** a user visits `/diary` with viewport ≥ 1248px
+**When** page load completes
+**Then** a Hero region appears at the top of the page (below the NavBar)
+**And** the heading text is `Dev Diary` (per visual-spec `wiDSi`'s hero-title role)
+**And** the heading font spec follows visual-spec `wiDSi`'s hero-title role (Bodoni Moda italic 64px)
+**And** below the heading is a horizontal divider, dimensions and color per visual-spec `wiDSi`'s hero-divider role
+**And** below the divider is an italic subtitle, literal text: `Each entry records a milestone, a decision, or a lesson that shaped the system. Filed chronologically, latest first.`
+**And** the subtitle font spec follows visual-spec `wiDSi`'s hero-subtitle role (Newsreader italic 17px)
+**And** Playwright assertion: `import spec from '../docs/designs/K-024-visual-spec.json';` → hero-title `toHaveText(heroTitle.text)`; computed `fontFamily` / `fontSize` / `fontStyle` / `color` asserted via `toHaveCSS` using JSON import
+**And** Playwright assertion: hero-subtitle `toHaveText(heroSubtitle.text)`; computed style asserted via `toHaveCSS` using JSON import
+**And** Playwright assertion: hero-divider computed `backgroundColor` = `hexToRgb(spec.frames[0].components.find(c => c.role === 'hero-divider').color)`
 
 ---
 
-### ~~AC-024-PM-PERSONA-SYNC~~ → 移至 DoD Checklist（非 AC）— **Closed 2026-04-22**
+### AC-024-CONTENT-WIDTH: Diary page content width 1248px + breakpoints + no overflow `[K-024]`
 
-**Reclassify 2026-04-22**（QA Challenge #10）：本項為 repo 外部檔案（`~/.claude/agents/pm.md`）的一次性手動 Edit，**無測試 harness**可驗證，不適合作為 Playwright/Vitest 可測的 AC。QA 裁定 untestable。
+**Given** a user visits `/diary` with viewport width ≥ 1248px
+**When** page load completes
+**Then** the content container's computed `maxWidth` is `1248px` (per visual-spec `wiDSi.contentWidth`)
+**And** the content container is horizontally centered (`margin: 0 auto` or equivalent)
+**And** Playwright assertion (desktop viewports 1920/1440): `/diary` content container computed `maxWidth` = `1248px`
 
-**改列為 `## 放行狀態` 下的 DoD Checklist 項目**（見該 section）——由 PM 於本票 close 時執行 Edit tool call，記錄於 ticket `## Retrospective` 段內，不計入 Phase Gate AC 數。
+**Given** a user visits `/diary` with viewport width **exactly 1248px** (boundary)
+**When** page load completes
+**Then** the content container's computed `maxWidth` is `1248px` (closed-interval threshold inclusive)
+**And** Playwright assertion: after `setViewportSize({ width: 1248, height: 800 })`, the maxWidth assertion passes
 
-**Close 註記（2026-04-22）：** DoD 於本票進入 close 階段時已實質達成（grep `"K-023 上線後生效"` 在 `~/.claude/agents/` 回傳 0 行；`pm.md` line 262 `### Example: K-Line Prediction project` 下已為 `**Diary update automation:** After K-024 goes live, ...`）。無需本 session 再執行 Edit；DoD Checklist 三項皆為 `[x]`。
+**Given** a user visits `/diary` with viewport width between **481px and 1247px** (tablet / laptop portrait mid-range)
+**When** page load completes
+**Then** the page has no horizontal scrollbar overflow (`document.documentElement.scrollWidth <= window.innerWidth`)
+**And** the content container width ≤ viewport width (does not exceed the window)
+**And** Playwright assertion (three viewports 800 / 1024 / 1200): `scrollWidth <= innerWidth` (no-overflow); content container bounding-box width ≤ viewport width
+
+**Given** a user visits `/diary` with viewport width **≤ 480px** (mobile only)
+**When** page load completes
+**Then** the mobile layout spec is defined by the Architect design doc at `docs/designs/K-024-diary-structure.md` (breakpoint decision; entry three-layer text order and font sizes at narrow widths; whether rail / marker are hidden or scaled)
+**And** this AC does not test mobile (≤ 480px) layout details; mobile assertions are added either in a new AC after the Architect design doc is finalized or in the design doc's Playwright list
+**And** but the **no-overflow guard** still applies (mobile viewports also require `scrollWidth <= innerWidth`)
 
 ---
 
-### AC-024-REGRESSION：既有功能無回歸 `[K-024]`
+### AC-024-LOADING-ERROR-PRESERVED: Loading / Error / Empty state mechanism preserved `[K-024]`
 
-**Sacred assertions**（不得動；斷言 FAIL = 本票違反）：
-- K-017 `NavBar` order + Footer 可見性（`/diary` 無 Footer 負斷言，見 AC-017-FOOTER）
+**Scope**: only the `/diary` page; the Homepage DevDiarySection loading/error path is logged as a Known Gap (see KG-024-HOMEPAGE-ERROR).
+
+**Source of Truth**: this AC's Given/When/Then is the contract; selector / literal / behavior detail cross-references `docs/designs/K-024-diary-structure.md` §6.3 DiaryLoading / DiaryError / DiaryEmptyState component spec (Architect deliverable 2026-04-22).
+
+---
+
+**Given** a user visits `/diary` and `useDiary()` returns `loading === true`
+**When** the page renders
+**Then** `[data-testid="diary-loading"]` is visible, with `role="status"` and `aria-label="Loading diary entries"` (per design doc §6.3 DiaryLoading spec)
+**And** the inner text is `"Loading diary…"`
+**And** Playwright slow-network simulation: `page.route('**/diary.json', r => setTimeout(() => r.continue(), 500))` → `diary-loading` visible for at least 100ms; only after fetch resolves is `diary-entry` shown
+**And** `diary-error` / `diary-empty` / `diary-entry` are not visible during loading
+
+**Given** `/diary` fetch returns non-2xx (e.g. `page.route('**/diary.json', r => r.fulfill({ status: 404 }))`, or 5xx `{ status: 500 }`)
+**When** the page renders
+**Then** `[data-testid="diary-error"]` is visible, with `role="alert"`
+**And** the message text is `"Failed to load diary: <status>"` (`<status>` is the actual HTTP status code; e.g. `"Failed to load diary: 404"`, `"Failed to load diary: 500"`)
+**And** the same container contains a clickable `<button>Retry</button>`
+**And** `diary-loading` / `diary-entry` / `diary-empty` are not visible
+
+**Given** the user clicks the Retry button once in the error state
+**When** the click fires
+**Then** `diary-loading` reappears immediately (refetch triggered)
+**And** the Retry button is `disabled` while `loading === true` (prevents concurrent double-click)
+**And** after refetch resolves, the result determines what shows: 2xx → `diary-entry` (`diary-error` disappears); non-2xx → `diary-error` persists (Retry clickable again)
+
+**Given** the user double-clicks Retry during loading (twice within 50ms)
+**When** the double-click fires
+**Then** the second click is suppressed because the button is `disabled`; only the first click's fetch is in flight
+**And** Playwright assertions: `expect(retryButton).toBeDisabled()` (during loading=true); `expect(retryButton).toBeEnabled()` (when error and !loading)
+
+**Given** `/diary` fetch returns an empty array `[]` (fixture `_fixtures/diary/diary-empty.json`)
+**When** loading completes
+**Then** `[data-testid="diary-empty"]` is visible, displaying text `"No entries yet. Check back soon."` (per design doc §6.3 DiaryEmptyState spec)
+**And** `diary-loading` / `diary-error` / `diary-entry` are not visible (count=0)
+
+**Given** the error message is > 200 characters long (e.g. multi-line zod schema validation error output, or a long `err.message` passed through fetch)
+**When** `diary-error` renders at mobile viewport (375px wide)
+**Then** the message container applies `word-break: break-word` and the long message wraps without horizontal overflow
+**And** Playwright assertion: `expect(body.scrollWidth).toBeLessThanOrEqual(viewport.width)` (no horizontal scrollbar)
+**And** the Retry button is not pushed off-screen by the message length (`retryButton.isVisible()` is true)
+
+---
+
+**Error classification coverage:**
+- **Required (Playwright spec coverage)**: 404 (4xx representative), 500 (5xx representative), empty `[]`, long error message (>200 chars)
+- **Known Gap KG-024-LOADING-TIMEOUT**: timeout, offline, CORS not separately asserted. Per design doc §6.3 L574-576, all three are surfaced as browser-thrown TypeError, the UI shows `"Failed to load diary: <err.message>"`, equivalent to 4xx/5xx; standalone tests have low ROI; relies on useDiary unified error handling.
+- **Known Gap KG-024-HOMEPAGE-ERROR**: the Homepage `DevDiarySection` loading/error path reuses main's existing `<ErrorMessage>` pattern (existing conditional render in `frontend/src/components/home/DevDiarySection.tsx`); not in this AC's test scope. When Engineer reshapes Phase 2 the existing conditional rendering must be preserved; regression test (pages.spec.ts) covers happy path; error path accepted with no E2E assertion.
+
+**Known Gap KG-024-LOADING-RETRY-SPAM**: this AC already guarantees button-level concurrency gating via `disabled={loading}`; "two simultaneous fetches" race condition is not tested. If useDiary adds an AbortController in future, the assertion gets a separate AC.
+
+---
+
+### ~~AC-024-PM-PERSONA-SYNC~~ → moved to DoD Checklist (not an AC) — **Closed 2026-04-22**
+
+**Reclassify 2026-04-22** (QA Challenge #10): this item is a one-off manual Edit to a file external to the repo (`~/.claude/agents/pm.md`); **no test harness** can verify it, making it unsuitable as a Playwright/Vitest-testable AC. QA ruled untestable.
+
+**Reclassified as a DoD Checklist item under `## Release Status`** (see that section) — executed by PM via Edit tool call when this ticket closes, recorded in the ticket `## Retrospective`; not counted as a Phase Gate AC.
+
+**Close note (2026-04-22):** the DoD was effectively achieved when this ticket entered the close phase (grep `"K-023 上線後生效"` under `~/.claude/agents/` returns 0 lines; `pm.md` line 262 under `### Example: K-Line Prediction project` already reads `**Diary update automation:** After K-024 goes live, ...`). No further Edit needed in this session; all three DoD Checklist items are `[x]`.
+
+---
+
+### AC-024-REGRESSION: existing functionality has no regression `[K-024]`
+
+**Sacred assertions** (immutable; assertion FAIL = this ticket has violated):
+- K-017 `NavBar` order + Footer visibility (no Footer on `/diary`, see AC-017-FOOTER negative assertion)
 > **Retired 2026-04-23 by K-034 Phase 3 (absorbs ex-K-038 §3 BQ-034-P3-03)** — user intent change: /diary now renders shared Footer per AC-034-P3-DIARY-FOOTER-RENDERS. AC text body preserved as historical record.
-- K-017 `AC-017-HOME-V2` 的 Homepage sections DOM order + bullet marker 可見性
-- K-023 `<DevDiarySection>` Homepage 渲染 3 條 diary marker（20×14 / `rgb(156, 74, 59)` / `borderRadius 0`）
-- K-021 `/about` readability token (`ink` / `paper` / `brick-dark`) 斷言
-- K-027 手機版 DiaryEntry `flex-col` + `break-words` + `overflow-hidden` 暫行決策（除非 K-024 Architect design 文件明確重新設計並於 §K-027 設計繼承 裁定 override，否則保留）
-- 所有 `npm run test` (Vitest) 既有 passing case 不得退化
+- K-017 `AC-017-HOME-V2` Homepage sections DOM order + bullet marker visibility
+- K-023 `<DevDiarySection>` Homepage renders 3 diary markers (20×14 / `rgb(156, 74, 59)` / `borderRadius 0`)
+- K-021 `/about` readability tokens (`ink` / `paper` / `brick-dark`) assertions
+- K-027 mobile DiaryEntry `flex-col` + `break-words` + `overflow-hidden` interim decisions (preserved unless K-024 Architect design doc explicitly redesigns and §K-027 design inheritance rules override)
+- All existing `npm run test` (Vitest) passing cases must not regress
 
-**Allowed-to-change assertions**（扁平 schema / 新 timeline 結構要求的合理更新）：
-- 舊 `<details>` / `<summary>` accordion 斷言（可刪）
-- 舊 `.divide-y` visual separator 斷言（可刪）
-- 舊 `milestone` wrapper / `items[]` nested schema 斷言（可刪）
-- `AC-DIARY-1` 既有 Diary 頁渲染斷言可改寫對齊扁平 schema；但「從 diary.json 載入 entry 並顯示」的 **核心行為**必須保留
-- K-017 舊「`/diary` 顯示 milestone accordion 展開」相關斷言可改寫為新的 timeline 斷言
+**Allowed-to-change assertions** (reasonable updates required by flat schema / new timeline structure):
+- Old `<details>` / `<summary>` accordion assertions (removable)
+- Old `.divide-y` visual-separator assertion (removable)
+- Old `milestone` wrapper / `items[]` nested-schema assertions (removable)
+- Existing `AC-DIARY-1` Diary page render assertion may be rewritten to the flat schema; but the **core behavior** "load entries from diary.json and display" must be preserved
+- Old K-017 "`/diary` shows milestone accordion expanded" assertions may be rewritten as new timeline assertions
 
-**K-027 regression policy**：若 Architect design 文件選擇不繼承 K-027 某項暫行決策，必須 **回報 PM** 升級為 blocker + 登 Tech Debt；PM 裁決後才能移除對應 K-027 AC。Architect / Engineer 不得靜默捨棄。
+**K-027 regression policy**: if the Architect design doc chooses not to inherit a K-027 interim decision, it must **report back to PM** to escalate as blocker + log Tech Debt; only after PM rules can the matching K-027 AC be removed. Architect / Engineer must not silently drop it.
 
-**Given** K-017 / K-021 / K-023 / K-027 所有 Sacred assertions 為 PASS 基線
-**When** 本票實作完成
-**Then** 全套 Playwright E2E suite 跑完：Sacred assertions 全 PASS；Allowed-to-change 項目可改寫後為 PASS
-**And** Homepage `<DevDiarySection>` 在本票完成後仍渲染 3 條 entry（AC-024-HOMEPAGE-CURATION ✓）
+**Given** all K-017 / K-021 / K-023 / K-027 Sacred assertions are PASS at baseline
+**When** this ticket's implementation is complete
+**Then** the full Playwright E2E suite runs: Sacred assertions all PASS; Allowed-to-change items rewritten and PASS
+**And** Homepage `<DevDiarySection>` continues to render 3 entries after this ticket lands (AC-024-HOMEPAGE-CURATION ✓)
 **And** `npx tsc --noEmit` exit 0
-**And** `npm test` (Vitest) exit 0（含本票新增 zod schema spec + AC-024-SCHEMA / AC-024-ENGLISH / AC-024-LEGACY-MERGE 三支 Vitest）
-**And** `frontend/public/diary.json` 的變更觸發 `DiaryPage.spec.ts` Playwright 子集通過（依 file-class 表）
-**And** 若任一 Sacred assertion FAIL，QA 退件不 sign off，Engineer 修正後回跑
+**And** `npm test` (Vitest) exit 0 (including this ticket's new zod schema spec + AC-024-SCHEMA / AC-024-ENGLISH / AC-024-LEGACY-MERGE three Vitest specs)
+**And** changes to `frontend/public/diary.json` trigger the `DiaryPage.spec.ts` Playwright subset to pass (per the file-class table)
+**And** if any Sacred assertion FAILs, QA does not sign off; Engineer fixes and re-runs
 
 ---
 
-## 放行狀態
+## Release Status
 
-**待 K-021 先完成 + Architect 設計：** Architect 需於 K-021 放行後接手 K-024，產出設計文件 `docs/designs/K-024-diary-structure.md`，涵蓋：
-- diary.json schema migration 策略（一次性轉換 vs 雙 schema 並存 transition）
-- 中文條目英譯規劃（保留原意的翻譯準則）
-- 舊無 K-XXX 條目合併段落的實際 `text`（50-100 words；date 已定 `2026-04-16`，title 已定 `"Early project phases and deployment setup"`）
-- Homepage / Diary 頁面元件 `data-testid` 合約（至少：`diary-entry-wrapper`（Homepage，復用 K-028 Sacred）/ `diary-entry`（/diary）/ `diary-loading` / `diary-error` / `diary-load-more`）
-- **Mobile breakpoint 決策**（PM 暫定：繼承 K-027 `sm:` 640px，除非 Architect 提出具體 design reason 改為 480px custom；不繼承須升級 blocker + 登 TD）
-- Mobile layout：entry 三層文字順序、字級、rail / marker 是否隱藏或縮放（≤ 480px 範圍；481-1247px no-overflow 即可）
-- ~~Loading / Error 元件實際結構~~ → Architect 2026-04-22 交付 design doc §6.3（DiaryLoading / DiaryError / DiaryEmptyState）；AC-024-LOADING-ERROR-PRESERVED 於 QA R2 後 2026-04-22 完成補寫，解除 DEFERRED
-- Load more button literal 文字、disabled 樣式、位置（pattern 已定：button click + client-side slicing，見 AC-024-DIARY-PAGE-CURATION）
+**Awaiting K-021 first + Architect design:** Architect picks up K-024 after K-021 ships and produces design doc `docs/designs/K-024-diary-structure.md`, covering:
+- diary.json schema migration strategy (one-shot conversion vs dual-schema transition)
+- Chinese-entry translation plan (translation principles preserving original meaning)
+- Actual `text` of the merged-legacy non-K-XXX paragraph (50–100 words; date already fixed at `2026-04-16`, title fixed at `"Early project phases and deployment setup"`)
+- Homepage / Diary page component `data-testid` contract (at minimum: `diary-entry-wrapper` (Homepage, reuse K-028 Sacred) / `diary-entry` (/diary) / `diary-loading` / `diary-error` / `diary-load-more`)
+- **Mobile breakpoint decision** (PM tentative: inherit K-027 `sm:` 640px unless Architect proposes a specific design reason for a 480px custom; not inheriting requires escalation to blocker + TD log)
+- Mobile layout: entry three-layer text order, font sizes, whether rail / marker are hidden or scaled (≤ 480px range; 481-1247px no-overflow is sufficient)
+- ~~Loading / Error component actual structure~~ → Architect delivered design doc §6.3 (DiaryLoading / DiaryError / DiaryEmptyState) on 2026-04-22; AC-024-LOADING-ERROR-PRESERVED back-filled after QA R2 on 2026-04-22, DEFERRED status removed
+- Load more button literal text, disabled style, position (pattern fixed: button click + client-side slicing, see AC-024-DIARY-PAGE-CURATION)
 
-**DoD Checklist（本票 close 時 PM 執行，非 AC）：**
-- [x] `~/.claude/agents/pm.md` 的 diary automation 條目文字以 `K-024` 為準（line 262 `### Example: K-Line Prediction project` 下：`**Diary update automation:** After K-024 goes live, update frontend/public/diary.json following the flow in docs/tickets/K-024-diary-structure-and-schema.md ...`）——**2026-04-22 close session 驗證：persona 檔早於本票進入 close 階段即已同步為 K-024 文字**（舊「K-Line diary.json 每日維護（K-023 上線後生效）」區段於 audit-personas 整併時已被壓縮為 `### Example` 下的一段精簡文字，非於本 session 內新增 Edit）；DoD 實質已達成，無須再次 Edit。
-- [x] 實際驗證：`grep -rn "K-023 上線後生效" ~/.claude/agents/` 回傳 0 行；`grep -n "K-024 goes live" ~/.claude/agents/pm.md` 命中 line 262。無 before/after diff 可紀錄（早於本 session 已生效）。
-- [x] AC-024-PM-PERSONA-SYNC 已廢止區段標記 **Closed 2026-04-22**。
+**DoD Checklist (PM executes at ticket close, not an AC):**
+- [x] `~/.claude/agents/pm.md` diary automation entry text uses `K-024` as canonical (line 262 under `### Example: K-Line Prediction project`: `**Diary update automation:** After K-024 goes live, update frontend/public/diary.json following the flow in docs/tickets/K-024-diary-structure-and-schema.md ...`) — **2026-04-22 close-session verification: persona file was already synced to K-024 wording before this ticket entered the close phase** (the old "K-Line diary.json daily maintenance (effective after K-023 ships)" section had been compressed during audit-personas consolidation into a concise paragraph under `### Example`, not added in this session); DoD is effectively achieved, no further Edit needed.
+- [x] Verified: `grep -rn "K-023 上線後生效" ~/.claude/agents/` returns 0 lines; `grep -n "K-024 goes live" ~/.claude/agents/pm.md` hits line 262. No before/after diff to record (effective before this session).
+- [x] AC-024-PM-PERSONA-SYNC retired section marked **Closed 2026-04-22**.
 
-**已由 visual-spec.json 定案（Architect 直接讀 `docs/designs/K-024-visual-spec.json`，不再待決）：**
-- ~~磚紅矩形 marker 精確尺寸~~ → `wiDSi` marker role（20×14px, cornerRadius 6）
-- ~~Hero 副標文案~~ → `wiDSi` hero-subtitle.text
-- ~~Hero 大標精確文字~~ → `wiDSi` hero-title.text = `"Dev Diary"`
-- ~~entry-title 分隔符~~ → em-dash（U+2014，兩側單空格），見 AC-024-ENTRY-LAYOUT + `wiDSi` entry-title role textDelimiter
+**Already locked by visual-spec.json (Architect reads `docs/designs/K-024-visual-spec.json` directly; no further decision needed):**
+- ~~Brick-red rectangular marker exact dimensions~~ → `wiDSi` marker role (20×14px, cornerRadius 6)
+- ~~Hero subtitle copy~~ → `wiDSi` hero-subtitle.text
+- ~~Hero heading exact text~~ → `wiDSi` hero-title.text = `"Dev Diary"`
+- ~~entry-title separator~~ → em-dash (U+2014, single space each side), see AC-024-ENTRY-LAYOUT + `wiDSi` entry-title role textDelimiter
 
-**QA Early Consultation 狀態：**
-- **Round 1（2026-04-22）完成**：12 AC 逐條 testability review + 7 類 boundary sweep + visual-spec drift 掃描；產出 11 條 Challenge；PM 於 2026-04-22 裁決回補（見各 AC + `docs/retrospectives/qa.md`）。
-- **Round 2（2026-04-22）完成**：AC-024-LOADING-ERROR-PRESERVED 重啟 review（Architect design doc §6.3 為輸入）；產出 1 Challenge（AC body 需補寫）+ 3 Interception（retry flow / Homepage error gate / long message overflow）；PM 2026-04-22 裁決：Challenge 以 design doc §6.3 為據補寫 Given/When/Then；Interception #1 #3 Option A 補 AC，#2 Option B Known Gap KG-024-HOMEPAGE-ERROR。AC 解除 DEFERRED。
-- Frontmatter `qa-early-consultation` 欄位指向 `docs/retrospectives/qa.md` 2026-04-22 K-024 Early Consultation 條目（Round 1 + Round 2 同日條目）。
+**QA Early Consultation status:**
+- **Round 1 (2026-04-22) complete**: per-AC testability review across 12 ACs + 7-category boundary sweep + visual-spec drift scan; produced 11 Challenges; PM ruled on 2026-04-22 with back-fills (see each AC + `docs/retrospectives/qa.md`).
+- **Round 2 (2026-04-22) complete**: AC-024-LOADING-ERROR-PRESERVED review reopened (Architect design doc §6.3 as input); produced 1 Challenge (AC body needed back-fill) + 3 Interceptions (retry flow / Homepage error gate / long message overflow); PM ruling 2026-04-22: Challenge back-filled with Given/When/Then per design doc §6.3; Interception #1 / #3 Option A (back-fill AC), #2 Option B Known Gap KG-024-HOMEPAGE-ERROR. AC released from DEFERRED.
+- Frontmatter `qa-early-consultation` field points to the 2026-04-22 K-024 Early Consultation entry in `docs/retrospectives/qa.md` (Round 1 + Round 2 same-day entries).
 
-**PM 放行 Architect 前置**（依 global CLAUDE.md PM Handoff Verification）：
-1. frontmatter `qa-early-consultation` 欄位已指向 Round 1 retrospective entry（commit `e2b6fe5` land ✓）
-2. K-021 已 close + deployed（2026-04-20 closed，CDN 驗證 ✓）
-3. 本 AC 版本為 2026-04-22 Round 1 後修訂版（PM 裁決 ✓）
-4. Architect 於 2026-04-22 交付 design 文件（`docs/designs/K-024-diary-structure.md`）+ 1 BQ；Architect 交付 design 文件後再走 QA Early Consultation Round 2 覆蓋 LOADING-ERROR，然後放行 Engineer。
+**PM prerequisites for releasing Architect** (per global CLAUDE.md PM Handoff Verification):
+1. Frontmatter `qa-early-consultation` field already points to Round 1 retrospective entry (commit `e2b6fe5` landed ✓)
+2. K-021 closed + deployed (closed 2026-04-20, CDN verified ✓)
+3. The current AC version is the post-Round-1 revision (PM ruling 2026-04-22 ✓)
+4. Architect delivered the design doc on 2026-04-22 (`docs/designs/K-024-diary-structure.md`) + 1 BQ; after design-doc delivery, run QA Early Consultation Round 2 covering LOADING-ERROR, then release Engineer.
 
-**PM BQ / Interception 裁決紀錄：**
+**PM BQ / Interception ruling record:**
 
-**BQ-024-01（Architect 2026-04-22 raised）**：AC-024-HOMEPAGE-CURATION 原 literal `data-testid="homepage-diary-entry"` 與 K-028 Sacred `data-testid="diary-entry-wrapper"` 在同一 DOM 元素衝突（HTML 禁同名 data-testid）。
-- **PM 2026-04-22 裁決**：Option (b) 更名 K-024 AC literal `homepage-diary-entry` → `diary-entry-wrapper`（復用 K-028 Sacred）。
-- **理由**：K-028 closed + deployed + CDN live bundle grep 驗證 `diary-entry-wrapper` 存在；Sacred 不可動 → Option (a) 違反；Option (c) 加廢 DOM → Option (b) 成本最低且 AC 為 PM-owned 屬許可操作。
-- **影響範圍**：K-024 ticket 3 處 literal（AC-024-HOMEPAGE-CURATION line 184 / 195，§放行狀態 data-testid 合約清單），已於本裁決同 commit 全部更新。
-- **Phase 2 unblocked**：Architect 可繼續 Phase 2 curation 設計。
+**BQ-024-01 (Architect raised 2026-04-22)**: AC-024-HOMEPAGE-CURATION's original `data-testid="homepage-diary-entry"` literal collided with K-028 Sacred `data-testid="diary-entry-wrapper"` on the same DOM element (HTML forbids duplicate data-testid).
+- **PM ruling 2026-04-22**: Option (b) — rename the K-024 AC literal `homepage-diary-entry` → `diary-entry-wrapper` (reuse K-028 Sacred).
+- **Reason**: K-028 closed + deployed + CDN live bundle grep verified `diary-entry-wrapper` exists; Sacred immutable → Option (a) violates; Option (c) adds dead DOM → Option (b) cheapest; AC is PM-owned so the operation is permitted.
+- **Impact**: 3 literals in K-024 ticket (AC-024-HOMEPAGE-CURATION line 184 / 195, §Release Status data-testid contract list); all updated in this same ruling commit.
+- **Phase 2 unblocked**: Architect may proceed with Phase 2 curation design.
 
-**QA-R2 Challenge #12（2026-04-22 raised）**：AC-024-LOADING-ERROR-PRESERVED body 仍為 DEFERRED 區塊，未依 Unblock Protocol step 2 以 Architect design doc §6.3 為據補寫 Given/When/Then。Engineer 寫 AC 不寫 design doc。
-- **PM 2026-04-22 裁決**：接受 Challenge，AC body 補寫完成（見 AC-024-LOADING-ERROR-PRESERVED line 337+）。涵蓋 loading / 404 error / 500 error / empty / retry-disabled / long-message-overflow 6 條 Given/When/Then。
-- **影響範圍**：AC-024-LOADING-ERROR-PRESERVED 解除 DEFERRED 狀態；test count estimate 6 Playwright specs（T-L1 loading / T-L2a 404 / T-L2b 500 / T-L3 empty / T-L4 retry-disabled / T-L5 long-message）。
+**QA-R2 Challenge #12 (raised 2026-04-22)**: AC-024-LOADING-ERROR-PRESERVED body was still in the DEFERRED block, not back-filled per Unblock Protocol step 2 with Given/When/Then sourced from Architect design doc §6.3. Engineer writes AC, not design doc.
+- **PM ruling 2026-04-22**: Challenge accepted; AC body back-filled (see AC-024-LOADING-ERROR-PRESERVED line 337+). Covers loading / 404 error / 500 error / empty / retry-disabled / long-message-overflow with 6 Given/When/Then groups.
+- **Impact**: AC-024-LOADING-ERROR-PRESERVED released from DEFERRED state; test count estimate 6 Playwright specs (T-L1 loading / T-L2a 404 / T-L2b 500 / T-L3 empty / T-L4 retry-disabled / T-L5 long-message).
 
-**QA-R2 Interception #1（2026-04-22 raised）**：AC 未涵蓋 Retry button 行為（re-fetch + 併發防護）。
-- **PM 2026-04-22 裁決**：Option (a) 補 AC。Retry click → `diary-loading` 重現 → refetch；Retry button 於 loading 期間 `disabled={loading}` 防 spam（button-level gate，不需 AbortController）。Known Gap KG-024-LOADING-RETRY-SPAM 明示：同時兩個 fetch race condition 不測（disabled 已 cover 連點場景）。
-- **理由**：Retry UX 為使用者可見行為，須 AC 合約；`disabled={loading}` 為成本最低之併發防護（button-level prevention > AbortController 引入）。
+**QA-R2 Interception #1 (raised 2026-04-22)**: AC did not cover Retry button behavior (re-fetch + concurrency protection).
+- **PM ruling 2026-04-22**: Option (a), back-fill the AC. Retry click → `diary-loading` reappears → refetch; Retry button uses `disabled={loading}` during loading to prevent spam (button-level gate; no AbortController needed). Known Gap KG-024-LOADING-RETRY-SPAM explicitly states: "two simultaneous fetches" race condition is not tested (disabled already covers the rapid-double-click scenario).
+- **Reason**: Retry UX is user-visible behavior, requires AC contract; `disabled={loading}` is the cheapest concurrency protection (button-level prevention > introducing AbortController).
 
-**QA-R2 Interception #2（2026-04-22 raised）**：Homepage `DevDiarySection` fetch 失敗 UX 無 AC 覆蓋；K-028 Sacred 僅測 happy path。
-- **PM 2026-04-22 裁決**：Option (b) Known Gap KG-024-HOMEPAGE-ERROR。Homepage DevDiarySection 沿用 main 既有 `<ErrorMessage>` conditional render（非 K-024 scope 變更）；Engineer Phase 2 reshape 時須保留 error path 既有行為；regression 接受無 E2E 斷言。
-- **理由**：Homepage error path 為 K-028 scope 遺留，K-024 重點為 /diary 扁平 timeline + diary.json flat schema，不宜擴張 AC；既有 conditional render 可 work，Engineer hand-off 須保留。
+**QA-R2 Interception #2 (raised 2026-04-22)**: Homepage `DevDiarySection` fetch-failure UX has no AC coverage; K-028 Sacred only tests happy path.
+- **PM ruling 2026-04-22**: Option (b), Known Gap KG-024-HOMEPAGE-ERROR. Homepage DevDiarySection reuses main's existing `<ErrorMessage>` conditional render (not a K-024 scope change); during Engineer Phase 2 reshape, the existing error path behavior must be preserved; regression accepted with no E2E assertion.
+- **Reason**: Homepage error path is a K-028 scope leftover; K-024's focus is /diary flat timeline + diary.json flat schema; should not expand AC; existing conditional render works; Engineer hand-off must preserve.
 
-**QA-R2 Interception #3（2026-04-22 raised）**：error message > 200 字元可能在 mobile 375px 水平溢出。
-- **PM 2026-04-22 裁決**：Option (a) 補 AC。`diary-error` 容器套 `word-break: break-word`；Playwright 斷言 mobile 375px 下 `body.scrollWidth <= viewport.width`；Retry button 不被擠出畫面。
-- **理由**：zod 嚴格 schema + raw `err.message` 可能輸出長訊息，違反 AC-024-CONTENT-WIDTH no-overflow spirit；`word-break` 為 CSS 單行成本，defensive 設計優於產生使用者面對 UI 破版。
+**QA-R2 Interception #3 (raised 2026-04-22)**: error messages > 200 chars may overflow horizontally on mobile 375px.
+- **PM ruling 2026-04-22**: Option (a), back-fill the AC. `diary-error` container applies `word-break: break-word`; Playwright assertion at mobile 375px: `body.scrollWidth <= viewport.width`; Retry button not pushed off-screen.
+- **Reason**: zod strict schema + raw `err.message` may emit long messages, violating AC-024-CONTENT-WIDTH no-overflow spirit; `word-break` is a cheap one-line CSS; defensive design beats letting users encounter a broken UI.
 
-## 相關連結
+## Related Links
 
-- [PRD.md — K-024 section](../../PRD.md)（待同步補入）
+- [PRD.md — K-024 section](../../PRD.md) (sync pending)
 - [memory: project_k017_design_vs_visual_comparison.md](~/.claude/projects/-Users-yclee-Diary/memory/project_k017_design_vs_visual_comparison.md)
-- [K-017 ticket（前置 Homepage v2）](./K-017-about-portfolio-enhancement.md)
-- [K-021 ticket（前置基建）](./K-021-sitewide-design-system.md)
-- [設計稿: homepage-v2.pen frame wiDSi](../../frontend/design/homepage-v2.pen)
+- [K-017 ticket (Homepage v2 prerequisite)](./K-017-about-portfolio-enhancement.md)
+- [K-021 ticket (foundation prerequisite)](./K-021-sitewide-design-system.md)
+- [Design: homepage-v2.pen frame wiDSi](../../frontend/design/homepage-v2.pen)
 - [pm.md persona (~/.claude/agents/pm.md)](~/.claude/agents/pm.md)
 
 ---
 
 ## Retrospective
 
-（Architect / Engineer / Reviewer / QA / Designer 各自於完成階段補上反省；PM 於 QA PASS 後彙整）
+(Architect / Engineer / Reviewer / QA / Designer each fill in upon completing their phase; PM consolidates after QA PASS)
 
 ### Engineer (Phase 1+2)
 
@@ -533,11 +533,11 @@ K-024 Architect 接手前，必須先讀 `docs/designs/K-027-mobile-diary-layout
 
 Code Reviewer R1 findings resolved (4 flags + 1 BQ-ruled AC amendment):
 
-- **C-1 (diary.json legacy-merge K-005 coverage):** `frontend/public/diary.json` legacy entry `text` extended with `" Later, a shared UnifiedNavBar unified headers across all five routes."` — K-005 (UnifiedNavBar) now represented in the Phase-0 summary; word count 95/100 (within 50–100 bound); title/date unchanged. Also updated AC-024-LEGACY-MERGE header per design: "涵蓋 Phase 1/2/3 + Deployment + Codex Review Follow-up + UnifiedNavBar".
+- **C-1 (diary.json legacy-merge K-005 coverage):** `frontend/public/diary.json` legacy entry `text` extended with `" Later, a shared UnifiedNavBar unified headers across all five routes."` — K-005 (UnifiedNavBar) now represented in the Phase-0 summary; word count 95/100 (within 50–100 bound); title/date unchanged. Also updated AC-024-LEGACY-MERGE header per design: "covers Phase 1/2/3 + Deployment + Codex Review Follow-up + UnifiedNavBar".
 - **C-2 (PM-README recruiter-facing content):** Inserted flat entry at `diary.json` array index 1 (post-K-031, pre-K-023) — `title: "README Future Enhancements roadmap"`, `date: "2026-04-21"`, no `ticketId` key (PM-level non-ticket milestone). Legitimizes the previously-dropped milestone under the amended AC.
 - **W-1 (useDiary.ts non-Error catch safety):** `.catch((err: Error) =>` widened to `.catch((err: unknown) =>` with `instanceof ZodError` first (generic `"Invalid diary data format"` message to avoid leaking validation internals), then `instanceof Error` (passes `err.message`), else `"Unknown error loading diary"`. Imported `ZodError` from `zod`.
 - **W-2 (useDiary.ts validation error generic message):** Addressed as part of W-1 — ZodError path maps to generic `"Invalid diary data format"`, no schema path / field name leaked to UI.
-- **AC-024-LEGACY-MERGE amendment (Option B, per PM ruling on BQ-ENG-K024-R1-03):** Amended AC to pin legacy entry by `title` literal (not by "exactly 1 key-absent"). Other `ticketId`-key-absent entries now explicitly permitted for PM-level non-ticket milestones. Schema still enforces `ticketId: ""` illegal via `^K-\d{3}$` regex. Test suite `diary.legacy-merge.test.ts` rewrote 5 finders (`e.ticketId === undefined` → `e.title === LEGACY_TITLE`) and added a 6th test asserting non-legacy key-absent entries are permitted. AC header updated L159: "Phase-0 legacy-merge 條目 pinned by title literal".
+- **AC-024-LEGACY-MERGE amendment (Option B, per PM ruling on BQ-ENG-K024-R1-03):** Amended AC to pin legacy entry by `title` literal (not by "exactly 1 key-absent"). Other `ticketId`-key-absent entries now explicitly permitted for PM-level non-ticket milestones. Schema still enforces `ticketId: ""` illegal via `^K-\d{3}$` regex. Test suite `diary.legacy-merge.test.ts` rewrote 5 finders (`e.ticketId === undefined` → `e.title === LEGACY_TITLE`) and added a 6th test asserting non-legacy key-absent entries are permitted. AC header updated L159: "Phase-0 legacy-merge entry pinned by title literal".
 
 **Deferred (per invocation):**
 - W-3 breadth (Phase 3 `timelinePrimitives` consumer wiring) — Phase 3 scope, not this PR.
@@ -629,16 +629,16 @@ Code Reviewer R1 findings resolved (4 flags + 1 BQ-ruled AC amendment):
 - I-5: AC-024-ENTRY-LAYOUT catchall claims all entry-title / entry-date / entry-body font properties covered, but T-E6 omits `entry-date letterSpacing` and `entry-body fontWeight / lineHeight` — catchall language promises more than the test verifies.
 
 **Layer 2 depth (`reviewer.md` Agent):** 1 Critical, 2 Important, 7 Minor. Findings:
-- **D-1 Critical (PM AC self-contradiction):** `AC-024-HOMEPAGE-CURATION` 0-entry clause said "Homepage Diary section 整個隱藏（不渲染 section heading、rail、marker）" while **K-028 Sacred `AC-028-DIARY-EMPTY-BOUNDARY` locks** "0 entries 時 `DEV DIARY` heading 保留渲染". Engineer implemented per Sacred (correct); Playwright assertion derived from AC-024 would fail `#hpDiary toHaveCount(0)`. K-028 Sacred is cross-ticket binding (`feedback_ticket_ac_pm_only.md` + AC-024-REGRESSION lists K-028 as Sacred). AC is PM-owned; Engineer cannot edit — only BQ back. Found only at depth review, after ~1500 LOC Phase 3 landed.
+- **D-1 Critical (PM AC self-contradiction):** `AC-024-HOMEPAGE-CURATION` 0-entry clause said "Homepage Diary section entirely hidden (do not render section heading, rail, marker)" while **K-028 Sacred `AC-028-DIARY-EMPTY-BOUNDARY` locks** "0 entries → `DEV DIARY` heading remains rendered". Engineer implemented per Sacred (correct); a Playwright assertion derived from AC-024 would fail `#hpDiary toHaveCount(0)`. K-028 Sacred is cross-ticket binding (`feedback_ticket_ac_pm_only.md` + AC-024-REGRESSION lists K-028 as Sacred). AC is PM-owned; Engineer cannot edit — only BQ back. Found only at depth review, after ~1500 LOC Phase 3 landed.
 - **D-2 Important:** T-L4 missing `toBeDisabled()` assertion during refetch race — `AC-024-LOADING-ERROR-PRESERVED` L372 clause explicitly specified "Retry button must be disabled while refetch in-flight"; existing spec only asserts Retry visible, not disabled.
 - **D-4 Minor:** `data-testid="diary-main"` emitted by `DiaryPage.tsx` not in design §6.4 testid contract table (Architect deliverable gap).
 - §7.3 test count says 33; actual shipped = 40 (7 delta from D-9 double-click + D-10/D-11 fixture variants + homepage-5-test-suite spec shifts). Needs Architect doc update.
 
 **PM Ruling (2026-04-22):**
-- **D-1 Option (a) — rewrite AC to align with K-028 Sacred**: AC-024-HOMEPAGE-CURATION 0-entry clause rewritten above (L247–252 in this file) to "heading 保留 per K-028 Sacred; rail 與 marker 不渲染; 無 empty-state 訊息". Playwright pattern: `getByText('DEV DIARY', { exact: true }).toBeVisible() + diary-entry-wrapper/rail/marker toHaveCount(0)`. K-028 Sacred immutable (cross-ticket binding); PM owns AC → PM amends AC text.
+- **D-1 Option (a) — rewrite AC to align with K-028 Sacred**: AC-024-HOMEPAGE-CURATION 0-entry clause rewritten above (L247–252 in this file) to "heading retained per K-028 Sacred; rail and marker not rendered; no empty-state message". Playwright pattern: `getByText('DEV DIARY', { exact: true }).toBeVisible() + diary-entry-wrapper/rail/marker toHaveCount(0)`. K-028 Sacred immutable (cross-ticket binding); PM owns AC → PM amends AC text.
 - **Bug Found Protocol step 3 (PM persona hardening)**: new hard gate added to `~/.claude/agents/pm.md` §"Prerequisites for releasing Engineer" → **AC ↔ Sacred cross-check (mandatory)**: PM must grep own ticket `AC-*-REGRESSION` + every dependency ticket's Sacred before committing new/revised AC; output 1-line gate evidence (`AC vs Sacred cross-check: ✓ no conflict` or `⚠️ resolved via Option (a/b/c)`) in release document. Memory file `feedback_pm_ac_sacred_cross_check.md` written + MEMORY.md index updated.
 - **I-3 Option (a) — fixture enlargement**: change `diary-double-click.json` from 10 to 11 entries (or reuse existing `diary-eleven.json`); T-D9 asserts count=10 (gated) vs ungated count=11; dry-run verified that removing gate from `useDiaryPagination.ts` flips the test to red.
-- **Bug Found Protocol step 3 (Engineer persona hardening)**: new hard gate added to `~/.claude/agents/engineer.md` adjacent to E2E spec logic self-check → **Concurrency-Gate Test Dry-Run (K-024 2026-04-22 入)**: any test asserting `useRef`/debounce/throttle/in-flight gate must `comment-out gate → re-run → still-pass` dry-run; still-pass = tautological = rewrite fixture until `gate removed → test red`. Memory file `feedback_engineer_concurrency_gate_fail_dry_run.md` written + MEMORY.md index updated.
+- **Bug Found Protocol step 3 (Engineer persona hardening)**: new hard gate added to `~/.claude/agents/engineer.md` adjacent to E2E spec logic self-check → **Concurrency-Gate Test Dry-Run (added K-024 2026-04-22)**: any test asserting `useRef`/debounce/throttle/in-flight gate must run a `comment-out gate → re-run → still-pass` dry-run; still-pass = tautological = rewrite fixture until `gate removed → test red`. Memory file `feedback_engineer_concurrency_gate_fail_dry_run.md` written + MEMORY.md index updated.
 - **R2 fix batch bundled**: Engineer R2 agent to execute (a) I-3 fixture change + assertion rewrite; (b) D-2 T-L4 `toBeDisabled()` add; (c) I-1 DiaryMarker mobile `display:none` assertion; (d) I-2 `/diary` mobile rail `hidden` assertion; (e) I-5 ENTRY-LAYOUT catchall additions — entry-date letterSpacing + entry-body fontWeight/lineHeight via `toHaveCSS`; (f) D-4 / M-5 — Architect append `diary-main` testid to design §6.4 + §7.3 count 33→40 sync.
 - All 7 Minor findings + remaining 2 Important batched into R2 Engineer pass; no second-review-round required for Minors.
 

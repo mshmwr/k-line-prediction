@@ -1,6 +1,6 @@
 ---
 id: K-018
-title: GA4 Tracking — 訪客追蹤 + 點擊事件
+title: GA4 Tracking — visitor analytics + click events
 status: closed
 type: feat
 priority: medium
@@ -9,38 +9,38 @@ created: 2026-04-19
 closed: 2026-04-21
 ---
 
-## 背景
+## Background
 
-K-Line Prediction 已部署於 Firebase Hosting，目前沒有任何訪客分析工具。K-017 正在強化 `/about` 頁的 portfolio 呈現，recruiter 造訪行為需要可觀測性。加入 GA4 追蹤可以確認 recruiter 是否到達、停留哪些頁面、點了哪些 CTA。
+K-Line Prediction is already deployed to Firebase Hosting but currently has no visitor analytics tooling. K-017 is enhancing the `/about` page's portfolio presentation, and recruiter visit behavior needs observability. Adding GA4 tracking lets us confirm whether recruiters arrive, which pages they stay on, and which CTAs they click.
 
-## 目標
+## Goals
 
-- 記錄訪客進入哪個頁面（pageview）
-- 追蹤招聘者最可能互動的關鍵 CTA 點擊（custom event）
-- 不蒐集個人識別資訊（PII）
-- GA4 測量 ID 從環境變數讀取，不 hardcode 於原始碼
+- Record which page a visitor lands on (pageview)
+- Track key CTA clicks recruiters are most likely to interact with (custom event)
+- Collect no personally identifiable information (PII)
+- Read the GA4 measurement ID from an environment variable; do not hardcode it in source
 
-## 範圍
+## Scope
 
-**含：**
-- GA4 script snippet 安裝（gtag.js via `@gtag` 或 react-ga4）
-- 每個路由的自動 pageview 事件（`/`, `/about`, `/app`, `/diary`）
-- `/about` 頁關鍵 CTA 的 custom click event（含 label）：
-  - Footer CTA email（`mailto:` 連結）
-  - GitHub 連結
-  - LinkedIn 連結
-  - BuiltByAIBanner "See how →"（首頁）
-- 環境變數 `VITE_GA_MEASUREMENT_ID` 注入測量 ID
-- Playwright 驗證 GA4 snippet 存在（不驗 network call）
-- Footer 加一行 GA4 匿名追蹤聲明文字（取代 Cookie Consent Banner）
+**Includes:**
+- GA4 script snippet installation (gtag.js via `@gtag` or react-ga4)
+- Automatic pageview event per route (`/`, `/about`, `/app`, `/diary`)
+- Custom click events (with labels) for the key CTAs on `/about`:
+  - Footer CTA email (`mailto:` link)
+  - GitHub link
+  - LinkedIn link
+  - BuiltByAIBanner "See how →" (homepage)
+- Inject the measurement ID via the `VITE_GA_MEASUREMENT_ID` env var
+- Playwright verifies the GA4 snippet is present (does not assert on network calls)
+- Add a one-line GA4 anonymous-tracking notice to the footer (in lieu of a Cookie Consent Banner)
 
-**不含：**
-- GA4 Admin Console 建立（需使用者自行操作）
-- 轉換目標（conversion）/ funnel 設定
-- Server-side event 追蹤
-- `/business-logic` 密碼頁的行為追蹤（有 auth gate 不適用）
+**Excludes:**
+- Creating the GA4 Admin Console property (user does this manually)
+- Conversion goals / funnel setup
+- Server-side event tracking
+- Behavior tracking on the `/business-logic` password page (auth gate makes it inapplicable)
 
-## AC 一覽
+## AC Summary
 
 - AC-018-INSTALL `[K-018]`
 - AC-018-PAGEVIEW `[K-018]`
@@ -62,112 +62,112 @@ K-Line Prediction 已部署於 Firebase Hosting，目前沒有任何訪客分析
 **When** user clicks the CTA
 **Then** a `cta_click` event is recorded with correct label and `page_location`
 
-## 相依 / 協同
+## Dependencies / Coordination
 
-- **K-017 完成後，設計師需補更新設計稿**：AC-018-PRIVACY-POLICY 要求 Footer 加 GA4 說明文字，設計稿必須與最終實作對齊。K-017 Engineer 完成後、K-018 Engineer 開始前，召喚設計師將此文字加入 Footer 設計稿。
+- **After K-017 completes, the designer must update the design file**: AC-018-PRIVACY-POLICY requires adding GA4 notice text to the Footer; the design file must align with the final implementation. After K-017's Engineer completes and before K-018's Engineer starts, summon the designer to add this text to the Footer design file.
 
-## PM 裁決
+## PM Ruling
 
-**裁決日期：** 2026-04-19
-**來源：** Code Reviewer K-018 review 結果（8 條：W1–W4 / S1–S4）
+**Ruling date:** 2026-04-19
+**Source:** Code Reviewer K-018 review results (8 items: W1–W4 / S1–S4)
 
-| ID | 問題 | 裁決 | 理由 |
+| ID | Issue | Ruling | Rationale |
 |----|------|------|------|
-| W1 | /app pageview Playwright 斷言缺失 | **立刻修（本票）** | AC-018-PAGEVIEW 明列 4 條路由（`/`、`/about`、`/app`、`/diary`），`/app` 漏斷是 AC 未完整覆蓋，不可留 |
-| W2 | click page_location 斷言缺失 | **立刻修（本票）** | AC-018-CLICK 的 And 子句「每個 custom event 額外含 `page_location`」是 AC 的一部分，4 個 click spec 全部缺漏，視為 AC 未通過 |
-| W3 | waitForTimeout（banner）CI 不穩 | **立刻修（本票）** | Engineer retro 自己已識別此為暫行方案；用 `waitForNavigation` / `page.on('request')` 取代無時序依賴，修法已知，成本低 |
-| W4 | waitForTimeout（pageview）CI 不穩 | **立刻修（本票）** | 同 W3 邏輯，pageview 觸發後等 `waitForTimeout(300)` 屬同類風險，一併修 |
-| S1 | SPA pageview 未明確測試 | **follow-up ticket（K-019 SPA Pageview E2E）** | goto() 測的是頁面初始載入 pageview，SPA Link click → route change → pageview 是獨立場景，測試需 intercept navigate，複雜度高，不擴大本票 scope；但場景明確有價值，開 K-019 追蹤 |
-| S2 | initGA() 無冪等保護 | **技術債（TD-013）** | 生產環境不受影響（GA4 gtag.js 本身有去重），僅 HMR 開發體驗；記錄即可，不排實作 deadline |
-| S3 | dataLayer 型別不精確 | **技術債（TD-013 合入）** | `unknown[]` → `unknown[][]` 是純 DX 改善，不影響行為；與 S2 同類，一同登記 |
-| S4 | 未知路由無 console.warn | **技術債（TD-013 合入）** | fallback to `document.title` 屬防禦性 log，非 AC 要求；記錄，待未來 debug 需求升優先級 |
+| W1 | /app pageview Playwright assertion missing | **Fix now (this ticket)** | AC-018-PAGEVIEW lists 4 routes (`/`, `/about`, `/app`, `/diary`); missing `/app` is incomplete AC coverage and cannot be left |
+| W2 | click `page_location` assertion missing | **Fix now (this ticket)** | The And clause in AC-018-CLICK ("each custom event additionally includes `page_location`") is part of the AC; all 4 click specs missed it, treated as AC not passed |
+| W3 | `waitForTimeout` (banner) flaky in CI | **Fix now (this ticket)** | Engineer retro already flagged this as a stopgap; replacing with `waitForNavigation` / `page.on('request')` removes timing dependency — known fix, low cost |
+| W4 | `waitForTimeout` (pageview) flaky in CI | **Fix now (this ticket)** | Same logic as W3; waiting `waitForTimeout(300)` after pageview fires is the same class of risk — fix together |
+| S1 | SPA pageview not explicitly tested | **Follow-up ticket (K-019 SPA Pageview E2E)** | `goto()` tests the initial page-load pageview; SPA Link click → route change → pageview is an independent scenario requiring navigate intercept and is high-complexity — do not expand this ticket's scope; the scenario is clearly valuable, so open K-019 to track |
+| S2 | `initGA()` has no idempotency guard | **Tech debt (TD-013)** | Production unaffected (GA4 gtag.js itself dedupes); only an HMR DX issue; record it, no implementation deadline |
+| S3 | `dataLayer` type imprecise | **Tech debt (folded into TD-013)** | `unknown[]` → `unknown[][]` is pure DX improvement, no behavioral impact; same class as S2, log together |
+| S4 | No `console.warn` for unknown routes | **Tech debt (folded into TD-013)** | Fallback to `document.title` is defensive logging, not an AC requirement; log it; raise priority if a future debug need arises |
 
-**Engineer 待辦（本票）：** W1、W2、W3、W4 四條修完後重跑 Playwright，全綠才算完成。
-**技術債：** S2/S3/S4 合入 TD-013 登記於 `docs/tech-debt.md`。
+**Engineer TODO (this ticket):** after fixing W1, W2, W3, W4, rerun Playwright; full green = complete.
+**Tech debt:** S2/S3/S4 folded into TD-013, logged in `docs/tech-debt.md`.
 
 ---
 
 ## Retrospective
 
-<!-- 各角色完成後 append 反省段 -->
+<!-- Each role appends their retrospective when finishing -->
 
 ### Engineer — 2026-04-19
 
-**做得好：** 實作前發現 `BuiltByAIBanner.tsx` 已存在（K-017 已完成），`HomePage.tsx` 也已 import/渲染，節省了不必要的重建工作；所有 11 個 K-018 ga-tracking.spec.ts 測試一次全綠。設計文件 Option A（FooterCtaSection 用原生 `<a>` 取代 ExternalLink）判斷正確，避免修改 primitive。
+**Done well:** before implementing, noticed `BuiltByAIBanner.tsx` already existed (completed in K-017) and `HomePage.tsx` already imported/rendered it, saving unnecessary rebuild work; all 11 K-018 ga-tracking.spec.ts tests went green on the first run. The design doc's Option A (FooterCtaSection uses native `<a>` instead of ExternalLink) was the correct call, avoiding modifying a primitive.
 
-**沒做好：** `BuiltByAIBanner` CTA click 測試需要攔截 SPA 導航後才能讀 dataLayer，初版沒考慮到 SPA navigate 後 dataLayer 會被新頁面覆寫；透過 `waitForTimeout(100)` 短暫等待解決，但此方法依賴時序，不是最健壯的方案。根因：沒有事先追蹤「SPA Link click → navigate → 新頁面 JS 執行」這整段時序對 dataLayer spy 的影響。
+**Done poorly:** the `BuiltByAIBanner` CTA click test required intercepting SPA navigation before reading dataLayer; the first version did not consider that after SPA navigate the dataLayer would be replaced by the new page; resolved with a brief `waitForTimeout(100)`, but that approach depends on timing and is not the most robust solution. Root cause: did not trace the timing impact of "SPA Link click → navigate → new-page JS execution" on the dataLayer spy in advance.
 
-**下次改善：** SPA Link 組件的 GA click event 測試，應用 `page.on('request', ...)` 或 `Promise.race([clickPromise, page.waitForNavigation()])` 的方式捕捉 click 後、navigate 前的狀態，而非用 `waitForTimeout` 假設時序。下次遇到「click 後頁面跳轉」的 GA 追蹤測試，直接採用這個 pattern。
+**Next-time improvement:** for GA click event tests on SPA Link components, use `page.on('request', ...)` or `Promise.race([clickPromise, page.waitForNavigation()])` to capture state after click but before navigate, instead of assuming timing with `waitForTimeout`. Adopt this pattern directly the next time a "click then page transition" GA tracking test comes up.
 
-**W1-W4 補修（2026-04-19）：**
-- **W1**：補 `/app` 路由 `page_view` test，與 `/`、`/about`、`/diary` 同格式，AC-018-PAGEVIEW 四條路由全覆蓋。
-- **W2**：四個 `cta_click` test 全部加 `page_location` 斷言（`toBeDefined()` + `toBe(當前路由)`），AC-018-CLICK And 子句補齊。
-- **W3**：`banner_about` 的 `waitForTimeout(100)` 改為 `waitForFunction` 等 `cta_click` 出現在 dataLayer，消除時序依賴。
-- **W4**：三個 pageview test 的 `waitForTimeout(300)` 改為 `waitForFunction` 等 `page_view` 出現在 dataLayer，消除時序依賴。
-- **驗證**：`ga-tracking.spec.ts` 12/12 全綠；全套 100 tests 99 passed 1 skipped（skipped 為既有）；`npx tsc --noEmit` 零錯誤。
+**W1-W4 follow-up fix (2026-04-19):**
+- **W1**: added a `page_view` test for the `/app` route, same format as `/`, `/about`, `/diary`, fully covering all 4 routes in AC-018-PAGEVIEW.
+- **W2**: added `page_location` assertions to all 4 `cta_click` tests (`toBeDefined()` + `toBe(current route)`), filling in the AC-018-CLICK And clause.
+- **W3**: replaced `banner_about`'s `waitForTimeout(100)` with `waitForFunction` waiting for `cta_click` to appear in `dataLayer`, removing timing dependency.
+- **W4**: replaced the `waitForTimeout(300)` in the three pageview tests with `waitForFunction` waiting for `page_view` to appear in `dataLayer`, removing timing dependency.
+- **Verification**: `ga-tracking.spec.ts` 12/12 fully green; full suite 100 tests, 99 passed 1 skipped (skipped is pre-existing); `npx tsc --noEmit` zero errors.
 
 ### Reviewer — 2026-04-19
 
-**沒做好：** AC-018-PAGEVIEW 明列 `/app` 路由也需 pageview 測試，但 Engineer 實作的 spec 只覆蓋 `/`、`/about`、`/diary` 三條路由，`/app` 路由缺少對應的 Playwright 斷言，造成 AC 未完整覆蓋。另外 AC-018-CLICK 的 "And 每個 custom event 額外含參數 `page_location`" 條款，所有 click 測試均未斷言 `page_location` 存在，屬於部分 AC 漏覆。這兩個缺口本應在 PM 定 AC 時就把「哪些路由需要測」的清單明確列為驗收條件，或由 Engineer 在實作 spec 前逐條核對 PRD 斷言層級（Then/And 粒度）；Reviewer 是在逐條比對 PRD AC 與 spec 的覆蓋率時才抓到。
+**Done poorly:** AC-018-PAGEVIEW explicitly lists `/app` as needing a pageview test, but the Engineer's spec only covered `/`, `/about`, `/diary`; the missing Playwright assertion for `/app` made the AC coverage incomplete. Additionally, for AC-018-CLICK's "And each custom event additionally includes parameter `page_location`" clause, none of the click tests asserted `page_location` was present — partial AC coverage missed. Both gaps should have been caught either at PM AC-definition time (spelling out which routes need to be tested as acceptance criteria) or by the Engineer cross-checking PRD assertions at the Then/And granularity before writing the spec; Reviewer only caught them when comparing PRD AC with spec coverage clause by clause.
 
-**下次改善：** Review E2E spec 時，在比對「測試描述」與「AC 標題」之前，先逐條展開 PRD 的所有 Then/And 子句（不只看 Given/When），對應 spec 內有無斷言。`page_location` 這類「And 每個 event 都要有」的副條件尤其容易只在第一個測試斷言、其餘測試省略。下次把此作為 Review checklist 固定一條。
+**Next-time improvement:** when reviewing E2E specs, before comparing "test descriptions" against "AC titles", first expand all Then/And clauses in the PRD (not just Given/When) and check whether the spec asserts each one. Sub-conditions like "And each event must have `page_location`" are especially prone to being asserted only in the first test and omitted in the rest. Add this as a fixed item in the Review checklist next time.
 
 ### QA — 2026-04-19
 
-**做得好：** ga-tracking.spec.ts 12/12 全綠逐一目視確認（AC-018-INSTALL × 1、AC-018-PAGEVIEW × 4、AC-018-CLICK × 4、AC-018-PRIVACY × 1、AC-018-PRIVACY-POLICY × 2），與 ticket AC 清單逐條對齊；`TICKET_ID=K-018` 環境變數本次記得帶，產出正確命名的 `K-018-visual-report.html`（K-017 反省的改善行動已落地）；全套 99 passed / 1 skipped 的 skipped 條目（AC-017-BUILD）屬已知問題，已標注並不 block。
+**Done well:** confirmed ga-tracking.spec.ts 12/12 green visually item by item (AC-018-INSTALL × 1, AC-018-PAGEVIEW × 4, AC-018-CLICK × 4, AC-018-PRIVACY × 1, AC-018-PRIVACY-POLICY × 2), aligned clause by clause with the ticket AC list; remembered to set the `TICKET_ID=K-018` env var this time, producing a correctly named `K-018-visual-report.html` (the improvement action from the K-017 retro has landed); the 1 skipped item out of full-suite 99 passed / 1 skipped (AC-017-BUILD) is a known issue, annotated and non-blocking.
 
-**沒做好：** `waitForFunction` 取代 `waitForTimeout` 的修復屬 E2E 測試穩定性改善，QA 未獨立驗證「舊 `waitForTimeout` 確實存在 flaky 風險」——只依賴 Engineer retro 自述，未在本機執行 CI-like 的 fast repeat（`--repeat-each=10`）確認新版的確不 flaky；AC-018-PAGEVIEW `/business-logic` 路由未追蹤是設計範圍，但 QA 未在 retro 中明記「`/business-logic` 不在追蹤範圍」的理由，後續若有人問 coverage 需要翻 ticket 才能找到依據。
+**Done poorly:** the `waitForFunction`-replaces-`waitForTimeout` fix is an E2E stability improvement, but QA did not independently verify that "the old `waitForTimeout` was actually flaky" — relied solely on the Engineer's self-report and did not run a CI-like fast repeat (`--repeat-each=10`) locally to confirm the new version is indeed not flaky. AC-018-PAGEVIEW excludes `/business-logic` by design, but QA did not record the rationale "`/business-logic` is out of tracking scope" in the retro, so anyone questioning coverage later would need to dig the ticket to find the basis.
 
-**下次改善：** (1) E2E timeout 改善類修復，QA 須執行 `npx playwright test ga-tracking.spec.ts --repeat-each=5` 驗證穩定性，不全然依賴 Engineer 自述；(2) 「刻意不追蹤」的路由或事件，QA retro 明記「依 ticket 範圍定義排除，理由：xxx」，做為後續 coverage 問題的第一線文件依據。
+**Next-time improvement:** (1) for E2E timeout-improvement fixes, QA must run `npx playwright test ga-tracking.spec.ts --repeat-each=5` to verify stability rather than fully trusting Engineer self-report; (2) for "deliberately untracked" routes or events, QA retro must record "out of scope per ticket definition, reason: xxx" as the first-line document basis for future coverage questions.
 
-### PM 彙整
+### PM Summary
 
-**跨角色重複問題：**
-- **AC And 子句覆蓋率不完整（Engineer + Reviewer 共同指出）：** Engineer 未將 `/app` 路由與 `page_location` And 子句轉為獨立 test case；Reviewer 在逐條比對 PRD Then/And 時才抓到。根因一致：AC 列多個並排 Given 或 And 子句時，下游角色（Engineer 實作、Reviewer 審查）沒有「每個 Given/And = 一個獨立 test」的明文量化規範，各自依直覺詮釋覆蓋粒度。
+**Cross-role recurring issue:**
+- **AC And-clause coverage incomplete (jointly raised by Engineer + Reviewer):** the Engineer did not turn the `/app` route and the `page_location` And clause into independent test cases; Reviewer caught them only when expanding PRD Then/And clause by clause. Common root cause: when an AC lists multiple parallel Given or And clauses, downstream roles (Engineer implementing, Reviewer reviewing) lack a written, quantified rule that "each Given/And = one independent test" and end up interpreting coverage granularity intuitively.
 
-**流程改善決議：**
+**Process improvement decisions:**
 
-| 問題 | 負責角色 | 行動 | 更新位置 |
+| Issue | Owner | Action | Update Location |
 |------|---------|------|---------|
-| AC 列多個並排 Given 時未量化對應 test 數量，Engineer 實作粒度不一致 | PM | 放行 Engineer 前補一句「此 AC 對應 Playwright spec 需要 N 個獨立 test case，逐一斷言」 | pm.md（下次 PM 進場時同步落地） |
-| AC And 子句含「每個 event 都要有」的副條件，只在第一個 test 斷言、其餘省略 | Reviewer | Review E2E spec 時先展開所有 Then/And 再比對 spec，加入 Review checklist 固定一條 | senior-engineer.md（待授權） |
-| E2E timeout 類修復 QA 僅信 Engineer 自述，未跑 `--repeat-each` 獨立驗證穩定性 | QA | E2E 測試穩定性改善類修復，QA 須執行 `--repeat-each=5` 驗證 | qa.md（待授權） |
-| 「刻意排除範圍」的路由/事件未在 QA retro 明記排除理由 | QA | QA retro 加固定段「範圍外項目：依 ticket 定義排除，理由：xxx」 | qa.md（待授權） |
+| Multiple parallel Givens in an AC are not quantified into corresponding test counts; Engineer implementation granularity inconsistent | PM | Before releasing Engineer, append the line "this AC requires N independent test cases in the Playwright spec, asserting each one" | pm.md (apply on next PM entry) |
+| AC And clauses with sub-conditions like "every event must have it" only get asserted in the first test; the rest skip | Reviewer | When reviewing E2E specs, expand all Then/And first before comparing against the spec; add this as a fixed item in the Review checklist | senior-engineer.md (pending authorization) |
+| For E2E timeout-class fixes, QA only trusts the Engineer self-report and doesn't run `--repeat-each` to verify stability independently | QA | For E2E test stability improvements, QA must run `--repeat-each=5` to verify | qa.md (pending authorization) |
+| For "deliberately excluded" routes/events, QA retro does not record the exclusion rationale | QA | Add a fixed paragraph to QA retro: "out-of-scope items: excluded per ticket definition, reason: xxx" | qa.md (pending authorization) |
 
 ---
 
-## 最終關閉記錄 — 2026-04-21
+## Final Close Record — 2026-04-21
 
-**部署生效：** 建立 GA4 property `K-Line-Prediction`，Measurement ID `G-9JC9YBZTPF`；寫入 `frontend/.env.production`；`npm run build` + `firebase deploy --only hosting` 完成部署到 `k-line-prediction-app.web.app`；GA4 即時頁成功接收 `page_view` 事件，使用者數歸零→1 已驗證。
+**Deployment live:** created GA4 property `K-Line-Prediction` with Measurement ID `G-9JC9YBZTPF`; wrote it to `frontend/.env.production`; `npm run build` + `firebase deploy --only hosting` completed deployment to `k-line-prediction-app.web.app`; GA4 Realtime page successfully received `page_view` events; user count went from 0 → 1 (verified).
 
-**部署中發現 runtime bug（closed 前修復）：**
+**Runtime bug discovered during deployment (fixed before close):**
 
-`frontend/src/utils/analytics.ts` 的 `window.gtag` helper 原實作：
+The original `window.gtag` helper in `frontend/src/utils/analytics.ts`:
 
 ```ts
 window.gtag = function (...args: unknown[]) {
-  window.dataLayer.push(args)  // ← 錯：Array
+  window.dataLayer.push(args)  // ← wrong: pushes an Array
 }
 ```
 
-gtag.js 會區分 `dataLayer` 內兩種 entry：
-- `arguments` 物件 → 當 gtag 指令（js/config/event）處理
-- 有 `event` key 的 object → 當 GTM 事件處理
+gtag.js distinguishes two kinds of entries inside `dataLayer`:
+- An `arguments` object → handled as a gtag command (js/config/event)
+- An object with an `event` key → handled as a GTM event
 
-推 Array 不符兩者，gtag.js 全部忽略；導致 `gtag.js` 雖成功載入，但 `event page_view` 從未送出 `/g/collect` beacon。`dataLayer` 檢查可見：
+Pushing an Array matches neither, so gtag.js ignores them all; as a result `gtag.js` loaded successfully but `event page_view` was never sent as a `/g/collect` beacon. Inspecting `dataLayer` showed:
 
 ```
 [
-  ["js", Date],            ← Array，被忽略
-  ["config", "G-...", ...],← Array，被忽略
-  ["event", "page_view",...],← Array，被忽略
-  { event: "gtm.dom" },    ← GTM event，有處理
+  ["js", Date],            ← Array, ignored
+  ["config", "G-...", ...],← Array, ignored
+  ["event", "page_view",...],← Array, ignored
+  { event: "gtm.dom" },    ← GTM event, processed
 ]
 ```
 
-修復：改回 Google 官方 snippet 寫法 `dataLayer.push(arguments)`（commit 待補）。
+Fix: revert to the official Google snippet pattern `dataLayer.push(arguments)` (commit TBA).
 
-**為何 E2E 沒抓到：**
-`ga-tracking.spec.ts` 使用 `page.addInitScript()` 攔截 `window.gtag` 並驗證「呼叫參數」，但並未驗證 gtag.js 內部是否把 dataLayer entry 當 gtag 指令處理、亦未驗證實際送出的 `/g/collect` HTTP request。E2E 通過 = 我方程式有呼叫 `gtag('event', ...)`；E2E 通過 ≠ GA4 真的會收到事件。
+**Why E2E missed it:**
+`ga-tracking.spec.ts` uses `page.addInitScript()` to intercept `window.gtag` and verify "call arguments", but it never verifies whether gtag.js internally treats the dataLayer entry as a gtag command or whether an actual `/g/collect` HTTP request is sent. E2E passing = our code called `gtag('event', ...)`; E2E passing ≠ GA4 actually receives the event.
 
-**下次改善：** GA4 / 任何第三方 SDK 整合的 E2E，除了驗證 client-side call pattern，必須補一條斷言：`page.waitForRequest(url => url.includes('/g/collect'))` 或等效機制，驗證實際 HTTP beacon 成功離開 client。Ticket 已關閉，改善行動轉為後續 E2E hardening 項目（待開 follow-up ticket 或併入 K-020 SPA pageview E2E 範圍）。
+**Next-time improvement:** for E2E coverage of GA4 or any third-party SDK integration, in addition to verifying the client-side call pattern, add an assertion like `page.waitForRequest(url => url.includes('/g/collect'))` (or equivalent) to verify the actual HTTP beacon left the client. Ticket already closed; this improvement action is converted into a follow-up E2E hardening item (open a follow-up ticket or fold into the K-020 SPA pageview E2E scope).

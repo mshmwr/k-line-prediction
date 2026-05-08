@@ -1,6 +1,6 @@
 ---
 id: K-020
-title: GA4 SPA Pageview E2E — Link click → route change → pageview + HTTP beacon 驗證
+title: GA4 SPA Pageview E2E — Link click → route change → pageview + HTTP beacon verification
 status: closed
 type: test
 priority: medium
@@ -15,186 +15,186 @@ follow-up: docs/tickets/K-033-ga-spa-beacon-emission-fix.md
 deploy: N/A — test-only ticket, no frontend/src or backend runtime code change
 ---
 
-## 背景
+## Background
 
-K-018 GA4 Tracking 的 E2E 測試僅驗證 `goto(url)` 初始頁面載入觸發的 pageview 事件。但 SPA 路由切換（用戶點擊 NavBar Link → React Router navigate → `useGAPageview` hook 的 `useEffect` 對 `location.pathname` reactive → `trackPageview` 呼叫）是另一條完全不同的程式碼路徑，目前未被 Playwright 覆蓋。
+The K-018 GA4 Tracking E2E only verifies the pageview event triggered by an initial `goto(url)` page load. But the SPA route change (user clicks a NavBar Link → React Router navigate → the `useEffect` of the `useGAPageview` hook reacts to `location.pathname` → `trackPageview` is called) is a completely different code path that is not currently covered by Playwright.
 
-K-018 Code Reviewer S1 點出此缺口，PM 裁決為 follow-up ticket。
+K-018 Code Reviewer S1 raised this gap; PM ruled it as a follow-up ticket.
 
-**2026-04-21 scope 擴充 — K-018 production bug 揭露的結構性缺口：**
-K-018 上線後 GA4 real-time 顯示 0 users，根因是 `window.gtag = function (...args) { dataLayer.push(args) }`（spread Array）實際上被 gtag.js 忽略——gtag.js 以 Arguments object 與 Array 的差異辨別 gtag 指令與 GTM event。E2E 整組 pass 卻沒抓到此 bug，因為 mock 以 `addInitScript` 覆蓋 `window.gtag` 時，production `initGA()` 隨即在 `main.tsx` 初始化階段又把它覆寫回去；現有斷言 `entry[0]`/`entry[1]` 剛好對 Array 與 Arguments 兩種 shape 都成立，因此完全錯過 shape mismatch。此 ticket 擴充 scope，加入 HTTP beacon 斷言，確保未來 helper 內部實作改動不會讓整組測試在真實 GA4 pipeline 失效。
+**2026-04-21 scope expansion — structural gap exposed by a K-018 production bug:**
+After K-018 went live, GA4 Realtime showed 0 users. Root cause: `window.gtag = function (...args) { dataLayer.push(args) }` (which spreads into an Array) was actually ignored by gtag.js — gtag.js distinguishes gtag commands from GTM events by the difference between an Arguments object and an Array. The whole E2E suite passed yet did not catch this bug, because when the mock used `addInitScript` to override `window.gtag`, production `initGA()` immediately overwrote it again during `main.tsx` initialization; the existing `entry[0]`/`entry[1]` assertions happened to hold for both Array and Arguments shapes, so the shape mismatch was completely missed. This ticket expands the scope to add HTTP beacon assertions, ensuring future helper-internal changes cannot silently break the suite against the real GA4 pipeline.
 
-**2026-04-22 PM re-plan + BQ resolution：**
-- 修正 AC-020-SPA-NAV 措辭錯誤：原稿「dataLayer 含 `{ event: 'page_view', page_location }`」是 **GTM dataLayer 格式**，不是 gtag.js Arguments 格式；生產程式 `window.dataLayer.push(arguments)` 塞入的是 Arguments object（index 0 = `'event'`、index 1 = `'page_view'`、index 2 = `{page_location, page_title}`）。
-- 拆 2 Phases：P1 = SPA-NAV dataLayer 斷言；P2 = BEACON 真實 HTTP 驗證（採攔截模式，見 §BQ Resolution）。
-- 原 AC-020-SPY-PATTERN 為實作細節不適合作 AC，改為 Architect BQ。
-- 路徑修正：ticket 背景提到 `frontend/src/ga/*` — 實際 helper 在 `frontend/src/utils/analytics.ts`、hook 在 `frontend/src/hooks/useGAPageview.ts`。
-- BQ-1 / QA #5 / QA #6 / QA #7 / QA #15 皆已裁決（見 §BQ Resolution），AC 依裁決重寫。
+**2026-04-22 PM re-plan + BQ resolution:**
+- Fix the wording error in AC-020-SPA-NAV: the original draft "dataLayer contains `{ event: 'page_view', page_location }`" is the **GTM dataLayer format**, not the gtag.js Arguments format; production code's `window.dataLayer.push(arguments)` pushes an Arguments object (index 0 = `'event'`, index 1 = `'page_view'`, index 2 = `{page_location, page_title}`).
+- Split into 2 phases: P1 = SPA-NAV dataLayer assertion; P2 = BEACON real HTTP verification (intercept-based; see §BQ Resolution).
+- The original AC-020-SPY-PATTERN is an implementation detail not suitable as an AC; converted to an Architect BQ.
+- Path correction: the ticket background mentions `frontend/src/ga/*` — the actual helper is at `frontend/src/utils/analytics.ts` and the hook is at `frontend/src/hooks/useGAPageview.ts`.
+- BQ-1 / QA #5 / QA #6 / QA #7 / QA #15 are all ruled (see §BQ Resolution); ACs rewritten per ruling.
 
-## 目標
+## Goals
 
-- 驗證 SPA Link click（NavBar 或 BuiltByAIBanner CTA）後，`useGAPageview` 在新路由 render 時觸發 pageview 事件
-- 覆蓋「click → React Router navigate → `useEffect` on `location.pathname` → `trackPageview` → `window.gtag('event', 'page_view', ...)`」完整時序
-- 讓 ga-tracking 測試組對 production GA4 pipeline（gtag.js → `/g/collect` endpoint）具備 end-to-end 驗證能力，非僅 helper 層 shape 斷言
-- 透過 `page.route()` 攔截模式，讓 CI 在無出站網路情況下仍能完整驗證 beacon 送出
+- Verify that after an SPA Link click (NavBar or BuiltByAIBanner CTA), `useGAPageview` triggers a pageview event when the new route renders
+- Cover the full timing chain "click → React Router navigate → `useEffect` on `location.pathname` → `trackPageview` → `window.gtag('event', 'page_view', ...)`"
+- Give the ga-tracking test suite end-to-end verification capability against the production GA4 pipeline (gtag.js → `/g/collect` endpoint), not just helper-layer shape assertions
+- Use the `page.route()` intercept pattern so CI can fully verify beacon emission even without outbound network access
 
-## 範圍
+## Scope
 
-**含：**
-- Playwright E2E：至少一條 SPA navigate 場景（`/` → NavBar About → `/about`），驗證 navigate 後 `window.dataLayer` 有對應新路由的 pageview entry（Arguments-object shape）
-- 採用 `waitForURL` / `waitForFunction` 取代 `waitForTimeout`
-- HTTP beacon 斷言：使用 `page.route('**/g/collect*', ...)` 攔截送往 `google-analytics.com` 的 beacon 請求，斷言 URL + query string 包含 GA4 Measurement Protocol 必備欄位（見 AC-020-BEACON-PAYLOAD）
-- 負面測試：query-only / hash-only / same-route navigation 不得觸發額外 beacon
-- 現有 `ga-tracking.spec.ts` mock 策略由 Architect 設計後 Engineer 重構
+**Includes:**
+- Playwright E2E: at least one SPA navigate scenario (`/` → NavBar About → `/about`), verifying that after navigate `window.dataLayer` contains a pageview entry corresponding to the new route (Arguments-object shape)
+- Use `waitForURL` / `waitForFunction` instead of `waitForTimeout`
+- HTTP beacon assertion: use `page.route('**/g/collect*', ...)` to intercept beacon requests sent to `google-analytics.com`; assert URL + query string contain the required fields of the GA4 Measurement Protocol (see AC-020-BEACON-PAYLOAD)
+- Negative tests: query-only / hash-only / same-route navigation must not trigger an extra beacon
+- The existing `ga-tracking.spec.ts` mock strategy is refactored by the Engineer per the Architect's design
 
-**不含：**
-- GA4 Admin Console 驗證
-- 多層 SPA navigate 鏈的壓力測試（例如 `/` → `/about` → `/diary` → `/`）
-- 完整離線 GA4 endpoint response stubbing（攔截只需 `route.fulfill({status: 204})` 終止請求）
-- CI/CD pipeline 建置（K-019 範圍）
-- `page_location` 送 pathname 而非 full URL 的 pre-existing bug 修復（另開 [K-032](K-032-ga-page-location-full-url.md)）
+**Excludes:**
+- GA4 Admin Console verification
+- Stress testing of multi-step SPA navigate chains (e.g. `/` → `/about` → `/diary` → `/`)
+- Full offline GA4 endpoint response stubbing (the intercept only needs `route.fulfill({status: 204})` to terminate the request)
+- CI/CD pipeline build-out (K-019 scope)
+- Fixing the pre-existing bug where `page_location` sends pathname instead of the full URL (split out as [K-032](K-032-ga-page-location-full-url.md))
 
 ## Phases
 
-**Phase 1 — SPA-NAV（dataLayer 斷言）**
-- 覆蓋 AC-020-SPA-NAV
-- 斷言 dataLayer entry（不斷言 beacon），但仍註冊 context-level `context.route('**/g/collect*', route => route.fulfill({status: 204}))` 攔截器；此舉避免 CI 無 egress 時 gtag.js 真實送出 beacon 失敗噴 network error 汙染測試報告。業界慣例（見 `FE/playwright-block-analytics.md`，若 KB 已 compile）統一在 context level 攔截，per-test 只負責斷言或不斷言
-- 失敗模式：若 `useGAPageview` 被移除或 `useEffect` 依賴陣列錯誤，此 Phase 應 fail
+**Phase 1 — SPA-NAV (dataLayer assertion)**
+- Covers AC-020-SPA-NAV
+- Asserts the dataLayer entry (does not assert the beacon) but still registers a context-level `context.route('**/g/collect*', route => route.fulfill({status: 204}))` interceptor; this prevents real beacon emission by gtag.js from failing with a network error and polluting the test report when CI has no egress. Industry convention (see `FE/playwright-block-analytics.md` if the KB has been compiled) intercepts at the context level, leaving per-test specs to assert (or not assert) only
+- Failure mode: if `useGAPageview` is removed or its `useEffect` dependency array is wrong, this phase should fail
 
-**Phase 2 — BEACON（Playwright route intercept 斷言）**
-- 覆蓋 AC-020-BEACON-INITIAL、AC-020-BEACON-SPA、AC-020-BEACON-PAYLOAD、AC-020-BEACON-COUNT
-- 使用 `page.route('**/g/collect*', route => { record(route.request()); route.fulfill({status: 204}); })`
-- **不需** 出站網路；CI-agnostic
-- 失敗模式：若 gtag call format 錯誤導致 beacon 未送出（K-018 class bug），攔截器收不到 request → 測試 fail
+**Phase 2 — BEACON (Playwright route intercept assertions)**
+- Covers AC-020-BEACON-INITIAL, AC-020-BEACON-SPA, AC-020-BEACON-PAYLOAD, AC-020-BEACON-COUNT
+- Uses `page.route('**/g/collect*', route => { record(route.request()); route.fulfill({status: 204}); })`
+- **Does not require** outbound network; CI-agnostic
+- Failure mode: if the gtag call format is wrong and the beacon is not emitted (K-018 class bug), the interceptor receives no request → the test fails
 
-**Phase 3 — Negative tests（行為鎖死）**
-- 覆蓋 AC-020-NEG-QUERY、AC-020-NEG-HASH、AC-020-NEG-SAMEROUTE
-- 攔截器記錄全部 `/g/collect` request，斷言特定操作後 beacon count **不變**
-- 鎖死目前 `[location.pathname]` deps 行為；未來改成 query/hash 敏感需另開 ticket + 改 AC
+**Phase 3 — Negative tests (lock the behavior)**
+- Covers AC-020-NEG-QUERY, AC-020-NEG-HASH, AC-020-NEG-SAMEROUTE
+- The interceptor records all `/g/collect` requests and asserts the beacon count **does not change** after the specified action
+- Locks the current `[location.pathname]` deps behavior; if query/hash sensitivity is required in the future, open a separate ticket + change the AC
 
 ## AC
 
-**AC-020-SPA-NAV：** SPA Link click 觸發 dataLayer pageview entry（Phase 1）
-- **Given**：用戶在 `/` 頁面，`VITE_GA_MEASUREMENT_ID='G-TESTID0000'`（playwright.config.ts 已設定），`window.dataLayer` 已由 production `initGA()` 初始化
-- **When**：用戶點擊 NavBar 的 `About` Link（不是 `page.goto('/about')`），觸發 React Router SPA navigate
-- **Then**：Playwright 透過 `page.waitForURL(/\/about$/)` 確認 URL 切換完成，並透過 `waitForFunction` 確認 `window.dataLayer` 中存在 Arguments-object entry 滿足：entry[0] === 'event' AND entry[1] === 'page_view' AND entry[2].page_location === '/about'
-- **And**：該 entry 必須在點擊動作之後產生，不得混淆初始 `/` load 時的 pageview（測試必須記錄 click 前 `dataLayer.length`，斷言 click 後 length 嚴格增加且新 entry 指向 `/about`）
-- **And**：測試無 `waitForTimeout`，改以 `waitForURL` + `waitForFunction` 同步
-- **And**：至少 2 個獨立 Playwright test case — 一個覆蓋 NavBar Link（`/` → `/about`），另一個覆蓋 BuiltByAIBanner CTA（`/` → `/about`，不同 DOM 進入點）；每個 case 獨立 spec（不可合併）
+**AC-020-SPA-NAV:** SPA Link click triggers a dataLayer pageview entry (Phase 1)
+- **Given**: the user is on the `/` page, `VITE_GA_MEASUREMENT_ID='G-TESTID0000'` (configured in playwright.config.ts), and `window.dataLayer` has been initialized by production `initGA()`
+- **When**: the user clicks the NavBar `About` Link (not `page.goto('/about')`), triggering a React Router SPA navigate
+- **Then**: Playwright uses `page.waitForURL(/\/about$/)` to confirm the URL switch is complete, and uses `waitForFunction` to confirm an Arguments-object entry exists in `window.dataLayer` satisfying: entry[0] === 'event' AND entry[1] === 'page_view' AND entry[2].page_location === '/about'
+- **And**: this entry must be produced after the click action and must not be confused with the pageview from the initial `/` load (the test must record `dataLayer.length` before the click and assert that the length strictly increased after the click and that the new entry points to `/about`)
+- **And**: the test contains no `waitForTimeout`, instead synchronizing via `waitForURL` + `waitForFunction`
+- **And**: at least 2 independent Playwright test cases — one covering the NavBar Link (`/` → `/about`) and one covering the BuiltByAIBanner CTA (`/` → `/about`, a different DOM entry point); each case is its own spec (must not be merged)
 
-**AC-020-BEACON-INITIAL：** 初始 page load 發出 pageview beacon（Phase 2）
-- **Given**：`VITE_GA_MEASUREMENT_ID='G-TESTID0000'`，`page.route('**/g/collect*', ...)` 已在 test 開始前註冊攔截器，攔截器 `route.fulfill({status: 204})` 終止 request 且將 `route.request()` 收集至 per-test array
-- **When**：用戶 `page.goto('/about')` 觸發初始 pageview
-- **Then**：攔截器在 5 秒 timeout 內收到至少 1 個 `/g/collect` request
-- **And**：該 request host 必須是 `www.google-analytics.com`（或 `google-analytics.com`）
-- **And**：測試失敗時必須 throw（不得 `test.skip()` 或 try-catch 吞掉），使 beacon 未送出問題立即可見
+**AC-020-BEACON-INITIAL:** Initial page load emits a pageview beacon (Phase 2)
+- **Given**: `VITE_GA_MEASUREMENT_ID='G-TESTID0000'`, `page.route('**/g/collect*', ...)` is registered before the test starts, and the interceptor uses `route.fulfill({status: 204})` to terminate the request and collects `route.request()` into a per-test array
+- **When**: the user runs `page.goto('/about')`, triggering the initial pageview
+- **Then**: the interceptor receives at least 1 `/g/collect` request within a 5-second timeout
+- **And**: the request host must be `www.google-analytics.com` (or `google-analytics.com`)
+- **And**: when the test fails it must throw (no `test.skip()` or try-catch swallowing) so beacon-not-emitted issues are immediately visible
 
-**AC-020-BEACON-SPA：** SPA navigate 發出新的 pageview beacon（Phase 2 — K-018 class bug 主守門）
-- **Given**：攔截器已註冊並記錄初始 `/` load 收到的 beacon 清單為 `initialBeacons`
-- **When**：用戶點擊 NavBar `About` Link 觸發 SPA navigate 到 `/about`
-- **Then**：`page.waitForURL(/\/about$/)` 後，攔截器在 5 秒 timeout 內收到至少 1 個**新**的 `/g/collect` request（`beacons.length > initialBeacons.length`）
-- **And**：新 request 的 path key（`dl` 或 `dp`，由 Architect dry-run 確認 GA4 Measurement Protocol v2 實際使用的 key name）必須 urlDecode 後包含 `/about`
-- **And**：至少 1 個獨立 Playwright test case
+**AC-020-BEACON-SPA:** SPA navigate emits a new pageview beacon (Phase 2 — primary guard for the K-018 class bug)
+- **Given**: the interceptor is registered and has recorded the beacon list received from the initial `/` load as `initialBeacons`
+- **When**: the user clicks the NavBar `About` Link, triggering an SPA navigate to `/about`
+- **Then**: after `page.waitForURL(/\/about$/)`, the interceptor receives at least 1 **new** `/g/collect` request within a 5-second timeout (`beacons.length > initialBeacons.length`)
+- **And**: the new request's path key (`dl` or `dp` — confirmed by Architect dry-run as the actual key name used by GA4 Measurement Protocol v2) must contain `/about` after urlDecode
+- **And**: at least 1 independent Playwright test case
 
-**AC-020-BEACON-PAYLOAD：** beacon query string pin 必備欄位（Phase 2）
-- **Given**：攔截器已捕捉到一個 pageview beacon request（由 AC-020-BEACON-INITIAL 或 AC-020-BEACON-SPA 提供）
-- **When**：測試讀取 `request.url()` 並 parse query string
-- **Then**：query string 必須包含：`v=2` AND `tid=G-TESTID0000` AND `en=page_view`
-- **And**：path key（Architect dry-run 決定 `dl` 或 `dp`）必須存在且 urlDecode 後對應當前路由
-- **And**：Architect 在 design doc §Dry-run 段記錄 local 實測 GA4 Measurement Protocol v2 payload 的實際 key name（`dl` vs `dp`），並在 AC 實作時固化
+**AC-020-BEACON-PAYLOAD:** Beacon query string pins required fields (Phase 2)
+- **Given**: the interceptor has captured a pageview beacon request (provided by AC-020-BEACON-INITIAL or AC-020-BEACON-SPA)
+- **When**: the test reads `request.url()` and parses the query string
+- **Then**: the query string must contain `v=2` AND `tid=G-TESTID0000` AND `en=page_view`
+- **And**: the path key (`dl` or `dp`, decided by Architect dry-run) must exist and, when urlDecoded, correspond to the current route
+- **And**: in the design doc §Dry-run, the Architect records the actual key name (`dl` vs `dp`) of the GA4 Measurement Protocol v2 payload from local testing, and freezes it when the AC is implemented
 
-**AC-020-BEACON-COUNT：** 每次 pageview 恰好 1 個 beacon（Phase 2）
-- **Given**：攔截器已註冊並清空 beacon array
-- **When**：用戶完成 1 次 pageview 動作（初始 load 或 SPA navigate）
-- **Then**：該次動作完成後 1 秒內，攔截器收到的 `/g/collect` request count 恰為 1（不得為 0 或 ≥2）
-- **And**：此 AC 防 StrictMode 雙重 invoke 或未來 duplicate call site 造成的 beacon 重複送出
+**AC-020-BEACON-COUNT:** Exactly 1 beacon per pageview (Phase 2)
+- **Given**: the interceptor is registered and the beacon array is empty
+- **When**: the user completes 1 pageview action (initial load or SPA navigate)
+- **Then**: within 1 second after the action completes, the count of `/g/collect` requests received by the interceptor is exactly 1 (not 0 and not ≥2)
+- **And**: this AC guards against beacon duplication caused by StrictMode double-invoke or future duplicate call sites
 
-**AC-020-NEG-QUERY：** query-only 變化不觸發 pageview（Phase 3）
-- **Given**：用戶在 `/?x=1`，攔截器記錄此時 beacon count 為 N
-- **When**：URL 變成 `/?x=2`（query 改變，pathname 不變；以 `page.goto` 或 router `navigate` 觸發）
-- **Then**：等待 500ms 後，攔截器 beacon count 必須仍為 N（不增加）
-- **And**：此 AC 將 `useGAPageview` 目前的 `[location.pathname]` deps 行為鎖死；未來若要求 query 變化觸發 pageview，需改 AC + 程式碼 + 開新 ticket
+**AC-020-NEG-QUERY:** Query-only changes do not trigger a pageview (Phase 3)
+- **Given**: the user is on `/?x=1` and the interceptor records the beacon count at this point as N
+- **When**: the URL changes to `/?x=2` (query changes, pathname unchanged; triggered via `page.goto` or router `navigate`)
+- **Then**: after waiting 500ms, the interceptor's beacon count must still be N (no increase)
+- **And**: this AC locks the current `[location.pathname]` deps behavior of `useGAPageview`; if a query change is later required to trigger a pageview, the AC + code + a new ticket are needed
 
-**AC-020-NEG-HASH：** hash-only 變化不觸發 pageview（Phase 3）
-- **Given**：用戶在 `/about`，攔截器記錄此時 beacon count 為 N
-- **When**：URL 變成 `/about#team`（hash 改變，pathname 不變）
-- **Then**：等待 500ms 後，攔截器 beacon count 必須仍為 N
+**AC-020-NEG-HASH:** Hash-only changes do not trigger a pageview (Phase 3)
+- **Given**: the user is on `/about` and the interceptor records the beacon count at this point as N
+- **When**: the URL changes to `/about#team` (hash changes, pathname unchanged)
+- **Then**: after waiting 500ms, the interceptor's beacon count must still be N
 
-**AC-020-NEG-SAMEROUTE：** click 當前路由 Link 不觸發 pageview（Phase 3）
-- **Given**：用戶已在 `/about`，攔截器記錄此時 beacon count 為 N
-- **When**：用戶再次點擊 NavBar 的 `About` Link
-- **Then**：等待 500ms 後，攔截器 beacon count 必須仍為 N
+**AC-020-NEG-SAMEROUTE:** Clicking the current route's Link does not trigger a pageview (Phase 3)
+- **Given**: the user is already on `/about` and the interceptor records the beacon count at this point as N
+- **When**: the user clicks the NavBar `About` Link again
+- **Then**: after waiting 500ms, the interceptor's beacon count must still be N
 
-## BQ Resolution（2026-04-22 PM 裁決）
+## BQ Resolution (2026-04-22 PM ruling)
 
-**BQ-1 — CI network egress policy：** ✅ **Option B（Playwright route intercept）**
-- 決策：AC-020-BEACON 系列全部採 `page.route('**/g/collect*', ...)` 攔截模式，`route.fulfill({status: 204})` 終止 request
-- 理由：抓得到 K-018 class bug（call format 錯 → request 未送出 → 攔截器收不到 → test fail）；CI-agnostic（不需出站）；穩定（不依賴 Google server 可用性）
-- 副作用：測試不驗 GA server 是否實際接收；此責任不屬前端測試
+**BQ-1 — CI network egress policy:** Option B (Playwright route intercept)
+- Decision: the entire AC-020-BEACON series uses the `page.route('**/g/collect*', ...)` intercept pattern with `route.fulfill({status: 204})` to terminate the request
+- Rationale: catches the K-018 class bug (wrong call format → request not emitted → interceptor receives nothing → test fails); CI-agnostic (no egress required); stable (does not depend on Google server availability)
+- Side effect: the test does not verify whether the GA server actually receives the event; that responsibility is not the frontend test's
 
-**BQ-2 — Mock 策略（spy vs replace）：** ✅ **Option A（移除 addInitScript mock，直接觀察 production dataLayer）**
-- 理由：production 真實執行路徑 = Arguments-object push；測試直接驗此 shape 最貼近 K-018 retro 教訓（mock/production override 順序會失控）
+**BQ-2 — Mock strategy (spy vs replace):** Option A (remove the addInitScript mock and directly observe the production dataLayer)
+- Rationale: the real production execution path = Arguments-object push; asserting this shape directly is closest to the K-018 retro lesson (the order between mock and production override is unreliable)
 
-**BQ-3 — beacon SPA race condition：** ✅ **delta 對比（攔截器 array 記錄前後 snapshot）**
-- 由 AC-020-BEACON-SPA 的 `beacons.length > initialBeacons.length` 斷言 + path key 含 `/about` 雙重確認
-- 不依賴 `waitForRequest` 時序
+**BQ-3 — beacon SPA race condition:** delta comparison (the interceptor array records before/after snapshots)
+- Confirmed jointly by AC-020-BEACON-SPA's `beacons.length > initialBeacons.length` assertion + path key contains `/about`
+- Does not depend on `waitForRequest` timing
 
-**QA Challenge #5 — payload keys unpinned：** ✅ **已加入 AC-020-BEACON-PAYLOAD**
-- 必驗 `v=2` + `tid=G-TESTID0000` + `en=page_view` + path key（dry-run 確認 `dl` vs `dp`）
+**QA Challenge #5 — payload keys unpinned:** added to AC-020-BEACON-PAYLOAD
+- Must verify `v=2` + `tid=G-TESTID0000` + `en=page_view` + path key (dry-run confirms `dl` vs `dp`)
 
-**QA Challenge #6 — SPA → beacon cross-verify：** ✅ **已加入 AC-020-BEACON-SPA**
-- 不再 defer；此為 K-018 class bug 的核心守門 AC
+**QA Challenge #6 — SPA → beacon cross-verify:** added to AC-020-BEACON-SPA
+- No longer deferred; this is the core guard AC for the K-018 class bug
 
-**QA Challenge #7 — same-route / query-only / hash-only navigation：** ✅ **Option A（維持現狀 + negative tests 鎖死行為）**
-- 已加入 AC-020-NEG-QUERY / NEG-HASH / NEG-SAMEROUTE
-- 理由：專案現無 query-driven 頁面；用 negative test 把行為鎖死，未來真要改再開 ticket + 改 AC
+**QA Challenge #7 — same-route / query-only / hash-only navigation:** Option A (preserve current behavior + lock it via negative tests)
+- Added to AC-020-NEG-QUERY / NEG-HASH / NEG-SAMEROUTE
+- Rationale: the project currently has no query-driven pages; lock behavior with negative tests, and if a real change is needed in the future open a ticket + change the AC
 
-**QA Challenge #15 — `page_location` 送 pathname 非 full URL 是 pre-existing bug：** ✅ **Option Y（另開 [K-032](K-032-ga-page-location-full-url.md) 追）**
-- 本 ticket scope 為測試硬化，不混修 production bug
-- AC 文字維持 `page_location === '/about'` 反映 **目前行為**；K-032 上線時會同步改 AC
+**QA Challenge #15 — `page_location` sends pathname instead of full URL is a pre-existing bug:** Option Y (track in a separate ticket [K-032](K-032-ga-page-location-full-url.md))
+- This ticket's scope is test hardening; do not mix in fixing a production bug
+- The AC text keeps `page_location === '/about'` to reflect the **current behavior**; the AC is updated in lockstep when K-032 ships
 
-## Architect Non-Blocking Considerations（design doc 須處理）
+## Architect Non-Blocking Considerations (design doc must address)
 
-這些是 QA Early Consultation 提出的非 blocking 建議，Architect 在 design doc 中必須明確說明處理方式（實作 / 延後 / 拒絕 + 理由）：
+These are non-blocking suggestions raised in the QA Early Consultation; in the design doc the Architect must explicitly state how each is handled (implement / defer / reject + rationale):
 
-- **QA #10 — `page.route()` cleanup on failure：** 路由攔截器應在 test body 內註冊（非 `beforeAll`），依 Playwright page fixture teardown 自動清理；若跨 test 共用，須在 `afterEach` 明確呼叫 `page.unroute()`。Architect 在 design doc §Test Scaffold 定案
-- **QA #8 — back/forward browser navigation：** 目前 `useGAPageview` `[location.pathname]` deps 理論上 popstate 會觸發；Architect 評估是否加 positive test 覆蓋此路徑
-- **QA #9 — rapid navigation race：** A→B→C 連續 <100ms 切換的 beacon count 是否穩定；Architect 決定是否加 stress test 或 defer
-- **QA #13 — programmatic navigate：** 除 Link click 外，`useNavigate()` 觸發的 route change 是否需獨立 AC；目前 AC-020-SPA-NAV 僅覆蓋 Link click
-- **QA #14 — 測試 matrix 去重：** ❌ **拒絕**。NavBar Link + BuiltByAIBanner CTA target 相同（`/about`）是**刻意控制變因**——固定 target 只驗不同 entry point（NavBar `<a>` 在 header vs BuiltByAIBanner `<a>` 在首頁 banner）的事件傳播路徑。若一個改成 `/diary` 會混淆「entry point 差異」與「target 差異」兩個維度，測試 fail 時無法定位到哪個變因壞掉。若要驗不同 target 行為應另開 test，不得替代這兩個
+- **QA #10 — `page.route()` cleanup on failure:** the route interceptor should be registered inside the test body (not `beforeAll`) so it is cleaned up automatically by the Playwright page fixture teardown; if shared across tests, `page.unroute()` must be called explicitly in `afterEach`. Architect to finalize in design doc §Test Scaffold
+- **QA #8 — back/forward browser navigation:** the current `useGAPageview` `[location.pathname]` deps theoretically should fire on popstate; Architect to evaluate whether to add a positive test covering this path
+- **QA #9 — rapid navigation race:** whether the beacon count is stable across <100ms A→B→C switches; Architect to decide whether to add a stress test or defer
+- **QA #13 — programmatic navigate:** besides Link clicks, whether route changes triggered by `useNavigate()` need an independent AC; the current AC-020-SPA-NAV only covers Link click
+- **QA #14 — test matrix dedup:** Rejected. NavBar Link + BuiltByAIBanner CTA having the same target (`/about`) is an **intentionally controlled variable** — fixing the target verifies only the event-propagation paths of different entry points (NavBar `<a>` in header vs BuiltByAIBanner `<a>` in homepage banner). Changing one to `/diary` would conflate "entry point difference" with "target difference" — when a test fails we wouldn't know which variable broke. If different-target behavior is needed, write separate tests; do not replace these two
 
-## 相依
+## Dependencies
 
-- K-018 已關閉（fix commit `6a9d6cd`）
-- K-019（Release Versioning & CI/CD）— BQ-1 採 Option B（route intercept）後 **不再依賴** K-019 policy 決議
-- K-032（page_location full URL bug）— 與本 ticket 平行進行；不阻塞本 ticket
+- K-018 closed (fix commit `6a9d6cd`)
+- K-019 (Release Versioning & CI/CD) — after BQ-1 chose Option B (route intercept), this ticket **no longer depends on** the K-019 policy decision
+- K-032 (page_location full URL bug) — runs in parallel with this ticket; does not block this ticket
 
-## Known Gap 轉入本 ticket
+## Known Gap forwarded to this ticket
 
-K-018 `## 最終關閉記錄` 列出的 follow-up：「E2E 僅驗證 `window.gtag` 呼叫參數，未驗證 `/g/collect` HTTP beacon」→ 由 AC-020-BEACON-* 系列覆蓋。
+The follow-up listed in K-018 `## Final Close Record`: "E2E only verifies `window.gtag` call parameters, does not verify `/g/collect` HTTP beacon" → covered by the AC-020-BEACON-* series.
 
 ## Release Status
 
-**2026-04-22 PM Phase Gate：**
+**2026-04-22 PM Phase Gate:**
 
-- [x] AC 全部為 Given/When/Then/And 四段格式
-- [x] Parallel Given quantification：各 AC test case 數量明示
-- [x] 路由/檔案路徑驗證：
-  - `frontend/src/utils/analytics.ts` ✓（`initGA` + `trackPageview` + `trackCtaClick`）
-  - `frontend/src/hooks/useGAPageview.ts` ✓（`useEffect` on `location.pathname`）
-  - `frontend/e2e/ga-tracking.spec.ts` ✓（現有 K-018 spec）
-  - `frontend/playwright.config.ts` ✓（`VITE_GA_MEASUREMENT_ID='G-TESTID0000'`）
-- [x] Testid/selector：NavBar `About` Link 文字選擇器 + `a[aria-label="About the AI collaboration behind this project"]`（BuiltByAIBanner，`ga-tracking.spec.ts:166` 已驗證）
-- [x] AC CSS wording check：N/A（無視覺 AC）
-- [x] QA Early Consultation — Agent(qa) 實跑 2026-04-22（見 `docs/retrospectives/qa.md`），raised 15 challenges；3 blocking 由 PM 裁決後寫回 AC，11 non-blocking 交 Architect 處理
-- [x] BQ-1 / QA #5 / QA #6 / QA #7 / QA #15 — 使用者裁決完成（見 §BQ Resolution）
-- [x] **PM session capability**：Agent tool 可用，Agent(qa) 已實跑；Architect 召喚待使用者指示
+- [x] All ACs follow the four-section Given/When/Then/And format
+- [x] Parallel Given quantification: each AC explicitly states the number of test cases
+- [x] Route/file path verification:
+  - `frontend/src/utils/analytics.ts` ✓ (`initGA` + `trackPageview` + `trackCtaClick`)
+  - `frontend/src/hooks/useGAPageview.ts` ✓ (`useEffect` on `location.pathname`)
+  - `frontend/e2e/ga-tracking.spec.ts` ✓ (existing K-018 spec)
+  - `frontend/playwright.config.ts` ✓ (`VITE_GA_MEASUREMENT_ID='G-TESTID0000'`)
+- [x] Testid/selector: NavBar `About` Link text selector + `a[aria-label="About the AI collaboration behind this project"]` (BuiltByAIBanner, verified at `ga-tracking.spec.ts:166`)
+- [x] AC CSS wording check: N/A (no visual AC)
+- [x] QA Early Consultation — Agent(qa) ran for real 2026-04-22 (see `docs/retrospectives/qa.md`), raised 15 challenges; 3 blocking ruled by PM and written back into the AC, 11 non-blocking forwarded to the Architect
+- [x] BQ-1 / QA #5 / QA #6 / QA #7 / QA #15 — user rulings complete (see §BQ Resolution)
+- [x] **PM session capability**: Agent tool available, Agent(qa) ran for real; Architect summon awaiting user release
 
-**Ready for Architect handoff（待使用者放行）。**
+**Ready for Architect handoff (awaiting user release).**
 
 ## Retrospective
 
-<!-- 各角色完成後 append 反省段 -->
+<!-- Each role appends their retrospective when finishing -->
 
 ### Engineer (2026-04-22 — C-1 fix pass, fix-only)
 
@@ -241,7 +241,7 @@ Canary attempts (see Engineer retrospective log 2026-04-22):
 - Full-URL `page_location` in the event call → still no new beacon (rules out K-032 as the cause — K-032 is about what value to pass, not whether beacon is emitted).
 - `gtag('config', id, {page_path, page_title})` → triggers a follow-up beacon, but it's `_eu=AAAAAAQ` (user_engagement update) with no `en=page_view`, so AC-020-BEACON-SPA's "new beacon referencing /about" assertion would still need adjustment.
 
-**Conclusion:** **AC-020-BEACON-SPA correctly caught a K-018-class production bug that the existing `ga-tracking.spec.ts` shape-only mock missed — this is the test succeeding at its stated purpose (per ticket §背景, §目標, §Known Gap)**. Fixing it requires changing `frontend/src/hooks/useGAPageview.ts` to use the canonical GA4 SPA pattern (`gtag('config', ...)` or `gtag('set',...)+gtag('event',...)`), which is a **production code change** that the design doc explicitly placed out of scope ("`useGAPageview.ts` UNCHANGED — behavior locked by AC-020-NEG-*", design §4 file change list).
+**Conclusion:** **AC-020-BEACON-SPA correctly caught a K-018-class production bug that the existing `ga-tracking.spec.ts` shape-only mock missed — this is the test succeeding at its stated purpose (per ticket §Background, §Goals, §Known Gap)**. Fixing it requires changing `frontend/src/hooks/useGAPageview.ts` to use the canonical GA4 SPA pattern (`gtag('config', ...)` or `gtag('set',...)+gtag('event',...)`), which is a **production code change** that the design doc explicitly placed out of scope ("`useGAPageview.ts` UNCHANGED — behavior locked by AC-020-NEG-*", design §4 file change list).
 
 **Escalating to PM — options:**
 
@@ -262,7 +262,7 @@ Canary attempts (see Engineer retrospective log 2026-04-22):
 | Option | Preserve K-018 class guard | Impl cost | Fix clarity | Test debt risk | Scope boundary | Reversibility | Total |
 |--------|---------------------------|-----------|-------------|----------------|----------------|---------------|-------|
 | A: Split | 2 | 2 | 2 | 1 | 2 | 2 | **11/12** |
-| B: Expand K-020 to Phase 4 (hook rewrite) | 2 | 0 | 1 | 2 | 0 (violates §範圍 exclusion) | 1 | 6/12 |
+| B: Expand K-020 to Phase 4 (hook rewrite) | 2 | 0 | 1 | 2 | 0 (violates §Scope exclusion) | 1 | 6/12 |
 | C: Loosen AC-020-BEACON-SPA to dataLayer only | 0 (reintroduces K-018 gap) | 2 | 0 | 2 | 0 | 2 | 6/12 |
 
 **Red Team self-check (all counterable):**
@@ -281,7 +281,7 @@ Canary attempts (see Engineer retrospective log 2026-04-22):
    - Secondary: **K-020 Architect** — design doc §2.5 correctly named "beacon count ≥ 1 after SPA navigate" as the primary K-018 guard but could not runtime-dry-run production SPA path (persona tool limitation). Already noted in K-020 Architect retrospective §11 "Dry-Run Deferral".
    - NOT responsible: K-020 Engineer — T4 assertion is correct; red state IS the designed behavior. K-020 Architect for the static design — the test correctly catches the real bug.
 
-2. **PM Quality Check:** Accepted. T4's red state is a well-designed regression test catching a pre-existing production bug exactly as ticket §背景 / §目標 stated. Engineer Option A recommendation is sound.
+2. **PM Quality Check:** Accepted. T4's red state is a well-designed regression test catching a pre-existing production bug exactly as ticket §Background / §Goals stated. Engineer Option A recommendation is sound.
 
 3. **Memory + persona:** Engineer persona already has "Regression-Guard Test Failing on First Run (K-020 2026-04-22)" rule at `~/.claude/agents/engineer.md` L252-270 (added this round by Engineer retro). No new persona edit needed — rule is codified. PM retrospective log (below) captures the BQ ruling pattern.
 
@@ -391,4 +391,4 @@ Reviewer Step 2 returned 1 Critical + 3 Warning. All 4 ruled **fix-now**. Status
 - `PRD.md` (AC-020 Given/When/Then/And + Closed section on close)
 - `PM-dashboard.md` (outer Diary: K-020 moved Active → Closed, count sync)
 
-**No production runtime code was modified in this ticket** — scope held as test-only per §範圍.
+**No production runtime code was modified in this ticket** — scope held as test-only per §Scope.

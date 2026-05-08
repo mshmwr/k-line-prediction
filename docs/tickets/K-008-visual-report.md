@@ -1,6 +1,6 @@
 ---
 id: K-008
-title: 自動化視覺報告 script（Playwright 截圖 → HTML）
+title: Automated visual report script (Playwright screenshots → HTML)
 status: closed
 closed: 2026-04-18
 type: feat
@@ -9,148 +9,148 @@ created: 2026-04-18
 updated: 2026-04-18
 ---
 
-## 背景
+## Background
 
-目前 QA 完成後沒有視覺化的驗收報告；Retrospective 流程要求 QA 執行截圖 script 並通知 PM「報告在 `docs/reports/K-XXX-visual-report.html`」，但此 script 尚未存在 — QA agent 定義的結尾動作目前懸空。
+After QA finishes, there is currently no visual acceptance report; the Retrospective flow asks QA to run a screenshot script and tell the PM "the report is at `docs/reports/K-XXX-visual-report.html`", but the script does not yet exist — the QA agent's defined wrap-up step is dangling.
 
-## 範圍（MVP）
+## Scope (MVP)
 
-**含：**
-- 建立 `frontend/e2e/visual-report.ts` Playwright script
-- 對「已知頁面路由全集」各截一張全頁截圖（full page screenshot）— 不做 ticket → 頁面 mapping
-- 產出 `docs/reports/K-XXX-visual-report.html`（內嵌截圖的 HTML 報告，XXX 由 CLI 傳入）
+**In-scope:**
+- Create the `frontend/e2e/visual-report.ts` Playwright script
+- Capture one full-page screenshot per route in the "set of known page routes" — no ticket → page mapping
+- Produce `docs/reports/K-XXX-visual-report.html` (an HTML report with embedded screenshots; XXX passed in via CLI)
 
-**不含（MVP 不做）：**
-- Ticket → 頁面 mapping（跑幾次後再依實際需求補，避免過早優化）
-- 分 section 截圖（先整頁，之後再切）
-- 截圖比對（pixel diff）
-- CI 自動觸發（維持手動 `npx playwright test visual-report.ts`）
+**Out-of-scope (MVP):**
+- Ticket → page mapping (add later based on real needs after a few runs; avoid premature optimization)
+- Per-section screenshots (full page first; carve later)
+- Screenshot diffing (pixel diff)
+- CI auto-trigger (stay manual via `npx playwright test visual-report.ts`)
 
 ## Acceptance Criteria
 
-### AC-008-SCRIPT：Script 可執行
+### AC-008-SCRIPT: Script is executable
 
-**Given** QA 完成，所有 Playwright E2E 已通過
-**When** 在 `frontend/` 目錄執行 `npx playwright test visual-report.ts`（含傳入 ticket ID 的方式，由 Architect 決定 CLI arg / env var）
-**Then** script 成功執行，退出碼 0
-**And** 在 `docs/reports/` 下產出 `K-XXX-visual-report.html`
+**Given** QA is complete and all Playwright E2E tests pass
+**When** running `npx playwright test visual-report.ts` from the `frontend/` directory (with whatever mechanism the Architect picks for passing the ticket ID — CLI arg / env var)
+**Then** the script runs successfully with exit code 0
+**And** `K-XXX-visual-report.html` is produced under `docs/reports/`
 
-### AC-008-CONTENT：報告包含所有已知頁面全頁截圖
+### AC-008-CONTENT: Report contains full-page screenshots for every known route
 
-**Given** `K-XXX-visual-report.html` 已產出
-**When** 在瀏覽器開啟
-**Then** 報告包含「已知頁面路由全集」每條路由一張 full page 截圖
-**And** 每張截圖有對應的 route path 標記（例如 `/`、`/app`、`/about`、`/diary`）
-**And** 若某條路由需登入，報告標記「需登入」或使用 auth fixture 後截圖（由 Architect 定案）
+**Given** `K-XXX-visual-report.html` has been generated
+**When** opened in a browser
+**Then** the report contains one full-page screenshot per route in the "set of known page routes"
+**And** each screenshot is labelled with its route path (e.g. `/`, `/app`, `/about`, `/diary`)
+**And** if a route requires login, the report labels it "auth required" or captures it via an auth fixture (Architect's call)
 
-## 裁決（PM triage 2026-04-18）
+## Triage (PM 2026-04-18)
 
-- **priority：low → medium → high**（2026-04-18 K-011 PM 彙整後再上調）
-- **獨立 ticket，不併入 K-011** — script 跨頁執行，不綁任何單一 UI ticket；不降級為 K-011 的子任務
-- **MVP 範圍縮減** — 全頁截圖 + 所有已知路由，不做 ticket→頁面 mapping（跑幾輪後再視需要補）
-- **cycle 位置（2026-04-18 更新）：cycle #6 → cycle #4** — K-009/010/011 連續三張 ticket 無視覺驗證層（Engineer/Reviewer/QA/PM 皆無法確認 UI），為系統性缺口，不得再拖
-- **連動：** K-012 → cycle #6、K-013 → cycle #7（各順延一個 cycle）
-- **狀態：open (cycle #6) → open (cycle #4)**
+- **priority: low → medium → high** (raised again after the 2026-04-18 K-011 PM roll-up)
+- **Standalone ticket, not folded into K-011** — the script runs across pages and is not bound to any single UI ticket; not demoted to a K-011 sub-task
+- **MVP scope trimmed** — full-page screenshots + all known routes, no ticket→page mapping (add later as needed after a few runs)
+- **Cycle position (2026-04-18 update): cycle #6 → cycle #4** — three consecutive tickets K-009/010/011 lack a visual verification layer (Engineer/Reviewer/QA/PM all unable to confirm the UI), a systemic gap that cannot be deferred any further
+- **Knock-on:** K-012 → cycle #6, K-013 → cycle #7 (each pushed back one cycle)
+- **Status: open (cycle #6) → open (cycle #4)**
 
-## Blocking Questions（已釐清 2026-04-18）
+## Blocking Questions (resolved 2026-04-18)
 
-| # | 問題 | 裁決 |
+| # | Question | Ruling |
 |---|------|------|
-| 1 | 執行環境 | **本地 dev server** — script 假設 `http://localhost:5173`（Vite 預設）已起；與既有 Playwright E2E 一致，離線可跑 |
-| 2 | 頁面範圍 | **4 條公開頁：`/` `/app` `/about` `/diary`**（`/app` 是預測主頁不需登入，PM 原推薦誤判已修正）；`/business-logic`（JWT）標「需登入，下期補」不做 auth fixture |
-| 3 | Ticket ID 傳入 | **env var：`TICKET_ID=K-008 npx playwright test visual-report.ts`** — script 讀 `process.env.TICKET_ID`；若未設則預設字串 `UNKNOWN` 或退出碼 1（由 Architect 決定） |
+| 1 | Execution environment | **Local dev server** — the script assumes `http://localhost:5173` (Vite default) is up; consistent with existing Playwright E2E, runs offline |
+| 2 | Page scope | **4 public pages: `/` `/app` `/about` `/diary`** (`/app` is the prediction home and does not require login; PM's original recommendation misclassified it and is now corrected); `/business-logic` (JWT) labelled "auth required, follow-up ticket" — no auth fixture |
+| 3 | Ticket ID input | **env var: `TICKET_ID=K-008 npx playwright test visual-report.ts`** — script reads `process.env.TICKET_ID`; if unset, default to the string `UNKNOWN` or exit 1 (Architect decides) |
 
-## 相關連結
+## Related Links
 
 - [PM-dashboard.md](../../../PM-dashboard.md)
-- [K-002 Retrospective — QA 反省段](K-002-ui-optimization.md#retrospective)
-- QA agent 結尾動作定義：`~/.claude/agents/qa.md`
-- Per-Role Retrospective Log 機制：`CLAUDE.md` 第 39~64 行
+- [K-002 Retrospective — QA reflection section](K-002-ui-optimization.md#retrospective)
+- QA agent wrap-up definition: `~/.claude/agents/qa.md`
+- Per-Role Retrospective Log mechanism: `CLAUDE.md` lines 39–64
 
 ---
 
-## Architecture（2026-04-18）
+## Architecture (2026-04-18)
 
-### 1. 技術方案選擇
+### 1. Technical Approach
 
-#### 1.1 Runner：Playwright Test Runner vs 獨立 Node Script
+#### 1.1 Runner: Playwright Test Runner vs standalone Node script
 
-**推薦：Playwright Test Runner（`npx playwright test visual-report.ts`）**
+**Recommendation: Playwright Test Runner (`npx playwright test visual-report.ts`)**
 
-**理由（一句）：** 既有 `playwright.config.ts` 已定義 `webServer.command=npm run dev` + `baseURL=http://localhost:5173` + `reuseExistingServer`，沿用等於免費拿到「dev server 未起時自動啟、已起時重用、`baseURL` 統一」三件事；獨立 Node script 要自行 spawn `chromium.launch()` + 等 server ready + 設 baseURL，重造已有輪子。
+**Rationale (one line):** the existing `playwright.config.ts` already defines `webServer.command=npm run dev` + `baseURL=http://localhost:5173` + `reuseExistingServer`; reusing it gives us three things for free: "auto-start dev server when not up, reuse when up, unified `baseURL`". A standalone Node script would have to spawn `chromium.launch()`, wait for the server to be ready, and set baseURL itself — reinventing wheels we already have.
 
-**Trade-off：**
-- Runner 路徑：`visual-report.ts` 必須寫成 `test(...)` 或 `test.describe(...)` block；產報告邏輯放在 `test.afterAll()` 聚合 → 語意稍繞。
-- 獨立 script：語意單純（imperative），但放棄既有 webServer / baseURL / retries 設定。
-- 備選（不選）：寫在既有 `pages.spec.ts` 內 → 違反 AC「獨立可執行 `visual-report.ts`」。
+**Trade-offs:**
+- Runner path: `visual-report.ts` must be written as a `test(...)` or `test.describe(...)` block; report-generation logic sits in `test.afterAll()` for aggregation — slightly indirect semantically.
+- Standalone script: simple imperative semantics, but gives up the existing webServer / baseURL / retries settings.
+- Alternative (rejected): inline inside the existing `pages.spec.ts` → violates the AC requirement of a standalone executable `visual-report.ts`.
 
-#### 1.2 HTML 模板：inline 生成 vs 獨立 template 檔
+#### 1.2 HTML template: inline generation vs standalone template file
 
-**推薦：inline 生成（script 內 template literal）**
+**Recommendation: inline generation (template literal inside the script)**
 
-**理由：** MVP 只渲染 `<h1>` + 4 個 section（route label + 截圖 + dimensions），模板體積 < 40 行；獨立 `.html` 模板會多一次 file I/O + 佔位符替換，且 K-008 沒有 template 重用需求。
+**Rationale:** MVP only renders an `<h1>` + 4 sections (route label + screenshot + dimensions); the template is < 40 lines. A standalone `.html` template would add one more file I/O hop + placeholder substitution, and K-008 has no template reuse needs.
 
-**Trade-off：**
-- inline：template 改動等於改 script，review 一處即可。
-- 獨立檔（不選）：若日後新增「比對報告 / timeline 報告」等變體，再抽出 `frontend/e2e/visual-report/templates/` 即可，YAGNI。
+**Trade-offs:**
+- inline: editing the template means editing the script — review in one place.
+- Standalone file (rejected): if we later add variants like "diff report / timeline report", extracting to `frontend/e2e/visual-report/templates/` then is fine — YAGNI.
 
-#### 1.3 截圖 output：inline base64 單檔 vs 分檔目錄
+#### 1.3 Screenshot output: inline base64 single file vs split-file directory
 
-**推薦：inline base64 單檔（`docs/reports/K-XXX-visual-report.html`）**
+**Recommendation: inline base64 single file (`docs/reports/K-XXX-visual-report.html`)**
 
-**理由：** AC-008-SCRIPT 明確規定產出 `docs/reports/K-XXX-visual-report.html` 單檔；QA agent 結尾動作是「通知 PM 報告在某單一檔案路徑」。單檔離線可開、方便 commit / attach / 傳給使用者檢視；4 張全頁截圖以 PNG base64 內嵌，K-Line 目前頁面複雜度下預估 2~5 MB（風險條款見 §6.3）。
+**Rationale:** AC-008-SCRIPT explicitly requires emitting a single file `docs/reports/K-XXX-visual-report.html`; the QA agent wrap-up is "tell the PM the report is at this single file path". One file is openable offline, easy to commit / attach / share with the user; 4 full-page screenshots embedded as base64 PNG, estimated 2–5 MB at K-Line's current page complexity (risk clause in §6.3).
 
-**Trade-off：**
-- 單檔 inline：移動 / 分享一個檔；缺點是 HTML 會較大，瀏覽器渲染略慢（但 MVP 4 張圖可接受）。
-- 分檔目錄（不選）：`docs/reports/K-XXX/` 內 `index.html` + `*.png` — 檔小快開，但破壞「單一檔案交付」AC 語意、commit 多檔雜亂、`docs/reports/` 會膨脹。
-- 若 §6.3 實測單檔 > 10 MB → 啟動 fallback：將圖壓 JPEG quality=85 再 base64；仍過大 → 改分檔（下一張 ticket 處理，不在 K-008 scope 調整 AC）。
+**Trade-offs:**
+- Single inline file: move / share one file; downside is a larger HTML and slightly slower browser render (acceptable for MVP's 4 images).
+- Split-file directory (rejected): `docs/reports/K-XXX/` containing `index.html` + `*.png` — small files, fast to open, but breaks the "single-file delivery" AC semantics, makes commits noisy with many files, and bloats `docs/reports/`.
+- If §6.3 measured single-file > 10 MB → trigger fallback: compress images to JPEG quality=85 then base64; if still too large → switch to split files (handled in the next ticket; do not adjust AC within K-008 scope).
 
 ---
 
-### 2. Script 介面
+### 2. Script Interface
 
-#### 2.1 `TICKET_ID` 未設時的行為
+#### 2.1 Behavior when `TICKET_ID` is unset
 
-**推薦：預設字串 `UNKNOWN`，不 exit 1。**
+**Recommendation: default to the string `UNKNOWN`, do not exit 1.**
 
-**理由：** script 的用途是「視覺產出工具」，不是驗證工具；QA 可能本地手跑查看當前 UI 狀態而不關心 ticket 編號，此時硬 fail 反而擾人。但為了防止忘記設 env var 後產出 `K-UNKNOWN-visual-report.html` 被誤提交，script 啟動時若偵測到 `UNKNOWN`，在 stdout 印黃色警告：
+**Rationale:** the script is a "visual-output tool", not a validation tool; QA may manually run it locally to view the current UI state without caring about a ticket number, in which case hard-failing is just annoying. To prevent accidentally committing a `K-UNKNOWN-visual-report.html` from a forgotten env var, when the script detects `UNKNOWN` at startup it prints a yellow warning to stdout:
 ```
 [visual-report] WARNING: TICKET_ID not set, output will be K-UNKNOWN-visual-report.html
 ```
 
-**Trade-off：**
-- `UNKNOWN` + warning：UX 友善，警告明確。
-- exit 1（不選）：符合「嚴格 CI」風格，但 K-008 目前無 CI 觸發需求；且 AC-008-SCRIPT 只說 `TICKET_ID=K-008 npx playwright test visual-report.ts` 應成功，沒規定未設時要失敗。
+**Trade-offs:**
+- `UNKNOWN` + warning: UX-friendly, explicit warning.
+- exit 1 (rejected): matches a "strict CI" style, but K-008 currently has no CI trigger; AC-008-SCRIPT only says `TICKET_ID=K-008 npx playwright test visual-report.ts` must succeed, not that an unset value must fail.
 
-#### 2.2 單頁失敗時的行為（timeout / 4xx / navigation error）
+#### 2.2 Behavior when a single page fails (timeout / 4xx / navigation error)
 
-**推薦：partial report — 繼續跑剩下的頁，該頁 section 標記失敗，script 最後 exit 1。**
+**Recommendation: partial report — keep running remaining pages, mark that page's section as failed, script exits 1 at the end.**
 
-**理由：**
-- QA 手跑情境：「給我看哪些頁壞了」比「第一個壞的就中斷」有用；partial report 讓一次跑就拿到全貌。
-- 但最終 exit 1 確保 CI / QA 流程不會把「部分失敗」當成通過。
+**Rationale:**
+- QA manual-run scenario: "show me which pages broke" beats "abort on first failure"; a partial report gives the full picture in one run.
+- The final exit 1 ensures CI / QA flows don't mistake "partially failed" for "passed".
 
-**實作：**
-- 每條路由獨立 `try { goto + screenshot } catch (e) { push failureSection }`
-- 失敗 section 渲染紅色邊框 + 錯誤訊息（`e.message` + stack 前 3 行）+ 無截圖占位
-- 聚合階段若 `failures.length > 0` → `process.exitCode = 1`
+**Implementation:**
+- Each route uses its own `try { goto + screenshot } catch (e) { push failureSection }`
+- Failed sections render a red border + error message (`e.message` + first 3 stack lines) + no-screenshot placeholder
+- In the aggregation step, if `failures.length > 0` → `process.exitCode = 1`
 
-**Trade-off：**
-- partial + exit 1：QA / 人類看 HTML 立刻知道哪頁壞；CI 仍 fail。
-- first-fail exit（不選）：CI 友善但 QA 要修第一個才知第二個也壞 → 多次迭代。
+**Trade-offs:**
+- partial + exit 1: QA / humans see immediately which pages broke from the HTML; CI still fails.
+- first-fail exit (rejected): CI-friendly but QA must fix the first to discover the second is broken → multiple iterations.
 
 ---
 
-### 3. HTML 報告內容
+### 3. HTML report contents
 
-**結構（按渲染順序）：**
+**Structure (in render order):**
 
 ```
 <html>
   <head>
     <meta charset="utf-8">
     <title>{TICKET_ID} — Visual Report</title>
-    <style>/* inline CSS：grid layout、sticky header、截圖 max-width:100%、failure 紅框 */</style>
+    <style>/* inline CSS: grid layout, sticky header, screenshot max-width:100%, failure red border */</style>
   </head>
   <body>
     <header>
@@ -159,7 +159,7 @@ updated: 2026-04-18
       <p>Pages: 4 captured, {failures} failed</p>
     </header>
     <main>
-      <!-- 每頁一個 section，順序固定 -->
+      <!-- one section per page, fixed order -->
       <section class="page-section {status=success|failure|auth-required}">
         <h2>{label}</h2>
         <p class="route">{routePath}</p>
@@ -169,7 +169,7 @@ updated: 2026-04-18
         <!-- failure -->
         <pre class="error">{error.message}</pre>
         <!-- auth-required (/business-logic only) -->
-        <div class="placeholder">需登入，下期補（K-008 MVP 不做 auth fixture）</div>
+        <div class="placeholder">Login required; deferred to next ticket (K-008 MVP omits auth fixture)</div>
       </section>
       ...
     </main>
@@ -177,457 +177,457 @@ updated: 2026-04-18
 </html>
 ```
 
-**頁面清單（固定順序，MVP）：**
+**Page list (fixed order, MVP):**
 
-| Order | Label | Route | 備註 |
+| Order | Label | Route | Notes |
 |-------|-------|-------|------|
-| 1 | Home | `/` | 公開頁 |
-| 2 | App (K-Line Prediction) | `/app` | 公開頁，主預測功能 |
-| 3 | About | `/about` | 公開頁 |
-| 4 | Dev Diary | `/diary` | 公開頁 |
-| 5 | Business Logic | `/business-logic` | **標「需登入，下期補」placeholder，不截圖** |
+| 1 | Home | `/` | Public |
+| 2 | App (K-Line Prediction) | `/app` | Public; main prediction feature |
+| 3 | About | `/about` | Public |
+| 4 | Dev Diary | `/diary` | Public |
+| 5 | Business Logic | `/business-logic` | **Marked as "auth required, follow-up ticket" placeholder; no screenshot** |
 
-**為何 `/business-logic` 也列入 section：** 報告語意為「此路由在 MVP 涵蓋狀態」，缺席會讓讀者以為路由不存在；明示 placeholder 才能讓下期票清楚接手。
+**Why `/business-logic` is also listed as a section:** the report's semantics is "this route's coverage state in MVP"; omitting it would make readers think the route doesn't exist. An explicit placeholder hands the next ticket a clear pickup point.
 
 ---
 
-### 4. 檔案異動清單
+### 4. File Change List
 
-**新增：**
+**Added:**
 
-| 路徑 | 職責 |
+| Path | Responsibility |
 |------|------|
-| `frontend/e2e/visual-report.ts` | Playwright test runner script；逐頁截圖 + 聚合產 HTML 報告（單檔，約 150~200 行） |
-| `docs/reports/.gitkeep` | 建立 `docs/reports/` 目錄（git 需要檔案才會保留空目錄；`.gitkeep` 是慣例 placeholder） |
+| `frontend/e2e/visual-report.ts` | Playwright test runner script; per-page screenshot + aggregated HTML report generation (single file, ~150–200 lines) |
+| `docs/reports/.gitkeep` | Create the `docs/reports/` directory (git needs a file to retain an empty directory; `.gitkeep` is the convention) |
 
-**修改：**
+**Modified:**
 
-| 路徑 | 修改內容 |
+| Path | Change |
 |------|---------|
-| `frontend/playwright.config.ts` | `testMatch` 維持 default（`**/*.spec.ts`）→ 意味 `visual-report.ts` **不會**被 `npx playwright test`（不指檔）吃到；**需驗證這個行為**（見 §6.2）。若預設會被 e2e suite 全跑誤吃 → 在 config 加 `testIgnore: ['**/visual-report.ts']`。 |
-| `.gitignore`（repo root） | 確認 `docs/reports/*.html` **不在** ignore 清單（產出物需 commit 給 PM / 使用者看）；若被廣域 rule 吃到則需 `!docs/reports/` 白名單。 |
-| `K-Line-Prediction/agent-context/architecture.md` | 結構層新增「QA Artifacts」段 + `docs/reports/` 職責、Directory Structure 補 `e2e/visual-report.ts`（見 §8） |
+| `frontend/playwright.config.ts` | Keep `testMatch` at default (`**/*.spec.ts`) → meaning `visual-report.ts` **will not** be picked up by `npx playwright test` (no file specified); **this behavior must be verified** (see §6.2). If it does get swept into the e2e suite by default → add `testIgnore: ['**/visual-report.ts']` to config. |
+| `.gitignore` (repo root) | Confirm `docs/reports/*.html` is **not** in the ignore list (artifacts must be committable for PM / user to see); if a broad rule catches it, add `!docs/reports/` whitelist. |
+| `K-Line-Prediction/agent-context/architecture.md` | Add a structural "QA Artifacts" section + `docs/reports/` responsibility; Directory Structure adds `e2e/visual-report.ts` (see §8) |
 
-**刪除：** 無。
+**Deleted:** none.
 
-**不改：**
-- 既有 e2e spec（`pages.spec.ts` / `business-logic.spec.ts` / `ma99-chart.spec.ts` / `navbar.spec.ts`）零改動。
-- 後端、前端 src/ 零改動。
-- `package.json` 不加 script alias — 沿用 `npx playwright test visual-report.ts`（AC-008-SCRIPT 明定）。
-
----
-
-### 5. 實作順序
-
-**依賴圖：**
-```
-(A) 建 docs/reports/ 目錄 + .gitkeep
-(B) visual-report.ts 骨架（routes 陣列 + test.describe）
-    └─ 需 (A)
-(C) 逐頁 goto + full page screenshot + buffer 收集
-    └─ 需 (B)
-(D) HTML template literal + base64 嵌入 + fs.writeFileSync
-    └─ 需 (C)
-(E) 失敗捕捉 + partial report + process.exitCode
-    └─ 需 (D)
-(F) architecture.md 同步
-    └─ 可與 (A)~(E) 平行
-(G) 驗證：本地 `TICKET_ID=K-008 npx playwright test visual-report.ts` → 開 HTML
-    └─ 需 (A)~(E)
-```
-
-**建議分步 commit：**
-1. (A) + (B) + (C)：單頁成功路徑跑通（驗 runner 選擇正確）
-2. (D)：HTML 輸出成形（驗 inline base64 大小可接受）
-3. (E)：失敗分支 + placeholder page
-4. (F)：architecture.md 同步
-
-每步完 `npx tsc --noEmit` + 手跑驗證再進下一步（符合專案 one-edit-one-verify 規範）。
+**Unchanged:**
+- Existing e2e specs (`pages.spec.ts` / `business-logic.spec.ts` / `ma99-chart.spec.ts` / `navbar.spec.ts`) untouched.
+- Backend and frontend src/ untouched.
+- No `package.json` script alias added — keep `npx playwright test visual-report.ts` (per AC-008-SCRIPT).
 
 ---
 
-### 6. 風險與注意事項
+### 5. Implementation Order
 
-#### 6.1 Vite dev server 啟動檢查
+**Dependency graph:**
+```
+(A) Create docs/reports/ + .gitkeep
+(B) visual-report.ts skeleton (routes array + test.describe)
+    └─ requires (A)
+(C) Per-page goto + full-page screenshot + buffer collection
+    └─ requires (B)
+(D) HTML template literal + base64 embedding + fs.writeFileSync
+    └─ requires (C)
+(E) Failure capture + partial report + process.exitCode
+    └─ requires (D)
+(F) architecture.md sync
+    └─ can run parallel with (A)~(E)
+(G) Verification: local `TICKET_ID=K-008 npx playwright test visual-report.ts` → open HTML
+    └─ requires (A)~(E)
+```
 
-**結論：不需自行 poll**。`playwright.config.ts` line 17~22 已配置 `webServer.command=npm run dev` + `webServer.url=http://localhost:5173` + `reuseExistingServer: !process.env.CI` + `timeout: 30_000`。Playwright runner 自己會 poll URL 直到 200 或 timeout，`visual-report.ts` 直接 `await page.goto(...)` 即可。
+**Suggested commit breakdown:**
+1. (A) + (B) + (C): single-page success path works (verifies runner choice)
+2. (D): HTML output takes shape (verifies inline base64 size is acceptable)
+3. (E): failure branch + placeholder page
+4. (F): architecture.md sync
 
-**注意：** `reuseExistingServer` 為 true（non-CI），若本地 dev server 已開則重用；CI 會強制重啟（本 ticket 維持手動觸發，暫無 CI 情境）。
+After each step run `npx tsc --noEmit` + manual verification before moving on (matches the project's one-edit-one-verify rule).
 
-#### 6.2 既有 Playwright config 的 testMatch 行為 —— **Engineer 必驗**
+---
 
-**問題：** `playwright.config.ts` 未顯式設 `testMatch`，Playwright default 是 `.*(test|spec)\.(js|ts|mjs)` → 以 `spec.ts` 為主的 glob，但實務上 default glob 涵蓋 `*.ts`（需實測確認）。
+### 6. Risks & Notes
 
-**Engineer 實作時必須驗證：**
-1. 先寫空殼 `visual-report.ts` 後跑 `npx playwright test` （不指檔）
-2. 若輸出列出 visual-report.ts → 會被 e2e suite 誤吃（平常跑測試就會產報告）→ 加 `testIgnore: ['**/visual-report.ts']`
-3. 若未列出 → 沿用，但 `npx playwright test visual-report.ts`（指定檔）仍能跑
-4. 驗證方式寫入 ticket Retrospective（Engineer 段）
+#### 6.1 Vite dev server startup check
 
-**為什麼不直接改 config：** 未實測前改 config 可能改錯 default；Engineer 實測後再決策，避免 drift。
+**Conclusion: no need to poll manually.** `playwright.config.ts` lines 17–22 already set `webServer.command=npm run dev` + `webServer.url=http://localhost:5173` + `reuseExistingServer: !process.env.CI` + `timeout: 30_000`. The Playwright runner polls the URL until 200 or timeout itself; `visual-report.ts` can call `await page.goto(...)` directly.
 
-#### 6.3 HTML 單檔 base64 大小
+**Note:** `reuseExistingServer` is true (non-CI); if a local dev server is already up it is reused; CI forces a restart (this ticket stays manual-trigger, so no CI scenario for now).
 
-**預估：** 4 條公開頁，每頁全頁截圖 PNG 預估 500 KB ~ 1.5 MB（視頁面內容長度）；base64 後膨脹 ~33% → 單檔 HTML 約 2~8 MB。
+#### 6.2 Existing Playwright config testMatch behavior — **Engineer must verify**
 
-**驗證門檻：** Engineer 首次產出後，`ls -la docs/reports/K-008-visual-report.html` 檢查檔案大小：
-- ≤ 10 MB：接受，commit。
-- > 10 MB：Engineer 在 ticket Retrospective 登記，不立刻優化；由 PM 決定是否列 K-008 後續 debt / 下一輪 ticket。
+**Issue:** `playwright.config.ts` doesn't set `testMatch` explicitly; Playwright default is `.*(test|spec)\.(js|ts|mjs)` → primarily a `spec.ts` glob, but in practice the default glob may cover `*.ts` (needs empirical confirmation).
 
-**備案（不在 K-008 scope 實作）：**
-- PNG → JPEG quality 85（彩色截圖可接受）
-- 改為分檔目錄 + `index.html` + `*.png`（需改 AC，由 PM 裁決）
+**Engineer must verify during implementation:**
+1. Write a stub `visual-report.ts` first, then run `npx playwright test` (no file specified)
+2. If the output lists visual-report.ts → it gets swept into the e2e suite (every normal test run would produce a report) → add `testIgnore: ['**/visual-report.ts']`
+3. If not listed → keep as-is; `npx playwright test visual-report.ts` (file specified) still runs
+4. Record the verification approach in the ticket Retrospective (Engineer section)
 
-#### 6.4 Playwright full page screenshot 的 viewport 一致性
+**Why not just edit the config directly:** editing config without measuring first risks misjudging the default; Engineer measures, then decides — prevents drift.
 
-**問題：** Playwright default viewport 為 1280×720；`fullPage: true` 會往下滾，但橫向維持 1280。若 `/app` 頁面在不同寬度下 layout 有差（K-Line 主頁 responsive），截圖只反映 1280px 視窗的狀態。
+#### 6.3 HTML single-file base64 size
 
-**結論：MVP 接受 1280 固定寬度**。報告每 section meta 標明 `Dimensions: 1280 × <actual height>`，讓讀者清楚是哪個 breakpoint 的截圖。未來若要多 breakpoint → 另開 ticket。
+**Estimate:** 4 public pages, each full-page PNG ~500 KB – 1.5 MB (depending on content length); base64 inflates ~33% → single HTML around 2–8 MB.
 
-#### 6.5 `docs/reports/` 目錄不存在時 fs.writeFileSync 會拋錯
+**Verification threshold:** after Engineer's first run, `ls -la docs/reports/K-008-visual-report.html` checks file size:
+- ≤ 10 MB: accept, commit.
+- > 10 MB: Engineer logs in ticket Retrospective, does not optimize immediately; PM decides whether to file as K-008 follow-up debt / next-cycle ticket.
 
-**結論：** 先 `fs.mkdirSync(path, { recursive: true })` 再 write。`.gitkeep` 只是 commit 階段保留空目錄用，runtime 不依賴它存在。
+**Fallbacks (not implemented in K-008 scope):**
+- PNG → JPEG quality 85 (acceptable for colour screenshots)
+- Switch to split directory + `index.html` + `*.png` (requires AC change; PM ruling needed)
 
-#### 6.6 script 語意與 `test` 函式產生的報告衝突
+#### 6.4 Playwright full-page screenshot viewport consistency
 
-**問題：** Playwright runner 預設會產 `playwright-report/` HTML（list reporter + html reporter 當 test 有 retry/fail 時）。我們自己也產 `docs/reports/K-XXX-visual-report.html`，名稱不同路徑不同，**不衝突**。但要注意：
-- 我們的 script 若 throw → Playwright 會當成 test 失敗 → 本身 runner 會產 `playwright-report/` 報告遮蔽實際問題。
-- 解法：script 內部的「頁面 goto / screenshot 失敗」不 rethrow，只記錄到 failures；最後在 `test.afterAll()` 裡聚合產 HTML 後才用 `expect(failures.length).toBe(0)` 斷言（確保 exit code 反映真實狀態）。
+**Issue:** Playwright default viewport is 1280×720; `fullPage: true` scrolls down but stays at 1280 wide. If `/app` has layout differences at different widths (K-Line home is responsive), the screenshot only reflects the 1280px viewport state.
+
+**Conclusion: MVP accepts a fixed 1280 width.** Each section's meta line states `Dimensions: 1280 × <actual height>` so the reader knows which breakpoint the screenshot represents. Multi-breakpoint capture goes into a future ticket.
+
+#### 6.5 fs.writeFileSync throws when `docs/reports/` does not exist
+
+**Conclusion:** `fs.mkdirSync(path, { recursive: true })` first, then write. `.gitkeep` is only for retaining the empty directory at commit time; runtime does not depend on it.
+
+#### 6.6 Script semantics vs reports produced by the `test` function
+
+**Issue:** Playwright runner produces `playwright-report/` HTML by default (list reporter + html reporter when tests retry/fail). We also produce `docs/reports/K-XXX-visual-report.html`; names and paths differ, so there is **no conflict**. But note:
+- If our script throws → Playwright treats it as a test failure → the runner itself produces a `playwright-report/` that obscures the real issue.
+- Solution: inside the script, "page goto / screenshot failures" do not rethrow — they are recorded to `failures`; finally, in `test.afterAll()` after the HTML is aggregated, assert with `expect(failures.length).toBe(0)` (so exit code reflects real state).
 
 ---
 
 ### 7. Triage Drift Check
 
-對 K-008 將異動的名稱對 `agent-context/architecture.md` 執行 grep：
+Grep `agent-context/architecture.md` for names K-008 will change:
 
-| 關鍵字 | 命中行 | 狀態 |
+| Keyword | Hit line | Status |
 |--------|--------|------|
-| `visual-report` | — | 未命中 |
-| `docs/reports` | line 50「Playwright visual-report 產出」 | 文件預留未落地；K-008 會讓此預留成真，無需修 drift |
-| `TICKET_ID` | — | 未命中 |
-| `e2e/fixtures` | 既有，無變動 | n/a |
+| `visual-report` | — | No hit |
+| `docs/reports` | line 50 "Playwright visual-report output" | Doc placeholder, not yet landed; K-008 will realize it — no drift fix needed |
+| `TICKET_ID` | — | No hit |
+| `e2e/fixtures` | exists, unchanged | n/a |
 
-**結論：無 Engineer 待辦的 drift 修正。** `docs/reports/` 於 line 50 已以「將產出」語氣登記，K-008 實作會讓它落地；此次在 architecture.md 新增「QA Artifacts」段正式將此目錄升格為結構元素（見 §8）。
-
----
-
-### 8. Architecture Doc 同步計畫
-
-`agent-context/architecture.md` 存在 → K-008 會新增 `e2e/visual-report.ts` + `docs/reports/K-XXX-visual-report.html` artifacts + env var 約定（`TICKET_ID`）。屬於「新模組 + 新 artifacts 目錄」→ 必須 Edit。
-
-**計畫（本次任務結束前由 Architect 執行）：**
-1. `updated:` 由 2026-04-18 → 2026-04-18（同日多次，無需改）
-2. Directory Structure 的 `e2e/` 區塊補一行：`│   │   │   ├── visual-report.ts     ← K-008 視覺報告 script`
-3. 新增 `## QA Artifacts` section（在 `## Frontend Routing` 之後、`## Auth Flow` 之前）：
-   - `docs/reports/` 目錄職責
-   - `visual-report.ts` 執行方式（env var + CLI 範例）
-   - 單檔 inline base64 的設計決策摘要
-4. Changelog append：`2026-04-18（Architect）— K-008 新增 QA visual report script 與 docs/reports/ artifacts 段`
+**Conclusion: no Engineer-actionable drift fix.** `docs/reports/` is already noted at line 50 in "to be produced" tense; K-008 implementation lands it. This time, architecture.md adds a new "QA Artifacts" section formally promoting the directory to a structural element (see §8).
 
 ---
 
-### 9. 放行狀態
+### 8. Architecture Doc Sync Plan
 
-**設計完成，Engineer 可接手。**
+`agent-context/architecture.md` exists → K-008 adds `e2e/visual-report.ts` + `docs/reports/K-XXX-visual-report.html` artifacts + env-var convention (`TICKET_ID`). This is "new module + new artifacts directory" → Edit required.
 
-**無 blocking question 要 PM 確認** — ticket 中 3 項 blocking（local dev server / 4 公開頁 / env var TICKET_ID）PM 已 lock；本次 Architect 追加決策（預設 `UNKNOWN` + warning、partial report + exit 1、inline base64 單檔 ≤ 10 MB、`testIgnore` 由 Engineer 實測後決定）屬 Architect 職權內，不需再回 PM。
-
-**Engineer 開工前須完成：**
-- `git worktree list` + 比對 HEAD 在最新 main（K-Line 規範）
-- 讀本段 §5 實作順序後再動手
+**Plan (Architect executes before this task ends):**
+1. `updated:` from 2026-04-18 → 2026-04-18 (same-day multi-edit; no change needed)
+2. Directory Structure `e2e/` block adds one line: `│   │   │   ├── visual-report.ts     ← K-008 visual report script`
+3. Add `## QA Artifacts` section (after `## Frontend Routing`, before `## Auth Flow`):
+   - `docs/reports/` directory responsibility
+   - `visual-report.ts` execution model (env var + CLI example)
+   - Summary of the single-file inline-base64 design decision
+4. Changelog append: `2026-04-18 (Architect) — K-008 added QA visual report script and docs/reports/ artifacts section`
 
 ---
 
-## Engineer（2026-04-18）
+### 9. Release Status
 
-### 實作摘要
+**Design complete; Engineer can take over.**
 
-按 Architect §5 依序落地，實際檔案異動：
+**No blocking questions for PM** — the 3 blocking items (local dev server / 4 public pages / env var TICKET_ID) were already locked by PM; Architect's additional decisions (default `UNKNOWN` + warning, partial report + exit 1, inline base64 single file ≤ 10 MB, `testIgnore` decided after Engineer measurement) all sit within Architect authority — no need to bounce back to PM.
 
-| 檔案 | 狀態 | 內容 |
+**Engineer must complete before starting:**
+- `git worktree list` + confirm HEAD is on the latest main (K-Line convention)
+- Read §5 implementation order before touching code
+
+---
+
+## Engineer (2026-04-18)
+
+### Implementation Summary
+
+Followed Architect §5 in order; actual file changes:
+
+| File | Status | Contents |
 |------|------|------|
-| `frontend/e2e/visual-report.ts` | 新增 | 255 行 Playwright test runner；routes 陣列 + 逐頁 goto+screenshot + `test.afterAll` 聚合產 HTML；失敗捕捉寫入 failure section 不 rethrow；最後用 `expect(failures).toHaveLength(0)` 決定 exit code。**ESM fix**：package.json `"type": "module"` → 用 `fileURLToPath(import.meta.url)` 取代 `__dirname`（Architect §5 未提及此 ESM 限制） |
-| `frontend/playwright.config.ts` | 修改 | 拆成兩個 project（`chromium` + `visual-report`），各自 `testMatch` regex。理由見下方 §6.2 實測 |
-| `docs/reports/.gitkeep` | 新增 | 空檔保留目錄 |
-| `docs/reports/K-008-visual-report.html` | 新增（產出物） | 1,039,886 B ≈ 1.04 MB，遠低於 §6.3 的 10 MB 門檻；4 張 full-page base64 PNG + 1 個 auth-required placeholder |
+| `frontend/e2e/visual-report.ts` | New | 255-line Playwright test runner; routes array + per-page goto+screenshot + `test.afterAll` aggregation producing HTML; failure capture writes a failure section without rethrow; final `expect(failures).toHaveLength(0)` decides exit code. **ESM fix:** package.json `"type": "module"` → use `fileURLToPath(import.meta.url)` instead of `__dirname` (Architect §5 did not mention this ESM constraint) |
+| `frontend/playwright.config.ts` | Modified | Split into two projects (`chromium` + `visual-report`), each with its own `testMatch` regex. Rationale in §6.2 measurement below |
+| `docs/reports/.gitkeep` | New | Empty file to retain the directory |
+| `docs/reports/K-008-visual-report.html` | New (artifact) | 1,039,886 B ≈ 1.04 MB, well below the §6.3 10 MB threshold; 4 full-page base64 PNGs + 1 auth-required placeholder |
 
-### §6.2 testMatch 實測結果（Engineer 必驗項）
+### §6.2 testMatch measurement (Engineer must-verify item)
 
-**實測步驟：**
-1. 寫完 `visual-report.ts` 後 `npx playwright test --list`（不指檔）→ 只列既有 4 files 45 tests，**default 不吃** visual-report.ts（因 default testMatch 是 `**/*.@(spec|test).?(c|m)[jt]s?(x)`，filename 不符）。
-2. 但 `TICKET_ID=K-008 npx playwright test visual-report.ts`（指定檔）也被同樣 default glob 擋掉 → `Error: No tests found`。
-3. 若把 testMatch 改成 regex 聯集（`[/.*\.spec\.ts$/, /visual-report\.ts$/]`），default `npx playwright test` 就會**連帶**把 visual-report.ts 吃進去，每次正常 E2E run 都會產 HTML 報告，違反 Architect §6.6「不應衝突」的意圖。
+**Steps:**
+1. After writing `visual-report.ts`, ran `npx playwright test --list` (no file specified) → only listed the existing 4 files / 45 tests; **the default does not pick up** visual-report.ts (the default testMatch is `**/*.@(spec|test).?(c|m)[jt]s?(x)`; filename does not match).
+2. But `TICKET_ID=K-008 npx playwright test visual-report.ts` (file specified) was also blocked by the same default glob → `Error: No tests found`.
+3. If testMatch is changed to a regex union (`[/.*\.spec\.ts$/, /visual-report\.ts$/]`), default `npx playwright test` will also start sweeping visual-report.ts in, producing an HTML report on every normal E2E run — violating Architect §6.6's "should not conflict" intent.
 
-**決策：per-project testMatch（Playwright 獨立 project 方案）**
-- `chromium` project：`testMatch: /.*\.spec\.ts$/` — 既有 45 tests 乾淨
-- `visual-report` project：`testMatch: /visual-report\.ts$/` — 獨立 5 tests
-- 驗證：`npx playwright test --project=chromium` → 45 tests 全綠；`TICKET_ID=K-008 npx playwright test visual-report.ts` → 自動綁定 `visual-report` project，跑 5 tests
-- **替代方案（未採用）**：單 project + `testIgnore` — 無法解決「CLI 指檔仍被 default 過濾」的核心問題
+**Decision: per-project testMatch (Playwright independent-project approach)**
+- `chromium` project: `testMatch: /.*\.spec\.ts$/` — existing 45 tests stay clean
+- `visual-report` project: `testMatch: /visual-report\.ts$/` — separate 5 tests
+- Verification: `npx playwright test --project=chromium` → 45 tests green; `TICKET_ID=K-008 npx playwright test visual-report.ts` → auto-binds to the `visual-report` project, runs 5 tests
+- **Alternative (rejected):** single project + `testIgnore` — does not solve the core "CLI file-spec still filtered by default" issue
 
-### §6.3 HTML 單檔大小
+### §6.3 HTML single-file size
 
-1.04 MB，通過 ≤ 10 MB 門檻，無需進 debt 清單。
+1.04 MB, passes the ≤ 10 MB threshold; no debt entry needed.
 
-### 本地驗證結果
+### Local verification results
 
-| 項目 | 結果 |
+| Item | Result |
 |------|------|
 | `npx tsc --noEmit` | exit 0 |
-| `TICKET_ID=K-008 npx playwright test visual-report.ts` | 5 passed (4.5s)，exit 0 |
-| `npx playwright test --project=chromium` | 45 passed (12.4s)，exit 0（regression 檢查） |
-| HTML 產出路徑 | `docs/reports/K-008-visual-report.html` (1,039,886 B) |
-| HTML 結構 | 1× h1 + 4× success section（含 route/dimensions/HTTP status/base64 PNG）+ 1× auth-required placeholder，HTML 閉合良好 |
+| `TICKET_ID=K-008 npx playwright test visual-report.ts` | 5 passed (4.5s), exit 0 |
+| `npx playwright test --project=chromium` | 45 passed (12.4s), exit 0 (regression check) |
+| HTML output path | `docs/reports/K-008-visual-report.html` (1,039,886 B) |
+| HTML structure | 1× h1 + 4× success sections (with route/dimensions/HTTP status/base64 PNG) + 1× auth-required placeholder, HTML well-formed |
 
-### AC 達成確認
+### AC achievement check
 
-- **AC-008-SCRIPT** ✅ — `TICKET_ID=K-008 npx playwright test visual-report.ts` exit 0、`docs/reports/K-008-visual-report.html` 產出
-- **AC-008-CONTENT** ✅ — 4 條公開頁各一張 full-page 截圖 + route path（`/` `/app` `/about` `/diary`）、`/business-logic` 明示「需登入，下期補（K-008 MVP 不做 auth fixture）」placeholder
+- **AC-008-SCRIPT** ✅ — `TICKET_ID=K-008 npx playwright test visual-report.ts` exit 0, `docs/reports/K-008-visual-report.html` produced
+- **AC-008-CONTENT** ✅ — full-page screenshot for each of the 4 public pages + route path (`/` `/app` `/about` `/diary`); `/business-logic` shows the explicit "auth required, follow-up ticket (K-008 MVP omits auth fixture)" placeholder
 
-### 未解決 / 後續 debt
+### Open / follow-up debt
 
-無 blocking question。以下為非阻礙的觀察（供 PM / 後續 ticket 參考）：
+No blocking questions. Non-blocking observations (for PM / future tickets):
 
-1. **`/app` 截圖高度 720**（其他頁 1087~3502）— `/app` 載入時後端 `/api/history-info` proxy ECONNREFUSED（後端未跑），頁面停留在 loading 或空狀態。MVP 接受（報告目的是反映「當前本地跑出來的樣子」），若要「有資料的 /app 截圖」需另開 ticket 引入後端 fixture 或 mock。
-2. **`waitUntil: 'networkidle'`** — 對 `/business-logic` 以外 4 頁用，在後端不可用的環境可能等到 5s 才 timeout 觸發（實測 `/app` 1.1s pass、`/` 1.2s pass）。若未來加入後端 mock 可改 `'load'`。
+1. **`/app` screenshot height 720** (other pages 1087–3502) — when `/app` loads, the backend `/api/history-info` proxy returns ECONNREFUSED (backend not running), so the page stays at loading or empty state. MVP accepts this (the report's purpose is to reflect "what the local run currently looks like"); to get a "data-loaded /app screenshot" requires a separate ticket introducing a backend fixture or mock.
+2. **`waitUntil: 'networkidle'`** — used for the 4 pages other than `/business-logic`; with backend unavailable, this may wait the full 5s timeout (measured: `/app` 1.1s pass, `/` 1.2s pass). If a backend mock is added in the future, switch to `'load'`.
 
-### 修復 W1/W3/W4/S2（2026-04-18）
+### W1/W3/W4/S2 fixes (2026-04-18)
 
-承接 PM 裁決（本檔 `## Code Review` §PM 裁決）後的實作。反省在 `docs/retrospectives/engineer.md` 2026-04-18 Bug Found Protocol 條目。
+Implemented after PM ruling (this file's `## Code Review` §PM ruling). Retrospective in `docs/retrospectives/engineer.md` 2026-04-18 Bug Found Protocol entry.
 
-| 項目 | 檔案 / 行 | 摘要 |
+| Item | File / Line | Summary |
 |------|-----------|------|
-| W1 | `frontend/e2e/visual-report.ts` L72~93（`resolveTicketId()`）、L235~244（`test.describe` + `test.beforeAll`） | `resolveTicketId()` 不再在 module 頂層呼叫；改由 `test.beforeAll()` lazy 解析 `ticketId` / `outputPath`。module load 不再印 warning，`npx playwright test --list` stdout 乾淨 |
-| W3 | `frontend/e2e/visual-report.ts` L237~244 | `results: SectionResult[]` 陣列移入 `test.describe` closure 並由 `beforeAll` 每次重置；原本模組頂層 `const results = []` 已移除。未來開 retries / `--repeat-each` 不會累積重複 section |
-| W4 | `frontend/e2e/visual-report.ts` L79~93（`resolveTicketId()`） | 讀完 `process.env.TICKET_ID` 做 `replace(/^K-/i, '')` normalize 後，加 whitelist regex `/^[A-Za-z0-9_-]+$/`；不合法直接 `throw new Error('Invalid TICKET_ID: ...')`，阻止 HTML 寫出 |
-| S2 | `.gitignore` L31~32（新增段落） | 新增 `docs/reports/*.html` 一行；`docs/reports/.gitkeep` 仍在且未受 ignore 影響，保留 PR 時目錄結構 |
+| W1 | `frontend/e2e/visual-report.ts` L72–93 (`resolveTicketId()`), L235–244 (`test.describe` + `test.beforeAll`) | `resolveTicketId()` no longer called at module top level; `ticketId` / `outputPath` now resolved lazily in `test.beforeAll()`. Module load no longer prints a warning; `npx playwright test --list` stdout is clean |
+| W3 | `frontend/e2e/visual-report.ts` L237–244 | The `results: SectionResult[]` array is moved into the `test.describe` closure and reset by `beforeAll` on each run; the original module-level `const results = []` is removed. Future retries / `--repeat-each` will not accumulate duplicate sections |
+| W4 | `frontend/e2e/visual-report.ts` L79–93 (`resolveTicketId()`) | After reading `process.env.TICKET_ID` and normalizing with `replace(/^K-/i, '')`, apply the whitelist regex `/^[A-Za-z0-9_-]+$/`; invalid input directly `throw new Error('Invalid TICKET_ID: ...')`, blocking HTML emission |
+| S2 | `.gitignore` L31–32 (new section) | Added `docs/reports/*.html`; `docs/reports/.gitkeep` remains and is unaffected by the ignore, so the directory structure is preserved in PRs |
 
-**副作用：** `renderHtml()` 改為接受 `(ticketId, results)` 參數（原為讀 module-level 變數）；`renderSection()` 不動。Architect §3 的 HTML 章節仍成立。
+**Side effects:** `renderHtml()` now accepts `(ticketId, results)` parameters (previously read from module-level variables); `renderSection()` unchanged. Architect §3's HTML section still holds.
 
-**本地驗收（全 6 步通過）：**
+**Local acceptance (all 6 steps passed):**
 
-| 步驟 | 指令 | 結果 |
+| Step | Command | Result |
 |------|------|------|
 | 1 | `cd frontend && npx tsc --noEmit` | exit 0 |
-| 2 | `cd frontend && npx playwright test --list 2>&1 \| grep -i "TICKET_ID not set"` | 無輸出（W1 驗收通過） |
+| 2 | `cd frontend && npx playwright test --list 2>&1 \| grep -i "TICKET_ID not set"` | No output (W1 acceptance passed) |
 | 3 | `cd frontend && npx playwright test --project=chromium` | 45 passed (12.6s) |
-| 4 | `cd frontend && TICKET_ID=K-008 npx playwright test visual-report.ts` | 5 passed (4.5s)，HTML 產出 1,039,886 B |
-| 5 | `cd frontend && TICKET_ID=../../etc/passwd npx playwright test visual-report.ts` | `Error: Invalid TICKET_ID: ../../etc/passwd`；HTML 未產出（W4 驗收通過） |
-| 6 | `git -C <inner repo> status --untracked-files=all` | `docs/reports/*.html` 不出現（`check-ignore -v` 回 `.gitignore:32`）；僅 `.gitkeep` 列 untracked |
+| 4 | `cd frontend && TICKET_ID=K-008 npx playwright test visual-report.ts` | 5 passed (4.5s), HTML produced 1,039,886 B |
+| 5 | `cd frontend && TICKET_ID=../../etc/passwd npx playwright test visual-report.ts` | `Error: Invalid TICKET_ID: ../../etc/passwd`; HTML not produced (W4 acceptance passed) |
+| 6 | `git -C <inner repo> status --untracked-files=all` | `docs/reports/*.html` does not appear (`check-ignore -v` returns `.gitignore:32`); only `.gitkeep` shows as untracked |
 
 ---
 
 ## Retrospective
 
-### Engineer（2026-04-18）
+### Engineer (2026-04-18)
 
-**AC 判斷：** AC-008-SCRIPT + AC-008-CONTENT 兩條都能在 MVP 範圍內直接落地，無歧義。
+**AC reading:** AC-008-SCRIPT + AC-008-CONTENT both land directly within MVP scope without ambiguity.
 
-**testMatch 邊界沒預料到：** Architect §6.2 預期「default testMatch 不吃 → 不需改」或「吃到 → 加 testIgnore」兩種分支，實際踩到第三種：**default 不吃但 CLI 指檔也被擋**。原因是 Playwright default glob (`*.@(spec|test).?(c|m)[jt]s?(x)`) 對 CLI file-filter 也生效，不是 CLI 覆寫 testMatch。解法用 per-project testMatch（乾淨分離，不污染 default E2E run），但這個分支 Architect 沒列，我在實作時先踩錯兩次（先試 `testMatch: [regex1, regex2]` → default 被污染；才改 per-project）。
+**testMatch edge case unanticipated:** Architect §6.2 expected two branches — "default testMatch does not pick up → no change" or "picks up → add testIgnore". The actual third branch hit was: **default does not pick up, but CLI file-spec is also blocked**. The cause is that the Playwright default glob (`*.@(spec|test).?(c|m)[jt]s?(x)`) also applies to the CLI file-filter; the CLI does not override testMatch. The fix uses per-project testMatch (clean separation that does not pollute the default E2E run); Architect did not list this branch, and I ran into two wrong attempts during implementation (first tried `testMatch: [regex1, regex2]` → polluted default; then switched to per-project).
 
-**ESM 沒預料到：** Architect §3 HTML template 示意 `fs.writeFileSync`，但沒提 `package.json "type": "module"` 會讓 `__dirname` 在 TS→ESM 編譯後不可用。第一次跑 `--list` 才遇到 `ReferenceError: __dirname is not defined in ES module scope`，改用 `fileURLToPath(import.meta.url)` 解掉。
+**ESM unanticipated:** Architect §3 HTML template implied `fs.writeFileSync` but did not mention that `package.json "type": "module"` would make `__dirname` unavailable after TS→ESM compilation. The first `--list` run hit `ReferenceError: __dirname is not defined in ES module scope`; switched to `fileURLToPath(import.meta.url)` to resolve.
 
-**下次改善：**
-1. **Engineer 實作前用 `--list` 試空殼** — 在骨架 (B) 階段就 `npx playwright test visual-report.ts --list` 驗證 runner 能看到檔，不要等到真的要跑才發現 filename filter 問題。
-2. **ESM 環境先查 `package.json`** — 任何新增的 `.ts` 如果用到 Node runtime globals（`__dirname` / `__filename` / `require`），先 `grep '"type"' package.json`，`module` 就立刻用 `import.meta.url` 寫法。
-3. **Architect §6 風險條款發現新分支要補回** — §6.2 的「default 不吃」結論沒涵蓋「CLI 指檔也被擋」，這次實測的 per-project 方案應補回 architecture.md 或 Architect retrospective，避免下次又踩（我會把這件事轉給 Architect）。
+**Next time improvement:**
+1. **Engineer runs `--list` on the stub before implementing** — at skeleton step (B), run `npx playwright test visual-report.ts --list` to verify the runner can see the file, instead of waiting until the actual run to discover the filename filter issue.
+2. **Check `package.json` for ESM environment first** — for any new `.ts` that uses Node runtime globals (`__dirname` / `__filename` / `require`), first `grep '"type"' package.json`; if `module`, immediately use `import.meta.url` style.
+3. **New Architect §6 risk-clause branches must be folded back in** — §6.2's "default does not pick up" conclusion did not cover "CLI file-spec also blocked"; the per-project measurement should be folded back into architecture.md or Architect retrospective so it isn't hit again (I will hand this back to Architect).
 
-### QA 反省（2026-04-18）
+### QA Reflection (2026-04-18)
 
-**沒做好：**
-- 回歸計畫由 PM prompt 預先列 6 步，QA 只是按表執行；未自行加碼邊界測試（e.g. `TICKET_ID` 為空字串、純空白、含 Unicode、`K-` 大小寫混用），W4 whitelist 的 negative path 只驗了 `../../etc/passwd` 一個 payload。若使用者誤傳 `TICKET_ID=" "` 或 `TICKET_ID="K-008 "` 帶尾空白，regex 會拒絕，但 QA 沒跑過、沒文件化此行為，未來 bug 溯源沒參考點。
-- 未自行列出「所有共用檔案」的下游影響清單：本票修改 `.gitignore` / `playwright.config.ts` 均為跨 spec 影響面，QA 只跑 `--project=chromium` 驗 45 tests 回歸，沒對 `.gitignore` 做「其他 HTML 產物是否意外被 ignore」的獨立掃描（e.g. `frontend/dist/*.html`、`coverage/*.html`）。Reviewer 的 `check-ignore -v` 輸出顯示 rule 精確命中 `docs/reports/*.html`，未有 overreach，但 QA 這次是照 PM step 6 驗，不是自己主動查。
-- HTML 產物的「內容層」驗證掛空：size 1,039,886 B 通過 >500KB/<10MB 門檻，但沒開啟 HTML 檢查 `/app` section 是否仍是空狀態（1.04 MB 合理是因為 3 張頁有內容，但若 `/app` 變 3500px 高、`/business-logic` 被誤當成 auth-required，size 也會落在正常區間）。AC-008-CONTENT 條文「每張截圖有對應的 route path 標記」QA 沒實際開 HTML 看，只靠 Engineer 自述。
+**What didn't go well:**
+- The regression plan was pre-listed as 6 steps in the PM prompt; QA only executed by the table without adding boundary tests (e.g. `TICKET_ID` empty string, all-whitespace, with Unicode, mixed-case `K-`); the W4 whitelist negative path was only verified with the single `../../etc/passwd` payload. If a user accidentally passed `TICKET_ID=" "` or `TICKET_ID="K-008 "` with trailing whitespace, the regex would reject it — but QA never ran or documented this behavior, leaving no reference for future bug triage.
+- Did not produce a downstream-impact list for "all shared files": this ticket modifies `.gitignore` / `playwright.config.ts`, both cross-spec impact surfaces; QA only ran `--project=chromium` to verify the 45-test regression, without an independent sweep of `.gitignore` for "are other HTML artifacts unintentionally being ignored?" (e.g. `frontend/dist/*.html`, `coverage/*.html`). The Reviewer's `check-ignore -v` output showed the rule matched `docs/reports/*.html` precisely with no overreach, but QA only verified per PM step 6 rather than checking proactively.
+- The "content layer" verification of the HTML artifact was missing: size 1,039,886 B passed the >500KB/<10MB threshold, but the HTML wasn't opened to check whether `/app` was still in an empty state (1.04 MB makes sense because 3 pages have content, but if `/app` were 3500px tall and `/business-logic` had been mistakenly classified as auth-required, the size would still fall in the normal range). AC-008-CONTENT's "each screenshot has a corresponding route-path label" was never verified by actually opening the HTML — QA relied on the Engineer's self-report.
 
-**下次改善：**
-1. **邊界 payload 自動擴展清單** — 凡涉及 env var / CLI 輸入的 ticket，QA 自備固定清單（空字串、純空白、尾空白、大小寫、Unicode、overflow 長度），不等 Reviewer 列 payload；跑完附回歸報告。
-2. **跨檔案影響盤點** — 任何修改 `.gitignore` / 跨 spec config 的 ticket，QA 執行 `git check-ignore -v` 對 repo 內常見產物目錄（`dist/`、`coverage/`、`node_modules/`、`docs/`）各抽 1 個 sample 檔案，確認無 overreach。
-3. **產物內容驗證** — HTML / JSON / 任何可 read 的 artifact，QA 至少做一次結構抽樣（e.g. HTML 用 `grep -c "<section"` 驗 section 數、`grep "data:image/png"` 驗 base64 張數），不僅看 size。本票可補 `grep -c 'class="page-section' docs/reports/K-008-visual-report.html` → 應為 5（4 success + 1 auth-required）。
+**Next time improvement:**
+1. **Auto-expand boundary payload list** — for any ticket involving env var / CLI input, QA prepares a fixed list (empty string, all-whitespace, trailing whitespace, case variants, Unicode, length overflow) without waiting for the Reviewer to list payloads; attach the regression report after running.
+2. **Cross-file impact inventory** — for any ticket modifying `.gitignore` / cross-spec config, QA runs `git check-ignore -v` on a sample file from each common artifact directory (`dist/`, `coverage/`, `node_modules/`, `docs/`) to confirm no overreach.
+3. **Artifact content verification** — for HTML / JSON / any readable artifact, QA samples structure at least once (e.g. `grep -c "<section"` for HTML section count, `grep "data:image/png"` for base64 count); not just size. For this ticket, add `grep -c 'class="page-section' docs/reports/K-008-visual-report.html` → should be 5 (4 success + 1 auth-required).
 
 ---
 
-## Code Review（2026-04-18）
+## Code Review (2026-04-18)
 
 Reviewer: senior-engineer agent
-範圍：`frontend/e2e/visual-report.ts`（+255）、`frontend/playwright.config.ts`（拆 2 project）、`docs/reports/.gitkeep`、`docs/reports/K-008-visual-report.html`（產物 1.04 MB）、architecture.md §QA Artifacts
+Scope: `frontend/e2e/visual-report.ts` (+255), `frontend/playwright.config.ts` (split into 2 projects), `docs/reports/.gitkeep`, `docs/reports/K-008-visual-report.html` (artifact 1.04 MB), architecture.md §QA Artifacts
 
-### Critical（必修）
+### Critical (must-fix)
 
-**無。** 實作符合 AC-008-SCRIPT + AC-008-CONTENT；`npx tsc --noEmit` exit 0；`npx playwright test --project=chromium` 既有 45 tests 全綠，`TICKET_ID=K-008 npx playwright test visual-report.ts` 5 tests 全綠；XSS 面被 `escapeHtml` 完整覆蓋；exit code 經 `expect(failures).toHaveLength(0)` 正確反映實際狀態。
+**None.** Implementation matches AC-008-SCRIPT + AC-008-CONTENT; `npx tsc --noEmit` exit 0; `npx playwright test --project=chromium` 45 existing tests green; `TICKET_ID=K-008 npx playwright test visual-report.ts` 5 tests green; XSS surface fully covered by `escapeHtml`; exit code correctly reflects real state via `expect(failures).toHaveLength(0)`.
 
-### Warning（建議修）
+### Warning (suggested fixes)
 
-**W1 — `resolveTicketId()` warning 污染 default Playwright 工作流**（`visual-report.ts:88`）
-模組頂層 `const TICKET_ID = resolveTicketId()` 在 Playwright collect tests 時被 import（即便 `--project=chromium` 不跑此檔），實測 `cd frontend && npx playwright test --list` stdout 就先印 `[visual-report] WARNING: TICKET_ID not set...`，混進既有 E2E 流程 log。建議：把 `resolveTicketId()` 移進 `test.beforeAll()` 或 `test.afterAll()` 內，或改為 `function` lazy 取得。模組載入階段不計算、不輸出 side effect。
+**W1 — `resolveTicketId()` warning pollutes the default Playwright workflow** (`visual-report.ts:88`)
+The module-level `const TICKET_ID = resolveTicketId()` is imported when Playwright collects tests (even when `--project=chromium` does not run this file); empirically `cd frontend && npx playwright test --list` already prints `[visual-report] WARNING: TICKET_ID not set...` to stdout, contaminating the existing E2E flow log. Recommendation: move `resolveTicketId()` inside `test.beforeAll()` or `test.afterAll()`, or refactor to a lazy `function`. Module-load phase should not compute or emit side effects.
 
-**W2 — architecture.md §QA Artifacts line 425 stale（設計 vs 實作 drift）**
-Architect §8 原寫：「若未來發現預設 glob 會把 visual-report.ts 拉進 e2e suite → 加 `testIgnore`」。Engineer 實測踩到「default 不吃但 CLI 指檔也被擋」第三分支，選擇 per-project testMatch 拆 2 project（非 testIgnore）。architecture.md line 425 仍保留 stale 說法。需要 Architect 更新 §QA Artifacts：
-- final 決策：per-project testMatch（`chromium` / `visual-report` 兩 project）
-- rationale：default testMatch + CLI file-filter 互動行為 + testIgnore 不解決 CLI 指檔問題
-- 副作用說明：以後新增 spec 需確認歸 `chromium` project、新增其他 visual-report 類需新建 project 或擴 `visual-report` testMatch regex
+**W2 — architecture.md §QA Artifacts line 425 stale (design vs implementation drift)**
+Architect §8 originally wrote: "if the default glob is later found to pull visual-report.ts into the e2e suite → add `testIgnore`". Engineer hit the third branch (default does not pick up but CLI file-spec also blocked), and chose per-project testMatch splitting into 2 projects (not testIgnore). architecture.md line 425 retains the stale wording. Architect must update §QA Artifacts:
+- Final decision: per-project testMatch (`chromium` / `visual-report` two projects)
+- Rationale: default testMatch + CLI file-filter interaction + testIgnore does not solve the CLI file-spec problem
+- Side-effect notes: future new specs must be confirmed to belong to the `chromium` project; new visual-report-style files require either a new project or extending the `visual-report` testMatch regex
 
-**W3 — 模組級 `results: SectionResult[] = []` 非 test-scoped**（`visual-report.ts:72`）
-若未來 `playwright.config.ts` 開啟 `retries`，或 dev 以 `--repeat-each=2` 跑，results 陣列不清空 → HTML 會出現重複 page section。目前 retries 未設，風險為潛在。建議：results 移進 `test.describe` callback 內用 `test.beforeAll()` 重置（每批 run 初始化一次）。
+**W3 — module-level `results: SectionResult[] = []` is not test-scoped** (`visual-report.ts:72`)
+If `playwright.config.ts` later enables `retries`, or dev runs with `--repeat-each=2`, the results array does not clear → HTML will show duplicate page sections. retries is currently unset, so the risk is latent. Recommendation: move results into the `test.describe` callback and reset with `test.beforeAll()` (initialize once per batch run).
 
-**W4 — `TICKET_ID` 未 whitelist，潛在 path traversal**（`visual-report.ts:85~92`）
-`TICKET_ID=../../etc/passwd npx playwright test visual-report.ts` 會算出 `OUTPUT_PATH = docs/etc/passwd-visual-report.html`（已實測 `path.join` 結果）。使用者自設惡意 env var 才可觸發，threat model 低，但 2 行 validation 即可封掉：
+**W4 — `TICKET_ID` lacks whitelist; potential path traversal** (`visual-report.ts:85–92`)
+`TICKET_ID=../../etc/passwd npx playwright test visual-report.ts` would compute `OUTPUT_PATH = docs/etc/passwd-visual-report.html` (verified via `path.join`). Only triggerable by a user setting a malicious env var; threat model is low, but 2 lines of validation seal it:
 ```
 const normalized = raw.replace(/^K-/i, '')
 if (!/^[A-Za-z0-9_-]+$/.test(normalized)) throw new Error(`Invalid TICKET_ID: ${raw}`)
 ```
 
-### Suggestion（登記技術債）
+### Suggestions (filed as tech debt)
 
-**S1 → TD-012 — `/app` 空狀態截圖報告價值低**
-Engineer 已於 §「未解決 / 後續 debt」1 記錄：`/app` 因後端 ECONNREFUSED 停在 loading/空狀態，截圖高度 720。AC-008-CONTENT 技術達成（有 full-page 截圖 + route 標記），但「視覺驗收」價值為零。登記 TD-012；解法方向：啟動時 probe backend 可用性、不可用就降級為「auth-required」類 placeholder；或引入 backend fixture / mock。
+**S1 → TD-012 — `/app` empty-state screenshot report has low value**
+Engineer already noted in §"Open / follow-up debt" item 1: `/app` stalls at loading/empty due to backend ECONNREFUSED, screenshot height is 720. AC-008-CONTENT is technically met (full-page screenshot + route label exist), but the "visual acceptance" value is zero. File as TD-012; solution direction: probe backend availability at startup, downgrade to an "auth-required"-style placeholder when unavailable; or introduce backend fixture / mock.
 
-**S2 — HTML 產物進版控策略（需 PM 裁決，不是 bug）**
-現況：`docs/reports/K-008-visual-report.html` 1.04 MB 已 untracked，等 commit。每張 ticket 一份且含 binary-ish base64 → git diff 無意義、repo size 會線性膨脹。選項：
-- (a) commit 進版控 — 方便 PR / GitHub 線上瀏覽、使用者離線看；代價 repo 膨脹
-- (b) `.gitignore` 加 `docs/reports/*.html`，只保留 `.gitkeep` — repo 乾淨，需要時本地重產
-- (c) 只 commit 「milestone 類」報告（PM/QA 通過 Phase 收尾時），其餘 gitignore
+**S2 — HTML artifact version-control strategy (PM ruling required, not a bug)**
+Current state: `docs/reports/K-008-visual-report.html` 1.04 MB is untracked, awaiting commit. One per ticket with binary-ish base64 → git diff is meaningless, repo size grows linearly. Options:
+- (a) commit into version control — convenient for PR / online GitHub viewing / offline user reading; cost is repo bloat
+- (b) add `docs/reports/*.html` to `.gitignore`, keep only `.gitkeep` — clean repo, regenerate locally when needed
+- (c) commit only "milestone" reports (when PM/QA close a Phase); gitignore the rest
 
-Reviewer 推薦 (b)，理由：`visual-report.ts` 可隨時本地重產、QA 流程已把報告路徑通知給 PM（使用者可本地開），binary 檔進 git 長期成本高於效益。需 PM 決議。
+Reviewer recommends (b), rationale: `visual-report.ts` can regenerate locally any time, the QA flow already notifies the PM of the report path (the user can open it locally), and committing binary files long-term costs more than online-viewing convenience. Needs PM ruling.
 
-**S3 — architecture.md Pages 行與實作 drift（minor）**（`visual-report.ts:250` vs architecture.md §3）
-Architect §3 HTML 設計 `Pages: 4 captured, {failures} failed`；Engineer 擴充為 `Pages: {successes} captured, {failures} failed, {authRequired} auth-required (not captured)`。擴充合理（多 auth-required 計數更準），但 architecture.md 未同步。建議 Architect 一併於 W2 修 §QA Artifacts 時補上。
+**S3 — architecture.md Pages line drifts from implementation (minor)** (`visual-report.ts:250` vs architecture.md §3)
+Architect §3 HTML design said `Pages: 4 captured, {failures} failed`; Engineer extended to `Pages: {successes} captured, {failures} failed, {authRequired} auth-required (not captured)`. The extension is reasonable (more accurate auth-required count) but architecture.md is not synced. Suggest Architect fold this fix into the W2 §QA Artifacts edit.
 
-**S4 — Pass items（確認通過）**
-- TypeScript 型別完整（discriminated union `SectionResult`）
-- XSS：`escapeHtml` 正確覆蓋 label / routePath / error message / error stack / TICKET_ID / generatedAt
-- 錯誤處理：per-page try/catch + stack 前 3 行 + 不 rethrow + afterAll 聚合 exit code，正確依 Architect §6.6 設計
-- `fs.mkdirSync(OUTPUT_DIR, { recursive: true })` 處理目錄不存在情境（Architect §6.5）
-- 既有 4 支 spec（`pages` / `ma99-chart` / `business-logic` / `navbar`）未被污染（實測 `--project=chromium` 45 pass）
-- `console.log/warn` 有 eslint-disable 註解並僅在 script / afterAll 使用，屬開發工具合理使用
+**S4 — Pass items (confirmed)**
+- TypeScript types complete (discriminated union `SectionResult`)
+- XSS: `escapeHtml` correctly covers label / routePath / error message / error stack / TICKET_ID / generatedAt
+- Error handling: per-page try/catch + first 3 stack lines + no rethrow + afterAll aggregation exit code, correctly per Architect §6.6 design
+- `fs.mkdirSync(OUTPUT_DIR, { recursive: true })` handles directory-missing case (Architect §6.5)
+- Existing 4 specs (`pages` / `ma99-chart` / `business-logic` / `navbar`) untainted (verified `--project=chromium` 45 pass)
+- `console.log/warn` carries eslint-disable comments and is only used inside the script / afterAll — reasonable dev-tool usage
 
-### 技術債登記草案
+### Tech debt registration draft
 
-| ID | 項目 | 優先級 | 備註 |
+| ID | Item | Priority | Notes |
 |----|------|--------|------|
-| TD-012 | visual-report `/app` 空狀態截圖 — 後端不可用時 placeholder 降級 | 低 | 待 PM 裁決後登記 |
+| TD-012 | visual-report `/app` empty-state screenshot — placeholder downgrade when backend unavailable | Low | Awaits PM ruling before filing |
 
-### PM 裁決表（Reviewer 待裁決事項）
+### PM Ruling Table (items requiring Reviewer-to-PM decision)
 
-| # | 發現 | 嚴重度 | Reviewer 建議 | 需 PM 決策 |
+| # | Finding | Severity | Reviewer recommendation | PM decision needed |
 |---|------|--------|---------------|-----------|
-| W1 | TICKET_ID warning 污染 default run | Warning | 本張 ticket 內修（移進 test scope） | 修 / 延後 |
-| W2 | architecture.md §QA Artifacts stale | Warning | 召 Architect 補 per-project 決策與副作用 | 修 / 延後 |
-| W3 | module-level `results` 非 scoped | Warning | 本張 ticket 內修（加 `test.beforeAll` 重置） | 修 / 延後 |
-| W4 | TICKET_ID 缺 whitelist（path traversal） | Warning | 本張 ticket 內修（2 行 validation） | 修 / 延後 |
-| S1 | `/app` 空狀態報告價值低 | Suggestion | 登記 TD-012 | 確認 TD-012 編號與優先級 |
-| S2 | HTML 產物版控策略 | Suggestion | 推薦 (b) `.gitignore` + `.gitkeep` | 選 (a) / (b) / (c) |
-| S3 | Pages 行 minor drift | Suggestion | 隨 W2 一併補 | — |
+| W1 | TICKET_ID warning pollutes default run | Warning | Fix in this ticket (move into test scope) | Fix / Defer |
+| W2 | architecture.md §QA Artifacts stale | Warning | Summon Architect to add per-project decision and side effects | Fix / Defer |
+| W3 | module-level `results` not scoped | Warning | Fix in this ticket (add `test.beforeAll` reset) | Fix / Defer |
+| W4 | TICKET_ID lacks whitelist (path traversal) | Warning | Fix in this ticket (2-line validation) | Fix / Defer |
+| S1 | `/app` empty-state report low value | Suggestion | File as TD-012 | Confirm TD-012 ID + priority |
+| S2 | HTML artifact version-control strategy | Suggestion | Recommend (b) `.gitignore` + `.gitkeep` | Choose (a) / (b) / (c) |
+| S3 | Pages line minor drift | Suggestion | Fold into W2 fix | — |
 
-### PM 裁決（2026-04-18）
+### PM Ruling (2026-04-18)
 
-| # | 決定 | 理由 | 負責角色 |
+| # | Decision | Rationale | Owner |
 |---|------|------|---------|
-| W1 | 本票內修 | 模組頂層 side effect 污染所有 Playwright run（`--list` 都會印 warning），修法明確（移進 test scope / lazy function），成本 <5 行；留下等於每次跑既有 E2E 都被雜訊污染，debt 滾利。 | Engineer |
-| W2 | 本票內修 | architecture.md 是下一個 ticket 的輸入源，stale 設計 vs 實作 drift 直接誤導後續 ticket（例如新 visual-report 類 spec 會照舊走 `testIgnore` 死路）；Architect retrospective §3 已明示此項應回補，本票不修等於前 retrospective 結論落空。 | Architect |
-| W3 | 本票內修 | 雖目前 retries=0 風險未現形，但修法與 W1 同一次改動區（`visual-report.ts` 模組頂層→test scope），同時修邊際成本 0；拆到下票反而要重開 context。 | Engineer |
-| W4 | 本票內修 | 採納 Reviewer 原評估（threat model 低但 2 行 validation 封掉）；凡「外部輸入 → 生成檔名」預設 whitelist 已列入 Reviewer retrospective 未來 AC 模板，這次先從本票示範落實。 | Engineer |
-| S1 | 技術債 TD-012 | 根因解法（backend probe / fixture / mock）範疇超出視覺報告腳本本身，屬 `/app` 測試資料策略問題；TD-012 優先級「低」，待有相關 ticket 時一併處理（當前截圖行為已達 AC-008-CONTENT）。 | — |
-| S2 | (b) `.gitignore` + `.gitkeep` | 採納 Reviewer 推薦：HTML 報告可本地重產（`npx playwright test visual-report.ts` 即得），QA 流程已把路徑通知 PM（使用者本地開即可），1 MB × N ticket 進 git 長期成本 > 線上瀏覽便利性。若未來有「milestone 歸檔」需求再議 (c)，本票先 (b)。 | Engineer |
-| S3 | 隨 W2 修 | 同檔案同段落（architecture.md §3 / §QA Artifacts）單次改動成本最低；分兩次反而要 Architect 二次進場。 | Architect |
+| W1 | Fix in this ticket | Module-level side effect pollutes every Playwright run (`--list` also prints the warning); fix is clear (move to test scope / lazy function), cost <5 lines; leaving it means every existing E2E run is noise-polluted, debt compounds. | Engineer |
+| W2 | Fix in this ticket | architecture.md is the input source for the next ticket; stale design-vs-implementation drift directly misleads follow-up tickets (e.g. a new visual-report-style spec would walk down the dead-end `testIgnore` path). Architect retrospective §3 already said this should be folded back; not fixing here means the prior retrospective conclusion is hollow. | Architect |
+| W3 | Fix in this ticket | Although retries=0 keeps risk latent, the fix lives in the same change region as W1 (`visual-report.ts` module top → test scope); marginal cost of fixing together is 0; splitting to a later ticket would force re-opening context. | Engineer |
+| W4 | Fix in this ticket | Adopt Reviewer's original assessment (threat model low but 2-line validation seals it); the rule "external input → generated filename → default whitelist" is already in the Reviewer retrospective future-AC template, and this ticket serves as the first concrete instance. | Engineer |
+| S1 | Tech debt TD-012 | The root-cause solution (backend probe / fixture / mock) reaches beyond the visual report script itself — it's a `/app` test-data strategy issue. TD-012 is "low" priority, handled together with a related ticket later (current screenshot behavior already meets AC-008-CONTENT). | — |
+| S2 | (b) `.gitignore` + `.gitkeep` | Adopt Reviewer's recommendation: HTML reports can be regenerated locally (just run `npx playwright test visual-report.ts`); the QA flow already informs PM of the path (user opens locally); 1 MB × N tickets in git long-term costs more than online-viewing convenience. If a future "milestone archival" need arises, revisit (c); for now (b). | Engineer |
+| S3 | Fold into W2 fix | Same file, same section (architecture.md §3 / §QA Artifacts) → lowest single-edit cost; splitting forces Architect to re-engage twice. | Architect |
 
-**本票剩餘工作：**
-1. Engineer：修 W1（resolveTicketId 移入 test scope）/ W3（results 陣列 beforeAll 重置）/ W4（TICKET_ID whitelist 2 行 validation）+ S2 執行 `.gitignore` 設定（`docs/reports/*.html` 加 ignore，保留 `.gitkeep`，順手清掉已 untracked 的 `K-008-visual-report.html`）
-2. Architect：修 W2（architecture.md §QA Artifacts 更新為 per-project testMatch 決策 + rationale + 副作用說明）+ S3（§3 Pages 行同步為 `{successes} captured, {failures} failed, {authRequired} auth-required (not captured)`）
-3. 之後 → QA 回歸（Playwright full suite + visual-report script 重跑） → PM close
+**Remaining work for this ticket:**
+1. Engineer: fix W1 (move resolveTicketId into test scope) / W3 (results array reset in beforeAll) / W4 (TICKET_ID 2-line whitelist validation) + S2 `.gitignore` setup (add `docs/reports/*.html` ignore, keep `.gitkeep`, clean up the already-untracked `K-008-visual-report.html`)
+2. Architect: fix W2 (architecture.md §QA Artifacts updated to per-project testMatch decision + rationale + side-effect notes) + S3 (§3 Pages line synced to `{successes} captured, {failures} failed, {authRequired} auth-required (not captured)`)
+3. After → QA regression (Playwright full suite + visual-report script rerun) → PM close
 
-**排序：Engineer 先 / Architect 後。** 理由：W1/W3/W4 都在 `visual-report.ts`，Engineer 一次改完 + 跑 `npx tsc --noEmit` + `TICKET_ID=K-008 npx playwright test visual-report.ts` 驗證後，Architect 才有最終「per-project testMatch 決策 + W4 whitelist 實作」可以 reference 寫進 architecture.md；反過來 Architect 先寫可能又要 drift 修二次。
+**Order: Engineer first, then Architect.** Rationale: W1/W3/W4 all live in `visual-report.ts`; Engineer fixes them in one pass + runs `npx tsc --noEmit` + `TICKET_ID=K-008 npx playwright test visual-report.ts` to verify. Only after that does Architect have the final "per-project testMatch decision + W4 whitelist implementation" to reference into architecture.md; the reverse order would force a second drift-fix pass.
 
-### Retrospective（Reviewer）
+### Retrospective (Reviewer)
 
-**沒做好：**
-- `resolveTicketId()` 在模組頂層執行的 side effect 在 Architect §2.1 設計階段就可預見（「啟動時印 warning」明寫在設計裡，但沒提「啟動 = 何時」）。如果在 AC 或設計階段要求標明 side-effect 發生點（module load / beforeAll / test body），W1 就不會落到 Reviewer 才捕到。
-- W4 的 path traversal 屬 env var → filesystem 的基礎安全 checklist 項，AC 條款沒規定 TICKET_ID 格式、Architect §2.1 也沒要求 validation，實作當然不會加。這是 PM AC 定義階段的覆蓋缺口（未來凡是「從外部輸入生成檔名」的 AC，應預設要求 whitelist）。
+**What didn't go well:**
+- The side effect of `resolveTicketId()` running at module top level was foreseeable at Architect §2.1 design time ("prints a warning at startup" was written into the design, but "startup = when" was not). If AC or design had required marking the side-effect trigger point (module load / beforeAll / test body), W1 would not have slipped through to the Reviewer.
+- W4's path traversal is a basic security checklist item for "env var → filesystem"; AC didn't constrain TICKET_ID format and Architect §2.1 didn't require validation, so the implementation didn't add it. This is a coverage gap at the PM AC-definition stage (any future "AC where external input becomes a filename" should default to requiring a whitelist).
 
-**下次改善：**
-1. Review AC / Architect 設計文件時，對「模組頂層 side effect」類語句（warning / console / fs 操作）直接問「什麼時候觸發？會被誰 import？」把執行時機寫進設計。
-2. 凡涉及「外部輸入（env var / URL param / file path）→ 生成檔名 / 路徑」的 AC，Reviewer checklist 加一條：驗證是否有 whitelist 或 allow-list。K-Line 未來新 ticket 應吸收到 PM 寫 AC 的模板。
+**Next time improvement:**
+1. When reviewing AC / Architect design docs, for any "module-level side effect"-class statement (warning / console / fs op) ask directly "when does this trigger? who imports it?" and write the trigger time into the design.
+2. For any AC involving "external input (env var / URL param / file path) → generated filename / path", add a Reviewer checklist line: verify a whitelist or allow-list exists. K-Line future tickets should fold this into the PM AC-writing template.
 
 ---
 
-## QA 驗收（2026-04-18）
+## QA Acceptance (2026-04-18)
 
-執行者：qa agent（`~/.claude/agents/qa.md`）
-範圍：AC-008-SCRIPT + AC-008-CONTENT 全量驗收 + Playwright E2E 回歸 + W1/W4/S2 修復驗證 + HTML 產物結構驗證。
+Executed by: qa agent (`~/.claude/agents/qa.md`)
+Scope: full AC-008-SCRIPT + AC-008-CONTENT acceptance + Playwright E2E regression + W1/W4/S2 fix verification + HTML artifact structure verification.
 
-### AC 逐條驗收
+### Per-AC acceptance
 
-| AC | 結果 | 證據 |
+| AC | Result | Evidence |
 |----|------|------|
-| AC-008-SCRIPT | **PASS** | `cd frontend && TICKET_ID=K-008 npx playwright test visual-report.ts` → 5 passed (4.6s)；`docs/reports/K-008-visual-report.html` 產出（1,039,886 B），退出碼 0 |
-| AC-008-CONTENT | **PASS** | HTML 結構抽樣：`grep -c 'class="page-section'` = **5**（4 success + 1 auth-required）；`grep -o 'data:image/png;base64' \| wc -l` = **4**（4 條公開路由各一張 full-page PNG）；`grep -A1 'class="route"'` 列出 5 條 `<code>` 標記：`/`、`/app`、`/about`、`/diary`、`/business-logic`；「需登入，下期補」placeholder 出現 1 次（只在 `/business-logic` section） |
+| AC-008-SCRIPT | **PASS** | `cd frontend && TICKET_ID=K-008 npx playwright test visual-report.ts` → 5 passed (4.6s); `docs/reports/K-008-visual-report.html` produced (1,039,886 B), exit code 0 |
+| AC-008-CONTENT | **PASS** | HTML structural sampling: `grep -c 'class="page-section'` = **5** (4 success + 1 auth-required); `grep -o 'data:image/png;base64' \| wc -l` = **4** (one full-page PNG per public route); `grep -A1 'class="route"'` lists 5 `<code>` labels: `/`, `/app`, `/about`, `/diary`, `/business-logic`; the "auth required, follow-up ticket" placeholder appears once (only in the `/business-logic` section) |
 
-### 回歸測試 6 步
+### Regression Test (6 steps)
 
-| # | 指令（cwd = `frontend/`） | 結果 | 備註 |
+| # | Command (cwd = `frontend/`) | Result | Notes |
 |---|--------------------------|------|------|
-| 1 | `npx tsc --noEmit` | **PASS**（exit 0） | 無型別錯誤 |
-| 2 | `npx playwright test --project=chromium` | **PASS**（45 passed / 12.6s） | 既有 4 spec 全綠，無 regression |
-| 3 | `TICKET_ID=K-008 npx playwright test visual-report.ts` | **PASS**（5 passed / 4.6s） | HTML 產出 1,039,886 B = 1.04 MB |
-| 4 | `npx playwright test --list 2>&1 \| grep -i "TICKET_ID not set"` | **PASS**（無輸出，grep exit 1） | **W1 驗證通過**：`resolveTicketId()` 移入 `test.beforeAll()` 後，module load 階段不再印 warning |
-| 5 | `TICKET_ID=../../etc/passwd npx playwright test visual-report.ts` | **PASS**（test fail with `Error: Invalid TICKET_ID: ../../etc/passwd`） | **W4 驗證通過**：whitelist regex 在 `beforeAll` 階段拒絕非法 ID，HTML 未被寫出；4 tests skipped 符合預期（beforeAll throw 中斷後續 test） |
-| 6 | `git status --untracked-files=all` | **PASS** | **S2 驗證通過**：`docs/reports/K-008-visual-report.html` 不在 untracked 列表；`git check-ignore -v docs/reports/K-008-visual-report.html` 回 `.gitignore:32:docs/reports/*.html` — rule 精確命中，無 overreach；`.gitkeep` 仍列 untracked（預期行為，PR 時保留目錄結構） |
+| 1 | `npx tsc --noEmit` | **PASS** (exit 0) | No type errors |
+| 2 | `npx playwright test --project=chromium` | **PASS** (45 passed / 12.6s) | Existing 4 specs green, no regression |
+| 3 | `TICKET_ID=K-008 npx playwright test visual-report.ts` | **PASS** (5 passed / 4.6s) | HTML produced at 1,039,886 B = 1.04 MB |
+| 4 | `npx playwright test --list 2>&1 \| grep -i "TICKET_ID not set"` | **PASS** (no output, grep exit 1) | **W1 verified:** after `resolveTicketId()` moved into `test.beforeAll()`, module-load phase no longer prints the warning |
+| 5 | `TICKET_ID=../../etc/passwd npx playwright test visual-report.ts` | **PASS** (test fails with `Error: Invalid TICKET_ID: ../../etc/passwd`) | **W4 verified:** whitelist regex rejects the invalid ID at the `beforeAll` stage, HTML is not written; 4 tests skipped as expected (beforeAll throw aborts subsequent tests) |
+| 6 | `git status --untracked-files=all` | **PASS** | **S2 verified:** `docs/reports/K-008-visual-report.html` not in untracked list; `git check-ignore -v docs/reports/K-008-visual-report.html` returns `.gitignore:32:docs/reports/*.html` — rule matches precisely, no overreach; `.gitkeep` remains untracked (expected behavior, preserves directory in PR) |
 
-### Backend 回歸
+### Backend regression
 
-`git -C <repo> diff --name-only HEAD -- backend/` → 無輸出。
+`git -C <repo> diff --name-only HEAD -- backend/` → no output.
 **Backend unchanged, pytest skipped.**
 
-### HTML 產物
+### HTML artifact
 
-| 項目 | 值 |
+| Item | Value |
 |------|-----|
 | Path | `/Users/yclee/Diary/ClaudeCodeProject/K-Line-Prediction/docs/reports/K-008-visual-report.html` |
 | Size | 1,039,886 B = 1.04 MB |
-| Size 門檻 | ≥ 500 KB ✅；≤ 10 MB ✅（遠低於 Architect §6.3 門檻） |
-| 結構 | 5 × `<section class="page-section ...">` + 4 × base64 PNG（`/`、`/app`、`/about`、`/diary`）+ 1 × auth-required placeholder（`/business-logic`） |
-| Gitignore | rule `.gitignore:32:docs/reports/*.html` 精確命中，未誤傷 `dist/`、`coverage/` 等其他目錄（sampled） |
+| Size threshold | ≥ 500 KB ✅; ≤ 10 MB ✅ (well below Architect §6.3 threshold) |
+| Structure | 5 × `<section class="page-section ...">` + 4 × base64 PNG (`/`, `/app`, `/about`, `/diary`) + 1 × auth-required placeholder (`/business-logic`) |
+| Gitignore | rule `.gitignore:32:docs/reports/*.html` matches precisely; does not accidentally hit `dist/`, `coverage/`, or other directories (sampled) |
 
-### 已知觀察（不影響本票 PASS）
+### Known observations (do not affect this ticket's PASS)
 
-1. **`/app` 截圖仍是空狀態**（height 720）— 後端 ECONNREFUSED，屬 TD-012 範圍，PM 已裁決登記為技術債不本票處理。
-2. **W4 whitelist negative payload 只驗 `../../etc/passwd`** — 未測空字串 / 尾空白 / Unicode，QA 反省段已列為下次改善。
-3. **HTML size 區間寬**（1.04 MB 遠低於 10 MB 門檻）— 若 future `/app` 有完整資料，4 張截圖 + base64 預估 2~5 MB，仍在 Architect §6.3 接受區間。
+1. **`/app` screenshot still in empty state** (height 720) — backend ECONNREFUSED; falls under TD-012 scope; PM ruled it as tech debt, not this ticket's concern.
+2. **W4 whitelist negative payload only verified `../../etc/passwd`** — empty string / trailing whitespace / Unicode not tested; QA reflection section lists this as a next-time improvement.
+3. **HTML size range is wide** (1.04 MB far below 10 MB threshold) — if `/app` later has full data, 4 screenshots + base64 estimated 2–5 MB, still within Architect §6.3 acceptance range.
 
-### 結論
+### Conclusion
 
-**通過 — 可放行 PM close。**
+**Pass — clear for PM close.**
 
-所有 2 條 AC pass、6 步回歸 pass、W1/W3/W4/S2 修復驗證 pass、HTML 產出結構正確、無既有 E2E regression、backend 無改動故 pytest 跳過。建議 PM 走彙整 + close 流程。
+All 2 ACs pass, all 6 regression steps pass, W1/W3/W4/S2 fix verifications pass, HTML structure correct, no existing E2E regression, backend untouched so pytest skipped. Recommend PM proceed with roll-up + close flow.
 
 ---
 
 ## Retrospective
 
-### PM 彙整（2026-04-18）
+### PM Roll-up (2026-04-18)
 
-**跨角色重複問題：**
+**Cross-role recurring issues:**
 
-1. **「Architect 設計文件未寫 side-effect 執行時機 / 狀態邊界 / 配置 × run mode 矩陣」是本票多數 Warning 的共同上游根因**（Architect / Engineer / Reviewer 三角色各自獨立點出）：
-   - W1：Architect §2.1 寫「啟動時印黃色警告」但沒界定「啟動」= module load 還是 test body；Engineer 照「script entry」心智模型寫成 module top-level，Reviewer 跑 `--list` 才發現污染 default E2E stdout
-   - W3：Architect §3 沒把 Playwright 的 `retries` / `--repeat-each` 對 module-level state 的影響納入設計；Engineer 模組頂層 `results: SectionResult[] = []` 累積跨 run
-   - W2：Architect §6.2 列「default 吃 / default 不吃」2 分支漏第 3 分支「default 不吃但 CLI 指檔也被擋」，Engineer 實測踩到後 pivot 到 per-project testMatch
-   - S3：Architect §3 `Pages: 4 captured` 把 `/business-logic` placeholder 也當成 captured，狀態 × 計數矩陣沒列全
-   - **共同根因：Architect 設計時用「大致正確的窮舉」而非「配置/狀態 × 執行時機 truth table」**
-2. **「外部輸入 → filesystem sink 安全檢查」三層皆漏**（W4；Engineer / Reviewer 同根）：
-   - PM AC 模板沒規定 TICKET_ID 格式約束
-   - Architect §2.1 沒加 validation 條款
-   - Engineer 思維定勢：env var 是 dev 手打 ≠ untrusted input，直接流到 `path.join` → `fs.writeFileSync`
-3. **Architect 實作後 doc sync 無自動觸發機制**（W2 結構面；Architect 上一筆 K-008 設計 retrospective 已預告「下次實測」但 K-008 設計仍復發，自我標註重複違反）：Engineer 實作決策偏離 Architect 原設計（per-project testMatch / HTML counter 擴充）時，無 hook 把 Architect re-engage 做 doc sync，drift 到 Reviewer 才被動撈回
-4. **QA 邊界 payload / gitignore overreach / artifact structural invariant 三項 checklist 缺口**（QA 自省，與 Reviewer「whitelist checklist 應回推 PM AC 模板」扣合）：W4 only `../../etc/passwd` 一個 payload；`.gitignore` 只驗目標檔未抽 `dist/` `coverage/`；HTML size 門檻不足以當 structural invariant
+1. **"Architect design docs do not specify side-effect trigger time / state boundary / config × run-mode matrix" is the shared upstream root cause for most Warnings in this ticket** (Architect / Engineer / Reviewer flagged it independently):
+   - W1: Architect §2.1 wrote "prints a yellow warning at startup" but did not define "startup" = module load vs test body; Engineer wrote it as module top-level under a "script entry" mental model; Reviewer ran `--list` and discovered it polluting the default E2E stdout
+   - W3: Architect §3 did not factor in the impact of Playwright `retries` / `--repeat-each` on module-level state; Engineer's module-top `results: SectionResult[] = []` accumulates across runs
+   - W2: Architect §6.2 listed two branches ("default picks up / does not pick up") and missed the third ("default does not pick up but CLI file-spec is also blocked"); Engineer hit it empirically and pivoted to per-project testMatch
+   - S3: Architect §3 `Pages: 4 captured` counted the `/business-logic` placeholder as captured; the state × count matrix was incomplete
+   - **Shared root cause: Architect designed via "approximately right enumeration" rather than a "config/state × trigger-time truth table"**
+2. **"External input → filesystem sink" security check failed at all three layers** (W4; Engineer / Reviewer share the root):
+   - PM AC template did not require a TICKET_ID format constraint
+   - Architect §2.1 did not include a validation clause
+   - Engineer mental model: an env var typed by the dev ≠ untrusted input — flowed straight into `path.join` → `fs.writeFileSync`
+3. **No automatic trigger for post-implementation Architect doc sync** (W2 structural axis; Architect's own prior K-008-design retrospective forewarned "next time measure", yet the K-008 design recurred — self-flagged as a repeat violation): when Engineer implementation decisions diverge from Architect's original design (per-project testMatch / HTML counter expansion), there is no hook to re-engage Architect for doc sync; drift is caught reactively only at Reviewer time
+4. **QA missed three checklists: boundary payload, gitignore overreach, artifact structural invariant** (QA's own reflection, dovetailing with Reviewer's "whitelist checklist should feed back into the PM AC template"): W4 used only the `../../etc/passwd` payload; `.gitignore` only verified the target file without sampling `dist/` `coverage/`; HTML size threshold is insufficient as a structural invariant
 
-**流程改善決議：**
+**Process improvement decisions:**
 
-| 問題 | 負責角色 | 行動 | 更新位置 |
+| Issue | Owner | Action | Update Location |
 |------|---------|------|---------|
-| Architect 設計未列「配置/狀態 × 執行時機」truth table（W1/W2/W3/S3 同根） | Architect | 設計文件涉及「X → Y 分支」「模組載入 / console / fs side effect」時，強制以 truth table 列全，並標明每個 side-effect 的執行時機（module load / beforeAll / test body）；無法實測者明標「Engineer 實測決策點」並列判斷條件 | `architect.md` agent spec 加「配置/狀態邊界 truth table」checklist；Architect retrospective 已記「下次改善 §1」，本次彙整要求下次 Architect 進場前 PM 核對 agent spec 有此條 |
-| 「外部輸入 → filesystem sink」安全檢查三層皆漏（W4） | PM + Architect + Engineer | PM AC 模板對「env var / URL param / CLI arg → 生成檔名/路徑」場景預設寫「TICKET_ID 需 whitelist」AC；Architect 設計列 validation 條款；Engineer 實作看到 `process.env.*` 流向 `fs.*/path.*/child_process.*/URL` 立即加 `/^[A-Za-z0-9_-]+$/` 類 whitelist | PM AC 模板（`pm.md` agent spec）、`architect.md` agent spec、`engineer.md` agent spec 各自加對應 checklist（需使用者授權修 agent spec；本票先記於 per-role retrospective）|
-| Architect 實作後 doc sync 無自動觸發（W2 結構；Architect 自標重複違反） | PM + Architect | Ticket close checklist 加「Engineer 實作決策偏離 Architect §N 原設計 → PM 必須 re-summon Architect 做 doc sync，不等 Reviewer 發現 drift」；Architect 交付 ticket §Architecture 時末尾加「Post-impl sync checklist」讓 PM / Engineer 有明確 trigger | K-Line `CLAUDE.md` ticket close checklist；Architect retrospective 已記（2026-04-18 W2/S3 修復後反省 §下次改善 §1），本次彙整升級為「PM 必做」而非「Architect 自選」|
-| QA 邊界 payload / gitignore / artifact invariant checklist | QA | QA agent 建立固定 checklist：(a) env var / CLI 輸入類 ticket 自動跑「空字串 / 純空白 / 尾空白 / 大小寫 / Unicode / overflow 長度」6 個 payload；(b) 修改 `.gitignore` 時對 `dist/` `coverage/` `node_modules/` `docs/` 各抽 1 sample 跑 `git check-ignore -v`；(c) 每種 artifact 定義 1~3 個結構 grep 當 operational invariant 寫進 QA 驗收段 | `qa.md` agent spec；QA retrospective 已記三條「下次改善」，本次彙整確認不拆 ticket、由 QA 下次任務前自行補進 checklist |
-| PM Reviewer 回饋裁決遇 Engineer + Architect 雙角色待辦時未顯性列「排序裁決」| PM | 裁決表下的「本票剩餘工作」獨立列「排序裁決」小段，明確寫三選項（A 先 / B 先 / 並行）與選擇理由；不得只在敘述中後設交代 | `pm.md` agent spec（PM retrospective 2026-04-18 K-008 W1–W4 裁決 §下次改善已記）|
-| 跨票趨勢偵測（K-011 PM 彙整已預告，K-008 PM 彙整落實首次）| PM | 每次 PM 彙整時增加「掃描最近 3 張完成票的 QA retrospective」步驟，辨識同一類驗證留空的連續事件；本票實測：K-008 QA 自行補 HTML 結構抽樣驗證已封閉 K-010「截圖 script 缺」系統缺口，趨勢已收斂 | `pm.md` agent spec「自動觸發時機」表；本次彙整第一次正式執行，流程首次完整閉環 |
+| Architect design lacks "config/state × trigger-time" truth table (W1/W2/W3/S3 share this root) | Architect | When the design doc involves "X → Y branches" or "module load / console / fs side effects", mandatorily enumerate via a truth table and tag each side-effect's trigger time (module load / beforeAll / test body); for items unable to be measured, explicitly mark "Engineer measurement decision point" with the decision criteria | `architect.md` agent spec adds a "config/state boundary truth table" checklist; Architect retrospective already noted "next-time improvement §1"; this roll-up requires PM to verify the agent spec contains this rule before next Architect dispatch |
+| "External input → filesystem sink" security check failed at all 3 layers (W4) | PM + Architect + Engineer | PM AC template defaults to writing a "TICKET_ID needs whitelist" AC for "env var / URL param / CLI arg → generated filename/path" scenarios; Architect design lists validation clauses; Engineer immediately adds a `/^[A-Za-z0-9_-]+$/`-class whitelist when seeing `process.env.*` flowing into `fs.*/path.*/child_process.*/URL` | PM AC template (`pm.md` agent spec), `architect.md` agent spec, `engineer.md` agent spec each add the corresponding checklist (requires user authorization to edit agent specs; this ticket records in per-role retrospectives only) |
+| No automatic post-implementation Architect doc sync (W2 structural; Architect self-flagged as repeat violation) | PM + Architect | Ticket close checklist adds "Engineer implementation decision diverges from Architect §N → PM must re-summon Architect for doc sync, do not wait for Reviewer to discover drift"; when Architect delivers ticket §Architecture, append a "Post-impl sync checklist" so PM / Engineer have an explicit trigger | K-Line `CLAUDE.md` ticket close checklist; Architect retrospective already noted (2026-04-18 W2/S3 post-fix reflection §next-time improvement §1); this roll-up upgrades it to "PM must do" rather than "Architect's choice" |
+| QA boundary payload / gitignore / artifact-invariant checklists | QA | QA agent establishes a fixed checklist: (a) for env var / CLI input tickets, automatically run 6 payloads (empty string / all-whitespace / trailing whitespace / case variants / Unicode / length overflow); (b) when modifying `.gitignore`, run `git check-ignore -v` against a sample from each common artifact directory (`dist/` `coverage/` `node_modules/` `docs/`); (c) for each artifact type, define 1–3 structural greps as operational invariants in the QA acceptance section | `qa.md` agent spec; QA retrospective already noted three "next-time improvements"; this roll-up confirms no ticket split — QA folds the checklist in before its next task |
+| PM did not explicitly list an "ordering decision" when a Reviewer finding routed work to both Engineer + Architect | PM | Below the ruling table, "Remaining work for this ticket" gets its own "Ordering decision" sub-section explicitly stating the three options (A first / B first / parallel) plus the rationale; not buried in narrative meta-commentary | `pm.md` agent spec (PM retrospective 2026-04-18 K-008 W1–W4 ruling §next-time improvement already noted) |
+| Cross-ticket trend detection (K-011 PM roll-up forewarned this; K-008 PM roll-up implements it for the first time) | PM | Each PM roll-up adds a "scan QA retrospectives of the most recent 3 closed tickets" step to identify recurring categories of unverified gaps; verified in this ticket: K-008 QA's self-added HTML structure-sampling closed the K-010 "missing screenshot script" systemic gap; trend has converged | `pm.md` agent spec "auto-trigger" table; this roll-up is the first formal execution; the loop closes for the first time |
 
-**本次彙整決策說明：** 上述 6 條流程改善中，(2)(3)(5)(6) 涉及修改 `~/.claude/agents/*.md` agent spec，屬於需使用者授權的制度面改動，本票先登記於各角色 per-role retrospective log 並在此彙整表存底；(1)(4) 為單票 ticket 操作規範，Architect / QA 下次進場前需先讀自身 retrospective log 並採用。PM 本次暫不擴大 scope 修 agent spec，避免違反「方案不明確時先討論再修改」memory；待使用者下次觸發相關機制時一併授權處理。
+**Notes on this roll-up's decisions:** of the 6 process improvements above, items (2)(3)(5)(6) involve editing `~/.claude/agents/*.md` agent specs — institutional changes requiring user authorization; this ticket records them in each role's per-role retrospective log and stages them in this roll-up table. Items (1)(4) are per-ticket operational rules; Architect / QA must read their own retrospective logs and apply them before next dispatch. PM does not expand scope to edit agent specs this round, to avoid violating the "discuss before modify when the approach is unclear" memory; user can authorize them together when the relevant mechanism next triggers.

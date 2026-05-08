@@ -29,7 +29,7 @@ User has overridden the K-034 §Q3 ordering rule for K-037. The 4-point rational
 
 **Decision scope:** K-034 Q1/Q5/Q6 new workflow applies to **K-034 Phase 1+ onward** for truly-new UI tickets. K-036 is grandfathered (already shipped, no retroactive workflow compliance required). K-037 is grandfathered as the K-036 wiring sibling. PM status advanced `backlog → ready`; Architect release pending.
 
-## 背景
+## Background
 
 K-036 rasterized `frontend/design/favicon.pen` into 7 web-standard favicon formats under `frontend/public/`:
 
@@ -44,16 +44,16 @@ However K-036 only produced the **image files**; it did **not** wire them into t
 2. `frontend/public/manifest.json` **does not exist** — the 192×192 / 512×512 android-chrome PNGs produced by K-036 are orphans with no consumer (Android Chrome / PWA installers require a `<link rel="manifest" href="/manifest.json">` pointing to a JSON file with an `icons` array).
 3. No Playwright regression asserts the 7 files return HTTP 200 when the site ships — so silent 404s can slip past code review into production, and the next favicon refresh (image swap) could break one size without anyone noticing.
 
-## 目標
+## Goals
 
 - Add the canonical `<link rel="icon">` / `<link rel="apple-touch-icon">` / `<link rel="manifest">` tags to `frontend/index.html` so browsers load every file K-036 produced.
 - Create `frontend/public/manifest.json` conformant to W3C Web App Manifest spec (name, short_name, icons[] referencing 192/512 android-chrome, theme_color matching the site's cream-white paper palette, display "standalone" or "browser" per Architect call).
 - Add a Playwright E2E spec that asserts HTTP 200 for all 7 favicon files + `manifest.json` against a built `dist/` served by `vite preview`, so future image-swap refreshes cannot silently 404 a size.
 - Manual visual confirmation: dev server tab shows the favicon; K-036 Pencil design matches what renders.
 
-## 範圍
+## Scope
 
-**含：**
+**Included:**
 - `frontend/index.html` — add to `<head>`:
   - `<link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any">`
   - `<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">`
@@ -84,7 +84,7 @@ However K-036 only produced the **image files**; it did **not** wire them into t
   3. Fetches `/` HTML and asserts `<link rel="icon">` / `<link rel="apple-touch-icon">` / `<link rel="manifest">` tags all exist with expected `href` values.
 - `frontend/public/diary.json` — append one K-037 entry to the existing favicon milestone (same milestone K-036 uses), English per Diary Sync Rule.
 
-**不含：**
+**Excluded:**
 - Generating new image assets — K-036 produced the PNG/ICO set; K-037 does not re-rasterize, does not alter the Pencil design, does not add SVG or maskable variants.
 - Multi-theme favicons (light/dark `prefers-color-scheme` variant icons via `<link media=...>`). Known Gap → recorded in §Release Status below.
 - Full PWA install experience (service worker, offline shell, `display: standalone`). `manifest.json` is minimally spec-compliant for icon pickup only; `display: browser` keeps site as-is.

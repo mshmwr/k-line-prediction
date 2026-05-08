@@ -1,5 +1,10 @@
 [
   {
+    "title": "Docs sweep — translate 44 ticket files from mixed CN/EN to all-English",
+    "date": "2026-05-09",
+    "text": "Bulk-translated 44 K-Line ticket markdowns to comply with the all-English .md rule; protected regex char classes and cross-doc URL anchors left as documented exceptions."
+  },
+  {
     "ticketId": "K-098",
     "title": "optimizer — reweight objective to 0.3 high + 0.7 low hit rate",
     "date": "2026-05-06",

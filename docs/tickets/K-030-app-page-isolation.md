@@ -257,106 +257,106 @@ Rationale:
 
 ## Code Review Results (2026-04-21)
 
-**Breadth + depth 雙輪完成。** 6 個 findings：1 Critical / 3 Important / 3 Minor（含 Reviewer 建議保留 1 條）。
+**Breadth + depth dual rounds complete.** 6 findings: 1 Critical / 3 Important / 3 Minor (including 1 Reviewer recommended to retain).
 
 ### PM Ruling Table
 
 | # | Severity | Finding | Ruling | Assignee |
 |---|---|---|---|---|
-| C-1 | Critical | `HeroSection.tsx:26-32` Try the App CTA 仍為 SPA `<Link>`，與 NavBar App link new-tab 行為分歧；Homepage 2 entry points 到 `/app` 不一致 | **Fix-now (Option A)** — 改 `<a target="_blank" rel="noopener noreferrer">` + 補 1 Playwright case | Engineer |
-| I-1 | Important | `AppPage` interaction regression test gap（PredictButton sticky / OHLC edit 無 E2E 斷言） | **Tech Debt → TD-K030-01** | — |
-| I-2 | Important | design doc §6.2 寫 4 cases 但實際 `app-bg-isolation.spec.ts` 實作 5 cases（T4/T5 拆 BG-COLOR a+b） | **Fix-now** — 回補 design doc §6.2 表 4→5 並拆 T4/T5 行 | Architect |
-| I-3 | Important | `sitewide-footer.spec.ts` header JSDoc 表述（L12/L13 vs L5 Given 列 2 routes 但 total 4）可讀性弱，reviewer 認為 drift | **Fix-now** — 併入 Engineer C-1 commit；JSDoc clarify「L5 Given 2 routes 是 HomeFooterBar 渲染處；L13 total=4 含 /business-logic 登入後 + /about FooterCtaSection boundary」 | Engineer |
-| M-1 | Minor | T1 `newPage.waitForLoadState()` default `'load'` | **放行保留**（Reviewer 亦建議保留） | — |
-| M-3 | Minor | `UnifiedNavBar` `renderLink` 本地 type alias 非 `typeof TEXT_LINKS[number]` | **Tech Debt → TD-K030-02** | — |
+| C-1 | Critical | `HeroSection.tsx:26-32` Try the App CTA still uses SPA `<Link>`, diverging from NavBar App link new-tab behavior; the 2 entry points from Homepage to `/app` are inconsistent | **Fix-now (Option A)** — change to `<a target="_blank" rel="noopener noreferrer">` + add 1 Playwright case | Engineer |
+| I-1 | Important | `AppPage` interaction regression test gap (no E2E assertions for PredictButton sticky / OHLC edit) | **Tech Debt → TD-K030-01** | — |
+| I-2 | Important | design doc §6.2 says 4 cases but `app-bg-isolation.spec.ts` actually implements 5 cases (T4/T5 split BG-COLOR a+b) | **Fix-now** — backfill design doc §6.2 table 4→5 and split into T4/T5 rows | Architect |
+| I-3 | Important | `sitewide-footer.spec.ts` header JSDoc wording (L12/L13 vs L5 Given lists 2 routes but total 4) is poorly readable; reviewer considers it drift | **Fix-now** — fold into Engineer C-1 commit; JSDoc clarification: "L5 Given 2 routes are HomeFooterBar render points; L13 total=4 includes /business-logic post-login + /about FooterCtaSection boundary" | Engineer |
+| M-1 | Minor | T1 `newPage.waitForLoadState()` default `'load'` | **Retain as-is** (Reviewer also recommends retaining) | — |
+| M-3 | Minor | `UnifiedNavBar` `renderLink` local type alias is not `typeof TEXT_LINKS[number]` | **Tech Debt → TD-K030-02** | — |
 
 ### PM Ruling Rationale (C-1 Pre-Verdict)
 
-**Step 1 — 多維度評分矩陣：**
+**Step 1 — Multi-dimensional scoring matrix:**
 
-| 選項 | 實作成本 | 與 ticket AC 對齊度 | 可逆性 | Pencil + 一致行為硬規則對齊 | Fail-fast | 總分 |
+| Option | Implementation cost | Alignment with ticket AC | Reversibility | Alignment with Pencil + consistent-behavior hard rules | Fail-fast | Total |
 |---|---|---|---|---|---|---|
-| A (fix HeroSection + 補 1 spec) | 2 | 2 | 2 | 2 | 2 | **10** |
-| B (接受分歧 + 補 AC 鎖 same-tab) | 1 | 0（違 §Scope #1） | 1 | 0 | 1 | **3** |
-| C (TD + 本票放行) | 2 | 0 | 2 | 0 | 0 | **4** |
+| A (fix HeroSection + add 1 spec) | 2 | 2 | 2 | 2 | 2 | **10** |
+| B (accept divergence + add AC locking same-tab) | 1 | 0 (violates §Scope #1) | 1 | 0 | 1 | **3** |
+| C (TD + release this ticket) | 2 | 0 | 2 | 0 | 0 | **4** |
 
-**Step 2 — Red Team Self-Check：**
-1. **使用者挑戰**（Pencil `ap001` 1:1 硬規則）：Pencil frame 無 NavBar → 使用者 Hero CTA same-tab 進去後無法回 marketing。A 選項正中紅心。
-2. **Engineer 挑戰**（拖到 QA 階段再修不是更省？）：QA 只跑測試，不驗 two entry-points consistency 邏輯；Reviewer 已抓到，拖 QA 雙輪重測反而昂貴。
-3. **Devil's advocate**（3 個月後行動裝置 popup blocker）：§2.3 + Boundary Preemption 已證使用者觸發 click 在主流瀏覽器不受 blocker 影響；與 NavBar App link 同機制，不引入新風險。
+**Step 2 — Red Team Self-Check:**
+1. **User challenge** (Pencil `ap001` 1:1 hard rule): Pencil frame has no NavBar → after the user enters via Hero CTA same-tab, they cannot return to marketing. Option A directly addresses this.
+2. **Engineer challenge** (isn't deferring to QA stage cheaper?): QA only runs tests, does not verify two-entry-points consistency logic; Reviewer has already caught it, deferring to QA dual-round retest is more expensive.
+3. **Devil's advocate** (mobile popup blocker 3 months later): §2.3 + Boundary Preemption proves user-initiated click is unaffected by blockers in major browsers; same mechanism as NavBar App link, no new risk introduced.
 
-**Step 3 — 最終裁決：** Option A。最大未解風險：Hero CTA 視覺樣式（button dark bg + paper text）與 NavBar link 視覺不同，使用者 mental model 可能認為兩者行為必然不同——透過補 1 獨立 E2E spec case 顯式鎖 `target=_blank` 消除此不確定性。
+**Step 3 — Final ruling:** Option A. Largest unresolved risk: Hero CTA visual style (button dark bg + paper text) differs visually from NavBar link, the user mental model may assume the two behaviors are necessarily different — eliminate this uncertainty by adding 1 independent E2E spec case explicitly locking `target=_blank`.
 
-### Engineer Fix-Now Task（即刻執行）
+### Engineer Fix-Now Task (immediate execution)
 
-**Scope：**
-1. 修 `frontend/src/components/home/HeroSection.tsx`：
-   - `<Link to="/app">` 改 `<a href="/app" target="_blank" rel="noopener noreferrer">`
-   - 保留既有 className（`inline-block bg-[#2A2520] text-[#F4EFE5] rounded-[6px] px-[26px] py-[12px] text-[13px] font-bold tracking-[1px]`）與 `style={{ fontFamily: '"Geist Mono", monospace' }}`
-   - 移除 `import { Link } from 'react-router-dom'`（此檔其他地方無 Link 使用）
-2. 新增 E2E case 鎖 Hero CTA new-tab 行為：
-   - 推薦加到 `frontend/e2e/app-bg-isolation.spec.ts` T1 同 describe block 內新 test case 名 `clicking Hero CTA on / opens new tab with /app URL`，複用 T1 pattern（`Promise.all([context.waitForEvent('page'), ctaClick])`）
-   - 或新 describe block `AC-030-NEW-TAB — Hero CTA opens /app in new tab`
-   - 斷言：Hero CTA `<a>` 有 `target=_blank` + `rel` 含 `noopener noreferrer`；click 後 new page URL 含 `/app`；原 tab URL 仍 `/`
-3. 順便修 I-3：`frontend/e2e/sitewide-footer.spec.ts` L5 / L12-L13 的 JSDoc 文案調整（讓 Given 列的 2 routes 與 total=4 的拆帳顯式對齊；建議改寫 L5 `Given: user visits /, /business-logic (HomeFooterBar routes)` + L12-L13 保持現狀即可，或拆成獨立計數行）
+**Scope:**
+1. Edit `frontend/src/components/home/HeroSection.tsx`:
+   - Change `<Link to="/app">` to `<a href="/app" target="_blank" rel="noopener noreferrer">`
+   - Preserve existing className (`inline-block bg-[#2A2520] text-[#F4EFE5] rounded-[6px] px-[26px] py-[12px] text-[13px] font-bold tracking-[1px]`) and `style={{ fontFamily: '"Geist Mono", monospace' }}`
+   - Remove `import { Link } from 'react-router-dom'` (no other Link usage in this file)
+2. Add E2E case locking Hero CTA new-tab behavior:
+   - Recommended: add to `frontend/e2e/app-bg-isolation.spec.ts` within the T1 describe block as a new test case named `clicking Hero CTA on / opens new tab with /app URL`, reusing the T1 pattern (`Promise.all([context.waitForEvent('page'), ctaClick])`)
+   - Or new describe block `AC-030-NEW-TAB — Hero CTA opens /app in new tab`
+   - Assertions: Hero CTA `<a>` has `target=_blank` + `rel` containing `noopener noreferrer`; after click, the new page URL contains `/app`; original tab URL remains `/`
+3. While at it, fix I-3: `frontend/e2e/sitewide-footer.spec.ts` L5 / L12-L13 JSDoc wording adjustment (make the Given line's 2 routes explicitly align with the total=4 breakdown; recommended rewrite L5 to `Given: user visits /, /business-logic (HomeFooterBar routes)` + keep L12-L13 as-is, or split into independent count lines)
 
-**驗收：**
-- `npx tsc --noEmit` 退出 0
-- `npm test` Vitest 全綠
-- `/playwright` 跑 `app-bg-isolation.spec.ts` + `sitewide-footer.spec.ts` + `pages.spec.ts` 全綠
-- 依 feedback_engineer_design_doc_checklist_gate 回讀 design doc table 逐列勾
-- 完成後自動進入 QA phase（不再回 PM）
+**Acceptance:**
+- `npx tsc --noEmit` exit 0
+- `npm test` Vitest all green
+- `/playwright` runs `app-bg-isolation.spec.ts` + `sitewide-footer.spec.ts` + `pages.spec.ts` all green
+- Per feedback_engineer_design_doc_checklist_gate, re-read design doc table and check each row
+- Auto-enter QA phase upon completion (no return to PM)
 
-### Architect Fix-Now Task（即刻執行，可與 Engineer 平行）
+### Architect Fix-Now Task (immediate execution, parallel with Engineer)
 
-**Scope：** `docs/designs/K-030-app-isolation.md` §6.2
-- §6.2 開頭「測試總數：4 個獨立 test case」改為「5 個獨立 test case」
-- §6.2 表格拆 T4 為 T4（BG-COLOR a — wrapper bg）+ T5（BG-COLOR b — body bg 仍為 paper），對齊實際實作 `app-bg-isolation.spec.ts` L91-L120
-- §6 File Change List 若有 `app-bg-isolation.spec.ts` 4 → 5 數字也同步
+**Scope:** `docs/designs/K-030-app-isolation.md` §6.2
+- §6.2 opening "Total tests: 4 independent test cases" → "5 independent test cases"
+- §6.2 table: split T4 into T4 (BG-COLOR a — wrapper bg) + T5 (BG-COLOR b — body bg still paper), aligning with actual implementation `app-bg-isolation.spec.ts` L91-L120
+- §6 File Change List: if `app-bg-isolation.spec.ts` 4 → 5 numbers appear, sync them
 
-**驗收：**
-- 屬 docs-only，不跑 tsc / Playwright；commit message 標 `docs-only`
-- Architect 按 persona Mandatory Task Completion Steps append self-diff verification
+**Acceptance:**
+- Docs-only, no tsc / Playwright run; commit message tagged `docs-only`
+- Architect appends self-diff verification per persona Mandatory Task Completion Steps
 
 ### Tech Debt Registered
 
-| TD ID | 條目 | 觸發條件 |
+| TD ID | Item | Trigger condition |
 |---|---|---|
-| TD-K030-01 | AppPage interaction regression E2E coverage 缺 | TD-005 AppPage 拆分 ticket 啟動時 |
-| TD-K030-02 | UnifiedNavBar renderLink type alias 應用 `typeof TEXT_LINKS[number]` 派生 | 下次 NavBar 結構改動 ticket |
+| TD-K030-01 | AppPage interaction regression E2E coverage missing | When TD-005 AppPage split ticket starts |
+| TD-K030-02 | UnifiedNavBar renderLink type alias should derive from `typeof TEXT_LINKS[number]` | Next NavBar structural-change ticket |
 
-已寫入 `docs/tech-debt.md`。
+Logged in `docs/tech-debt.md`.
 
 ### PM Session Capability Note
 
-本 PM session 不具 Agent tool（與 2026-04-21 前次 session 同樣限制）。Engineer / Architect 召喚由 parent orchestrator 解讀本段 handoff 執行；不上報使用者（遵 feedback_pm_self_decide_bq）。
+This PM session lacks the Agent tool (same limitation as the prior 2026-04-21 session). Engineer / Architect dispatch is interpreted and executed by the parent orchestrator from this handoff section; not escalated to the user (per feedback_pm_self_decide_bq).
 
 ### Next Stage
 
-Engineer + Architect fix-now 完成後：
-1. Engineer 跑全綠 → QA phase（自動進入）
-2. QA sign-off（含 `mcp__pencil__get_screenshot` ap001 視覺比對）
-3. PM 驗收 → deploy → ticket closure + AC 遷至 PRD §4 Closed
+After Engineer + Architect fix-now complete:
+1. Engineer runs all green → QA phase (auto-enter)
+2. QA sign-off (including `mcp__pencil__get_screenshot` ap001 visual comparison)
+3. PM acceptance → deploy → ticket closure + AC migrated to PRD §4 Closed
 
 ---
 
 ### QA — 2026-04-21 (final regression sign-off)
 
-**Regression tests that were insufficient:** 無新增缺口。Full Playwright 172 passed / 1 skipped / 0 failed；Vitest 36/36；tsc exit 0。`app-bg-isolation.spec.ts` 6/6（T1~T6）；sitewide-body-paper / sitewide-footer / sitewide-fonts / navbar 的 /app 拆除後迴歸無破壞；ma99-chart / ga-tracking 仍綠。
+**Regression tests that were insufficient:** No new gaps. Full Playwright 172 passed / 1 skipped / 0 failed; Vitest 36/36; tsc exit 0. `app-bg-isolation.spec.ts` 6/6 (T1~T6); after `/app` removal from sitewide-body-paper / sitewide-footer / sitewide-fonts / navbar, regression intact; ma99-chart / ga-tracking still green.
 
-**Edge cases not covered:** 已補 mobile (375×667) + tablet (768×1024) viewport 兩組 `/app` isolation + mobile NavBar App link new-tab 斷言，臨時 spec 驗過後已移除。middle-click / cmd-click / popup blocker / 舊 Safari 等 browser-native 行為屬 design doc §7 登記為 Known Gap acceptable（QA 不測 browser-native 機制）。
+**Edge cases not covered:** Added two groups of mobile (375×667) + tablet (768×1024) viewport assertions for `/app` isolation + mobile NavBar App link new-tab; the temporary spec was removed after passing. Browser-native behaviors such as middle-click / cmd-click / popup blocker / older Safari are logged in design doc §7 as Known Gap acceptable (QA does not test browser-native mechanisms).
 
-**Next time improvement:** `visual-report.ts` 於未帶 `TICKET_ID` 時應 throw 而非 fallback `K-UNKNOWN`，避免 full Playwright suite 靜默污染 `docs/reports/`。本次已手動清除 `K-UNKNOWN-visual-report.html` 並重跑 `TICKET_ID=K-030 npx playwright test visual-report.ts`，report 定版於 `docs/reports/K-030-visual-report.html`。此項建議已寫入 per-role retro log，待 PM 評估另開 TD。
+**Next time improvement:** `visual-report.ts` should throw rather than fall back to `K-UNKNOWN` when `TICKET_ID` is not provided, to avoid silent pollution of `docs/reports/` by full Playwright suite runs. This time `K-UNKNOWN-visual-report.html` was manually purged and `TICKET_ID=K-030 npx playwright test visual-report.ts` re-run; the report is finalized at `docs/reports/K-030-visual-report.html`. This recommendation is logged in the per-role retro log, pending PM evaluation for a separate TD.
 
-**Pencil v1 `ap001` 比對結論：**
-- `homepage-v1.pen` 直讀 JSON：frame `ap001.fill = #030712`、child[0] `ap002.fill = #111827`（TopBar）、logo color `#FB923C`（"K-Line Predictor"）
-- Dev screenshot `/tmp/k030-qa-app.png` 視覺判讀：wrapper bg = 最深灰、TopBar = 稍淺深灰、logo = 橘紅色，三者皆與 .pen 色值一致
-- Playwright T4 已程式斷言 wrapper `backgroundColor === 'rgb(3, 7, 18)'` = `#030712`
+**Pencil v1 `ap001` comparison conclusion:**
+- `homepage-v1.pen` direct JSON read: frame `ap001.fill = #030712`, child[0] `ap002.fill = #111827` (TopBar), logo color `#FB923C` ("K-Line Predictor")
+- Dev screenshot `/tmp/k030-qa-app.png` visual interpretation: wrapper bg = darkest gray, TopBar = slightly lighter dark gray, logo = orange-red — all three match the .pen color values
+- Playwright T4 already programmatically asserts wrapper `backgroundColor === 'rgb(3, 7, 18)'` = `#030712`
 - **AC-030-PENCIL-ALIGN: PASS**
 
-**Visual report:** `docs/reports/K-030-visual-report.html`（5 routes 全覆蓋）
+**Visual report:** `docs/reports/K-030-visual-report.html` (full coverage of 5 routes)
 
-**QA verdict: PASS — PM 可 close + deploy。**
+**QA verdict: PASS — PM may close + deploy.**
 
 ---
 
@@ -364,12 +364,12 @@ Engineer + Architect fix-now 完成後：
 
 **2026-04-21 — Production deploy executed.**
 
-- **Branch merged:** `fix/K-030-app-isolation` → `main`（merge commit `95f6ea5`，含 PRD + architecture.md + 3 retros interleave conflict resolution with K-031 close）
-- **Build:** `cd frontend && npm run build` — exit 0；bundle：`index-DzbMkytg.js` 114.08 kB / gzip 38.30 kB, `vendor-react-DBzpJYIJ.js` 179.29 kB / gzip 58.57 kB, CSS 44.21 kB / gzip 7.77 kB
+- **Branch merged:** `fix/K-030-app-isolation` → `main` (merge commit `95f6ea5`, including PRD + architecture.md + 3 retros interleave conflict resolution with K-031 close)
+- **Build:** `cd frontend && npm run build` — exit 0; bundle: `index-DzbMkytg.js` 114.08 kB / gzip 38.30 kB, `vendor-react-DBzpJYIJ.js` 179.29 kB / gzip 58.57 kB, CSS 44.21 kB / gzip 7.77 kB
 - **Deploy command:** `firebase deploy --only hosting` — exit 0
 - **Hosting URL:** https://k-line-prediction-app.web.app
-- **Smoke test:** `curl -I /` → HTTP 200 + `curl -I /app` → HTTP 200（etag `8769e6917b6b...` last-modified 2026-04-21 14:23:13 GMT）
-- **API path scan:** `grep -rn "['\"]/api/" src/` — 僅 3 筆出現於 `src/__tests__/AppPage.test.tsx`（mock 驗證，非 runtime），無 bare relative path
+- **Smoke test:** `curl -I /` → HTTP 200 + `curl -I /app` → HTTP 200 (etag `8769e6917b6b...` last-modified 2026-04-21 14:23:13 GMT)
+- **API path scan:** `grep -rn "['\"]/api/" src/` — only 3 occurrences in `src/__tests__/AppPage.test.tsx` (mock verification, not runtime), no bare relative path
 - **Push:** `git push origin main` → `8b0214f..95f6ea5`
 
 **Ticket closed 2026-04-21.** AC migrated to PRD §4 Closed Tickets; PM-dashboard.md K-030 row moved to Closed section.

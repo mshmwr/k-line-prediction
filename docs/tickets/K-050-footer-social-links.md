@@ -1,6 +1,6 @@
 ---
 id: K-050
-title: Footer 社群連結 — 可點擊 icon + Email 明文
+title: Footer social links — clickable icons + plaintext email
 status: closed
 type: feat
 priority: medium
@@ -16,12 +16,12 @@ qa-early-consultation: N/A — layout/behavior swap, no new edge-case AC class (
 
 ## Background
 
-K-034 Phase 1 (2026-04-23) 依 Pencil SSOT 將 footer 收歸為純文字單行 `email · github · LinkedIn`。實際使用後發現 LinkedIn / GitHub / Email 皆不可點擊 —— 明顯 UX 缺口。本 ticket 以新 Pencil 設計迭代取代 K-034 Phase 1，導入官方 brand-mark SVG + mailto icon + 可選取 email 明文 + click-to-copy，並恢復 K-018 GA click tracking。
+K-034 Phase 1 (2026-04-23) collapsed the footer to a single plaintext line `email · github · LinkedIn` per the Pencil SSOT. Live use revealed LinkedIn / GitHub / Email are all non-clickable — a clear UX gap. This ticket supersedes K-034 Phase 1 with a new Pencil design iteration: official brand-mark SVGs + a mailto icon + selectable plaintext email + click-to-copy, and restores K-018 GA click tracking.
 
 ## Scope
 
 **In-scope:**
-- Footer DOM (4 footer-consuming 路由共用)
+- Footer DOM (shared across 4 footer-consuming routes)
 - 3 brand-asset SVG git-tracked (`frontend/design/brand-assets/`)
 - 4 Pencil JSON spec updates (`_design-divergence` field)
 - `design-exemptions.md` new BRAND-ASSET category + row
@@ -33,7 +33,7 @@ K-034 Phase 1 (2026-04-23) 依 Pencil SSOT 將 footer 收歸為純文字單行 `
 
 **Out-of-scope:**
 - /app route (K-030 no-footer preserved)
-- Footer 外元件
+- Components outside Footer
 - Pencil .pen file re-export (.json update only)
 
 ## Acceptance Criteria
@@ -98,7 +98,7 @@ K-034 Phase 1 (2026-04-23) 依 Pencil SSOT 將 footer 收歸為純文字單行 `
 
 ## Sacred cross-check
 
-| Sacred | 檔案 | 原 test 數 | K-050 狀態 |
+| Sacred | File | Original test count | K-050 status |
 |---|---|---|---|
 | K-017 AC-017-FOOTER | about.spec.ts L311–346 | 5 | Partial restore (anchors yes, "Let's talk →" no) |
 | K-018 AC-018-CLICK | ga-tracking.spec.ts L118–159 | 3 | Full restore + 1 cross-route sanity = 4 |

@@ -32,13 +32,13 @@ This ticket rewrites README to lead with the agent team identity, insert a befor
 
 ## 2. Source of Truth Handoff
 
-**Pre-v2 homepage screenshot source commit:** `80e12d7` ("feat: K-001~K-007 closed + Firebase deploy infra + K-002 unified UI", 2026-04-18) — parent of `2318e67` ("wip(K-017): Homepage v2 實作進行中"). At `80e12d7` the homepage is the pre-v2 (v1) state.
+**Pre-v2 homepage screenshot source commit:** `80e12d7` ("feat: K-001~K-007 closed + Firebase deploy infra + K-002 unified UI", 2026-04-18) — parent of `2318e67` ("wip(K-017): Homepage v2 implementation in progress"). At `80e12d7` the homepage is the pre-v2 (v1) state.
 
 **Post-v2 homepage screenshot source:** `058699b` (current main HEAD after full v2 arc K-017 → K-042).
 
 **v2 arc span for narrative:** K-017 (about portfolio + homepage v2 pivot) → K-040 (sitewide Bodoni → Geist Mono + 8 UI polish items). Cites K-017, K-021 (sitewide design system), K-024 (`/diary` structure + schema), K-034 (`/about` spec audit + workflow codification), K-040 (typography + polish batch).
 
-**Display rule (user explicit):** plain `<img width="...">` side-by-side pair. **No `<details>` collapsible**. Image size "不用太大" (small).
+**Display rule (user explicit):** plain `<img width="...">` side-by-side pair. **No `<details>` collapsible**. Image size kept small.
 
 ## 3. Acceptance Criteria
 
@@ -51,7 +51,7 @@ This ticket rewrites README to lead with the agent team identity, insert a befor
 ### AC-044-BEFORE-AFTER-SCREENSHOTS
 - **Given** a reader reaches the "v2 redesign" / showcase section
 - **When** the page renders on GitHub
-- **Then** two homepage screenshots (pre-v2 `v1` and post-v2 `v2`) must render side-by-side using plain `<img>` tags with an explicit `width` attribute (recommended ≤ 360px each, user directive "圖片size不用太大")
+- **Then** two homepage screenshots (pre-v2 `v1` and post-v2 `v2`) must render side-by-side using plain `<img>` tags with an explicit `width` attribute (recommended ≤ 360px each, per user directive to keep image size small)
 - **And** no `<details>` / collapsible element wraps the images
 - **And** both images must be committed into the repo under a documented path (Architect decides between `docs/images/readme/` new dir vs `frontend/design/screenshots/` reuse — see BQ-044-Q1)
 - **And** both images must carry an `alt` attribute describing the homepage state (e.g., `alt="Homepage v1 (pre-redesign)"`, `alt="Homepage v2 (current)"`)

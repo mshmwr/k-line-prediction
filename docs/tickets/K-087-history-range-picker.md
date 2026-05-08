@@ -59,12 +59,12 @@ and triggers MA99 computation — identical behaviour to a CSV upload.
 
 **AC-087-LOAD**
 - Given start ≤ end and at least 2 bars exist,
-- When the user clicks "載入並分析",
+- When the user clicks "Load & Analyze",
 - Then `onLoad(bars, label)` is called where `label` is `DB <start> → <end> (<count> bars, UTC+0)`.
 
 **AC-087-ERROR-DISPLAY**
 - Given the API returns a 422,
-- When "載入並分析" is clicked,
+- When "Load & Analyze" is clicked,
 - Then the error detail message is shown below the button.
 
 ### §3 Hook Integration

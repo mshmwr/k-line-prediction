@@ -1,51 +1,51 @@
 ---
 id: K-016
-title: K-002 component spec 加 superseded 頭註（LoadingSpinner 文案）
+title: Add superseded header to K-002 component spec (LoadingSpinner copy)
 status: backlog
 type: docs
 priority: low
 created: 2026-04-18
-source: docs/tickets/K-011-loading-spinner-label.md#pm-裁決review-suggestions-2026-04-18 (Drift B)
+source: docs/tickets/K-011-loading-spinner-label.md#pm-ruling-review-suggestions-2026-04-18 (Drift B)
 ---
 
-## 背景
+## Background
 
-K-011 將 `LoadingSpinner` 由固定 `Running prediction...` 改為 `label?: string` prop，但 `docs/designs/k002-component-spec.md:99,111` 仍描述舊行為。
+K-011 changed `LoadingSpinner` from a fixed `Running prediction...` string to a `label?: string` prop, but `docs/designs/k002-component-spec.md:99,111` still describes the old behavior.
 
-此 spec 為 K-002 時間點的設計快照，改內容會扭曲歷史記錄；正確處理是加「Superseded by K-011」頭註，讓後續讀者知道該段落已不反映當前實作。
+This spec is a design snapshot from the K-002 timepoint; rewriting its content would distort the historical record. The correct treatment is to add a "Superseded by K-011" header so future readers know that section no longer reflects the current implementation.
 
-## 範圍
+## Scope
 
-**含：**
-- 在 `docs/designs/k002-component-spec.md` 檔案最上方（frontmatter 之後 / 正文之前）加一行標註：
+**In scope:**
+- Add a single annotation line at the top of `docs/designs/k002-component-spec.md` (after the frontmatter / before the body):
   ```
   > **Note:** Portions of this spec describing `LoadingSpinner` (lines 99, 111) are superseded by [K-011](../../tickets/K-011-loading-spinner-label.md) on 2026-04-18. Spec content preserved as a K-002 design snapshot.
   ```
-- 不改 line 99 / 111 的原始內容
+- Do not modify the original content at lines 99 / 111
 
-**不含：**
-- 掃描其他歸檔 spec 的類似 drift（若未來發現再逐案開票）
-- 制定「歸檔 spec 通用標註規範」（屬 process 改善，非本票 scope）
+**Out of scope:**
+- Scanning other archived specs for similar drift (file new tickets case-by-case if discovered later)
+- Defining a "general annotation convention for archived specs" (process improvement, outside this ticket's scope)
 
 ## Acceptance Criteria
 
-### AC-016-HEADER：superseded 頭註存在且連結正確
+### AC-016-HEADER: superseded header exists with correct link
 
 **Given** `docs/designs/k002-component-spec.md`
-**When** 讀取檔案
-**Then** frontmatter 之後出現 superseded 頭註
-**And** 頭註內 K-011 相對路徑可被 Markdown viewer 解析（`../../tickets/K-011-loading-spinner-label.md`）
-**And** lines 99, 111 的原始內容保留未改
+**When** the file is read
+**Then** a superseded header appears after the frontmatter
+**And** the relative path to K-011 inside the header resolves correctly in a Markdown viewer (`../../tickets/K-011-loading-spinner-label.md`)
+**And** the original content at lines 99, 111 remains unchanged
 
-## 優先級理由
+## Priority Rationale
 
-**low** — 純文件改動、無 code / UX 影響。但放著不處理會讓未來讀 spec 的 agent 誤信舊行為，故仍登記而非丟棄。排序在 backlog 尾端，任何維運 session 可順手完成。
+**low** — pure documentation change, no code / UX impact. But leaving it unaddressed lets future agents reading the spec trust outdated behavior, so it is logged rather than discarded. Sorted at the tail of the backlog; any maintenance session can knock it out.
 
-## 下一棒
+## Next Step
 
-待排程。直接交 Engineer（單檔案、單行 Edit，無架構決策）。
+Awaiting scheduling. Hand directly to Engineer (single file, single-line Edit, no architecture decisions).
 
-## 相關連結
+## Related Links
 
 - [K-011 LoadingSpinner label prop](./K-011-loading-spinner-label.md)
-- [K-002 UI 優化票](./K-002-ui-optimization.md)
+- [K-002 UI optimization ticket](./K-002-ui-optimization.md)
