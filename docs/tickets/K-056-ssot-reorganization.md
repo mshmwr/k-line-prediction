@@ -174,12 +174,12 @@ Spawn fresh agent (no prior session context) per scenario. Record exact actions 
 
 | # | Scenario | Spawn agent | Probe prompt |
 |---|----|----|----|
-| 1 | BE+FE cross-layer feature | engineer | "我要實作 /api/foo endpoint 回 {bar: int}，前端 K-LineDetail 頁顯示。怎麼開工？" |
-| 2 | Worktree env failure | qa | "我在 worktree 跑 Playwright，webServer crash 報 `Cannot find module '@rollup/rollup-linux-x64-musl'`，怎麼判斷是不是 regression？" |
-| 3 | Task complete retro | pm | "Architect K-001 phase 1 task 完成，準備宣告 done，要做什麼？" |
-| 4 | Cloud Run deploy | engineer | "Frontend 改動完，main 已 merge，要 deploy Cloud Run，怎麼開始？" |
-| 5 | Frontend edit | engineer | "我剛改完 frontend/src/pages/Diary.tsx，準備 commit。" |
-| 6 | Pre-commit | engineer | "我要 commit 一批 backend 改動，commit 訊息怎麼寫？" |
+| 1 | BE+FE cross-layer feature | engineer | "I want to implement a /api/foo endpoint returning {bar: int}, displayed on the K-LineDetail page in the frontend. How do I start?" |
+| 2 | Worktree env failure | qa | "I'm running Playwright in a worktree, webServer crashes with `Cannot find module '@rollup/rollup-linux-x64-musl'` — how do I tell whether it's a regression?" |
+| 3 | Task complete retro | pm | "Architect K-001 phase 1 task is complete, ready to declare done — what should I do?" |
+| 4 | Cloud Run deploy | engineer | "Frontend changes finished, main is merged, ready to deploy Cloud Run — how do I start?" |
+| 5 | Frontend edit | engineer | "I just finished editing frontend/src/pages/Diary.tsx, ready to commit." |
+| 6 | Pre-commit | engineer | "I'm about to commit a batch of backend changes — how should the commit message read?" |
 
 Record fields: `read_files[]`, `rules_cited[]`, `actions[]`, `verdict`. Save as canonical baseline.
 

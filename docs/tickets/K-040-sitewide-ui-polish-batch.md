@@ -89,7 +89,7 @@ All AC use **visual intent wording**, not CSS property/value (per `feedback_pm_a
 
 ### AC-040-HERO-FONT-MONO — **RETIRED 2026-04-23**
 
-Superseded by `AC-040-SITEWIDE-FONT-MONO` above. Retirement reason: user scope-expansion ruling 2026-04-23 ("所有頁面的所有字體都換成 Geist Mono, italic OFF") — sitewide token reset is the correct frame, not H1-only. Original AC text preserved in git history (prior commit to this session). BQ-040-01 user ruling (Option B, italic OFF) carries forward into the new AC.
+Superseded by `AC-040-SITEWIDE-FONT-MONO` above. Retirement reason: user scope-expansion ruling 2026-04-23 (switch every font on every page to Geist Mono with italic OFF) — sitewide token reset is the correct frame, not H1-only. Original AC text preserved in git history (prior commit to this session). BQ-040-01 user ruling (Option B, italic OFF) carries forward into the new AC.
 
 ### AC-040-DIARY-FOOTER-BOTTOM-GAP (Item 2) — **Sacred-interacting**
 
@@ -354,7 +354,7 @@ Designer is first because `visual-delta: yes` on 7 of 8 items. Engineer may be d
 
 ### 2026-04-23 — Scope-expansion (user directive)
 
-- **User verbatim ruling:** "我看到幾乎所有頁面的字體都還是原本的 Bodoni Moda，沒有換成 Geist Mono。需求是所有頁面的所有字體都換成 Geist Mono，PM 更新一下，設計師也更新一下。"
+- **User ruling (paraphrased):** Almost every page still rendered the original Bodoni Moda instead of Geist Mono; the requirement is that every font on every page switch to Geist Mono, and both PM and Designer must update accordingly.
 - **Effect:** `AC-040-HERO-FONT-MONO` retired; `AC-040-SITEWIDE-FONT-MONO` authored — scope now covers all routes, all components, all Bodoni touchpoints (13 `font-display` tsx sites + 4 inline `Bodoni Moda` sites + 1 Konva `timelinePrimitives.ts:30` literal + `tailwind.config.js` `display`/`italic` keys + `index.css` body default).
 - **Items 2/3/4/5/6/11/14 unchanged** (their AC blocks intact above).
 - **BQ-040-05** (sitewide font-size calibration) resolved by PM = Option B (Designer authoritative values in memo; Engineer mirrors).

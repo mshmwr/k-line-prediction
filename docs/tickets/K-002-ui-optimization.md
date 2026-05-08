@@ -1,6 +1,6 @@
 ---
 id: K-002
-title: UI 優化 — icon、排版、loading 動畫
+title: UI optimization — icons, layout, loading animation
 status: closed
 type: feat
 priority: medium
@@ -8,165 +8,165 @@ created: 2026-04-16
 closed: 2026-04-18
 ---
 
-## 背景
+## Background
 
-目前 UI 缺乏 icon、整體版面視覺層次不足、loading 狀態只有 CSS border-spin 動畫。
-需要全面提升視覺質感。
+The current UI lacks icons, the overall layout has insufficient visual hierarchy, and the loading state is just a CSS border-spin animation.
+A comprehensive visual quality lift is needed.
 
-## 範圍
+## Scope
 
-**含：**
-- Icon：NavBar、按鈕、Section 標題等加入 icon library
-- 網頁排版：spacing、typography、視覺層次優化
-- Loading 動畫：`LoadingSpinner` 改為較豐富的動畫效果
-- NavBar 連結完整性：補上 About (`/about`) 入口連結
+**In:**
+- Icons: introduce an icon library for the NavBar, buttons, Section headings, etc.
+- Page layout: spacing, typography, visual hierarchy improvements
+- Loading animation: upgrade `LoadingSpinner` to a richer animation
+- NavBar link completeness: add the About entry link (`/about`)
 
-**不含：**
-- 功能邏輯變更
-- 深色 / 淺色主題切換
-- 路由名稱變更（`/business-logic` 維持不變，另開 ticket 討論）
-- 畫面切換系統重構（使用者說「後續討論」，另開 ticket）
+**Out:**
+- Functional logic changes
+- Dark / light theme toggle
+- Route name changes (`/business-logic` stays as is; open a separate ticket to discuss)
+- Page-transition system rebuild (user said "discuss later", separate ticket)
 
-## 設計決策紀錄
+## Design decision log
 
-| 決策項目 | 內容 | 來源 | 時間 |
+| Decision | Content | Source | Date |
 |----------|------|------|------|
-| NavBar 按鈕呈現方式 | 回首頁按鈕（Home）：icon only；其他功能按鈕（App / About / Diary / Logic）：文字呈現 | 使用者確認 | 2026-04-18 |
-| Home icon 來源 | 由設計師從 Lucide 挑選合適的 home icon；此 home icon 同時作為品牌識別的**暫代** logo，直到品牌 icon 正式設計完成 | 使用者確認（更正）| 2026-04-18 |
-| 品牌 icon 設計 | 延後設計；現階段以 home icon（Lucide）暫代品牌識別，不在 K-002 範圍內 | 使用者確認（更正）| 2026-04-18 |
-| Logic 連結呈現方式 | "Logic" 文字 + Lock icon 並排（**文字在左，icon 在右**）**固定顯示**，不因登入狀態改變；此為既有設計，設計師不得移除 Lock icon | 使用者確認（需求更正）| 2026-04-18 |
-| Logic 連結路由 | href 對應現有 `/business-logic`，不改路由；設計稿 `/logic` 視為設計稿筆誤，Engineer 以現有路由為準 | PM 裁決（Architect 提出）| 2026-04-18 |
-| About 連結入口 | NavBar 新增 About 連結（href: `/about`），列入 K-002 實作範圍；使用者確認「要改」 | PM 裁決（使用者補充）| 2026-04-18 |
-| 畫面切換系統 | K-002 不動畫面切換系統；使用者說「後續討論」，另開新 ticket | PM 裁決（使用者補充）| 2026-04-18 |
+| NavBar button presentation | Home button: icon only; other functional buttons (App / About / Diary / Logic): text | User confirmed | 2026-04-18 |
+| Home icon source | Designer picks a suitable home icon from Lucide; this home icon also serves as the **placeholder** brand identity logo until a proper brand icon is designed | User confirmed (corrected) | 2026-04-18 |
+| Brand icon design | Deferred; the home icon (Lucide) currently stands in as brand identity, not within K-002 scope | User confirmed (corrected) | 2026-04-18 |
+| Logic link presentation | "Logic" text + Lock icon side by side (**text on the left, icon on the right**), **always shown** regardless of login state; this is existing design and Designer must not remove the Lock icon | User confirmed (requirement correction) | 2026-04-18 |
+| Logic link route | href maps to existing `/business-logic`, route unchanged; design-spec `/logic` is treated as a typo, Engineer follows the existing route | PM ruling (raised by Architect) | 2026-04-18 |
+| About link entry | NavBar adds an About link (href: `/about`), in K-002 implementation scope; user confirmed "do change" | PM ruling (user addition) | 2026-04-18 |
+| Page-transition system | K-002 does not touch the page-transition system; user said "discuss later", separate new ticket | PM ruling (user addition) | 2026-04-18 |
 
-## 狀態
+## Status
 
-**放行 Engineer。** PM 已裁決所有阻塞問題（2026-04-18）：路由維持 `/business-logic`、NavBar 補 About 連結、畫面切換系統延後至新 ticket。設計稿已完成，AC 全部確認，Engineer 可開始實作。
+**Releasing to Engineer.** PM has ruled on all blocking questions (2026-04-18): route stays as `/business-logic`, NavBar adds About link, page-transition system deferred to a new ticket. Design specs are complete, all ACs confirmed, Engineer can begin implementation.
 
 ## Acceptance Criteria
 
-完整 AC 定義在 [PRD.md — UI 優化 Backlog](../../PRD.md#ui-優化-backlog)。
+Full AC defined in [PRD.md — UI optimization Backlog](../../PRD.md).
 
-### AC-002-NAV：NavBar 連結完整性
+### AC-002-NAV: NavBar link completeness
 
-**Given** 任何頁面載入完成
-**When** 使用者看到 UnifiedNavBar
-**Then** NavBar 包含以下連結：Home（icon only）、App、About、Diary、Logic
-**And** About 連結的 href 為 `/about`
-**And** Logic 連結的 href 為 `/business-logic`（不改路由）
-**And** Logic 連結以「文字在左，Lock icon 在右」固定顯示
+**Given** any page has finished loading
+**When** the user sees UnifiedNavBar
+**Then** NavBar contains the following links: Home (icon only), App, About, Diary, Logic
+**And** About link's href is `/about`
+**And** Logic link's href is `/business-logic` (route unchanged)
+**And** Logic link is shown as "text on the left, Lock icon on the right" persistently
 
 ---
 
-### AC-002-ICON：Icon Library 導入
+### AC-002-ICON: Icon Library introduction
 
-**Given** 前端已安裝 icon library（具體選型由 Designer 決定，例如 Heroicons / Lucide）
-**When** 使用者載入任一頁面
-**Then** UnifiedNavBar 的 home icon 使用 icon library 的 home icon（取代現有 ⌂ Unicode 符號）
-**And** PredictButton 的 icon 明確使用 Lucide `Play` icon（取代現有 ▶ Unicode 符號）
-**And** SectionHeader 各 section 標題使用語意相符的 icon library icon
-**And** 所有 icon 在 Retina / 高 DPI 螢幕下清晰，無鋸齒
+**Given** the frontend has installed an icon library (specific choice up to Designer, e.g. Heroicons / Lucide)
+**When** the user loads any page
+**Then** UnifiedNavBar's home icon uses the icon library's home icon (replacing the existing ⌂ Unicode symbol)
+**And** PredictButton's icon explicitly uses Lucide `Play` icon (replacing the existing ▶ Unicode symbol)
+**And** SectionHeader's section headings use semantically matching icon-library icons
+**And** all icons render crisply on Retina / high-DPI screens with no aliasing
 
-**Given** icon library 已導入
-**When** 工程師新增 icon
-**Then** 可透過 import 單一套件使用，不需手動管理 SVG 檔案
+**Given** the icon library is installed
+**When** an engineer adds an icon
+**Then** they can use it via a single-package import without manually managing SVG files
 
-### AC-002-LAYOUT：排版優化
+### AC-002-LAYOUT: Layout optimization
 
-**Given** 使用者訪問 `/`（首頁）或 `/app`（預測頁）
-**When** 頁面載入
-**Then** 頁面各區塊間距（section padding / gap）一致，符合設計稿規範
-**And** 主要文字層次清晰：heading / subheading / body / caption 四級 typography 可視覺區分
-**And** 互動元素（按鈕、輸入框）具備足夠的 touch target（最小 44×44px）
+**Given** the user visits `/` (home) or `/app` (predict)
+**When** the page loads
+**Then** spacing between page sections (section padding / gap) is consistent and matches the design spec
+**And** the primary text hierarchy is clear: heading / subheading / body / caption — four typography levels are visually distinguishable
+**And** interactive elements (buttons, inputs) have sufficient touch targets (min 44×44px)
 
-**Given** 使用者在行動裝置（viewport ≤ 768px）上訪問
-**When** 頁面載入
-**Then** 內容不溢出螢幕寬度
-**And** 視覺層次與桌面版一致（無元素重疊或文字截斷）
+**Given** the user visits on a mobile device (viewport ≤ 768px)
+**When** the page loads
+**Then** content does not overflow the screen width
+**And** visual hierarchy matches desktop (no element overlap or text truncation)
 
-### AC-002-LOADING：Loading 動畫改版
+### AC-002-LOADING: Loading animation upgrade
 
-**Given** 使用者點擊 PredictButton 觸發預測請求
-**When** API 請求進行中（loading 狀態）
-**Then** LoadingSpinner 顯示比 border-spin 更有視覺質感的動畫（具體設計由 Designer 決定，例如 pulse、skeleton、multi-ring 等）
-**And** 動畫流暢，不發生卡頓或閃爍
+**Given** the user clicks PredictButton to trigger a prediction request
+**When** the API request is in progress (loading state)
+**Then** LoadingSpinner shows an animation with more visual quality than border-spin (specific design up to Designer, e.g. pulse, skeleton, multi-ring)
+**And** the animation is smooth, with no jank or flicker
 
-**Given** 預測請求完成或失敗
-**When** loading 狀態結束
-**Then** LoadingSpinner 立即消失，不殘留
-**And** 頁面平滑過渡到結果或錯誤狀態（無明顯跳動）
+**Given** the prediction request completes or fails
+**When** the loading state ends
+**Then** LoadingSpinner disappears immediately, no residual
+**And** the page smoothly transitions to result or error state (no visible jump)
 
-## 技術債
+## Tech debt
 
-| 項目 | 描述 | 優先級 | PM 裁決 | 裁決日期 |
+| Item | Description | Priority | PM ruling | Ruling date |
 |------|------|--------|---------|---------|
-| AppPage.test.tsx 2 個 pre-existing failures | `shared timeframe toggle` 和 `display mode toggle` 在 JSDOM 環境找不到按鈕；與 K-002 無關，屬 JSDOM 環境限制。不影響 Playwright E2E 覆蓋。 | Low | 記入技術債，不開新 ticket；JSDOM 環境修復留待有需要時一併處理 | 2026-04-18 |
-| AC-002-ICON Playwright 覆蓋不足 | 現有 spec 只驗證「icon library 可被使用」，未對 8 個 SectionHeader 的 icon 存在逐一斷言；CRITICAL-1 的根因測試漏洞。 | Medium | 記入技術債，下一個有 UI 變更的 ticket 補齊斷言 | 2026-04-18 |
-| ARIA role 無 Playwright 斷言 | E2E 對 `role="status"` / `aria-label` 無覆蓋；CRITICAL-2 的根因測試漏洞。 | Medium | 記入技術債，建議在 AC-002-LOADING 驗收時補加無障礙斷言 | 2026-04-18 |
+| AppPage.test.tsx 2 pre-existing failures | `shared timeframe toggle` and `display mode toggle` cannot find buttons in the JSDOM environment; unrelated to K-002, a JSDOM environment limitation. Does not affect Playwright E2E coverage. | Low | Filed as tech debt, no new ticket; JSDOM environment fixes deferred until needed | 2026-04-18 |
+| AC-002-ICON Playwright coverage insufficient | Existing spec only verifies "icon library is usable", does not assert each of the 8 SectionHeader icons individually; this is the test gap behind CRITICAL-1's root cause. | Medium | Filed as tech debt; the next UI-changing ticket adds the assertions | 2026-04-18 |
+| ARIA role has no Playwright assertion | E2E has no coverage for `role="status"` / `aria-label`; this is the test gap behind CRITICAL-2's root cause. | Medium | Filed as tech debt; recommend adding accessibility assertions when AC-002-LOADING is verified | 2026-04-18 |
 
-## 相關連結
+## Related links
 
-- [PRD.md — UI 優化 Backlog](../../PRD.md#ui-優化-backlog)
+- [PRD.md — UI optimization Backlog](../../PRD.md)
 - [PM-dashboard.md](../../../PM-dashboard.md)
 
 ---
 
 ## Retrospective
 
-### Architect 反省
+### Architect retrospective
 
-**花最多時間的地方：** `isLoggedIn` prop 全面清除的影響範圍評估——需要逐一確認所有使用 NavBar 的頁面；但這個評估做在設計文件裡，不夠徹底，導致遺漏 About 連結的 href 規格。
+**Where most time was spent:** Assessing the impact of fully removing the `isLoggedIn` prop — needed to confirm one by one all pages using NavBar; but this assessment lived only in the design doc, not deeply enough, and the missing About link href spec slipped through.
 
-**需要修正的判斷：** About 連結入口原本未被列入設計範圍，是 Code Review 階段才被發現補回；這個 missing spec 本應在 Architect 審閱 PRD 時就攔截。
+**Judgment that needed correction:** The About link entry was originally not included in the design scope and was only caught at Code Review and added back; this missing spec should have been intercepted when Architect reviewed the PRD.
 
-**下次改善：** 設計文件驗收時逐條核對「NavBar 含哪些連結」的 AC，不能只看 prop interface；AC 裡寫到的 URL path 都必須在設計稿確認有對應的 href。
-
----
-
-### Engineer 反省
-
-**判斷有誤的 AC：** AC-002-ICON 的 And 3（SectionHeader 各 section 標題使用 icon）——實作時遺漏了這個 And 條件，直到 Code Review 才發現。原因是在讀 AC 時習慣性略過「And」子句，只看「Then」。
-
-**未預料到的邊界：** `LoadingSpinner` 的 `role="status"` 屬性——在整合時被刪除，沒有意識到這會破壞 ARIA 語意，也沒有對應的測試來攔截。`business-logic.spec.ts` 和 `pages.spec.ts` 未隨組件變更同步更新，是系統性遺漏。
-
-**下次改善：** 實作前逐條列出所有 Then/And（而非只看 Then），並為每個 And 對應一個 Playwright 斷言；組件改動後立即 grep 所有引用該組件的測試檔，確認有無需同步更新的 selector。
+**Next time improvement:** When verifying the design doc, line-by-line cross-check the AC about "what links does NavBar contain"; can't only look at the prop interface; every URL path written in AC must have a confirmed href in the design spec.
 
 ---
 
-### Code Reviewer 反省
+### Engineer retrospective
 
-**應在更早流程攔截的問題：**
-- SectionHeader icon（AC-002-ICON And 3）白紙黑字寫在 ticket AC 中，Engineer 遺漏是可以在 AC 驗收時就攔截的；Code Reviewer 在 review 時發現，說明 AC 驗收環節（PM Gate Check）未做到逐條核對 And。
-- `role="status"` 的移除屬於無障礙規範問題，Architect 設計文件若有明確的 ARIA 規格，Engineer 不易遺漏；這個問題根源在設計層。
+**Misjudged AC:** AC-002-ICON's And 3 (SectionHeader's section headings use icons) — the And condition was missed during implementation, only caught at Code Review. Cause: when reading AC, habitually skipped "And" clauses and only looked at "Then".
 
-**下次改善：** Review 時針對 ARIA 相關屬性做專項 checklist（`role`、`aria-label`、`aria-live`）；並在 review 開始前先逐條掃 AC 的 And 子句，不只看 diff。
+**Unforeseen edge:** `LoadingSpinner`'s `role="status"` attribute — was deleted during integration without realizing this would break ARIA semantics, and there was no corresponding test to intercept it. `business-logic.spec.ts` and `pages.spec.ts` were not updated to follow the component change — a systemic omission.
 
----
-
-### QA 反省
-
-**回歸測試設計不足的地方：**
-- AC-002-ICON 現有 Playwright spec 只驗證「icon library 可被使用」，未對 8 個 SectionHeader 的 icon 存在逐一斷言；這個測試漏洞是 CRITICAL-1（SectionHeader icon 漏實作）能夠通過 CI 的直接原因。
-- `role="status"` 的移除未被 E2E 攔截，因為 E2E 對 ARIA role 無斷言；這是 CRITICAL-2 的根因測試漏洞。
-
-**未覆蓋到的邊界：** grep 搜尋範圍未包含所有引用 SectionHeader 的測試，導致 `business-logic.spec.ts` 和 `pages.spec.ts` 未被納入回歸掃描。
-
-**下次改善：** 每個有 UI icon 的 AC，QA 必須為每個 icon 寫獨立斷言（`getByTestId` 或 `getByRole`）；ARIA 屬性（`role`、`aria-label`）納入標準 E2E 斷言 checklist。
+**Next time improvement:** Before implementing, list every Then/And one by one (not just Then), and write a Playwright assertion per And; immediately after a component change, grep all test files referencing that component to confirm whether selectors need to be synced.
 
 ---
 
-### PM 彙整
+### Code Reviewer retrospective
 
-**跨角色重複問題：**
-1. **And 子句的系統性忽略**：Architect 設計驗收、Engineer 實作、QA 測試三個角色都未徹底核對 AC 的 And 條件，導致 SectionHeader icon 同一問題被三個角色漏掉，最終在 Code Review 才攔截。
-2. **ARIA 規格缺口**：設計文件未包含 ARIA 屬性規格，Engineer 和 QA 都無所參照，同一個 `role="status"` 問題在實作層被刪除、在測試層未被覆蓋。
-3. **視覺驗證依賴 JSON 結構**：PM 在 Designer 輸出後未明確標注「視覺驗證需 get_screenshot 才算完成」，導致設計驗收存在視覺盲區。
+**Issues that should have been intercepted earlier in the process:**
+- SectionHeader icon (AC-002-ICON And 3) is in black and white in the ticket AC; Engineer's omission could have been intercepted at AC verification; Code Reviewer catching it at review means the AC verification step (PM Gate Check) did not do line-by-line And cross-checking.
+- The removal of `role="status"` is an accessibility-spec issue; if the Architect design doc had clear ARIA specs, Engineer would not have easily missed it; this issue's root is at the design layer.
 
-**流程改善決議：**
+**Next time improvement:** During Review, do a dedicated checklist for ARIA-related attributes (`role`, `aria-label`, `aria-live`); and before review, scan AC's And clauses line by line, not just the diff.
 
-| 問題 | 負責角色 | 行動 | 更新位置 |
+---
+
+### QA retrospective
+
+**Insufficiencies in regression test design:**
+- Existing AC-002-ICON Playwright spec only verifies "icon library is usable" and does not individually assert each of the 8 SectionHeader icons; this test gap is the direct reason CRITICAL-1 (SectionHeader icon implementation missing) passed CI.
+- The removal of `role="status"` was not intercepted by E2E because E2E has no ARIA-role assertions; this is the test-gap root cause of CRITICAL-2.
+
+**Edges not covered:** The grep search range did not include all tests referencing SectionHeader, so `business-logic.spec.ts` and `pages.spec.ts` were not pulled into the regression scan.
+
+**Next time improvement:** For every AC with a UI icon, QA must write an independent assertion per icon (`getByTestId` or `getByRole`); ARIA attributes (`role`, `aria-label`) become part of the standard E2E assertion checklist.
+
+---
+
+### PM Summary
+
+**Cross-role recurring issues:**
+1. **Systemic neglect of And clauses**: Architect design verification, Engineer implementation, and QA testing — all three roles failed to thoroughly check AC's And conditions, and the same SectionHeader icon issue was missed by all three roles, only finally intercepted at Code Review.
+2. **ARIA spec gap**: design doc did not include ARIA attribute spec; Engineer and QA had nothing to reference, and the same `role="status"` issue was deleted at the implementation layer and not covered at the test layer.
+3. **Visual verification depending on JSON structure**: PM did not explicitly mark "visual verification requires get_screenshot to count as complete" after Designer output, leading to a visual blind spot in design verification.
+
+**Process improvement decisions:**
+
+| Issue | Owner | Action | Update location |
 |------|---------|------|---------|
-| And 子句系統性遺漏 | PM / Engineer / QA | PM gate check 加入「逐條 And 對照」強制步驟；QA 每個 And 必須有對應斷言 | CLAUDE.md Engineer/QA section；pm.md Phase Gate 清單 |
-| ARIA 規格缺口 | Architect | 設計文件新增「ARIA 規格」欄位（role、aria-label、aria-live）；Code Reviewer 加入 ARIA checklist | K-Line CLAUDE.md Architect section |
-| 視覺驗證盲區 | PM | Designer 完成後 PM 明確聲明視覺驗證缺口，不得用 JSON 結構代替截圖確認 | pm.md Phase Gate 清單（已有 `get_screenshot` 規定，強化文字） |
-| SectionHeader icon 測試漏洞 | QA | 技術債已記錄（AC-002-ICON Playwright 覆蓋不足），下一個有 UI 變更的 ticket 補齊斷言 | K-002 技術債（已記入） |
+| Systemic And-clause omissions | PM / Engineer / QA | PM gate check adds a mandatory step "line-by-line And cross-check"; QA must have a corresponding assertion for each And | CLAUDE.md Engineer/QA section; pm.md Phase Gate list |
+| ARIA spec gap | Architect | Design doc adds an "ARIA spec" field (role, aria-label, aria-live); Code Reviewer adds an ARIA checklist | K-Line CLAUDE.md Architect section |
+| Visual verification blind spot | PM | After Designer completes, PM explicitly declares the visual verification gap; cannot substitute JSON structure for screenshot confirmation | pm.md Phase Gate list (already has `get_screenshot` rule, strengthen wording) |
+| SectionHeader icon test gap | QA | Tech debt is recorded (AC-002-ICON Playwright coverage insufficient); the next UI-changing ticket adds the assertions | K-002 tech debt (filed) |

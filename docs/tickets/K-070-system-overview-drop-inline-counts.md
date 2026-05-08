@@ -43,7 +43,7 @@ time — list may be longer):
 | `about-layout.spec.ts` | "15 tests: container width / ..." | Drop count; keep topic list if ≤1 line |
 | `favicon-assets.spec.ts` | "8 asset paths + link-tag hrefs + manifest schema" | Keep content description; drop "8" |
 | `ga-spa-pageview.spec.ts` | "9 tests: SPA-NAV × 2 + BEACON × 4 + NEG × 3" | Drop count; keep tag list if ≤1 line |
-| `test_predictor.py` | "49 tests, 含 K-013 contract parametrize 3 cases + fixture coverage + realism rule" | Drop "49 tests"; keep the K-013 attribution |
+| `test_predictor.py` | "49 tests, including K-013 contract parametrize 3 cases + fixture coverage + realism rule" | Drop "49 tests"; keep the K-013 attribution |
 | Summary section | "5 SPA routes" / "8 sections" | Keep — these are architectural facts, not test counts; verify whether they require a Sacred note |
 
 Replacement pattern: `← <file-purpose> (<ticket-attribution>)` — no numeric prefix.

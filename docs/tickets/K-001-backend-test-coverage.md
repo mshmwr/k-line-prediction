@@ -1,77 +1,77 @@
 ---
 id: K-001
-title: 後端測試補強 — main.py route handler coverage 提升
+title: Backend test reinforcement — main.py route handler coverage uplift
 status: closed
 type: test
 priority: medium
 created: 2026-04-16
 ---
 
-## 背景
+## Background
 
-目前後端整體 coverage 71%，其中 `main.py` 僅 45%。所有 FastAPI route handler 缺乏直接整合測試，現有覆蓋主要來自 `predictor.py` unit test 間接執行的邏輯。
+Current backend overall coverage is 71%, with `main.py` at only 45%. All FastAPI route handlers lack direct integration tests — existing coverage comes mainly from logic indirectly executed by `predictor.py` unit tests.
 
-`GET /api/business-logic` 有效 token → 200 的測試缺口已在 Phase 3 review 時記錄（PRD line 239），但至今未補。
+The gap "valid token → GET /api/business-logic → 200" was logged during Phase 3 review (PRD line 239) but has not been backfilled.
 
-**目標：** `main.py` coverage ≥ 80%。
+**Goal:** `main.py` coverage ≥ 80%.
 
 ## Acceptance Criteria
 
-對應 PRD AC（見 `PRD.md`）：
+Maps to PRD ACs (see `PRD.md`):
 
-| AC | 說明 |
+| AC | Description |
 |----|------|
-| AC-TEST-AUTH-3 | 有效 token → GET /api/business-logic → 200 + content |
-| AC-TEST-AUTH-5 | business_logic.md 不存在 → 404 |
-| AC-TEST-HISTORY-INFO-1 | GET /api/history-info 回傳 1H/1D 資訊 |
+| AC-TEST-AUTH-3 | Valid token → GET /api/business-logic → 200 + content |
+| AC-TEST-AUTH-5 | business_logic.md missing → 404 |
+| AC-TEST-HISTORY-INFO-1 | GET /api/history-info returns 1H/1D info |
 | AC-TEST-UPLOAD-1 | POST /api/upload-history — 1H CSV happy path |
-| AC-TEST-UPLOAD-2 | POST /api/upload-history — 1D 檔名偵測 |
-| AC-TEST-UPLOAD-3 | POST /api/upload-history — 空檔案 → 422 |
-| AC-TEST-UPLOAD-4 | POST /api/upload-history — 重複上傳 added_count = 0 |
-| AC-TEST-EXAMPLE-1 | GET /api/example — 檔案不存在 → 404 |
-| AC-TEST-PARSE-1 | _parse_csv_history_from_text — CryptoDataDownload 格式 |
-| AC-TEST-PARSE-2 | _parse_csv_history_from_text — Binance raw API 格式 |
-| AC-TEST-PARSE-3 | _parse_csv_history_from_text — 空字串 |
-| AC-TEST-MERGE-1 | _merge_bars — 去重並排序 |
+| AC-TEST-UPLOAD-2 | POST /api/upload-history — 1D filename detection |
+| AC-TEST-UPLOAD-3 | POST /api/upload-history — empty file → 422 |
+| AC-TEST-UPLOAD-4 | POST /api/upload-history — duplicate upload added_count = 0 |
+| AC-TEST-EXAMPLE-1 | GET /api/example — file missing → 404 |
+| AC-TEST-PARSE-1 | _parse_csv_history_from_text — CryptoDataDownload format |
+| AC-TEST-PARSE-2 | _parse_csv_history_from_text — Binance raw API format |
+| AC-TEST-PARSE-3 | _parse_csv_history_from_text — empty string |
+| AC-TEST-MERGE-1 | _merge_bars — dedupe and sort |
 
-## 範圍
+## Scope
 
-**含：**
-- 新增 `backend/tests/test_main.py`
-- 補充 `backend/tests/test_auth.py`（AC-TEST-AUTH-3、AC-TEST-AUTH-5）
-- 使用 `tmp_path` fixture，不依賴磁碟上的真實 history 資料庫
+**In:**
+- Add `backend/tests/test_main.py`
+- Extend `backend/tests/test_auth.py` (AC-TEST-AUTH-3, AC-TEST-AUTH-5)
+- Use the `tmp_path` fixture; do not depend on the real on-disk history database
 
-**不含：**
-- `GET /api/official-input`（需 `OFFICIAL_INPUT_CSV_PATH` env var，視為 optional 功能，暫不覆蓋）
-- `GET /{full_path:path}` SPA fallback（需要 `dist/` 存在，屬於 deploy-time 路徑）
-- `time_utils.py`、`mock_data.py` 的 coverage 提升（另開單處理）
+**Out:**
+- `GET /api/official-input` (requires `OFFICIAL_INPUT_CSV_PATH` env var; treated as optional, not covered for now)
+- `GET /{full_path:path}` SPA fallback (requires `dist/` to exist; deploy-time path)
+- Coverage uplift for `time_utils.py` and `mock_data.py` (handled in a separate ticket)
 
-## 測試策略
+## Test strategy
 
 - `TestClient(app)` from `fastapi.testclient`
-- `monkeypatch` 設定 `JWT_SECRET`、`BUSINESS_LOGIC_PASSWORD` env vars
-- `tmp_path` 建立臨時 CSV 與 `business_logic.md`，透過 monkeypatch 覆寫路徑常數
+- `monkeypatch` to set `JWT_SECRET` and `BUSINESS_LOGIC_PASSWORD` env vars
+- `tmp_path` to create temporary CSVs and `business_logic.md`, with monkeypatch overriding the path constants
 
-## 相關連結
+## Related links
 
-- [PRD.md — Backlog 後端測試補強](../../PRD.md#backlog--後端測試補強backend-test-coverage)
+- [PRD.md — Backlog backend test reinforcement](../../PRD.md#backlog--後端測試補強backend-test-coverage)
 - [backend/tests/test_auth.py](../../backend/tests/test_auth.py)
 - [backend/main.py](../../backend/main.py)
 
-## 技術債記錄
+## Tech debt log
 
-以下為 Code Review 發現、PM 裁決延後處理的項目。
+Items found during Code Review and deferred by PM ruling.
 
-| # | 問題 | 嚴重度 | 裁決日期 | 處理時機 |
+| # | Issue | Severity | Ruling date | Handle when |
 |---|------|--------|----------|----------|
-| TD-K001-1 | `test_history_info_returns_1h_and_1d` 無 monkeypatch 隔離，依賴 MOCK_HISTORY fallback 或真實檔案，屬環境依賴脆弱測試 | Suggestion | 2026-04-17 | 下一個測試強化週期，與 tmp_path fixture 重構一起處理 |
-| TD-K001-2 | 浮點數比較使用 `==`（如 `2000.0`），目前測試資料恰為整數值故安全，但未來加入小數測試資料有比較失準風險 | Suggestion | 2026-04-17 | 待測試資料出現小數點時，改用 `pytest.approx` 同步替換 |
+| TD-K001-1 | `test_history_info_returns_1h_and_1d` has no monkeypatch isolation; relies on MOCK_HISTORY fallback or real files — environment-dependent fragile test | Suggestion | 2026-04-17 | Next test-hardening cycle, alongside the tmp_path fixture refactor |
+| TD-K001-2 | Float comparisons use `==` (e.g. `2000.0`); current data happens to be integer values so it is safe, but adding decimal test data later risks comparison drift | Suggestion | 2026-04-17 | Once decimal test data appears, swap to `pytest.approx` |
 
-**決策理由：**
-- TD-K001-1：MOCK_HISTORY fallback 行為目前穩定；改用 tmp_path 需評估 fixture 結構重構，風險高於當前收益。
-- TD-K001-2：現有整數資料路徑安全；過早引入 pytest.approx 增加複雜度但無實質防護效益，等需求出現再補。
+**Decision rationale:**
+- TD-K001-1: MOCK_HISTORY fallback behavior is currently stable; switching to tmp_path requires a fixture-structure refactor whose risk outweighs the current benefit.
+- TD-K001-2: The integer data path is safe; pulling in `pytest.approx` early adds complexity without real protection. Backfill when the need surfaces.
 
-## 驗收結果（2026-04-17）
+## Acceptance result (2026-04-17)
 
-- QA: GO — 12/12 AC PASS，62 tests passed，main.py 86% coverage
-- 關閉：2026-04-17
+- QA: GO — 12/12 ACs PASS, 62 tests passed, main.py 86% coverage
+- Closed: 2026-04-17

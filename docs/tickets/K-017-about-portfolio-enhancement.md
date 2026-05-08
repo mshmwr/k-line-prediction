@@ -8,26 +8,26 @@ created: 2026-04-19
 closed: 2026-04-20
 ---
 
-## 背景
+## Background
 
-目前 `/about` 描述文字以「專案技術棧 + Phase Gate 流程」為主（K-007 更新至 Railway→Firebase+CR），但訊號對象是「讀過 README 的 tech reader」而非「快速瀏覽 portfolio 的 recruiter / hiring manager」。
+Currently the `/about` description copy centers on "project tech stack + Phase Gate flow" (K-007 updated it to Railway→Firebase+CR), but its signaling audience is "tech readers who have read the README" rather than "recruiters / hiring managers quickly skimming the portfolio."
 
-本 ticket 將 `/about` 重寫為 **portfolio-oriented recruiter page**，主軸為「一個人透過 6 個 AI agent 端到端交付功能，每個 feature 都有 doc trail」。同時在 homepage 上方補一條 thin banner 導入 /about，並補 2 個支援 artifact（audit script + 公開版協議文件）讓陳述能被 recruiter 自行驗證。
+This ticket rewrites `/about` into a **portfolio-oriented recruiter page**, with the central theme of "one person delivering features end-to-end through 6 AI agents, every feature shipping with a doc trail." It also adds a thin banner at the top of the homepage routing into `/about`, plus 2 supporting artifacts (audit script + public-facing protocols doc) so the claims can be self-verified by recruiters.
 
-文案內容已於 2026-04-19 session 討論定稿（8 sections + 2 scope +1 artifacts），本 ticket 職責為把文案翻成結構化 PRD + AC，並交付 Architect 做組件拆分 + script / protocols doc 架構。
+Copy was finalized during the 2026-04-19 session discussion (8 sections + 2 scope +1 artifacts). This ticket's responsibility is to translate the copy into a structured PRD + AC and hand off to Architect for component decomposition + script / protocols doc structure.
 
-## 範圍
+## Scope
 
-**含（8 sections + 2 scope +1 artifacts）：**
+**In (8 sections + 2 scope +1 artifacts):**
 
-### Section 1 — PageHeaderSection（One operator 聲明 — Option A，42 字）
+### Section 1 — PageHeaderSection (One operator statement — Option A, 42 words)
 ```
 One operator, orchestrating AI agents end-to-end —
 PM, architect, engineer, reviewer, QA, designer.
 Every feature ships with a doc trail.
 ```
 
-### Section 2 — Metrics strip（4 narrative metrics + subtext）
+### Section 2 — Metrics strip (4 narrative metrics + subtext)
 | Metric | Subtext |
 |--------|---------|
 | Features Shipped | 17 tickets, K-001 → K-017 |
@@ -35,17 +35,17 @@ Every feature ships with a doc trail.
 | Post-mortems Written | Every ticket has cross-role retrospective |
 | Guardrails in Place | Bug Found Protocol, per-role retro logs, audit script |
 
-### Section 3 — 6 Role Cards（Owns X + Artefact）
+### Section 3 — 6 Role Cards (Owns X + Artefact)
 | Role | Owns | Artefact |
 |------|------|----------|
 | PM | Requirements, AC, Phase Gates | PRD.md, docs/tickets/K-XXX.md |
 | Architect | System design, cross-layer contracts | docs/designs/K-XXX-*.md |
 | Engineer | Implementation, stable checkpoints | commits + ticket retrospective |
-| Reviewer | Code review, Bug Found Protocol | Review report + Reviewer 反省 |
+| Reviewer | Code review, Bug Found Protocol | Review report + Reviewer retrospective |
 | QA | Regression, E2E, visual report | Playwright results + docs/reports/*.html |
 | Designer | Pencil MCP, flow diagrams | .pen file + get_screenshot output |
 
-### Section 4 — How AI Stays Reliable（3 pillars + V3 mechanism + 1-line anchor）
+### Section 4 — How AI Stays Reliable (3 pillars + V3 mechanism + 1-line anchor)
 
 **Persistent Memory**
 File-based memory system indexed in `MEMORY.md` survives every session; past mistakes, preferences, and project state persist cross-conversation.
@@ -59,14 +59,14 @@ Each role appends to `docs/retrospectives/<role>.md` after every ticket; the PM 
 PM / Architect / Engineer / Reviewer / QA / Designer are separate agents with spec'd responsibilities. Handoffs produce artifacts that `./scripts/audit-ticket.sh K-XXX` can verify end-to-end.
 > *No artifact = no handoff.*
 
-Pillar 底部 inline link 進入 `docs/ai-collab-protocols.md`（公開版協議文件）。
+An inline link at the bottom of each pillar leads to `docs/ai-collab-protocols.md` (the public-facing protocols doc).
 
-### Section 5 — Anatomy of a Ticket（K-002 / K-008 / K-009 trio）
-每張票卡片含：Ticket ID + 標題 + 一句 outcome + 一句 learning + 連到 `docs/tickets/K-XXX.md`（GitHub 外部 link）。
+### Section 5 — Anatomy of a Ticket (K-002 / K-008 / K-009 trio)
+Each ticket card contains: Ticket ID + title + one-sentence outcome + one-sentence learning + link to `docs/tickets/K-XXX.md` (external GitHub link).
 
-- **K-002**（大重構 UI optimization）— 展示 And-clause 系統性遺漏 → 三角色反省 → per-role retro log 機制產生。
-- **K-008**（Bug Found Protocol 範例 / 自動化視覺報告 script）— 展示 protocol 四步。
-- **K-009**（TDD bug fix — 1H 預測 MA history）— 展示 test-driven discipline。
+- **K-002** (large UI optimization refactor) — demonstrates And-clause systematic omission → three-role retrospective → birth of the per-role retro log mechanism.
+- **K-008** (Bug Found Protocol example / automated visual report script) — demonstrates the four steps of the protocol.
+- **K-009** (TDD bug fix — 1H prediction MA history) — demonstrates test-driven discipline.
 
 ### Section 6 — Project Architecture snapshot
 ```
@@ -84,11 +84,11 @@ Acceptance Criteria are written in Behavior-Driven Development (BDD) style — G
 - **Integration** — FastAPI test client
 - **E2E** — Playwright, including a visual-report pipeline that renders every page to HTML for human review
 
-### Section 7 — BuiltByAIBanner homepage（Option C）
+### Section 7 — BuiltByAIBanner homepage (Option C)
 ```
 One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*
 ```
-放在 homepage（`/`）上方 thin banner，click 導向 `/about`。
+Placed at the top of the homepage (`/`) as a thin banner; clicking it routes to `/about`.
 
 ### Section 8 — Footer CTA
 ```
@@ -96,410 +96,410 @@ One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*
 Or see the source: [GitHub](https://github.com/mshmwr/k-line-prediction) · [LinkedIn](https://linkedin.com/in/yichenlee-career)
 ```
 
-### Scope +1 (A): `scripts/audit-ticket.sh`（portfolio demo script, not CI gate）
+### Scope +1 (A): `scripts/audit-ticket.sh` (portfolio demo script, not CI gate)
 - Usage: `./scripts/audit-ticket.sh K-XXX`
-- Check groups A–G：
-  - **A. Ticket file** — frontmatter: id / title / status / type / priority / created；status=closed 時須有 closed date
-  - **B. AC** — ticket `## Acceptance Criteria` section 存在；PRD.md 可 grep 到 `AC-XXX-*`
-  - **C. Architecture** — `docs/designs/K-XXX-*.md` 存在 OR ticket 明確聲明「無需 Architecture」；若有設計檔則末尾需有 `## Retrospective`
-  - **D. Commit trail** — `git log --grep="K-XXX"` ≥ 1 筆；排除 vague msg（wip/fix 等）
-  - **E. Code Review** — ticket `## Retrospective` 有 Reviewer 反省段（不用 git log heuristic）
-  - **F. Retrospectives (K-008+)** — ticket 有 5 個角色反省 + per-role log 有 `## YYYY-MM-DD — K-XXX` entry
-  - **G. QA / Playwright** — grep 對應 spec；visual report HTML 存在 `docs/reports/K-XXX-*.html`
-- Exit codes：0 all pass / 1 warning / 2 critical missing
-- Output：coloured checklist only（**no --json flag, YAGNI**）
-- **Skip F/G for tickets with `created < 2026-04-18`**（K-001~K-007 pre-dates per-role retro 機制）
+- Check groups A–G:
+  - **A. Ticket file** — frontmatter: id / title / status / type / priority / created; when status=closed, a closed date is required
+  - **B. AC** — ticket `## Acceptance Criteria` section exists; `AC-XXX-*` is greppable in PRD.md
+  - **C. Architecture** — `docs/designs/K-XXX-*.md` exists OR ticket explicitly declares "no Architecture needed"; if a design doc exists, it must end with `## Retrospective`
+  - **D. Commit trail** — `git log --grep="K-XXX"` ≥ 1 entry; vague messages (wip/fix etc.) excluded
+  - **E. Code Review** — ticket `## Retrospective` has a Reviewer retrospective block (no git log heuristic)
+  - **F. Retrospectives (K-008+)** — ticket has retrospectives from 5 roles + per-role log has a `## YYYY-MM-DD — K-XXX` entry
+  - **G. QA / Playwright** — grep the corresponding spec; visual report HTML exists at `docs/reports/K-XXX-*.html`
+- Exit codes: 0 all pass / 1 warning / 2 critical missing
+- Output: coloured checklist only (**no --json flag, YAGNI**)
+- **Skip F/G for tickets with `created < 2026-04-18`** (K-001~K-007 pre-dates the per-role retro mechanism)
 
-### Scope +1 (B): `docs/ai-collab-protocols.md`（公開版協議文件）
+### Scope +1 (B): `docs/ai-collab-protocols.md` (public-facing protocols doc)
 - Location: `docs/ai-collab-protocols.md`
-- 從 `/about` Section 4 "How AI Stays Reliable" 各 pillar 底部 inline link 進入
-- Curation 策略：mechanism-focused（Role Flow + Bug Found Protocol + Per-role Retro 機制定義）+ 2–3 條 curated 英文 retrospective 節選（非全部翻譯）
+- Reached via inline links at the bottom of each pillar in `/about` Section 4 "How AI Stays Reliable"
+- Curation strategy: mechanism-focused (Role Flow + Bug Found Protocol + Per-role Retro mechanism definition) + 2–3 curated English retrospective excerpts (not full translation)
 
-**不含：**
-- 新功能邏輯（本票為 `/about` + homepage banner + 支援 artifact，無預測/MA99/history 邏輯改動）
-- CI gate 整合 audit-ticket.sh（僅 portfolio demo，`./scripts/audit-ticket.sh` 不接上 pre-commit / GitHub Actions）
-- audit-ticket.sh 的 `--json` 輸出（YAGNI，current scope 不需要 machine-readable 格式）
-- 全部 retrospective 翻譯進 `ai-collab-protocols.md`（只 curated 2–3 條）
-- 其他頁面（/app /diary /business-logic）改動
-- NavBar / Footer 以外的 homepage 結構改動（僅加 thin banner，不動其他 section）
-- K-001~K-007 回填 per-role retrospective（audit script F/G 對這批 ticket 直接 skip）
+**Out:**
+- New feature logic (this ticket is `/about` + homepage banner + supporting artifacts, no prediction / MA99 / history logic changes)
+- CI gate integration of audit-ticket.sh (portfolio demo only, `./scripts/audit-ticket.sh` is not wired into pre-commit / GitHub Actions)
+- `--json` output for audit-ticket.sh (YAGNI, current scope does not need a machine-readable format)
+- Translating all retrospectives into `ai-collab-protocols.md` (only 2–3 curated)
+- Changes to other pages (`/app` `/diary` `/business-logic`)
+- Homepage structural changes beyond NavBar / Footer (only the thin banner is added; other sections untouched)
+- Backfilling per-role retrospectives for K-001~K-007 (audit script F/G directly skips these tickets)
 
-## 設計決策紀錄
+## Design Decisions Log
 
-| 決策項目 | 內容 | 來源 | 時間 |
-|----------|------|------|------|
-| Target audience | `/about` 主訊號對象為 recruiter / hiring manager，不是 tech reader | 使用者確認 | 2026-04-19 |
-| Header 文案選項 | Option A（42 字，strong claim + "every feature ships with a doc trail"），不選 Option B/C | 使用者確認 | 2026-04-19 |
-| Metrics 策略 | 4 個 narrative metric，不上 dashboard 計數器（資料量不足以支撐 CI-style number；用「has/does」敘述避開「exactly N%」語義） | 使用者確認 | 2026-04-19 |
-| 6 role cards 格式 | 「Owns X + Artefact」，不用「Responsibility + Tools」；artefact 欄位直接給 filesystem path 讓 recruiter 可驗證 | 使用者確認 | 2026-04-19 |
-| Pillar 選擇 | 3 pillars（Persistent Memory / Structured Reflection / Role Agents），不展開至 5 pillars | 使用者確認 | 2026-04-19 |
-| Pillar 結構 | V3（3 段落 + 每段 1-line anchor），anchor 引用句改為 italic blockquote | 使用者確認 | 2026-04-19 |
-| Ticket trio 選擇 | K-002 / K-008 / K-009 三張為 anatomy 代表 — 各自示範 And-clause discipline / Bug Found Protocol / TDD，不全列 17 張 | 使用者確認 | 2026-04-19 |
-| Architecture snapshot 範圍 | 只含 monorepo contract-first / docs-driven tickets / 3-layer testing 三點，不展開至資料層/部署細節（後者在 GitHub README） | 使用者確認 | 2026-04-19 |
-| Homepage banner 文案 | Option C — 「One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*」，不選 Option A/B | 使用者確認 | 2026-04-19 |
-| Banner 位置 | homepage 最上方 thin banner，click 導 `/about`；不改其他 homepage section | 使用者確認 | 2026-04-19 |
-| Footer CTA 內容 | email + GitHub + LinkedIn 三連結，不加 resume download / phone | 使用者確認 | 2026-04-19 |
-| audit-ticket.sh 定位 | portfolio demo script，not CI gate；no --json flag (YAGNI) | 使用者確認 | 2026-04-19 |
-| audit F/G skip 規則 | `created < 2026-04-18` 的 ticket 直接 skip F/G（per-role retro 機制啟用前） | 使用者確認 | 2026-04-19 |
-| protocols doc curation | mechanism-focused + 2–3 條 curated 英文 retrospective 節選，不全譯 | 使用者確認 | 2026-04-19 |
-| Curated retrospective 3 條選擇（**revised 2026-04-19**） | (1) **Engineer K-008 W4** — env var as tainted source（**Persistent Memory** pillar；呼應「corrections outlive the session」—「sanitize by sink not source」已提煉成 memory rule，最能示範「memory rule 跨 session 保存」的作用）；(2) **Engineer K-002** — And-clause 系統性遺漏（**Structured Reflection** pillar；Engineer 實作時習慣性略過 And 子句導致 SectionHeader icon 漏實作，此事件直接催生 per-role retro log 機制，最能示範「reflection 機制如何誕生」）；(3) **Architect K-008 W2/S3** — truth table 設計紀律（**Role Agents** pillar；獨立 Architect agent 因 Bug Found Protocol 四步被逼出「配置/狀態 × 執行時機」truth table 紀律，示範獨立 role agent 的價值）。三條跨 3 個 ticket（K-008 / K-002 / K-008）、跨 2 個 role（Engineer / Architect），符合設計檔 §4.4 原則 1（有根因+改善）/ 2（跨 role）/ 3（跨 ticket，避免全 K-008 同族）；K-002 條目原文為中文，需英譯對齊 `/about` 英文基調；K-008 二條原文為英文，不需翻譯。**Revision 原因：** 使用者 2026-04-19 回饋要求 3 條跨 3 ticket 而非全 K-008，把原 Reviewer K-008 條目替換為 Engineer K-002 And-clause 遺漏，並把 Architect K-008 pillar 從 Structured Reflection 調整到 Role Agents。§4.4 原則 4（避免 memory 已收）本次仍對 Engineer K-008 W4 刻意 deviate（「sanitize by sink not source」已在 memory index），理由為「受眾不同：memory 給 agent 讀 / protocols doc 給 recruiter 讀；memory 已收代表此條最重要，值得對外展示」 | PM 裁決 | 2026-04-19 |
-| `frontend/public/docs/` copy 方案 | Option 1 — build step 加 `prebuild` hook，用 bash `cp docs/ai-collab-protocols.md frontend/public/docs/` 於 `frontend/package.json` scripts 加 `"prebuild": "mkdir -p public/docs && cp ../docs/ai-collab-protocols.md public/docs/"`。不選 Option 2（手動 copy 必 drift）/ Option 3（symlink 跨平台不安全）/ Option 4（Vite plugin 引額外依賴 `vite-plugin-static-copy`，對單檔 overkill）。需補 AC-017-BUILD 明示 build-time artifact 同步機制 | PM 裁決 | 2026-04-19 |
-| /business-logic 頁面不實作 | 設計稿（VSwW9 frame）保留作為未來參考；K-017 工程範疇不含 `/business-logic` 頁面實作。待未來另開 ticket（建議命名 K-018-prediction-page）時再執行 | PM 裁決 | 2026-04-19 |
-| Navbar「Prediction」link 先隱藏 | 工程師在 navbar 實作時將「Prediction」link 以 `hidden` 或 conditional render 隱藏，不渲染至 DOM；待 `/business-logic`（Prediction）頁面實作完成後再開放。可減少 K-017 改動範圍，降低回歸風險。移入未來 enhancement（同上 K-018）| PM 裁決 | 2026-04-19 |
-| Footer CTA 為全站共用組件 | Footer contact（Let's talk / email / GitHub / LinkedIn）改為全站共用 Footer 組件，不限於 /about 頁；設計稿如需同步請另召喚 Designer 更新 Pencil .pen 各頁面 frame 的 footer section | PM 裁決 | 2026-04-19 |
+| Decision item | Content | Source | Date |
+|---------------|---------|--------|------|
+| Target audience | The primary signaling audience of `/about` is recruiters / hiring managers, not tech readers | User confirmation | 2026-04-19 |
+| Header copy option | Option A (42 words, strong claim + "every feature ships with a doc trail"); Option B/C not chosen | User confirmation | 2026-04-19 |
+| Metrics strategy | 4 narrative metrics, no dashboard counters (insufficient data volume to support CI-style numbers; use "has/does" phrasing to avoid "exactly N%" semantics) | User confirmation | 2026-04-19 |
+| 6 role cards format | "Owns X + Artefact", not "Responsibility + Tools"; the artefact column directly gives a filesystem path so recruiters can verify | User confirmation | 2026-04-19 |
+| Pillar selection | 3 pillars (Persistent Memory / Structured Reflection / Role Agents), not expanded to 5 | User confirmation | 2026-04-19 |
+| Pillar structure | V3 (3 paragraphs + 1-line anchor per paragraph); the anchor quote is rendered as an italic blockquote | User confirmation | 2026-04-19 |
+| Ticket trio selection | K-002 / K-008 / K-009 as the three anatomy representatives — each demonstrating And-clause discipline / Bug Found Protocol / TDD respectively, instead of listing all 17 tickets | User confirmation | 2026-04-19 |
+| Architecture snapshot scope | Includes only monorepo contract-first / docs-driven tickets / 3-layer testing — three points; does not expand to data-layer / deploy details (those live in the GitHub README) | User confirmation | 2026-04-19 |
+| Homepage banner copy | Option C — "One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*"; Option A/B not chosen | User confirmation | 2026-04-19 |
+| Banner placement | Thin banner at the top of the homepage; clicking routes to `/about`; other homepage sections unchanged | User confirmation | 2026-04-19 |
+| Footer CTA content | Three links — email + GitHub + LinkedIn; no resume download / phone | User confirmation | 2026-04-19 |
+| audit-ticket.sh positioning | Portfolio demo script, not CI gate; no --json flag (YAGNI) | User confirmation | 2026-04-19 |
+| audit F/G skip rule | Tickets with `created < 2026-04-18` directly skip F/G (before the per-role retro mechanism was enabled) | User confirmation | 2026-04-19 |
+| protocols doc curation | Mechanism-focused + 2–3 curated English retrospective excerpts; not a full translation | User confirmation | 2026-04-19 |
+| Curated retrospective — 3 selections (**revised 2026-04-19**) | (1) **Engineer K-008 W4** — env var as tainted source (**Persistent Memory** pillar; echoes "corrections outlive the session" — "sanitize by sink not source" has already been distilled into a memory rule, best demonstrating the function of "a memory rule persisting across sessions"); (2) **Engineer K-002** — And-clause systematic omission (**Structured Reflection** pillar; the Engineer habitually skipped the And-clause during implementation, causing the SectionHeader icon to be missed; this event directly birthed the per-role retro log mechanism, best demonstrating "how a reflection mechanism is born"); (3) **Architect K-008 W2/S3** — truth table design discipline (**Role Agents** pillar; an independent Architect agent was forced into the "config/state × execution timing" truth-table discipline by the four steps of Bug Found Protocol, demonstrating the value of independent role agents). The three span 3 tickets (K-008 / K-002 / K-008) and 2 roles (Engineer / Architect), satisfying design doc §4.4 principles 1 (root cause + improvement) / 2 (cross-role) / 3 (cross-ticket, avoiding all K-008 same family). The K-002 entry is originally in Chinese and needs to be translated to align with `/about`'s English baseline; the two K-008 entries are originally in English and need no translation. **Revision reason:** user feedback 2026-04-19 required 3 entries spanning 3 tickets rather than all K-008; the original Reviewer K-008 entry was replaced with Engineer K-002 And-clause omission, and the Architect K-008 pillar was moved from Structured Reflection to Role Agents. §4.4 principle 4 (avoid items already in memory) is intentionally deviated from for Engineer K-008 W4 ("sanitize by sink not source" is already in the memory index), with the rationale "different audiences: memory is read by agents / the protocols doc is read by recruiters; the fact that memory has captured this entry means it is the most important and worth showing externally" | PM ruling | 2026-04-19 |
+| `frontend/public/docs/` copy approach | Option 1 — add a `prebuild` hook to the build step using bash `cp docs/ai-collab-protocols.md frontend/public/docs/`; in `frontend/package.json` scripts add `"prebuild": "mkdir -p public/docs && cp ../docs/ai-collab-protocols.md public/docs/"`. Option 2 (manual copy will drift) / Option 3 (symlink is not cross-platform safe) / Option 4 (Vite plugin pulls in the extra dependency `vite-plugin-static-copy`, overkill for a single file) not chosen. AC-017-BUILD must be added to explicitly state the build-time artifact sync mechanism | PM ruling | 2026-04-19 |
+| /business-logic page not implemented | The design (VSwW9 frame) is preserved as future reference; K-017 engineering scope does not include `/business-logic` page implementation. To be executed later in a new ticket (suggested name K-018-prediction-page) | PM ruling | 2026-04-19 |
+| Navbar "Prediction" link hidden for now | When implementing the navbar, the engineer hides the "Prediction" link via `hidden` or conditional render so it is not rendered to the DOM; opened up after the `/business-logic` (Prediction) page is implemented. Reduces the K-017 change scope and lowers regression risk. Moved into a future enhancement (same as K-018 above) | PM ruling | 2026-04-19 |
+| Footer CTA as a sitewide shared component | Footer contact (Let's talk / email / GitHub / LinkedIn) becomes a sitewide shared Footer component, not limited to the /about page; if the design needs to be synced, summon the Designer separately to update the footer section of each page frame in the Pencil .pen file | PM ruling | 2026-04-19 |
 
-## 放行狀態
+## Release Status
 
-**PRD locked。放行 Architect。** 8 sections + 2 scope +1 artifacts 文案 + 設計決策全部定稿，AC 完整覆蓋，no blocking question。Architect 下一步負責 `/about` 組件樹拆分 + props interface + `scripts/audit-ticket.sh` 架構設計 + `docs/ai-collab-protocols.md` 文件結構設計。
+**PRD locked. Architect released.** Copy for 8 sections + 2 scope +1 artifacts + design decisions all finalized; ACs fully cover; no blocking question. Architect's next step: decompose `/about` component tree + props interface + design `scripts/audit-ticket.sh` architecture + design the structure of `docs/ai-collab-protocols.md`.
 
 ## Acceptance Criteria
 
-### AC-017-NAVBAR：/about 頁面頂部顯示 NavBar `[K-017]`
+### AC-017-NAVBAR: NavBar shown at top of /about page `[K-017]`
 
-**Given** 使用者訪問 `/about`
-**When** 頁面載入完成
-**Then** 頁面頂部顯示 NavBar（使用現有 `<UnifiedNavBar />` 組件，與其他頁面版本一致）
-**And** NavBar 位於所有內容區塊之上（`AboutPage.tsx` 組件樹第一層第一個子節點）
-**And** Playwright 斷言確認 NavBar 存在且在 PageHeaderSection 之上（DOM 順序）
-**And** Navbar 中「Prediction」link 在此 ticket 實作時**隱藏**（`hidden` attribute 或 conditional render `false`），不渲染至 DOM — 待 K-018 Prediction 頁面完成後再開放
-**And** Playwright 斷言確認「Prediction」link **不存在**於 DOM（`not.toBeVisible()` 或 `not.toBeAttached()`）
+**Given** the user visits `/about`
+**When** the page finishes loading
+**Then** the top of the page renders the NavBar (using the existing `<UnifiedNavBar />` component, identical to other pages' version)
+**And** the NavBar sits above all content sections (first child node of the first level of the `AboutPage.tsx` component tree)
+**And** Playwright asserts that the NavBar exists and is above the PageHeaderSection (DOM order)
+**And** the "Prediction" link in the NavBar is **hidden** in this ticket's implementation (`hidden` attribute or conditional render `false`), not rendered to the DOM — to be opened up after the K-018 Prediction page is complete
+**And** Playwright asserts that the "Prediction" link **does not exist** in the DOM (`not.toBeVisible()` or `not.toBeAttached()`)
 
 ---
 
-### ~~AC-017-HEADER：PageHeaderSection 呈現 One operator 聲明 `[K-017]`~~ **RETIRED 2026-04-23 by K-040 sitewide font reset**
+### ~~AC-017-HEADER: PageHeaderSection renders the One operator statement `[K-017]`~~ **RETIRED 2026-04-23 by K-040 sitewide font reset**
 
 > **Retired 2026-04-23 by K-040 (AC-040-SITEWIDE-FONT-MONO).** User scope-expansion ruling 2026-04-23 inverted the sitewide typography taxonomy — Bodoni Moda + italic retired; Geist Mono monospace voice with italic OFF becomes the sitewide default. The AC-017-HEADER block referenced display-font + italic hero voice semantics (via `about.spec.ts:43-56` comment referencing Bodoni italic). Under K-040, the PageHeader h1 renders in Geist Mono at Designer-calibrated 52px, italic OFF (per `docs/designs/K-040-designer-decision-memo.md` `about-v2.frame-wwa0m` sub-nodes `nolk3`/`02p72`). Engineer rewrites the 4 E2E spec blocks identified by QA-040-Q1 as part of AC-040-SITEWIDE-FONT-MONO implementation, NOT as regression. Text-content contract (hero text + 6-role comma list + tail sentence + `{ exact: true }`) preserved — only the font/italic axis is inverted. AC text body preserved below as historical record.
 
-**Given** 使用者訪問 `/about`
-**When** 頁面載入完成
-**Then** 頁面最上方顯示 PageHeaderSection，文字內容為 "One operator, orchestrating AI agents end-to-end — PM, architect, engineer, reviewer, QA, designer. Every feature ships with a doc trail."
-**And** 文字呈現為視覺上的 hero heading（`h1` 或同級視覺層次），字級大於 body 文字
-**And** 六個角色名（PM / architect / engineer / reviewer / QA / designer）以逗號分隔正確列出，拼寫與大小寫與上述一致
-**And** 結尾句 "Every feature ships with a doc trail." 獨立視覺段落（換行或獨立 `<p>` / `<span>`），不被擠進同一行
-**And** Header 區塊 Playwright 斷言使用 `{ exact: true }` 比對文字，避免 description 誤命中
+**Given** the user visits `/about`
+**When** the page finishes loading
+**Then** the top of the page renders the PageHeaderSection with text content "One operator, orchestrating AI agents end-to-end — PM, architect, engineer, reviewer, QA, designer. Every feature ships with a doc trail."
+**And** the text is rendered as a visual hero heading (`h1` or equivalent visual hierarchy), with a font size larger than body text
+**And** the six role names (PM / architect / engineer / reviewer / QA / designer) are listed correctly comma-separated, with spelling and case matching the above
+**And** the trailing sentence "Every feature ships with a doc trail." occupies an independent visual segment (line break or separate `<p>` / `<span>`); it is not crammed onto the same line
+**And** the Playwright assertion on the Header block uses `{ exact: true }` for the text comparison, to avoid accidentally matching the description
 
 ---
 
-### AC-017-METRICS：Metrics strip 四條 narrative metric + subtext `[K-017]`
+### AC-017-METRICS: Metrics strip — four narrative metrics + subtext `[K-017]`
 
-**Given** 使用者訪問 `/about`
-**When** 頁面滾動至 Metrics 區塊
-**Then** 顯示 4 個 metric card，依序為：Features Shipped / First-pass Review Rate / Post-mortems Written / Guardrails in Place
-**And** Features Shipped 的 subtext 為 "17 tickets, K-001 → K-017"
-**And** First-pass Review Rate 的 subtext 為 "Reviewer catches issues before QA on most tickets"
-**And** Post-mortems Written 的 subtext 為 "Every ticket has cross-role retrospective"
-**And** Guardrails in Place 的 subtext 為 "Bug Found Protocol, per-role retro logs, audit script"
-**And** 所有 metric 以 narrative 敘述呈現，**不得出現 "exactly N%"** 這類精確數值宣告（未提供 CI 驗證資料）
-**And** Playwright 斷言逐條驗證 4 個 metric title 與其對應 subtext，不依 index 定位
-
----
-
-### AC-017-ROLES：6 Role Cards 呈現 Owns X + Artefact `[K-017]`
-
-**Given** 使用者訪問 `/about`
-**When** 頁面滾動至 "Role Cards" 區塊
-**Then** 顯示 6 張 role card，依序為 PM / Architect / Engineer / Reviewer / QA / Designer
-**And** 每張卡片含兩個欄位：`Owns`（責任） 與 `Artefact`（交付物路徑）
-**And** PM 卡片 Owns = "Requirements, AC, Phase Gates"、Artefact = "PRD.md, docs/tickets/K-XXX.md"
-**And** Architect 卡片 Owns = "System design, cross-layer contracts"、Artefact = "docs/designs/K-XXX-*.md"
-**And** Engineer 卡片 Owns = "Implementation, stable checkpoints"、Artefact = "commits + ticket retrospective"
-**And** Reviewer 卡片 Owns = "Code review, Bug Found Protocol"、Artefact = "Review report + Reviewer 反省"
-**And** QA 卡片 Owns = "Regression, E2E, visual report"、Artefact = "Playwright results + docs/reports/*.html"
-**And** Designer 卡片 Owns = "Pencil MCP, flow diagrams"、Artefact = ".pen file + get_screenshot output"
-**And** Playwright 斷言逐卡片驗證 Role name + Owns + Artefact 三欄位，共 18 條斷言（6 × 3）
+**Given** the user visits `/about`
+**When** the page scrolls to the Metrics block
+**Then** 4 metric cards are shown, in order: Features Shipped / First-pass Review Rate / Post-mortems Written / Guardrails in Place
+**And** the subtext of Features Shipped is "17 tickets, K-001 → K-017"
+**And** the subtext of First-pass Review Rate is "Reviewer catches issues before QA on most tickets"
+**And** the subtext of Post-mortems Written is "Every ticket has cross-role retrospective"
+**And** the subtext of Guardrails in Place is "Bug Found Protocol, per-role retro logs, audit script"
+**And** every metric is rendered as narrative prose, with **no occurrence of "exactly N%"** style precise-value claims (no CI verification data is provided)
+**And** Playwright asserts each of the 4 metric titles and their corresponding subtexts row by row, not via index positioning
 
 ---
 
-### AC-017-PILLARS：How AI Stays Reliable 三支柱 + mechanism + anchor `[K-017]`
+### AC-017-ROLES: 6 Role Cards render Owns X + Artefact `[K-017]`
 
-**Given** 使用者訪問 `/about`
-**When** 頁面滾動至 "How AI Stays Reliable" 區塊
-**Then** 顯示 3 個 pillar，依序為 Persistent Memory / Structured Reflection / Role Agents
-**And** Persistent Memory pillar 描述含 "`MEMORY.md`" 與 "cross-conversation" 關鍵詞
-**And** Persistent Memory 底部 anchor 引用為 italic blockquote：`> *Every "stop doing X" becomes a memory entry — corrections outlive the session.*`
-**And** Structured Reflection pillar 描述含 "`docs/retrospectives/<role>.md`" 與 "Bug Found Protocol" 關鍵詞
-**And** Structured Reflection 底部 anchor 引用為：`> *No memory write = the bug is not closed.*`
-**And** Role Agents pillar 描述含 "PM / Architect / Engineer / Reviewer / QA / Designer" 與 "`./scripts/audit-ticket.sh K-XXX`" 關鍵詞
-**And** Role Agents 底部 anchor 引用為：`> *No artifact = no handoff.*`
-**And** 每個 pillar 底部有 inline link 導向 `/docs/ai-collab-protocols.md`（同網站內相對 path）
-**And** Playwright 斷言驗證 3 個 pillar title + 3 個 anchor blockquote + 3 個 inline link 目標 URL
-
----
-
-### AC-017-TICKETS：Anatomy of a Ticket 呈現 K-002 / K-008 / K-009 trio `[K-017]`
-
-**Given** 使用者訪問 `/about`
-**When** 頁面滾動至 "Anatomy of a Ticket" 區塊
-**Then** 顯示 3 張 ticket 卡片，依序為 K-002 / K-008 / K-009
-**And** 每張卡片含：Ticket ID / 標題 / 一句 outcome / 一句 learning / 外部連結
-**And** K-002 卡片標題為 "UI optimization"（或中英對照版）；outcome 描述大重構並展示 And-clause 系統性遺漏被三角色反省攔截；learning 指向「per-role retro log 機制因此建立」
-**And** K-008 卡片標題為 "Visual report script"；outcome 描述自動化視覺報告 script 完整流程；learning 指向「Bug Found Protocol 四步示範」
-**And** K-009 卡片標題為 "1H MA history fix"；outcome 描述 1H 預測 MA history 來源錯誤的 TDD bug fix；learning 指向「test-driven discipline 示範」
-**And** 每張卡片的外部連結導向該 ticket 的 GitHub 檔案（e.g. `https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-002-ui-optimization.md`）
-**And** Playwright 斷言驗證 3 張卡片的 ID / 標題 / 連結 href
+**Given** the user visits `/about`
+**When** the page scrolls to the "Role Cards" block
+**Then** 6 role cards are rendered, in order: PM / Architect / Engineer / Reviewer / QA / Designer
+**And** each card has two columns: `Owns` (responsibility) and `Artefact` (delivery path)
+**And** the PM card has Owns = "Requirements, AC, Phase Gates", Artefact = "PRD.md, docs/tickets/K-XXX.md"
+**And** the Architect card has Owns = "System design, cross-layer contracts", Artefact = "docs/designs/K-XXX-*.md"
+**And** the Engineer card has Owns = "Implementation, stable checkpoints", Artefact = "commits + ticket retrospective"
+**And** the Reviewer card has Owns = "Code review, Bug Found Protocol", Artefact = "Review report + Reviewer retrospective"
+**And** the QA card has Owns = "Regression, E2E, visual report", Artefact = "Playwright results + docs/reports/*.html"
+**And** the Designer card has Owns = "Pencil MCP, flow diagrams", Artefact = ".pen file + get_screenshot output"
+**And** Playwright asserts each card's Role name + Owns + Artefact three columns, totaling 18 assertions (6 × 3)
 
 ---
 
-### AC-017-ARCH：Project Architecture snapshot 三個點 `[K-017]`
+### AC-017-PILLARS: How AI Stays Reliable — three pillars + mechanism + anchor `[K-017]`
 
-**Given** 使用者訪問 `/about`
-**When** 頁面滾動至 "Project Architecture" 區塊
-**Then** 顯示 intro 句 "How the codebase stays legible for a solo operator + AI agents."
-**And** 顯示三個子區塊：`Monorepo, contract-first` / `Docs-driven tickets` / `Three-layer testing pyramid`
-**And** Monorepo 區塊描述含 "React/TypeScript" / "FastAPI/Python" / "`snake_case` (backend) ↔ `camelCase` (frontend)" 關鍵詞
-**And** Docs-driven tickets 區塊描述含 "Given/When/Then/And" / "Playwright test mirrors the spec 1:1" / "PRD → `docs/tickets/K-XXX.md` → role retrospectives" 關鍵詞
-**And** Three-layer testing pyramid 區塊列三層：`Unit — Vitest (frontend), pytest (backend)` / `Integration — FastAPI test client` / `E2E — Playwright, including a visual-report pipeline that renders every page to HTML for human review`
-**And** Playwright 斷言驗證 3 個子區塊 title + 各自關鍵詞存在
-
----
-
-### AC-017-BANNER：Homepage BuiltByAIBanner `[K-017]`
-
-**Given** 使用者訪問 `/`（homepage）
-**When** 頁面載入完成
-**Then** homepage 最上方（NavBar 下方、Hero 上方）顯示 thin banner
-**And** banner 文字為 "One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*"
-**And** "See how →" 為視覺強調（italic 或 link underline），整條 banner clickable
-**And** click banner 導向 `/about`（SPA 路由，不發生全頁 reload）
-**And** banner 樣式為「thin」（視覺上不得搶走 Hero 的主視覺位置，高度明顯小於 Hero）
-**And** banner 存在不破壞 AC-HOME-1 既有斷言（Hero / 專案邏輯 / 技術棧 / 開發日記四個 Section 仍顯示）
-**And** Playwright 斷言：banner 文字存在（`{ exact: true }`）+ click 後 URL 為 `/about`
+**Given** the user visits `/about`
+**When** the page scrolls to the "How AI Stays Reliable" block
+**Then** 3 pillars are rendered, in order: Persistent Memory / Structured Reflection / Role Agents
+**And** the Persistent Memory pillar description contains the keywords "`MEMORY.md`" and "cross-conversation"
+**And** the bottom anchor quote of Persistent Memory is rendered as an italic blockquote: `> *Every "stop doing X" becomes a memory entry — corrections outlive the session.*`
+**And** the Structured Reflection pillar description contains the keywords "`docs/retrospectives/<role>.md`" and "Bug Found Protocol"
+**And** the bottom anchor quote of Structured Reflection is: `> *No memory write = the bug is not closed.*`
+**And** the Role Agents pillar description contains the keywords "PM / Architect / Engineer / Reviewer / QA / Designer" and "`./scripts/audit-ticket.sh K-XXX`"
+**And** the bottom anchor quote of Role Agents is: `> *No artifact = no handoff.*`
+**And** the bottom of each pillar has an inline link to `/docs/ai-collab-protocols.md` (same-site relative path)
+**And** Playwright asserts the 3 pillar titles + 3 anchor blockquotes + 3 inline link target URLs
 
 ---
 
-### AC-017-FOOTER：Footer 各頁面差異化實作 `[K-017]`
+### AC-017-TICKETS: Anatomy of a Ticket renders the K-002 / K-008 / K-009 trio `[K-017]`
 
-**Given** 使用者訪問 `/about`
-**When** 頁面滾動至底部
-**Then** 顯示 `FooterCtaSection`（Let's talk CTA 版）
-**And** 顯示 "Let's talk →" 文字開頭
-**And** 顯示 email：`yichen.lee.20@gmail.com`（`mailto:` 連結）
-**And** 顯示 "Or see the source:" 引導句後接 GitHub 與 LinkedIn 兩個連結
-**And** GitHub 連結 href = `https://github.com/mshmwr/k-line-prediction`，顯示文字為 "GitHub"
-**And** LinkedIn 連結 href = `https://linkedin.com/in/yichenlee-career`，顯示文字為 "LinkedIn"
-**And** 三個連結在新分頁開啟（`target="_blank"` + `rel="noopener noreferrer"`）
-**And** Playwright 斷言驗證三個 href 完整匹配 + `mailto:` prefix 正確
+**Given** the user visits `/about`
+**When** the page scrolls to the "Anatomy of a Ticket" block
+**Then** 3 ticket cards are rendered, in order: K-002 / K-008 / K-009
+**And** each card contains: Ticket ID / title / one-sentence outcome / one-sentence learning / external link
+**And** the K-002 card title is "UI optimization" (or a CN/EN parallel version); the outcome describes a large refactor and demonstrates how And-clause systematic omission was caught by three-role retrospective; the learning points to "the per-role retro log mechanism was established as a result"
+**And** the K-008 card title is "Visual report script"; the outcome describes the full flow of the automated visual report script; the learning points to "demonstration of the four steps of Bug Found Protocol"
+**And** the K-009 card title is "1H MA history fix"; the outcome describes a TDD bug fix for the wrong MA history source in the 1H prediction; the learning points to "demonstration of test-driven discipline"
+**And** each card's external link routes to that ticket's file on GitHub (e.g. `https://github.com/mshmwr/k-line-prediction/blob/main/docs/tickets/K-002-ui-optimization.md`)
+**And** Playwright asserts the 3 cards' ID / title / link href
 
-**Given** 使用者訪問 `/`（首頁）
-**When** 頁面滾動至底部
-**Then** 顯示 `HomeFooterBar`（純文字資訊列）
-**And** 內容為純文字：`yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn`（無可點擊連結）
-**And** 字型為 Geist Mono，字級 11px
-**And** 頂部有 border 線作為視覺分隔
-**And** Playwright 斷言確認 `HomeFooterBar` 存在且包含上述三段文字
+---
 
-**Given** 使用者訪問 `/diary`
-**When** 頁面滾動至底部
-**Then** 頁面底部**不顯示** Footer 組件（設計稿無此 section）
-**And** Playwright 斷言確認頁面底部無 FooterCtaSection 也無 HomeFooterBar
+### AC-017-ARCH: Project Architecture snapshot — three points `[K-017]`
+
+**Given** the user visits `/about`
+**When** the page scrolls to the "Project Architecture" block
+**Then** the intro sentence "How the codebase stays legible for a solo operator + AI agents." is rendered
+**And** three sub-blocks are rendered: `Monorepo, contract-first` / `Docs-driven tickets` / `Three-layer testing pyramid`
+**And** the Monorepo block description contains the keywords "React/TypeScript" / "FastAPI/Python" / "`snake_case` (backend) ↔ `camelCase` (frontend)"
+**And** the Docs-driven tickets block description contains the keywords "Given/When/Then/And" / "Playwright test mirrors the spec 1:1" / "PRD → `docs/tickets/K-XXX.md` → role retrospectives"
+**And** the Three-layer testing pyramid block lists three layers: `Unit — Vitest (frontend), pytest (backend)` / `Integration — FastAPI test client` / `E2E — Playwright, including a visual-report pipeline that renders every page to HTML for human review`
+**And** Playwright asserts the 3 sub-block titles + the presence of each set of keywords
+
+---
+
+### AC-017-BANNER: Homepage BuiltByAIBanner `[K-017]`
+
+**Given** the user visits `/` (homepage)
+**When** the page finishes loading
+**Then** at the top of the homepage (below the NavBar, above the Hero) a thin banner is rendered
+**And** the banner text is "One operator. Six AI agents. Every ticket leaves a doc trail. *See how →*"
+**And** "See how →" is visually emphasized (italic or link underline), and the entire banner is clickable
+**And** clicking the banner routes to `/about` (SPA routing, no full-page reload)
+**And** the banner style is "thin" (visually it must not steal the Hero's main visual focus; height noticeably smaller than the Hero)
+**And** the banner's presence does not break AC-HOME-1's existing assertions (Hero / project logic / tech stack / dev diary — all four sections still rendered)
+**And** Playwright asserts: banner text exists (`{ exact: true }`) + URL after click is `/about`
+
+---
+
+### AC-017-FOOTER: per-page Footer differentiation `[K-017]`
+
+**Given** the user visits `/about`
+**When** the page scrolls to the bottom
+**Then** `FooterCtaSection` is rendered (Let's talk CTA version)
+**And** the text starts with "Let's talk →"
+**And** the email is shown: `yichen.lee.20@gmail.com` (`mailto:` link)
+**And** the lead-in "Or see the source:" is followed by two links: GitHub and LinkedIn
+**And** the GitHub link's href = `https://github.com/mshmwr/k-line-prediction`, with display text "GitHub"
+**And** the LinkedIn link's href = `https://linkedin.com/in/yichenlee-career`, with display text "LinkedIn"
+**And** all three links open in a new tab (`target="_blank"` + `rel="noopener noreferrer"`)
+**And** Playwright asserts that all three hrefs match exactly and the `mailto:` prefix is correct
+
+**Given** the user visits `/` (homepage)
+**When** the page scrolls to the bottom
+**Then** `HomeFooterBar` is rendered (plain-text info row)
+**And** the content is plain text: `yichen.lee.20@gmail.com · github.com/mshmwr · LinkedIn` (no clickable links)
+**And** the font is Geist Mono at 11px
+**And** there is a border line at the top as a visual separator
+**And** Playwright asserts that `HomeFooterBar` exists and contains the three text segments above
+
+**Given** the user visits `/diary`
+**When** the page scrolls to the bottom
+**Then** the bottom of the page **does not** render a Footer component (the design has no such section)
+**And** Playwright asserts that the bottom of the page has neither FooterCtaSection nor HomeFooterBar
 
 > **Retired 2026-04-23 by K-034 Phase 3 (absorbs ex-K-038 §3 BQ-034-P3-03)** — user intent change: /diary now renders shared Footer per AC-034-P3-DIARY-FOOTER-RENDERS. AC text body preserved as historical record.
 
 ---
 
-### AC-017-AUDIT：audit-ticket.sh 可執行並輸出 A–G checklist `[K-017]`
+### AC-017-AUDIT: audit-ticket.sh runs and outputs an A–G checklist `[K-017]`
 
-**Given** 專案根目錄已有 `scripts/audit-ticket.sh`
-**When** 執行 `./scripts/audit-ticket.sh K-002`（closed ticket，created=2026-04-16 < 2026-04-18 → skip F/G）
-**Then** script exit code 為 0（全 pass）
-**And** stdout 含 A / B / C / D / E 五組 check 結果（彩色 checklist 格式）
-**And** F / G 兩組標記為 SKIP（reason: `created < 2026-04-18`）
+**Given** the project root already has `scripts/audit-ticket.sh`
+**When** running `./scripts/audit-ticket.sh K-002` (closed ticket, created=2026-04-16 < 2026-04-18 → skip F/G)
+**Then** script exit code is 0 (all pass)
+**And** stdout contains the check results for groups A / B / C / D / E (coloured checklist format)
+**And** groups F / G are marked SKIP (reason: `created < 2026-04-18`)
 
-**Given** 同上 script
-**When** 執行 `./scripts/audit-ticket.sh K-008`（closed ticket，created=2026-04-18 → 含 F/G）
-**Then** exit code 為 0
-**And** stdout 含 A–G 全部 7 組 check 結果
-**And** F 組確認 ticket `## Retrospective` 有 5 個角色反省段 + per-role log 有對應 `## YYYY-MM-DD — K-008` entry
-**And** G 組確認 Playwright spec 有 grep 到 K-008 + `docs/reports/K-008-*.html` 存在
+**Given** the same script
+**When** running `./scripts/audit-ticket.sh K-008` (closed ticket, created=2026-04-18 → includes F/G)
+**Then** exit code is 0
+**And** stdout contains check results for all 7 groups A–G
+**And** group F confirms that the ticket `## Retrospective` has retrospective blocks from 5 roles + the per-role log has a corresponding `## YYYY-MM-DD — K-008` entry
+**And** group G confirms that the Playwright spec greps K-008 + `docs/reports/K-008-*.html` exists
 
-**Given** 同上 script
-**When** 執行 `./scripts/audit-ticket.sh K-999`（不存在的 ticket）
-**Then** exit code 為 2（critical missing）
-**And** stdout 明確報告 A 組 fail（ticket file 不存在）
+**Given** the same script
+**When** running `./scripts/audit-ticket.sh K-999` (a ticket that does not exist)
+**Then** exit code is 2 (critical missing)
+**And** stdout clearly reports group A fail (ticket file does not exist)
 
-**Given** 同上 script
-**When** 執行一個 closed ticket 的 commit trail 僅為 vague msg（e.g. 所有 commit msg 均為 "wip" / "fix"）
-**Then** D 組標記為 warning（exit code ≥ 1），明確提示 vague msg 被排除
+**Given** the same script
+**When** running it on a closed ticket whose commit trail is only vague messages (e.g. all commit messages are "wip" / "fix")
+**Then** group D is marked warning (exit code ≥ 1), with explicit signaling that vague messages were excluded
 
-**And** script 不提供 `--json` flag（YAGNI）
-**And** script 用 bash，不依賴 node / python runtime
-**And** 輸出為人類可讀 coloured checklist，不為 machine-readable JSON
-
----
-
-### AC-017-PROTOCOLS：docs/ai-collab-protocols.md 公開版文件 `[K-017]`
-
-**Given** 專案根目錄已有 `docs/ai-collab-protocols.md`
-**When** 任何人（含 recruiter）開啟該檔
-**Then** 文件含三個主要 section：`Role Flow` / `Bug Found Protocol` / `Per-role Retrospective Log`
-**And** Role Flow section 定義 6 角色名稱與職責（對應 `/about` Section 3 的 Owns X）
-**And** Bug Found Protocol section 列出四步（反省 → PM 確認反省品質 → 寫 memory → 放行修復），並引用 K-008 / K-009 為示範
-**And** Per-role Retrospective Log section 說明 `docs/retrospectives/<role>.md` 機制 + K-008 起啟用 + 條目格式（YYYY-MM-DD / 做得好 / 沒做好 / 下次改善）
-**And** 文件含 **3 條 curated 英文 retrospective 節選**（非全翻譯所有 retro），每條明確標註 ticket ID + role + 原文出處連結；3 條為：
-  - **Engineer K-008 W4** — env var as tainted source（掛在 **Persistent Memory** pillar 底下；原文英文，不需翻譯）
-  - **Engineer K-002** — And-clause systematic omission（掛在 **Structured Reflection** pillar 底下；原文中文，需英譯並對齊英文基調。建議英譯：*"The And-clause for SectionHeader icons (AC-002-ICON And 3) was silently skipped during implementation because I habitually parse AC as Given/When/Then and treat And-clauses as secondary. The bug passed Engineer, Architect-review, and QA gates before Code Review caught it. From this ticket onward, every implementation starts by enumerating all Then/And clauses as a flat checklist, and every And gets a Playwright assertion."*）
-  - **Architect K-008 W2/S3** — truth table discipline for config × execution timing（掛在 **Role Agents** pillar 底下；原文英文，不需翻譯）
-**And** `/about` Section 4 的三個 pillar 底部 inline link 均導向此檔的對應 anchor（Persistent Memory → Per-role Retrospective Log / Structured Reflection → Bug Found Protocol / Role Agents → Role Flow）
-**And** 文件以英文撰寫（對齊 `/about` 的英文文案基調），不為全翻譯的中文版
+**And** the script does not provide a `--json` flag (YAGNI)
+**And** the script uses bash and does not depend on node / python runtime
+**And** the output is a human-readable coloured checklist, not machine-readable JSON
 
 ---
 
-### AC-017-HOME-V2：Homepage v2 完整版面改版 `[K-017]`
+### AC-017-PROTOCOLS: public-facing docs/ai-collab-protocols.md `[K-017]`
 
-**Given** 使用者造訪 `/`
-**When** 頁面載入完成
-**Then** 頁面呈現 Pencil 設計稿 `Homepage v2 Dossier`（frame `4CsvQ`）的完整版面：
-  - hpHero section 符合 v2 設計（更新後的 hero 版面與視覺規格）
-  - hpLogic section 符合 v2 設計（更新後的 Logic/Flow 版面與視覺規格）
-  - hpDiary section 使用 `<DiaryTimelineEntry>` 組件（`layout:none` 絕對定位，已於 Pass 3 設計完成）並符合 v2 版面
-**And** `<BuiltByAIBanner />` 存在（NavBar 下方、Hero 上方，已由 AC-017-BANNER 定義）
-**And** `<FooterCtaSection />` 存在（頁面底部，已由 AC-017-FOOTER 定義）
-**And** Playwright E2E 斷言涵蓋 hpHero / hpLogic / hpDiary 三個 section 的 key visual 元素（heading text、section label 或 data-testid）
-**And** 新版面不破壞 AC-HOME-1 現有斷言中「頁面包含 Hero / 專案邏輯 / 開發日記 section」的基本渲染要求
-
-**注意：** hpHero / hpLogic v2 版面細節由 Architect 補充設計規格後由 Engineer 實作，Architect 須在設計文件 §2.3 補上 v2 版面的 key visual 元素清單與 props interface。
-
----
-
-### AC-017-BUILD：`docs/ai-collab-protocols.md` build-time 同步至 `frontend/public/docs/` `[K-017]`
-
-**Given** 專案根目錄已有 `docs/ai-collab-protocols.md`（source of truth）
-**When** 執行 `npm run build`（`frontend/` 目錄下）
-**Then** `frontend/package.json` 的 `prebuild` hook 自動執行，將 `docs/ai-collab-protocols.md` 複製到 `frontend/public/docs/ai-collab-protocols.md`
-**And** build 產出的 `frontend/dist/docs/ai-collab-protocols.md` 存在且內容與 source of truth 完全相同（byte-for-byte）
-**And** Firebase Hosting deploy 後，訪問 `https://<prod-domain>/docs/ai-collab-protocols.md` 回傳 markdown 原始文字（HTTP 200 + `Content-Type: text/markdown` 或 `text/plain`），不被 SPA fallback 導回 HomePage
-**And** `/about` Section 4 的三個 pillar inline link（`/docs/ai-collab-protocols.md#...`）於 production 環境 click 後可正確跳轉至該 markdown 檔的對應 anchor
-
-**Given** 開發者更新 `docs/ai-collab-protocols.md` 內容
-**When** 重新執行 `npm run build`
-**Then** `frontend/public/docs/ai-collab-protocols.md` 被覆寫為最新版本（無需手動同步）
-**And** 若 `frontend/public/docs/` 目錄不存在，prebuild hook 自動建立（`mkdir -p`）
-
-**And** `frontend/public/docs/ai-collab-protocols.md` 不得 commit 進 git（在 `.gitignore` 加 `frontend/public/docs/`），避免雙份 source of truth 造成 drift
-**And** Playwright E2E 新增一條斷言：navigate 至 `/docs/ai-collab-protocols.md` 得到 markdown 文字（或 raw content，body 含 `# AI Collaboration Protocols` 標題），而非 HomePage `<html>` 回應
-**And** `prebuild` script 若找不到 `../docs/ai-collab-protocols.md`（例如 source file 被誤刪 / 路徑重構未同步）必須以 **non-zero exit code 失敗**，不得 silent skip；失敗訊息明確指出缺失檔案絕對路徑，避免 source file 遺失卻仍 build 成功、production 訪問 `/docs/ai-collab-protocols.md` 得到 stale 或 404
+**Given** the project root already has `docs/ai-collab-protocols.md`
+**When** anyone (including recruiters) opens this file
+**Then** the document contains three main sections: `Role Flow` / `Bug Found Protocol` / `Per-role Retrospective Log`
+**And** the Role Flow section defines the 6 role names and responsibilities (matching the Owns X column in `/about` Section 3)
+**And** the Bug Found Protocol section lists the four steps (retrospective → PM confirms retrospective quality → write memory → release the fix) and cites K-008 / K-009 as demonstrations
+**And** the Per-role Retrospective Log section explains the `docs/retrospectives/<role>.md` mechanism + enabled from K-008 + the entry format (YYYY-MM-DD / Went well / Did not go well / Next-time improvement)
+**And** the document contains **3 curated English retrospective excerpts** (not a full translation of all retros), each clearly tagged with ticket ID + role + a link to the original source. The 3 are:
+  - **Engineer K-008 W4** — env var as tainted source (placed under the **Persistent Memory** pillar; originally in English, no translation needed)
+  - **Engineer K-002** — And-clause systematic omission (placed under the **Structured Reflection** pillar; originally in Chinese, translate to English to align with the English baseline. Suggested translation: *"The And-clause for SectionHeader icons (AC-002-ICON And 3) was silently skipped during implementation because I habitually parse AC as Given/When/Then and treat And-clauses as secondary. The bug passed Engineer, Architect-review, and QA gates before Code Review caught it. From this ticket onward, every implementation starts by enumerating all Then/And clauses as a flat checklist, and every And gets a Playwright assertion."*)
+  - **Architect K-008 W2/S3** — truth table discipline for config × execution timing (placed under the **Role Agents** pillar; originally in English, no translation needed)
+**And** the bottom inline links of the three pillars in `/about` Section 4 all route to the corresponding anchors in this file (Persistent Memory → Per-role Retrospective Log / Structured Reflection → Bug Found Protocol / Role Agents → Role Flow)
+**And** the document is written in English (aligned with `/about`'s English copy baseline); it is not a fully translated Chinese version
 
 ---
 
-## 相關連結
+### AC-017-HOME-V2: Homepage v2 full layout revamp `[K-017]`
+
+**Given** the user visits `/`
+**When** the page finishes loading
+**Then** the page renders the full layout from the Pencil design `Homepage v2 Dossier` (frame `4CsvQ`):
+  - hpHero section conforms to the v2 design (updated hero layout and visual spec)
+  - hpLogic section conforms to the v2 design (updated Logic/Flow layout and visual spec)
+  - hpDiary section uses the `<DiaryTimelineEntry>` component (`layout:none` absolute positioning, designed in Pass 3) and conforms to the v2 layout
+**And** `<BuiltByAIBanner />` exists (below NavBar, above Hero, already defined by AC-017-BANNER)
+**And** `<FooterCtaSection />` exists (bottom of page, already defined by AC-017-FOOTER)
+**And** Playwright E2E assertions cover the key visual elements of the three sections hpHero / hpLogic / hpDiary (heading text, section label, or data-testid)
+**And** the new layout does not break the basic rendering requirement in AC-HOME-1's existing assertions ("the page contains Hero / project logic / dev diary sections")
+
+**Note:** hpHero / hpLogic v2 layout details are to be filled in by Architect in the design spec, then implemented by Engineer; the Architect must add the v2 layout's key visual element list and props interface in §2.3 of the design doc.
+
+---
+
+### AC-017-BUILD: `docs/ai-collab-protocols.md` build-time sync to `frontend/public/docs/` `[K-017]`
+
+**Given** the project root has `docs/ai-collab-protocols.md` (source of truth)
+**When** running `npm run build` (under `frontend/`)
+**Then** the `prebuild` hook in `frontend/package.json` runs automatically and copies `docs/ai-collab-protocols.md` to `frontend/public/docs/ai-collab-protocols.md`
+**And** the build output `frontend/dist/docs/ai-collab-protocols.md` exists and is byte-identical to the source of truth
+**And** after Firebase Hosting deploy, visiting `https://<prod-domain>/docs/ai-collab-protocols.md` returns the raw markdown text (HTTP 200 + `Content-Type: text/markdown` or `text/plain`); it is not routed back to HomePage by the SPA fallback
+**And** clicking the three pillar inline links in `/about` Section 4 (`/docs/ai-collab-protocols.md#...`) in production correctly jumps to the corresponding anchor in that markdown file
+
+**Given** a developer updates the contents of `docs/ai-collab-protocols.md`
+**When** running `npm run build` again
+**Then** `frontend/public/docs/ai-collab-protocols.md` is overwritten with the latest version (no manual sync required)
+**And** if the `frontend/public/docs/` directory does not exist, the prebuild hook creates it automatically (`mkdir -p`)
+
+**And** `frontend/public/docs/ai-collab-protocols.md` must not be committed to git (add `frontend/public/docs/` to `.gitignore`), to avoid two sources of truth and drift
+**And** a new Playwright E2E assertion: navigating to `/docs/ai-collab-protocols.md` returns markdown text (or raw content; body contains the `# AI Collaboration Protocols` heading), rather than a HomePage `<html>` response
+**And** if the `prebuild` script cannot find `../docs/ai-collab-protocols.md` (e.g. the source file was accidentally deleted or a path refactor was not synced), it must **fail with a non-zero exit code**; it must not silently skip. The failure message must explicitly state the absolute path of the missing file, to avoid the source file being lost yet build succeeding and production `/docs/ai-collab-protocols.md` returning stale or 404
+
+---
+
+## Related Links
 
 - [PRD.md — K-017 section](../../PRD.md#k-017-about-portfolio-enhancement)
 - [PM-dashboard.md](../../../PM-dashboard.md)
-- [K-002 ticket（示範）](./K-002-ui-optimization.md)
-- [K-008 ticket（示範）](./K-008-visual-report.md)
-- [K-009 ticket（示範）](./K-009-1h-ma-history-fix.md)
+- [K-002 ticket (demo)](./K-002-ui-optimization.md)
+- [K-008 ticket (demo)](./K-008-visual-report.md)
+- [K-009 ticket (demo)](./K-009-1h-ma-history-fix.md)
 
 ---
 
 ## Retrospective
 
-（Architect / Engineer / Reviewer / QA / Designer 各自於完成階段補上反省；PM 於 QA PASS 後彙整）
+(Architect / Engineer / Reviewer / QA / Designer each append their retrospectives at completion stage; PM aggregates after QA PASS)
 
-### PM 反省（設計階段 2026-04-19）
+### PM retrospective (design stage 2026-04-19)
 
-**沒做好：**
-1. **沒有主動識別 Hero「Read the Diary」按鈕冗餘**：Homepage 加了 Diary section + "View full log →" CTA 後，Hero 的「Read the Diary」按鈕功能重複，PM 應主動提出。使用者明確說「PM 你應該要自己想到啊」，代表 PM 的 UX flow 審查不夠主動——沒有在 homepage 內容確定後重新審視所有 CTA 的互斥性。
-2. **Footer AC 推薦依據 PRD 舊文字，未核對設計稿實際狀態**：設計師已將 footer 演進為全站共用元件，但 PM 推薦「維持 /about 專屬」時只看 PRD Section 8，沒有先讀設計文件確認設計意圖是否已改變。
+**Did not go well:**
+1. **Failed to proactively identify the Hero "Read the Diary" button as redundant:** after the homepage added a Diary section + "View full log →" CTA, the Hero's "Read the Diary" button became functionally redundant; PM should have raised this proactively. The user explicitly noted that PM should have caught it on its own, indicating PM's UX flow review was not proactive enough — failing to re-examine the mutual exclusivity of all CTAs after the homepage content was finalized.
+2. **Footer AC recommendation based on outdated PRD text without checking the actual design state:** the designer had already evolved the footer into a sitewide shared component, but when PM recommended "keep it /about-specific", it only looked at PRD Section 8 and did not first read the design docs to confirm whether the design intent had changed.
 
-**下次改善：**
-- Homepage 有任何新增 CTA 或 section 後，PM 強制重審所有現有 CTA 是否功能冗餘，列清單確認再放行 Designer（已加入 pm.md 自動觸發時機）
-- 給設計 AC 選項前必須先讀 `docs/designs/` + designer 反省，不依 PRD 舊文字直接推薦（已加入 pm.md 自動觸發時機）
+**Next-time improvement:**
+- After any new CTA or section is added to the homepage, PM must mandatorily re-review whether all existing CTAs are functionally redundant, list them for confirmation, and then release the Designer (added to pm.md auto-trigger timing).
+- Before offering design AC options, must first read `docs/designs/` + the designer retrospective; do not recommend based on outdated PRD text directly (added to pm.md auto-trigger timing).
 
-### Engineer 反省（實作 2026-04-19）
+### Engineer retrospective (implementation 2026-04-19)
 
-**沒做好：**
-- **Playwright `locator().or()` 版本相容問題**：在 about.spec.ts Features Shipped test 寫了 `page.locator(...).or(...)` 但現有 Playwright 版本（^1.32.3）不支援此 API，造成首跑即 TypeError。根因是寫 spec 時未先確認 Playwright API 可用性，想當然用了較新的 API。
-- **`not.toBeAttached()` API 不存在**：NAVBAR test 用了不存在的斷言方法，應改用 `toHaveCount(0)`。同上，未確認 API 可用性。
-- **`getByText` strict mode 衝突**：`/Bug Found Protocol/`、`/docs\/tickets\/K-XXX\.md/`、`/E2E/` 等 regex 在整頁中命中多個元素，觸發 strict mode 違規。根因是未模擬「這段文字在整頁中是否唯一」再寫斷言，依靠 dev intuition 而非驗證。
+**Did not go well:**
+- **Playwright `locator().or()` version compatibility issue:** in the about.spec.ts Features Shipped test, used `page.locator(...).or(...)`, but the existing Playwright version (^1.32.3) does not support this API, causing a TypeError on first run. Root cause: did not first confirm Playwright API availability when writing the spec, and assumed a newer API was available.
+- **`not.toBeAttached()` API does not exist:** the NAVBAR test used a non-existent assertion method; should have used `toHaveCount(0)`. Same as above — API availability not confirmed.
+- **`getByText` strict mode conflict:** regexes such as `/Bug Found Protocol/`, `/docs\/tickets\/K-XXX\.md/`, `/E2E/` matched multiple elements across the page, triggering strict mode violations. Root cause: did not simulate "is this text unique on the page" before writing the assertion, relying on dev intuition rather than verification.
 
-**下次改善：**
-- 寫 Playwright 斷言前先確認 Playwright 版本（`npx playwright --version`），確認 `locator().or()`、`toBeAttached()` 等 API 是否在當前版本可用，不依記憶用較新 API。
-- 對「整頁可能重複」的文字（角色名、路徑格式）優先使用 scoped locator（如 `page.locator('[data-role="X"]').getByText(...)` 或精確 href selector），而非全頁 regex，避免 strict mode 衝突。
+**Next-time improvement:**
+- Before writing Playwright assertions, first confirm the Playwright version (`npx playwright --version`) and verify whether APIs like `locator().or()` and `toBeAttached()` are available in the current version; do not use newer APIs from memory.
+- For text that may repeat across the page (role names, path formats), prefer scoped locators (e.g. `page.locator('[data-role="X"]').getByText(...)` or a precise href selector) rather than whole-page regex, to avoid strict mode conflicts.
 
-### Reviewer 反省（2026-04-19）
+### Reviewer retrospective (2026-04-19)
 
-**沒做好：**
-1. **AC-017-NAVBAR DOM 順序斷言漏寫**：AC 明文要求「Playwright 斷言確認 NavBar 存在且在 PageHeaderSection 之上（DOM 順序）」，但 about.spec.ts 只驗證 NavBar home icon 可見 + Prediction link 不在 DOM，缺少 DOM 順序斷言。這條 And 子句本應在 Architect 設計 E2E 驗證策略（§7.11 E2E 風險清單）時明確列為「需要 DOM 順序 selector（e.g. `nav + section` CSS selector 或比對 bounding box）」，而非留到 Review 才發現。根因：Architect 的 E2E 風險清單（§7.11）只列出內容斷言的風險點，沒有對 DOM 結構順序斷言這類「空間關係」測試明確列條目。
-2. **AC-017-BUILD E2E test 在 dev server 下必然失敗**：`about.spec.ts` 的 AC-017-BUILD test 依賴 `public/docs/ai-collab-protocols.md`（只有 `prebuild` 執行後才存在），但 `playwright.config.ts` 的 `webServer.command = 'npm run dev'`（不執行 prebuild），Vite dev server 回傳 404。這意味著每次 `npx playwright test` 在 dev mode 下 AC-017-BUILD test 必然 fail。Engineer 應將此 test 加 `.skip` 或移到專用 CI-build-mode spec，或在 test 說明中明示「需要先執行 npm run build」。此風險在設計文件 §7.8 有提及 Firebase Hosting 的靜態訪問問題，但未點出 Playwright 本身的 dev vs build 矛盾。
-3. **prebuild script 的錯誤訊息不含絕對路徑**：AC-017-BUILD 要求「失敗訊息明確指出缺失檔案絕對路徑」，但目前 `prebuild = "mkdir -p public/docs && cp ../docs/ai-collab-protocols.md public/docs/"` 的 cp 錯誤只輸出相對路徑 `../docs/ai-collab-protocols.md: No such file or directory`，未達 AC 要求。應改為 `SRC=... && [[ -f "$SRC" ]] || { echo "prebuild: missing $SRC ($(realpath $SRC))"; exit 1; }`。本應在 AC-017-BUILD AC 寫定時由 PM 同步要求 Architect 將此明確到設計文件的 prebuild script 規格中。
+**Did not go well:**
+1. **Missing AC-017-NAVBAR DOM-order assertion:** the AC explicitly required "Playwright asserts that the NavBar exists and is above the PageHeaderSection (DOM order)", but about.spec.ts only verified that the NavBar home icon is visible + Prediction link is not in the DOM, missing the DOM-order assertion. This And-clause should have been explicitly listed in the Architect's E2E verification strategy (§7.11 E2E Risk List) as "requires a DOM-order selector (e.g. `nav + section` CSS selector or comparing bounding boxes)", not left to Review to discover. Root cause: the Architect's E2E risk list (§7.11) only enumerated content-assertion risk points and did not explicitly list "spatial relationship" tests like DOM structural order.
+2. **AC-017-BUILD E2E test inevitably fails under dev server:** the AC-017-BUILD test in `about.spec.ts` depends on `public/docs/ai-collab-protocols.md` (only created after `prebuild` runs), but `playwright.config.ts`'s `webServer.command = 'npm run dev'` (does not run prebuild), so the Vite dev server returns 404. This means the AC-017-BUILD test will inevitably fail every time `npx playwright test` runs in dev mode. Engineer should `.skip` this test, move it to a dedicated CI-build-mode spec, or document in the test description that `npm run build` must be run first. The risk was mentioned in design doc §7.8 in terms of Firebase Hosting static-access issues, but did not point out the Playwright dev vs build contradiction itself.
+3. **prebuild script error message does not include absolute path:** AC-017-BUILD requires "the failure message must explicitly state the absolute path of the missing file", but the current `prebuild = "mkdir -p public/docs && cp ../docs/ai-collab-protocols.md public/docs/"` cp error only outputs the relative path `../docs/ai-collab-protocols.md: No such file or directory`, not meeting the AC. It should be: `SRC=... && [[ -f "$SRC" ]] || { echo "prebuild: missing $SRC ($(realpath $SRC))"; exit 1; }`. PM should have asked the Architect to specify this in the prebuild script spec in the design doc when AC-017-BUILD was being written.
 
-**下次改善：**
-- Review E2E spec 時加固定步驟：展開每條 AC 的 Then/And 子句，逐行確認 spec 中有對應斷言。尤其是「DOM 順序」「URL 跳轉後的狀態」等空間/時序關係斷言，比內容斷言更容易被遺漏，Review 時優先盤點。
-- 遇到 Playwright test 依賴 build artifact（非 dev server 原生可 serve 的靜態檔）時，直接標記為「需要 build mode 執行」，並建議 Engineer 在 test describe 描述或 `test.skip` 條件中明示執行環境前提，不等 CI 失敗才被動發現。
-
----
-
-## 技術債
-
-| ID | 描述 | 優先級 | 決策理由 | 登記日期 |
-|----|------|--------|---------|---------|
-| TD-K017-01 | `FooterCtaSection` 放在 `about/` 子目錄，但 HomePage / DiaryPage 均 import 同一組件。若日後重組 `about/` 目錄（如拆分子頁面），將意外破壞跨頁 Footer import。正確位置應為 `common/` 或 `components/shared/`。 | low | K-017 設計文件 Q8 已有意識決策放 `about/`（當時 Footer 尚為 about 專屬）；移至 common/ 超出 K-017 scope，不影響現有功能，記錄後待下次頁面重組時一併處理。 | 2026-04-19 |
+**Next-time improvement:**
+- When reviewing E2E specs, add a fixed step: expand each AC's Then/And clauses and verify line-by-line that the spec has corresponding assertions. In particular, "DOM order", "state after URL navigation", and other spatial/temporal-relationship assertions are more easily missed than content assertions; prioritize them during Review.
+- When a Playwright test depends on a build artifact (a static file the dev server cannot natively serve), tag it directly as "requires build mode execution", and ask Engineer to clearly document the runtime prerequisite in the test describe text or `test.skip` condition; do not wait for CI failure to discover it passively.
 
 ---
 
-## Retrospective（續）
+## Tech Debt
 
-### PM 彙整（更新：QA 通過後 2026-04-19）
+| ID | Description | Priority | Decision rationale | Logged date |
+|----|-------------|----------|--------------------|-------------|
+| TD-K017-01 | `FooterCtaSection` is placed in the `about/` subdirectory, but HomePage / DiaryPage both import the same component. If the `about/` directory is later reorganized (e.g. split into sub-pages), it will accidentally break the cross-page Footer import. The correct location should be `common/` or `components/shared/`. | low | K-017 design doc Q8 made a conscious decision to place it in `about/` (Footer was about-specific at the time); moving to `common/` is out of K-017 scope, does not affect existing functionality, log it and handle together at the next page reorganization. | 2026-04-19 |
 
-**跨角色重複問題：**
-- **And 子句遺漏問題 K-002 後持續再現：** Engineer 漏寫 NavBar DOM 順序斷言（W1）；Reviewer 亦在第一輪 Review 才發現，而非在 Architect E2E 設計階段攔截。此問題在 K-002、K-008、K-017 已連續出現三次，顯示 And 子句逐條覆蓋斷言的 checklist 尚未有效落地。
-- **QA 執行環境前提檢查不足：** Visual report 忘帶 TICKET_ID；build artifact 依賴的 AC 未補 build-mode 驗證；shell script 類 AC 未主動手動執行情境。三個問題均屬「執行前 checklist 缺失」同一根因。
-- **設計 → 實作 → 驗收三層均有環境矛盾漏判：** AC-017-BUILD 依賴 prebuild artifact，但 Playwright 使用 dev server，三個角色（Architect、Engineer、Reviewer）均未在各自階段明確標注「此 AC 需要 build mode」，最終只能以 test.skip 代替完整驗證。
+---
 
-**流程改善決議：**
-| 問題 | 負責角色 | 行動 | 更新位置 |
-|------|---------|------|---------|
-| AC Then/And 子句逐行覆蓋問題連續三票未根治 | Engineer | 寫 spec 前展開所有 Then/And 子句為 flat checklist，每條對應一個斷言，不跳過 | engineer.md persona / engineer retrospective log |
-| Architect E2E 風險清單未涵蓋 DOM 順序/空間關係類斷言 | Architect | 設計 E2E 策略時明確列「DOM 順序」「URL 跳轉」「空間關係」為風險項目，列 selector 策略 | `~/.claude/agents/senior-architect.md` 或設計文件模板 |
-| QA 截圖 script 執行前未確認 TICKET_ID | QA | 截圖 script 執行前固定三項確認：TICKET_ID 已設、visual-report.ts 存在、output 路徑正確 | qa.md persona checklist |
-| QA 對 build artifact 依賴的 AC 未補 build-mode 驗證 | QA | 含 build artifact 依賴的 AC，dev Playwright pass 後額外執行 `npm run build` 確認 artifact 存在 | qa.md persona checklist |
-| QA 對 shell script / CLI tool 類 AC 未主動手動執行 | QA | shell script 類 AC 主動手動執行所有情境（正常/邊界/失敗路徑），輸出貼入 QA 回報 | qa.md persona checklist |
-| AC-017-BUILD dev/build 矛盾未被三層攔截 | PM | 寫含 build artifact 依賴的 AC 時，在 AC 內明注「需 build mode 驗證，Playwright skip for dev」 | pm.md AC 撰寫守則 |
+## Retrospective (continued)
 
-**AC-017-AUDIT / AC-017-BUILD 裁決（2026-04-19）：**
-- AC-017-AUDIT：Engineer Phase A smoke test 已通過 K-002/K-008/K-999 三個 case（exit code 0 / warning / 2），Reviewer 亦已實跑 `bash scripts/audit-ticket.sh` 三情境驗證。接受為已驗證，QA 放行。
-- AC-017-BUILD：test.skip 已在 spec 內附說明（需先 npm run build），Firebase Hosting deploy 已通過（recruiter demo 環境正常）。接受現狀，QA 放行。
+### PM aggregation (updated after QA passes 2026-04-19)
+
+**Cross-role recurring issues:**
+- **And-clause omission has continued to recur after K-002:** Engineer missed the NavBar DOM-order assertion (W1); Reviewer also did not catch it until the first round of Review, rather than at the Architect's E2E design phase. This issue has appeared three times in a row across K-002, K-008, K-017, indicating the per-clause coverage checklist for And-clauses has not yet been effectively adopted.
+- **Insufficient pre-execution environment checks by QA:** Visual report ran without TICKET_ID; build-artifact-dependent ACs were not re-verified in build mode; shell-script ACs were not actively manually executed across scenarios. All three fall under the same root cause: missing pre-execution checklist.
+- **The design → implementation → acceptance three layers all missed an environment contradiction:** AC-017-BUILD depends on the prebuild artifact, but Playwright uses the dev server; none of the three roles (Architect, Engineer, Reviewer) explicitly tagged "this AC needs build mode" at their respective stages, ultimately leaving test.skip in place of full verification.
+
+**Process improvement decisions:**
+| Issue | Owner | Action | Update location |
+|-------|-------|--------|-----------------|
+| AC Then/And per-clause coverage issue persists across three tickets | Engineer | Before writing the spec, expand all Then/And clauses into a flat checklist; each clause maps to one assertion; do not skip | engineer.md persona / engineer retrospective log |
+| Architect E2E risk list does not cover DOM-order / spatial-relationship assertions | Architect | When designing the E2E strategy, explicitly list "DOM order" / "URL navigation" / "spatial relationship" as risk items, and list the selector strategy | `~/.claude/agents/senior-architect.md` or design doc template |
+| QA does not confirm TICKET_ID before running the screenshot script | QA | Before running the screenshot script, fix three checks: TICKET_ID is set, visual-report.ts exists, output path is correct | qa.md persona checklist |
+| QA does not re-verify build-artifact-dependent ACs in build mode | QA | For ACs depending on a build artifact, after dev Playwright passes, additionally run `npm run build` to confirm the artifact exists | qa.md persona checklist |
+| QA does not actively manually execute shell-script / CLI-tool ACs | QA | For shell-script ACs, actively execute every scenario manually (happy / edge / failure path); paste the output into the QA report | qa.md persona checklist |
+| AC-017-BUILD dev/build contradiction not caught at any of the three layers | PM | When writing ACs that depend on a build artifact, annotate inside the AC "needs build mode verification, Playwright skip for dev" | pm.md AC authoring guideline |
+
+**AC-017-AUDIT / AC-017-BUILD ruling (2026-04-19):**
+- AC-017-AUDIT: Engineer Phase A smoke test passed K-002/K-008/K-999 three cases (exit code 0 / warning / 2); Reviewer also live-ran `bash scripts/audit-ticket.sh` against three scenarios. Accepted as verified; QA released.
+- AC-017-BUILD: `test.skip` already includes an in-spec note (must run `npm run build` first); Firebase Hosting deploy passed (recruiter demo environment normal). Accept current state; QA released.
 
 ### QA
 
-**沒做好：**
-1. **Visual Report TICKET_ID 未設定**：跑 `visual-report.ts` 時未帶 `TICKET_ID=K-017` 環境變數，導致產出檔案為 `K-UNKNOWN-visual-report.html` 而非 `K-017-visual-report.html`。QA 執行截圖 script 時應主動確認環境變數設定，不應依賴 Engineer 在 CI context 以外自動提供。
-2. **AC-017-BUILD 不可在 dev mode 跑，未補 build-mode 驗證**：Reviewer W2 已指出此問題並由 Engineer 加 `test.skip`，但 QA 層面未獨立補一條「npm run build → dist/docs/ai-collab-protocols.md 存在」的驗證步驟，純粹接受 skip 而未確認 prebuild 流程在 build mode 實際可行。
-3. **audit-ticket.sh A–G 功能無 Playwright 覆蓋**：AC-017-AUDIT 的驗收靠 Playwright suite 無法覆蓋 shell script 行為（script 不是 frontend 資產），但 QA 未主動執行 `./scripts/audit-ticket.sh K-002`、`K-008`、`K-999` 三個情境來直接驗證 AC-017-AUDIT 條文，完全依賴 Engineer 自述。
+**Did not go well:**
+1. **Visual Report TICKET_ID not set:** running `visual-report.ts` without the `TICKET_ID=K-017` environment variable produced `K-UNKNOWN-visual-report.html` instead of `K-017-visual-report.html`. When QA runs the screenshot script, it should actively confirm the environment variable is set; it should not rely on Engineer to provide it automatically outside CI context.
+2. **AC-017-BUILD cannot run in dev mode; build-mode verification not added:** Reviewer W2 already pointed this out and Engineer added `test.skip`, but QA did not independently add a "npm run build → `dist/docs/ai-collab-protocols.md` exists" verification step; QA simply accepted the skip without confirming the prebuild flow actually works in build mode.
+3. **No Playwright coverage for audit-ticket.sh A–G functionality:** the AC-017-AUDIT acceptance via Playwright suite cannot cover shell script behavior (the script is not a frontend asset), but QA did not actively run `./scripts/audit-ticket.sh K-002`, `K-008`, `K-999` three scenarios to directly verify the AC-017-AUDIT clauses; QA fully relied on the Engineer's self-report.
 
-**下次改善：**
-1. 截圖 script 執行前建立固定 checklist：確認 `TICKET_ID` 已設定、`visual-report.ts` 存在、output 路徑正確，三項確認後才執行，不事後補救。
-2. 凡有「build artifact 依賴」的 AC（如 prebuild hook），QA 在 dev Playwright pass 後額外執行 `npm run build` 並確認 artifact 存在，記錄於回報中，不以「test.skip」代替驗證。
-3. Shell script / CLI tool 類 AC（非 frontend 資產），QA 主動以手動執行補驗，不等 Playwright 自動跑。每個 AC 情境（正常 / 邊界 / 失敗路徑）各跑一次，輸出貼入 QA 回報。
+**Next-time improvement:**
+1. Establish a fixed checklist before running the screenshot script: confirm `TICKET_ID` is set, `visual-report.ts` exists, output path is correct; only then run, not retroactively.
+2. For any AC with a "build artifact dependency" (e.g. prebuild hook), after dev Playwright passes, QA additionally runs `npm run build` and confirms the artifact exists, recorded in the report; do not let "test.skip" substitute for verification.
+3. For shell-script / CLI-tool ACs (non-frontend assets), QA actively performs manual verification rather than waiting for Playwright. Run each AC scenario (happy / edge / failure path) once, and paste the output into the QA report.
 
-### Code Review + Bug Found Protocol（2026-04-20）
+### Code Review + Bug Found Protocol (2026-04-20)
 
-**做得好：** Code Reviewer（superpowers）正確識別 NavBar `bg-transparent` + `text-[#1A1814]` 在深色頁面不可見為 Critical issue；同時識別 AC-017-FOOTER /diary 負斷言缺失、dead files、primitive dark-theme 文件缺失。
+**Went well:** Code Reviewer (superpowers) correctly identified the NavBar's `bg-transparent` + `text-[#1A1814]` being invisible on dark pages as a Critical issue; also identified the missing AC-017-FOOTER /diary negative assertion, dead files, and missing primitive dark-theme docs.
 
-**Engineer Bug Found Protocol 結論（NavBar Critical）：**
-- 根因：修改全站共用組件後未啟動 dev server 目視所有路由，誤以為 Playwright class-name 斷言通過即視覺正確
-- PM 確認反省合格：根因具體，改善行動已 codify 進 engineer.md 第 4 步
-- memory 寫入：`feedback_shared_component_all_routes_visual_check.md`
+**Engineer Bug Found Protocol conclusion (NavBar Critical):**
+- Root cause: after modifying a sitewide shared component, the dev server was not started to visually inspect every route; mistakenly assumed that passing the Playwright class-name assertion meant the visual was correct
+- PM confirmed retrospective is acceptable: root cause is concrete; improvement actions have been codified into Step 4 of engineer.md
+- memory written: `feedback_shared_component_all_routes_visual_check.md`
 
-### PM 驗收（2026-04-20）
+### PM acceptance (2026-04-20)
 
-| AC | 狀態 | 備註 |
-|----|------|------|
-| AC-017-NAVBAR | PASS | about.spec.ts 覆蓋 |
-| AC-017-HEADER | PASS | about.spec.ts 覆蓋 |
-| AC-017-METRICS | PASS | about.spec.ts 覆蓋 |
-| AC-017-ROLES | PASS | about.spec.ts 覆蓋 |
-| AC-017-PILLARS | PASS | about.spec.ts 覆蓋 |
-| AC-017-TICKETS | PASS | about.spec.ts 覆蓋 |
-| AC-017-ARCH | PASS | about.spec.ts 覆蓋 |
-| AC-017-BANNER | PASS | pages.spec.ts 覆蓋 |
-| AC-017-FOOTER | PASS | about.spec.ts + pages.spec.ts（/diary 負斷言補齊） |
-| AC-017-AUDIT | PASS | audit-ticket.sh 三情境驗證通過 |
-| AC-017-PROTOCOLS | PASS | docs/ai-collab-protocols.md 存在 |
+| AC | Status | Notes |
+|----|--------|-------|
+| AC-017-NAVBAR | PASS | covered by about.spec.ts |
+| AC-017-HEADER | PASS | covered by about.spec.ts |
+| AC-017-METRICS | PASS | covered by about.spec.ts |
+| AC-017-ROLES | PASS | covered by about.spec.ts |
+| AC-017-PILLARS | PASS | covered by about.spec.ts |
+| AC-017-TICKETS | PASS | covered by about.spec.ts |
+| AC-017-ARCH | PASS | covered by about.spec.ts |
+| AC-017-BANNER | PASS | covered by pages.spec.ts |
+| AC-017-FOOTER | PASS | about.spec.ts + pages.spec.ts (/diary negative assertion added) |
+| AC-017-AUDIT | PASS | audit-ticket.sh three-scenario verification passed |
+| AC-017-PROTOCOLS | PASS | docs/ai-collab-protocols.md exists |
 | AC-017-HOME-V2 | PASS | pages.spec.ts HomepageV2 tests |
-| AC-017-BUILD | PASS | prebuild hook + test.skip（dev mode 限制已記錄） |
-| AC-NAV-4 | PASS | 色彩系統更新 #9C4A3B/#1A1814 |
+| AC-017-BUILD | PASS | prebuild hook + test.skip (dev mode limitation documented) |
+| AC-NAV-4 | PASS | color system updated to #9C4A3B/#1A1814 |
 
 tsc: exit 0 ✅ · Playwright chromium: 98 passed, 1 skipped ✅ · Visual report: `docs/reports/K-017-visual-report.html` ✅
 
-**結論：Go. K-017 → status: closed.**
+**Conclusion: Go. K-017 → status: closed.**

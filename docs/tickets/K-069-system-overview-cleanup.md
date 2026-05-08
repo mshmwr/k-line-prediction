@@ -42,7 +42,7 @@ Full item list in §Implementation Notes. Key categories:
 - K-024 Phase 3 components: all exist on disk — remove "(pending)" qualifiers
 - MilestoneSection.tsx + DiaryEntry.tsx + diary-mobile.spec.ts: deleted — remove entries
   from tree entirely
-- Footer.tsx `variant prop 即將 retire`: already zero-prop — remove the "pending" clause
+- Footer.tsx `variant prop pending retirement`: already zero-prop — remove the "pending" clause
 - K-013 language in Summary: closed 2026-04-21 — restate as closed
 - Data Models `DiaryItem`/`DiaryMilestone` "(pending Engineer)": delivered — update
 - diary.json "(pending Engineer)" flat schema: delivered — update
@@ -61,8 +61,8 @@ are added with one-sentence descriptions:
 - Any other e2e specs on disk not yet listed (Architect to verify with `ls frontend/e2e/`)
 
 **AC-069-TD008-CLOSED:** Known Architecture Debt table: TD-008 row status updated from
-"實作中" to "closed 2026-04-21 (K-013)". RFC ordering note below the table updated to
-remove "K-013 實作 + 驗收" as first step (prerequisite satisfied); restate
+"in progress" to "closed 2026-04-21 (K-013)". RFC ordering note below the table updated to
+remove "K-013 implementation + acceptance" as the first step (prerequisite satisfied); restate
 TD-005/006/007 RFC as "not yet opened (K-013 prerequisite satisfied 2026-04-21)".
 
 **AC-069-SUMMARY-CURRENT:** Summary section trimmed to ≤5 bullets describing only current
@@ -118,15 +118,15 @@ project) kept as one sentence in `ssot/conventions.md §Testing`.
 | `diary.json` "(pending)" flat schema | 79 | Remove qualifier |
 | `types/diary.ts` "(pending Engineer)" | 100 | Remove qualifier |
 | `diary/` header "(pending Engineer)" | 166 | Change to present-tense |
-| `DiaryHero.tsx` "新增 pending" | 170 | Remove "pending" |
-| `DiaryEntryV2.tsx` "新增 pending" | 171 | Remove "pending" |
-| `DiaryRail.tsx` "新增 pending" | 172 | Remove "pending" |
-| `DiaryMarker.tsx` "新增 pending" | 173 | Remove "pending" |
-| `DiaryLoading.tsx` "新增 pending" | 174 | Remove "pending" |
-| `DiaryError.tsx` "新增 pending" | 175 | Remove "pending" |
-| `DiaryEmptyState.tsx` "新增 pending" | 176 | Remove "pending" |
-| `LoadMoreButton.tsx` "新增 pending" | 177 | Update: replaced by InfiniteScrollSentinel (K-059) |
-| `timelinePrimitives.ts` "新增 pending" | 178 | Remove "pending" |
+| `DiaryHero.tsx` "added, pending" | 170 | Remove "pending" |
+| `DiaryEntryV2.tsx` "added, pending" | 171 | Remove "pending" |
+| `DiaryRail.tsx` "added, pending" | 172 | Remove "pending" |
+| `DiaryMarker.tsx` "added, pending" | 173 | Remove "pending" |
+| `DiaryLoading.tsx` "added, pending" | 174 | Remove "pending" |
+| `DiaryError.tsx` "added, pending" | 175 | Remove "pending" |
+| `DiaryEmptyState.tsx` "added, pending" | 176 | Remove "pending" |
+| `LoadMoreButton.tsx` "added, pending" | 177 | Update: replaced by InfiniteScrollSentinel (K-059) |
+| `timelinePrimitives.ts` "added, pending" | 178 | Remove "pending" |
 | `MilestoneSection.tsx` "pending deletion" | 168 | Remove entire entry (file deleted) |
 | `DiaryEntry.tsx` "pending deletion" | 169 | Remove entire entry (file deleted) |
 | `diary-mobile.spec.ts` "pending deletion" | 89 | Remove entire entry (file deleted) |
@@ -140,8 +140,8 @@ project) kept as one sentence in `ssot/conventions.md §Testing`.
 | `diarySort.test.ts` "pending" | 130 | Remove "pending" |
 | `useDiaryPagination.test.ts` "pending" | 131 | Remove "pending" |
 | Data Models `DiaryItem`/`DiaryMilestone` "(pending Engineer)" | 318–320 | Update to reflect delivered state |
-| `Footer.tsx` "variant prop 即將 retire (pending)" | 185 | Remove — already zero-prop |
-| K-013 in Summary "設計完成，已放行 Engineer" | ~15 | Restate as "closed 2026-04-21" |
+| `Footer.tsx` "variant prop pending retirement (pending)" | 185 | Remove — already zero-prop |
+| K-013 in Summary "design complete, Engineer released" | ~15 | Restate as "closed 2026-04-21" |
 
 ### Changelog collapse target (AC-069-CHANGELOG-COLLAPSED)
 

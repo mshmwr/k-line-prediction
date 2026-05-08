@@ -9,64 +9,64 @@ closed: 2026-04-18
 source: docs/reviews/2026-04-18-code-review.md#p1-frontend-unit-suite-is-red
 ---
 
-## 背景
+## Background
 
-Codex code review 2026-04-18 發現 `npm test` 在 `frontend/src/__tests__/AppPage.test.tsx` 失敗（2 個 Vitest tests red）。
+Codex code review on 2026-04-18 found that `npm test` was failing in `frontend/src/__tests__/AppPage.test.tsx` (2 Vitest tests red).
 
-Root cause：
+Root cause:
 
-- 現有 tests 假設 UI 有兩個 `1D` button，使用 `screen.getAllByRole('button', { name: '1D' })[1]` 取第二個
-- 目前 UI 只剩一個 timeframe switch control
+- Existing tests assume the UI has two `1D` buttons and pick the second one with `screen.getAllByRole('button', { name: '1D' })[1]`
+- The current UI has only one timeframe switch control left
 
-Playwright E2E 與 backend tests 皆綠，但前端 unit suite 紅色使得 merge gate 失效、regressions 更容易進入。
+Playwright E2E and backend tests are all green, but the red frontend unit suite breaks the merge gate and makes regressions easier to slip through.
 
-## 範圍
+## Scope
 
-**含：**
-- 更新 `AppPage.test.tsx` 的 2 個失敗 tests，改以當前 timeframe switch control 精確定位
-- 避免 index-based button assumption（改用 accessible name / testid / role + exact match）
+**Includes:**
+- Update the 2 failing tests in `AppPage.test.tsx` to locate the current timeframe switch control precisely
+- Avoid index-based button assumptions (use accessible name / testid / role + exact match instead)
 
-**不含：**
-- 組件結構重構（`AppPage.tsx` 太肥另開技術債處理）
-- 新增額外 unit tests（若順手發現其他脆弱斷言，列入 ticket 回報，不在此 scope 修）
+**Excludes:**
+- Component structure refactor (`AppPage.tsx` is too bloated; track separately as tech debt)
+- Adding additional unit tests (if other fragile assertions are spotted incidentally, report them in the ticket but do not fix in this scope)
 
-## 預期異動檔案
+## Expected Files Changed
 
 - `frontend/src/__tests__/AppPage.test.tsx`
-- 若需補 `data-testid` → `frontend/src/AppPage.tsx` 或 timeframe switch 組件
+- If a `data-testid` needs to be added → `frontend/src/AppPage.tsx` or the timeframe switch component
 
 ## Acceptance Criteria
 
-### AC-010-GREEN：Vitest suite 全綠
+### AC-010-GREEN: Vitest suite fully green
 
-**Given** `frontend/` 目錄
-**When** 執行 `npm test`
-**Then** 全部 tests 通過，退出碼 0
-**And** 無 warning 指向這兩個 test cases
+**Given** the `frontend/` directory
+**When** `npm test` is run
+**Then** all tests pass with exit code 0
+**And** no warnings point to these two test cases
 
-### AC-010-ROBUST：斷言不依賴 index
+### AC-010-ROBUST: Assertions do not depend on index
 
-**Given** 修復後的 `AppPage.test.tsx`
-**When** 未來 UI 新增或刪除其他 button
-**Then** timeframe 切換相關斷言仍能正確定位目標控制項
-**And** 不使用 `getAllByRole(...)[N]` 這類 index-based 寫法
+**Given** the fixed `AppPage.test.tsx`
+**When** other buttons are added to or removed from the UI in the future
+**Then** the timeframe-switch assertions still locate the target control correctly
+**And** no index-based patterns like `getAllByRole(...)[N]` are used
 
-### AC-010-REGRESSION：tsc / E2E 不回歸
+### AC-010-REGRESSION: tsc / E2E do not regress
 
-**Given** 前端完整檢查
-**When** 依序執行 `npx tsc --noEmit` 與 `/playwright`
-**Then** tsc exit 0
-**And** Playwright E2E 全通過（45 tests）
+**Given** a full frontend check
+**When** `npx tsc --noEmit` and `/playwright` are run sequentially
+**Then** tsc exits 0
+**And** Playwright E2E fully passes (45 tests)
 
-## 優先級理由
+## Priority Rationale
 
-**high** — CI 安全網破損；當前分支無法通過 merge gate。與 K-009 並列優先處理，這張較小可先開。
+**high** — the CI safety net is broken; the current branch cannot pass the merge gate. Tied with K-009 for top priority; this one is smaller and can be tackled first.
 
-## 下一棒
+## Next Step
 
-直接交 Engineer。
+Hand off directly to Engineer.
 
-## 相關連結
+## Related Links
 
 - [Code Review](../reviews/2026-04-18-code-review.md#p1-frontend-unit-suite-is-red)
 - [PM Summary](../reviews/2026-04-18-pm-summary.md#1-frontend-test-pipeline-is-currently-broken)
@@ -75,15 +75,15 @@ Playwright E2E 與 backend tests 皆綠，但前端 unit suite 紅色使得 merg
 
 ## Architecture Review
 
-**裁決：無需 Architecture** — 由 senior-architect 於 2026-04-18 審視。
+**Decision: no Architecture needed** — reviewed by senior-architect on 2026-04-18.
 
-**理由：**
-- 改動範圍：僅 `frontend/src/__tests__/AppPage.test.tsx` 調整定位 selector；必要時補一個 `data-testid` 至 timeframe switch 組件
-- 無跨層：不動 API、不動後端、不動 routing
-- 無 interface 變更：組件 public prop 不變
-- AC-010-ROBUST 已具體規範「不使用 index-based 寫法」，Engineer 可直接選擇 `getByRole({ name, exact })` / `getByTestId` 實作
+**Rationale:**
+- Change scope: only adjust selectors in `frontend/src/__tests__/AppPage.test.tsx`; add a `data-testid` to the timeframe switch component if needed
+- No cross-layer impact: no API change, no backend change, no routing change
+- No interface change: component public props unchanged
+- AC-010-ROBUST already specifies "no index-based pattern", so Engineer can pick `getByRole({ name, exact })` / `getByTestId` directly
 
-**放行 Engineer。**
+**Released to Engineer.**
 
 — senior-architect, 2026-04-18
 
@@ -91,48 +91,48 @@ Playwright E2E 與 backend tests 皆綠，但前端 unit suite 紅色使得 merg
 
 ## Implementation
 
-**改動檔案：**
-- `frontend/src/components/MainChart.tsx` — 為 1H / 1D pill-style button 加 `data-testid="chart-timeframe-1H"` / `"chart-timeframe-1D"`（測試友善 attr，無邏輯變更）
-- `frontend/src/__tests__/AppPage.test.tsx` — 兩個失敗 test 改用 `screen.getByTestId('chart-timeframe-1D')`，移除 `getAllByRole(...)[1]` index-based selector。第二個 test (line 209) 原斷言已過時（預設 dual-toggle 架構），改寫為符合當前單一 timeframe toggle 的行為；同一 test 兼測 R1（predict 送 current viewTimeframe，非恆為 1H）與 R2（切 1D 觸發 `/api/merge-and-compute-ma99` pre-compute 路徑）兩條業務規則
+**Files changed:**
+- `frontend/src/components/MainChart.tsx` — added `data-testid="chart-timeframe-1H"` / `"chart-timeframe-1D"` to the 1H / 1D pill-style buttons (test-friendly attribute, no logic change)
+- `frontend/src/__tests__/AppPage.test.tsx` — both failing tests now use `screen.getByTestId('chart-timeframe-1D')`, removing the `getAllByRole(...)[1]` index-based selector. The second test (line 209) had stale assertions reflecting the old dual-toggle architecture; rewrote it to match the current single timeframe toggle behavior. The same test now jointly verifies R1 (predict sends the current viewTimeframe, not always 1H) and R2 (switching to 1D triggers the `/api/merge-and-compute-ma99` pre-compute path) — two business rules
 
-**驗證結果：**
-- `npm test -- --run`：6 files / 36 tests pass, exit 0
-- `npx tsc --noEmit`：exit 0
-- `npx playwright test`：45 tests pass (12.7s)
+**Verification results:**
+- `npm test -- --run`: 6 files / 36 tests pass, exit 0
+- `npx tsc --noEmit`: exit 0
+- `npx playwright test`: 45 tests pass (12.7s)
 
-**新發現的脆弱斷言（回報，非本 ticket scope）：**
-1. `AppPage.test.tsx` line 209 原測試「predict always uses timeframe 1H」反映的是已被移除的 dual-toggle 架構（MainChart timeframe + right-panel display mode）。當前 `handlePredict` 直接把 `viewTimeframe` 傳給 `predict()`，若 viewTimeframe=1D 會送 1D。建議 PM 評估：是恢復「predict 永遠送 1H」這個業務規則（改 `AppPage.tsx` line 354），還是接受當前「predict 跟隨 viewTimeframe」行為（修訂 PRD）。目前選後者讓 test 反映 production 真實行為。
-2. `AppPage.test.tsx` 仍有一些 `getAllByPlaceholderText('Open')[0]` index 寫法（line 66, 86, 89, 92），與 K-010 題目類似但不在 failing 範圍；若未來 OHLCEditor 結構改變可能再度脆化。
+**Newly discovered fragile assertions (reported, not in this ticket's scope):**
+1. The original test in `AppPage.test.tsx` line 209 ("predict always uses timeframe 1H") reflected the removed dual-toggle architecture (MainChart timeframe + right-panel display mode). The current `handlePredict` passes `viewTimeframe` directly to `predict()`, so if viewTimeframe=1D it sends 1D. PM to decide: either restore the "predict always sends 1H" business rule (modify `AppPage.tsx` line 354), or accept the current "predict follows viewTimeframe" behavior (revise PRD). For now we chose the latter so the test reflects the real production behavior.
+2. `AppPage.test.tsx` still contains some `getAllByPlaceholderText('Open')[0]` index patterns (lines 66, 86, 89, 92), similar to the K-010 issue but not in the failing scope; they may turn fragile again if the `OHLCEditor` structure changes in the future.
 
 ---
 
-## PM 裁決（2026-04-18）— 業務規則 R1 / R2
+## PM Ruling (2026-04-18) — Business Rules R1 / R2
 
-Engineer 在 Implementation 段列出 2 條原 test 與生產碼矛盾，自行改 test 符合生產碼。PM 攔停並裁決：
+In the Implementation section the Engineer listed 2 cases where the original tests contradicted the production code and unilaterally modified the tests to match production. PM intercepted and ruled:
 
-### R1：`/api/predict` 的 timeframe 送 1H 或 viewTimeframe？
+### R1: Should `/api/predict` send timeframe `1H` or `viewTimeframe`?
 
-**裁決：Option A — 接受生產碼行為，test 改動維持，PRD 補 AC-010-R1。**
+**Ruling: Option A — accept production behavior, keep the test changes, add AC-010-R1 to PRD.**
 
-- **證據：** commit fb20f21 (2026-04-09) 標題即為「fix: switch 1D flow to native timeframe contract」，刻意將 `handlePredict` 從 `TIMEFRAME` 常量改為 `viewTimeframe`，同步引入 `apiRows` 依 timeframe aggregate；PRD 既有 AC-1D-3 要求 1D 模式下 `/api/predict` 回傳 `_1d` fields，若前端永遠送 1H，後端無法區分使用者意圖。
-- **理由：** 原 test 的斷言「永遠送 1H」反映的是 pre-fb20f21 dual-toggle（MainChart timeframe + 右側 display mode）架構，該架構已移除；Engineer 改 test 與生產碼一致為正確做法。PRD 未明文規定，但行為與既有 AC 一致。
+- **Evidence:** commit fb20f21 (2026-04-09) is titled "fix: switch 1D flow to native timeframe contract" and deliberately changed `handlePredict` from the `TIMEFRAME` constant to `viewTimeframe`, while also introducing `apiRows` aggregated by timeframe; the existing PRD AC-1D-3 requires `/api/predict` to return `_1d` fields in 1D mode, so if the frontend always sent 1H the backend could not distinguish user intent.
+- **Rationale:** the original test assertion "always sends 1H" reflects the pre-fb20f21 dual-toggle architecture (MainChart timeframe + right-panel display mode), which has been removed; aligning the test with production is correct. The PRD did not specify it explicitly, but the behavior is consistent with the existing ACs.
 
-### R2：Timeframe toggle 觸發 `/api/merge-and-compute-ma99`？
+### R2: Does the timeframe toggle trigger `/api/merge-and-compute-ma99`?
 
-**裁決：Option A — 接受生產碼行為，test 改動維持，PRD 補 AC-010-R2。**
+**Ruling: Option A — accept production behavior, keep the test changes, add AC-010-R2 to PRD.**
 
-- **證據：** fb20f21 引入 `handleTimeframeChange`，在 toggle 後呼叫 `computeMa99(nextApiRows, nextTimeframe)`，與 PRD UX Notes line 160「Early MA99 loading state」設計同源（上傳後 pre-compute MA99 以避免預測時 block）。toggle 等同「換一個 timeframe 的 MA99 視圖」，沿用 pre-compute 路徑。
-- **理由：** 原 test 斷言「toggle 不觸發任何 API」遺漏了 early pre-compute 路徑；Engineer 改 test 斷言 merge-and-compute-ma99 被呼叫、predict 不被呼叫，行為描述更精確。
+- **Evidence:** fb20f21 introduced `handleTimeframeChange`, which calls `computeMa99(nextApiRows, nextTimeframe)` after toggling. This shares the same intent as the "Early MA99 loading state" design noted in PRD UX Notes line 160 (pre-compute MA99 after upload to avoid blocking at predict time). A toggle is equivalent to "switching to the MA99 view of another timeframe" and reuses the pre-compute path.
+- **Rationale:** the original test assertion "toggle triggers no API" missed the early pre-compute path; the Engineer's revised test asserts merge-and-compute-ma99 is called while predict is not, which describes behavior more precisely.
 
-### 動作
+### Actions
 
-- PRD.md 新增 AC-010-R1 / AC-010-R2（補記生產碼已有行為的規格）— 已完成（本裁決之 Edit）
-- 本 ticket 加 PM 裁決段 — 本段即是
-- 放行 Code Reviewer（senior-engineer agent）複審 K-010 實作 + 兩條新補 AC 的條文措辭
+- Added AC-010-R1 / AC-010-R2 to PRD.md (codifying behavior already in production) — done (Edit accompanying this ruling)
+- Added PM Ruling section to this ticket — this section
+- Released to Code Reviewer (senior-engineer agent) to review the K-010 implementation plus the wording of the two newly added ACs
 
-### 流程缺口
+### Process Gap
 
-Engineer 在 Implementation 發現 R1 / R2 行為/測試矛盾時正確停下回報，但仍自行擇一（改 test），違反 engineer.md 第 13 行「不做需求決策」。未來類似情境應上升至 PM 裁決後再動手。已在 pm.md retrospective 登記此跨角色改善點。
+When the Engineer found the R1 / R2 behavior/test contradiction during Implementation, they correctly paused and reported, but still picked one option themselves (modifying the tests), violating engineer.md line 13 "do not make requirement decisions". In future similar situations, escalate to PM for ruling before acting. Logged this cross-role improvement point in the pm.md retrospective.
 
 — PM, 2026-04-18
 
@@ -140,70 +140,70 @@ Engineer 在 Implementation 發現 R1 / R2 行為/測試矛盾時正確停下回
 
 ## Retrospective
 
-### Engineer 反省（2026-04-18）
+### Engineer Retrospective (2026-04-18)
 
-**做得好：** 先跑 `npm test -- --run` 確認 2 個失敗點並讀 MainChart DOM 才動手，沒亂猜 selector。
+**Done well:** ran `npm test -- --run` first to confirm the 2 failing points and read the MainChart DOM before changing anything, instead of guessing at selectors.
 
-**沒做好：** 原 test「display mode toggle... predict always uses 1H」反映的是已消失的 dual-toggle 架構；只改 selector 不足以通過（切 1D 實際會 trigger `/api/merge-and-compute-ma99`）。我第一版修復只換 testid 沒重寫斷言，導致 `axios.post` 非空的意外失敗，才發現這 test 意圖已過時。
+**Done poorly:** the original test ("display mode toggle... predict always uses 1H") reflected the gone dual-toggle architecture; just swapping selectors wasn't enough to pass (switching to 1D actually triggers `/api/merge-and-compute-ma99`). My first fix only swapped the testid without rewriting the assertions, which led to the unexpected failure of the "non-empty `axios.post`" check before I realized the test's intent was stale.
 
-**下次改善：** 刪除 / 重構 UI 元件的 PR，必須主動 `grep -r <元件關鍵字> src/__tests__/`，把失去依賴的斷言一併更新或在 ticket 中明列為待辦；UI 改動 CI 上把 `npm test` 列為 merge gate（目前僅 tsc + playwright，vitest 破掉沒擋住 merge）。
+**Next-time improvement:** for PRs that delete or refactor UI components, proactively run `grep -r <component-keyword> src/__tests__/` and either update the assertions that lost their dependency or list them as TODOs in the ticket; in CI for UI changes, treat `npm test` as a merge gate (today only tsc + playwright are gates — a broken vitest didn't block merge).
 
-### QA 反省（2026-04-18）
+### QA Retrospective (2026-04-18)
 
-**做得好：** 實跑三重回歸（Vitest 6 files/36 tests pass、tsc exit 0、Playwright 45 pass），未採信 Implementation log；額外 grep `chart-timeframe-` 驗證新 testid 只被 Vitest 使用、E2E 無隱性依賴，確認 blast radius 受限。
+**Done well:** ran the full triple regression (Vitest 6 files / 36 tests pass, tsc exit 0, Playwright 45 pass) instead of trusting the Implementation log; additionally `grep`ed `chart-timeframe-` to confirm the new testid is only used by Vitest with no implicit E2E dependency, bounding the blast radius.
 
-**沒做好：** 未跑 `--coverage` 或 diff 舊/新 test 斷言強度，單看 pass 數無法偵測「斷言被削弱」的退化情境；截圖 script 缺（K-008 cycle #6 未完成），QA 流程尾段定義性缺口。
+**Done poorly:** did not run `--coverage` or diff old/new test assertion strength; pass counts alone cannot detect "weakened assertion" regressions; the screenshot script is missing (K-008 cycle #6 not done), a definitional gap at the tail of the QA process.
 
-**下次改善：** Vitest 涉及斷言重寫的 ticket，QA 補跑 coverage 或逐行讀 test diff；K-008 截圖 script 上線前，QA 報告中「截圖報告」欄位採固定措辭「跳過（K-008 未完成）」。
+**Next-time improvement:** for tickets that involve assertion rewrites in Vitest, QA should additionally run coverage or read the test diff line by line; until the K-008 screenshot script ships, the QA report's "screenshot report" field uses the fixed wording "skipped (K-008 not done)".
 
-### Reviewer 反省（2026-04-18）
+### Reviewer Retrospective (2026-04-18)
 
-**做得好：** 實跑 `npm test`（36 pass）/ `tsc --noEmit`（exit 0）/ `npx playwright test`（45 pass）三重驗證，同時 grep `handlePredict` / `handleTimeframeChange` 比對 test 斷言與 production 呼叫序列一致，避免只信 Implementation log。
+**Done well:** ran the triple verification of `npm test` (36 pass) / `tsc --noEmit` (exit 0) / `npx playwright test` (45 pass), and grepped `handlePredict` / `handleTimeframeChange` to compare test assertions with the production call sequence, avoiding reliance on the Implementation log alone.
 
-**沒做好：** R1/R2 的 test-vs-prod 矛盾本應在 ticket 建立階段由 Reviewer 或 PM 用「原 test 斷言今天是否還能 pass 於 production handler」的快篩方式攔到，拖到 Engineer 實作中才爆；等於把 PM 裁決這關推遲了一整輪。對 scope 外的 4 處 `getAllByPlaceholderText('Open')[0]`（line 66/86/89/92）在本次 review 前沒有主動建議追加 follow-up tech-debt 條目。
+**Done poorly:** the R1/R2 test-vs-prod contradiction should have been caught by Reviewer or PM at ticket creation time using a quick filter — "do the original test assertions still pass against today's production handlers?" — instead of surfacing during Engineer implementation; this effectively delayed the PM ruling by an entire round. For the 4 out-of-scope `getAllByPlaceholderText('Open')[0]` instances (lines 66/86/89/92), I did not proactively suggest opening a follow-up tech-debt entry before this review.
 
-**下次改善：** Review checklist 增加兩條硬性動作 — (1) 任何涉及 UI/handler 重構的 ticket，Reviewer 開工前先 `grep -r <handler 名> src/__tests__/` 讀一遍舊斷言，事前偵測是否存在潛在 R-規則矛盾；(2) 見到任何 `getAllBy*()[N]` 一律在 Warning 欄列出並建議開 follow-up ticket，不論是否在本票 scope 內。
+**Next-time improvement:** add two hard actions to the Review checklist — (1) for any ticket involving UI/handler refactor, before starting Reviewer should `grep -r <handler-name> src/__tests__/` and read the old assertions to detect potential R-rule contradictions in advance; (2) any `getAllBy*()[N]` should be listed as a Warning and a follow-up ticket suggested, regardless of whether it is in the current ticket's scope.
 
-### PM 彙整（2026-04-18）
+### PM Summary (2026-04-18)
 
-**跨角色重複問題：**
+**Cross-role recurring issues:**
 
-1. **Test 改動涉業務規則時缺 escalation 節點** — Engineer 發現 R1/R2 矛盾正確停下回報，但仍「自行擇一改 test 符合生產碼」；Reviewer 反省也自承該在 ticket 建立階段快篩這類矛盾；PM 自身 Phase Gate 沒設「test 改動是否涉業務規則」欄位。同一根因在 Engineer、Reviewer、PM 三個角色的反省段各自獨立出現 — 屬流程結構性缺口，不是單角色疏忽。
+1. **Missing escalation point when test changes touch business rules** — Engineer correctly paused and reported the R1/R2 contradiction but still "picked one option themselves and modified the tests to match production"; Reviewer's retrospective also admitted these contradictions should be quick-filtered at ticket creation time; PM's Phase Gate has no "do test changes touch business rules?" field. The same root cause appeared independently in the retros of Engineer, Reviewer, and PM — this is a structural process gap, not a single-role oversight.
 
-2. **Scope 外同類脆弱斷言回報/處置路徑不清** — K-010 PRD「若順手發現脆弱斷言列入 ticket 回報」只定義回報義務，沒定義 PM 裁決動作，造成 review 結束仍需二輪溝通（已於 2026-04-18 Reviewer Warning 裁決 retrospective 登記，不在此重複）。
+2. **Unclear reporting / handling path for out-of-scope similar fragile assertions** — K-010 PRD "if other fragile assertions are spotted incidentally, report them in the ticket" only defines the reporting duty, not the PM ruling action, leading to a second round of communication after review (already logged in the 2026-04-18 Reviewer Warning ruling retrospective; not duplicated here).
 
-**流程改善決議：**
+**Process improvement decisions:**
 
-| 問題 | 負責角色 | 行動 | 更新位置 |
+| Issue | Owner | Action | Update Location |
 |------|---------|------|---------|
-| Engineer 自行做業務需求決策 | Engineer | 實作規範加 escalation rule：「若 test 改動需同步改 PRD 文字或代表行為規格變更，立即回報，等 PM 裁決後才 commit」 | `~/.claude/agents/engineer.md` §「絕對不做」下方新增 §「Test 改動 Escalation Rule」 |
-| Reviewer 未主動偵測 test vs prod 不一致 | Reviewer | Review Checklist 加偵測規則：「review 時若發現 test 斷言與 git blame 顯示的生產碼行為不一致，Warning 升級 Critical，強制 PM 裁決」 | `~/.claude/agents/senior-engineer.md` §「Review Checklist」末尾新增 §「Test vs Production 一致性檢查」 |
-| PM Phase Gate 未攔截 test 規則變更 | PM | Phase Gate 結束清單加欄位：「test 改動是否涉業務規則（行為、API payload、觸發時機）— 若是，升級 PM 裁決」 | `~/.claude/agents/pm.md` §「Phase Gate 檢查清單」→「Phase 結束後」末尾新增一條 |
-| QA 截圖報告缺口（K-008 未完成） | 流程（跨角色） | **以 tech-debt 追蹤，不入本次流程改善** — K-008 已在 PM-dashboard 獨立追蹤（cycle #6），QA 反省固定措辭「跳過（K-008 未完成）」已採用；K-008 完成後再回補 K-010 截圖報告 | 無新增；K-008 完成後 QA 回補 `docs/reports/K-010-visual-report.html` |
+| Engineer makes business requirement decisions unilaterally | Engineer | Add an escalation rule to the implementation guidelines: "if a test change requires synchronously updating PRD text or represents a behavioral spec change, report immediately and wait for the PM ruling before committing" | `~/.claude/agents/engineer.md` § add a new "Test Change Escalation Rule" subsection beneath "Never Do" |
+| Reviewer does not proactively detect test-vs-prod inconsistency | Reviewer | Add a detection rule to the Review Checklist: "during review, if a test assertion is found inconsistent with the production behavior shown by git blame, upgrade the Warning to Critical and force a PM ruling" | `~/.claude/agents/senior-engineer.md` § add a new "Test vs Production consistency check" subsection at the end of "Review Checklist" |
+| PM Phase Gate fails to catch test rule changes | PM | Add a field to the Phase Gate completion checklist: "do the test changes touch business rules (behavior, API payload, trigger timing)? — if yes, escalate to PM ruling" | `~/.claude/agents/pm.md` § append a new line at the end of "Phase Gate Checklist" → "After Phase Ends" |
+| QA screenshot report gap (K-008 not done) | Process (cross-role) | **Track as tech-debt, not part of this round of process improvement** — K-008 is already tracked separately on PM-dashboard (cycle #6); the fixed QA-retro wording "skipped (K-008 not done)" has been adopted; backfill the K-010 screenshot report once K-008 is done | None added; QA backfills `docs/reports/K-010-visual-report.html` after K-008 is done |
 
-**備註：** 本 K-010 QA 階段 `npx playwright test visual-report.ts` 未執行，因 K-008 截圖 script 尚未上線；列入 tech-debt 追蹤，不阻擋 K-010 close。
+**Note:** in this K-010 QA stage, `npx playwright test visual-report.ts` was not executed because the K-008 screenshot script is not yet shipped; tracked as tech debt and does not block K-010 close.
 
 — PM, 2026-04-18
 
 ---
 
-## PM 裁決 — Reviewer 3 條 Warning（2026-04-18）
+## PM Ruling — 3 Reviewer Warnings (2026-04-18)
 
-| # | 裁決 | 動作 |
+| # | Ruling | Action |
 |---|------|------|
-| W1 (`AppPage.test.tsx` 4 處 index selector) | **B — 記 TD-009 + follow-up K-014** | 已登記 TD-009；已開 K-014 ticket；已加入 PM-dashboard backlog |
-| W2 (`OHLCEditor.test.tsx` line 25 同型) | **B — 併入 K-014** | K-014 scope 已明載 |
-| W3 (Implementation line 95 敘述微失準) | **C 轉直接修** — trivial doc fix，不計入 scope 變更 | 已 Edit K-010 line 95，補「同 test 兼測 R1 與 R2」 |
+| W1 (4 index selectors in `AppPage.test.tsx`) | **B — log TD-009 + follow-up K-014** | TD-009 logged; K-014 ticket opened; added to PM-dashboard backlog |
+| W2 (same pattern in `OHLCEditor.test.tsx` line 25) | **B — fold into K-014** | already noted in K-014 scope |
+| W3 (slight inaccuracy in Implementation line 95) | **C → fix directly** — trivial doc fix, not counted as a scope change | edited K-010 line 95 to add "the same test verifies both R1 and R2" |
 
-**裁決理由（合併）：**
-- W1/W2 非 red、scope 外、AC-010-ROBUST 要求的只是「本次修的兩個 test」，不需倒回 loop；成本低但無立即價值，排 backlog 最省。
-- W3 是 doc level 不動 code，不觸發 Engineer / Reviewer 重驗，PM 直接 Edit 即結。
+**Combined rationale:**
+- W1/W2 are not red, are out of scope, and AC-010-ROBUST only required "the two tests fixed in this ticket"; no need to loop back. Low cost but no immediate value, so backlog is the most efficient option.
+- W3 is doc-level only, doesn't touch code, doesn't trigger Engineer / Reviewer re-verification — PM Edit closes it directly.
 
-## 放行決定
+## Release Decision
 
-**放行 QA。** K-010 無 Critical、W3 已修、W1/W2 已轉 TD-009 + K-014。
+**Release to QA.** K-010 has no Critical; W3 fixed; W1/W2 forwarded to TD-009 + K-014.
 
-- QA 執行內容：`npm test -- --run` / `npx tsc --noEmit` / `/playwright` 三重回歸，確認 K-010 改動未破壞 existing suite
-- 本 session 可直接接續 QA cycle
+- QA scope: triple regression of `npm test -- --run` / `npx tsc --noEmit` / `/playwright` to confirm K-010 changes did not break the existing suite
+- This session can proceed directly to the QA cycle
 
 — PM, 2026-04-18

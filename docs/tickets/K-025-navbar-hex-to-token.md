@@ -1,87 +1,87 @@
 ---
 id: K-025
-title: UnifiedNavBar hex → token 遷移 + navbar.spec.ts regex 同步更新
+title: UnifiedNavBar hex → token migration + navbar.spec.ts regex sync update
 status: done
 closed: 2026-04-22
 type: refactor
 priority: medium
 created: 2026-04-20
-source: K-021 Reviewer 合併報告 W-3（TD-K021-02）
+source: K-021 Reviewer merged report W-3 (TD-K021-02)
 visual-spec: "N/A — reason: zero-visual-change refactor (hex→token equivalence at rendered-color level; values sourced from K-021 homepage-v2.pen NavBar frame). Note: the K-021 Q2 ruling stated 'compiled CSS identical', QA corrected this to 'computed color identical, selector name differs' (arbitrary-value vs named class); therefore this ticket's AC uses `toHaveCSS('color', ...)` + dist/assets CSS declaration grep as equivalence evidence."
-qa-early-consultation: docs/retrospectives/qa.md 2026-04-22 K-025 — 4 recommendations integrated into AC (Q1 CSS declaration grep in AC-025-REGRESSION / Q2 aria-current + toHaveCSS 雙條件 drop class-name regex / Q3 /business-logic no-active-link assertion / blocker inactive `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` 取代寬鬆 regex)
+qa-early-consultation: docs/retrospectives/qa.md 2026-04-22 K-025 — 4 recommendations integrated into AC (Q1 CSS declaration grep in AC-025-REGRESSION / Q2 aria-current + toHaveCSS dual condition drops the class-name regex / Q3 /business-logic no-active-link assertion / inactive blocker uses `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` instead of a loose regex)
 ---
 
-## 背景
+## Background
 
-K-021 交付時 `UnifiedNavBar.tsx` 保留 7 處 hex literal（3 個 distinct color：`#9C4A3B` / `#1A1814` / `#F4EFE5`），`navbar.spec.ts` 有 5 處 class-name regex 斷言（`/text-\[#9C4A3B\]/` × 2 + `/text-\[#1A1814\]/` × 3）鎖定該寫法。PM 2026-04-20 Q2 裁決允許保留，理由為「`text-[#9C4A3B]` 與 `text-brick-dark` 編譯後 CSS 相同，保留不動可避免 K-005 navbar.spec 5 處 regex 回歸」。
+At K-021 delivery, `UnifiedNavBar.tsx` retained 7 hex literals (3 distinct colors: `#9C4A3B` / `#1A1814` / `#F4EFE5`), and `navbar.spec.ts` had 5 class-name regex assertions (`/text-\[#9C4A3B\]/` × 2 + `/text-\[#1A1814\]/` × 3) locking that form. The PM 2026-04-20 Q2 ruling allowed retention, on the grounds that "`text-[#9C4A3B]` and `text-brick-dark` produce identical compiled CSS, so leaving them untouched avoids regressing the 5 regex sites in K-005 navbar.spec".
 
-但 K-021 Reviewer 合併報告 W-3 指出：此保留與使用者 prompt「嚴禁 hardcode hex」衝突，屬 token 集中管理原則的缺口。PM 本票獨立開票，一次性遷移 NavBar + spec，避免污染 K-021 fix-now 批次。
+However, K-021 Reviewer merged report W-3 noted: this retention conflicts with the user's directive prohibiting hardcoded hex, leaving a gap in the centralized-token principle. PM opens this ticket independently to migrate NavBar + spec in one shot, avoiding contamination of the K-021 fix-now batch.
 
-**依賴：** K-021 fix-now 完成後啟動（K-021 reviewer fix 批次含 C-1~C-4 + W-2 + S-3）。
+**Dependency:** start once K-021 fix-now is done (K-021 reviewer fix batch covers C-1~C-4 + W-2 + S-3).
 
-## 範圍
+## Scope
 
-**含：**
+**In:**
 
-1. **`UnifiedNavBar.tsx` 所有 hex → token 遷移**（token 全部已在 K-021 Tailwind config 註冊；完整對照表由 Engineer 執行前 `grep -E '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx` 列出）：
-   - `text-[#9C4A3B]` → `text-brick-dark`（active state）
-   - `text-[#1A1814]` → `text-ink`（主文色 + hover target）
-   - `bg-[#F4EFE5]` → `bg-paper`（nav background）
-   - `border-[#1A1814]` → `border-ink`（nav bottom border）
+1. **Migrate all hex → token in `UnifiedNavBar.tsx`** (all tokens are already registered in the K-021 Tailwind config; before edits, Engineer runs `grep -E '#[0-9A-Fa-f]{6}' frontend/src/components/UnifiedNavBar.tsx` to produce the full mapping):
+   - `text-[#9C4A3B]` → `text-brick-dark` (active state)
+   - `text-[#1A1814]` → `text-ink` (primary text + hover target)
+   - `bg-[#F4EFE5]` → `bg-paper` (nav background)
+   - `border-[#1A1814]` → `border-ink` (nav bottom border)
 
-2. **`navbar.spec.ts` 5 處 class-name regex 斷言汰換為雙軌斷言**（QA Early Consultation Q2 採納）：
-   - **drop** 既有 class-name regex（`/text-\[#9C4A3B\]/` × 2 + `/text-\[#1A1814\]/` × 3）— 類名斷言為最弱中間層，無法驗證 React state 正確 + 無法驗證 Tailwind token 正確解析
-   - **加入雙軌**：
-     - Active：`[aria-current="page"]` attribute 斷言（驗 React state）+ `toHaveCSS('color', 'rgb(156, 74, 59)')`（驗 rendered color）
-     - Inactive：`toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')`（取代 `/text-\[#1A1814\]/` 寬鬆 regex，後者 post-refactor 仍會匹配 `text-ink/60` 而無法偵測 state-swap bug）
+2. **Replace the 5 class-name regex assertions in `navbar.spec.ts` with dual-rail assertions** (QA Early Consultation Q2 adopted):
+   - **drop** the existing class-name regex (`/text-\[#9C4A3B\]/` × 2 + `/text-\[#1A1814\]/` × 3) — class-name assertions are the weakest middle layer; they cannot verify the React state is correct nor that Tailwind tokens resolve correctly
+   - **add dual-rail:**
+     - Active: `[aria-current="page"]` attribute assertion (verifies React state) + `toHaveCSS('color', 'rgb(156, 74, 59)')` (verifies rendered color)
+     - Inactive: `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` (replaces the loose `/text-\[#1A1814\]/` regex, which post-refactor would still match `text-ink/60` and miss state-swap bugs)
 
-3. **補 `/` route inactive color 3 斷言**（合併 TD-K021-09，統一用 Q2 雙軌寫法）：
-   - `/` 路由下 App / Diary / About 三項，各自 `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')`
+3. **Add 3 inactive-color assertions on the `/` route** (folds in TD-K021-09; uses the Q2 dual-rail form):
+   - On the `/` route, App / Diary / About each get a `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')`
 
-4. **補 `/business-logic` route active 斷言**（QA Q3 採納 + PM 裁決）：
-   - 預期行為：`/business-logic` 為 Prediction hidden route，NavBar 任何 link 都不應有 `aria-current="page"`（含 Home，因 `pathname !== '/'`；含 App/Diary/About 因 `pathname` 不匹配）
-   - 斷言：`await expect(page.locator('[aria-current="page"]')).toHaveCount(0)`
-   - PM rationale：此為 K-021 起既存 coverage gap，一次收齊避免再開票
+4. **Add an active-state assertion on the `/business-logic` route** (QA Q3 adopted + PM ruling):
+   - Expected behavior: `/business-logic` is the Prediction hidden route; no NavBar link should have `aria-current="page"` (Home included, because `pathname !== '/'`; App/Diary/About included because `pathname` does not match)
+   - Assertion: `await expect(page.locator('[aria-current="page"]')).toHaveCount(0)`
+   - PM rationale: this is a coverage gap that has existed since K-021; gather it here in one go to avoid opening another ticket
 
-**不含：**
-- NavBar 結構改動（順序 / 新項 / icon 換）— 非 scope
-- 其他頁面 hex 遷移（由 K-022/K-023/K-024 自管）
+**Out:**
+- NavBar structural changes (order / new items / icon swaps) — out of scope
+- Hex migration on other pages (handled within K-022/K-023/K-024)
 
 ## Acceptance Criteria
 
-### AC-025-NAVBAR-TOKEN：NavBar 零 hex `[K-025]`
+### AC-025-NAVBAR-TOKEN: NavBar zero-hex `[K-025]`
 
-**Given** 開發者 grep `UnifiedNavBar.tsx`
-**When** 搜尋 `#[0-9A-Fa-f]{6}` pattern
-**Then** 返回結果數 = 0
-**And** 所有顏色 / 邊框 / 背景 class 均為 K-021 token（`text-ink` / `text-brick-dark` / `bg-paper` 等）
-**And** `npx tsc --noEmit` exit 0
-**And** `npm run build` 成功
+**Given** the developer greps `UnifiedNavBar.tsx`
+**When** searching for the `#[0-9A-Fa-f]{6}` pattern
+**Then** the result count = 0
+**And** every color / border / background class is a K-021 token (`text-ink` / `text-brick-dark` / `bg-paper` etc.)
+**And** `npx tsc --noEmit` exits 0
+**And** `npm run build` succeeds
 
-### AC-025-NAVBAR-SPEC：斷言升級至雙軌（attribute + computed color） `[K-025]`
+### AC-025-NAVBAR-SPEC: assertions upgraded to dual-rail (attribute + computed color) `[K-025]`
 
-**Given** `navbar.spec.ts` 5 處既有 class-name regex（`/text-\[#9C4A3B\]/` × 2 + `/text-\[#1A1814\]/` × 3）被汰換，改以 attribute + computed color 雙軌斷言
-**When** 執行 `npx playwright test navbar.spec.ts`
-**Then** 所有既有 test case 通過（K-005 AC-NAV-1~5 + K-021 AC-021-NAVBAR）
-**And** active state 斷言為雙條件：`toHaveAttribute('aria-current', 'page')` + `toHaveCSS('color', 'rgb(156, 74, 59)')`（不保留 class-name regex）
-**And** inactive state 斷言為 `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')`（不再用 `/text-\[#1A1814\]/` 寬鬆 regex）
-**And** 新增 `/` route desktop inactive 3 斷言（App / Diary / About 各自 computed color），補 TD-K021-09
-**And** 新增 `/business-logic` route active 斷言：`page.locator('[aria-current="page"]').toHaveCount(0)`（驗 hidden-route behavior）
-**And** Prediction hidden 既有斷言（AC-021-NAVBAR 2 處）不重複新增，保持原 `toHaveCount(0)` 寫法
+**Given** the 5 existing class-name regex assertions in `navbar.spec.ts` (`/text-\[#9C4A3B\]/` × 2 + `/text-\[#1A1814\]/` × 3) are replaced by attribute + computed color dual-rail assertions
+**When** running `npx playwright test navbar.spec.ts`
+**Then** all existing test cases pass (K-005 AC-NAV-1~5 + K-021 AC-021-NAVBAR)
+**And** the active-state assertion is dual-condition: `toHaveAttribute('aria-current', 'page')` + `toHaveCSS('color', 'rgb(156, 74, 59)')` (no class-name regex retained)
+**And** the inactive-state assertion is `toHaveCSS('color', 'rgba(26, 24, 20, 0.6)')` (the loose `/text-\[#1A1814\]/` regex is gone)
+**And** 3 new desktop inactive assertions on the `/` route (App / Diary / About computed color each), backfilling TD-K021-09
+**And** a new `/business-logic` route active assertion: `page.locator('[aria-current="page"]').toHaveCount(0)` (verifies hidden-route behavior)
+**And** the existing Prediction-hidden assertions (AC-021-NAVBAR, 2 sites) are not duplicated; the original `toHaveCount(0)` form is kept
 
-### AC-025-REGRESSION：既有功能無回歸 + CSS output 等價性 `[K-025]`
+### AC-025-REGRESSION: existing features have no regression + CSS output equivalence `[K-025]`
 
-**Given** K-021 所有 AC（AC-021-*）為 PASS
-**When** 本票實作完成
-**Then** K-021 所有 Playwright 斷言仍 PASS
-**And** K-005 AC-NAV-1~5 仍 PASS
-**And** 其他頁面 E2E 不回歸
-**And** 編譯後 CSS 颜色宣告數等價（QA Q1 採納）：refactor 前後各跑一次 `npm run build`，比對 `dist/assets/*.css` 中 `color:#9c4a3b` / `color:#1a1814` / `background-color:#f4efe5` / `border-color:#1a1814` 宣告數 pre == post（證明僅 selector 名稱改變、computed value 不變）
+**Given** all K-021 ACs (AC-021-*) are PASS
+**When** this ticket's implementation is done
+**Then** all K-021 Playwright assertions still PASS
+**And** K-005 AC-NAV-1~5 still PASS
+**And** other-page E2E does not regress
+**And** the compiled CSS color-declaration counts are equivalent (QA Q1 adopted): run `npm run build` once before and once after the refactor, then compare the count of `color:#9c4a3b` / `color:#1a1814` / `background-color:#f4efe5` / `border-color:#1a1814` declarations in `dist/assets/*.css` — pre == post (proves only the selector name changed, computed value did not)
 
-## 相關連結
+## Related links
 
-- [K-021 ticket](./K-021-sitewide-design-system.md)（前置依賴）
-- [K-021 Reviewer W-3 findings](../reports/)（待 Reviewer 報告歸檔）
+- [K-021 ticket](./K-021-sitewide-design-system.md) (upstream dependency)
+- [K-021 Reviewer W-3 findings](../reports/) (pending Reviewer report archival)
 - [tech-debt TD-K021-02](../tech-debt.md#td-k021-02--unifiednavbar-hardcode-hex-k-025)
 - [tech-debt TD-K021-09](../tech-debt.md#td-k021-09--route-navbar-inactive-color-未斷言)
 

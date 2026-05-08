@@ -1,6 +1,6 @@
 ---
 id: K-027
-title: DiaryPage 手機版 milestone timeline 視覺重疊修復
+title: DiaryPage mobile milestone timeline visual overlap fix
 status: closed
 type: bug
 priority: high
@@ -8,235 +8,235 @@ created: 2026-04-21
 closed: 2026-04-21
 ---
 
-## 背景
+## Background
 
-使用者於 2026-04-21 回報 production bug：`/diary` 頁面在手機寬度下渲染壞掉。production URL：`https://k-line-prediction-app.web.app/diary`。
+User reported a production bug on 2026-04-21: the `/diary` page renders broken at mobile widths. Production URL: `https://k-line-prediction-app.web.app/diary`.
 
-**使用者提供截圖描述（手機 viewport ~375px/390px 寬度）：**
+**User-provided screenshot description (mobile viewport ~375px/390px width):**
 
-- 症狀：Dev Diary 內多個 milestone 條目視覺上互相重疊堆疊，標題 / 日期 / 內文文字糊成一團
-- 具體命中條目（至少三筆）：K-021（全站設計系統基建）、K-008（自動化視覺報告 script）、Codex Review Follow-up（K-009/K-010/K-011）的 milestone block 互相壓疊
-- 內容區高度計算疑似錯誤導致 overflow 重疊（左側 timeline bullet / border 位置看起來正確）
-- 英文 italic 與中文 body 混疊
-- **桌面寬度（≥ 1024px）同頁面正常**——K-017 / K-021 的 Playwright 視覺報告均為桌面截圖，未能捕捉此 mobile regression
+- Symptom: multiple milestone entries in Dev Diary visually overlap and stack on each other; the title / date / body text blurs together
+- Specific entries hit (at least three): K-021 (sitewide design system foundation), K-008 (automated visual report script), Codex Review Follow-up (K-009/K-010/K-011) milestone blocks compress into each other
+- Content area height calculation appears incorrect, causing overflow overlap (left-side timeline bullet / border position looks correct)
+- English italic and Chinese body text mix together
+- **Desktop width (≥ 1024px) on the same page is normal** — the K-017 / K-021 Playwright visual reports were all desktop screenshots and failed to capture this mobile regression
 
-**影響：** portfolio-facing demo 在手機訪客視角壞掉。Recruiter 使用手機訪問時會看到糊成一團的 Dev Diary，對求職主動曝光造成直接傷害（參考 memory `project_job_search_criteria.md` 硬條件 / K-017 的 portfolio-oriented 定位）。
+**Impact:** the portfolio-facing demo is broken from the mobile visitor perspective. When recruiters access via mobile they see a blurred-together Dev Diary, directly damaging job-search active exposure (per memory `project_job_search_criteria.md` hard criteria / K-017's portfolio-oriented positioning).
 
-**初步結構參考（留給 Architect 診斷，非 PM 裁決）：**
+**Initial structural reference (left for Architect diagnosis, not a PM ruling):**
 
-目前 `/diary` 組件結構：
-- `frontend/src/pages/DiaryPage.tsx` — 最外層 wrapper（`max-w-3xl mx-auto px-6 py-16`）
-- `frontend/src/components/diary/DiaryTimeline.tsx` — 直接 map milestones，無 layout 包裝
-- `frontend/src/components/diary/MilestoneSection.tsx` — accordion 展開/折疊（`border rounded-sm mb-3`），展開時子內容用 `divide-y`
-- `frontend/src/components/diary/DiaryEntry.tsx` — `flex gap-4 py-2`，`date` 固定 `w-24`（96px），`text` flex-1
+Current `/diary` component structure:
+- `frontend/src/pages/DiaryPage.tsx` — outermost wrapper (`max-w-3xl mx-auto px-6 py-16`)
+- `frontend/src/components/diary/DiaryTimeline.tsx` — directly maps milestones, no layout wrapper
+- `frontend/src/components/diary/MilestoneSection.tsx` — accordion expand/collapse (`border rounded-sm mb-3`); when expanded, child content uses `divide-y`
+- `frontend/src/components/diary/DiaryEntry.tsx` — `flex gap-4 py-2`, `date` fixed `w-24` (96px), `text` flex-1
 
-K-021 完成後 `/diary` 只做了 body 配色遷移（paper/ink + 字型），**結構與 mobile responsive 未經獨立驗收**。
+After K-021 closed, `/diary` only received the body palette migration (paper/ink + fonts); **structure and mobile responsive were never independently signed off**.
 
-## 依賴關係
+## Dependencies
 
-- **不依賴** K-022 / K-023 / K-024（後三票處理結構改版 / schema 扁平化）
-- 本票為 hotfix 性質，只修 mobile responsive bug，不動 DiaryPage 結構 / diary.json schema
-- **與 K-024 scope 邊界：** 若 Architect 評估 bug 根因需要 schema / 結構層級改動，應 blocker 回 PM 重新討論是否併入 K-024；K-027 預設為 CSS / responsive 層面 surgical fix
+- **Does not depend on** K-022 / K-023 / K-024 (those three handle structure rework / schema flattening)
+- This ticket is a hotfix in nature, only fixing the mobile responsive bug; does not change DiaryPage structure / diary.json schema
+- **Scope boundary with K-024:** if the Architect assesses that the bug root cause requires schema / structural-level changes, raise a blocker back to PM to redeliberate whether to fold into K-024; K-027 defaults to a CSS / responsive-level surgical fix
 
-## 範圍
+## Scope
 
-**含：**
+**Included:**
 
-1. DiaryPage 手機版 timeline milestone 不重疊（≤ 480px viewport 全部 breakpoint）
-2. 手機寬度下所有 milestone 的標題、日期、內文文字可讀性（不 clip / 不 overflow-hidden 截斷）
-3. Playwright 新增 mobile viewport 測試涵蓋上述兩項
-4. 桌面寬度（≥ 1024px）既有 layout 與視覺不得回歸
+1. DiaryPage mobile timeline milestones do not overlap (across all breakpoints ≤ 480px viewport)
+2. At mobile widths, every milestone's title, date, and body text remain readable (no clip / no `overflow-hidden` truncation)
+3. Playwright adds new mobile viewport tests covering the above two
+4. Desktop widths (≥ 1024px): existing layout and visuals must not regress
 
-**不含：**
+**Not included:**
 
-- 桌面視覺重設計（桌面目前 OK，非 regression）
-- `diary.json` schema 改動（屬 K-024 scope）
-- DiaryPage 結構改版 / 新 component 拆分（屬 K-024 scope）
-- 全站其他頁面（Homepage / About / App / BusinessLogic）的 mobile responsive audit（若需要，另開獨立 ticket）
-- 字型 / 配色調整（K-021 已處理）
+- Desktop visual redesign (desktop is currently OK, not a regression)
+- `diary.json` schema changes (belongs to K-024 scope)
+- DiaryPage structure rework / new component splits (belongs to K-024 scope)
+- Sitewide mobile responsive audit on other pages (Homepage / About / App / BusinessLogic) — open separate tickets if needed
+- Font / palette adjustments (handled by K-021)
 
-## 設計決策紀錄（待 Architect 設計階段處理，PM 本次不裁決）
+## Design Decisions Pending (deferred to Architect design phase; PM does not rule here)
 
-| 決策項目 | 內容 | 目前狀態 |
-|----------|------|---------|
-| Layout 技術方案 | mobile 改用 flex-col 堆疊 / CSS Grid / media query 重排 date 與 text / 其他 | 待 Architect 評估 |
-| DiaryEntry 手機版 date 位置 | 保持左側 w-24 / 改 date 置於 text 上方 / 縮小 date 字級 | 待 Architect 評估 |
-| Milestone card padding/margin 策略 | 保持 `mb-3` / 手機增加間距 / 改用 `divide-y` on outer | 待 Architect 評估 |
-| Mobile breakpoint 定義 | Tailwind 預設 `sm:` (640px) / 自訂 480px / 375px-specific | 待 Architect 評估 |
-| accordion 展開行為是否手機特化 | 手機預設全收合（省空間） / 保持桌面相同 `defaultOpen={i===0}` | 待 Architect 評估 |
+| Decision | Content | Current Status |
+|----------|---------|----------------|
+| Layout technical approach | mobile switches to flex-col stacking / CSS Grid / media query rearranging date and text / other | Pending Architect assessment |
+| DiaryEntry mobile date position | keep left w-24 / move date above text / shrink date font size | Pending Architect assessment |
+| Milestone card padding/margin strategy | keep `mb-3` / increase mobile spacing / switch to `divide-y` on outer | Pending Architect assessment |
+| Mobile breakpoint definition | Tailwind default `sm:` (640px) / custom 480px / 375px-specific | Pending Architect assessment |
+| Whether accordion expand behavior is mobile-specific | mobile defaults to all collapsed (save space) / keep desktop's `defaultOpen={i===0}` | Pending Architect assessment |
 
-PM 本票只開 ticket + 定 AC 視覺行為，layout 技術方案交 Architect 設計階段裁決。
+This PM ticket only opens the ticket + defines AC visual behavior; the layout technical approach is delegated to the Architect design phase.
 
 ## Acceptance Criteria
 
-### AC-027-NO-OVERLAP：手機 viewport 下相鄰 milestone 不重疊 `[K-027]`
+### AC-027-NO-OVERLAP: adjacent milestones do not overlap on mobile viewport `[K-027]`
 
-**Given** 使用者於手機 viewport（375px / 390px / 414px 三種寬度）訪問 `/diary`
-**When** 頁面載入完成且 diary.json 含至少 3 筆 milestone
-**Then** 任兩個相鄰 milestone card 的 bounding box y 區間**完全不重疊**（`boxA.y + boxA.height <= boxB.y`），此斷言需涵蓋折疊狀態與全部展開狀態各一輪
-**And** 所有 milestone card（不論展開或折疊狀態）的 `overflow-hidden` 不得截斷任何可讀文字（文字可完整顯示、無字元被 clip 或隱藏）；允許容器加 `overflow-hidden` 防止長字串橫向溢出至相鄰 milestone，但文字本身必須藉 `break-words` / `flex-col` 在容器內完整折行顯示
-**And** 滾動至頁面底部，最後一個 milestone card（folded 狀態）完整可見（不被 viewport bottom / footer 遮擋）
+**Given** the user visits `/diary` at mobile viewports (375px / 390px / 414px, three widths)
+**When** the page finishes loading and diary.json contains at least 3 milestones
+**Then** any two adjacent milestone cards' bounding box y intervals **must not overlap** (`boxA.y + boxA.height <= boxB.y`); this assertion must cover the collapsed state and the all-expanded state, one round each
+**And** every milestone card (regardless of expanded or collapsed state) must not have its `overflow-hidden` truncate any readable text (text fully displayed, no characters clipped or hidden); the container may add `overflow-hidden` to prevent long strings from horizontally overflowing into adjacent milestones, but the text itself must wrap fully within the container via `break-words` / `flex-col`
+**And** scrolling to the bottom of the page, the last milestone card (folded state) must be fully visible (not occluded by viewport bottom / footer)
 
-**Playwright test case 數量需求：** 至少 **3 個獨立 test case**，每個 viewport（375 / 390 / 414）一個；每個 test case 內對所有相鄰 milestone 對跑 y 區間斷言（milestone 數量 N → N-1 對比較）。
-
----
-
-### AC-027-TEXT-READABLE：milestone 標題 / 日期 / 內文完整可讀 `[K-027]`
-
-**Given** 使用者於手機 viewport（375px / 390px / 414px）訪問 `/diary`
-**When** 展開任一 milestone（或預設 `defaultOpen={i===0}` 的第一個）
-**Then** 該 milestone 的 `milestone` title 文字完整顯示（無 `text-overflow: ellipsis` 截斷、無 `overflow: hidden` 隱藏字元）
-**And** 該 milestone 所有 `items` 的 `date` 欄位（`YYYY-MM-DD` 格式）完整顯示（10 字元全可見）
-**And** 該 milestone 所有 `items` 的 `text` 欄位（中英文混排）完整顯示，不被容器寬度限制截斷
-**And** 所有文字的 computed `color` 不得為 `transparent` / 與背景相同（對比度可讀）
-**And** 所有文字的 `font-size` 在 375px viewport 下不得小於 12px（可讀性下限）
-
-**Playwright test case 數量需求：** 至少 **3 個獨立 test case**（375 / 390 / 414 各一），每個 case 對「首個展開 milestone 的 title + 首筆 item 的 date + text」三處驗證可讀性條件。
+**Playwright test case count requirement:** at least **3 independent test cases**, one per viewport (375 / 390 / 414); each test case runs the y-interval assertion across all adjacent milestone pairs (N milestones → N-1 pairwise comparisons).
 
 ---
 
-### AC-027-DESKTOP-NO-REGRESSION：桌面視覺零回歸 `[K-027]`
+### AC-027-TEXT-READABLE: milestone title / date / body text remain fully readable `[K-027]`
 
-**Given** 使用者於桌面 viewport（1024px / 1280px / 1440px）訪問 `/diary`
-**When** 頁面載入完成
-**Then** DiaryPage 渲染結果與 K-021 closed 時 `docs/reports/K-021-visual-report.html` 的 `/diary` 截圖**視覺一致**（layout / 字型 / 配色 / 間距不變）
-**And** 所有既有 Playwright 桌面測試（`diary.spec.ts` 及其他涉及 `/diary` 的 spec）繼續通過，無斷言修改
-**And** `max-w-3xl mx-auto px-6 py-16` wrapper、`UnifiedNavBar`、`MilestoneSection` accordion 行為保持不變
+**Given** the user visits `/diary` at mobile viewports (375px / 390px / 414px)
+**When** any milestone is expanded (or the first one with `defaultOpen={i===0}`)
+**Then** that milestone's `milestone` title text is fully displayed (no `text-overflow: ellipsis` truncation, no `overflow: hidden` hidden characters)
+**And** all `items` `date` fields (in `YYYY-MM-DD` format) of that milestone are fully displayed (all 10 characters visible)
+**And** all `items` `text` fields (mixed CN/EN) of that milestone are fully displayed, not truncated by container width
+**And** the computed `color` of all text must not be `transparent` / equal to background (contrast must be readable)
+**And** all text `font-size` at 375px viewport must not be smaller than 12px (readability floor)
 
-**Playwright test case 數量需求：** 至少 **1 個桌面 baseline test case**（1280px viewport，跑首個 milestone 展開 + 三筆 item 可見斷言）；**加上既有 diary-related spec 全量 regression 通過**（數量由 QA 跑 suite 確認）。
-
----
-
-**AC 覆蓋 test case 總計下限：** `3 (NO-OVERLAP) + 3 (TEXT-READABLE) + 1 (DESKTOP-NO-REGRESSION) = 7 個新增 test case`，外加既有 diary-related spec regression。
-
-## 放行狀態
-
-**2026-04-21 ticket 開立，待 Architect 設計階段接手。**
-
-PM 本票不做下列事項：
-- 不召喚 Architect / Engineer / Reviewer / QA（使用者只要求開票）
-- 不裁定 layout 技術方案（flexbox vs grid vs absolute vs media query 留給 Architect）
-- 不 commit（等使用者指示）
-- 不假設使用者要立即執行（可能先囤 backlog）
-
-**等使用者下一步指示：** 立即放行 Architect 開始設計 vs 囤 backlog 等 K-022/K-023/K-024 結構改版一併處理。
-
-## PM Code Review 裁決（2026-04-21）
-
-| Finding ID | 嚴重度 | 裁決 | 說明 |
-|------------|--------|------|------|
-| C-001 | Critical | Fix Now — AC 修訂 + 補斷言 | `overflow-hidden` 技術辯護成立（防橫向溢出非截斷文字）；AC 措辭已修訂（本 session）；Engineer 補驗「overflow-hidden 下文字完整可見」斷言 |
-| I-001 | Important | Fix Now — Engineer 補斷言 | AC line 77 明文要求；/diary 無 footer 不是降級理由；補 scroll to bottom + last card bounding box TC |
-| N-002 | Warning | Fix Now — TC-001~003 加全展開斷言 | AC 明文「不論展開或折疊狀態」；多 milestone 同時展開是原始 bug 高發場景 |
-| K-024 承繼 | Warning | Fix Now — PM 補文件 | 設計文件 §6 五項承繼決策已更新至 K-024 ticket（本 session 執行） |
-| I-002 | Minor | Tech Debt（TD-K027-01） | 1024/1440px TC 缺失；sm: breakpoint 下行為與 1280px 完全相同，技術風險極低；K-024 啟動時補齊 |
-| N-001 | Minor | Tech Debt（TD-K027-02） | `.px-4.pb-4` 定位器脆弱；K-024 結構重寫後靜默失效；K-024 Reviewer 必須 checklist 稽核 |
-| N-003 | Minor | Tech Debt（TD-K027-03） | title overflow 屬性未驗；flex-col 下截斷場景幾乎不存在；K-024 設計時若改 title 結構再補 |
-
-### Engineer 下一輪 Fix Now 清單（Round 2）
-
-1. **補 overflow-hidden 下文字可見斷言**（C-001）：在 TC-004~006（TEXT-READABLE）加斷言，展開後驗 `DiaryEntry` text 欄文字 `overflow` computed style 為 `visible` 或 `textContent` 長度等於預期值，確認 `overflow-hidden` 未截斷字元
-2. **補最後一個 card 可見 TC**（I-001）：375/390/414px 各 viewport，scroll to bottom，取最後一張 MilestoneSection bounding box，斷言 `card.y + card.height <= viewportHeight`（folded 狀態）
-3. **TC-001~003 加全展開狀態斷言**（N-002）：先依序 click 所有 `aria-expanded=false` 的 accordion trigger，展開全部 milestone，再對所有相鄰 card 跑 y 區間不重疊斷言
-
-### 技術債登記（Round 2 前登記）
-
-見 docs/tech-debt.md TD-K027-01 / TD-K027-02 / TD-K027-03。
+**Playwright test case count requirement:** at least **3 independent test cases** (375 / 390 / 414 each), each case verifying readability conditions on three locations: "first expanded milestone's title + first item's date + text".
 
 ---
 
-## PM Code Review Round 2 裁決（2026-04-21）
+### AC-027-DESKTOP-NO-REGRESSION: zero desktop visual regression `[K-027]`
 
-| Finding ID | 嚴重度 | 裁決 | 說明 |
-|------------|--------|------|------|
-| C-R2-01 | Critical | **Fix Now — Engineer Round 3** | overflow-hidden for-loop 是死代碼（`isHiddenOverflow` 永遠 false，因 `overflow-hidden` class 在容器不在 `p`）；`containerScrollCheck` 在內容撐開容器時空轉（`scrollHeight ≤ clientHeight + 2` 必然 true）；唯一有效斷言是 getBoundingClientRect 段；死代碼誤導讀者相信覆蓋度，是測試誠信問題，必須清除 |
-| I-R2-01a | Important | **Fix Now — Engineer Round 3** | `assertLastCardVisible` 只驗 `box.y + box.height <= viewportHeight + 1`，缺 `box.y >= 0`；scroll to bottom 後 card 頂部可能滾出 viewport 而斷言仍過，是邏輯漏洞；補 `expect(box.y).toBeGreaterThanOrEqual(0)` |
-| I-R2-01b | Minor | **Tech Debt（TD-K027-04）** | `waitForTimeout(200)` hardcoded sleep；改 `toBeInViewport()` 須重構 assertLastCardVisible 邏輯，且 Playwright `toBeInViewport()` 僅驗「可見於 viewport」不驗「底部未超出」；目前 7 tests 全過；CI 穩定性問題留 K-024 清理 |
-| I-R2-02 | Important | **Fix Now — Engineer Round 3** | `assertNoOverlapWhenAllExpanded` 兩個問題：(1) click 後只 `waitForTimeout(100)` 無確認展開，改為 `await expect(btn).toHaveAttribute('aria-expanded', 'true')`；(2) `page.getByRole('button')` 全頁抓 button 可能包含 NavBar button，應限定在 milestone 容器（`.border.border-ink\\/10.rounded-sm`）內 |
+**Given** the user visits `/diary` at desktop viewports (1024px / 1280px / 1440px)
+**When** the page finishes loading
+**Then** the DiaryPage rendered result is **visually consistent** with the `/diary` screenshot in `docs/reports/K-021-visual-report.html` at K-021 close (layout / fonts / palette / spacing unchanged)
+**And** all existing Playwright desktop tests (`diary.spec.ts` and other specs touching `/diary`) continue to pass with no assertion modifications
+**And** `max-w-3xl mx-auto px-6 py-16` wrapper, `UnifiedNavBar`, and `MilestoneSection` accordion behavior remain unchanged
 
-### Engineer Round 3 Fix Now 清單
-
-1. **刪除 for-loop 死代碼**（C-R2-01）：刪除 `assertTextReadable` 內行 238-253（`paragraphs.count()` for-loop + `isHiddenOverflow` + if-block）；保留行 258-277（`containerScrollCheck` + `containerNotClipping`）；在 `containerNotClipping` 段前加一層容器 computed `overflow` 驗證（`entriesContainer.evaluate` 確認 `getComputedStyle(container).overflow` 包含 `hidden`，確認測試前提成立）
-2. **補 `box.y >= 0` 斷言**（I-R2-01a）：在 `assertLastCardVisible` 的 `if (box && viewportSize)` 區塊內，現有 `expect(box.y + box.height).toBeLessThanOrEqual(viewportSize.height + 1)` **之前**加 `expect(box.y).toBeGreaterThanOrEqual(0)`
-3. **accordion 展開等待 + button scope 限定**（I-R2-02）：(a) `await btn.click()` 後改 `await expect(btn).toHaveAttribute('aria-expanded', 'true')` 取代 `waitForTimeout(100)`；(b) `const buttons = page.getByRole('button')` 改為 `const milestoneCards = page.locator('.border.border-ink\\/10.rounded-sm')` + `const buttons = milestoneCards.getByRole('button')`
-
-### 技術債登記（Round 2 新增）
-
-見 docs/tech-debt.md TD-K027-04。
+**Playwright test case count requirement:** at least **1 desktop baseline test case** (1280px viewport, runs first milestone expand + three item visibility assertions); **plus existing diary-related spec full regression passing** (count confirmed by QA running the suite).
 
 ---
 
-## PM Code Review Round 3 裁決（2026-04-21）
+**AC test case coverage minimum total:** `3 (NO-OVERLAP) + 3 (TEXT-READABLE) + 1 (DESKTOP-NO-REGRESSION) = 7 new test cases`, plus existing diary-related spec regression.
 
-| Finding ID | 嚴重度 | 裁決 | 說明 |
-|------------|--------|------|------|
-| I-R3-01 | Important | **Fix Now — Engineer Round 4** | `assertTextReadable` 行 181 `page.getByRole('button').first()` 全頁抓 button；Round 3 已將 `assertNoOverlapWhenAllExpanded` 同類問題修為 `milestoneCards.getByRole('button')`，此處遺漏形成規範不一致；K-022/K-024 NavBar 改動時靜默失效風險可預期；一行改動工作量極小，Fix Now |
+## Release Status
 
-### Engineer Round 4 Fix Now 清單
+**Ticket opened 2026-04-21; pending Architect design phase pickup.**
 
-1. **`assertTextReadable` button scope 限定**（I-R3-01）：行 181 `page.getByRole('button').first()` 改為先取 `milestoneCards = page.locator('.border.border-ink\\/10.rounded-sm')`，再取 `milestoneCards.first().getByRole('button').first()` — 與 `assertNoOverlapWhenAllExpanded` 修法保持一致
+This PM ticket does not perform the following:
+- Does not summon Architect / Engineer / Reviewer / QA (user only requested ticket opening)
+- Does not rule on layout technical approach (flexbox vs grid vs absolute vs media query is left to Architect)
+- Does not commit (waiting for user instruction)
+- Does not assume the user wants immediate execution (may stash to backlog first)
+
+**Awaiting next user instruction:** release Architect to start design immediately vs. stash to backlog and handle alongside K-022/K-023/K-024 structure rework.
+
+## PM Code Review Ruling (2026-04-21)
+
+| Finding ID | Severity | Ruling | Note |
+|------------|----------|--------|------|
+| C-001 | Critical | Fix Now — AC revision + add assertion | The `overflow-hidden` technical defense is sound (prevents horizontal overflow, not text truncation); AC wording revised this session; Engineer adds verification "text fully visible under overflow-hidden" assertion |
+| I-001 | Important | Fix Now — Engineer adds assertion | AC line 77 explicitly requires it; "/diary has no footer" is not a downgrade reason; add scroll-to-bottom + last card bounding box TC |
+| N-002 | Warning | Fix Now — TC-001~003 add all-expanded assertions | AC explicitly states "regardless of expanded or collapsed state"; multiple milestones expanded simultaneously is a high-incidence scenario for the original bug |
+| K-024 carry-over | Warning | Fix Now — PM doc patch | Design doc §6 five carry-over decisions updated to K-024 ticket (executed this session) |
+| I-002 | Minor | Tech Debt (TD-K027-01) | 1024/1440px TC missing; behavior at sm: breakpoint is identical to 1280px, technical risk extremely low; backfill when K-024 starts |
+| N-001 | Minor | Tech Debt (TD-K027-02) | `.px-4.pb-4` locator is fragile; will silently fail after K-024 structure rewrite; K-024 Reviewer must include checklist audit |
+| N-003 | Minor | Tech Debt (TD-K027-03) | title overflow attribute not verified; truncation scenario hardly exists under flex-col; backfill when K-024 design changes title structure |
+
+### Engineer Next Round Fix Now List (Round 2)
+
+1. **Add "text visible under overflow-hidden" assertion** (C-001): in TC-004~006 (TEXT-READABLE) add an assertion; after expansion, verify `DiaryEntry` text field's `overflow` computed style is `visible` or that `textContent` length equals expected, confirming `overflow-hidden` did not truncate characters
+2. **Add last-card visible TC** (I-001): for each viewport (375/390/414px), scroll to bottom, take the last MilestoneSection bounding box, assert `card.y + card.height <= viewportHeight` (folded state)
+3. **TC-001~003 add all-expanded state assertion** (N-002): first sequentially click all `aria-expanded=false` accordion triggers, expand all milestones, then run the y-interval no-overlap assertion across all adjacent cards
+
+### Tech Debt Registration (registered before Round 2)
+
+See docs/tech-debt.md TD-K027-01 / TD-K027-02 / TD-K027-03.
+
+---
+
+## PM Code Review Round 2 Ruling (2026-04-21)
+
+| Finding ID | Severity | Ruling | Note |
+|------------|----------|--------|------|
+| C-R2-01 | Critical | **Fix Now — Engineer Round 3** | The overflow-hidden for-loop is dead code (`isHiddenOverflow` is always false because the `overflow-hidden` class is on the container, not on `p`); `containerScrollCheck` no-ops when content sizes the container (`scrollHeight ≤ clientHeight + 2` is necessarily true); the only effective assertion is the getBoundingClientRect block; the dead code misleads readers into believing coverage exists, which is a test-integrity issue and must be removed |
+| I-R2-01a | Important | **Fix Now — Engineer Round 3** | `assertLastCardVisible` only verifies `box.y + box.height <= viewportHeight + 1`, missing `box.y >= 0`; after scroll to bottom, the card top may scroll out of viewport while the assertion still passes — this is a logic gap; add `expect(box.y).toBeGreaterThanOrEqual(0)` |
+| I-R2-01b | Minor | **Tech Debt (TD-K027-04)** | `waitForTimeout(200)` is a hardcoded sleep; switching to `toBeInViewport()` would require refactoring assertLastCardVisible logic, and Playwright's `toBeInViewport()` only verifies "visible in viewport" but not "bottom not exceeded"; currently 7 tests all pass; CI stability concern deferred to K-024 cleanup |
+| I-R2-02 | Important | **Fix Now — Engineer Round 3** | `assertNoOverlapWhenAllExpanded` has two issues: (1) after click only `waitForTimeout(100)` without confirming expansion — switch to `await expect(btn).toHaveAttribute('aria-expanded', 'true')`; (2) `page.getByRole('button')` selects buttons across the whole page and may include NavBar buttons — should be scoped within the milestone container (`.border.border-ink\\/10.rounded-sm`) |
+
+### Engineer Round 3 Fix Now List
+
+1. **Delete the for-loop dead code** (C-R2-01): delete lines 238-253 in `assertTextReadable` (`paragraphs.count()` for-loop + `isHiddenOverflow` + if-block); keep lines 258-277 (`containerScrollCheck` + `containerNotClipping`); before the `containerNotClipping` block, add a container computed `overflow` verification (`entriesContainer.evaluate` confirms `getComputedStyle(container).overflow` includes `hidden`, validating the test premise)
+2. **Add `box.y >= 0` assertion** (I-R2-01a): inside `assertLastCardVisible`'s `if (box && viewportSize)` block, **before** the existing `expect(box.y + box.height).toBeLessThanOrEqual(viewportSize.height + 1)`, add `expect(box.y).toBeGreaterThanOrEqual(0)`
+3. **Wait for accordion expand + scope buttons** (I-R2-02): (a) after `await btn.click()`, replace `waitForTimeout(100)` with `await expect(btn).toHaveAttribute('aria-expanded', 'true')`; (b) change `const buttons = page.getByRole('button')` to `const milestoneCards = page.locator('.border.border-ink\\/10.rounded-sm')` + `const buttons = milestoneCards.getByRole('button')`
+
+### Tech Debt Registration (added in Round 2)
+
+See docs/tech-debt.md TD-K027-04.
+
+---
+
+## PM Code Review Round 3 Ruling (2026-04-21)
+
+| Finding ID | Severity | Ruling | Note |
+|------------|----------|--------|------|
+| I-R3-01 | Important | **Fix Now — Engineer Round 4** | `assertTextReadable` line 181 `page.getByRole('button').first()` selects buttons across the whole page; Round 3 already fixed the equivalent issue in `assertNoOverlapWhenAllExpanded` to `milestoneCards.getByRole('button')`, this miss creates inconsistency; predictable silent-failure risk when K-022/K-024 changes the NavBar; one-line change, trivial effort, Fix Now |
+
+### Engineer Round 4 Fix Now List
+
+1. **`assertTextReadable` button scope restriction** (I-R3-01): line 181 `page.getByRole('button').first()` change to first take `milestoneCards = page.locator('.border.border-ink\\/10.rounded-sm')`, then `milestoneCards.first().getByRole('button').first()` — keeping consistency with the `assertNoOverlapWhenAllExpanded` fix
 
 ## Retrospective
 
-### Engineer 反省（2026-04-21）
+### Engineer Reflection (2026-04-21)
 
-**做得好：**
-- 實作前逐一 grep E2E spec 確認 `DiaryEntry` / `MilestoneSection` / `DevDiarySection` 在 e2e/ 無依賴，避免改動後 spec 靜默失效。
-- TDD 順序嚴格遵守：先寫 spec → 確認 FAIL（6 tests fail on Before CSS state）→ 修 components → 7 tests all pass。
-- 設計文件 §4 異動清單逐列確認，Before/After 每個 class 逐一比對，無漏項。
+**Done well:**
+- Before implementation, grepped E2E specs one by one to confirm `DiaryEntry` / `MilestoneSection` / `DevDiarySection` had no dependencies in e2e/, avoiding silent spec failures after changes.
+- Strict TDD order: write spec → confirm FAIL (6 tests fail on Before CSS state) → fix components → 7 tests all pass.
+- Design doc §4 change list verified row by row, Before/After class-by-class comparison, no omissions.
 
-**沒做好：**
-- `assertMobileFlexCol` 的 date width 斷言第一版用 `getBoundingClientRect().width < 96` 判斷 `w-auto`，但在 `flex-col` 下 span 撐滿父容器寬度（293–332px），斷言邏輯倒置（Before state 反而會 pass）。根因是對「`flex-col` 下 inline element 的實際 rendered width 行為」預期錯誤——沒有先在瀏覽器 DevTools 驗證斷言條件，直接寫進 spec。
-- 修正後改用 `w-auto` class 字串驗證 + `computed width != 96px` 組合，才讓斷言能正確區分 Before/After。
+**Done poorly:**
+- The first version of `assertMobileFlexCol`'s date width assertion used `getBoundingClientRect().width < 96` to judge `w-auto`, but under `flex-col` the span fills the parent container width (293–332px), inverting the assertion logic (Before state would also pass). Root cause: incorrect expectation about "actual rendered width behavior of inline elements under `flex-col`" — did not first verify the assertion condition in browser DevTools, just wrote it directly into the spec.
+- After correction, used `w-auto` class string verification + `computed width != 96px` combination so the assertion can correctly distinguish Before/After.
 
-**下次改善：**
-- 任何基於 `getBoundingClientRect()` / computed style 的斷言，若涉及 flex/grid layout 特性，**先在 browser console 或 `page.evaluate()` 確認預期值再寫斷言**，不憑想像推算 computed width。
-- 加入此規則到 pre-implementation checklist：「computed style 斷言要先 evaluate 確認預期值」。
+**Next time improvement:**
+- For any assertion based on `getBoundingClientRect()` / computed style that involves flex/grid layout characteristics, **verify the expected value first in the browser console or via `page.evaluate()` before writing the assertion** — do not infer computed width from imagination.
+- Add this rule to pre-implementation checklist: "computed-style assertions must evaluate to confirm expected values first".
 
-### Engineer 補斷言反省（Round 2 — 2026-04-21）
+### Engineer Round 2 Assertion Reflection (2026-04-21)
 
-**做得好：**
-- Fix 1 (C-001) 的 `containerNotClipping` 斷言第一版用 `p.offsetTop + p.offsetHeight > container.clientHeight` 判斷截斷，立刻跑 Playwright 發現 3 tests 失敗，立即診斷而不是盲目修改。
-- 診斷路徑正確：寫臨時 debug spec → 在 page.evaluate 中印出 `offsetTop`、`offsetHeight`、`offsetParent`、`getBoundingClientRect` 四組數據，確認根因是 `offsetParent = BODY`（不是容器），`offsetTop` 基準錯誤。
-- 改用 `scrollHeight <= clientHeight`（容器無溢出）+ `getBoundingClientRect().bottom` 比較正確基準，改後 7/7 全過。
+**Done well:**
+- Fix 1 (C-001)'s `containerNotClipping` assertion's first version used `p.offsetTop + p.offsetHeight > container.clientHeight` to judge truncation; immediately ran Playwright and discovered 3 tests failed; diagnosed immediately rather than blindly modifying.
+- Diagnostic path was correct: wrote a temporary debug spec → printed four data sets in page.evaluate (`offsetTop`, `offsetHeight`, `offsetParent`, `getBoundingClientRect`) → confirmed root cause was `offsetParent = BODY` (not the container), making the `offsetTop` baseline wrong.
+- Switched to `scrollHeight <= clientHeight` (container has no overflow) + `getBoundingClientRect().bottom` for correct baseline comparison; after the change, 7/7 all pass.
 
-**沒做好：**
-- `offsetTop` 是相對 `offsetParent` 計算，而非相對任意祖先容器。這是 DOM 基礎知識，應在寫斷言前先確認 `offsetParent` 是誰。與 Round 1 的根因相同：沒有先 `page.evaluate` 確認實際值再寫斷言。
+**Done poorly:**
+- `offsetTop` is computed relative to `offsetParent`, not relative to any arbitrary ancestor container. This is DOM fundamentals — should have confirmed who `offsetParent` is before writing the assertion. Same root cause as Round 1: did not `page.evaluate` the actual value first before writing the assertion.
 
-**下次改善：**
-- 所有跨容器的位置斷言，第一步必須是 `page.evaluate` 印出 `offsetParent.tagName`，確認 offsetParent 是預期容器後再用 offsetTop，否則一律改用 `getBoundingClientRect` 做 viewport-relative 比較。
+**Next time improvement:**
+- For any cross-container position assertion, the first step must be to `page.evaluate` and print `offsetParent.tagName`; confirm offsetParent is the expected container before using offsetTop, otherwise switch entirely to `getBoundingClientRect` for viewport-relative comparison.
 
-### PM 彙整（2026-04-21）
+### PM Summary (2026-04-21)
 
-**Phase Gate 決策：CLOSED 2026-04-21**
+**Phase Gate decision: CLOSED 2026-04-21**
 
-**AC 覆蓋確認：**
-- AC-027-NO-OVERLAP：TC-001（375px）/ TC-002（390px）/ TC-003（414px）全展開 + 折疊雙狀態 y 區間斷言 → PASS
-- AC-027-TEXT-READABLE：TC-004（375px）/ TC-005（390px）/ TC-006（414px）title + date + text 可讀性斷言 → PASS
-- AC-027-DESKTOP-NO-REGRESSION：TC-007（1280px 桌面 baseline）+ 既有 diary-related spec 全量 regression 通過 → PASS
-- 7 TC 全數 PASS，127 passed / 1 skipped / 0 failed，無 regression
+**AC coverage confirmation:**
+- AC-027-NO-OVERLAP: TC-001 (375px) / TC-002 (390px) / TC-003 (414px) all-expanded + collapsed dual-state y-interval assertions → PASS
+- AC-027-TEXT-READABLE: TC-004 (375px) / TC-005 (390px) / TC-006 (414px) title + date + text readability assertions → PASS
+- AC-027-DESKTOP-NO-REGRESSION: TC-007 (1280px desktop baseline) + existing diary-related spec full regression pass → PASS
+- All 7 TC PASS, 127 passed / 1 skipped / 0 failed, no regression
 
-**本票歷程摘要：**
-4 輪 Code Review → PM 逐輪裁決 → 3 輪 Engineer fix → 1 輪 QA 通過。核心問題是 `DiaryEntry` 的 `flex gap-4` + 固定 `w-24`（96px date 欄）在 375px viewport 下與中英文混排 line-height 互動造成視覺重疊；修法為改用 `flex-col` + `break-words` 取代固定 date 欄寬。
+**Ticket history summary:**
+4 rounds of Code Review → PM ruled per round → 3 rounds of Engineer fixes → 1 round QA pass. The core problem was that `DiaryEntry`'s `flex gap-4` + fixed `w-24` (96px date column) interacted with mixed CN/EN line-height under 375px viewport, producing visual overlap; the fix replaced the fixed date-column width with `flex-col` + `break-words`.
 
-**技術債（本票完成後遺留）：**
-- TD-K027-01：1024/1440px TC 缺失（K-024 啟動時補齊）
-- TD-K027-02：`.px-4.pb-4` 定位器脆弱（K-024 結構重寫後 checklist 稽核）
-- TD-K027-03：title overflow 屬性未驗（K-024 設計時若改 title 結構再補）
-- TD-K027-04：`waitForTimeout(200)` hardcoded sleep（K-024 清理）
+**Tech debt (carried over after this ticket):**
+- TD-K027-01: 1024/1440px TC missing (backfill when K-024 starts)
+- TD-K027-02: `.px-4.pb-4` locator fragile (checklist audit after K-024 structure rewrite)
+- TD-K027-03: title overflow attribute not verified (backfill when K-024 design changes title structure)
+- TD-K027-04: `waitForTimeout(200)` hardcoded sleep (K-024 cleanup)
 
 ---
 
-### QA 反省（2026-04-21）
+### QA Reflection (2026-04-21)
 
-**沒做好：**
-- TC-001~003（NO-OVERLAP）折疊狀態的斷言僅驗相鄰 milestone 不重疊，但未覆蓋「折疊 + 展開混合狀態」（例如第 1 張展開、第 2 張折疊、第 3 張展開的交叉組合）；現行 assertNoOverlapWhenAllExpanded 只跑「全折疊」與「全展開」兩個端點，中間態未驗。
-- `assertLastCardVisible` 的 `box.y >= 0` 斷言（I-R2-01a Fix Now）雖已要求 Engineer 補入，但 QA 未獨立在 Round 3 修正後執行一次 viewport scroll 實測確認 card 頂部確實未滾出 viewport，只依賴斷言通過作為證明。
-- Mobile viewport 測試僅覆蓋 375 / 390 / 414px 三種寬度；AC 定義的「≤ 480px 全部 breakpoint」中 430px（iPhone 14 Pro Max）、480px 邊界值均未被 test case 獨立覆蓋。
-- visual report 產出時未帶 `TICKET_ID=K-027`，導致檔名為 `K-UNKNOWN-visual-report.html`（延續 K-017 相同失誤，但 K-017 retro 已記錄此改善點，本次仍未落地）。
+**Done poorly:**
+- TC-001~003 (NO-OVERLAP) collapsed-state assertions only verify adjacent milestones not overlapping, but did not cover "collapsed + expanded mixed state" (e.g., card 1 expanded, card 2 collapsed, card 3 expanded cross combinations); the current assertNoOverlapWhenAllExpanded only runs the two endpoints "all collapsed" and "all expanded" — the in-between states are unverified.
+- The `assertLastCardVisible` `box.y >= 0` assertion (I-R2-01a Fix Now), although Engineer was asked to add it, QA did not independently perform a viewport-scroll empirical check after Round 3 to confirm the card top did not scroll out of viewport — relied solely on the assertion passing as proof.
+- Mobile viewport tests covered only the three widths 375 / 390 / 414px; the 430px (iPhone 14 Pro Max) and 480px boundary values defined in AC's "all breakpoints ≤ 480px" were not independently covered by test cases.
+- The visual report was produced without `TICKET_ID=K-027`, resulting in filename `K-UNKNOWN-visual-report.html` (a continuation of the same K-017 mistake; the K-017 retro recorded this improvement point but it still didn't land this time).
 
-**下次改善：**
-1. **TICKET_ID 必須在截圖 script 執行前確認設定**：QA persona 中「執行截圖 script」步驟改為 `TICKET_ID=<ticket-id> npx playwright test visual-report.ts`，不允許省略環境變數。此規則已在 K-017 retro 記錄但尚未落地為硬 gate — 本次補強為 persona 步驟強制格式。
-2. **Accordion 中間態覆蓋**：凡有 accordion/collapse 的頁面，QA 必須在 NO-OVERLAP 類斷言中額外加一輪「奇偶交叉展開」場景（展開奇數索引、折疊偶數索引），不只跑全折疊 vs 全展開兩端點。
-3. **Viewport 邊界補點**：AC 若定義「≤ X px 全部 breakpoint」，QA 必須在三種標準 viewport 之外加測 X px 邊界值本身（本票應補 480px TC）。
-4. **最後一張 card 可見性獨立實測**：scroll-to-bottom 類斷言在所有 Fix Now 修正後，QA 必須開一個 browser session 目視或以 `toBeInViewport()` 輔助驗證，不以斷言通過為唯一證明。
+**Next time improvement:**
+1. **TICKET_ID must be confirmed before running the screenshot script**: change the QA persona's "run screenshot script" step to `TICKET_ID=<ticket-id> npx playwright test visual-report.ts`, no env-var omission allowed. This rule was logged in the K-017 retro but not yet codified as a hard gate — strengthen it this time as a persona step in mandatory format.
+2. **Accordion in-between-state coverage**: for any page with an accordion/collapse, QA must add an additional "odd-even cross expansion" scenario round (expand odd indices, collapse even indices) to NO-OVERLAP-class assertions, not only run all-collapsed vs all-expanded endpoints.
+3. **Viewport boundary backfill**: if AC defines "all breakpoints ≤ X px", QA must additionally test the X px boundary itself beyond the three standard viewports (this ticket should add a 480px TC).
+4. **Last-card visibility independent empirical check**: for scroll-to-bottom assertions, after all Fix Now corrections, QA must open a browser session and visually verify or use `toBeInViewport()` as supplementary verification — not rely on assertion passing as the sole proof.

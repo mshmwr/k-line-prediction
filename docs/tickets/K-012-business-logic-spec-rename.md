@@ -1,6 +1,6 @@
 ---
 id: K-012
-title: business-logic.spec.ts 測試名與斷言對齊
+title: business-logic.spec.ts test name and assertion alignment
 status: open
 type: test
 priority: low
@@ -8,72 +8,72 @@ created: 2026-04-18
 source: docs/reviews/2026-04-18-code-review.md#p3-one-playwright-test-passes-but-does-not-verify-what-it-claims
 ---
 
-## 背景
+## Background
 
-Codex code review 2026-04-18 指出 `frontend/e2e/business-logic.spec.ts` 有一個 test，名稱暗示它會驗證「登入後 Logic 連結鎖頭 icon 消失」，但實際斷言只檢查：
+Codex code review on 2026-04-18 flagged that one test in `frontend/e2e/business-logic.spec.ts` has a name implying it verifies "the lock icon on the Logic link disappears after login", but the actual assertions only check:
 
-- Logic 連結可見
-- 內容渲染
+- Logic link is visible
+- Content renders
 
-test 會通過但語意與名稱不符，造成 false confidence。
+The test passes, but its semantics do not match its name, creating false confidence.
 
-## 範圍
+## Scope
 
-Engineer 擇一執行：
+Engineer picks one of the following:
 
-- **方案 A（推薦）：** 保留 test 名稱，補上「鎖頭 icon 登入後消失」的斷言
-- **方案 B：** 改 test 名稱為實際斷言描述（e.g. `"logged-in user can view Logic link and secret content"`），不新增斷言
+- **Option A (recommended):** keep the test name and add the "lock icon disappears after login" assertion
+- **Option B:** rename the test to describe what is actually asserted (e.g. `"logged-in user can view Logic link and secret content"`), without adding new assertions
 
-**推薦方案 A**：name 描述的行為是 AC-NAV-5（K-005）的實際需求，補斷言能同時強化該 AC 的 E2E 覆蓋。
+**Option A recommended:** the behavior described by the name is the actual requirement of AC-NAV-5 (K-005); adding the assertion also strengthens E2E coverage of that AC.
 
-**不含：**
-- 其他 Playwright specs 的清理
+**Out of scope:**
+- Cleanup of other Playwright specs
 
-## 預期異動檔案
+## Expected file changes
 
 - `frontend/e2e/business-logic.spec.ts`
 
 ## Acceptance Criteria
 
-### AC-012-ALIGN：測試名與斷言語意一致
+### AC-012-ALIGN: test name and assertions are semantically aligned
 
-**Given** `business-logic.spec.ts` 該 test
-**When** 讀 test name 與 body
-**Then** name 描述的行為與實際斷言完全對應
-**And** 無「name 宣稱 A，實際只測 B」的 mismatch
+**Given** the test in `business-logic.spec.ts`
+**When** reading the test name and body
+**Then** the behavior described by the name corresponds exactly to the actual assertions
+**And** there is no mismatch where "the name claims A but the test only verifies B"
 
-### AC-012-PASS：Playwright E2E 全綠
+### AC-012-PASS: Playwright E2E all green
 
-**Given** 前端
-**When** 執行 `/playwright`
-**Then** 全部 45+ tests 通過（含本 ticket 新增或更新的斷言）
+**Given** the frontend
+**When** `/playwright` is executed
+**Then** all 45+ tests pass (including assertions added or updated by this ticket)
 
-## 優先級理由
+## Priority rationale
 
-**low** — 非 regression 也非 correctness 問題，是測試品質議題。可與 K-011 或 K-013 同 sprint 一起處理，不需獨立 cycle。
+**low** — neither a regression nor a correctness issue, this is a test-quality concern. Can be handled in the same sprint as K-011 or K-013; does not need a dedicated cycle.
 
-## 下一棒
+## Next handoff
 
-Engineer。建議與 K-009/K-010/K-011 綁一起 cycle 收掉。
+Engineer. Recommend bundling this cycle with K-009/K-010/K-011.
 
-## 相關連結
+## Related links
 
 - [Code Review](../reviews/2026-04-18-code-review.md#p3-one-playwright-test-passes-but-does-not-verify-what-it-claims)
-- [AC-NAV-5 K-005](../../PRD.md#ac-nav-5-business-logic-連結-auth-狀態-k-005)
+- [AC-NAV-5 K-005](../../PRD.md#ac-nav-5-business-logic-link-auth-state-k-005)
 
 ---
 
 ## Architecture Review
 
-**裁決：無需 Architecture** — 由 senior-architect 於 2026-04-18 審視。
+**Decision: no Architecture review needed** — reviewed by senior-architect on 2026-04-18.
 
-**理由：**
-- 改動範圍：僅 `frontend/e2e/business-logic.spec.ts` 一個 test（方案 A 補斷言或方案 B 改名）
-- 無跨層、無 interface 變更、無組件改動
-- 方案 A / B 選擇屬「測試品質決策」，由 Engineer / QA 在 ticket 範圍內決定即可
+**Rationale:**
+- Change scope: a single test in `frontend/e2e/business-logic.spec.ts` (Option A adds an assertion or Option B renames it)
+- No cross-layer, interface, or component changes
+- The Option A / B choice is a "test-quality decision" that Engineer / QA can make within ticket scope
 
-**推薦方案 A** 的理由（ticket 已列）Architect 認同：補斷言能強化 AC-NAV-5 E2E 覆蓋，是更高價值選項。
+**Architect agrees with the Option A recommendation** for the reason listed in the ticket: adding the assertion strengthens AC-NAV-5 E2E coverage and is the higher-value option.
 
-**放行 Engineer。**
+**Engineer cleared to proceed.**
 
 — senior-architect, 2026-04-18
