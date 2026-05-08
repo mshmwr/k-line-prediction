@@ -5,6 +5,11 @@
     "text": "Bulk-translated 44 K-Line ticket markdowns to comply with the all-English .md rule; protected regex char classes and cross-doc URL anchors left as documented exceptions."
   },
   {
+    "title": "Docs sweep — paraphrase Chinese verbatim user-quote in K-052 ticket",
+    "date": "2026-05-08",
+    "text": "Paraphrased a lingering Chinese verbatim user-quote in the K-052 ticket so the docs comply with the all-English rule."
+  },
+  {
     "ticketId": "K-098",
     "title": "optimizer — reweight objective to 0.3 high + 0.7 low hit rate",
     "date": "2026-05-06",
