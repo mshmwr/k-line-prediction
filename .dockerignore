@@ -12,3 +12,4 @@ backend/tests
 **/.git
 .gitignore
 *.md
+!README.md
